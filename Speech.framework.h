@@ -212,6 +212,8 @@ NS_ASSUME_NONNULL_END
 //  SFSpeechRecognitionTaskHint.h
 //  Copyright (c) 2016 Apple Inc. All rights reserved.
 
+#import <Foundation/Foundation.h>
+
 //  Hints on kind of speech recognition being performed
 typedef NS_ENUM(NSInteger, SFSpeechRecognitionTaskHint) {
     SFSpeechRecognitionTaskHintUnspecified = 0,     // Unspecified recognition

@@ -61,6 +61,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+
 /*
  * CTRadioAccessTechnologyDataTechnologyDidChangeNotification
  *
@@ -68,6 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
  *     A NSNotification broadcast when radio access technology changes
  */
 CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyDidChangeNotification __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+
 
 /*
  * Radio Access Technology values
@@ -94,6 +96,7 @@ CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyLTE           __OSX
  */
 CORETELEPHONY_CLASS_AVAILABLE(4_0)
 @interface CTTelephonyNetworkInfo : NSObject
+
 
 /*
  * subscriberCellularProvider
@@ -124,6 +127,7 @@ CORETELEPHONY_CLASS_AVAILABLE(4_0)
  */
 @property (nonatomic, readonly, retain, nullable) NSString* currentRadioAccessTechnology __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
 
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -133,7 +137,7 @@ NS_ASSUME_NONNULL_END
 //  CTCellularData.h
 //  CFTelephony
 //
-//  Copyright © 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015 Apple Inc. All rights reserved.
 //
 
 #import <CoreTelephony/CoreTelephonyDefines.h>
@@ -213,7 +217,7 @@ typedef struct {
 #import <Foundation/Foundation.h>
 #import <CoreTelephony/CoreTelephonyDefines.h>
 
-#import "CTSubscriber.h"
+#import <CoreTelephony/CTSubscriber.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -255,14 +259,11 @@ CORETELEPHONY_CLASS_AVAILABLE(7_0)
  *
  * Description:
  *     A data blob containing authorization information about the subscriber.
- *     This API has been deprecated but continues to work as it did in iOS 10.
- *     In a future release, this API will only return nil.
- *
- *     May return nil if no token is available.
+ *     This API is deprecated without replacement. Starting in iOS 11.3, this API returns nil.
  */
 @property (nonatomic, readonly, retain, nullable) NSData* carrierToken
 __API_UNAVAILABLE(macos, watchos, tvos)
-__API_DEPRECATED("Deprecated and will always return nil in a future release.", ios(7.0, 11.0))
+__API_DEPRECATED("Deprecated; returns nil starting in iOS 11.3.", ios(7.0, 11.0))
 ;
 
 @end

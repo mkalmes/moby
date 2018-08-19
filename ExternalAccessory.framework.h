@@ -143,6 +143,7 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
+#import <ExternalAccessory/ExternalAccessoryDefines.h> // EA_EXTERN
 
 NS_ASSUME_NONNULL_BEGIN
 

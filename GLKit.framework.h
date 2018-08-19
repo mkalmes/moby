@@ -5,7 +5,7 @@
 //
 //  Copyright (c) 2011-2012 Apple Inc. All rights reserved.
 //
-
+#import <GLKit/GLKitBase.h>
 #import <GLKit/GLKEffectProperty.h>
 #import <GLKit/GLKEffectPropertyTransform.h>
 
@@ -49,7 +49,8 @@ typedef NS_ENUM(GLint, GLKLightingType)
  spot light.
 */
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKEffectPropertyLight : GLKEffectProperty 
 {
     @private
@@ -90,7 +91,7 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-
+#import <GLKit/GLKitBase.h>
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -139,7 +140,9 @@ typedef NS_ENUM(GLint, GLKViewDrawableMultisample)
 #pragma mark GLKView
 #pragma mark -
 
-NS_CLASS_AVAILABLE(NA, 5_0)
+
+OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
+API_UNAVAILABLE(macos)
 @interface GLKView : UIView <NSCoding>
 {
 
@@ -755,13 +758,7 @@ GLK_INLINE void GLKMatrix3MultiplyVector3Array(GLKMatrix3 matrix, GLKVector3 *ve
 //
 
 #import <Foundation/Foundation.h>
-
-#if TARGET_OS_IPHONE
-#import <OpenGLES/gltypes.h>
-#else // !TARGET_OS_IPHONE
-#import <OpenGL/gltypes.h>
-#endif // !TARGET_OS_IPHONE
-
+#import <GLKit/GLKitBase.h>
 #import <GLKit/GLKMath.h>
 
 
@@ -785,7 +782,8 @@ GLK_INLINE void GLKMatrix3MultiplyVector3Array(GLKMatrix3 matrix, GLKVector3 *ve
 NS_ASSUME_NONNULL_BEGIN
 typedef struct GLKEffectPropertyPrv *GLKEffectPropertyPrvPtr;
 
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKEffectProperty : NSObject 
 {
     @protected
@@ -1113,7 +1111,7 @@ GLK_INLINE GLKVector3 GLKVector3Project(GLKVector3 vectorToProject, GLKVector3 p
 //
 //  Copyright (c) 2011-2012 Apple Inc. All rights reserved.
 //
-
+#import <GLKit/GLKitBase.h>
 #import <GLKit/GLKEffectProperty.h>
 #import <GLKit/GLKMath.h>
 
@@ -1133,7 +1131,8 @@ GLK_INLINE GLKVector3 GLKVector3Project(GLKVector3 vectorToProject, GLKVector3 p
  a current result with respect to the modelviewMatrix.
 */
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKEffectPropertyTransform : GLKEffectProperty 
 {
     @private
@@ -1150,7 +1149,8 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 @property (nonatomic, readonly) GLKMatrix3   normalMatrix;                                       // Identity 
 
 @end
-NS_ASSUME_NONNULL_END// ==========  GLKit.framework/Headers/GLKBaseEffect.h
+NS_ASSUME_NONNULL_END
+// ==========  GLKit.framework/Headers/GLKBaseEffect.h
 //
 //  GLKBaseEffect.h
 //  GLKit
@@ -1159,13 +1159,6 @@ NS_ASSUME_NONNULL_END// ==========  GLKit.framework/Headers/GLKBaseEffect.h
 //
 
 #import <GLKit/GLKitBase.h>
-
-#if TARGET_OS_IPHONE
-#import <OpenGLES/gltypes.h>
-#else // !TARGET_OS_IPHONE
-#import <OpenGL/gltypes.h>
-#endif // !TARGET_OS_IPHONE
-
 #import <GLKit/GLKNamedEffect.h>
 #import <GLKit/GLKEffectPropertyTransform.h>
 #import <GLKit/GLKEffectPropertyLight.h>
@@ -1258,7 +1251,8 @@ NS_ASSUME_NONNULL_END// ==========  GLKit.framework/Headers/GLKBaseEffect.h
 @class GLKEffectPropertyTexture;
 
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKBaseEffect : NSObject <GLKNamedEffect>
 {
     @protected
@@ -1323,7 +1317,7 @@ NS_ASSUME_NONNULL_END
 //
 //  Copyright (c) 2011-2012 Apple Inc. All rights reserved.
 //
-
+#import <GLKit/GLKitBase.h>
 #if TARGET_OS_IPHONE
 #import <OpenGLES/ES2/gl.h>
 #else // !TARGET_OS_IPHONE
@@ -1354,7 +1348,8 @@ typedef NS_ENUM(GLint, GLKTextureEnvMode)
 //
 // GLKEffectPropertyTexture simply contains properties to configure GL texture rendering.
 //
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKEffectPropertyTexture : GLKEffectProperty
 {
     // Texture Enabled
@@ -1377,7 +1372,8 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 @property (nonatomic, assign) GLKTextureEnvMode    envMode;    // GLKTextureEnvModeModulate
 
 @end
-NS_ASSUME_NONNULL_END// ==========  GLKit.framework/Headers/GLKMatrix4.h
+NS_ASSUME_NONNULL_END
+// ==========  GLKit.framework/Headers/GLKMatrix4.h
 //
 //  GLKMatrix4.h
 //  GLKit
@@ -2396,7 +2392,7 @@ GLK_INLINE void GLKMatrix4MultiplyVector4Array(GLKMatrix4 matrix, GLKVector4 *ve
 //
 //  Copyright (c) 2011-2012 Apple Inc. All rights reserved.
 //
-
+#import <GLKit/GLKitBase.h>
 #import <GLKit/GLKEffectProperty.h>
 
 /*
@@ -2406,7 +2402,8 @@ GLK_INLINE void GLKMatrix4MultiplyVector4Array(GLKMatrix4 matrix, GLKVector4 *ve
  accordance with the specification and lighting behavior of OpenGL ES 1.1.
 */
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKEffectPropertyMaterial : GLKEffectProperty
 {    
     @private
@@ -2424,7 +2421,8 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 @property (nonatomic, assign) GLfloat          shininess;              // 0.0
 
 @end
-NS_ASSUME_NONNULL_END// ==========  GLKit.framework/Headers/GLKVector4.h
+NS_ASSUME_NONNULL_END
+// ==========  GLKit.framework/Headers/GLKVector4.h
 //
 //  GLKVector4.h
 //  GLKit
@@ -3041,7 +3039,7 @@ typedef NS_ENUM(GLint, GLKVertexAttrib)
 //
 //  Copyright (c) 2011-2012 Apple Inc. All rights reserved.
 //
-
+#import <GLKit/GLKitBase.h>
 #import <GLKit/GLKEffectProperty.h>
 
 // Fog modes per the OpenGL ES 1.1 specification
@@ -3069,7 +3067,8 @@ typedef NS_ENUM(GLint, GLKFogMode)
       end             1.0
 */
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKEffectPropertyFog : GLKEffectProperty 
 {
     @private
@@ -3442,13 +3441,26 @@ GLK_INLINE GLKVector4 GLKQuaternionRotateVector4(GLKQuaternion quaternion, GLKVe
 */
 
 #import <TargetConditionals.h>
-
+#import <os/availability.h>
+#if TARGET_OS_IPHONE && (!0 || !0)
+#import <OpenGLES/gltypes.h>
+#else // !TARGET_OS_IPHONE
+#import <OpenGL/gltypes.h>
+#endif // !TARGET_OS_IPHONE
 #define GLK_INLINE	static __inline__
 
 #ifdef __cplusplus
 	#define GLK_EXTERN extern "C"
 #else
 	#define GLK_EXTERN extern 
+#endif
+
+#if TARGET_OS_IPHONE && (!0 || !0)
+#import <OpenGLES/OpenGLESAvailability.h>
+#define OPENGL_DEPRECATED(...)
+#else
+#import <OpenGL/OpenGLAvailability.h>
+#define OPENGLES_DEPRECATED(...)
 #endif
 
 // ==========  GLKit.framework/Headers/GLKViewController.h
@@ -3472,7 +3484,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark GLKViewController
 #pragma mark -
 
-NS_CLASS_AVAILABLE(NA, 5_0)
+OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
+API_UNAVAILABLE(macos)
 @interface GLKViewController : UIViewController <NSCoding, GLKViewDelegate>
 {
     
@@ -3937,18 +3950,13 @@ void GLKMatrixStackRotateZ(GLKMatrixStackRef __nonnull stack, float radians);
  */
 
 #import <CoreGraphics/CoreGraphics.h>
-
 #import <Foundation/Foundation.h>
-
+#import <GLKit/GLKitBase.h>
 #if TARGET_OS_IPHONE
 #import <OpenGLES/EAGL.h>
-#import <OpenGLES/gltypes.h>
-#else // !TARGET_OS_IPHONE
-#import <OpenGL/gltypes.h>
+#else //!TARGET_OS_IPHONE
 #import <AppKit/AppKit.h>
-#endif // !TARGET_OS_IPHONE
-
-#import <GLKit/GLKitBase.h>
+#endif //!TARGET_OS_IPHONE
 
 NS_ASSUME_NONNULL_BEGIN
 #pragma mark -
@@ -3964,7 +3972,7 @@ NS_ASSUME_NONNULL_BEGIN
  For compressed formats, this option must be omitted, or false.
  False by default.
  */
-GLK_EXTERN NSString *const GLKTextureLoaderApplyPremultiplication NS_AVAILABLE(10_8, 5_0);
+GLK_EXTERN NSString *const GLKTextureLoaderApplyPremultiplication NS_AVAILABLE(10_8, 5_0) OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0));
 
 /*
  GLKTextureLoaderGenerateMipmaps - A boolean NSNumber
@@ -3972,13 +3980,13 @@ GLK_EXTERN NSString *const GLKTextureLoaderApplyPremultiplication NS_AVAILABLE(1
  Generates mipmap levels for all faces when used with cube maps.
  Sets GL_TEXTURE_MIN_FILTER parameter to GL_LINEAR_MIPMAP_LINEAR when true.
  False by default. */
-GLK_EXTERN NSString *const GLKTextureLoaderGenerateMipmaps NS_AVAILABLE(10_8, 5_0);
+GLK_EXTERN NSString *const GLKTextureLoaderGenerateMipmaps NS_AVAILABLE(10_8, 5_0) OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0));
 
 /*
  GLKTextureLoaderOriginBottomLeft - A boolean NSNumber.
  Transform image data to match OpenGL's bottom left orientation specification.
  False by default. */
-GLK_EXTERN NSString *const GLKTextureLoaderOriginBottomLeft NS_AVAILABLE(10_8, 5_0);
+GLK_EXTERN NSString *const GLKTextureLoaderOriginBottomLeft NS_AVAILABLE(10_8, 5_0) OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0));
 
 /*
  GLKTextureLoaderGrayscaleAsAlpha - A boolean NSNumber.
@@ -3987,7 +3995,7 @@ GLK_EXTERN NSString *const GLKTextureLoaderOriginBottomLeft NS_AVAILABLE(10_8, 5
  Has no effect on non-grayscale images and on OS X.
  False by default.
  */
-GLK_EXTERN NSString *const GLKTextureLoaderGrayscaleAsAlpha NS_AVAILABLE_IOS(5_0);
+GLK_EXTERN NSString *const GLKTextureLoaderGrayscaleAsAlpha; API_UNAVAILABLE(macos) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0));
 
 
 /*
@@ -3997,7 +4005,7 @@ GLK_EXTERN NSString *const GLKTextureLoaderGrayscaleAsAlpha NS_AVAILABLE_IOS(5_0
  False by default.
  */
 #if TARGET_OS_IPHONE || defined(MAC_OS_X_VERSION_10_9)
-GLK_EXTERN NSString *const GLKTextureLoaderSRGB NS_AVAILABLE(10_9, 7_0);
+GLK_EXTERN NSString *const GLKTextureLoaderSRGB  OPENGL_DEPRECATED(10.9,10.14) OPENGLES_DEPRECATED(ios(7.0,12.0), tvos(9.0,12.0));
 #else
 GLK_EXTERN NSString *const GLKTextureLoaderSRGB;
 #endif
@@ -4005,13 +4013,13 @@ GLK_EXTERN NSString *const GLKTextureLoaderSRGB;
 /*
  Error domain for GLKTextureLoader
  */
-GLK_EXTERN NSString *const GLKTextureLoaderErrorDomain NS_AVAILABLE(10_8, 5_0);
+GLK_EXTERN NSString *const GLKTextureLoaderErrorDomain OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0));
 
 /*
  Error keys for obtaining more error information
  */
-GLK_EXTERN NSString *const GLKTextureLoaderErrorKey NS_AVAILABLE(10_8, 5_0);
-GLK_EXTERN NSString *const GLKTextureLoaderGLErrorKey NS_AVAILABLE(10_8, 5_0);
+GLK_EXTERN NSString *const GLKTextureLoaderErrorKey OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0));
+GLK_EXTERN NSString *const GLKTextureLoaderGLErrorKey OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0));
 
 /*
  Error codes
@@ -4066,7 +4074,8 @@ typedef NS_ENUM(GLint, GLKTextureInfoOrigin)
 /*
  Immutable Texture Object Data
  */
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKTextureInfo : NSObject <NSCopying>
 {
 @private
@@ -4095,7 +4104,8 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 
 typedef void (^GLKTextureLoaderCallback) (GLKTextureInfo * __nullable textureInfo, NSError * __nullable outError);
 
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKTextureLoader : NSObject
 {
     
@@ -4735,6 +4745,7 @@ GLK_INLINE GLKVector2 GLKVector2Project(GLKVector2 vectorToProject, GLKVector2 p
 
 #import <GLKit/GLKBaseEffect.h>
 
+
 /*
  GLKSkyboxEffect
 
@@ -4805,7 +4816,8 @@ GLK_INLINE GLKVector2 GLKVector2Project(GLKVector2 vectorToProject, GLKVector2 p
 */
 
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKSkyboxEffect : NSObject <GLKNamedEffect>
 {
     @private
@@ -4850,12 +4862,6 @@ NS_ASSUME_NONNULL_END
 #import <Availability.h>
 #import <ModelIO/ModelIO.h>
 #import <GLKit/GLKitBase.h>
-#if TARGET_OS_IPHONE
-#import <OpenGLES/gltypes.h>
-#else // !TARGET_OS_IPHONE
-#import <OpenGL/gltypes.h>
-#endif // !TARGET_OS_IPHONE
-
 
 /*!
  @group GLKModelErrors
@@ -4864,11 +4870,11 @@ NS_ASSUME_NONNULL_END
 /*!
  @constant kGLKModelErrorDomain
  */
-GLK_EXTERN NSString * __nonnull const kGLKModelErrorDomain NS_AVAILABLE(10_11, 9_0);
+GLK_EXTERN NSString * __nonnull const kGLKModelErrorDomain OPENGL_DEPRECATED(10.11,10.14) OPENGLES_DEPRECATED(ios(9.0, 12.0), tvos(9.0, 12.0));
 /*!
  @constant kGLKModelErrorKey
  */
-GLK_EXTERN NSString * __nonnull const kGLKModelErrorKey NS_AVAILABLE(10_11, 9_0);
+GLK_EXTERN NSString * __nonnull const kGLKModelErrorKey OPENGL_DEPRECATED(10.11,10.14) OPENGLES_DEPRECATED(ios(9.0,12.0), tvos(9.0,12.0));
 
 
 
@@ -4876,7 +4882,8 @@ GLK_EXTERN NSString * __nonnull const kGLKModelErrorKey NS_AVAILABLE(10_11, 9_0)
  @class GLKMeshBufferAllocator
  @abstract Allocator passed to MDLAsset init method to load vertex and index data directly into OpenGL buffer object
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+
+OPENGL_DEPRECATED(10.11,10.14) OPENGLES_DEPRECATED(ios(9.0,12.0), tvos(9.0,12.0))
 @interface GLKMeshBufferAllocator : NSObject<MDLMeshBufferAllocator>
 
 @end
@@ -4886,7 +4893,8 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  @abstract Mesh buffers created when  needs to allocate memory to back vertex or index data
  @discussion Memory backing these buffer are OpenGL buffers. Model I/O will load index and vertex data from from a model asset directly in to the OpenGL buffer object.
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+
+OPENGL_DEPRECATED(10.11,10.14) OPENGLES_DEPRECATED(ios(9.0,12.0), tvos(9.0, 12.0))
 @interface GLKMeshBuffer : NSObject <MDLMeshBuffer>
 
 /*!
@@ -4933,7 +4941,8 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 @class GLKMesh;
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+
+OPENGL_DEPRECATED(10.11,10.14) OPENGLES_DEPRECATED(ios(9.0,12.0), tvos(9.0, 12.0))
 @interface GLKSubmesh : NSObject
 
 /*!
@@ -4986,7 +4995,8 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+
+OPENGL_DEPRECATED(10.11,10.14) OPENGLES_DEPRECATED(ios(9.0,12.0), tvos(9.0, 12.0))
 @interface GLKMesh : NSObject
 
 /*!
@@ -5192,7 +5202,8 @@ GLKVertexAttributeParameters GLKVertexAttributeParametersFromModelIO(MDLVertexFo
 */
 
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_8, 5_0)
+
+OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 @interface GLKReflectionMapEffect : GLKBaseEffect <GLKNamedEffect>
 {
     @private

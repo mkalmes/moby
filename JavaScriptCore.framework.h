@@ -415,6 +415,11 @@ JS_EXPORT CFStringRef JSStringCopyCFString(CFAllocatorRef alloc, JSStringRef str
  or set of execution resources. Thread safety is supported by locking the
  virtual machine, with concurrent JavaScript execution supported by allocating
  separate instances of JSVirtualMachine.
+
+ A virtual machine may need to run deferred tasks on a run loop, such as garbage collection
+ or resolving WebAssembly compilations. By default, a virtual machine will use the run loop
+ of the thread it was initialized on. Currently, there is no API to change a
+ JSVirtualMachine's run loop once it has been initialized.
 */
 NS_CLASS_AVAILABLE(10_9, 7_0)
 @interface JSVirtualMachine : NSObject
@@ -1853,20 +1858,27 @@ typedef const struct OpaqueJSValue* JSValueRef;
 /*! @typedef JSObjectRef A JavaScript object. A JSObject is a JSValue. */
 typedef struct OpaqueJSValue* JSObjectRef;
 
+/* Clang's __has_declspec_attribute emulation */
+/* https://clang.llvm.org/docs/LanguageExtensions.html#has-declspec-attribute */
+
+#ifndef __has_declspec_attribute
+#define __has_declspec_attribute(x) 0
+#endif
+
 /* JavaScript symbol exports */
-/* These rules should stay the same as in WebKit2/Shared/API/c/WKBase.h */
+/* These rules should stay the same as in WebKit/Shared/API/c/WKDeclarationSpecifiers.h */
 
 #undef JS_EXPORT
 #if defined(JS_NO_EXPORT)
 #define JS_EXPORT
-#elif defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC__)
-#define JS_EXPORT __attribute__((visibility("default")))
-#elif defined(WIN32) || defined(_WIN32) || defined(_WIN32_WCE) || defined(__CC_ARM) || defined(__ARMCC__)
+#elif defined(WIN32) || defined(_WIN32) || defined(__CC_ARM) || defined(__ARMCC__) || (__has_declspec_attribute(dllimport) && __has_declspec_attribute(dllexport))
 #if defined(BUILDING_JavaScriptCore) || defined(STATICALLY_LINKED_WITH_JavaScriptCore)
 #define JS_EXPORT __declspec(dllexport)
 #else
 #define JS_EXPORT __declspec(dllimport)
 #endif
+#elif defined(__GNUC__)
+#define JS_EXPORT __attribute__((visibility("default")))
 #else /* !defined(JS_NO_EXPORT) */
 #define JS_EXPORT
 #endif /* defined(JS_NO_EXPORT) */
@@ -1921,7 +1933,7 @@ JS_EXPORT void JSGarbageCollect(JSContextRef ctx);
 }
 #endif
 
-/* Enable the Objective-C API for platforms with a modern runtime. */
+/* Enable the Objective-C API for platforms with a modern runtime. NOTE: This is duplicated in VM.h. */
 #if !defined(JSC_OBJC_API_ENABLED)
 #define JSC_OBJC_API_ENABLED (defined(__clang__) && defined(__APPLE__) && ((defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED >= 1090 && !defined(__i386__)) || (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE)))
 #endif
@@ -2817,6 +2829,11 @@ extern "C" {
  JavaScript objects between contexts in different groups will produce undefined behavior.
  When objects from the same context group are used in multiple threads, explicit
  synchronization is required.
+
+ A JSContextGroup may need to run deferred tasks on a run loop, such as garbage collection
+ or resolving WebAssembly compilations. By default, calling JSContextGroupCreate will use
+ the run loop of the thread it was called on. Currently, there is no API to change a
+ JSContextGroup's run loop once it has been created.
 @result The created JSContextGroup.
 */
 JS_EXPORT JSContextGroupRef JSContextGroupCreate(void) CF_AVAILABLE(10_6, 7_0);

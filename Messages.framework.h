@@ -339,6 +339,7 @@ typedef NS_ENUM(NSInteger, MSMessageErrorCode) {
     MSMessageErrorCodeURLExceedsMaxSize,
     MSMessageErrorCodeSendWithoutRecentInteraction NS_ENUM_AVAILABLE_IOS(11_0),
     MSMessageErrorCodeSendWhileNotVisible NS_ENUM_AVAILABLE_IOS(11_0),
+    MSMessageErrorCodeAPIUnavailableInPresentationContext NS_ENUM_AVAILABLE_IOS(12_0),
 } NS_ENUM_AVAILABLE_IOS(10_0);
 // ==========  Messages.framework/Headers/MSMessageLayout.h
 /*!
@@ -552,12 +553,13 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 
 /*!
  @method     insertMessage:completionHandler:
- @abstract   Stages provided the MSMessage for sending.
+ @abstract   Stages the provided MSMessage object for sending.
  @discussion This method inserts a MSMessage object into the Messages input field,
  Subsequent calls to this method will replace any existing message on the input field. 
  If the message was successfully inserted on the input field, the completion handler
  will be called with a nil error parameter otherwise the error parameter will be
  populated with an NSError object describing the failure.
+ Calling this method when the presentation context is `MSMessagesAppPresentationContextMedia` will result in the completion handler getting called with an error object whose error code is `MSMessageErrorCodeAPIUnavailableInPresentationContext`.
  @param      message            The MSMessage instance describing the message to be sent.
  @param      completionHandler  A completion handler called when the message has been staged or if there was an error.
  */
@@ -574,6 +576,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 /*!
  @method     insertText:completionHandler:
  @abstract   The NSString instance provided in the text parameter is inserted into the Messages.app input field.
+ @discussion Calling this method when the presentation context is `MSMessagesAppPresentationContextMedia` will result in the completion handler getting called with an error object whose error code is `MSMessageErrorCodeAPIUnavailableInPresentationContext`.
  @param      text               The text to be inserted.
  @param      completionHandler  A completion handler called when the insert is complete.
  */
@@ -583,6 +586,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @method     insertAttachment:withAlternateFilename:completionHandler:
  @abstract   The NSURL instance provided in the URL parameter is inserted into the Messages.app
  input field. This must be a file URL.
+ @discussion Calling this method when the presentation context is `MSMessagesAppPresentationContextMedia` will result in the completion handler getting called with an error object whose error code is `MSMessageErrorCodeAPIUnavailableInPresentationContext` if the attachment type is not an image type supported by `MSSticker`.
  @param      URL                The URL to the media file to be inserted.
  @param      filename           If you supply a string here, the message UI uses it for the attachment. Use an alternate filename to better describe the attachment or to make the name more readable.
  @param      completionHandler  A completion handler called when the insert is complete.
@@ -593,6 +597,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @method     sendMessage:completionHandler:
  @abstract   Start sending a message
  @discussion This method begins sending the provided MSMessage. The app must be visible and have had a recent touch interaction since either last launch or last send to succeed. If the message started sending successfully, the completion handler will be called with a nil error parameter. Otherwise the error parameter will be populated with an NSError object describing the failure.
+ Calling this method when the presentation context is `MSMessagesAppPresentationContextMedia` will result in the completion handler getting called with an error object whose error code is `MSMessageErrorCodeAPIUnavailableInPresentationContext`.
  @param      message            The MSMessage instance describing the message to be sent.
  @param      completionHandler  A completion handler called when the message has been staged or if there was an error.
  */
@@ -601,6 +606,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 /*!
  @method     sendSticker:completionHandler:
  @abstract   Start sending a sticker
+ @discussion Calling this method when the presentation context is `MSMessagesAppPresentationContextMedia` will result in the completion handler getting called with an error object whose error code is `MSMessageErrorCodeAPIUnavailableInPresentationContext`.
  @param      sticker            The sticker to be inserted.
  @param      completionHandler  A completion handler called when the insert is complete.
  */
@@ -610,6 +616,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @method     sendText:completionHandler:
  @abstract   Start sending text
  @discussion This method begins sending the provided NSString. The app must be visible and have had a recent touch interaction since either last launch or last send to succeed. If the message started sending successfully, the completion handler will be called with a nil error parameter. Otherwise the error parameter will be populated with an NSError object describing the failure.
+ Calling this method when the presentation context is `MSMessagesAppPresentationContextMedia` will result in the completion handler getting called with an error object whose error code is `MSMessageErrorCodeAPIUnavailableInPresentationContext`.
  @param      text               The text to be inserted.
  @param      completionHandler  A completion handler called when the insert is complete.
  */
@@ -619,6 +626,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @method     sendAttachment:withAlternateFilename:completionHandler:
  @abstract   Start sending a file located at the provided URL. This must be a file URL.
  @discussion This method begins sending the file at the provided file URL. The app must be visible and have had a recent touch interaction since either last launch or last send to succeed. If the message started sending successfully, the completion handler will be called with a nil error parameter. Otherwise the error parameter will be populated with an NSError object describing the failure.
+ Calling this method when the presentation context is `MSMessagesAppPresentationContextMedia` will result in the completion handler getting called with an error object whose error code is `MSMessageErrorCodeAPIUnavailableInPresentationContext`.
  @param      URL                The URL to the media file to be inserted.
  @param      filename           If you supply a string here, the message UI uses it for the attachment. Use an alternate filename to better describe the attachment or to make the name more readable.
  @param      completionHandler  A completion handler called when the insert is complete.
@@ -712,6 +720,18 @@ typedef NS_ENUM(NSUInteger, MSMessagesAppPresentationStyle) {
 } NS_ENUM_AVAILABLE_IOS(10_0);
 
 
+/*!
+ @enum       MSMessagesAppPresentationContext
+ @abstract   Describes the context for which the extension was launched
+ @constant   MSMessagesAppPresentationContextMessages   The extension was launched for presentation in Messages
+ @constant   MSMessagesAppPresentationContextMedia      The extension was launched for presentation over media content, such as a photo or camera feed
+ */
+typedef NS_ENUM(NSUInteger, MSMessagesAppPresentationContext) {
+    MSMessagesAppPresentationContextMessages,
+    MSMessagesAppPresentationContextMedia,
+} NS_ENUM_AVAILABLE_IOS(12_0);
+
+
 NS_AVAILABLE_IOS(11_0)
 @protocol MSMessagesAppTranscriptPresentation
 
@@ -740,6 +760,12 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @abstract   Get the presentation extension's current presentation style.
  */
 @property (nonatomic, assign, readonly) MSMessagesAppPresentationStyle presentationStyle;
+
+/*!
+ @property   presentationContext
+ @abstract   The context for which the extension was launched
+ */
+@property (nonatomic, readonly) MSMessagesAppPresentationContext presentationContext NS_AVAILABLE_IOS(12_0);
 
 /*!
  @method     requestPresentationStyle:
@@ -792,7 +818,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 /*!
  @method     willSelectMessage:conversation:
  @abstract   Informs the extension that a new message will be selected in the conversation.
- @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
+ @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript` or the `presentationContext` is `MSMessagesAppPresentationContextMedia`.
  @param      message    The message selected.
  @param      conversation    The conversation.
  */
@@ -801,7 +827,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 /*!
  @method     didSelectMessage:conversation:
  @abstract   Informs the extension that a new message has been selected in the conversation.
- @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
+ @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript` or the `presentationContext` is `MSMessagesAppPresentationContextMedia`.
  @param      message    The message selected.
  @param      conversation    The conversation.
  */
@@ -810,7 +836,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 /*!
  @method     didReceiveMessage:conversation:
  @abstract   Informs the extension that a new message has arrived.
- @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
+ @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript` or the `presentationContext` is `MSMessagesAppPresentationContextMedia`.
  @param      message    The message received.
  @param      conversation    The conversation.
  */
@@ -819,7 +845,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 /*!
  @method     didStartSendingMessage:conversation:
  @abstract   Informs the extension that the message send has been triggered.
- @discussion This is called when a user interaction with Messages start the message send process. It does not guarantee the message will be successfully sent or delivered. This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
+ @discussion This is called when a user interaction with Messages start the message send process. It does not guarantee the message will be successfully sent or delivered. This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript` or the `presentationContext` is `MSMessagesAppPresentationContextMedia`.
  @param      message    The message being sent.
  @param      conversation    The conversation the message belongs to.
  */
@@ -828,7 +854,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 /*!
  @method     didCancelSendingMessage:conversation:
  @abstract   Informs the extension that the user has removed the message from the input field.
- @discussion This method will not be called when the `presentationStyle` is MSMessagesAppPresentationStyleTranscript.
+ @discussion This method will not be called when the `presentationStyle` is MSMessagesAppPresentationStyleTranscript or the `presentationContext` is `MSMessagesAppPresentationContextMedia`.
  @param      message    The message sent.
  @param      conversation    The conversation.
  */

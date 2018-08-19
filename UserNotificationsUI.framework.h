@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class UNNotification;
+@class UNNotificationAction;
 @class UNNotificationResponse;
 
 typedef NS_ENUM(NSUInteger, UNNotificationContentExtensionMediaPlayPauseButtonType) {
@@ -63,6 +64,13 @@ __IOS_AVAILABLE(10_0) __TVOS_UNAVAILABLE __WATCHOS_UNAVAILABLE __OSX_UNAVAILABLE
 
 
 @interface NSExtensionContext (UNNotificationContentExtension)
+
+@property (nonatomic, copy) NSArray <UNNotificationAction *> *notificationActions __IOS_AVAILABLE(12_0) __TVOS_UNAVAILABLE __WATCHOS_UNAVAILABLE __OSX_UNAVAILABLE;
+
+// Opens the corresponding applicaton and delivers it the default notification action response
+- (void)performNotificationDefaultAction __IOS_AVAILABLE(12_0) __TVOS_UNAVAILABLE __WATCHOS_UNAVAILABLE __OSX_UNAVAILABLE;
+
+- (void)dismissNotificationContentExtension __IOS_AVAILABLE(12_0) __TVOS_UNAVAILABLE __WATCHOS_UNAVAILABLE __OSX_UNAVAILABLE;
 
 // Call these methods when the playback state changes in the content
 // extension to update the state of the media control button.

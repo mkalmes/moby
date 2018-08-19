@@ -41,9 +41,8 @@ NS_CLASS_AVAILABLE_IOS(8_0)
 	@property	videoGravity
 	@abstract	A string defining how the video is displayed within an AVPlayerLayer bounds rect.
 	@discussion	Options are AVLayerVideoGravityResizeAspect, AVLayerVideoGravityResizeAspectFill and AVLayerVideoGravityResize. AVLayerVideoGravityResizeAspect is default.
-				See <AVFoundation/AVAnimation.h> for a description of these options.
  */
-@property (nonatomic, copy) NSString *videoGravity;
+@property (nonatomic, copy) AVLayerVideoGravity videoGravity;
 
 /*!
 	@property	readyForDisplay

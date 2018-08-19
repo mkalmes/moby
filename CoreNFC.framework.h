@@ -156,6 +156,7 @@ NS_ASSUME_NONNULL_END
 #import <CoreNFC/NFCReaderSession.h>
 #import <CoreNFC/NFCTag.h>
 #import <CoreNFC/NFCNDEFReaderSession.h>
+#import <CoreNFC/NSUserActivity+CoreNFC.h>
 #if __has_include(<CoreNFC/NFCISO15693Tag.h>)
 #import <CoreNFC/NFCISO15693Tag.h>
 #endif
@@ -713,3 +714,35 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, macos, tvos)
 NS_ASSUME_NONNULL_END
 
 #endif /* NFCISO15693Tag_h */
+// ==========  CoreNFC.framework/Headers/NSUserActivity+CoreNFC.h
+//
+//  NSUserActivity+CoreNFC.h
+//  CoreNFC NSUserActivity category
+//
+//  Copyright © 2017 Apple. All rights reserved.
+//
+#ifndef NSUserActivity_CoreNFC_h
+#define NSUserActivity_CoreNFC_h
+
+#ifndef CoreNFC_H
+#error Please import <CoreNFC/CoreNFC.h> from your source file
+#endif
+
+#import <Foundation/Foundation.h>
+
+@class NFCNDEFMessage;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface NSUserActivity (CoreNFC)
+/*!
+ *  @property ndefMessagePayload
+ *  @discussion The NFC NDEF message with an Universial Link object that triggers the application launch.
+ */
+@property (readonly, nonnull, nonatomic) NFCNDEFMessage *ndefMessagePayload API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(watchos, macos, tvos);
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif

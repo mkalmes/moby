@@ -182,6 +182,16 @@ VS_EXPORT
 /// Only provide values that are used in your availability feed's tier restrictions.
 @property (nonatomic, copy, null_resettable) NSArray<NSString *> *tierIdentifiers;
 
+/// Identifies the billing group associated with the subscription.  May be used,
+/// for example, to restrict content availability based on the proximity of the
+/// billing address to a specific venue.
+@property (nonatomic, copy, nullable) NSString *billingIdentifier
+#if TARGET_OS_IPHONE
+API_AVAILABLE(ios(11.3), tvos(11.3));
+#else
+;
+#endif // TARGET_OS_IPHONE
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -322,7 +332,7 @@ VS_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0))
 /// @param completionHandler A block to be called when the request finishes.  It will always be called exactly once.  It may be called before the method call returns.  It may be called on any queue.
 /// @param accessStatus The current state the application's access to the user's subscription information.
 /// @param error If the user did not grant access to the app, this will contain an error describing the result of the operation.
-- (void)checkAccessStatusWithOptions:(NSDictionary<VSCheckAccessOption, id> *)options completionHandler:(void (^)(VSAccountAccessStatus accessStatus, NSError * _Nullable error))completionHandler;
+- (void)checkAccessStatusWithOptions:(NSDictionary<VSCheckAccessOption, id> *)options completionHandler:(void (^)(VSAccountAccessStatus accessStatus, NSError * _Nullable error))completionHandler  API_UNAVAILABLE(macos);
 
 /// Begins requesting information about the subscriber's account.
 /// @param request This identifies what specific information the app wants to know.
@@ -330,7 +340,7 @@ VS_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0))
 /// @param metadata If the request finished successfully, this will contain information about the subscriber's account.
 /// @param error If the request did not finish successfully, this will contain an error describing the result of the operation.
 /// @returns A result object that may be used to cancel the in-flight request.  Cancellation is advisory, and does not guarantee that the request will finish immediately.
-- (VSAccountManagerResult *)enqueueAccountMetadataRequest:(VSAccountMetadataRequest *)request completionHandler:(void (^)(VSAccountMetadata * _Nullable metadata, NSError * _Nullable error))completionHandler;
+- (VSAccountManagerResult *)enqueueAccountMetadataRequest:(VSAccountMetadataRequest *)request completionHandler:(void (^)(VSAccountMetadata * _Nullable metadata, NSError * _Nullable error))completionHandler  API_UNAVAILABLE(macos);
 
 @end
 

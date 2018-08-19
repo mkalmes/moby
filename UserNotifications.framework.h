@@ -13,7 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-__IOS_AVAILABLE(10.0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+__IOS_AVAILABLE(10.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 @interface UNNotificationServiceExtension : NSObject
 
 // Call contentHandler with the modified notification content to deliver. If the handler is not called before the service's time expires then the unmodified notification will be delivered.
@@ -53,13 +53,16 @@ typedef NS_OPTIONS(NSUInteger, UNAuthorizationOptions) {
     UNAuthorizationOptionSound   = (1 << 1),
     UNAuthorizationOptionAlert   = (1 << 2),
     UNAuthorizationOptionCarPlay = (1 << 3),
-} __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+    UNAuthorizationOptionCriticalAlert __IOS_AVAILABLE(12.0) __TVOS_AVAILABLE(12.0) __OSX_AVAILABLE(10.14) __WATCHOS_AVAILABLE(5.0) = (1 << 4),
+    UNAuthorizationOptionProvidesAppNotificationSettings __IOS_AVAILABLE(12.0) __TVOS_AVAILABLE(12.0) __OSX_AVAILABLE(10.14) __WATCHOS_AVAILABLE(5.0) = (1 << 5),
+    UNAuthorizationOptionProvisional __IOS_AVAILABLE(12.0) __TVOS_AVAILABLE(12.0) __OSX_AVAILABLE(10.14) __WATCHOS_AVAILABLE(5.0) = (1 << 6),
+} __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14);
 
-static const UNAuthorizationOptions UNAuthorizationOptionNone NS_SWIFT_UNAVAILABLE("Use [] instead.") __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED = 0;
+static const UNAuthorizationOptions UNAuthorizationOptionNone NS_SWIFT_UNAVAILABLE("Use [] instead.") __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) = 0;
 
 // UNNotificationRequests can be scheduled using UNUserNotificationCenter. They can also be sent to the device from a server using Apple Push Notification Service. If the application is authorized then the UNNotificationRequest will be used to create a UNNotification and it will be used to notify the user. If the user acts on the UNNotification then a UNNotificationResponse will be sent to the application.
 
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @interface UNUserNotificationCenter : NSObject
 
 // The delegate can only be set from an application
@@ -91,7 +94,7 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 - (void)removePendingNotificationRequestsWithIdentifiers:(NSArray<NSString *> *)identifiers;
 - (void)removeAllPendingNotificationRequests;
 
-// Notifications that have been delivered and remain in Notification Center. Notifiations triggered by location cannot be retrieved, but can be removed.
+// Notifications that have been delivered and remain in Notification Center. Notifications triggered by location cannot be retrieved, but can be removed.
 - (void)getDeliveredNotificationsWithCompletionHandler:(void(^)(NSArray<UNNotification *> *notifications))completionHandler __TVOS_PROHIBITED;
 - (void)removeDeliveredNotificationsWithIdentifiers:(NSArray<NSString *> *)identifiers __TVOS_PROHIBITED;
 - (void)removeAllDeliveredNotifications __TVOS_PROHIBITED;
@@ -102,20 +105,23 @@ typedef NS_OPTIONS(NSUInteger, UNNotificationPresentationOptions) {
     UNNotificationPresentationOptionBadge   = (1 << 0),
     UNNotificationPresentationOptionSound   = (1 << 1),
     UNNotificationPresentationOptionAlert   = (1 << 2),
-} __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+} __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14);
 
-static const UNNotificationPresentationOptions UNNotificationPresentationOptionNone NS_SWIFT_UNAVAILABLE("Use [] instead.") __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) = 0;
+static const UNNotificationPresentationOptions UNNotificationPresentationOptionNone NS_SWIFT_UNAVAILABLE("Use [] instead.") __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) = 0;
 
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @protocol UNUserNotificationCenterDelegate <NSObject>
 
 @optional
 
 // The method will be called on the delegate only if the application is in the foreground. If the method is not implemented or the handler is not called in a timely manner then the notification will not be presented. The application can choose to have the notification presented as a sound, badge, alert and/or in the notification list. This decision should be based on whether the information in the notification is otherwise visible to the user.
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14);
 
 // The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction. The delegate must be set before the application returns from application:didFinishLaunchingWithOptions:.
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED;
+
+// The method will be called on the delegate when the application is launched in response to the user's request to view in-app notification settings. Add UNAuthorizationOptionProvidesAppNotificationSettings as an option in requestAuthorizationWithOptions:completionHandler: to add a button to inline notification settings view and the notification settings view in Settings. The notification will be nil when opened from Settings.
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center openSettingsForNotification:(nullable UNNotification *)notification __IOS_AVAILABLE(12.0) __OSX_AVAILABLE(10.14) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 @end
 
@@ -135,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NSString (UNUserNotificationCenterSupport)
 
 // Use -[NSString localizedUserNotificationStringForKey:arguments:] to provide a string that will be localized at the time that the notification is presented.
-+ (NSString *)localizedUserNotificationStringForKey:(NSString *)key arguments:(nullable NSArray *)arguments __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
++ (NSString *)localizedUserNotificationStringForKey:(NSString *)key arguments:(nullable NSArray *)arguments __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED;
 
 @end
 
@@ -183,18 +189,18 @@ typedef NS_OPTIONS(NSUInteger, UNNotificationCategoryOptions) {
     UNNotificationCategoryOptionCustomDismissAction = (1 << 0),
     
     // Whether notifications of this category should be allowed in CarPlay
-    UNNotificationCategoryOptionAllowInCarPlay = (1 << 1),
+    UNNotificationCategoryOptionAllowInCarPlay __API_UNAVAILABLE(macos) = (1 << 1),
     
     // Whether the title should be shown if the user has previews off
-    UNNotificationCategoryOptionHiddenPreviewsShowTitle __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED = (1 << 2),
+    UNNotificationCategoryOptionHiddenPreviewsShowTitle __IOS_AVAILABLE(11.0) __OSX_AVAILABLE(10.14) __WATCHOS_PROHIBITED = (1 << 2),
     // Whether the subtitle should be shown if the user has previews off
-    UNNotificationCategoryOptionHiddenPreviewsShowSubtitle __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED  = (1 << 3),
+    UNNotificationCategoryOptionHiddenPreviewsShowSubtitle __IOS_AVAILABLE(11.0) __OSX_AVAILABLE(10.14) __WATCHOS_PROHIBITED  = (1 << 3),
 
-} __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
+} __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED;
 
-static const UNNotificationCategoryOptions UNNotificationCategoryOptionNone NS_SWIFT_UNAVAILABLE("Use [] instead.") __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED = 0;
+static const UNNotificationCategoryOptions UNNotificationCategoryOptionNone NS_SWIFT_UNAVAILABLE("Use [] instead.") __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED = 0;
 
-__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
+__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED
 @interface UNNotificationCategory : NSObject <NSCopying, NSSecureCoding>
 
 // The unique identifier for this category. The UNNotificationCategory's actions will be displayed on notifications when the UNNotificationCategory's identifier matches the UNNotificationRequest's categoryIdentifier.
@@ -211,9 +217,31 @@ __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
 // The format string that will replace the notification body if previews are hidden.
 @property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *hiddenPreviewsBodyPlaceholder __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED;
 
-+ (instancetype)categoryWithIdentifier:(NSString *)identifier actions:(NSArray<UNNotificationAction *> *)actions intentIdentifiers:(NSArray<NSString *> *)intentIdentifiers options:(UNNotificationCategoryOptions)options;
+/// A format string for a summary description when notifications from this category are grouped together.
+/// It should contain descriptive text and format arguments that will be replaced with the information
+/// from the notifications that have been grouped together. The arguments are replaced with the number
+/// of notifications and the list created by joining the argument in each grouped notification.
+/// For example: "%u new messages from %@".
+/// The arguments list is optional, "%u new messages" is also accepted.
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *categorySummaryFormat __IOS_AVAILABLE(12.0) __WATCHOS_PROHIBITED;
 
-+ (instancetype)categoryWithIdentifier:(NSString *)identifier actions:(NSArray<UNNotificationAction *> *)actions intentIdentifiers:(NSArray<NSString *> *)intentIdentifiers hiddenPreviewsBodyPlaceholder:(NSString *)hiddenPreviewsBodyPlaceholder options:(UNNotificationCategoryOptions)options __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED;
++ (instancetype)categoryWithIdentifier:(NSString *)identifier
+                               actions:(NSArray<UNNotificationAction *> *)actions
+                     intentIdentifiers:(NSArray<NSString *> *)intentIdentifiers
+                               options:(UNNotificationCategoryOptions)options;
+
++ (instancetype)categoryWithIdentifier:(NSString *)identifier
+                               actions:(NSArray<UNNotificationAction *> *)actions
+                     intentIdentifiers:(NSArray<NSString *> *)intentIdentifiers
+         hiddenPreviewsBodyPlaceholder:(NSString *)hiddenPreviewsBodyPlaceholder
+                               options:(UNNotificationCategoryOptions)options __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED;
+
++ (instancetype)categoryWithIdentifier:(NSString *)identifier
+                               actions:(NSArray<UNNotificationAction *> *)actions
+                     intentIdentifiers:(NSArray<NSString *> *)intentIdentifiers
+         hiddenPreviewsBodyPlaceholder:(nullable NSString *)hiddenPreviewsBodyPlaceholder
+                 categorySummaryFormat:(nullable NSString *)categorySummaryFormat
+                               options:(UNNotificationCategoryOptions)options __IOS_AVAILABLE(12.0) __WATCHOS_PROHIBITED;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -234,14 +262,14 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @interface UNNotification : NSObject <NSCopying, NSSecureCoding>
 
 // The date displayed on the notification.
-@property (nonatomic, readonly, copy) NSDate *date;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSDate *date;
 
 // The notification request that caused the notification to be delivered.
-@property (nonatomic, readonly, copy) UNNotificationRequest *request;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) UNNotificationRequest *request;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -263,7 +291,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @interface UNNotificationRequest : NSObject <NSCopying, NSSecureCoding>
 
 // The unique identifier for this notification request. It can be used to replace or remove a pending notification request or a delivered notification.
@@ -296,7 +324,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @interface UNNotificationTrigger : NSObject <NSCopying, NSSecureCoding>
 
 @property (NS_NONATOMIC_IOSONLY, readonly) BOOL repeats;
@@ -306,13 +334,13 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 @end
 
 // UNPushNotificationTrigger can be sent from a server using Apple Push Notification Service.
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @interface UNPushNotificationTrigger : UNNotificationTrigger
 
 @end
 
 // UNTimeIntervalNotificationTrigger can be scheduled on the device to notify after the time interval, and optionally repeat.
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @interface UNTimeIntervalNotificationTrigger : UNNotificationTrigger
 
 @property (NS_NONATOMIC_IOSONLY, readonly) NSTimeInterval timeInterval;
@@ -324,7 +352,7 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 @end
 
 // UNCalendarNotificationTrigger can be scheduled on the device to notify based on date and time values, and optionally repeat. For example, if a notification should be delivered at the next 8:00 AM then set the 'hour' property of dateComponents to 8. If the notification should be delivered every day at 8:00 AM then set repeats to YES.
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @interface UNCalendarNotificationTrigger : UNNotificationTrigger
 
 @property (NS_NONATOMIC_IOSONLY, readonly, copy) NSDateComponents *dateComponents;
@@ -337,7 +365,7 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 @end
 
 // UNLocationNotificationTrigger can be scheduled on the device to notify when the user enters or leaves a geographic region. The identifier on CLRegion must be unique. Scheduling multiple UNNotificationRequests with different regions containing the same identifier will result in undefined behavior. The number of UNLocationNotificationTriggers that may be scheduled by an application at any one time is limited by the system. Applications must have "when-in-use" authorization through CoreLocation. See the CoreLocation documentation for more information.
-__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
+__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __API_UNAVAILABLE(macos, tvos)
 @interface UNLocationNotificationTrigger : UNNotificationTrigger
 
 @property (NS_NONATOMIC_IOSONLY, readonly, copy) CLRegion *region;
@@ -359,17 +387,17 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
+__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED
 @interface UNNotificationAttachment : NSObject <NSCopying, NSSecureCoding>
 
 // The identifier of this attachment
 @property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *identifier;
 
 // The URL to the attachment's data. If you have obtained this attachment from UNUserNotificationCenter then the URL will be security-scoped.
-@property (nonatomic, readonly, copy) NSURL *URL;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSURL *URL;
 
 // The UTI of the attachment.
-@property (nonatomic, readonly, copy) NSString *type;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *type;
 
 // Creates an attachment for the data at URL with an optional options dictionary. URL must be a file URL. Returns nil if the data at URL is not supported.
 + (nullable instancetype)attachmentWithIdentifier:(NSString *)identifier URL:(NSURL *)URL options:(nullable NSDictionary *)options error:(NSError *__nullable *__nullable)error;
@@ -379,17 +407,17 @@ __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
 @end
 
 // Key to manually provide a type hint for the attachment. If not set the type hint will be guessed from the attachment's file extension. Value must be an NSString.
-extern NSString * const UNNotificationAttachmentOptionsTypeHintKey __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+extern NSString * const UNNotificationAttachmentOptionsTypeHintKey __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED;
 
 // Key to specify if the thumbnail for this attachment is hidden. Defaults to NO. Value must be a boolean NSNumber.
-extern NSString * const UNNotificationAttachmentOptionsThumbnailHiddenKey __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+extern NSString * const UNNotificationAttachmentOptionsThumbnailHiddenKey __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED;
 
 // Key to specify a normalized clipping rectangle to use for the attachment thumbnail. Value must be a CGRect encoded using CGRectCreateDictionaryRepresentation.
-extern NSString * const UNNotificationAttachmentOptionsThumbnailClippingRectKey __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+extern NSString * const UNNotificationAttachmentOptionsThumbnailClippingRectKey __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED;
 
 // Key to specify the animated image frame number or the movie time to use as the thumbnail.
 // An animated image frame number must be an NSNumber. A movie time must either be an NSNumber with the time in seconds or a CMTime encoded using CMTimeCopyAsDictionary.
-extern NSString * const UNNotificationAttachmentOptionsThumbnailTimeKey __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+extern NSString * const UNNotificationAttachmentOptionsThumbnailTimeKey __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED;
 
 NS_ASSUME_NONNULL_END
  
@@ -415,11 +443,11 @@ typedef NS_OPTIONS(NSUInteger, UNNotificationActionOptions) {
 
     // Whether this action should cause the application to launch in the foreground.
     UNNotificationActionOptionForeground = (1 << 2),
-} __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
+} __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED;
 
-static const UNNotificationActionOptions UNNotificationActionOptionNone NS_SWIFT_UNAVAILABLE("Use [] instead.") __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED = 0;
+static const UNNotificationActionOptions UNNotificationActionOptionNone NS_SWIFT_UNAVAILABLE("Use [] instead.") __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED = 0;
 
-__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
+__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED
 @interface UNNotificationAction : NSObject <NSCopying, NSSecureCoding>
 
 // The unique identifier for this action.
@@ -438,7 +466,7 @@ __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
 
 @end
 
-__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
+__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED
 @interface UNTextInputNotificationAction : UNNotificationAction
 
 // Use -[NSString localizedUserNotificationStringForKey:arguments:] to provide a string that will be localized at the time that the notification is presented.
@@ -465,14 +493,28 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
+typedef NSString *UNNotificationSoundName NS_EXTENSIBLE_STRING_ENUM;
+
+__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED
 @interface UNNotificationSound : NSObject <NSCopying, NSSecureCoding>
 
 // The default sound used for notifications.
-+ (instancetype)defaultSound;
+@property(class, NS_NONATOMIC_IOSONLY, copy, readonly) UNNotificationSound *defaultSound;
 
-// The name of a sound file to be played for the notification. The sound file must be contained in the app’s bundle or in the Library/Sounds folder of the app's data container. If files exist in both locations then the file in the app's data container will be preferred.
-+ (instancetype)soundNamed:(NSString *)name __WATCHOS_PROHIBITED;
+// The default sound used for critical alerts. Critical alerts will bypass the mute switch and Do Not Disturb.
+@property(class, NS_NONATOMIC_IOSONLY, copy, readonly) UNNotificationSound *defaultCriticalSound __IOS_AVAILABLE(12.0) __WATCHOS_AVAILABLE(5.0);
+
+// The default sound used for critical alerts with a custom audio volume level. Critical alerts will bypass the mute switch and Do Not Disturb. The audio volume is expected to be between 0.0f and 1.0f.
++ (instancetype)defaultCriticalSoundWithAudioVolume:(float)volume __IOS_AVAILABLE(12.0) __WATCHOS_AVAILABLE(5.0);
+
+// The name of a sound file to be played for the notification. The sound file must be contained in the app’s bundle or in the Library/Sounds folder of the app’s data container. If files exist in both locations then the file in the app’s data container will be preferred.
++ (instancetype)soundNamed:(UNNotificationSoundName)name __WATCHOS_PROHIBITED;
+
+// The name of a sound file to be played for an critical alert. Critical alerts will bypass the mute switch and Do Not Disturb. The sound file must be contained in the app’s bundle or in the Library/Sounds folder of the app’s data container. If files exist in both locations then the file in the app’s data container will be preferred.
++ (instancetype)criticalSoundNamed:(UNNotificationSoundName)name __IOS_AVAILABLE(12.0) __WATCHOS_PROHIBITED;
+
+// The name of a sound file to be played for an critical alert with a custom audio volume level. Critical alerts will bypass the mute switch and Do Not Disturb. The sound file must be contained in the app’s bundle or in the Library/Sounds folder of the app’s data container. If files exist in both locations then the file in the app’s data container will be preferred. The audio volume is expected to be between 0.0f and 1.0f.
++ (instancetype)criticalSoundNamed:(UNNotificationSoundName)name withAudioVolume:(float)volume __IOS_AVAILABLE(12.0) __WATCHOS_PROHIBITED;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -489,7 +531,7 @@ NS_ASSUME_NONNULL_END
 
 #import <Foundation/Foundation.h>
 
-extern NSString * const UNErrorDomain __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+extern NSString * const UNErrorDomain __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14);
 
 typedef NS_ENUM(NSInteger, UNErrorCode) {
     UNErrorCodeNotificationsNotAllowed = 1,
@@ -503,7 +545,7 @@ typedef NS_ENUM(NSInteger, UNErrorCode) {
     
     UNErrorCodeNotificationInvalidNoDate = 1400,
     UNErrorCodeNotificationInvalidNoContent,
-} __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+} __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14);
 // ==========  UserNotifications.framework/Headers/UNNotificationContent.h
 //
 //  UNNotificationContent.h
@@ -519,7 +561,7 @@ typedef NS_ENUM(NSInteger, UNErrorCode) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @interface UNNotificationContent : NSObject <NSCopying, NSMutableCopying, NSSecureCoding>
 
 // Optional array of attachments.
@@ -535,7 +577,7 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 @property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *categoryIdentifier __TVOS_PROHIBITED;
 
 // The launch image that will be used when the app is opened from the notification.
-@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *launchImageName __TVOS_PROHIBITED;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *launchImageName __API_UNAVAILABLE(macos, tvos);
 
 // The sound that will be played for the notification.
 @property (NS_NONATOMIC_IOSONLY, readonly, copy, nullable) UNNotificationSound *sound __TVOS_PROHIBITED;
@@ -552,9 +594,18 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 // Apps can set the userInfo for locally scheduled notification requests. The contents of the push payload will be set as the userInfo for remote notifications.
 @property (NS_NONATOMIC_IOSONLY, readonly, copy) NSDictionary *userInfo __TVOS_PROHIBITED;
 
+/// The argument to be inserted in the summary for this notification.
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *summaryArgument __IOS_AVAILABLE(12.0) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+
+/// A number that indicates how many items in the summary are represented in the summary.
+/// For example if a podcast app sends one notification for 3 new episodes in a show,
+/// the argument should be the name of the show and the count should be 3.
+/// Default is 1 and cannot be 0.
+@property (NS_NONATOMIC_IOSONLY, readonly, assign) NSUInteger summaryArgumentCount __IOS_AVAILABLE(12.0) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+
 @end
 
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @interface UNMutableNotificationContent : UNNotificationContent
 
 // Optional array of attachments.
@@ -570,7 +621,7 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 @property (NS_NONATOMIC_IOSONLY, copy) NSString *categoryIdentifier __TVOS_PROHIBITED;
 
 // The launch image that will be used when the app is opened from the notification.
-@property (NS_NONATOMIC_IOSONLY, copy) NSString *launchImageName __TVOS_PROHIBITED;
+@property (NS_NONATOMIC_IOSONLY, copy) NSString *launchImageName __API_UNAVAILABLE(macos, tvos);
 
 // The sound that will be played for the notification.
 @property (NS_NONATOMIC_IOSONLY, copy, nullable) UNNotificationSound *sound __TVOS_PROHIBITED;
@@ -586,6 +637,15 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 
 // Apps can set the userInfo for locally scheduled notification requests. The contents of the push payload will be set as the userInfo for remote notifications.
 @property (NS_NONATOMIC_IOSONLY, copy) NSDictionary *userInfo;
+
+/// The argument to be inserted in the summary for this notification.
+@property (NS_NONATOMIC_IOSONLY, copy) NSString *summaryArgument __IOS_AVAILABLE(12.0) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+
+/// A number that indicates how many items in the summary are represented in the summary.
+/// For example if a podcast app sends one notification for 3 new episodes in a show,
+/// the argument should be the name of the show and the count should be 3.
+/// Default is 1 and cannot be 0.
+@property (NS_NONATOMIC_IOSONLY, assign) NSUInteger summaryArgumentCount __IOS_AVAILABLE(12.0) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 @end
 
@@ -604,10 +664,10 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString *const UNNotificationDefaultActionIdentifier __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
-extern NSString *const UNNotificationDismissActionIdentifier __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
+extern NSString *const UNNotificationDefaultActionIdentifier __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED;
+extern NSString *const UNNotificationDismissActionIdentifier __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED;
 
-__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
+__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED
 @interface UNNotificationResponse : NSObject <NSCopying, NSSecureCoding>
 
 // The notification to which the user responded.
@@ -623,7 +683,7 @@ __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
 
 @end
 
-__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
+__IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED
 @interface UNTextInputNotificationResponse : UNNotificationResponse
 
 // The text entered or chosen by the user.
@@ -652,8 +712,11 @@ typedef NS_ENUM(NSInteger, UNAuthorizationStatus) {
     UNAuthorizationStatusDenied,
     
     // The application is authorized to post user notifications.
-    UNAuthorizationStatusAuthorized
-} __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+    UNAuthorizationStatusAuthorized,
+    
+    // The application is authorized to post non-interruptive user notifications.
+    UNAuthorizationStatusProvisional __IOS_AVAILABLE(12.0) __TVOS_AVAILABLE(12.0) __WATCHOS_AVAILABLE(5.0) __OSX_AVAILABLE(10.14)
+} __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14);
 
 typedef NS_ENUM(NSInteger, UNShowPreviewsSetting) {
     // Notification previews are always shown.
@@ -664,7 +727,7 @@ typedef NS_ENUM(NSInteger, UNShowPreviewsSetting) {
     
     // Notifications previews are never shown.
     UNShowPreviewsSettingNever
-} __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+} __IOS_AVAILABLE(11.0) __OSX_AVAILABLE(10.14) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UNNotificationSetting) {
     // The application does not support this notification type
@@ -675,15 +738,15 @@ typedef NS_ENUM(NSInteger, UNNotificationSetting) {
     
     // The notification setting is turned on.
     UNNotificationSettingEnabled,
-} __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
+} __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14);
 
 typedef NS_ENUM(NSInteger, UNAlertStyle) {
     UNAlertStyleNone = 0,
     UNAlertStyleBanner,
     UNAlertStyleAlert,
-} __IOS_AVAILABLE(10.0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+} __IOS_AVAILABLE(10.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
-__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
+__IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __OSX_AVAILABLE(10.14)
 @interface UNNotificationSettings : NSObject <NSCopying, NSSecureCoding>
 
 @property (NS_NONATOMIC_IOSONLY, readonly) UNAuthorizationStatus authorizationStatus;
@@ -694,11 +757,16 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 
 @property (NS_NONATOMIC_IOSONLY, readonly) UNNotificationSetting notificationCenterSetting __TVOS_PROHIBITED;
 @property (NS_NONATOMIC_IOSONLY, readonly) UNNotificationSetting lockScreenSetting __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
-@property (NS_NONATOMIC_IOSONLY, readonly) UNNotificationSetting carPlaySetting __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+@property (NS_NONATOMIC_IOSONLY, readonly) UNNotificationSetting carPlaySetting __API_UNAVAILABLE(macos, tvos, watchos);
 
 @property (NS_NONATOMIC_IOSONLY, readonly) UNAlertStyle alertStyle __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
-@property (NS_NONATOMIC_IOSONLY, readonly) UNShowPreviewsSetting showPreviewsSetting  __IOS_AVAILABLE(11.0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+@property (NS_NONATOMIC_IOSONLY, readonly) UNShowPreviewsSetting showPreviewsSetting  __IOS_AVAILABLE(11.0) __OSX_AVAILABLE(10.14) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+
+@property (NS_NONATOMIC_IOSONLY, readonly) UNNotificationSetting criticalAlertSetting __IOS_AVAILABLE(12.0) __OSX_AVAILABLE(10.14) __WATCHOS_AVAILABLE(5.0) __TVOS_PROHIBITED;
+
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL providesAppNotificationSettings __IOS_AVAILABLE(12.0) __OSX_AVAILABLE(10.14) __WATCHOS_AVAILABLE(5.0) __TVOS_PROHIBITED;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 @end

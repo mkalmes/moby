@@ -7,6 +7,7 @@
 #define _EAGL_DRAWABLE_H_
 
 #include <OpenGLES/EAGL.h>
+#include <OpenGLES/OpenGLESAvailability.h>
 
 
 /************************************************************************/
@@ -38,7 +39,8 @@ EAGL_EXTERN NSString * const kEAGLColorFormatSRGBA8 NS_AVAILABLE_IOS(7_0);
 /************************************************************************/
 /* EAGLDrawable Interface                                               */
 /************************************************************************/
-@protocol EAGLDrawable
+
+@protocol EAGLDrawable 
 
 /* Contains keys from kEAGLDrawableProperty* above */
 @property(copy) NSDictionary* drawableProperties;
@@ -46,6 +48,7 @@ EAGL_EXTERN NSString * const kEAGLColorFormatSRGBA8 NS_AVAILABLE_IOS(7_0);
 @end
 
 /* Extends EAGLContext interface */
+OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0))
 @interface EAGLContext (EAGLContextDrawableAdditions)
 
 /* Attaches an EAGLDrawable as storage for the OpenGL ES renderbuffer object bound to <target> */
@@ -105,6 +108,9 @@ typedef intptr_t GLsizeiptr;
 
 #include <OpenGLES/ES2/gl.h>
 #include <Availability.h>
+#ifndef GLES_API_DEPRICATED
+#define GLES_API_DEPRICATED(__version__) __API_DEPRECATED("OpenGLES is depricated on iOS", ios(__version__, 12.0))
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -453,122 +459,122 @@ extern "C" {
  * APPLE extension functions
  *------------------------------------------------------------------------*/
 #if GL_APPLE_copy_texture_levels
-GL_API GLvoid glCopyTextureLevelsAPPLE(GLuint destinationTexture, GLuint sourceTexture, GLint sourceBaseLevel, GLsizei sourceLevelCount) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+GL_API GLvoid glCopyTextureLevelsAPPLE(GLuint destinationTexture, GLuint sourceTexture, GLint sourceBaseLevel, GLsizei sourceLevelCount)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_APPLE_framebuffer_multisample
-GL_API GLvoid glRenderbufferStorageMultisampleAPPLE(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-GL_API GLvoid glResolveMultisampleFramebufferAPPLE(void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+GL_API GLvoid glRenderbufferStorageMultisampleAPPLE(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glResolveMultisampleFramebufferAPPLE(void)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_APPLE_sync
-GL_API GLsync glFenceSyncAPPLE(GLenum condition, GLbitfield flags) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
-GL_API GLboolean glIsSyncAPPLE(GLsync sync) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
-GL_API void glDeleteSyncAPPLE(GLsync sync) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
-GL_API GLenum glClientWaitSyncAPPLE(GLsync sync, GLbitfield flags, GLuint64 timeout) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
-GL_API void glWaitSyncAPPLE(GLsync sync, GLbitfield flags, GLuint64 timeout) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
-GL_API void glGetInteger64vAPPLE(GLenum pname, GLint64 *params) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
-GL_API void glGetSyncivAPPLE(GLsync sync, GLenum pname, GLsizei bufSize, GLsizei *length, GLint *values) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+GL_API GLsync glFenceSyncAPPLE(GLenum condition, GLbitfield flags)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean glIsSyncAPPLE(GLsync sync)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
+GL_API void glDeleteSyncAPPLE(GLsync sync)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
+GL_API GLenum glClientWaitSyncAPPLE(GLsync sync, GLbitfield flags, GLuint64 timeout)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
+GL_API void glWaitSyncAPPLE(GLsync sync, GLbitfield flags, GLuint64 timeout)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
+GL_API void glGetInteger64vAPPLE(GLenum pname, GLint64 *params)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
+GL_API void glGetSyncivAPPLE(GLsync sync, GLenum pname, GLsizei bufSize, GLsizei *length, GLint *values)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 /*------------------------------------------------------------------------*
  * EXT extension functions
  *------------------------------------------------------------------------*/
 #if GL_EXT_debug_label
-GL_API GLvoid glLabelObjectEXT(GLenum type, GLuint object, GLsizei length, const GLchar *label)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGetObjectLabelEXT(GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, GLchar *label)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glLabelObjectEXT(GLenum type, GLuint object, GLsizei length, const GLchar *label)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGetObjectLabelEXT(GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, GLchar *label)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_debug_marker
-GL_API GLvoid glInsertEventMarkerEXT(GLsizei length, const GLchar *marker)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glPushGroupMarkerEXT(GLsizei length, const GLchar *marker)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glPopGroupMarkerEXT(void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glInsertEventMarkerEXT(GLsizei length, const GLchar *marker)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glPushGroupMarkerEXT(GLsizei length, const GLchar *marker)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glPopGroupMarkerEXT(void)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_discard_framebuffer
-GL_API GLvoid GL_APIENTRY glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+GL_API GLvoid GL_APIENTRY glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_draw_instanced
-GL_API GLvoid glDrawArraysInstancedEXT(GLenum mode, GLint first, GLsizei count, GLsizei instanceCount)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glDrawElementsInstancedEXT(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, GLsizei instanceCount)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+GL_API GLvoid glDrawArraysInstancedEXT(GLenum mode, GLint first, GLsizei count, GLsizei instanceCount)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glDrawElementsInstancedEXT(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, GLsizei instanceCount)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_instanced_arrays
-GL_API GLvoid glVertexAttribDivisorEXT(GLuint index, GLuint divisor)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+GL_API GLvoid glVertexAttribDivisorEXT(GLuint index, GLuint divisor)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_map_buffer_range
-GL_API GLvoid *glMapBufferRangeEXT(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
-GL_API GLvoid glFlushMappedBufferRangeEXT(GLenum target, GLintptr offset, GLsizeiptr length) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+GL_API GLvoid *glMapBufferRangeEXT(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glFlushMappedBufferRangeEXT(GLenum target, GLintptr offset, GLsizeiptr length)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_occlusion_query_boolean
-GL_API GLvoid glGenQueriesEXT(GLsizei n, GLuint *ids)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glDeleteQueriesEXT(GLsizei n, const GLuint *ids)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLboolean glIsQueryEXT(GLuint id)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glBeginQueryEXT(GLenum target, GLuint id)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glEndQueryEXT(GLenum target)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGetQueryivEXT(GLenum target, GLenum pname, GLint *params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGetQueryObjectuivEXT(GLuint id, GLenum pname, GLuint *params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glGenQueriesEXT(GLsizei n, GLuint *ids)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glDeleteQueriesEXT(GLsizei n, const GLuint *ids)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean glIsQueryEXT(GLuint id)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glBeginQueryEXT(GLenum target, GLuint id)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glEndQueryEXT(GLenum target)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGetQueryivEXT(GLenum target, GLenum pname, GLint *params)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGetQueryObjectuivEXT(GLuint id, GLenum pname, GLuint *params)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0)); 
 #endif
 
 #if GL_EXT_separate_shader_objects
-GL_API GLvoid glUseProgramStagesEXT(GLuint pipeline, GLbitfield stages, GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glActiveShaderProgramEXT(GLuint pipeline, GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLuint glCreateShaderProgramvEXT(GLenum type, GLsizei count, const GLchar* const *strings)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glBindProgramPipelineEXT(GLuint pipeline)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glDeleteProgramPipelinesEXT(GLsizei n, const GLuint *pipelines)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGenProgramPipelinesEXT(GLsizei n, GLuint *pipelines)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLboolean glIsProgramPipelineEXT(GLuint pipeline)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramParameteriEXT(GLuint program, GLenum pname, GLint value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGetProgramPipelineivEXT(GLuint pipeline, GLenum pname, GLint *params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glValidateProgramPipelineEXT(GLuint pipeline)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGetProgramPipelineInfoLogEXT(GLuint pipeline, GLsizei bufSize, GLsizei *length, GLchar *infoLog)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glUseProgramStagesEXT(GLuint pipeline, GLbitfield stages, GLuint program)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glActiveShaderProgramEXT(GLuint pipeline, GLuint program)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLuint glCreateShaderProgramvEXT(GLenum type, GLsizei count, const GLchar* const *strings)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glBindProgramPipelineEXT(GLuint pipeline)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glDeleteProgramPipelinesEXT(GLsizei n, const GLuint *pipelines)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGenProgramPipelinesEXT(GLsizei n, GLuint *pipelines)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean glIsProgramPipelineEXT(GLuint pipeline)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramParameteriEXT(GLuint program, GLenum pname, GLint value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGetProgramPipelineivEXT(GLuint pipeline, GLenum pname, GLint *params)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glValidateProgramPipelineEXT(GLuint pipeline)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGetProgramPipelineInfoLogEXT(GLuint pipeline, GLsizei bufSize, GLsizei *length, GLchar *infoLog)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniform1iEXT(GLuint program, GLint location, GLint x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform2iEXT(GLuint program, GLint location, GLint x, GLint y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform3iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform4iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glProgramUniform1iEXT(GLuint program, GLint location, GLint x)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform2iEXT(GLuint program, GLint location, GLint x, GLint y)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform3iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform4iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniform1fEXT(GLuint program, GLint location, GLfloat x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform2fEXT(GLuint program, GLint location, GLfloat x, GLfloat y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform3fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform4fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glProgramUniform1fEXT(GLuint program, GLint location, GLfloat x)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform2fEXT(GLuint program, GLint location, GLfloat x, GLfloat y)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform3fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform4fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniform1ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform2ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform3ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform4ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glProgramUniform1ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform2ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform3ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform4ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniform1fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform2fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform3fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform4fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glProgramUniform1fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform2fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform3fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform4fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniformMatrix2fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniformMatrix3fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniformMatrix4fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glProgramUniformMatrix2fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniformMatrix3fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniformMatrix4fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_texture_storage
-GL_API GLvoid glTexStorage2DEXT(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+GL_API GLvoid glTexStorage2DEXT(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 /*------------------------------------------------------------------------*
  * OES extension functions
  *------------------------------------------------------------------------*/
 #if GL_OES_mapbuffer
-GL_API GLvoid GL_APIENTRY glGetBufferPointervOES (GLenum target, GLenum pname, GLvoid **params);
-GL_API GLvoid * GL_APIENTRY glMapBufferOES (GLenum target, GLenum access);
-GL_API GLboolean GL_APIENTRY glUnmapBufferOES (GLenum target);
+GL_API GLvoid GL_APIENTRY glGetBufferPointervOES (GLenum target, GLenum pname, GLvoid **params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid * GL_APIENTRY glMapBufferOES (GLenum target, GLenum access) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean GL_APIENTRY glUnmapBufferOES (GLenum target) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_OES_vertex_array_object
-GL_API GLvoid glBindVertexArrayOES(GLuint array)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-GL_API GLvoid glDeleteVertexArraysOES(GLsizei n, const GLuint *arrays)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-GL_API GLvoid glGenVertexArraysOES(GLsizei n, GLuint *arrays)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-GL_API GLboolean glIsVertexArrayOES(GLuint array)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+GL_API GLvoid glBindVertexArrayOES(GLuint array)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glDeleteVertexArraysOES(GLsizei n, const GLuint *arrays)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGenVertexArraysOES(GLsizei n, GLuint *arrays)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean glIsVertexArrayOES(GLuint array)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #ifdef __cplusplus
@@ -581,6 +587,7 @@ GL_API GLboolean glIsVertexArrayOES(GLuint array)  __OSX_AVAILABLE_STARTING(__MA
 #define __gl_es20_h_
 
 #include <Availability.h>
+#include <OpenGLES/OpenGLESAvailability.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -1057,148 +1064,148 @@ extern "C" {
  * Entrypoint definitions
  *-----------------------------------------------------------------------*/
 
-GL_API void           GL_APIENTRY glActiveTexture (GLenum texture);
-GL_API void           GL_APIENTRY glAttachShader (GLuint program, GLuint shader)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, const GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer);
-GL_API void           GL_APIENTRY glBindFramebuffer (GLenum target, GLuint framebuffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBindRenderbuffer (GLenum target, GLuint renderbuffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBindTexture (GLenum target, GLuint texture);
-GL_API void           GL_APIENTRY glBlendColor (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBlendEquation (GLenum mode)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBlendEquationSeparate (GLenum modeRGB, GLenum modeAlpha)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBlendFunc (GLenum sfactor, GLenum dfactor);
-GL_API void           GL_APIENTRY glBlendFuncSeparate (GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
-GL_API void           GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data);
-GL_API GLenum         GL_APIENTRY glCheckFramebufferStatus (GLenum target)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glClear (GLbitfield mask);
-GL_API void           GL_APIENTRY glClearColor (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-GL_API void           GL_APIENTRY glClearDepthf (GLclampf depth);
-GL_API void           GL_APIENTRY glClearStencil (GLint s);
-GL_API void           GL_APIENTRY glColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-GL_API void           GL_APIENTRY glCompileShader (GLuint shader)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glCompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid* data);
-GL_API void           GL_APIENTRY glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid* data);
-GL_API void           GL_APIENTRY glCopyTexImage2D (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
-GL_API void           GL_APIENTRY glCopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-GL_API GLuint         GL_APIENTRY glCreateProgram (void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API GLuint         GL_APIENTRY glCreateShader (GLenum type)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glCullFace (GLenum mode);
-GL_API void           GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers);
-GL_API void           GL_APIENTRY glDeleteFramebuffers (GLsizei n, const GLuint* framebuffers)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDeleteProgram (GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDeleteRenderbuffers (GLsizei n, const GLuint* renderbuffers)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDeleteShader (GLuint shader)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures);
-GL_API void           GL_APIENTRY glDepthFunc (GLenum func);
-GL_API void           GL_APIENTRY glDepthMask (GLboolean flag);
-GL_API void           GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar);
-GL_API void           GL_APIENTRY glDetachShader (GLuint program, GLuint shader)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDisable (GLenum cap);
-GL_API void           GL_APIENTRY glDisableVertexAttribArray (GLuint index)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count);
-GL_API void           GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices);
-GL_API void           GL_APIENTRY glEnable (GLenum cap);
-GL_API void           GL_APIENTRY glEnableVertexAttribArray (GLuint index)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glFinish (void);
-GL_API void           GL_APIENTRY glFlush (void);
-GL_API void           GL_APIENTRY glFramebufferRenderbuffer (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glFramebufferTexture2D (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glFrontFace (GLenum mode);
-GL_API void           GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers);
-GL_API void           GL_APIENTRY glGenerateMipmap (GLenum target)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGenRenderbuffers (GLsizei n, GLuint* renderbuffers)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures);
-GL_API void           GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetAttachedShaders (GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API int            GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetBooleanv (GLenum pname, GLboolean* params);
-GL_API void           GL_APIENTRY glGetBufferParameteriv (GLenum target, GLenum pname, GLint* params);
-GL_API GLenum         GL_APIENTRY glGetError (void);
-GL_API void           GL_APIENTRY glGetFloatv (GLenum pname, GLfloat* params);
-GL_API void           GL_APIENTRY glGetFramebufferAttachmentParameteriv (GLenum target, GLenum attachment, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetIntegerv (GLenum pname, GLint* params);
-GL_API void           GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize, GLsizei* length, GLchar* infolog)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetRenderbufferParameteriv (GLenum target, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* infolog)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetShaderPrecisionFormat (GLenum shadertype, GLenum precisiontype, GLint* range, GLint* precision)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetShaderSource (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* source)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API const GLubyte* GL_APIENTRY glGetString (GLenum name);
-GL_API void           GL_APIENTRY glGetTexParameterfv (GLenum target, GLenum pname, GLfloat* params);
-GL_API void           GL_APIENTRY glGetTexParameteriv (GLenum target, GLenum pname, GLint* params);
-GL_API void           GL_APIENTRY glGetUniformfv (GLuint program, GLint location, GLfloat* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetUniformiv (GLuint program, GLint location, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API int            GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetVertexAttribfv (GLuint index, GLenum pname, GLfloat* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetVertexAttribiv (GLuint index, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetVertexAttribPointerv (GLuint index, GLenum pname, GLvoid** pointer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glHint (GLenum target, GLenum mode);
-GL_API GLboolean      GL_APIENTRY glIsBuffer (GLuint buffer);
-GL_API GLboolean      GL_APIENTRY glIsEnabled (GLenum cap);
-GL_API GLboolean      GL_APIENTRY glIsFramebuffer (GLuint framebuffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API GLboolean      GL_APIENTRY glIsProgram (GLuint program);
-GL_API GLboolean      GL_APIENTRY glIsRenderbuffer (GLuint renderbuffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API GLboolean      GL_APIENTRY glIsShader (GLuint shader)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API GLboolean      GL_APIENTRY glIsTexture (GLuint texture);
-GL_API void           GL_APIENTRY glLineWidth (GLfloat width);
-GL_API void           GL_APIENTRY glLinkProgram (GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glPixelStorei (GLenum pname, GLint param);
-GL_API void           GL_APIENTRY glPolygonOffset (GLfloat factor, GLfloat units);
-GL_API void           GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels);
-GL_API void           GL_APIENTRY glReleaseShaderCompiler (void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glRenderbufferStorage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glSampleCoverage (GLclampf value, GLboolean invert);
-GL_API void           GL_APIENTRY glScissor (GLint x, GLint y, GLsizei width, GLsizei height);
-GL_API void           GL_APIENTRY glShaderBinary (GLsizei n, const GLuint* shaders, GLenum binaryformat, const GLvoid* binary, GLsizei length)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar* const *string, const GLint* length)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glStencilFunc (GLenum func, GLint ref, GLuint mask);
-GL_API void           GL_APIENTRY glStencilFuncSeparate (GLenum face, GLenum func, GLint ref, GLuint mask)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glStencilMask (GLuint mask);
-GL_API void           GL_APIENTRY glStencilMaskSeparate (GLenum face, GLuint mask)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glStencilOp (GLenum fail, GLenum zfail, GLenum zpass);
-GL_API void           GL_APIENTRY glStencilOpSeparate (GLenum face, GLenum fail, GLenum zfail, GLenum zpass)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels);
-GL_API void           GL_APIENTRY glTexParameterf (GLenum target, GLenum pname, GLfloat param);
-GL_API void           GL_APIENTRY glTexParameterfv (GLenum target, GLenum pname, const GLfloat* params);
-GL_API void           GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param);
-GL_API void           GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const GLint* params);
-GL_API void           GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels);
-GL_API void           GL_APIENTRY glUniform1f (GLint location, GLfloat x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform1fv (GLint location, GLsizei count, const GLfloat* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform1i (GLint location, GLint x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform1iv (GLint location, GLsizei count, const GLint* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform2f (GLint location, GLfloat x, GLfloat y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform2fv (GLint location, GLsizei count, const GLfloat* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform2i (GLint location, GLint x, GLint y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform2iv (GLint location, GLsizei count, const GLint* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform3f (GLint location, GLfloat x, GLfloat y, GLfloat z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform3fv (GLint location, GLsizei count, const GLfloat* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform3i (GLint location, GLint x, GLint y, GLint z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform3iv (GLint location, GLsizei count, const GLint* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform4f (GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform4fv (GLint location, GLsizei count, const GLfloat* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform4i (GLint location, GLint x, GLint y, GLint z, GLint w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform4iv (GLint location, GLsizei count, const GLint* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniformMatrix2fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniformMatrix3fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUseProgram (GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glValidateProgram (GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib1f (GLuint indx, GLfloat x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib1fv (GLuint indx, const GLfloat* values)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib2f (GLuint indx, GLfloat x, GLfloat y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib2fv (GLuint indx, const GLfloat* values)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib3f (GLuint indx, GLfloat x, GLfloat y, GLfloat z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib3fv (GLuint indx, const GLfloat* values)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib4f (GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib4fv (GLuint indx, const GLfloat* values)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei height);
+GL_API void           GL_APIENTRY glActiveTexture (GLenum texture) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glAttachShader (GLuint program, GLuint shader)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, const GLchar* name)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindFramebuffer (GLenum target, GLuint framebuffer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindRenderbuffer (GLenum target, GLuint renderbuffer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindTexture (GLenum target, GLuint texture) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlendColor (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlendEquation (GLenum mode)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlendEquationSeparate (GLenum modeRGB, GLenum modeAlpha)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlendFunc (GLenum sfactor, GLenum dfactor) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlendFuncSeparate (GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLenum         GL_APIENTRY glCheckFramebufferStatus (GLenum target)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClear (GLbitfield mask) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClearColor (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClearDepthf (GLclampf depth) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClearStencil (GLint s) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCompileShader (GLuint shader)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid* data) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid* data) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCopyTexImage2D (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLuint         GL_APIENTRY glCreateProgram (void)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLuint         GL_APIENTRY glCreateShader (GLenum type)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCullFace (GLenum mode) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteFramebuffers (GLsizei n, const GLuint* framebuffers)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteProgram (GLuint program)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteRenderbuffers (GLsizei n, const GLuint* renderbuffers)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteShader (GLuint shader)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDepthFunc (GLenum func) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDepthMask (GLboolean flag) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDetachShader (GLuint program, GLuint shader)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDisable (GLenum cap) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDisableVertexAttribArray (GLuint index)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glEnable (GLenum cap) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glEnableVertexAttribArray (GLuint index)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFinish (void) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFlush (void) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFramebufferRenderbuffer (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFramebufferTexture2D (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFrontFace (GLenum mode) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenerateMipmap (GLenum target)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenRenderbuffers (GLsizei n, GLuint* renderbuffers)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetAttachedShaders (GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API int            GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* name)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetBooleanv (GLenum pname, GLboolean* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetBufferParameteriv (GLenum target, GLenum pname, GLint* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLenum         GL_APIENTRY glGetError (void) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetFloatv (GLenum pname, GLfloat* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetFramebufferAttachmentParameteriv (GLenum target, GLenum attachment, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetIntegerv (GLenum pname, GLint* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize, GLsizei* length, GLchar* infolog)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetRenderbufferParameteriv (GLenum target, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* infolog)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetShaderPrecisionFormat (GLenum shadertype, GLenum precisiontype, GLint* range, GLint* precision)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetShaderSource (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* source)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API const GLubyte* GL_APIENTRY glGetString (GLenum name) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetTexParameterfv (GLenum target, GLenum pname, GLfloat* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetTexParameteriv (GLenum target, GLenum pname, GLint* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetUniformfv (GLuint program, GLint location, GLfloat* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetUniformiv (GLuint program, GLint location, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API int            GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* name)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetVertexAttribfv (GLuint index, GLenum pname, GLfloat* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetVertexAttribiv (GLuint index, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetVertexAttribPointerv (GLuint index, GLenum pname, GLvoid** pointer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glHint (GLenum target, GLenum mode) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsBuffer (GLuint buffer) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsEnabled (GLenum cap) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsFramebuffer (GLuint framebuffer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsProgram (GLuint program) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsRenderbuffer (GLuint renderbuffer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsShader (GLuint shader)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsTexture (GLuint texture) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glLineWidth (GLfloat width) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glLinkProgram (GLuint program)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glPixelStorei (GLenum pname, GLint param) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glPolygonOffset (GLfloat factor, GLfloat units) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glReleaseShaderCompiler (void)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glRenderbufferStorage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glSampleCoverage (GLclampf value, GLboolean invert) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glScissor (GLint x, GLint y, GLsizei width, GLsizei height) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glShaderBinary (GLsizei n, const GLuint* shaders, GLenum binaryformat, const GLvoid* binary, GLsizei length)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar* const *string, const GLint* length)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilFunc (GLenum func, GLint ref, GLuint mask) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilFuncSeparate (GLenum face, GLenum func, GLint ref, GLuint mask)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilMask (GLuint mask) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilMaskSeparate (GLenum face, GLuint mask)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilOp (GLenum fail, GLenum zfail, GLenum zpass) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilOpSeparate (GLenum face, GLenum fail, GLenum zfail, GLenum zpass)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexParameterf (GLenum target, GLenum pname, GLfloat param) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexParameterfv (GLenum target, GLenum pname, const GLfloat* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const GLint* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform1f (GLint location, GLfloat x)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform1fv (GLint location, GLsizei count, const GLfloat* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform1i (GLint location, GLint x)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform1iv (GLint location, GLsizei count, const GLint* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform2f (GLint location, GLfloat x, GLfloat y)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform2fv (GLint location, GLsizei count, const GLfloat* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform2i (GLint location, GLint x, GLint y)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform2iv (GLint location, GLsizei count, const GLint* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform3f (GLint location, GLfloat x, GLfloat y, GLfloat z)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform3fv (GLint location, GLsizei count, const GLfloat* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform3i (GLint location, GLint x, GLint y, GLint z)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform3iv (GLint location, GLsizei count, const GLint* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform4f (GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform4fv (GLint location, GLsizei count, const GLfloat* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform4i (GLint location, GLint x, GLint y, GLint z, GLint w)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform4iv (GLint location, GLsizei count, const GLint* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix2fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix3fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUseProgram (GLuint program)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glValidateProgram (GLuint program)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib1f (GLuint indx, GLfloat x)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib1fv (GLuint indx, const GLfloat* values)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib2f (GLuint indx, GLfloat x, GLfloat y)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib2fv (GLuint indx, const GLfloat* values)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib3f (GLuint indx, GLfloat x, GLfloat y, GLfloat z)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib3fv (GLuint indx, const GLfloat* values)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib4f (GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib4fv (GLuint indx, const GLfloat* values)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei height) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
 
 #ifdef __cplusplus
 }
@@ -1210,7 +1217,8 @@ GL_API void           GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, G
 #define __gl_es30ext_h_
 
 #include <OpenGLES/ES3/gl.h>
-#include <Availability.h>
+#include <OpenGLES/OpenGLESAvailability.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -1439,75 +1447,75 @@ extern "C" {
  * APPLE extension functions
  *------------------------------------------------------------------------*/
 #if GL_APPLE_copy_texture_levels
-GL_API GLvoid glCopyTextureLevelsAPPLE(GLuint destinationTexture, GLuint sourceTexture, GLint sourceBaseLevel, GLsizei sourceLevelCount) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+GL_API GLvoid glCopyTextureLevelsAPPLE(GLuint destinationTexture, GLuint sourceTexture, GLint sourceBaseLevel, GLsizei sourceLevelCount)  OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 /*------------------------------------------------------------------------*
  * EXT extension functions
  *------------------------------------------------------------------------*/
 #if GL_EXT_debug_label
-GL_API GLvoid glLabelObjectEXT(GLenum type, GLuint object, GLsizei length, const GLchar *label)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGetObjectLabelEXT(GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, GLchar *label)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glLabelObjectEXT(GLenum type, GLuint object, GLsizei length, const GLchar *label)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGetObjectLabelEXT(GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, GLchar *label)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_debug_marker
-GL_API GLvoid glInsertEventMarkerEXT(GLsizei length, const GLchar *marker)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glPushGroupMarkerEXT(GLsizei length, const GLchar *marker)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glPopGroupMarkerEXT(void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glInsertEventMarkerEXT(GLsizei length, const GLchar *marker)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glPushGroupMarkerEXT(GLsizei length, const GLchar *marker)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glPopGroupMarkerEXT(void)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_separate_shader_objects
-GL_API GLvoid glUseProgramStagesEXT(GLuint pipeline, GLbitfield stages, GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glActiveShaderProgramEXT(GLuint pipeline, GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLuint glCreateShaderProgramvEXT(GLenum type, GLsizei count, const GLchar* const *strings)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glBindProgramPipelineEXT(GLuint pipeline)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glDeleteProgramPipelinesEXT(GLsizei n, const GLuint *pipelines)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGenProgramPipelinesEXT(GLsizei n, GLuint *pipelines)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLboolean glIsProgramPipelineEXT(GLuint pipeline)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramParameteriEXT(GLuint program, GLenum pname, GLint value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGetProgramPipelineivEXT(GLuint pipeline, GLenum pname, GLint *params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glValidateProgramPipelineEXT(GLuint pipeline)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGetProgramPipelineInfoLogEXT(GLuint pipeline, GLsizei bufSize, GLsizei *length, GLchar *infoLog)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glUseProgramStagesEXT(GLuint pipeline, GLbitfield stages, GLuint program)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glActiveShaderProgramEXT(GLuint pipeline, GLuint program)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLuint glCreateShaderProgramvEXT(GLenum type, GLsizei count, const GLchar* const *strings)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glBindProgramPipelineEXT(GLuint pipeline)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glDeleteProgramPipelinesEXT(GLsizei n, const GLuint *pipelines)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGenProgramPipelinesEXT(GLsizei n, GLuint *pipelines)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean glIsProgramPipelineEXT(GLuint pipeline)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramParameteriEXT(GLuint program, GLenum pname, GLint value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGetProgramPipelineivEXT(GLuint pipeline, GLenum pname, GLint *params)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glValidateProgramPipelineEXT(GLuint pipeline)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGetProgramPipelineInfoLogEXT(GLuint pipeline, GLsizei bufSize, GLsizei *length, GLchar *infoLog)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniform1iEXT(GLuint program, GLint location, GLint x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform2iEXT(GLuint program, GLint location, GLint x, GLint y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform3iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform4iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glProgramUniform1iEXT(GLuint program, GLint location, GLint x)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform2iEXT(GLuint program, GLint location, GLint x, GLint y)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform3iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform4iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniform1fEXT(GLuint program, GLint location, GLfloat x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform2fEXT(GLuint program, GLint location, GLfloat x, GLfloat y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform3fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform4fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glProgramUniform1fEXT(GLuint program, GLint location, GLfloat x)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform2fEXT(GLuint program, GLint location, GLfloat x, GLfloat y)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform3fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform4fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniform1uiEXT(GLuint program, GLint location, GLuint x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniform2uiEXT(GLuint program, GLint location, GLuint x, GLuint y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniform3uiEXT(GLuint program, GLint location, GLuint x, GLuint y, GLuint z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniform4uiEXT(GLuint program, GLint location, GLuint x, GLuint y, GLuint z, GLuint w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+GL_API GLvoid glProgramUniform1uiEXT(GLuint program, GLint location, GLuint x)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform2uiEXT(GLuint program, GLint location, GLuint x, GLuint y)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform3uiEXT(GLuint program, GLint location, GLuint x, GLuint y, GLuint z)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform4uiEXT(GLuint program, GLint location, GLuint x, GLuint y, GLuint z, GLuint w)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniform1ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform2ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform3ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform4ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glProgramUniform1ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform2ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform3ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform4ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniform1fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform2fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform3fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniform4fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glProgramUniform1fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform2fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform3fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform4fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniform1uivEXT(GLuint program, GLint location, GLsizei count, const GLuint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniform2uivEXT(GLuint program, GLint location, GLsizei count, const GLuint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniform3uivEXT(GLuint program, GLint location, GLsizei count, const GLuint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniform4uivEXT(GLuint program, GLint location, GLsizei count, const GLuint *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+GL_API GLvoid glProgramUniform1uivEXT(GLuint program, GLint location, GLsizei count, const GLuint *value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform2uivEXT(GLuint program, GLint location, GLsizei count, const GLuint *value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform3uivEXT(GLuint program, GLint location, GLsizei count, const GLuint *value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniform4uivEXT(GLuint program, GLint location, GLsizei count, const GLuint *value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
 
-GL_API GLvoid glProgramUniformMatrix2fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniformMatrix3fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniformMatrix4fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glProgramUniformMatrix2x3fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniformMatrix3x2fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniformMatrix2x4fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniformMatrix4x2fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniformMatrix3x4fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid glProgramUniformMatrix4x3fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+GL_API GLvoid glProgramUniformMatrix2fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniformMatrix3fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniformMatrix4fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniformMatrix2x3fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniformMatrix3x2fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniformMatrix2x4fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniformMatrix4x2fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniformMatrix3x4fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glProgramUniformMatrix4x3fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #ifdef __cplusplus
@@ -1520,7 +1528,7 @@ GL_API GLvoid glProgramUniformMatrix4x3fvEXT(GLuint program, GLint location, GLs
 #define __gl_es30_h_
 
 #include <Availability.h>
-
+#include <OpenGLES/OpenGLESAvailability.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -2300,255 +2308,255 @@ extern "C" {
 
 /* OpenGL ES 2.0 */
 
-GL_API void           GL_APIENTRY glActiveTexture (GLenum texture);
-GL_API void           GL_APIENTRY glAttachShader (GLuint program, GLuint shader)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, const GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer);
-GL_API void           GL_APIENTRY glBindFramebuffer (GLenum target, GLuint framebuffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBindRenderbuffer (GLenum target, GLuint renderbuffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBindTexture (GLenum target, GLuint texture);
-GL_API void           GL_APIENTRY glBlendColor (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBlendEquation (GLenum mode)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBlendEquationSeparate (GLenum modeRGB, GLenum modeAlpha)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBlendFunc (GLenum sfactor, GLenum dfactor);
-GL_API void           GL_APIENTRY glBlendFuncSeparate (GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
-GL_API void           GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data);
-GL_API GLenum         GL_APIENTRY glCheckFramebufferStatus (GLenum target)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glClear (GLbitfield mask);
-GL_API void           GL_APIENTRY glClearColor (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-GL_API void           GL_APIENTRY glClearDepthf (GLclampf depth);
-GL_API void           GL_APIENTRY glClearStencil (GLint s);
-GL_API void           GL_APIENTRY glColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-GL_API void           GL_APIENTRY glCompileShader (GLuint shader)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glCompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid* data);
-GL_API void           GL_APIENTRY glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid* data);
-GL_API void           GL_APIENTRY glCopyTexImage2D (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
-GL_API void           GL_APIENTRY glCopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-GL_API GLuint         GL_APIENTRY glCreateProgram (void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API GLuint         GL_APIENTRY glCreateShader (GLenum type)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glCullFace (GLenum mode);
-GL_API void           GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers);
-GL_API void           GL_APIENTRY glDeleteFramebuffers (GLsizei n, const GLuint* framebuffers)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDeleteProgram (GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDeleteRenderbuffers (GLsizei n, const GLuint* renderbuffers)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDeleteShader (GLuint shader)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures);
-GL_API void           GL_APIENTRY glDepthFunc (GLenum func);
-GL_API void           GL_APIENTRY glDepthMask (GLboolean flag);
-GL_API void           GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar);
-GL_API void           GL_APIENTRY glDetachShader (GLuint program, GLuint shader)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDisable (GLenum cap);
-GL_API void           GL_APIENTRY glDisableVertexAttribArray (GLuint index)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count);
-GL_API void           GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices);
-GL_API void           GL_APIENTRY glEnable (GLenum cap);
-GL_API void           GL_APIENTRY glEnableVertexAttribArray (GLuint index)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glFinish (void);
-GL_API void           GL_APIENTRY glFlush (void);
-GL_API void           GL_APIENTRY glFramebufferRenderbuffer (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glFramebufferTexture2D (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glFrontFace (GLenum mode);
-GL_API void           GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers);
-GL_API void           GL_APIENTRY glGenerateMipmap (GLenum target)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGenRenderbuffers (GLsizei n, GLuint* renderbuffers)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures);
-GL_API void           GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetAttachedShaders (GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API int            GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetBooleanv (GLenum pname, GLboolean* params);
-GL_API void           GL_APIENTRY glGetBufferParameteriv (GLenum target, GLenum pname, GLint* params);
-GL_API GLenum         GL_APIENTRY glGetError (void);
-GL_API void           GL_APIENTRY glGetFloatv (GLenum pname, GLfloat* params);
-GL_API void           GL_APIENTRY glGetFramebufferAttachmentParameteriv (GLenum target, GLenum attachment, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetIntegerv (GLenum pname, GLint* params);
-GL_API void           GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize, GLsizei* length, GLchar* infolog)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetRenderbufferParameteriv (GLenum target, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* infolog)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetShaderPrecisionFormat (GLenum shadertype, GLenum precisiontype, GLint* range, GLint* precision)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetShaderSource (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* source)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API const GLubyte* GL_APIENTRY glGetString (GLenum name);
-GL_API void           GL_APIENTRY glGetTexParameterfv (GLenum target, GLenum pname, GLfloat* params);
-GL_API void           GL_APIENTRY glGetTexParameteriv (GLenum target, GLenum pname, GLint* params);
-GL_API void           GL_APIENTRY glGetUniformfv (GLuint program, GLint location, GLfloat* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetUniformiv (GLuint program, GLint location, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API int            GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetVertexAttribfv (GLuint index, GLenum pname, GLfloat* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetVertexAttribiv (GLuint index, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glGetVertexAttribPointerv (GLuint index, GLenum pname, GLvoid** pointer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glHint (GLenum target, GLenum mode);
-GL_API GLboolean      GL_APIENTRY glIsBuffer (GLuint buffer);
-GL_API GLboolean      GL_APIENTRY glIsEnabled (GLenum cap);
-GL_API GLboolean      GL_APIENTRY glIsFramebuffer (GLuint framebuffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API GLboolean      GL_APIENTRY glIsProgram (GLuint program);
-GL_API GLboolean      GL_APIENTRY glIsRenderbuffer (GLuint renderbuffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API GLboolean      GL_APIENTRY glIsShader (GLuint shader)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API GLboolean      GL_APIENTRY glIsTexture (GLuint texture);
-GL_API void           GL_APIENTRY glLineWidth (GLfloat width);
-GL_API void           GL_APIENTRY glLinkProgram (GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glPixelStorei (GLenum pname, GLint param);
-GL_API void           GL_APIENTRY glPolygonOffset (GLfloat factor, GLfloat units);
-GL_API void           GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels);
-GL_API void           GL_APIENTRY glReleaseShaderCompiler (void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glRenderbufferStorage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glSampleCoverage (GLclampf value, GLboolean invert);
-GL_API void           GL_APIENTRY glScissor (GLint x, GLint y, GLsizei width, GLsizei height);
-GL_API void           GL_APIENTRY glShaderBinary (GLsizei n, const GLuint* shaders, GLenum binaryformat, const GLvoid* binary, GLsizei length)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar* const *string, const GLint* length)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glStencilFunc (GLenum func, GLint ref, GLuint mask);
-GL_API void           GL_APIENTRY glStencilFuncSeparate (GLenum face, GLenum func, GLint ref, GLuint mask)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glStencilMask (GLuint mask);
-GL_API void           GL_APIENTRY glStencilMaskSeparate (GLenum face, GLuint mask)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glStencilOp (GLenum fail, GLenum zfail, GLenum zpass);
-GL_API void           GL_APIENTRY glStencilOpSeparate (GLenum face, GLenum fail, GLenum zfail, GLenum zpass)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels);
-GL_API void           GL_APIENTRY glTexParameterf (GLenum target, GLenum pname, GLfloat param);
-GL_API void           GL_APIENTRY glTexParameterfv (GLenum target, GLenum pname, const GLfloat* params);
-GL_API void           GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param);
-GL_API void           GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const GLint* params);
-GL_API void           GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels);
-GL_API void           GL_APIENTRY glUniform1f (GLint location, GLfloat x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform1fv (GLint location, GLsizei count, const GLfloat* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform1i (GLint location, GLint x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform1iv (GLint location, GLsizei count, const GLint* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform2f (GLint location, GLfloat x, GLfloat y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform2fv (GLint location, GLsizei count, const GLfloat* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform2i (GLint location, GLint x, GLint y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform2iv (GLint location, GLsizei count, const GLint* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform3f (GLint location, GLfloat x, GLfloat y, GLfloat z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform3fv (GLint location, GLsizei count, const GLfloat* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform3i (GLint location, GLint x, GLint y, GLint z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform3iv (GLint location, GLsizei count, const GLint* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform4f (GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform4fv (GLint location, GLsizei count, const GLfloat* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform4i (GLint location, GLint x, GLint y, GLint z, GLint w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniform4iv (GLint location, GLsizei count, const GLint* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniformMatrix2fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniformMatrix3fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glUseProgram (GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glValidateProgram (GLuint program)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib1f (GLuint indx, GLfloat x)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib1fv (GLuint indx, const GLfloat* values)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib2f (GLuint indx, GLfloat x, GLfloat y)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib2fv (GLuint indx, const GLfloat* values)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib3f (GLuint indx, GLfloat x, GLfloat y, GLfloat z)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib3fv (GLuint indx, const GLfloat* values)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib4f (GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttrib4fv (GLuint indx, const GLfloat* values)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-GL_API void           GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei height);
+GL_API void           GL_APIENTRY glActiveTexture (GLenum texture) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glAttachShader (GLuint program, GLuint shader)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindAttribLocation (GLuint program, GLuint index, const GLchar* name)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindFramebuffer (GLenum target, GLuint framebuffer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindRenderbuffer (GLenum target, GLuint renderbuffer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindTexture (GLenum target, GLuint texture) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlendColor (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlendEquation (GLenum mode)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlendEquationSeparate (GLenum modeRGB, GLenum modeAlpha)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlendFunc (GLenum sfactor, GLenum dfactor) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlendFuncSeparate (GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLenum         GL_APIENTRY glCheckFramebufferStatus (GLenum target)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClear (GLbitfield mask) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClearColor (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClearDepthf (GLclampf depth) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClearStencil (GLint s) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCompileShader (GLuint shader)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid* data) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid* data) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCopyTexImage2D (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLuint         GL_APIENTRY glCreateProgram (void)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLuint         GL_APIENTRY glCreateShader (GLenum type)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCullFace (GLenum mode) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint* buffers) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteFramebuffers (GLsizei n, const GLuint* framebuffers)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteProgram (GLuint program)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteRenderbuffers (GLsizei n, const GLuint* renderbuffers)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteShader (GLuint shader)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint* textures) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDepthFunc (GLenum func) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDepthMask (GLboolean flag) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDetachShader (GLuint program, GLuint shader)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDisable (GLenum cap) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDisableVertexAttribArray (GLuint index)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glEnable (GLenum cap) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glEnableVertexAttribArray (GLuint index)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFinish (void) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFlush (void) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFramebufferRenderbuffer (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFramebufferTexture2D (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFrontFace (GLenum mode) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenBuffers (GLsizei n, GLuint* buffers) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenerateMipmap (GLenum target)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenFramebuffers (GLsizei n, GLuint* framebuffers)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenRenderbuffers (GLsizei n, GLuint* renderbuffers)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenTextures (GLsizei n, GLuint* textures) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetActiveAttrib (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetActiveUniform (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetAttachedShaders (GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API int            GL_APIENTRY glGetAttribLocation (GLuint program, const GLchar* name)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetBooleanv (GLenum pname, GLboolean* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetBufferParameteriv (GLenum target, GLenum pname, GLint* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLenum         GL_APIENTRY glGetError (void) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetFloatv (GLenum pname, GLfloat* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetFramebufferAttachmentParameteriv (GLenum target, GLenum attachment, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetIntegerv (GLenum pname, GLint* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufsize, GLsizei* length, GLchar* infolog)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetRenderbufferParameteriv (GLenum target, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* infolog)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetShaderPrecisionFormat (GLenum shadertype, GLenum precisiontype, GLint* range, GLint* precision)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetShaderSource (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* source)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API const GLubyte* GL_APIENTRY glGetString (GLenum name) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetTexParameterfv (GLenum target, GLenum pname, GLfloat* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetTexParameteriv (GLenum target, GLenum pname, GLint* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetUniformfv (GLuint program, GLint location, GLfloat* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetUniformiv (GLuint program, GLint location, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API int            GL_APIENTRY glGetUniformLocation (GLuint program, const GLchar* name)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetVertexAttribfv (GLuint index, GLenum pname, GLfloat* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetVertexAttribiv (GLuint index, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetVertexAttribPointerv (GLuint index, GLenum pname, GLvoid** pointer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glHint (GLenum target, GLenum mode) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsBuffer (GLuint buffer) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsEnabled (GLenum cap) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsFramebuffer (GLuint framebuffer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsProgram (GLuint program) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsRenderbuffer (GLuint renderbuffer)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsShader (GLuint shader)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsTexture (GLuint texture) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glLineWidth (GLfloat width) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glLinkProgram (GLuint program)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glPixelStorei (GLenum pname, GLint param) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glPolygonOffset (GLfloat factor, GLfloat units) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glReleaseShaderCompiler (void)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glRenderbufferStorage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glSampleCoverage (GLclampf value, GLboolean invert) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glScissor (GLint x, GLint y, GLsizei width, GLsizei height) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glShaderBinary (GLsizei n, const GLuint* shaders, GLenum binaryformat, const GLvoid* binary, GLsizei length)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar* const *string, const GLint* length)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilFunc (GLenum func, GLint ref, GLuint mask) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilFuncSeparate (GLenum face, GLenum func, GLint ref, GLuint mask)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilMask (GLuint mask) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilMaskSeparate (GLenum face, GLuint mask)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilOp (GLenum fail, GLenum zfail, GLenum zpass) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glStencilOpSeparate (GLenum face, GLenum fail, GLenum zfail, GLenum zpass)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexParameterf (GLenum target, GLenum pname, GLfloat param) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexParameterfv (GLenum target, GLenum pname, const GLfloat* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const GLint* params) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform1f (GLint location, GLfloat x)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform1fv (GLint location, GLsizei count, const GLfloat* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform1i (GLint location, GLint x)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform1iv (GLint location, GLsizei count, const GLint* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform2f (GLint location, GLfloat x, GLfloat y)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform2fv (GLint location, GLsizei count, const GLfloat* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform2i (GLint location, GLint x, GLint y)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform2iv (GLint location, GLsizei count, const GLint* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform3f (GLint location, GLfloat x, GLfloat y, GLfloat z)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform3fv (GLint location, GLsizei count, const GLfloat* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform3i (GLint location, GLint x, GLint y, GLint z)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform3iv (GLint location, GLsizei count, const GLint* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform4f (GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform4fv (GLint location, GLsizei count, const GLfloat* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform4i (GLint location, GLint x, GLint y, GLint z, GLint w)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform4iv (GLint location, GLsizei count, const GLint* v)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix2fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix3fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUseProgram (GLuint program)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glValidateProgram (GLuint program)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib1f (GLuint indx, GLfloat x)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib1fv (GLuint indx, const GLfloat* values)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib2f (GLuint indx, GLfloat x, GLfloat y)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib2fv (GLuint indx, const GLfloat* values)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib3f (GLuint indx, GLfloat x, GLfloat y, GLfloat z)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib3fv (GLuint indx, const GLfloat* values)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib4f (GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttrib4fv (GLuint indx, const GLfloat* values)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttribPointer (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr)   OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei height) OPENGLES_DEPRECATED(ios(3.0, 12.0), tvos(9.0, 12.0));
 
 /* OpenGL ES 3.0 */
 
-GL_API void           GL_APIENTRY glReadBuffer (GLenum mode)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glDrawRangeElements (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid* indices)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glTexImage3D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid* pixels)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid* pixels)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glCopyTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glCompressedTexImage3D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid* data)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glCompressedTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid* data)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGenQueries (GLsizei n, GLuint* ids)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glDeleteQueries (GLsizei n, const GLuint* ids)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLboolean      GL_APIENTRY glIsQuery (GLuint id)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glBeginQuery (GLenum target, GLuint id)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glEndQuery (GLenum target)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetQueryiv (GLenum target, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetQueryObjectuiv (GLuint id, GLenum pname, GLuint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLboolean      GL_APIENTRY glUnmapBuffer (GLenum target)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetBufferPointerv (GLenum target, GLenum pname, GLvoid** params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glDrawBuffers (GLsizei n, const GLenum* bufs)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniformMatrix2x3fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniformMatrix3x2fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniformMatrix2x4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniformMatrix4x2fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniformMatrix3x4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniformMatrix4x3fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glBlitFramebuffer (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glRenderbufferStorageMultisample (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glFramebufferTextureLayer (GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLvoid*        GL_APIENTRY glMapBufferRange (GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glFlushMappedBufferRange (GLenum target, GLintptr offset, GLsizeiptr length)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glBindVertexArray (GLuint array)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glDeleteVertexArrays (GLsizei n, const GLuint* arrays)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGenVertexArrays (GLsizei n, GLuint* arrays)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLboolean      GL_APIENTRY glIsVertexArray (GLuint array)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetIntegeri_v (GLenum target, GLuint index, GLint* data)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glBeginTransformFeedback (GLenum primitiveMode)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glEndTransformFeedback (void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glBindBufferRange (GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glBindBufferBase (GLenum target, GLuint index, GLuint buffer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glTransformFeedbackVaryings (GLuint program, GLsizei count, const GLchar* const *varyings, GLenum bufferMode)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetTransformFeedbackVarying (GLuint program, GLuint index, GLsizei bufSize, GLsizei* length, GLsizei* size, GLenum* type, GLchar* name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glVertexAttribIPointer (GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetVertexAttribIiv (GLuint index, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetVertexAttribIuiv (GLuint index, GLenum pname, GLuint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glVertexAttribI4i (GLuint index, GLint x, GLint y, GLint z, GLint w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glVertexAttribI4ui (GLuint index, GLuint x, GLuint y, GLuint z, GLuint w)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glVertexAttribI4iv (GLuint index, const GLint* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glVertexAttribI4uiv (GLuint index, const GLuint* v)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetUniformuiv (GLuint program, GLint location, GLuint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLint          GL_APIENTRY glGetFragDataLocation (GLuint program, const GLchar *name)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniform1ui (GLint location, GLuint v0)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniform2ui (GLint location, GLuint v0, GLuint v1)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniform3ui (GLint location, GLuint v0, GLuint v1, GLuint v2)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniform4ui (GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniform1uiv (GLint location, GLsizei count, const GLuint* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniform2uiv (GLint location, GLsizei count, const GLuint* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniform3uiv (GLint location, GLsizei count, const GLuint* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniform4uiv (GLint location, GLsizei count, const GLuint* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glClearBufferiv (GLenum buffer, GLint drawbuffer, const GLint* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glClearBufferuiv (GLenum buffer, GLint drawbuffer, const GLuint* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glClearBufferfv (GLenum buffer, GLint drawbuffer, const GLfloat* value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glClearBufferfi (GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API const GLubyte* GL_APIENTRY glGetStringi (GLenum name, GLuint index)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glCopyBufferSubData (GLenum readTarget, GLenum writeTarget, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetUniformIndices (GLuint program, GLsizei uniformCount, const GLchar* const *uniformNames, GLuint* uniformIndices)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetActiveUniformsiv (GLuint program, GLsizei uniformCount, const GLuint* uniformIndices, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLuint         GL_APIENTRY glGetUniformBlockIndex (GLuint program, const GLchar* uniformBlockName)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetActiveUniformBlockiv (GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetActiveUniformBlockName (GLuint program, GLuint uniformBlockIndex, GLsizei bufSize, GLsizei* length, GLchar* uniformBlockName)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glUniformBlockBinding (GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glDrawArraysInstanced (GLenum mode, GLint first, GLsizei count, GLsizei instancecount)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glDrawElementsInstanced (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLsizei instancecount)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLsync         GL_APIENTRY glFenceSync (GLenum condition, GLbitfield flags)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLboolean      GL_APIENTRY glIsSync (GLsync sync)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glDeleteSync (GLsync sync)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLenum         GL_APIENTRY glClientWaitSync (GLsync sync, GLbitfield flags, GLuint64 timeout)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glWaitSync (GLsync sync, GLbitfield flags, GLuint64 timeout)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetInteger64v (GLenum pname, GLint64* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetSynciv (GLsync sync, GLenum pname, GLsizei bufSize, GLsizei* length, GLint* values)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetInteger64i_v (GLenum target, GLuint index, GLint64* data)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetBufferParameteri64v (GLenum target, GLenum pname, GLint64* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGenSamplers (GLsizei count, GLuint* samplers)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glDeleteSamplers (GLsizei count, const GLuint* samplers)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLboolean      GL_APIENTRY glIsSampler (GLuint sampler)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glBindSampler (GLuint unit, GLuint sampler)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glSamplerParameteri (GLuint sampler, GLenum pname, GLint param)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glSamplerParameteriv (GLuint sampler, GLenum pname, const GLint* param)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glSamplerParameterf (GLuint sampler, GLenum pname, GLfloat param)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glSamplerParameterfv (GLuint sampler, GLenum pname, const GLfloat* param)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetSamplerParameteriv (GLuint sampler, GLenum pname, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetSamplerParameterfv (GLuint sampler, GLenum pname, GLfloat* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glVertexAttribDivisor (GLuint index, GLuint divisor)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glBindTransformFeedback (GLenum target, GLuint id)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glDeleteTransformFeedbacks (GLsizei n, const GLuint* ids)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGenTransformFeedbacks (GLsizei n, GLuint* ids)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API GLboolean      GL_APIENTRY glIsTransformFeedback (GLuint id)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glPauseTransformFeedback (void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glResumeTransformFeedback (void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetProgramBinary (GLuint program, GLsizei bufSize, GLsizei* length, GLenum* binaryFormat, GLvoid* binary)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glProgramBinary (GLuint program, GLenum binaryFormat, const GLvoid* binary, GLsizei length)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glProgramParameteri (GLuint program, GLenum pname, GLint value)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glInvalidateFramebuffer (GLenum target, GLsizei numAttachments, const GLenum* attachments)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glInvalidateSubFramebuffer (GLenum target, GLsizei numAttachments, const GLenum* attachments, GLint x, GLint y, GLsizei width, GLsizei height)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glTexStorage2D (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glTexStorage3D (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-GL_API void           GL_APIENTRY glGetInternalformativ (GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint* params)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+GL_API void           GL_APIENTRY glReadBuffer (GLenum mode)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDrawRangeElements (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid* indices)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexImage3D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid* pixels)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid* pixels)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCopyTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCompressedTexImage3D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid* data)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCompressedTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid* data)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenQueries (GLsizei n, GLuint* ids)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteQueries (GLsizei n, const GLuint* ids)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsQuery (GLuint id)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBeginQuery (GLenum target, GLuint id)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glEndQuery (GLenum target)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetQueryiv (GLenum target, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetQueryObjectuiv (GLuint id, GLenum pname, GLuint* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glUnmapBuffer (GLenum target)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetBufferPointerv (GLenum target, GLenum pname, GLvoid** params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDrawBuffers (GLsizei n, const GLenum* bufs)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix2x3fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix3x2fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix2x4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix4x2fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix3x4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformMatrix4x3fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBlitFramebuffer (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glRenderbufferStorageMultisample (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFramebufferTextureLayer (GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid*        GL_APIENTRY glMapBufferRange (GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glFlushMappedBufferRange (GLenum target, GLintptr offset, GLsizeiptr length)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindVertexArray (GLuint array)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteVertexArrays (GLsizei n, const GLuint* arrays)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenVertexArrays (GLsizei n, GLuint* arrays)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsVertexArray (GLuint array)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetIntegeri_v (GLenum target, GLuint index, GLint* data)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBeginTransformFeedback (GLenum primitiveMode)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glEndTransformFeedback (void)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindBufferRange (GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindBufferBase (GLenum target, GLuint index, GLuint buffer)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTransformFeedbackVaryings (GLuint program, GLsizei count, const GLchar* const *varyings, GLenum bufferMode)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetTransformFeedbackVarying (GLuint program, GLuint index, GLsizei bufSize, GLsizei* length, GLsizei* size, GLenum* type, GLchar* name)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttribIPointer (GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetVertexAttribIiv (GLuint index, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetVertexAttribIuiv (GLuint index, GLenum pname, GLuint* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttribI4i (GLuint index, GLint x, GLint y, GLint z, GLint w)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttribI4ui (GLuint index, GLuint x, GLuint y, GLuint z, GLuint w)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttribI4iv (GLuint index, const GLint* v)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttribI4uiv (GLuint index, const GLuint* v)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetUniformuiv (GLuint program, GLint location, GLuint* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLint          GL_APIENTRY glGetFragDataLocation (GLuint program, const GLchar *name)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform1ui (GLint location, GLuint v0)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform2ui (GLint location, GLuint v0, GLuint v1)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform3ui (GLint location, GLuint v0, GLuint v1, GLuint v2)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform4ui (GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform1uiv (GLint location, GLsizei count, const GLuint* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform2uiv (GLint location, GLsizei count, const GLuint* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform3uiv (GLint location, GLsizei count, const GLuint* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniform4uiv (GLint location, GLsizei count, const GLuint* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClearBufferiv (GLenum buffer, GLint drawbuffer, const GLint* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClearBufferuiv (GLenum buffer, GLint drawbuffer, const GLuint* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClearBufferfv (GLenum buffer, GLint drawbuffer, const GLfloat* value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glClearBufferfi (GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API const GLubyte* GL_APIENTRY glGetStringi (GLenum name, GLuint index)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glCopyBufferSubData (GLenum readTarget, GLenum writeTarget, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetUniformIndices (GLuint program, GLsizei uniformCount, const GLchar* const *uniformNames, GLuint* uniformIndices)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetActiveUniformsiv (GLuint program, GLsizei uniformCount, const GLuint* uniformIndices, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLuint         GL_APIENTRY glGetUniformBlockIndex (GLuint program, const GLchar* uniformBlockName)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetActiveUniformBlockiv (GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetActiveUniformBlockName (GLuint program, GLuint uniformBlockIndex, GLsizei bufSize, GLsizei* length, GLchar* uniformBlockName)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glUniformBlockBinding (GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDrawArraysInstanced (GLenum mode, GLint first, GLsizei count, GLsizei instancecount)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDrawElementsInstanced (GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLsizei instancecount)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLsync         GL_APIENTRY glFenceSync (GLenum condition, GLbitfield flags)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsSync (GLsync sync)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteSync (GLsync sync)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLenum         GL_APIENTRY glClientWaitSync (GLsync sync, GLbitfield flags, GLuint64 timeout)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glWaitSync (GLsync sync, GLbitfield flags, GLuint64 timeout)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetInteger64v (GLenum pname, GLint64* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetSynciv (GLsync sync, GLenum pname, GLsizei bufSize, GLsizei* length, GLint* values)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetInteger64i_v (GLenum target, GLuint index, GLint64* data)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetBufferParameteri64v (GLenum target, GLenum pname, GLint64* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenSamplers (GLsizei count, GLuint* samplers)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteSamplers (GLsizei count, const GLuint* samplers)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsSampler (GLuint sampler)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindSampler (GLuint unit, GLuint sampler)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glSamplerParameteri (GLuint sampler, GLenum pname, GLint param)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glSamplerParameteriv (GLuint sampler, GLenum pname, const GLint* param)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glSamplerParameterf (GLuint sampler, GLenum pname, GLfloat param)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glSamplerParameterfv (GLuint sampler, GLenum pname, const GLfloat* param)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetSamplerParameteriv (GLuint sampler, GLenum pname, GLint* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetSamplerParameterfv (GLuint sampler, GLenum pname, GLfloat* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glVertexAttribDivisor (GLuint index, GLuint divisor)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glBindTransformFeedback (GLenum target, GLuint id)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glDeleteTransformFeedbacks (GLsizei n, const GLuint* ids)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGenTransformFeedbacks (GLsizei n, GLuint* ids)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean      GL_APIENTRY glIsTransformFeedback (GLuint id)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glPauseTransformFeedback (void)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glResumeTransformFeedback (void)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetProgramBinary (GLuint program, GLsizei bufSize, GLsizei* length, GLenum* binaryFormat, GLvoid* binary)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glProgramBinary (GLuint program, GLenum binaryFormat, const GLvoid* binary, GLsizei length)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glProgramParameteri (GLuint program, GLenum pname, GLint value)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glInvalidateFramebuffer (GLenum target, GLsizei numAttachments, const GLenum* attachments)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glInvalidateSubFramebuffer (GLenum target, GLsizei numAttachments, const GLenum* attachments, GLint x, GLint y, GLsizei width, GLsizei height)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexStorage2D (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glTexStorage3D (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
+GL_API void           GL_APIENTRY glGetInternalformativ (GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint* params)   OPENGLES_DEPRECATED(ios(7.0, 12.0), tvos(9.0, 12.0));
 
 #ifdef __cplusplus
 }
@@ -2564,6 +2572,9 @@ GL_API void           GL_APIENTRY glGetInternalformativ (GLenum target, GLenum i
 #define _EAGL_H_
 
 #include <Foundation/Foundation.h>
+#include <Availability.h>
+#include <OpenGLES/OpenGLESAvailability.h>
+
 
 #ifdef __cplusplus
 #define EAGL_EXTERN extern "C" __attribute__((visibility ("default")))
@@ -2597,7 +2608,7 @@ typedef NS_ENUM(NSUInteger, EAGLRenderingAPI)
 /* EAGL Functions                                                       */
 /************************************************************************/
 
-EAGL_EXTERN void EAGLGetVersion(unsigned int* major, unsigned int* minor);
+EAGL_EXTERN void EAGLGetVersion(unsigned int* major, unsigned int* minor) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
 
 /************************************************************************/
 /* EAGL Sharegroup                                                      */
@@ -2619,7 +2630,8 @@ EAGL_EXTERN_CLASS
 /************************************************************************/
 
 EAGL_EXTERN_CLASS
-@interface EAGLContext : NSObject
+OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0))
+@interface EAGLContext : NSObject 
 {
 @public
 	struct _EAGLContextPrivate *_private;
@@ -2647,7 +2659,7 @@ EAGL_EXTERN_CLASS
 #define ES1_GLEXT_H_GUARD
 
 #include <OpenGLES/ES1/gl.h>
-#include <Availability.h>
+#include <OpenGLES/OpenGLESAvailability.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -2922,50 +2934,50 @@ extern "C" {
  * APPLE extension functions
  *------------------------------------------------------------------------*/
 #if GL_APPLE_copy_texture_levels
-GL_API GLvoid glCopyTextureLevelsAPPLE(GLuint destinationTexture, GLuint sourceTexture, GLint sourceBaseLevel, GLsizei sourceLevelCount) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+GL_API GLvoid glCopyTextureLevelsAPPLE(GLuint destinationTexture, GLuint sourceTexture, GLint sourceBaseLevel, GLsizei sourceLevelCount)   OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_APPLE_framebuffer_multisample
-GL_API GLvoid glRenderbufferStorageMultisampleAPPLE(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-GL_API GLvoid glResolveMultisampleFramebufferAPPLE(void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+GL_API GLvoid glRenderbufferStorageMultisampleAPPLE(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glResolveMultisampleFramebufferAPPLE(void)  ;
 #endif
 
 /*------------------------------------------------------------------------*
  * EXT extension functions
  *------------------------------------------------------------------------*/
 #if GL_EXT_debug_label
-GL_API GLvoid glLabelObjectEXT(GLenum type, GLuint object, GLsizei length, const char *label)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glGetObjectLabelEXT(GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, char *label)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glLabelObjectEXT(GLenum type, GLuint object, GLsizei length, const char *label)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGetObjectLabelEXT(GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, char *label)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_debug_marker
-GL_API GLvoid glInsertEventMarkerEXT(GLsizei length, const char *marker)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glPushGroupMarkerEXT(GLsizei length, const char *marker)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
-GL_API GLvoid glPopGroupMarkerEXT(void)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+GL_API GLvoid glInsertEventMarkerEXT(GLsizei length, const char *marker)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glPushGroupMarkerEXT(GLsizei length, const char *marker)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glPopGroupMarkerEXT(void)   OPENGLES_DEPRECATED(ios(5.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_discard_framebuffer
-GL_API GLvoid GL_APIENTRY glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+GL_API GLvoid GL_APIENTRY glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_map_buffer_range
-GL_API GLvoid *glMapBufferRangeEXT(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
-GL_API GLvoid glFlushMappedBufferRangeEXT(GLenum target, GLintptr offset, GLsizeiptr length) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+GL_API GLvoid *glMapBufferRangeEXT(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access)   OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glFlushMappedBufferRangeEXT(GLenum target, GLintptr offset, GLsizeiptr length)   OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_EXT_texture_storage
-GL_API GLvoid glTexStorage2DEXT(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+GL_API GLvoid glTexStorage2DEXT(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)   OPENGLES_DEPRECATED(ios(6.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 /*------------------------------------------------------------------------*
  * OES extension functions
  *------------------------------------------------------------------------*/
 #if GL_OES_blend_equation_separate
-GL_API GLvoid GL_APIENTRY glBlendEquationSeparateOES (GLenum modeRGB, GLenum modeAlpha)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_1);
+GL_API GLvoid GL_APIENTRY glBlendEquationSeparateOES (GLenum modeRGB, GLenum modeAlpha)   OPENGLES_DEPRECATED(ios(3.1, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_OES_blend_func_separate
-GL_API GLvoid GL_APIENTRY glBlendFuncSeparateOES (GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_1);
+GL_API GLvoid GL_APIENTRY glBlendFuncSeparateOES (GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)   OPENGLES_DEPRECATED(ios(3.1, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_OES_blend_subtract
@@ -2973,34 +2985,34 @@ GL_API GLvoid GL_APIENTRY glBlendEquationOES (GLenum mode);
 #endif
 
 #if GL_OES_framebuffer_object
-GL_API GLboolean GL_APIENTRY glIsRenderbufferOES (GLuint renderbuffer);
-GL_API GLvoid GL_APIENTRY glBindRenderbufferOES (GLenum target, GLuint renderbuffer);
-GL_API GLvoid GL_APIENTRY glDeleteRenderbuffersOES (GLsizei n, const GLuint* renderbuffers);
-GL_API GLvoid GL_APIENTRY glGenRenderbuffersOES (GLsizei n, GLuint* renderbuffers);
-GL_API GLvoid GL_APIENTRY glRenderbufferStorageOES (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-GL_API GLvoid GL_APIENTRY glGetRenderbufferParameterivOES (GLenum target, GLenum pname, GLint* params);
-GL_API GLboolean GL_APIENTRY glIsFramebufferOES (GLuint framebuffer);
-GL_API GLvoid GL_APIENTRY glBindFramebufferOES (GLenum target, GLuint framebuffer);
-GL_API GLvoid GL_APIENTRY glDeleteFramebuffersOES (GLsizei n, const GLuint* framebuffers);
-GL_API GLvoid GL_APIENTRY glGenFramebuffersOES (GLsizei n, GLuint* framebuffers);
-GL_API GLenum GL_APIENTRY glCheckFramebufferStatusOES (GLenum target);
-GL_API GLvoid GL_APIENTRY glFramebufferRenderbufferOES (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-GL_API GLvoid GL_APIENTRY glFramebufferTexture2DOES (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-GL_API GLvoid GL_APIENTRY glGetFramebufferAttachmentParameterivOES (GLenum target, GLenum attachment, GLenum pname, GLint* params);
-GL_API GLvoid GL_APIENTRY glGenerateMipmapOES (GLenum target);
+GL_API GLboolean GL_APIENTRY glIsRenderbufferOES (GLuint renderbuffer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glBindRenderbufferOES (GLenum target, GLuint renderbuffer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glDeleteRenderbuffersOES (GLsizei n, const GLuint* renderbuffers) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glGenRenderbuffersOES (GLsizei n, GLuint* renderbuffers) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glRenderbufferStorageOES (GLenum target, GLenum internalformat, GLsizei width, GLsizei height) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glGetRenderbufferParameterivOES (GLenum target, GLenum pname, GLint* params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean GL_APIENTRY glIsFramebufferOES (GLuint framebuffer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glBindFramebufferOES (GLenum target, GLuint framebuffer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glDeleteFramebuffersOES (GLsizei n, const GLuint* framebuffers) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glGenFramebuffersOES (GLsizei n, GLuint* framebuffers) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLenum GL_APIENTRY glCheckFramebufferStatusOES (GLenum target) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glFramebufferRenderbufferOES (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glFramebufferTexture2DOES (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glGetFramebufferAttachmentParameterivOES (GLenum target, GLenum attachment, GLenum pname, GLint* params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid GL_APIENTRY glGenerateMipmapOES (GLenum target) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_OES_mapbuffer
-GL_API GLvoid GL_APIENTRY glGetBufferPointervOES (GLenum target, GLenum pname, GLvoid **params);
-GL_API GLvoid * GL_APIENTRY glMapBufferOES (GLenum target, GLenum access);
-GL_API GLboolean GL_APIENTRY glUnmapBufferOES (GLenum target);
+GL_API GLvoid GL_APIENTRY glGetBufferPointervOES (GLenum target, GLenum pname, GLvoid **params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid * GL_APIENTRY glMapBufferOES (GLenum target, GLenum access) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean GL_APIENTRY glUnmapBufferOES (GLenum target) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #if GL_OES_vertex_array_object
-GL_API GLvoid glBindVertexArrayOES(GLuint array)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-GL_API GLvoid glDeleteVertexArraysOES(GLsizei n, const GLuint *arrays)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-GL_API GLvoid glGenVertexArraysOES(GLsizei n, GLuint *arrays)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-GL_API GLboolean glIsVertexArrayOES(GLuint array)  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+GL_API GLvoid glBindVertexArrayOES(GLuint array)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glDeleteVertexArraysOES(GLsizei n, const GLuint *arrays)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
+GL_API GLvoid glGenVertexArraysOES(GLsizei n, GLuint *arrays)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean glIsVertexArrayOES(GLuint array)   OPENGLES_DEPRECATED(ios(4.0, 12.0), tvos(9.0, 12.0));
 #endif
 
 #ifdef __cplusplus
@@ -3053,6 +3065,7 @@ extern "C" {
 #define GL_APIENTRY
 #define GL_API extern
 
+#include <OpenGLES/OpenGLESAvailability.h>
 #include <OpenGLES/gltypes.h>
 
 
@@ -3645,175 +3658,175 @@ extern "C" {
 
 /*************************************************************/
 
-GL_API void GL_APIENTRY glAlphaFunc (GLenum func, GLclampf ref);
-GL_API void GL_APIENTRY glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-GL_API void GL_APIENTRY glClearDepthf (GLclampf depth);
-GL_API void GL_APIENTRY glClipPlanef (GLenum plane, const GLfloat *equation);
-GL_API void GL_APIENTRY glColor4f (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-GL_API void GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar);
-GL_API void GL_APIENTRY glFogf (GLenum pname, GLfloat param);
-GL_API void GL_APIENTRY glFogfv (GLenum pname, const GLfloat *params);
-GL_API void GL_APIENTRY glFrustumf (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar);
-GL_API void GL_APIENTRY glGetClipPlanef (GLenum pname, GLfloat *equation);
-GL_API void GL_APIENTRY glGetFloatv (GLenum pname, GLfloat *params);
-GL_API void GL_APIENTRY glGetLightfv (GLenum light, GLenum pname, GLfloat *params);
-GL_API void GL_APIENTRY glGetMaterialfv (GLenum face, GLenum pname, GLfloat *params);
-GL_API void GL_APIENTRY glGetTexEnvfv (GLenum env, GLenum pname, GLfloat *params);
-GL_API void GL_APIENTRY glGetTexParameterfv (GLenum target, GLenum pname, GLfloat *params);
-GL_API void GL_APIENTRY glLightModelf (GLenum pname, GLfloat param);
-GL_API void GL_APIENTRY glLightModelfv (GLenum pname, const GLfloat *params);
-GL_API void GL_APIENTRY glLightf (GLenum light, GLenum pname, GLfloat param);
-GL_API void GL_APIENTRY glLightfv (GLenum light, GLenum pname, const GLfloat *params);
-GL_API void GL_APIENTRY glLineWidth (GLfloat width);
-GL_API void GL_APIENTRY glLoadMatrixf (const GLfloat *m);
-GL_API void GL_APIENTRY glMaterialf (GLenum face, GLenum pname, GLfloat param);
-GL_API void GL_APIENTRY glMaterialfv (GLenum face, GLenum pname, const GLfloat *params);
-GL_API void GL_APIENTRY glMultMatrixf (const GLfloat *m);
-GL_API void GL_APIENTRY glMultiTexCoord4f (GLenum target, GLfloat s, GLfloat t, GLfloat r, GLfloat q);
-GL_API void GL_APIENTRY glNormal3f (GLfloat nx, GLfloat ny, GLfloat nz);
-GL_API void GL_APIENTRY glOrthof (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar);
-GL_API void GL_APIENTRY glPointParameterf (GLenum pname, GLfloat param);
-GL_API void GL_APIENTRY glPointParameterfv (GLenum pname, const GLfloat *params);
-GL_API void GL_APIENTRY glPointSize (GLfloat size);
-GL_API void GL_APIENTRY glPolygonOffset (GLfloat factor, GLfloat units);
-GL_API void GL_APIENTRY glRotatef (GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
-GL_API void GL_APIENTRY glSampleCoverage (GLclampf value, GLboolean invert);
-GL_API void GL_APIENTRY glScalef (GLfloat x, GLfloat y, GLfloat z);
-GL_API void GL_APIENTRY glTexEnvf (GLenum target, GLenum pname, GLfloat param);
-GL_API void GL_APIENTRY glTexEnvfv (GLenum target, GLenum pname, const GLfloat *params);
-GL_API void GL_APIENTRY glTexParameterf (GLenum target, GLenum pname, GLfloat param);
-GL_API void GL_APIENTRY glTexParameterfv (GLenum target, GLenum pname, const GLfloat *params);
-GL_API void GL_APIENTRY glTranslatef (GLfloat x, GLfloat y, GLfloat z);
+GL_API void GL_APIENTRY glAlphaFunc (GLenum func, GLclampf ref) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glClearDepthf (GLclampf depth) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glClipPlanef (GLenum plane, const GLfloat *equation) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glColor4f (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDepthRangef (GLclampf zNear, GLclampf zFar) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glFogf (GLenum pname, GLfloat param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glFogfv (GLenum pname, const GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glFrustumf (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetClipPlanef (GLenum pname, GLfloat *equation) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetFloatv (GLenum pname, GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetLightfv (GLenum light, GLenum pname, GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetMaterialfv (GLenum face, GLenum pname, GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetTexEnvfv (GLenum env, GLenum pname, GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetTexParameterfv (GLenum target, GLenum pname, GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLightModelf (GLenum pname, GLfloat param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLightModelfv (GLenum pname, const GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLightf (GLenum light, GLenum pname, GLfloat param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLightfv (GLenum light, GLenum pname, const GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLineWidth (GLfloat width) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLoadMatrixf (const GLfloat *m) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glMaterialf (GLenum face, GLenum pname, GLfloat param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glMaterialfv (GLenum face, GLenum pname, const GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glMultMatrixf (const GLfloat *m) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glMultiTexCoord4f (GLenum target, GLfloat s, GLfloat t, GLfloat r, GLfloat q) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glNormal3f (GLfloat nx, GLfloat ny, GLfloat nz) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glOrthof (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPointParameterf (GLenum pname, GLfloat param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPointParameterfv (GLenum pname, const GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPointSize (GLfloat size) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPolygonOffset (GLfloat factor, GLfloat units) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glRotatef (GLfloat angle, GLfloat x, GLfloat y, GLfloat z) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glSampleCoverage (GLclampf value, GLboolean invert) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glScalef (GLfloat x, GLfloat y, GLfloat z) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexEnvf (GLenum target, GLenum pname, GLfloat param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexEnvfv (GLenum target, GLenum pname, const GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexParameterf (GLenum target, GLenum pname, GLfloat param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexParameterfv (GLenum target, GLenum pname, const GLfloat *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTranslatef (GLfloat x, GLfloat y, GLfloat z) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
 
-GL_API void GL_APIENTRY glActiveTexture (GLenum texture);
-GL_API void GL_APIENTRY glAlphaFuncx (GLenum func, GLclampx ref);
-GL_API void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer);
-GL_API void GL_APIENTRY glBindTexture (GLenum target, GLuint texture);
-GL_API void GL_APIENTRY glBlendFunc (GLenum sfactor, GLenum dfactor);
-GL_API void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid *data, GLenum usage);
-GL_API void GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid *data);
-GL_API void GL_APIENTRY glClear (GLbitfield mask);
-GL_API void GL_APIENTRY glClearColorx (GLclampx red, GLclampx green, GLclampx blue, GLclampx alpha);
-GL_API void GL_APIENTRY glClearDepthx (GLclampx depth);
-GL_API void GL_APIENTRY glClearStencil (GLint s);
-GL_API void GL_APIENTRY glClientActiveTexture (GLenum texture);
-GL_API void GL_APIENTRY glClipPlanex (GLenum plane, const GLfixed *equation);
-GL_API void GL_APIENTRY glColor4ub (GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha);
-GL_API void GL_APIENTRY glColor4x (GLfixed red, GLfixed green, GLfixed blue, GLfixed alpha);
-GL_API void GL_APIENTRY glColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-GL_API void GL_APIENTRY glColorPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
-GL_API void GL_APIENTRY glCompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid *data);
-GL_API void GL_APIENTRY glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid *data);
-GL_API void GL_APIENTRY glCopyTexImage2D (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
-GL_API void GL_APIENTRY glCopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-GL_API void GL_APIENTRY glCullFace (GLenum mode);
-GL_API void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint *buffers);
-GL_API void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint *textures);
-GL_API void GL_APIENTRY glDepthFunc (GLenum func);
-GL_API void GL_APIENTRY glDepthMask (GLboolean flag);
-GL_API void GL_APIENTRY glDepthRangex (GLclampx zNear, GLclampx zFar);
-GL_API void GL_APIENTRY glDisable (GLenum cap);
-GL_API void GL_APIENTRY glDisableClientState (GLenum array);
-GL_API void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count);
-GL_API void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
-GL_API void GL_APIENTRY glEnable (GLenum cap);
-GL_API void GL_APIENTRY glEnableClientState (GLenum array);
-GL_API void GL_APIENTRY glFinish (void);
-GL_API void GL_APIENTRY glFlush (void);
-GL_API void GL_APIENTRY glFogx (GLenum pname, GLfixed param);
-GL_API void GL_APIENTRY glFogxv (GLenum pname, const GLfixed *params);
-GL_API void GL_APIENTRY glFrontFace (GLenum mode);
-GL_API void GL_APIENTRY glFrustumx (GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar);
-GL_API void GL_APIENTRY glGenBuffers (GLsizei n, GLuint *buffers);
-GL_API void GL_APIENTRY glGenTextures (GLsizei n, GLuint *textures);
-GL_API void GL_APIENTRY glGetBooleanv (GLenum pname, GLboolean *params);
-GL_API void GL_APIENTRY glGetBufferParameteriv (GLenum target, GLenum pname, GLint *params);
-GL_API void GL_APIENTRY glGetClipPlanex (GLenum pname, GLfixed eqn[4]);
-GL_API GLenum GL_APIENTRY glGetError (void);
-GL_API void GL_APIENTRY glGetFixedv (GLenum pname, GLfixed *params);
-GL_API void GL_APIENTRY glGetIntegerv (GLenum pname, GLint *params);
-GL_API void GL_APIENTRY glGetLightxv (GLenum light, GLenum pname, GLfixed *params);
-GL_API void GL_APIENTRY glGetMaterialxv (GLenum face, GLenum pname, GLfixed *params);
-GL_API void GL_APIENTRY glGetPointerv (GLenum pname, void **params);
-GL_API const GLubyte * GL_APIENTRY glGetString (GLenum name);
-GL_API void GL_APIENTRY glGetTexEnviv (GLenum env, GLenum pname, GLint *params);
-GL_API void GL_APIENTRY glGetTexEnvxv (GLenum env, GLenum pname, GLfixed *params);
-GL_API void GL_APIENTRY glGetTexParameteriv (GLenum target, GLenum pname, GLint *params);
-GL_API void GL_APIENTRY glGetTexParameterxv (GLenum target, GLenum pname, GLfixed *params);
-GL_API void GL_APIENTRY glHint (GLenum target, GLenum mode);
-GL_API GLboolean GL_APIENTRY glIsBuffer (GLuint buffer);
-GL_API GLboolean GL_APIENTRY glIsEnabled (GLenum cap);
-GL_API GLboolean GL_APIENTRY glIsTexture (GLuint texture);
-GL_API void GL_APIENTRY glLightModelx (GLenum pname, GLfixed param);
-GL_API void GL_APIENTRY glLightModelxv (GLenum pname, const GLfixed *params);
-GL_API void GL_APIENTRY glLightx (GLenum light, GLenum pname, GLfixed param);
-GL_API void GL_APIENTRY glLightxv (GLenum light, GLenum pname, const GLfixed *params);
-GL_API void GL_APIENTRY glLineWidthx (GLfixed width);
-GL_API void GL_APIENTRY glLoadIdentity (void);
-GL_API void GL_APIENTRY glLoadMatrixx (const GLfixed *m);
-GL_API void GL_APIENTRY glLogicOp (GLenum opcode);
-GL_API void GL_APIENTRY glMaterialx (GLenum face, GLenum pname, GLfixed param);
-GL_API void GL_APIENTRY glMaterialxv (GLenum face, GLenum pname, const GLfixed *params);
-GL_API void GL_APIENTRY glMatrixMode (GLenum mode);
-GL_API void GL_APIENTRY glMultMatrixx (const GLfixed *m);
-GL_API void GL_APIENTRY glMultiTexCoord4x (GLenum target, GLfixed s, GLfixed t, GLfixed r, GLfixed q);
-GL_API void GL_APIENTRY glNormal3x (GLfixed nx, GLfixed ny, GLfixed nz);
-GL_API void GL_APIENTRY glNormalPointer (GLenum type, GLsizei stride, const GLvoid *pointer);
-GL_API void GL_APIENTRY glOrthox (GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar);
-GL_API void GL_APIENTRY glPixelStorei (GLenum pname, GLint param);
-GL_API void GL_APIENTRY glPointParameterx (GLenum pname, GLfixed param);
-GL_API void GL_APIENTRY glPointParameterxv (GLenum pname, const GLfixed *params);
-GL_API void GL_APIENTRY glPointSizex (GLfixed size);
-GL_API void GL_APIENTRY glPolygonOffsetx (GLfixed factor, GLfixed units);
-GL_API void GL_APIENTRY glPopMatrix (void);
-GL_API void GL_APIENTRY glPushMatrix (void);
-GL_API void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
-GL_API void GL_APIENTRY glRotatex (GLfixed angle, GLfixed x, GLfixed y, GLfixed z);
-GL_API void GL_APIENTRY glSampleCoveragex (GLclampx value, GLboolean invert);
-GL_API void GL_APIENTRY glScalex (GLfixed x, GLfixed y, GLfixed z);
-GL_API void GL_APIENTRY glScissor (GLint x, GLint y, GLsizei width, GLsizei height);
-GL_API void GL_APIENTRY glShadeModel (GLenum mode);
-GL_API void GL_APIENTRY glStencilFunc (GLenum func, GLint ref, GLuint mask);
-GL_API void GL_APIENTRY glStencilMask (GLuint mask);
-GL_API void GL_APIENTRY glStencilOp (GLenum fail, GLenum zfail, GLenum zpass);
-GL_API void GL_APIENTRY glTexCoordPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
-GL_API void GL_APIENTRY glTexEnvi (GLenum target, GLenum pname, GLint param);
-GL_API void GL_APIENTRY glTexEnvx (GLenum target, GLenum pname, GLfixed param);
-GL_API void GL_APIENTRY glTexEnviv (GLenum target, GLenum pname, const GLint *params);
-GL_API void GL_APIENTRY glTexEnvxv (GLenum target, GLenum pname, const GLfixed *params);
-GL_API void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
-GL_API void GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param);
-GL_API void GL_APIENTRY glTexParameterx (GLenum target, GLenum pname, GLfixed param);
-GL_API void GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const GLint *params);
-GL_API void GL_APIENTRY glTexParameterxv (GLenum target, GLenum pname, const GLfixed *params);
-GL_API void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
-GL_API void GL_APIENTRY glTranslatex (GLfixed x, GLfixed y, GLfixed z);
-GL_API void GL_APIENTRY glVertexPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
-GL_API void GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei height);
+GL_API void GL_APIENTRY glActiveTexture (GLenum texture) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glAlphaFuncx (GLenum func, GLclampx ref) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glBindTexture (GLenum target, GLuint texture) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glBlendFunc (GLenum sfactor, GLenum dfactor) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid *data, GLenum usage) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid *data) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glClear (GLbitfield mask) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glClearColorx (GLclampx red, GLclampx green, GLclampx blue, GLclampx alpha) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glClearDepthx (GLclampx depth) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glClearStencil (GLint s) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glClientActiveTexture (GLenum texture) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glClipPlanex (GLenum plane, const GLfixed *equation) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glColor4ub (GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glColor4x (GLfixed red, GLfixed green, GLfixed blue, GLfixed alpha) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glColorPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glCompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid *data) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid *data) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glCopyTexImage2D (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glCopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glCullFace (GLenum mode) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDeleteBuffers (GLsizei n, const GLuint *buffers) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDeleteTextures (GLsizei n, const GLuint *textures) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDepthFunc (GLenum func) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDepthMask (GLboolean flag) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDepthRangex (GLclampx zNear, GLclampx zFar) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDisable (GLenum cap) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDisableClientState (GLenum array) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glEnable (GLenum cap) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glEnableClientState (GLenum array) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glFinish (void) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glFlush (void) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glFogx (GLenum pname, GLfixed param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glFogxv (GLenum pname, const GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glFrontFace (GLenum mode) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glFrustumx (GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGenBuffers (GLsizei n, GLuint *buffers) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGenTextures (GLsizei n, GLuint *textures) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetBooleanv (GLenum pname, GLboolean *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetBufferParameteriv (GLenum target, GLenum pname, GLint *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetClipPlanex (GLenum pname, GLfixed eqn[4]) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLenum GL_APIENTRY glGetError (void) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetFixedv (GLenum pname, GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetIntegerv (GLenum pname, GLint *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetLightxv (GLenum light, GLenum pname, GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetMaterialxv (GLenum face, GLenum pname, GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetPointerv (GLenum pname, void **params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API const GLubyte * GL_APIENTRY glGetString (GLenum name) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetTexEnviv (GLenum env, GLenum pname, GLint *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetTexEnvxv (GLenum env, GLenum pname, GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetTexParameteriv (GLenum target, GLenum pname, GLint *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glGetTexParameterxv (GLenum target, GLenum pname, GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glHint (GLenum target, GLenum mode) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean GL_APIENTRY glIsBuffer (GLuint buffer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean GL_APIENTRY glIsEnabled (GLenum cap) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API GLboolean GL_APIENTRY glIsTexture (GLuint texture) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLightModelx (GLenum pname, GLfixed param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLightModelxv (GLenum pname, const GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLightx (GLenum light, GLenum pname, GLfixed param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLightxv (GLenum light, GLenum pname, const GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLineWidthx (GLfixed width) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLoadIdentity (void) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLoadMatrixx (const GLfixed *m) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLogicOp (GLenum opcode) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glMaterialx (GLenum face, GLenum pname, GLfixed param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glMaterialxv (GLenum face, GLenum pname, const GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glMatrixMode (GLenum mode) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glMultMatrixx (const GLfixed *m) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glMultiTexCoord4x (GLenum target, GLfixed s, GLfixed t, GLfixed r, GLfixed q) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glNormal3x (GLfixed nx, GLfixed ny, GLfixed nz) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glNormalPointer (GLenum type, GLsizei stride, const GLvoid *pointer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glOrthox (GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPixelStorei (GLenum pname, GLint param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPointParameterx (GLenum pname, GLfixed param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPointParameterxv (GLenum pname, const GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPointSizex (GLfixed size) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPolygonOffsetx (GLfixed factor, GLfixed units) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPopMatrix (void) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glPushMatrix (void) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glRotatex (GLfixed angle, GLfixed x, GLfixed y, GLfixed z) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glSampleCoveragex (GLclampx value, GLboolean invert) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glScalex (GLfixed x, GLfixed y, GLfixed z) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glScissor (GLint x, GLint y, GLsizei width, GLsizei height) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glShadeModel (GLenum mode) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glStencilFunc (GLenum func, GLint ref, GLuint mask) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glStencilMask (GLuint mask) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glStencilOp (GLenum fail, GLenum zfail, GLenum zpass) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexCoordPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexEnvi (GLenum target, GLenum pname, GLint param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexEnvx (GLenum target, GLenum pname, GLfixed param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexEnviv (GLenum target, GLenum pname, const GLint *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexEnvxv (GLenum target, GLenum pname, const GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexParameterx (GLenum target, GLenum pname, GLfixed param) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexParameteriv (GLenum target, GLenum pname, const GLint *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexParameterxv (GLenum target, GLenum pname, const GLfixed *params) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glTranslatex (GLfixed x, GLfixed y, GLfixed z) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glVertexPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei height) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
 
 /*****************************************************************************************/
 /*                                 OES extension functions                               */
 /*****************************************************************************************/
 /* OES_matrix_palette */
-GL_API void GL_APIENTRY glCurrentPaletteMatrixOES (GLuint matrixpaletteindex);
-GL_API void GL_APIENTRY glLoadPaletteFromModelViewMatrixOES (void);
-GL_API void GL_APIENTRY glMatrixIndexPointerOES (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
-GL_API void GL_APIENTRY glWeightPointerOES (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+GL_API void GL_APIENTRY glCurrentPaletteMatrixOES (GLuint matrixpaletteindex) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glLoadPaletteFromModelViewMatrixOES (void) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glMatrixIndexPointerOES (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glWeightPointerOES (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
 
 /* OES_point_size_array */
-GL_API void GL_APIENTRY glPointSizePointerOES (GLenum type, GLsizei stride, const GLvoid *pointer);
+GL_API void GL_APIENTRY glPointSizePointerOES (GLenum type, GLsizei stride, const GLvoid *pointer) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
 
 /* OES_draw_texture */
-GL_API void GL_APIENTRY glDrawTexsOES (GLshort x, GLshort y, GLshort z, GLshort width, GLshort height);
-GL_API void GL_APIENTRY glDrawTexiOES (GLint x, GLint y, GLint z, GLint width, GLint height);
-GL_API void GL_APIENTRY glDrawTexxOES (GLfixed x, GLfixed y, GLfixed z, GLfixed width, GLfixed height);
+GL_API void GL_APIENTRY glDrawTexsOES (GLshort x, GLshort y, GLshort z, GLshort width, GLshort height) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDrawTexiOES (GLint x, GLint y, GLint z, GLint width, GLint height) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDrawTexxOES (GLfixed x, GLfixed y, GLfixed z, GLfixed width, GLfixed height) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
 
-GL_API void GL_APIENTRY glDrawTexsvOES (const GLshort *coords);
-GL_API void GL_APIENTRY glDrawTexivOES (const GLint *coords);
-GL_API void GL_APIENTRY glDrawTexxvOES (const GLfixed *coords);
+GL_API void GL_APIENTRY glDrawTexsvOES (const GLshort *coords) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDrawTexivOES (const GLint *coords) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDrawTexxvOES (const GLfixed *coords) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
 
-GL_API void GL_APIENTRY glDrawTexfOES (GLfloat x, GLfloat y, GLfloat z, GLfloat width, GLfloat height);
-GL_API void GL_APIENTRY glDrawTexfvOES (const GLfloat *coords);
+GL_API void GL_APIENTRY glDrawTexfOES (GLfloat x, GLfloat y, GLfloat z, GLfloat width, GLfloat height) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
+GL_API void GL_APIENTRY glDrawTexfvOES (const GLfloat *coords) OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0));
 
 #ifdef __cplusplus
 }
@@ -3821,3 +3834,17 @@ GL_API void GL_APIENTRY glDrawTexfvOES (const GLfloat *coords);
 
 #endif /* ES1_GL_H_GUARD */
 
+// ==========  OpenGLES.framework/Headers/OpenGLESAvailability.h
+#ifndef _OpenGLESAvailability_H
+#define _OpenGLESAvailability_H
+
+#include <os/availability.h>
+
+
+#ifdef GLES_SILENCE_DEPRECATION
+  #define OPENGLES_DEPRECATED(...)
+#else
+  #define OPENGLES_DEPRECATED(...) API_DEPRECATED("OpenGLES API deprecated. (Define GLES_SILENCE_DEPRECATION to silence these warnings)", __VA_ARGS__)
+#endif
+
+#endif

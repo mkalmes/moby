@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  A light estimate representing the light in the scene.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARLightEstimate : NSObject
 
 /**
@@ -38,10 +38,11 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 
 @end
 
+
 /**
  A directional light estimate representing the light intensity and direction in the scene.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARDirectionalLightEstimate : ARLightEstimate
 
 /**
@@ -55,7 +56,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 /**
  The primary direction of light.
  */
-@property (nonatomic, readonly) vector_float3 primaryLightDirection;
+@property (nonatomic, readonly) simd_float3 primaryLightDirection;
 
 /**
  The intensity of light in the primary direction.
@@ -82,65 +83,66 @@ NS_ASSUME_NONNULL_BEGIN
  Blend shape locations of a face geometry.
  @discussion Each location defines an area of the face that can be displaced with a provided coefficient.
  */
-typedef NSString *ARBlendShapeLocation NS_STRING_ENUM NS_SWIFT_NAME(ARFaceAnchor.BlendShapeLocation) API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationBrowDownLeft           API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationBrowDownRight          API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationBrowInnerUp            API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationBrowOuterUpLeft        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationBrowOuterUpRight       API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationCheekPuff              API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationCheekSquintLeft        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationCheekSquintRight       API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeBlinkLeft           API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeBlinkRight          API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookDownLeft        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookDownRight       API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookInLeft          API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookInRight         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookOutLeft         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookOutRight        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookUpLeft          API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookUpRight         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeSquintLeft          API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeSquintRight         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeWideLeft            API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeWideRight           API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationJawForward             API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationJawLeft                API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationJawOpen                API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationJawRight               API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthClose             API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthDimpleLeft        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthDimpleRight       API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthFrownLeft         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthFrownRight        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthFunnel            API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthLeft              API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthLowerDownLeft     API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthLowerDownRight    API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthPressLeft         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthPressRight        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthPucker            API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthRight             API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthRollLower         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthRollUpper         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthShrugLower        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthShrugUpper        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthSmileLeft         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthSmileRight        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthStretchLeft       API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthStretchRight      API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthUpperUpLeft       API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthUpperUpRight      API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationNoseSneerLeft          API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
-FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationNoseSneerRight         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+typedef NSString *ARBlendShapeLocation NS_STRING_ENUM NS_SWIFT_NAME(ARFaceAnchor.BlendShapeLocation) API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationBrowDownLeft           API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationBrowDownRight          API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationBrowInnerUp            API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationBrowOuterUpLeft        API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationBrowOuterUpRight       API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationCheekPuff              API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationCheekSquintLeft        API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationCheekSquintRight       API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeBlinkLeft           API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeBlinkRight          API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookDownLeft        API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookDownRight       API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookInLeft          API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookInRight         API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookOutLeft         API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookOutRight        API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookUpLeft          API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeLookUpRight         API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeSquintLeft          API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeSquintRight         API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeWideLeft            API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationEyeWideRight           API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationJawForward             API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationJawLeft                API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationJawOpen                API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationJawRight               API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthClose             API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthDimpleLeft        API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthDimpleRight       API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthFrownLeft         API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthFrownRight        API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthFunnel            API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthLeft              API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthLowerDownLeft     API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthLowerDownRight    API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthPressLeft         API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthPressRight        API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthPucker            API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthRight             API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthRollLower         API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthRollUpper         API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthShrugLower        API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthShrugUpper        API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthSmileLeft         API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthSmileRight        API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthStretchLeft       API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthStretchRight      API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthUpperUpLeft       API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationMouthUpperUpRight      API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationNoseSneerLeft          API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationNoseSneerRight         API_AVAILABLE(ios(11.0));
+FOUNDATION_EXTERN ARBlendShapeLocation const ARBlendShapeLocationTongueOut              API_AVAILABLE(ios(12.0));
 
 @class ARFaceGeometry;
 
 /**
  An anchor representing a face and its geometry.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARFaceAnchor : ARAnchor <ARTrackable>
 
 /**
@@ -149,18 +151,33 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 @property (nonatomic, readonly) ARFaceGeometry *geometry;
 
 /**
+ The left eye’s rotation and translation relative to the anchor’s origin.
+ */
+@property (nonatomic, readonly) simd_float4x4 leftEyeTransform API_AVAILABLE(ios(12.0));
+
+/**
+ The right eye’s rotation and translation relative to the anchor’s origin.
+ */
+@property (nonatomic, readonly) simd_float4x4 rightEyeTransform API_AVAILABLE(ios(12.0));
+
+/**
+ Look-at point relative to the anchor’s origin.
+ */
+@property (nonatomic, readonly) simd_float3 lookAtPoint API_AVAILABLE(ios(12.0));
+
+/**
  A dictionary of blend shape coefficients for each blend shape location.
  @discussion Blend shapes coefficients define the amount of displacement of a neutral shape at a specific location on the face.
  */
 @property (nonatomic, readonly) NSDictionary<ARBlendShapeLocation, NSNumber*> *blendShapes;
 
 /** Unavailable */
-- (instancetype)initWithTransform:(matrix_float4x4)transform NS_UNAVAILABLE;
+- (instancetype)initWithTransform:(simd_float4x4)transform NS_UNAVAILABLE;
+- (instancetype)initWithName:(NSString *)name transform:(simd_float4x4)transform NS_UNAVAILABLE;
 
 @end
 
 NS_ASSUME_NONNULL_END
-
 // ==========  ARKit.framework/Headers/ARSKView.h
 //
 //  ARSKView.h
@@ -179,7 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark ARSKViewDelegate
 
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @protocol ARSKViewDelegate <SKViewDelegate, ARSessionObserver>
 @optional
 
@@ -242,7 +259,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  
  @discussion The view draws the camera background, and projects and maps anchors to nodes.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARSKView : SKView
 
 /**
@@ -298,19 +315,25 @@ NS_ASSUME_NONNULL_END
 /**
  Option set of hit-test result types.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 typedef NS_OPTIONS(NSUInteger, ARHitTestResultType) {
     /** Result type from intersecting the nearest feature point. */
-    ARHitTestResultTypeFeaturePoint              = (1 << 0),
+    ARHitTestResultTypeFeaturePoint                                        = (1 << 0),
     
     /** Result type from intersecting a horizontal plane estimate, determined for the current frame. */
-    ARHitTestResultTypeEstimatedHorizontalPlane  = (1 << 1),
+    ARHitTestResultTypeEstimatedHorizontalPlane                            = (1 << 1),
+    
+    /** Result type from intersecting a vertical plane estimate, determined for the current frame. */
+    ARHitTestResultTypeEstimatedVerticalPlane API_AVAILABLE(ios(11.3))     = (1 << 2),
     
     /** Result type from intersecting with an existing plane anchor. */
-    ARHitTestResultTypeExistingPlane             = (1 << 3),
+    ARHitTestResultTypeExistingPlane                                       = (1 << 3),
     
     /** Result type from intersecting with an existing plane anchor, taking into account the plane’s extent. */
-    ARHitTestResultTypeExistingPlaneUsingExtent  = (1 << 4),
+    ARHitTestResultTypeExistingPlaneUsingExtent                            = (1 << 4),
+    
+    /** Result type from intersecting with an existing plane anchor, taking into account the plane’s geometry. */
+    ARHitTestResultTypeExistingPlaneUsingGeometry API_AVAILABLE(ios(11.3)) = (1 << 5),
 } NS_SWIFT_NAME(ARHitTestResult.ResultType);
 
 NS_ASSUME_NONNULL_BEGIN
@@ -318,7 +341,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  A result of an intersection found during a hit-test.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARHitTestResult : NSObject
 
 /**
@@ -335,13 +358,13 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  The transformation matrix that defines the intersection’s rotation, translation and scale
  relative to the anchor or nearest feature point.
  */
-@property (nonatomic, readonly) matrix_float4x4 localTransform;
+@property (nonatomic, readonly) simd_float4x4 localTransform;
 
 /**
  The transformation matrix that defines the intersection’s rotation, translation and scale
  relative to the world.
  */
-@property (nonatomic, readonly) matrix_float4x4 worldTransform;
+@property (nonatomic, readonly) simd_float4x4 worldTransform;
 
 /**
  The anchor that the hit-test intersected.
@@ -349,6 +372,107 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  @discussion An anchor will only be provided for existing plane result types.
  */
 @property (nonatomic, strong, nullable, readonly) ARAnchor *anchor;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARReferenceImage.h
+//
+//  ARReferenceImage.h
+//  ARKit
+//
+//  Copyright © 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import <ImageIO/CGImageProperties.h>
+#import <CoreVideo/CVPixelBuffer.h>
+
+@class CIImage;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ A reference image to be detected in the scene.
+ */
+API_AVAILABLE(ios(11.3))
+@interface ARReferenceImage : NSObject
+
+/**
+ An optional name used to identify the image.
+ */
+@property (nonatomic, copy, nullable) NSString *name;
+
+/**
+ The physical size of the image in meters.
+ */
+@property (nonatomic, readonly) CGSize physicalSize;
+
+/**
+ Creates a new reference image.
+ 
+ @param image The reference image as CGImage.
+ @param orientation The image orientation.
+ @param physicalWidth The width in meters of the physical object.
+ */
+- (instancetype)initWithCGImage:(CGImageRef)image orientation:(CGImagePropertyOrientation)orientation physicalWidth:(CGFloat)physicalWidth NS_SWIFT_NAME(init(_:orientation:physicalWidth:));
+
+/**
+ Creates a new reference image.
+ 
+ @param pixelBuffer The reference image as CVPixelBuffer.
+ @param physicalWidth The width in meters of the physical object.
+ @param orientation The image orientation.
+ */
+- (instancetype)initWithPixelBuffer:(CVPixelBufferRef)pixelBuffer orientation:(CGImagePropertyOrientation)orientation physicalWidth:(CGFloat)physicalWidth NS_SWIFT_NAME(init(_:orientation:physicalWidth:));
+
+/**
+ Returns the set of ARReferenceImages in the specified resource group and bundle.
+
+ @param name The name of the resource group.
+ @param bundle The bundle containing the image file or asset catalog. Specify nil to search the app’s main bundle.
+ @return The set of reference images or nil on error.
+ */
++ (nullable NSSet<ARReferenceImage *> *)referenceImagesInGroupNamed:(NSString *)name bundle:(nullable NSBundle *)bundle;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARVideoFormat.h
+//
+//  ARVideoFormat.h
+//  ARKit
+//
+//  Copyright © 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.3))
+NS_SWIFT_NAME(ARConfiguration.VideoFormat)
+@interface ARVideoFormat : NSObject <NSCopying>
+
+/**
+ Image resolution.
+ */
+@property (nonatomic, readonly) CGSize imageResolution;
+
+/**
+ Frame rate.
+ */
+@property (nonatomic, readonly) NSInteger framesPerSecond;
 
 /** Unavailable */
 - (instancetype)init NS_UNAVAILABLE;
@@ -378,12 +502,19 @@ NS_ASSUME_NONNULL_END
 #import <ARKit/ARHitTestResult.h>
 #import <ARKit/ARLightEstimate.h>
 #import <ARKit/ARPointCloud.h>
+#import <ARKit/ARReferenceImage.h>
+#import <ARKit/ARReferenceObject.h>
+#import <ARKit/ARVideoFormat.h>
+#import <ARKit/ARWorldMap.h>
 
 #import <ARKit/ARAnchor.h>
-#import <ARKit/ARPlaneAnchor.h>
-
+#import <ARKit/AREnvironmentProbeAnchor.h>
 #import <ARKit/ARFaceAnchor.h>
 #import <ARKit/ARFaceGeometry.h>
+#import <ARKit/ARImageAnchor.h>
+#import <ARKit/ARObjectAnchor.h>
+#import <ARKit/ARPlaneAnchor.h>
+#import <ARKit/ARPlaneGeometry.h>
 
 #import <ARKit/ARSCNView.h>
 #import <ARKit/ARSKView.h>
@@ -405,7 +536,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  A value describing the camera’s tracking state.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 typedef NS_ENUM(NSInteger, ARTrackingState) {
     /** Tracking is not available. */
     ARTrackingStateNotAvailable,
@@ -420,7 +551,7 @@ typedef NS_ENUM(NSInteger, ARTrackingState) {
 /**
  A reason describing why the camera’s tracking state is limited.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 typedef NS_ENUM(NSInteger, ARTrackingStateReason) {
     /** Tracking is not limited. */
     ARTrackingStateReasonNone,
@@ -433,19 +564,22 @@ typedef NS_ENUM(NSInteger, ARTrackingStateReason) {
     
     /** Tracking is limited due to a lack of features visible to the camera. */
     ARTrackingStateReasonInsufficientFeatures,
+    
+    /** Tracking is limited due to a relocalization in progress. */
+    ARTrackingStateReasonRelocalizing API_AVAILABLE(ios(11.3)),
 } NS_REFINED_FOR_SWIFT;
 
 
 /**
  A model representing the camera and its parameters.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARCamera : NSObject <NSCopying>
 
 /**
  The transformation matrix that defines the camera’s rotation and translation in world coordinates.
  */
-@property (nonatomic, readonly) matrix_float4x4 transform;
+@property (nonatomic, readonly) simd_float4x4 transform;
 
 /**
  The camera’s orientation defined as Euler angles.
@@ -454,12 +588,12 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
                1. Pitch (the x component) is the rotation about the node’s x-axis (in radians)
                2. Yaw   (the y component) is the rotation about the node’s y-axis (in radians)
                3. Roll  (the z component) is the rotation about the node’s z-axis (in radians)
-            ARKit applies these rotations in the reverse order of the components:
+            ARKit applies these rotations in the following order:
                1. first roll
-               2. then yaw
-               3. then pitch
+               2. then pitch
+               3. then yaw
  */
-@property (nonatomic, readonly) vector_float3 eulerAngles;
+@property (nonatomic, readonly) simd_float3 eulerAngles;
 
 /**
  The tracking state of the camera.
@@ -481,7 +615,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  px and py are the coordinates of the principal point in pixels.
  The origin is at the center of the upper-left pixel.
  */
-@property (nonatomic, readonly) matrix_float3x3 intrinsics;
+@property (nonatomic, readonly) simd_float3x3 intrinsics;
 
 /**
  The camera image resolution in pixels.
@@ -490,8 +624,21 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 
 /**
  The projection matrix of the camera.
+ @discussion The projection matrix assumes no far clipping plane limit.
 */
-@property (nonatomic, readonly) matrix_float4x4 projectionMatrix;
+@property (nonatomic, readonly) simd_float4x4 projectionMatrix;
+
+/**
+ Creates a projection matrix for the camera given rendering parameters.
+ 
+ @discussion The projection matrix returned provides an aspect fill for the provided viewport size and orientation.
+ If zFar is set to 0, an infinite projection matrix will be returned.
+ @param orientation Viewport orientation.
+ @param viewportSize Viewport size.
+ @param zNear Near depth limit.
+ @param zFar Far depth limit.
+ */
+- (simd_float4x4)projectionMatrixForOrientation:(UIInterfaceOrientation)orientation viewportSize:(CGSize)viewportSize zNear:(CGFloat)zNear zFar:(CGFloat)zFar;
 
 /**
  Project a 3D point in world coordinate system into 2D viewport space.
@@ -501,30 +648,127 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  @param viewportSize Viewport (or image) size.
  @return 2D point in viewport coordinate system with origin at top-left.
  */
-- (CGPoint)projectPoint:(vector_float3)point orientation:(UIInterfaceOrientation)orientation viewportSize:(CGSize)viewportSize;
+- (CGPoint)projectPoint:(simd_float3)point orientation:(UIInterfaceOrientation)orientation viewportSize:(CGSize)viewportSize;
 
 /**
- Creates a projection matrix for the camera given rendering parameters.
+ Unproject a 2D point from the viewport onto a plane in 3D world coordinates.
  
- @discussion The projection matrix returned provides an aspect fill for the provided viewport size and orientation.
- @param orientation Viewport orientation.
- @param viewportSize Viewport size.
- @param zNear Near depth limit.
- @param zFar Far depth limit.
+ @discussion A 2D point in the viewport coordinate space can refer to any point along a line segment
+ in the 3D coordinate space. Unprojecting calculates the 3D position of the point along this line segment that intersects the provided plane.
+ @param point A point in the viewport coordinate system with origin at top-left.
+ @param planeTransform The transform used to define the coordinate system of the plane.
+ The coordinate system’s positive Y axis is assumed to be the normal of the plane.
+ @return 3D position in world coordinates or a NAN values if unprojection is not possible.
  */
-- (matrix_float4x4)projectionMatrixForOrientation:(UIInterfaceOrientation)orientation viewportSize:(CGSize)viewportSize zNear:(CGFloat)zNear zFar:(CGFloat)zFar;
+- (simd_float3)unprojectPoint:(CGPoint)point ontoPlaneWithTransform:(simd_float4x4)planeTransform orientation:(UIInterfaceOrientation)orientation viewportSize:(CGSize)viewportSize
+API_AVAILABLE(ios(12.0)) NS_REFINED_FOR_SWIFT;
 
 /**
- Creates a view matrix for the camera given an interface orientation.
+ Returns the view matrix for the camera with a given interface orientation.
  
- @discussion The view matrix can be used to transform geometry into camera space for a given orientation
+ @discussion The view matrix can be used to transform geometry from world space into camera space for a given orientation.
  @param orientation The interface orientation that will be used to render the camera’s view.
  */
-- (matrix_float4x4)viewMatrixForOrientation:(UIInterfaceOrientation)orientation;
+- (simd_float4x4)viewMatrixForOrientation:(UIInterfaceOrientation)orientation;
 
 /** Unavailable */
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARPlaneGeometry.h
+//
+//  ARPlaneGeometry.h
+//  ARKit
+//
+//  Copyright © 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <SceneKit/SCNGeometry.h>
+#import <simd/simd.h>
+
+@protocol MTLDevice;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ Object representing the geometry of a plane.
+ @discussion The plane geometry will have a growing number of triangles
+ and vertices updated from frame to frame.
+ */
+API_AVAILABLE(ios(11.3))
+@interface ARPlaneGeometry : NSObject<NSSecureCoding>
+
+/**
+ The number of mesh vertices of the geometry.
+ */
+@property (nonatomic, readonly) NSUInteger vertexCount NS_REFINED_FOR_SWIFT;
+
+/**
+ The mesh vertices of the geometry.
+ */
+@property (nonatomic, readonly) const simd_float3 *vertices NS_REFINED_FOR_SWIFT;
+
+/**
+ The number of texture coordinates of the geometry.
+ */
+@property (nonatomic, readonly) NSUInteger textureCoordinateCount NS_REFINED_FOR_SWIFT;
+
+/**
+ The texture coordinates of the geometry.
+ */
+@property (nonatomic, readonly) const simd_float2 *textureCoordinates NS_REFINED_FOR_SWIFT;
+
+/**
+ The number of triangles of the geometry.
+ */
+@property (nonatomic, readonly) NSUInteger triangleCount;
+
+/**
+ The triangle indices of the geometry.
+ */
+@property (nonatomic, readonly) const int16_t *triangleIndices NS_REFINED_FOR_SWIFT;
+
+/**
+ The number of boundary vertices of the geometry.
+ */
+@property (nonatomic, readonly) NSUInteger boundaryVertexCount NS_REFINED_FOR_SWIFT;
+
+/**
+ The vertices of the geometry's outermost boundary.
+ */
+@property (nonatomic, readonly) const simd_float3 *boundaryVertices NS_REFINED_FOR_SWIFT;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+
+/**
+ A SceneKit geometry representing a plane.
+ */
+API_AVAILABLE(ios(11.3))
+@interface ARSCNPlaneGeometry : SCNGeometry
+
+/**
+ Creates a new plane geometry using a Metal device.
+ 
+ @param device A Metal device.
+ @return A new plane geometry.
+ */
++ (nullable instancetype)planeGeometryWithDevice:(id<MTLDevice>)device;
+
+/**
+ Updates the geometry with the vertices of a plane geometry.
+ 
+ @param planeGeometry A plane geometry.
+ */
+- (void)updateFromPlaneGeometry:(ARPlaneGeometry *)planeGeometry;
 
 @end
 
@@ -552,10 +796,31 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ A value describing the world mapping status for the area visible in a given frame.
+ */
+API_AVAILABLE(ios(12.0))
+typedef NS_ENUM(NSInteger, ARWorldMappingStatus) {
+    /** World mapping is not available. */
+    ARWorldMappingStatusNotAvailable,
+    
+    /** World mapping is available but has limited features.
+     For the device's current position, the session’s world map is not recommended for relocalization. */
+    ARWorldMappingStatusLimited,
+    
+    /** World mapping is actively extending the map with the user's motion.
+     The world map will be relocalizable for previously visited areas but is still being updated for the current space. */
+    ARWorldMappingStatusExtending,
+    
+    /** World mapping has adequately mapped the visible area.
+     The map can be used to relocalize for the device's current position. */
+    ARWorldMappingStatusMapped
+} NS_SWIFT_NAME(ARFrame.WorldMappingStatus);
+
+/**
  An object encapsulating the state of everything being tracked for a given moment in time.
  @discussion The model provides a snapshot of all data needed to render a given frame.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARFrame : NSObject <NSCopying>
 
 /**
@@ -570,10 +835,9 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 
 /**
  The frame’s captured depth data.
- 
  @discussion Depth data is only provided with face tracking on frames where depth data was captured.
  */
-@property (nonatomic, strong, readonly, nullable) AVDepthData *capturedDepthData;
+@property (nonatomic, strong, nullable, readonly) AVDepthData *capturedDepthData;
 
 /**
  A timestamp identifying the depth data.
@@ -602,6 +866,13 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  @discussion The feature points are only provided for configurations using world tracking.
  */
 @property (nonatomic, strong, nullable, readonly) ARPointCloud *rawFeaturePoints;
+
+/**
+ The status of world mapping for the area visible to the frame.
+ @discussion This can be used to identify the state of the world map for the visible area and if additional scanning
+ should be done before saving a world map.
+ */
+@property (nonatomic, readonly) ARWorldMappingStatus worldMappingStatus API_AVAILABLE(ios(12.0));
 
 /**
  Searches the frame for objects corresponding to a point in the captured image.
@@ -649,7 +920,9 @@ NS_ASSUME_NONNULL_BEGIN
 @class ARAnchor;
 @class ARCamera;
 @class ARFrame;
+@class ARWorldMap;
 @protocol ARSessionDelegate;
+@protocol MTLTexture;
 
 /**
  Set of options for running the session.
@@ -657,7 +930,7 @@ NS_ASSUME_NONNULL_BEGIN
  Providing no options will result in the default behavior of resuming tracking
  from the last known position and keeping all existing anchors.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 typedef NS_OPTIONS(NSUInteger, ARSessionRunOptions) {
     /** The session will reset tracking. */
     ARSessionRunOptionResetTracking           = (1 << 0),
@@ -669,13 +942,13 @@ typedef NS_OPTIONS(NSUInteger, ARSessionRunOptions) {
 /**
  The ARSession class configures and runs different Augmented Reality techniques on a device.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARSession : NSObject
 
 /**
  A delegate for receiving ARSession updates.
  */
-@property (nonatomic, weak) id <ARSessionDelegate> delegate;
+@property (nonatomic, weak, nullable) id <ARSessionDelegate> delegate;
 
 /**
  The dispatch queue on which the delegate calls are performed.
@@ -732,13 +1005,53 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  */
 - (void)removeAnchor:(ARAnchor *)anchor NS_SWIFT_NAME(remove(anchor:));
 
+/**
+ Sets the world origin of the session to be at the position and orientation
+ specified by the provided transform.
+ @param relativeTransform The rotation, translation and scale from the current world origin
+ to the desired world origin.
+ */
+- (void)setWorldOrigin:(simd_float4x4)relativeTransform NS_SWIFT_NAME(setWorldOrigin(relativeTransform:)) API_AVAILABLE(ios(11.3));
+
+/**
+ Copies the current state of the world being tracked by the session.
+ @discussion A world map is only provided when running an ARWorldTrackingConfiguration.
+ @param completionHandler The completion handler to call when the get has completed. This handler is executed
+ on the session's delegate queue. The completion handler takes the following parameters:
+ worldMap - The current world map or nil if unavailable.
+ error - An error that indicates why the world map is unavailable, or nil if a world map was provided.
+ */
+- (void)getCurrentWorldMapWithCompletionHandler:(void (^)(ARWorldMap * _Nullable worldMap, NSError * _Nullable error))completionHandler API_AVAILABLE(ios(12.0));
+
+/**
+ Creates a new reference object from scanned features within the provided bounds.
+ 
+ @discussion Reference objects can be stored and used to track 3D objects from previously scanned data.
+ Creation requires that an ARObjectScanningConfiguration is used so that sufficient features are scanned.
+ @param transform The transformation matrix that defines the rotation and translation of the bounds in
+ world coordinates. This will be used as the reference object's transform, defining its coordinate space.
+ @param center The center of the object's bounds in the transform's coordinate space. A zero vector will
+ define the object's origin centered within its extent.
+ @param extent The extent of the object's bounds in the transform's coordinate space. This defines the bounds'
+ size in each dimension.
+ @param completionHandler The completion handler to call when the creation has completed. This handler is executed
+ on the session's delegate queue. The completion handler takes the following parameters:
+ referenceObject - The reference object created or nil if unavailable.
+ error - An error that indicates why creation failed, or nil if a reference object was provided.
+ */
+- (void)createReferenceObjectWithTransform:(simd_float4x4)transform
+                                     center:(simd_float3)center
+                                     extent:(simd_float3)extent
+                          completionHandler:(void (^)(ARReferenceObject * _Nullable referenceObject, NSError * _Nullable error))completionHandler
+NS_SWIFT_NAME(createReferenceObject(transform:center:extent:completionHandler:)) API_AVAILABLE(ios(12.0));
+
 @end
 
 
 #pragma mark - ARSessionObserver
 
 
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @protocol ARSessionObserver <NSObject>
 
 @optional
@@ -777,10 +1090,26 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  
  @discussion A session will continue running from the last known state once
  the interruption has ended. If the device has moved, anchors will be misaligned.
- To avoid this, some applications may want to reset tracking (see ARSessionRunOptions).
+ To avoid this, some applications may want to reset tracking (see ARSessionRunOptions)
+ or attempt to relocalize (see `-[ARSessionObserver sessionShouldAttemptRelocalization:]`).
  @param session The session that was interrupted.
  */
 - (void)sessionInterruptionEnded:(ARSession *)session;
+
+/**
+ This is called after a session resumes from a pause or interruption to determine
+ whether or not the session should attempt to relocalize.
+ 
+ @discussion To avoid misaligned anchors, apps may wish to attempt a relocalization after
+ a session pause or interruption. If YES is returned: the session will begin relocalizing
+ and tracking state will switch to limited with reason relocalizing. If successful, the
+ session's tracking state will return to normal. Because relocalization depends on
+ the user's location, it can run indefinitely. Apps that wish to give up on relocalization
+ may call run with `ARSessionRunOptionResetTracking` at any time.
+ @param session The session to relocalize.
+ @return Return YES to begin relocalizing.
+ */
+- (BOOL)sessionShouldAttemptRelocalization:(ARSession *)session API_AVAILABLE(ios(11.3));
 
 /**
  This is called when the session outputs a new audio sample buffer.
@@ -795,7 +1124,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 #pragma mark - ARSessionDelegate
 
 
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @protocol ARSessionDelegate <ARSessionObserver>
 
 @optional
@@ -835,6 +1164,143 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARObjectAnchor.h
+//
+//  ARObjectAnchor.h
+//  ARKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <ARKit/ARAnchor.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class ARReferenceObject;
+
+/**
+ An anchor representing an object in the world.
+ */
+API_AVAILABLE(ios(12.0))
+@interface ARObjectAnchor : ARAnchor
+
+/**
+ Reference to the detected object.
+ */
+@property (nonatomic, strong, readonly) ARReferenceObject *referenceObject;
+
+/** Unavailable */
+- (instancetype)initWithTransform:(simd_float4x4)transform NS_UNAVAILABLE;
+- (instancetype)initWithName:(NSString *)name transform:(simd_float4x4)transform NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/AREnvironmentProbeAnchor.h
+//
+//  AREnvironmentProbeAnchor.h
+//  ARKit
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <ARKit/ARAnchor.h>
+
+@protocol MTLTexture;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ An object representing an environment probe in the world.
+ @discussion Environment probes are used to light virtual geometry by producing environment
+ textures from the probe's location in the world.
+ */
+API_AVAILABLE(ios(12.0))
+@interface AREnvironmentProbeAnchor : ARAnchor
+
+/**
+ The environment texture of the probe.
+ @discussion The texture is provided as a cube using MTLTextureTypeCube.
+ */
+@property (nonatomic, strong, nullable, readonly) id<MTLTexture> environmentTexture;
+
+/**
+ The extent of the probe in the anchor's coordinate space.
+ @discussion This is the size of the box that is assumed when projecting the environment texture for parallax correction.
+ The extent defaults to infinity for probes that do not need parallax correction.
+ */
+@property (nonatomic, readonly) simd_float3 extent;
+
+/**
+ Initializes a new environment probe anchor with the provided transform and extent.
+ @param transform The transformation matrix that defines the anchor’s rotation, translation and scale in world coordinates.
+ @param extent The extent of the probe in the anchor's coordinate space.
+ */
+- (instancetype)initWithTransform:(simd_float4x4)transform extent:(simd_float3)extent;
+
+/**
+ Initializes a new environment probe anchor with the provided name, transform, and extent.
+ @param name A name to associate with the anchor.
+ @param transform The transformation matrix that defines the anchor’s rotation, translation and scale in world coordinates.
+ @param extent The extent of the probe in the anchor's coordinate space.
+ */
+- (instancetype)initWithName:(NSString *)name transform:(simd_float4x4)transform extent:(simd_float3)extent;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARWorldMap.h
+//
+//  ARWorldMap.h
+//  ARKit
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <simd/simd.h>
+
+@class ARAnchor;
+@class ARPointCloud;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ Object representing the mapping of a physical 3D space.
+ @discussion ARWorldMap supports archiving and unarchiving across devices
+ and versions with NSDecodingFailurePolicySetErrorAndReturn, providing an error
+ if the map format is not supported.
+ */
+API_AVAILABLE(ios(12.0))
+@interface ARWorldMap : NSObject <NSCopying, NSSecureCoding>
+
+/**
+ The position of the center of the mapped world in meters.
+ */
+@property (nonatomic, readonly) simd_float3 center;
+
+/**
+ The extent of the mapped world in meters.
+ */
+@property (nonatomic, readonly) simd_float3 extent;
+
+/**
+ A list of anchors in the map.
+ */
+@property (nonatomic, copy) NSArray<ARAnchor *> *anchors;
+
+/**
+ The feature points in the map.
+ */
+@property (nonatomic, strong, readonly) ARPointCloud *rawFeaturePoints;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  ARKit.framework/Headers/ARPlaneAnchor.h
 //
 //  ARPlaneAnchor.h
@@ -844,25 +1310,28 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <ARKit/ARAnchor.h>
-#import <CoreGraphics/CoreGraphics.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+@class ARPlaneGeometry;
 
 /**
  A value describing the alignment of a plane anchor.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 typedef NS_ENUM(NSInteger, ARPlaneAnchorAlignment) {
     /** A plane that is horizontal with respect to gravity. */
-    ARPlaneAnchorAlignmentHorizontal
-
+    ARPlaneAnchorAlignmentHorizontal,
+    
+    /** A plane that is vertical with respect to gravity. */
+    ARPlaneAnchorAlignmentVertical API_AVAILABLE(ios(11.3))
 } NS_SWIFT_NAME(ARPlaneAnchor.Alignment);
 
 /**
  An anchor representing a planar surface in the world.
  @discussion Planes are defined in the X and Z direction, where Y is the surface’s normal.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARPlaneAnchor : ARAnchor
 
 /**
@@ -873,15 +1342,21 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 /**
  The center of the plane in the anchor’s coordinate space.
  */
-@property (nonatomic, readonly) vector_float3 center;
+@property (nonatomic, readonly) simd_float3 center;
 
 /**
  The extent of the plane in the anchor’s coordinate space.
  */
-@property (nonatomic, readonly) vector_float3 extent;
+@property (nonatomic, readonly) simd_float3 extent;
+
+/**
+ Geometry of the plane in the anchor's coordinate space.
+ */
+@property (nonatomic, strong, readonly) ARPlaneGeometry *geometry API_AVAILABLE(ios(11.3));
 
 /** Unavailable */
-- (instancetype)initWithTransform:(matrix_float4x4)transform NS_UNAVAILABLE;
+- (instancetype)initWithTransform:(simd_float4x4)transform NS_UNAVAILABLE;
+- (instancetype)initWithName:(NSString *)name transform:(simd_float4x4)transform NS_UNAVAILABLE;
 
 @end
 
@@ -908,7 +1383,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion The view draws the camera background, provides and updates a camera,
  manages nodes for anchors, and updates lighting.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARSCNView : SCNView
 
 /**
@@ -924,7 +1399,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 /**
  Specifies the scene of the view.
  */
-@property(nonatomic, strong) SCNScene *scene;
+@property (nonatomic, strong) SCNScene *scene;
 
 /**
  Determines whether the view will update the scene’s lighting.
@@ -932,7 +1407,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  @discussion When set, the view will automatically create and update lighting for 
  light estimates the session provides. Defaults to YES.
  */
-@property(nonatomic) BOOL automaticallyUpdatesLighting;
+@property (nonatomic, assign) BOOL automaticallyUpdatesLighting;
 
 /**
  Searches the scene hierarchy for an anchor associated with the provided node.
@@ -957,13 +1432,25 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  */
 - (NSArray<ARHitTestResult *> *)hitTest:(CGPoint)point types:(ARHitTestResultType)types;
 
+/**
+ Unproject a 2D point from the view onto a plane in 3D world coordinates.
+ 
+ @discussion A 2D point in the view’s coordinate space can refer to any point along a line segment
+ in the 3D coordinate space. Unprojecting gets the 3D position of the point along this line segment that intersects the provided plane.
+ @param point A point in the view’s coordinate system.
+ @param planeTransform The transform used to define the coordinate system of the plane.
+ The coordinate system’s positive Y axis is assumed to be the normal of the plane.
+ @return 3D position in world coordinates or a NAN values if unprojection is not possible.
+ */
+- (simd_float3)unprojectPoint:(CGPoint)point ontoPlaneWithTransform:(simd_float4x4)planeTransform API_AVAILABLE(ios(12.0)) NS_REFINED_FOR_SWIFT;
+
 @end
 
 
 #pragma mark - ARSCNViewDelegate
 
 
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @protocol ARSCNViewDelegate <SCNSceneRendererDelegate, ARSessionObserver>
 @optional
 
@@ -1021,14 +1508,14 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 /**
  Extended debug options for an ARSCNView
  */
-struct ARSCNDebugOptions {} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+typedef SCNDebugOptions ARSCNDebugOptions API_AVAILABLE(ios(11.0));
 
 /** Show the world origin in the scene. */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 FOUNDATION_EXTERN const SCNDebugOptions ARSCNDebugOptionShowWorldOrigin NS_SWIFT_NAME(ARSCNDebugOptions.showWorldOrigin);
 
 /** Show detected 3D feature points in the world. */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 FOUNDATION_EXTERN const SCNDebugOptions ARSCNDebugOptionShowFeaturePoints NS_SWIFT_NAME(ARSCNDebugOptions.showFeaturePoints);
 
 NS_ASSUME_NONNULL_END
@@ -1045,8 +1532,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
-@interface ARPointCloud : NSObject
+API_AVAILABLE(ios(11.0))
+@interface ARPointCloud : NSObject <NSSecureCoding>
 
 /**
  The number of points in the point cloud.
@@ -1056,7 +1543,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 /**
  The 3D points comprising the point cloud.
  */
-@property (nonatomic, readonly) const vector_float3 *points NS_REFINED_FOR_SWIFT;
+@property (nonatomic, readonly) const simd_float3 *points NS_REFINED_FOR_SWIFT;
 
 /**
  The 3D point identifiers comprising the point cloud.
@@ -1083,10 +1570,15 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class ARReferenceImage;
+@class ARReferenceObject;
+@class ARVideoFormat;
+@class ARWorldMap;
+
 /**
  Enum constants for indicating the world alignment.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 typedef NS_ENUM(NSInteger, ARWorldAlignment) {
     /** Aligns the world with gravity that is defined by vector (0, -1, 0). */
     ARWorldAlignmentGravity,
@@ -1101,46 +1593,77 @@ typedef NS_ENUM(NSInteger, ARWorldAlignment) {
 
 
 /**
+ Enum constants for indicating the mode of environment texturing to run.
+ */
+API_AVAILABLE(ios(12.0))
+typedef NS_ENUM(NSInteger, AREnvironmentTexturing) {
+    /** No texture information is gathered. */
+    AREnvironmentTexturingNone,
+    
+    /** Texture information is gathered for the environment.
+     Environment textures will be generated for AREnvironmentProbes added to the session. */
+    AREnvironmentTexturingManual,
+    
+    /** Texture information is gathered for the environment and probes automatically placed in the scene. */
+    AREnvironmentTexturingAutomatic
+} NS_SWIFT_NAME(ARWorldTrackingConfiguration.EnvironmentTexturing);
+
+
+/**
  Option set indicating the type of planes to detect.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 typedef NS_OPTIONS(NSUInteger, ARPlaneDetection) {
     /** No plane detection is run. */
-    ARPlaneDetectionNone        = 0,
+    ARPlaneDetectionNone                              = 0,
     
     /** Plane detection determines horizontal planes in the scene. */
-    ARPlaneDetectionHorizontal  = (1 << 0),
+    ARPlaneDetectionHorizontal                        = (1 << 0),
+    
+    /** Plane detection determines vertical planes in the scene. */
+    ARPlaneDetectionVertical API_AVAILABLE(ios(11.3)) = (1 << 1)
 } NS_SWIFT_NAME(ARWorldTrackingConfiguration.PlaneDetection);
 
 
 /**
  An object to describe and configure the Augmented Reality techniques to be used in an ARSession.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARConfiguration : NSObject <NSCopying>
 
 /**
  Determines whether this device supports the ARConfiguration.
  */
-@property(class, nonatomic, readonly) BOOL isSupported;
+@property (class, nonatomic, readonly) BOOL isSupported;
+
+/**
+ A list of supported video formats for this configuration and device.
+ @discussion The first element in the list is the default format for session output.
+ */
+@property (class, nonatomic, readonly) NSArray<ARVideoFormat *> *supportedVideoFormats API_AVAILABLE(ios(11.3));
+
+/**
+ Video format of the session output.
+ */
+@property (nonatomic, strong) ARVideoFormat *videoFormat API_AVAILABLE(ios(11.3));
 
 /**
  Determines how the coordinate system should be aligned with the world.
  @discussion The default is ARWorldAlignmentGravity.
  */
-@property (nonatomic, readwrite) ARWorldAlignment worldAlignment;
+@property (nonatomic, assign) ARWorldAlignment worldAlignment;
 
 /**
  Enable or disable light estimation.
  @discussion Enabled by default.
  */
-@property (nonatomic, readwrite, getter=isLightEstimationEnabled) BOOL lightEstimationEnabled;
+@property (nonatomic, assign, getter=isLightEstimationEnabled) BOOL lightEstimationEnabled;
 
 /**
  Determines whether to capture and provide audio data.
  @discussion Disabled by default.
  */
-@property (nonatomic, readwrite) BOOL providesAudioData;
+@property (nonatomic, assign) BOOL providesAudioData;
 
 /** Unavailable */
 - (instancetype)init NS_UNAVAILABLE;
@@ -1156,34 +1679,83 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  By finding feature points in the scene, world tracking enables performing hit-tests against the frame.
  Tracking can no longer be resumed once the session is paused.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARWorldTrackingConfiguration : ARConfiguration
+
+/**
+ Enable or disable continuous auto focus.
+ @discussion Enabled by default.
+ */
+@property (nonatomic, assign, getter=isAutoFocusEnabled) BOOL autoFocusEnabled API_AVAILABLE(ios(11.3));
+
+/**
+ The mode of environment texturing to run.
+ @discussion If set, texture information will be accumulated and updated. Adding an AREnvironmentProbeAnchor to the session
+ will get the current environment texture available from that probe's perspective which can be used for lighting
+ virtual objects in the scene. Defaults to AREnvironmentTexturingNone.
+ */
+@property (nonatomic, assign) AREnvironmentTexturing environmentTexturing API_AVAILABLE(ios(12.0));
 
 /**
  Type of planes to detect in the scene.
  @discussion If set, new planes will continue to be detected and updated over time. Detected planes will be added to the session as
  ARPlaneAnchor objects. In the event that two planes are merged, the newer plane will be removed. Defaults to ARPlaneDetectionNone.
  */
-@property (nonatomic, readwrite) ARPlaneDetection planeDetection;
+@property (nonatomic, assign) ARPlaneDetection planeDetection;
+
+/**
+ The initial map of the physical space that world tracking will localize to and track.
+ @discussion If set, the session will attempt to localize to the provided map with
+ a limited tracking state until localization is successful or run is called again
+ with a different (or no) initial map specified. Once localized, the map will be extended
+ and can again be saved using the `getCurrentWorldMap` method on the session.
+ */
+@property (nonatomic, strong, nullable) ARWorldMap *initialWorldMap API_AVAILABLE(ios(12.0));
+
+/**
+ Images to detect in the scene.
+ @discussion If set the session will attempt to detect the specified images. When an image is detected an ARImageAnchor will be added to the session.
+ */
+@property (nonatomic, copy, null_resettable) NSSet<ARReferenceImage *> *detectionImages API_AVAILABLE(ios(11.3));
+
+/**
+ Maximum number of images to track simultaneously.
+ @discussion Setting the maximum number of tracked images will limit the number of images that can be tracked in a given frame.
+ If more than the maximum is visible, only the images already being tracked will continue to track until tracking is lost or another image is removed.
+ Images will continue to be detected regardless of images tracked. Default value is zero.
+ */
+@property (nonatomic, assign) NSInteger maximumNumberOfTrackedImages API_AVAILABLE(ios(12.0));
+
+/**
+ Objects to detect in the scene.
+ @discussion If set the session will attempt to detect the specified objects. When an object is detected an ARObjectAnchor will be added to the session.
+ */
+@property (nonatomic, copy) NSSet<ARReferenceObject *> *detectionObjects API_AVAILABLE(ios(12.0));
 
 - (instancetype)init;
 + (instancetype)new NS_SWIFT_UNAVAILABLE("Use init() instead");
 
 @end
-
 
 /**
  A configuration for running orientation tracking.
  
  @discussion Orientation tracking provides 3 degrees of freedom tracking of the device.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface AROrientationTrackingConfiguration : ARConfiguration
+
+/**
+ Enable or disable continuous auto focus.
+ @discussion Enabled by default.
+ */
+@property (nonatomic, assign, getter=isAutoFocusEnabled) BOOL autoFocusEnabled API_AVAILABLE(ios(11.3));
 
 - (instancetype)init;
 + (instancetype)new NS_SWIFT_UNAVAILABLE("Use init() instead");
 
 @end
+
 
 /**
  A configuration for running face tracking.
@@ -1192,8 +1764,70 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  A detected face will be added to the session as an ARFaceAnchor object which contains information about head pose, mesh, eye pose, and blend shape
  coefficients. If light estimation is enabled the detected face will be treated as a light probe and used to estimate the direction of incoming light.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARFaceTrackingConfiguration : ARConfiguration
+
+- (instancetype)init;
++ (instancetype)new NS_SWIFT_UNAVAILABLE("Use init() instead");
+
+@end
+
+
+/**
+ A configuration for running image tracking.
+ 
+ @discussion Image tracking provides 6 degrees of freedom tracking of known images. Four images may be tracked simultaneously.
+ */
+API_AVAILABLE(ios(12.0))
+@interface ARImageTrackingConfiguration : ARConfiguration
+
+/**
+ Enable or disable continuous auto focus.
+ @discussion Enabled by default.
+ */
+@property (nonatomic, assign, getter=isAutoFocusEnabled) BOOL autoFocusEnabled;
+
+/**
+ Images to track in the scene.
+ */
+@property (nonatomic, copy) NSSet<ARReferenceImage *> *trackingImages;
+
+/**
+ Maximum number of images to track simultaneously.
+ @discussion Setting the maximum number of tracked images will limit the number of images that can be tracked in a given frame.
+ If more than the maximum is visible, only the images already being tracked will continue to track until tracking is lost or another image is removed.
+ Default value is one.
+ */
+@property (nonatomic, assign) NSInteger maximumNumberOfTrackedImages;
+
+- (instancetype)init;
++ (instancetype)new NS_SWIFT_UNAVAILABLE("Use init() instead");
+
+@end
+
+
+/**
+ A configuration for scanning objects.
+ 
+ @discussion The object scanning configuration runs world tracking, capturing additional detail in order to create reference objects.
+ Running object scanning will consume additional power in order to provide more detailed features.
+ The createReferenceObject method can be called on the session to capture a scan of an object in the world.
+ */
+API_AVAILABLE(ios(12.0))
+@interface ARObjectScanningConfiguration : ARConfiguration
+
+/**
+ Enable or disable continuous auto focus.
+ @discussion Enabled by default.
+ */
+@property (nonatomic, assign, getter=isAutoFocusEnabled) BOOL autoFocusEnabled;
+
+/**
+ Type of planes to detect in the scene.
+ @discussion If set, new planes will continue to be detected and updated over time. Detected planes will be added to the session as
+ ARPlaneAnchor objects. In the event that two planes are merged, the newer plane will be removed. Defaults to ARPlaneDetectionNone.
+ */
+@property (nonatomic, assign) ARPlaneDetection planeDetection;
 
 - (instancetype)init;
 + (instancetype)new NS_SWIFT_UNAVAILABLE("Use init() instead");
@@ -1213,25 +1847,49 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 FOUNDATION_EXTERN NSString *const ARErrorDomain;
 
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 typedef NS_ERROR_ENUM(ARErrorDomain, ARErrorCode) {
     /** Unsupported configuration. */
-    ARErrorCodeUnsupportedConfiguration   = 100,
+    ARErrorCodeUnsupportedConfiguration                               = 100,
     
     /** A sensor required to run the session is not available. */
-    ARErrorCodeSensorUnavailable          = 101,
+    ARErrorCodeSensorUnavailable                                      = 101,
     
     /** A sensor failed to provide the required input. */
-    ARErrorCodeSensorFailed               = 102,
+    ARErrorCodeSensorFailed                                           = 102,
     
     /** App does not have permission to use the camera. The user may change this in settings. */
-    ARErrorCodeCameraUnauthorized         = 103,
+    ARErrorCodeCameraUnauthorized                                     = 103,
+    
+    /** App does not have permission to use the microphone. The user may change this in settings. */
+    ARErrorCodeMicrophoneUnauthorized                                 = 104,
     
     /** World tracking has encountered a fatal error. */
-    ARErrorCodeWorldTrackingFailed        = 200,
+    ARErrorCodeWorldTrackingFailed                                    = 200,
+    
+    /** Invalid reference image */
+    ARErrorCodeInvalidReferenceImage         API_AVAILABLE(ios(11.3)) = 300,
+
+    /** Invalid reference object. */
+    ARErrorCodeInvalidReferenceObject        API_AVAILABLE(ios(12.0)) = 301,
+    
+    /** Invalid world map. */
+    ARErrorCodeInvalidWorldMap               API_AVAILABLE(ios(12.0)) = 302,
+    
+    /** Invalid configuration. */
+    ARErrorCodeInvalidConfiguration          API_AVAILABLE(ios(12.0)) = 303,
+    
+    /** Insufficient features. */
+    ARErrorCodeInsufficientFeatures          API_AVAILABLE(ios(12.0)) = 400,
+    
+    /** Object merge failed. */
+    ARErrorCodeObjectMergeFailed             API_AVAILABLE(ios(12.0)) = 401,
+    
+    /** Unable to read or write to file. */
+    ARErrorCodeFileIOFailed                  API_AVAILABLE(ios(12.0)) = 500,
 };
 
 NS_ASSUME_NONNULL_END
@@ -1248,11 +1906,29 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class ARAnchor;
+/**
+ An anchor object that can be copied from values of an existing anchor.
+ */
+API_AVAILABLE(ios(12.0))
+@protocol ARAnchorCopying <NSCopying>
+
+/**
+ Initializes a new anchor object copying values from an existing anchor.
+ @discussion This initializer will be called any time copy is called on anchor of this class.
+ This method must be implemented for any ARAnchor subclasses that adds properties.
+ @param anchor The anchor from which to copy values.
+ */
+- (instancetype)initWithAnchor:(ARAnchor *)anchor;
+
+@end
+
+
 /**
  Object representing a physical location and orientation in 3D space.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
-@interface ARAnchor : NSObject <NSCopying>
+API_AVAILABLE(ios(11.0))
+@interface ARAnchor : NSObject <ARAnchorCopying, NSSecureCoding>
 
 /**
  Unique identifier of the anchor.
@@ -1260,15 +1936,27 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 @property (nonatomic, readonly) NSUUID *identifier;
 
 /**
+ An optional name used to associate with the anchor.
+ */
+@property (nonatomic, nullable, readonly) NSString *name API_AVAILABLE(ios(12.0));
+
+/**
  The transformation matrix that defines the anchor’s rotation, translation and scale in world coordinates.
  */
-@property (nonatomic, readonly) matrix_float4x4 transform;
+@property (nonatomic, readonly) simd_float4x4 transform;
 
 /**
  Initializes a new anchor object.
  @param transform The transformation matrix that defines the anchor’s rotation, translation and scale in world coordinates.
  */
-- (instancetype)initWithTransform:(matrix_float4x4)transform;
+- (instancetype)initWithTransform:(simd_float4x4)transform;
+
+/**
+ Initializes a new anchor object with the provided identifier and name.
+ @param name A name to associate with the anchor.
+ @param transform The transformation matrix that defines the anchor’s rotation, translation and scale in world coordinates.
+ */
+- (instancetype)initWithName:(NSString *)name transform:(simd_float4x4)transform API_AVAILABLE(ios(12.0));
 
 /** Unavailable */
 - (instancetype)init NS_UNAVAILABLE;
@@ -1276,10 +1964,11 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 
 @end
 
+
 /**
  A real world object or location in the scene that is being tracked.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @protocol ARTrackable <NSObject>
 
 /**
@@ -1312,9 +2001,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  An object representing the geometry of a face.
+ @discussion The face geometry will have a constant number of triangles
+ and vertices, updating only the vertex positions from frame to frame.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
-@interface ARFaceGeometry : NSObject<NSCopying>
+API_AVAILABLE(ios(11.0))
+@interface ARFaceGeometry : NSObject<NSSecureCoding, NSCopying>
 
 /**
 The number of mesh vertices of the geometry.
@@ -1324,7 +2015,7 @@ The number of mesh vertices of the geometry.
 /**
  The mesh vertices of the geometry.
  */
-@property (nonatomic, readonly) const vector_float3 *vertices NS_REFINED_FOR_SWIFT;
+@property (nonatomic, readonly) const simd_float3 *vertices NS_REFINED_FOR_SWIFT;
 
 /**
  The number of texture coordinates of the face geometry.
@@ -1334,7 +2025,7 @@ The number of mesh vertices of the geometry.
 /**
  The texture coordinates of the geometry.
  */
-@property (nonatomic, readonly) const vector_float2 *textureCoordinates NS_REFINED_FOR_SWIFT;
+@property (nonatomic, readonly) const simd_float2 *textureCoordinates NS_REFINED_FOR_SWIFT;
 
 /**
  The number of triangles of the face geometry.
@@ -1365,20 +2056,20 @@ The number of mesh vertices of the geometry.
 /**
  A SceneKit geometry representing a face.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.0))
 @interface ARSCNFaceGeometry : SCNGeometry
 
 /**
- Creates a new face geometry using a metal device.
+ Creates a new face geometry using a Metal device.
  
- @param device A metal device.
- @return A new face geometry
+ @param device A Metal device.
+ @return A new face geometry.
  */
 + (nullable instancetype)faceGeometryWithDevice:(id<MTLDevice>)device;
 
 
 /**
- Creates a new face geometry using a metal device.
+ Creates a new face geometry using a Metal device.
  
  @discussion By default the regions between the eye lids as well as the region
  between the lips are not covered by geometry. For using the face geometry as an
@@ -1388,7 +2079,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  @param fillMesh Whether to fill in additional geometry into the
  gaps between the eye lids as well as into the gap between the lips.
  
- @return A new face geometry
+ @return A new face geometry.
  */
 + (nullable instancetype)faceGeometryWithDevice:(id<MTLDevice>)device
                               fillMesh:(BOOL)fillMesh;
@@ -1408,4 +2099,140 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARReferenceObject.h
+//
+//  ARReferenceObject.h
+//  ARKit
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
 
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <simd/simd.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(12.0))
+FOUNDATION_EXTERN NSString *const ARReferenceObjectArchiveExtension NS_SWIFT_NAME(ARReferenceObject.archiveExtension);
+
+@class ARPointCloud;
+
+/**
+ A reference object to track in the scene.
+ */
+API_AVAILABLE(ios(12.0))
+@interface ARReferenceObject : NSObject<NSSecureCoding>
+
+/**
+ An optional name used to identify the object.
+ */
+@property (nonatomic, copy, nullable) NSString *name;
+
+/**
+ The center of the object in the object’s local coordinate space.
+ */
+@property (nonatomic, readonly) simd_float3 center;
+
+/**
+ The extent of the object in the object’s local coordinate space.
+ */
+@property (nonatomic, readonly) simd_float3 extent;
+
+/**
+ The scale of the object’s local coordinate space.
+ @discussion Multiplying the extent by this scale will result in the physical extent of the object, measured in meters.
+ */
+@property (nonatomic, readonly) simd_float3 scale;
+
+/**
+ The feature points of the object.
+ */
+@property (nonatomic, strong, readonly) ARPointCloud *rawFeaturePoints;
+
+/**
+ Returns the set of ARReferenceObjects in the specified resource group and bundle.
+ 
+ @param name The name of the resource group.
+ @param bundle The bundle containing the image file or asset catalog. Specify nil to search the app’s main bundle.
+ @return The set of reference objects or nil on error.
+ */
++ (nullable NSSet<ARReferenceObject *> *)referenceObjectsInGroupNamed:(NSString *)name bundle:(nullable NSBundle *)bundle;
+
+/**
+ Initializes a new reference object with the contents of an archive at the specified URL.
+ @param url The URL from which to read data (.arobject archive).
+ @param error The error to populate if the object could not be initialized.
+ */
+- (nullable instancetype)initWithArchiveURL:(NSURL *)url error:(NSError **)error;
+
+/**
+ Exports the object as an archive at the given URL.
+ 
+ @discussion The URL path should use ARReferenceObjectArchiveExtension (.arobject) for the file extension.
+ If serialization across devices is desired, NSKeyedArchiver should be used instead.
+ @param url The URL at which to write the exported object.
+ @param previewImage An optional preview image to include in the archive.
+ @param error The error to populate if the write is not successful.
+ @return YES if the location is written successfully, otherwise NO.
+ */
+- (BOOL)exportObjectToURL:(NSURL *)url previewImage:(nullable UIImage *)previewImage error:(NSError **)error;
+
+/**
+ Returns a new reference object by applying the specified transform to the object's origin.
+ @discussion This can be used to change the reference object's origin with respect to the physical object. Providing
+ a transform local to the current object's coordinate space will return an object with the transform's position and orientation as the origin.
+ @param transform The rotation and translation to apply to the object's origin.
+ @return A reference object with updated origin.
+*/
+- (ARReferenceObject *)referenceObjectByApplyingTransform:(simd_float4x4)transform;
+
+/**
+ Returns a new reference object by aligning and merging the provided object with this reference.
+ @discussion This can be used to combine multiple scans of the same object for detection in different conditions. The object being merged
+ must share similar feature points for the merge to succeed.
+ @param object The reference object to align and merge.
+ @param error The error to populate if the merge is not successful.
+ @return A new reference object combining features of both scans or nil if the merge was not successful.
+ */
+- (nullable ARReferenceObject *)referenceObjectByMergingObject:(ARReferenceObject *)object error:(NSError **)error;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARImageAnchor.h
+//
+//  ARImageAnchor.h
+//  ARKit
+//
+//  Copyright © 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <ARKit/ARAnchor.h>
+
+@class ARReferenceImage;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ An anchor representing an image in the world.
+ */
+API_AVAILABLE(ios(11.3))
+@interface ARImageAnchor : ARAnchor <ARTrackable>
+
+/**
+ Reference to the detected image.
+ */
+@property (nonatomic, strong, readonly) ARReferenceImage *referenceImage;
+
+/** Unavailable */
+- (instancetype)initWithTransform:(simd_float4x4)transform NS_UNAVAILABLE;
+- (instancetype)initWithName:(NSString *)name transform:(simd_float4x4)transform NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -8,12 +8,10 @@
 
 
 #ifdef __cplusplus
-#define ACCOUNTS_EXTERN		extern "C" __attribute__((visibility ("default")))
+#define ACCOUNTS_EXTERN extern "C" __attribute__((visibility ("default")))
 #else
-#define ACCOUNTS_EXTERN	        extern __attribute__((visibility ("default")))
+#define ACCOUNTS_EXTERN extern __attribute__((visibility ("default")))
 #endif
-
-#define ACCOUNTS_CLASS_AVAILABLE(_desktopIntro, _iphoneIntro) __attribute__((visibility("default"))) NS_CLASS_AVAILABLE(_desktopIntro, _iphoneIntro)
 // ==========  Accounts.framework/Headers/ACError.h
 //
 //  ACError.h
@@ -25,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <Accounts/AccountsDefines.h>
 
-ACCOUNTS_EXTERN NSString * const ACErrorDomain NS_AVAILABLE(NA, 5_0);
+ACCOUNTS_EXTERN NSString * const ACErrorDomain API_AVAILABLE(ios(5.0), macos(10.8));
 
 typedef enum ACErrorCode {
     ACErrorUnknown = 1,
@@ -73,7 +71,7 @@ typedef enum ACErrorCode {
 //
 // The account will be validated and saved as a system account.
 
-ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
+API_AVAILABLE(ios(5.0), macos(10.8))
 @interface ACAccountCredential : NSObject
 
 - (instancetype)initWithOAuthToken:(NSString *)token tokenSecret:(NSString *)secret;
@@ -112,34 +110,34 @@ ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
 #import <Accounts/AccountsDefines.h>
 
 // The identifiers for supported system account types are listed here:
-ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierTwitter NS_DEPRECATED(NA, 10_13, 5_0, 11_0, "Use Twitter SDK instead");
-ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierFacebook NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");
-ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierSinaWeibo NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Sina Weibo SDK instead");
-ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierTencentWeibo NS_DEPRECATED(NA, 10_13, 7_0, 11_0, "Use Tencent Weibo SDK instead");
-ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierLinkedIn NS_DEPRECATED(NA, 10_13, NA, NA, "Use LinkedIn SDK instead");
+ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierTwitter API_DEPRECATED("Use Twitter SDK instead", ios(5.0, 11.0), macos(10.8, 10.13));
+ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierFacebook API_DEPRECATED("Use Facebook SDK instead", ios(6.0, 11.0), macos(10.8, 10.13));
+ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierSinaWeibo API_DEPRECATED("Use Sina Weibo SDK instead", ios(6.0, 11.0), macos(10.8, 10.13));
+ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierTencentWeibo API_DEPRECATED("Use Tencent Weibo SDK instead", ios(7.0, 11.0), macos(10.9, 10.13));
+ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierLinkedIn API_DEPRECATED("Use LinkedIn SDK instead", macos(10.9, 10.13)) API_UNAVAILABLE(ios);
 
 // Options dictionary keys for Facebook access, for use with [ACAccountStore requestAccessToAccountsWithType:options:completion:]
-ACCOUNTS_EXTERN NSString * const ACFacebookAppIdKey NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");            // Your Facebook App ID, as it appears on the Facebook website.
-ACCOUNTS_EXTERN NSString * const ACFacebookPermissionsKey NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");      // An array of of the permissions you're requesting.
-ACCOUNTS_EXTERN NSString * const ACFacebookAudienceKey NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");         // Only required when posting permissions are requested.
+ACCOUNTS_EXTERN NSString * const ACFacebookAppIdKey API_DEPRECATED("Use Facebook SDK instead", ios(6.0, 11.0), macos(10.8, 10.13)); // Your Facebook App ID, as it appears on the Facebook website.
+ACCOUNTS_EXTERN NSString * const ACFacebookPermissionsKey API_DEPRECATED("Use Facebook SDK instead", ios(6.0, 11.0), macos(10.8, 10.13)); // An array of of the permissions you're requesting.
+ACCOUNTS_EXTERN NSString * const ACFacebookAudienceKey API_DEPRECATED("Use Facebook SDK instead", ios(6.0, 11.0), macos(10.8, 10.13)); // Only required when posting permissions are requested.
 
 // Options dictionary values for Facebook access, for use with [ACAccountStore requestAccessToAccountsWithType:options:completion:]
-ACCOUNTS_EXTERN NSString * const ACFacebookAudienceEveryone NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");    // Posts from your app are visible to everyone.
-ACCOUNTS_EXTERN NSString * const ACFacebookAudienceFriends NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");     // Posts are visible only to friends.
-ACCOUNTS_EXTERN NSString * const ACFacebookAudienceOnlyMe NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");      // Posts are visible to the user only.
+ACCOUNTS_EXTERN NSString * const ACFacebookAudienceEveryone API_DEPRECATED("Use Facebook SDK instead", ios(6.0, 11.0), macos(10.8, 10.13)); // Posts from your app are visible to everyone.
+ACCOUNTS_EXTERN NSString * const ACFacebookAudienceFriends API_DEPRECATED("Use Facebook SDK instead", ios(6.0, 11.0), macos(10.8, 10.13)); // Posts are visible only to friends.
+ACCOUNTS_EXTERN NSString * const ACFacebookAudienceOnlyMe API_DEPRECATED("Use Facebook SDK instead", ios(6.0, 11.0), macos(10.8, 10.13)); // Posts are visible to the user only.
 
 // Options dictionary keys for LinkedIn access, for use with [ACAccountStore requestAccessToAccountsWithType:options:completion:]
-ACCOUNTS_EXTERN NSString * const ACLinkedInAppIdKey NS_DEPRECATED(NA, 10_13, NA, NA, "Use LinkedIn SDK instead");           // Your LinkedIn App ID (or API Key), as it appears on the LinkedIn website.
-ACCOUNTS_EXTERN NSString * const ACLinkedInPermissionsKey NS_DEPRECATED(NA, 10_13, NA, NA, "Use LinkedIn SDK instead");      // An array of of the LinkedIn permissions you're requesting.
+ACCOUNTS_EXTERN NSString * const ACLinkedInAppIdKey API_DEPRECATED("Use LinkedIn SDK instead", macos(10.9, 10.13)) API_UNAVAILABLE(ios); // Your LinkedIn App ID (or API Key), as it appears on the LinkedIn website.
+ACCOUNTS_EXTERN NSString * const ACLinkedInPermissionsKey API_DEPRECATED("Use LinkedIn SDK instead", macos(10.9, 10.13)) API_UNAVAILABLE(ios); // An array of of the LinkedIn permissions you're requesting.
 
-ACCOUNTS_EXTERN NSString *const ACTencentWeiboAppIdKey NS_DEPRECATED(NA, 10_13, 7_0, 11_0, "Use Tencent Weibo SDK instead"); //Tencent App ID
+ACCOUNTS_EXTERN NSString * const ACTencentWeiboAppIdKey API_DEPRECATED("Use Tencent Weibo SDK instead", ios(7.0, 11.0), macos(10.9, 10.13)); // Tencent App ID
 
 // Each account has an associated account type, containing information relevant to all the accounts of that type.
 // ACAccountType objects are obtained by using the [ACAccountStore accountTypeWithIdentifier:] method
 // or accessing the accountType property for a particular account object. They may also be used to find
 // all the accounts of a particular type using [ACAccountStore accountsWithAccountType:]
 
-ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
+API_AVAILABLE(ios(5.0), macos(10.8))
 @interface ACAccountType : NSObject
 
 // A human readable description of the account type.
@@ -169,7 +167,7 @@ ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
 // Accounts are created not bound to any store. Once an account is saved it belongs
 // to the store it was saved into.
 
-ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
+API_AVAILABLE(ios(5.0), macos(10.8))
 @interface ACAccount : NSObject
 
 // Creates a new account object with a specified account type.
@@ -178,7 +176,7 @@ ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
 // This identifier can be used to look up the account using [ACAccountStore accountWithIdentifier:].
 @property (readonly, weak, NS_NONATOMIC_IOSONLY) NSString      *identifier;
 
-// Accounts are stored with a particular account type. All available accounts of a particular type 
+// Accounts are stored with a particular account type. All available accounts of a particular type
 // can be looked up using [ACAccountStore accountsWithAccountType:]. When creating new accounts
 // this property is required.
 @property (strong, NS_NONATOMIC_IOSONLY)   ACAccountType       *accountType;
@@ -193,9 +191,9 @@ ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
 
 // For accounts that support it (currently only Facebook accounts), you can get the user's full name for display
 // purposes without having to talk to the network.
-@property (readonly, NS_NONATOMIC_IOSONLY)  NSString           *userFullName NS_AVAILABLE_IOS(7_0);
+@property (readonly, NS_NONATOMIC_IOSONLY)  NSString           *userFullName API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
 
-// The credential for the account. This property can be set and saved during account creation. It is 
+// The credential for the account. This property can be set and saved during account creation. It is
 // inaccessible once the account has been saved.
 @property (strong, NS_NONATOMIC_IOSONLY)   ACAccountCredential *credential;
 
@@ -234,7 +232,7 @@ typedef void(^ACAccountStoreCredentialRenewalHandler)(ACAccountCredentialRenewRe
 // store to grab credentials, just be sure to grab the credential object and then
 // you can release the owning account and store, e.g.
 
-ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
+API_AVAILABLE(ios(5.0), macos(10.8))
 @interface ACAccountStore : NSObject
 
 // An array of all the accounts in an account database
@@ -257,8 +255,7 @@ ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
 - (void)saveAccount:(ACAccount *)account withCompletionHandler:(ACAccountStoreSaveCompletionHandler)completionHandler;
 
 // DEPRECATED: Please use requestAccessToAccountsWithType:options:completion: instead.
-- (void)requestAccessToAccountsWithType:(ACAccountType *)accountType
-                  withCompletionHandler:(ACAccountStoreRequestAccessCompletionHandler)handler NS_DEPRECATED(NA, NA, 5_0, 6_0);
+- (void)requestAccessToAccountsWithType:(ACAccountType *)accountType withCompletionHandler:(ACAccountStoreRequestAccessCompletionHandler)handler API_DEPRECATED_WITH_REPLACEMENT("-requestAccessToAccountsWithType:options:completion:", ios(5.0, 6.0)) API_UNAVAILABLE(macos);
 
 // Obtains permission, if necessary, from the user to access protected properties, and utilize accounts
 // of a particular type in protected operations, for example OAuth signing. The completion handler for 
@@ -267,9 +264,7 @@ ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
 // appears in ACAccountType.h. This method will throw an NSInvalidArgumentException if the options
 // dictionary is not provided for such account types. Conversely, if the account type does not require
 // an options dictionary, the options parameter must be nil.
-- (void)requestAccessToAccountsWithType:(ACAccountType *)accountType
-                                options:(NSDictionary *)options
-                             completion:(ACAccountStoreRequestAccessCompletionHandler)completion;
+- (void)requestAccessToAccountsWithType:(ACAccountType *)accountType options:(NSDictionary *)options completion:(ACAccountStoreRequestAccessCompletionHandler)completion;
 
 // Call this if you discover that an ACAccount's credential is no longer valid.
 // For Twitter and Sina Weibo accounts, this method will prompt the user to go to Settings to re-enter their password.
@@ -288,4 +283,4 @@ ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
 // notification is received, you should consider all ACAccount instances you have to be invalid. Purge current
 // instances of ACAccount and obtain new instances using the account store. You may need to deal with accounts
 // being removed by an external process while you are using them.
-ACCOUNTS_EXTERN NSString * const ACAccountStoreDidChangeNotification NS_AVAILABLE(NA, 5_0);
+ACCOUNTS_EXTERN NSString * const ACAccountStoreDidChangeNotification API_AVAILABLE(ios(5.0), macos(10.8));

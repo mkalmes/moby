@@ -1,3 +1,30 @@
+// ==========  Vision.framework/Headers/VNRequestRevisionProviding.h
+//
+//  VNRequestRevisionProviding.h
+//  Vision
+//
+//  Copyright © 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+@protocol VNRequestRevisionProviding
+@required
+
+/*!
+	@brief	The revision of the VNRequest subclass that was used to generate the object that implements this protocol.
+ */
+@property (readonly, nonatomic, assign) NSUInteger requestRevision;
+
+@end
+
+
+NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNFaceObservationAccepting.h
 //
 //  VNFaceObservationAccepting.h
@@ -6,10 +33,13 @@
 //  Copyright © 2017 Apple Inc. All rights reserved.
 //
 
-@class VNFaceObservation;
+#import <Foundation/Foundation.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
+
+
+@class VNFaceObservation;
 
 
 /*!
@@ -204,19 +234,21 @@ NS_ASSUME_NONNULL_END
 //
 //  Copyright © 2017 Apple Inc. All rights reserved.
 //
-#import <Vision/VNRequest.h>
+
 #import <CoreML/CoreML.h>
+
+#import <Vision/VNRequest.h>
+#import <Vision/VNTypes.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
 
 
-API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
-
 /*!
 	@brief The VNCoreMLModel uses an CoreML based model and prepares it for use with VNCoreMLRequests.
  */
 
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @interface VNCoreMLModel : NSObject
 
 - (instancetype) init  NS_UNAVAILABLE;
@@ -272,6 +304,11 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
+
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNCoreMLRequestRevision1 = 1;
+
+
 NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNTrackingRequest.h
 //
@@ -285,6 +322,9 @@ NS_ASSUME_NONNULL_END
 
 
 NS_ASSUME_NONNULL_BEGIN
+
+
+@class VNDetectedObjectObservation;
 
 
 /*!
@@ -352,11 +392,15 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @interface VNDetectTextRectanglesRequest : VNImageBasedRequest
 
 /*!
-	@brief Specify whether or not the bounding boxes of individual characters should also be returned in the resultant VNTextObservations.
+	@brief Specify whether or not the bounding boxes of individual characters should also be returned in the resultant VNTextObservations. Default is NO.
 */
 @property (readwrite, nonatomic, assign) BOOL reportCharacterBoxes;
 
 @end
+
+
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNDetectTextRectanglesRequestRevision1 = 1;
 
 NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNDefines.h
@@ -396,7 +440,6 @@ NS_ASSUME_NONNULL_END
 #import <Vision/VNFaceObservationAccepting.h>
 
 
-
 NS_ASSUME_NONNULL_BEGIN
 
 
@@ -408,6 +451,13 @@ NS_ASSUME_NONNULL_BEGIN
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @interface VNDetectFaceLandmarksRequest : VNImageBasedRequest <VNFaceObservationAccepting>
 @end
+
+
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNDetectFaceLandmarksRequestRevision1 = 1;
+
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNDetectFaceLandmarksRequestRevision2 = 2;
 
 
 NS_ASSUME_NONNULL_END
@@ -427,22 +477,19 @@ NS_ASSUME_NONNULL_END
 
 
 #import <Foundation/Foundation.h>
-
 #import <CoreVideo/CVPixelBuffer.h>
-
 #import <CoreImage/CoreImage.h>
-
 #import <ImageIO/ImageIO.h>
 
 #import <Vision/VNDefines.h>
 #import <Vision/VNRequest.h>
 
 
-
 NS_ASSUME_NONNULL_BEGIN
 
+
 /*!
- @brief Options keys passed into the VNImageRequestHandler creations or requests that take an auxilary image. These are options that either describe specific properties of an image like the VNImageOptionCameraIntrinsics or how an image needs to be handled like the VNImageOptionCIContext.
+ @brief Options keys passed into the VNImageRequestHandler creations or requests that take an auxiliary image. These are options that either describe specific properties of an image like the VNImageOptionCameraIntrinsics or how an image needs to be handled like the VNImageOptionCIContext.
 */
 typedef NSString * VNImageOption NS_STRING_ENUM;
 
@@ -495,8 +542,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @brief initWithCVPixelBuffer:options creates a VNImageRequestHandler to be used for performing requests against the image passed in as buffer.
  
  @param pixelBuffer A CVPixelBuffer containing the image to be used for performing the requests. The content of the buffer cannot be modified for the lifetime of the VNImageRequestHandler.
- @param orientation The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
- @param options A dictionary with options specifying auxilary information for the buffer/image like VNImageOptionCameraIntrinsics
+ @param orientation The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+ @param options A dictionary with options specifying auxiliary information for the buffer/image like VNImageOptionCameraIntrinsics
  */
 - (instancetype)initWithCVPixelBuffer:(CVPixelBufferRef)pixelBuffer orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -514,8 +561,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @brief initWithCGImage:options creates a VNImageRequestHandler to be used for performing requests against the image passed in as a CGImageRef.
  
  @param image A CGImageRef containing the image to be used for performing the requests. The content of the image cannot be modified.
- @param orientation The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
- @param options A dictionary with options specifying auxilary information for the buffer/image like VNImageOptionCameraIntrinsics
+ @param orientation The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+ @param options A dictionary with options specifying auxiliary information for the buffer/image like VNImageOptionCameraIntrinsics
 
  */
 - (instancetype)initWithCGImage:(CGImageRef)image orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options;
@@ -525,7 +572,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @brief initWithCIImage:options creates a VNImageRequestHandler to be used for performing requests against the image passed in as a CIImage.
  
  @param image A CIImage containing the image to be used for performing the requests. The content of the image cannot be modified.
- @param options A dictionary with options specifying auxilary information for the buffer/image like VNImageOptionCameraIntrinsics
+ @param options A dictionary with options specifying auxiliary information for the buffer/image like VNImageOptionCameraIntrinsics
  
  
  @note:  Request results may not be accurate in simulator due to CI's inability to render certain pixel formats in the simulator. The orientation of the original image should be applied for instance by using imageByApplyingOrientation or use the initWithCIImage:options:orientation API.
@@ -537,8 +584,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @brief initWithCIImage:options:orientation creates a VNImageRequestHandler to be used for performing requests against the image passed in as a CIImage.
  
  @param image A CIImage containing the image to be used for performing the requests. The content of the image cannot be modified.
- @param orientation The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
- @param options A dictionary with options specifying auxilary information for the buffer/image like VNImageOptionCameraIntrinsics
+ @param orientation The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+ @param options A dictionary with options specifying auxiliary information for the buffer/image like VNImageOptionCameraIntrinsics
 
  
  @note:  Request results may not be accurate in simulator due to CI's inability to render certain pixel formats in the simulator
@@ -550,7 +597,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @brief initWithURL:options creates a VNImageRequestHandler to be used for performing requests against an image specified by it's URL
  
  @param imageURL A URL pointing at an image to be used for performing the requests. The image has to be in a format that is supported by ImageIO. The content of the image cannot be modified.
- @param options A dictionary with options specifying auxilary information for the buffer/image like VNImageOptionCameraIntrinsics
+ @param options A dictionary with options specifying auxiliary information for the buffer/image like VNImageOptionCameraIntrinsics
  
  @note:  Request results may not be accurate in simulator due to CI's inability to render certain pixel formats in the simulator
  */
@@ -561,8 +608,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @brief initWithURL:options creates a VNImageRequestHandler to be used for performing requests against an image specified by it's URL
  
  @param imageURL A URL pointing at an image to be used for performing the requests. The image has to be in a format that is supported by ImageIO. The content of the image cannot be modified.
- @param orientation The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
- @param options A dictionary with options specifying auxilary information for the buffer/image like VNImageOptionCameraIntrinsics
+ @param orientation The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+ @param options A dictionary with options specifying auxiliary information for the buffer/image like VNImageOptionCameraIntrinsics
 
  @note:  Request results may not be accurate in simulator due to CI's inability to render certain pixel formats in the simulator
  */
@@ -573,7 +620,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @brief initWithData:options creates a VNImageRequestHandler to be used for performing requests against an image contained in an NSData object.
  
  @param imageData An NSData object containing the content of the image to be used for performing the requests. See CIImage imageWithData for supported format. The content of the image cannot be modified.
- @param options A dictionary with options specifying auxilary information for the buffer/image like VNImageOptionCameraIntrinsics
+ @param options A dictionary with options specifying auxiliary information for the buffer/image like VNImageOptionCameraIntrinsics
  
  @note:  Request results may not be accurate in simulator due to CI's inability to render certain pixel formats in the simulator
  
@@ -585,8 +632,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @brief initWithData:options creates a VNImageRequestHandler to be used for performing requests against an image contained in an NSData object.
  
  @param imageData An NSData object containing the content of the image to be used for performing the requests. See CIImage imageWithData for supported format. The content of the image cannot be modified.
- @param orientation The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
- @param options A dictionary with options specifying auxilary information for the buffer/image like VNImageOptionCameraIntrinsics
+ @param orientation The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+ @param options A dictionary with options specifying auxiliary information for the buffer/image like VNImageOptionCameraIntrinsics
 
  @note:  Request results may not be accurate in simulator due to CI's inability to render certain pixel formats in the simulator
  
@@ -754,7 +801,6 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  */
 - (BOOL)performRequests:(NSArray<VNRequest *> *)requests onImageData:(NSData*)imageData orientation:(CGImagePropertyOrientation)orientation error:(NSError **)error;
 
-
 @end
 
 
@@ -768,13 +814,14 @@ NS_ASSUME_NONNULL_END
 //
 #import <Foundation/Foundation.h>
 
-
 #import <Vision/VNDefines.h>
 #import <Vision/VNTypes.h>
 #import <Vision/VNError.h>
 #import <Vision/VNUtils.h>
 #import <Vision/VNFaceLandmarks.h>
 #import <Vision/VNRequest.h>
+#import <Vision/VNRequestRevisionProviding.h>
+#import <Vision/VNFaceObservationAccepting.h>
 #import <Vision/VNDetectBarcodesRequest.h>
 #import <Vision/VNDetectFaceRectanglesRequest.h>
 #import <Vision/VNDetectFaceLandmarksRequest.h>
@@ -789,6 +836,7 @@ NS_ASSUME_NONNULL_END
 #import <Vision/VNTrackingRequest.h>
 #import <Vision/VNTrackObjectRequest.h>
 #import <Vision/VNTrackRectangleRequest.h>
+
 
 /* The version of the Vision framework */
 VN_EXPORT double VNVisionVersionNumber API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
@@ -816,6 +864,10 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNDetectHorizonRequestRevision1 = 1;
+
+
 NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNDetectRectanglesRequest.h
 //
@@ -826,6 +878,7 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Vision/VNRequest.h>
+#import <Vision/VNTypes.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -873,6 +926,10 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNDetectRectanglesRequestRevision1 = 1;
+
+
 NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNRequest.h
 //
@@ -883,12 +940,11 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
 #import <Metal/Metal.h>
-#import <Vision/VNObservation.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
-
 
 
 /*!
@@ -954,8 +1010,32 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @property (readonly, nonatomic, copy, nullable) VNRequestCompletionHandler completionHandler;
 
 
+/*!
+ @abstract The specific algorithm or implementation revision that is to be used to perform the request.
+ */
+@property (readwrite, nonatomic, assign) NSUInteger revision API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
+
+
+/*!
+ @abstract Provides the collection of currently-supported algorithm or implementation versions for the class of request.
+ @discussion This method allows clients to introspect at runtime what capabilities are available for each class of VNRequest in the Vision framework.
+ */
+@property (class, readonly, nonatomic, copy) NSIndexSet* supportedRevisions API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
+
+/*! @abstract Provides the revision of the request that was latest for the particular SDK that was linked with the client application. */
+@property (class, readonly, nonatomic, assign) NSUInteger defaultRevision API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
+
+/*! @abstract Provides the current revison supported by the request. */
+@property (class, readonly, nonatomic, assign) NSUInteger currentRevision API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
+
 @end
 
+
+/*!
+	@brief	A value that indicates that the request revision is either unknown or not applicable.
+*/
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNRequestRevisionUnspecified = 0;
 
 
 
@@ -975,11 +1055,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
-
-
 NS_ASSUME_NONNULL_END
-
-
 // ==========  Vision.framework/Headers/VNImageRegistrationRequest.h
 //
 //  VNImageRegistrationRequest.h
@@ -1015,15 +1091,22 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
+static const NSUInteger VNTranslationalImageRegistrationRequestRevision1 = 1;
+
+
 
 /*!
 	@brief An image registration request that will calculate a homographic transformation for morphing a "floating" image onto an unchanging "reference" image.
 	
 	@discussion The request is created with the targeted image acting as the floating image. Processing the request will calculate the matrix warp transform that morph the floating image onto the reference image.
+	            Note that the request will fail unless the pixel dimensions of the reference image do not exactly match the resolved region of interest of the floating image.
 */
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @interface VNHomographicImageRegistrationRequest : VNImageRegistrationRequest
 @end
+
+
+static const NSUInteger VNHomographicImageRegistrationRequestRevision1 = 1;
 
 
 NS_ASSUME_NONNULL_END
@@ -1051,6 +1134,12 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNDetectFaceRectanglesRequestRevision1 = 1;
+
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNDetectFaceRectanglesRequestRevision2 = 2;
+
 
 NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNObservation.h
@@ -1067,6 +1156,7 @@ NS_ASSUME_NONNULL_END
 #import <simd/simd.h>
 
 #import <Vision/VNTypes.h>
+#import <Vision/VNRequestRevisionProviding.h>
 
 
 /*!
@@ -1074,12 +1164,14 @@ NS_ASSUME_NONNULL_END
  */
 
 
+NS_ASSUME_NONNULL_BEGIN
+
+
 @class CIBarcodeDescriptor;
 @class MLFeatureValue;
 @class VNFaceLandmarks2D;
 
 
-NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @class VNObservation
@@ -1087,10 +1179,10 @@ NS_ASSUME_NONNULL_BEGIN
  
  */
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
-@interface VNObservation : NSObject < NSCopying, NSSecureCoding >
+@interface VNObservation : NSObject < NSCopying, NSSecureCoding, VNRequestRevisionProviding >
 
 /*!
- * @brief The unique identifier assigned to an observation.
+   @brief The unique identifier assigned to an observation.
  */
 @property (readonly, nonatomic, strong) NSUUID *uuid;
 
@@ -1117,6 +1209,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  */
 + (instancetype)observationWithBoundingBox:(CGRect)boundingBox;
 
++ (instancetype)observationWithRequestRevision:(NSUInteger)requestRevision boundingBox:(CGRect)boundingBox API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
+
 /*!
     @brief The bounding box of the detected object. The coordinates are normalized to the dimensions of the processed image, with the origin at the image's lower-left corner.
  */
@@ -1136,9 +1230,24 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @interface VNFaceObservation: VNDetectedObjectObservation
 
 /*!
+ @brief create a new VNFaceObservation with a normalized bounding box, roll and yaw
+ */
++ (instancetype)faceObservationWithRequestRevision:(NSUInteger)requestRevision boundingBox:(CGRect)boundingBox roll:(nullable NSNumber *)roll yaw:(nullable NSNumber *)yaw API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
+
+/*!
  @brief The face landmarks populated by the VNDetectFaceLandmarksRequest. This is set to nil if only a VNDetectFaceRectanglesRequest was performed.
  */
 @property (readonly, nonatomic, strong, nullable)  VNFaceLandmarks2D *landmarks;
+
+/*!
+ @brief Face roll angle populated by VNDetectFaceRectanglesRequest. The roll is reported in radians, positive angle corresponds to counterclockwise direction, range [-Pi, Pi). nil value indicated that the roll angle hasn't been computed
+ */
+@property (readonly, nonatomic, strong, nullable) NSNumber *roll API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
+
+/*!
+ @brief Face yaw angle populated by VNDetectFaceRectanglesRequest. The yaw is reported in radians, positive angle corresponds to counterclockwise direction, range [-Pi/2, Pi/2). nil value indicated that the yaw angle hasn't been computed
+ */
+@property (readonly, nonatomic, strong, nullable) NSNumber *yaw API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
 
 @end
 
@@ -1156,6 +1265,18 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @brief The is the label or identifier of a classificaiton request. An example classification could be a string like 'cat' or 'hotdog'. The string is defined in the model that was used for the classification. Usually these are technical labels that are not localized and not meant to be used directly to be presented to an end user in the UI.
  */
 @property (readonly, nonatomic, copy) NSString *identifier;
+
+@end
+
+/*!
+ @class VNRecognizedObjectObservation
+ @superclass VNDetectedObjectObservation
+ @brief VNRecognizedObjectObservation is a VNDetectedObjectObservation with an array of classifications that classify the recognized object. The confidence of the classifications sum up to 1.0. It is common practice to multiply the classification confidence with the confidence of this observation.
+ */
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+@interface VNRecognizedObjectObservation : VNDetectedObjectObservation
+
+@property (readonly, nonatomic, copy) NSArray<VNClassificationObservation *> *labels;
 
 @end
 
@@ -1199,7 +1320,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @class VNRectangleObservation
  @superclass VNObservation
  @brief VNRectangleObservation is the result of a rectangle detector
- @discussion The VNRectangleObservation has a bounding box that encompasses the rectangle found in the image. The rectangle itself is defined by the four corner point properties. The rectangle can be rotated in or even out of plane. A common use case is to use the CIPerspectiveTransform filter to correct a detected rectangle to its 'flat upright' representation. All coordinates are normalized and the coordinates can be outside teh image.
+ @discussion The VNRectangleObservation has a bounding box that encompasses the rectangle found in the image. The rectangle itself is defined by the four corner point properties. The rectangle can be rotated in or even out of plane. A common use case is to use the CIPerspectiveTransform filter to correct a detected rectangle to its 'flat upright' representation. All coordinates are normalized and the coordinates can be outside the image.
 
  */
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
@@ -1219,7 +1340,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  @brief VNTextObservation Describes a text area detected by the VNRequestNameDetectTextRectangles request.
  */
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
-@interface VNTextObservation : VNDetectedObjectObservation
+@interface VNTextObservation : VNRectangleObservation
 
 /*!
 	@brief		Array of individual character bounding boxes found within the observation's boundingBox.
@@ -1307,8 +1428,6 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
-
-
 NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNTrackObjectRequest.h
 //
@@ -1356,6 +1475,10 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNTrackObjectRequestRevision1 = 1;
+
+
 NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNDetectBarcodesRequest.h
 //
@@ -1366,6 +1489,7 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Vision/VNRequest.h>
+#import <Vision/VNTypes.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -1389,14 +1513,16 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @property (class, nonatomic, readonly, copy) NSArray<VNBarcodeSymbology> *supportedSymbologies;
 
 
-
-
 /*!
 	@discussion The collection of barcode symbologies that are to be detected in the image.  The default is to scan for all possible symbologies.
 */
 @property (readwrite, nonatomic, copy) NSArray<VNBarcodeSymbology> *symbologies;
 
 @end
+
+
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNDetectBarcodesRequestRevision1 = 1;
 
 
 NS_ASSUME_NONNULL_END
@@ -1408,13 +1534,11 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2017 Apple Inc. All rights reserved.
 //
 
-#import <Vision/VNRequest.h>
-#import <Vision/VNRequestHandler.h>
-
 #import <CoreVideo/CVPixelBuffer.h>
-
 #import <CoreImage/CoreImage.h>
 
+#import <Vision/VNRequest.h>
+#import <Vision/VNRequestHandler.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -1438,7 +1562,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request that targets an image in a pixel buffer.
 	
 	@param	pixelBuffer			The pixel buffer containing the targeted image.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 */
 - (instancetype) initWithTargetedCVPixelBuffer:(CVPixelBufferRef)pixelBuffer options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -1447,7 +1571,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request that targets an image in a pixel buffer.
 	
 	@param	pixelBuffer			The pixel buffer containing the targeted image.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 	@param	completionHandler	The block that is invoked when the request has been performed.
 */
 - (instancetype) initWithTargetedCVPixelBuffer:(CVPixelBufferRef)pixelBuffer options:(NSDictionary<VNImageOption, id> *)options completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
@@ -1457,8 +1581,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request that targets an image in a pixel buffer.
 	
 	@param	pixelBuffer			The pixel buffer containing the targeted image.
-	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 */
 - (instancetype) initWithTargetedCVPixelBuffer:(CVPixelBufferRef)pixelBuffer orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -1467,8 +1591,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request that targets an image in a pixel buffer.
 	
 	@param	pixelBuffer			The pixel buffer containing the targeted image.
-	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 	@param	completionHandler	The block that is invoked when the request has been performed.
 */
 - (instancetype) initWithTargetedCVPixelBuffer:(CVPixelBufferRef)pixelBuffer orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
@@ -1483,7 +1607,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted CGImage.
 	
 	@param	cgImage				The CGImageRef of the targeted image.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 */
 - (instancetype) initWithTargetedCGImage:(CGImageRef)cgImage options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -1492,7 +1616,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted CGImage.
 	
 	@param	cgImage				The CGImageRef of the targeted image.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 	@param	completionHandler	The block that is invoked when the request has been performed.
 */
 - (instancetype) initWithTargetedCGImage:(CGImageRef)cgImage options:(NSDictionary<VNImageOption, id> *)options completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
@@ -1502,8 +1626,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted CGImage.
 	
 	@param	cgImage				The CGImageRef of the targeted image.
-	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 */
 - (instancetype) initWithTargetedCGImage:(CGImageRef)cgImage orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -1512,8 +1636,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted CGImage.
 	
 	@param	cgImage				The CGImageRef of the targeted image.
-	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 	@param	completionHandler	The block that is invoked when the request has been performed.
 */
 - (instancetype) initWithTargetedCGImage:(CGImageRef)cgImage orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
@@ -1528,7 +1652,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted CIImage.
 	
 	@param	ciImage				The CIImage of the targeted image.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 */
 - (instancetype) initWithTargetedCIImage:(CIImage *)ciImage options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -1537,7 +1661,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted CIImage.
 	
 	@param	ciImage				The CIImage of the targeted image.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 	@param	completionHandler	The block that is invoked when the request has been performed.
 */
 - (instancetype) initWithTargetedCIImage:(CIImage *)ciImage options:(NSDictionary<VNImageOption, id> *)options completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
@@ -1547,8 +1671,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted CIImage.
 	
 	@param	ciImage				The CIImage of the targeted image.
-	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 */
 - (instancetype) initWithTargetedCIImage:(CIImage *)ciImage orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -1557,8 +1681,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted CIImage.
 	
 	@param	ciImage				The CIImage of the targeted image.
-	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 	@param	completionHandler	The block that is invoked when the request has been performed.
 */
 - (instancetype) initWithTargetedCIImage:(CIImage *)ciImage orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
@@ -1573,7 +1697,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted image URL.
 	
 	@param	imageURL			The URL of the targeted image.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 */
 - (instancetype) initWithTargetedImageURL:(NSURL *)imageURL options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -1582,7 +1706,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted image URL.
 	
 	@param	imageURL			The URL of the targeted image.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 	@param	completionHandler	The block that is invoked when the request has been performed.
 */
 - (instancetype) initWithTargetedImageURL:(NSURL *)imageURL options:(NSDictionary<VNImageOption, id> *)options completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
@@ -1592,8 +1716,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted image URL.
 	
 	@param	imageURL			The URL of the targeted image.
-	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 */
 - (instancetype) initWithTargetedImageURL:(NSURL *)imageURL orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -1602,8 +1726,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted image URL.
 	
 	@param	imageURL			The URL of the targeted image.
-	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 	@param	completionHandler	The block that is invoked when the request has been performed.
 */
 - (instancetype) initWithTargetedImageURL:(NSURL *)imageURL orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
@@ -1618,7 +1742,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted image data.
 	
 	@param imageData			The data of the targeted image.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 */
 - (instancetype) initWithTargetedImageData:(NSData *)imageData options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -1627,7 +1751,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted image data.
 	
 	@param imageData			The data of the targeted image.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 	@param	completionHandler	The block that is invoked when the request has been performed.
 */
 - (instancetype) initWithTargetedImageData:(NSData *)imageData options:(NSDictionary<VNImageOption, id> *)options completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
@@ -1637,8 +1761,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted image data.
 	
 	@param imageData			The data of the targeted image.
-	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 */
 - (instancetype) initWithTargetedImageData:(NSData *)imageData orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options;
 
@@ -1647,8 +1771,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@brief Create a new request with a targeted image data.
 	
 	@param imageData			The data of the targeted image.
-	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This superceeds every other orientation information.
-	@param	options				A dictionary with options specifying auxilary information for the image.
+	@param	orientation			The orientation of the image/buffer based on the EXIF specification. For details see kCGImagePropertyOrientation. The value has to be an integer from 1 to 8. This supersedes every other orientation information.
+	@param	options				A dictionary with options specifying auxiliary information for the image.
 	@param	completionHandler	The block that is invoked when the request has been performed.
 */
 - (instancetype) initWithTargetedImageData:(NSData *)imageData orientation:(CGImagePropertyOrientation)orientation options:(NSDictionary<VNImageOption, id> *)options completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
@@ -1711,6 +1835,10 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+static const NSUInteger VNTrackRectangleRequestRevision1 = 1;
+
+
 NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNTypes.h
 //
@@ -1719,9 +1847,6 @@ NS_ASSUME_NONNULL_END
 //
 //  Copyright © 2017 Apple Inc. All rights reserved.
 //
-
-#ifndef VNTYPES_H
-#define VNTYPES_H
 
 #import <Foundation/Foundation.h>
 
@@ -1766,7 +1891,6 @@ VN_EXPORT VNBarcodeSymbology const VNBarcodeSymbologyPDF417 API_AVAILABLE(macos(
 VN_EXPORT VNBarcodeSymbology const VNBarcodeSymbologyQR API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 VN_EXPORT VNBarcodeSymbology const VNBarcodeSymbologyUPCE API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
-#endif /* VNTYPES_H */
 // ==========  Vision.framework/Headers/VNError.h
 //
 //  VNError.h
@@ -1774,6 +1898,9 @@ VN_EXPORT VNBarcodeSymbology const VNBarcodeSymbologyUPCE API_AVAILABLE(macos(10
 //
 //  Copyright © 2017 Apple Inc. All rights reserved.
 //
+
+#import <Foundation/Foundation.h>
+
 
 extern NSString* const VNErrorDomain API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
@@ -1795,9 +1922,9 @@ typedef NS_ENUM(NSInteger, VNErrorCode)
     VNErrorInvalidOperation,
     VNErrorInvalidImage,
     VNErrorInvalidArgument,
-    VNErrorInvalidModel
+    VNErrorInvalidModel,
+    VNErrorUnsupportedRevision API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
 };
-
 // ==========  Vision.framework/Headers/VNUtils.h
 //
 //  VNUtils.h
@@ -1806,11 +1933,14 @@ typedef NS_ENUM(NSInteger, VNErrorCode)
 //  Copyright © 2017 Apple Inc. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <simd/simd.h>
+
 #import <Vision/VNDefines.h>
 
 
+NS_ASSUME_NONNULL_BEGIN
 
 
 /*!
@@ -1838,7 +1968,7 @@ VN_EXPORT bool VNNormalizedRectIsIdentityRect(CGRect normalizedRect) API_AVAILAB
 
 	@param	imageHeight				The pixel height of the image.
 
-	@return the point in image coordinates.
+	@return the point in normalized coordinates.
 */
 VN_EXPORT CGPoint VNImagePointForNormalizedPoint(CGPoint normalizedPoint, size_t imageWidth, size_t imageHeight) API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
@@ -1858,7 +1988,7 @@ VN_EXPORT CGRect VNImageRectForNormalizedRect(CGRect normalizedRect, size_t imag
 
 
 /*!
-	@discussion	Returns a region of interest rectangle in pixel coordinates.
+	@discussion	Returns an image rectangle in normalized coordinates.
 
 	@param	imageRect				The rectangle in image coordinate space.
 	
@@ -1901,3 +2031,6 @@ VN_EXPORT CGPoint VNNormalizedFaceBoundingBoxPointForLandmarkPoint(vector_float2
 	@return	the face landmark point in image coordinates.
 */
 VN_EXPORT CGPoint VNImagePointForFaceLandmarkPoint(vector_float2 faceLandmarkPoint, CGRect faceBoundingBox, size_t imageWidth, size_t imageHeight) API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+
+NS_ASSUME_NONNULL_END

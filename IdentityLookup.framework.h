@@ -1,3 +1,32 @@
+// ==========  IdentityLookup.framework/Headers/ILCommunication.h
+//
+//  ILCommunication.h
+//  IdentityLookup
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <IdentityLookup/ILBase.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// An incident of communication via some medium.
+IL_EXTERN API_AVAILABLE(ios(12.0))
+@interface ILCommunication : NSObject <NSSecureCoding>
+
+/// The phone number or e-mail address of the sender.  The value will be nil if the sender is unknown.
+@property (nonatomic, readonly, copy, nullable) NSString *sender;
+
+@property (nonatomic, readonly, copy) NSDate *dateReceived;
+
+- (BOOL)isEqualToCommunication:(ILCommunication *)communication NS_SWIFT_UNAVAILABLE("Use == operator instead");
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  IdentityLookup.framework/Headers/ILMessageFilterError.h
 //
 //  ILMessageFilterError.h
@@ -79,6 +108,55 @@ IL_EXTERN API_AVAILABLE(ios(11.0))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  IdentityLookup.framework/Headers/ILCallCommunication.h
+//
+//  ILCallCommunication.h
+//  IdentityLookup
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <IdentityLookup/ILCommunication.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+IL_EXTERN API_AVAILABLE(ios(12.0))
+@interface ILCallCommunication : ILCommunication
+
+- (BOOL)isEqualToCallCommunication:(ILCallCommunication *)communication NS_SWIFT_UNAVAILABLE("Use == operator instead");;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  IdentityLookup.framework/Headers/ILClassificationActions.h
+//
+//  ILClassificationActions.h
+//  IdentityLookup
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// Describes various classification actions.
+typedef NS_ENUM(NSInteger, ILClassificationAction) {
+    /// Indicate that no action is requested.
+    ILClassificationActionNone = 0,
+    
+    /// Report communication(s) as not junk.
+    ILClassificationActionReportNotJunk = 1,
+    
+    /// Report communication(s) as junk.
+    ILClassificationActionReportJunk = 2,
+    
+    /// Report communication(s) as junk and block the sender.
+    ILClassificationActionReportJunkAndBlockSender = 3,
+} API_AVAILABLE(ios(12.0));
+
+NS_ASSUME_NONNULL_END
+
 // ==========  IdentityLookup.framework/Headers/ILMessageFilterQueryResponse.h
 //
 //  ILMessageFilterQueryResponse.h
@@ -99,6 +177,31 @@ IL_EXTERN API_AVAILABLE(ios(11.0))
 
 /// Action to take for the received message.
 @property (nonatomic) ILMessageFilterAction action;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  IdentityLookup.framework/Headers/ILCallClassificationRequest.h
+//
+//  ILCallClassificationRequest.h
+//  IdentityLookup
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <IdentityLookup/ILClassificationRequest.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class ILCallCommunication;
+
+IL_EXTERN API_AVAILABLE(ios(12.0))
+@interface ILCallClassificationRequest : ILClassificationRequest <NSSecureCoding>
+
+// An array of call communications sorted by date received
+@property (nonatomic, readonly, copy) NSArray<ILCallCommunication *> *callCommunications;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 
@@ -142,10 +245,20 @@ NS_ASSUME_NONNULL_END
 
 #import <IdentityLookup/ILMessageFilterExtension.h>
 #import <IdentityLookup/ILMessageFilterExtensionContext.h>
-
 #import <IdentityLookup/ILMessageFilterQueryHandling.h>
 #import <IdentityLookup/ILMessageFilterQueryRequest.h>
 #import <IdentityLookup/ILMessageFilterQueryResponse.h>
+
+#import <IdentityLookup/ILCommunication.h>
+#import <IdentityLookup/ILCallCommunication.h>
+#import <IdentityLookup/ILMessageCommunication.h>
+
+#import <IdentityLookup/ILClassificationRequest.h>
+#import <IdentityLookup/ILClassificationResponse.h>
+#import <IdentityLookup/ILClassificationActions.h>
+
+#import <IdentityLookup/ILMessageClassificationRequest.h>
+#import <IdentityLookup/ILCallClassificationRequest.h>
 // ==========  IdentityLookup.framework/Headers/ILNetworkResponse.h
 //
 //  ILNetworkResponse.h
@@ -168,6 +281,56 @@ IL_EXTERN API_AVAILABLE(ios(11.0))
 
 /// Data returned in the HTTPS response.
 @property (nonatomic, readonly) NSData *data;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  IdentityLookup.framework/Headers/ILMessageCommunication.h
+//
+//  ILMessageCommunication.h
+//  IdentityLookup
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <IdentityLookup/ILCommunication.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+IL_EXTERN API_AVAILABLE(ios(12.0))
+@interface ILMessageCommunication : ILCommunication
+
+// Contains the contents of the message
+@property (nonatomic, readonly, copy, nullable) NSString *messageBody;
+
+- (BOOL)isEqualToMessageCommunication:(ILMessageCommunication *)communication NS_SWIFT_UNAVAILABLE("Use == operator instead");
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  IdentityLookup.framework/Headers/ILMessageClassificationRequest.h
+//
+//  ILMessageClassificationRequest.h
+//  IdentityLookup
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <IdentityLookup/ILClassificationRequest.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class ILMessageCommunication;
+
+IL_EXTERN API_AVAILABLE(ios(12.0))
+@interface ILMessageClassificationRequest : ILClassificationRequest <NSSecureCoding>
+
+// An array of message communications sorted by date received
+@property (nonatomic, readonly, copy) NSArray<ILMessageCommunication *> *messageCommunications;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -198,6 +361,25 @@ IL_EXTERN API_AVAILABLE(ios(11.0))
 @property (nonatomic, readonly, nullable) NSString *messageBody;
 
 - (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  IdentityLookup.framework/Headers/ILClassificationRequest.h
+//
+//  ILClassificationRequest.h
+//  IdentityLookup
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// A request to classify a communication.
+IL_EXTERN API_AVAILABLE(ios(12.0))
+@interface ILClassificationRequest : NSObject <NSSecureCoding>
 
 @end
 
@@ -277,5 +459,43 @@ typedef NS_ENUM(NSInteger, ILMessageFilterAction) {
     /// Prevent the message from being shown normally.
     ILMessageFilterActionFilter = 2,
 } API_AVAILABLE(ios(11.0));
+
+NS_ASSUME_NONNULL_END
+// ==========  IdentityLookup.framework/Headers/ILClassificationResponse.h
+//
+//  ILClassificationResponse.h
+//  IdentityLookup
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <IdentityLookup/ILClassificationActions.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// A response to an ILClassificationRequest.
+IL_EXTERN API_AVAILABLE(ios(12.0))
+@interface ILClassificationResponse : NSObject <NSSecureCoding>
+
+@property (nonatomic, readonly, assign) ILClassificationAction action;
+
+/*
+ This data will be sent to developers as either a JSON string or object,
+ depending on the transport medium. The keys and values in this
+ dictionary must conform to the NSJSONSerialization specifications:
+ 
+ - Top level object is an NSDictionary
+ - All objects are NSString, NSNumber, NSArray, NSDictionary, or NSNull
+ - All dictionary keys are NSStrings
+ - NSNumbers are not NaN or infinity
+ */
+@property (nonatomic, readwrite, copy, nullable) NSDictionary<NSString *, id> *userInfo;
+
+- (instancetype)initWithClassificationAction:(ILClassificationAction)action NS_SWIFT_NAME(init(action:)) NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
 
 NS_ASSUME_NONNULL_END

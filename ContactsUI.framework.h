@@ -11,6 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(macos)
 @interface UIApplicationShortcutIcon (ContactsUI)
 
 + (instancetype)iconWithContact:(CNContact *)contact;
@@ -39,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion  This class can display a new contact, unknown contact or existing contact.
  *              You must use one of the class factory methods.
  */
+
 NS_CLASS_AVAILABLE_IOS(9_0)
 @interface CNContactViewController : UIViewController
 

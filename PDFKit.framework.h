@@ -162,7 +162,7 @@ PDFKIT_CLASS_AVAILABLE(10_4, 11_0)
 
 // Optional (-[popup] may return nil). Not used with links or widgets, a popup annotation associated with this
 // annotation. The bounds and open state of the popup indicate the placement and open state of the popup window.
-@property (nonatomic, strong, nullable) PDFAnnotationPopup *popup PDFKIT_AVAILABLE(10_5, 11_0);
+@property (nonatomic, strong, nullable) PDFAnnotation *popup PDFKIT_AVAILABLE(10_5, 11_0);
 
 // Optional border or border style that describes how to draw the annotation border (if any). For the "geometry"
 // annotations (Circle, Ink, Line, Square), the border indicates the line width and whether to draw with a dash pattern
@@ -583,7 +583,7 @@ PDFKIT_CLASS_AVAILABLE(10_5, 11_0)
 
 - (instancetype)initWithURL:(NSURL *)url NS_DESIGNATED_INITIALIZER;
 
-@property (nonatomic, copy) NSURL *URL;
+@property (nonatomic, copy, nullable) NSURL *URL;
 
 @end
 
@@ -863,7 +863,7 @@ PDFKIT_CLASS_AVAILABLE(10_4, 11_0)
 
 // Toggle displaying or not displaying page breaks (spacing) between pages. This spacing value
 // is defined by the pageBreakMargins property. If displaysPageBreaks is NO, then pageBreakMargins
-// will always return { 0.0, 0.0, 0.0, 0.0 }
+// will always return { 0.0, 0.0, 0.0, 0.0 }. Default is YES.
 @property (nonatomic) BOOL displaysPageBreaks;
 
 // If displaysPageBreaks is enabled, you may customize the spacing between pages by defining margins for
@@ -886,6 +886,9 @@ PDFKIT_CLASS_AVAILABLE(10_4, 11_0)
 
 // Allows setting the interpolation quality for images drawn into the PDFView context. 
 @property (nonatomic) PDFInterpolationQuality interpolationQuality PDFKIT_AVAILABLE(10_7, 11_0);
+
+// Specifies if shadows should be drawn around page borders in a PDFView. Defaults to YES.
+@property (nonatomic, setter=enablePageShadows:) BOOL pageShadowsEnabled PDFKIT_AVAILABLE(10_14, 12_0);
 
 
 // Changes the underlying scroll view to use a UIPageViewController as a way to layout and navigate
@@ -1191,6 +1194,10 @@ PDFKIT_EXTERN PDFAnnotationHighlightingMode PDFAnnotationHighlightingModePush PD
 // Used by annotations type(s): /FreeText, /Widget (field type(s): /Btn, /Ch, and /Tx).
 @property (nonatomic, copy, nullable) PDFKitPlatformColor *fontColor;
 
+// Interior color of the annotation.
+// Used by annotations type(s): /Circle, /Line, /Square.
+@property (nonatomic, copy, nullable) PDFKitPlatformColor *interiorColor;
+
 // Alignment of text within annotation bounds.  Supported: NSLeftTextAlignment, NSRightTextAlignment and
 // NSCenterTextAlignment.
 // Used by annotations type(s): /FreeText, /Widget (field type(s): /Tx).
@@ -1334,6 +1341,11 @@ PDFKIT_EXTERN PDFAnnotationHighlightingMode PDFAnnotationHighlightingModePush PD
 // Background color characteristics.
 // Used by annotations type(s): /Widget (field type(s): /Btn, /Ch, /Tx).
 @property (nonatomic, copy, nullable) PDFKitPlatformColor *backgroundColor;
+
+// Name of stamp annotation. Standard stamps include names like, "Approved", "Draft", "TopSecret", etc.
+// The name must be representable as ASCII. Very little is rendered if the annotation has no appearance stream.
+// Used by annotations type(s): /Stamp
+@property (nonatomic, copy, nullable) NSString *stampName;
 
 @end
 
@@ -1489,7 +1501,7 @@ PDFKIT_CLASS_AVAILABLE(10_4, 11_0)
 // NOTE: External page links are not preserved.
 // NOTE: Versions of PDFKit before SnowLeopard did not return autorelease data for -[dataRepresentation]. You had to 
 // release the data yourself. Beginning with apps compiled on SnowLeopard the data returned is autoreleased.
-@property (nonatomic, readonly) NSData *dataRepresentation;
+@property (nonatomic, readonly, nullable) NSData *dataRepresentation;
 
 @end
 
@@ -2037,7 +2049,7 @@ PDFKIT_CLASS_AVAILABLE(10_4, 11_0)
 @property (nonatomic, readonly) NSUInteger index PDFKIT_AVAILABLE(10_5, 11_0);
 
 // PDFOutline child at index. Will throw exception if index is out of range.
-- (PDFOutline *)childAtIndex:(NSUInteger)index;
+- (nullable PDFOutline *)childAtIndex:(NSUInteger)index;
 
 // To build up a PDFOutline hierarchy, you call this method to add children outline items. For the simplest of outlines 
 // you would, at the very least, have to add items to the outline root item.

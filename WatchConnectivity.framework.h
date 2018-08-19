@@ -23,6 +23,7 @@ NS_CLASS_AVAILABLE_IOS(9_0)
 NS_CLASS_AVAILABLE_IOS(9_0)
 @interface WCSessionFileTransfer : NSObject
 @property (nonatomic, readonly) WCSessionFile *file;
+@property (nonatomic, readonly) NSProgress *progress API_AVAILABLE(ios(12.0), watchos(5.0));
 @property (nonatomic, readonly, getter=isTransferring) BOOL transferring;
 - (void)cancel;
 @end
