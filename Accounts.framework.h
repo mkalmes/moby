@@ -22,6 +22,7 @@
 //  Copyright (c) 2011-2012 Apple Inc. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
 #import <Accounts/AccountsDefines.h>
 
 ACCOUNTS_EXTERN NSString * const ACErrorDomain NS_AVAILABLE(NA, 5_0);
@@ -111,27 +112,27 @@ ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
 #import <Accounts/AccountsDefines.h>
 
 // The identifiers for supported system account types are listed here:
-ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierTwitter NS_AVAILABLE(NA, 5_0);
-ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierFacebook NS_AVAILABLE(NA, 6_0);
-ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierSinaWeibo NS_AVAILABLE(NA, 6_0);
-ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierTencentWeibo NS_AVAILABLE(NA, 7_0);
-ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierLinkedIn NS_AVAILABLE(NA, NA);
+ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierTwitter NS_DEPRECATED(NA, 10_13, 5_0, 11_0, "Use Twitter SDK instead");
+ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierFacebook NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");
+ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierSinaWeibo NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Sina Weibo SDK instead");
+ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierTencentWeibo NS_DEPRECATED(NA, 10_13, 7_0, 11_0, "Use Tencent Weibo SDK instead");
+ACCOUNTS_EXTERN NSString * const ACAccountTypeIdentifierLinkedIn NS_DEPRECATED(NA, 10_13, NA, NA, "Use LinkedIn SDK instead");
 
 // Options dictionary keys for Facebook access, for use with [ACAccountStore requestAccessToAccountsWithType:options:completion:]
-ACCOUNTS_EXTERN NSString * const ACFacebookAppIdKey NS_AVAILABLE(NA, 6_0);            // Your Facebook App ID, as it appears on the Facebook website.
-ACCOUNTS_EXTERN NSString * const ACFacebookPermissionsKey NS_AVAILABLE(NA, 6_0);      // An array of of the permissions you're requesting.
-ACCOUNTS_EXTERN NSString * const ACFacebookAudienceKey NS_AVAILABLE(NA, 6_0);         // Only required when posting permissions are requested.
+ACCOUNTS_EXTERN NSString * const ACFacebookAppIdKey NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");            // Your Facebook App ID, as it appears on the Facebook website.
+ACCOUNTS_EXTERN NSString * const ACFacebookPermissionsKey NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");      // An array of of the permissions you're requesting.
+ACCOUNTS_EXTERN NSString * const ACFacebookAudienceKey NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");         // Only required when posting permissions are requested.
 
 // Options dictionary values for Facebook access, for use with [ACAccountStore requestAccessToAccountsWithType:options:completion:]
-ACCOUNTS_EXTERN NSString * const ACFacebookAudienceEveryone NS_AVAILABLE(NA, 6_0);    // Posts from your app are visible to everyone.
-ACCOUNTS_EXTERN NSString * const ACFacebookAudienceFriends NS_AVAILABLE(NA, 6_0);     // Posts are visible only to friends.
-ACCOUNTS_EXTERN NSString * const ACFacebookAudienceOnlyMe NS_AVAILABLE(NA, 6_0);      // Posts are visible to the user only.
+ACCOUNTS_EXTERN NSString * const ACFacebookAudienceEveryone NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");    // Posts from your app are visible to everyone.
+ACCOUNTS_EXTERN NSString * const ACFacebookAudienceFriends NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");     // Posts are visible only to friends.
+ACCOUNTS_EXTERN NSString * const ACFacebookAudienceOnlyMe NS_DEPRECATED(NA, 10_13, 6_0, 11_0, "Use Facebook SDK instead");      // Posts are visible to the user only.
 
 // Options dictionary keys for LinkedIn access, for use with [ACAccountStore requestAccessToAccountsWithType:options:completion:]
-ACCOUNTS_EXTERN NSString * const ACLinkedInAppIdKey NS_AVAILABLE(NA, NA);           // Your LinkedIn App ID (or API Key), as it appears on the LinkedIn website.
-ACCOUNTS_EXTERN NSString * const ACLinkedInPermissionsKey NS_AVAILABLE(NA, NA);      // An array of of the LinkedIn permissions you're requesting.
+ACCOUNTS_EXTERN NSString * const ACLinkedInAppIdKey NS_DEPRECATED(NA, 10_13, NA, NA, "Use LinkedIn SDK instead");           // Your LinkedIn App ID (or API Key), as it appears on the LinkedIn website.
+ACCOUNTS_EXTERN NSString * const ACLinkedInPermissionsKey NS_DEPRECATED(NA, 10_13, NA, NA, "Use LinkedIn SDK instead");      // An array of of the LinkedIn permissions you're requesting.
 
-ACCOUNTS_EXTERN NSString *const ACTencentWeiboAppIdKey NS_AVAILABLE(NA, 7_0); //Tencent App ID
+ACCOUNTS_EXTERN NSString *const ACTencentWeiboAppIdKey NS_DEPRECATED(NA, 10_13, 7_0, 11_0, "Use Tencent Weibo SDK instead"); //Tencent App ID
 
 // Each account has an associated account type, containing information relevant to all the accounts of that type.
 // ACAccountType objects are obtained by using the [ACAccountStore accountTypeWithIdentifier:] method
@@ -161,6 +162,7 @@ ACCOUNTS_CLASS_AVAILABLE(NA, 5_0)
 
 #import <Foundation/Foundation.h>
 #import <Accounts/AccountsDefines.h>
+
 @class ACAccountType, ACAccountCredential;
 
 // The ACAccount class represents an account stored on the system.

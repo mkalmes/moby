@@ -18,15 +18,17 @@ typedef NS_ENUM(NSInteger, SFSpeechRecognitionTaskState) {
     SFSpeechRecognitionTaskStateFinishing = 2,      // No more audio is being recorded, but more recognition results may arrive
     SFSpeechRecognitionTaskStateCanceling = 3,      // No more recognition reuslts will arrive, but recording may not have stopped yet
     SFSpeechRecognitionTaskStateCompleted = 4,      // No more results will arrive, and recording is stopped.
-};
+} API_AVAILABLE(ios(10.0));
 
+API_AVAILABLE(ios(10.0))
 @interface SFSpeechRecognitionTask : NSObject
 
 @property (nonatomic, readonly) SFSpeechRecognitionTaskState state;
 
 // True if recognition audio input has stopped
 @property (nonatomic, readonly, getter=isFinishing) BOOL finishing;
-// Instructs the task to stop accepting new audio (e.g. stop recording) but complete processing on anything already
+// Instructs the task to stop accepting new audio (e.g. stop recording) but complete processing on audio already buffered.
+// This has no effect on URL-based recognition requests, which effectively buffer the entire file immediately.
 - (void)finish;
 
 // True if recognition has been cancelled
@@ -39,6 +41,7 @@ typedef NS_ENUM(NSInteger, SFSpeechRecognitionTaskState) {
 @end
 
 // Recognition result receiver, to be used for complex or multi-utterance speech recognition requests
+API_AVAILABLE(ios(10.0))
 @protocol SFSpeechRecognitionTaskDelegate <NSObject>
 
 @optional
@@ -81,7 +84,6 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 @class SFSpeechRecognitionRequest;
-@class SFSpeechRecordingRecognitionRequest;
 @class SFSpeechRecognitionResult;
 @class SFSpeechRecognitionTask;
 
@@ -93,8 +95,9 @@ typedef NS_ENUM(NSInteger, SFSpeechRecognizerAuthorizationStatus) {
     SFSpeechRecognizerAuthorizationStatusDenied,
     SFSpeechRecognizerAuthorizationStatusRestricted,
     SFSpeechRecognizerAuthorizationStatusAuthorized,
-};
+} API_AVAILABLE(ios(10.0));
 
+API_AVAILABLE(ios(10.0))
 @interface SFSpeechRecognizer : NSObject
 
 // Locales which support speech recognition.
@@ -132,6 +135,7 @@ typedef NS_ENUM(NSInteger, SFSpeechRecognizerAuthorizationStatus) {
 
 @end
 
+API_AVAILABLE(ios(10.0))
 @protocol SFSpeechRecognizerDelegate <NSObject>
 @optional
 
@@ -156,6 +160,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 // A request for a speech recognition from an audio source
+API_AVAILABLE(ios(10.0))
 @interface SFSpeechRecognitionRequest : NSObject
 
 @property (nonatomic) SFSpeechRecognitionTaskHint taskHint;
@@ -173,6 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 // A request to recognize speech from a recorded audio file
+API_AVAILABLE(ios(10.0))
 @interface SFSpeechURLRecognitionRequest : SFSpeechRecognitionRequest
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -185,6 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 // A request to recognize speech from arbitrary audio buffers
+API_AVAILABLE(ios(10.0))
 @interface SFSpeechAudioBufferRecognitionRequest : SFSpeechRecognitionRequest
 
 // Preferred audio format for optimal speech recognition
@@ -212,7 +219,7 @@ typedef NS_ENUM(NSInteger, SFSpeechRecognitionTaskHint) {
     SFSpeechRecognitionTaskHintDictation = 1,       // General dictation/keyboard-style
     SFSpeechRecognitionTaskHintSearch = 2,          // Search-style requests
     SFSpeechRecognitionTaskHintConfirmation = 3,    // Short, confirmation-style requests ("Yes", "No", "Maybe")
-};
+} API_AVAILABLE(ios(10.0));
 // ==========  Speech.framework/Headers/SFTranscriptionSegment.h
 //
 //  SFTranscriptionSegment.h
@@ -224,6 +231,7 @@ typedef NS_ENUM(NSInteger, SFSpeechRecognitionTaskHint) {
 NS_ASSUME_NONNULL_BEGIN
 
 // Substrings of a hypothesized transcription
+API_AVAILABLE(ios(10.0))
 @interface SFTranscriptionSegment : NSObject <NSCopying, NSSecureCoding>
 
 @property (nonatomic, readonly, copy) NSString *substring;
@@ -273,6 +281,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SFTranscriptionSegment;
 
 // A hypothesized text form of a speech recording
+API_AVAILABLE(ios(10.0))
 @interface SFTranscription : NSObject <NSCopying, NSSecureCoding>
 
 // Contains the entire recognition, formatted into a single user-displayable string
@@ -297,6 +306,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SFTranscription;
 
 // A recognized utterance, corresponding to a segment of recorded audio with speech and containing one or more transcriptions hypotheses
+API_AVAILABLE(ios(10.0))
 @interface SFSpeechRecognitionResult : NSObject <NSCopying, NSSecureCoding>
 
 @property (nonatomic, readonly, copy) SFTranscription *bestTranscription;

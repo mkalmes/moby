@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class EAAccessory;
 
-EA_EXTERN_CLASS_AVAILABLE(3_0) @interface EASession : NSObject {
+__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) @interface EASession : NSObject {
 @private
     EAAccessory *_accessory;
     uint32_t _sessionID;
@@ -125,12 +125,12 @@ EA_EXTERN_CLASS_AVAILABLE(3_0) @interface EASession : NSObject {
     BOOL _openCompleted;
 }
 
-- (instancetype)initWithAccessory:(EAAccessory *)accessory forProtocol:(NSString *)protocolString __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+- (nullable instancetype)initWithAccessory:(EAAccessory *)accessory forProtocol:(NSString *)protocolString __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
 
-@property (nonatomic, readonly) EAAccessory *accessory __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property (nonatomic, readonly) NSString *protocolString __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property (nonatomic, readonly, nullable) NSInputStream *inputStream __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property (nonatomic, readonly, nullable) NSOutputStream *outputStream __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+@property (nonatomic, readonly, nullable) EAAccessory *accessory __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property (nonatomic, readonly, nullable) NSString *protocolString __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property (nonatomic, readonly, nullable) NSInputStream *inputStream __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property (nonatomic, readonly, nullable) NSOutputStream *outputStream __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
 @end
 
 NS_ASSUME_NONNULL_END
@@ -158,27 +158,27 @@ EA_EXTERN NSString *const EABluetoothAccessoryPickerErrorDomain;
 typedef void(^EABluetoothAccessoryPickerCompletion)(NSError * __nullable error);
 
 // EAAccessoryManager Notifications
-EA_EXTERN NSString *const EAAccessoryDidConnectNotification __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-EA_EXTERN NSString *const EAAccessoryDidDisconnectNotification __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+EA_EXTERN NSString *const EAAccessoryDidConnectNotification __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+EA_EXTERN NSString *const EAAccessoryDidDisconnectNotification __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
 // Keys in the EAAccessoryDidConnectNotification/EAAccessoryDidDisconnectNotification userInfo
-EA_EXTERN NSString *const EAAccessoryKey __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0); // EAAccessory
-EA_EXTERN NSString *const EAAccessorySelectedKey __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0); // EAAccessory
+EA_EXTERN NSString *const EAAccessoryKey __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0); // EAAccessory
+EA_EXTERN NSString *const EAAccessorySelectedKey __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) __TVOS_AVAILABLE(10.0); // EAAccessory
 
 @class EAAccessory;
 
-EA_EXTERN_CLASS_AVAILABLE(3_0) @interface EAAccessoryManager : NSObject {
+__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) @interface EAAccessoryManager : NSObject {
 @private
     NSMutableArray *_connectedAccessories;
 }
 
-+ (EAAccessoryManager *)sharedAccessoryManager __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
++ (EAAccessoryManager *)sharedAccessoryManager __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
 
 - (void)showBluetoothAccessoryPickerWithNameFilter:(nullable NSPredicate *)predicate completion:(nullable EABluetoothAccessoryPickerCompletion)completion __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
 
-- (void)registerForLocalNotifications __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-- (void)unregisterForLocalNotifications __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+- (void)registerForLocalNotifications __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+- (void)unregisterForLocalNotifications __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
 
-@property (nonatomic, readonly) NSArray<EAAccessory *> *connectedAccessories __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+@property (nonatomic, readonly) NSArray<EAAccessory *> *connectedAccessories __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
 
 @end
 
@@ -432,31 +432,31 @@ enum {
     EAConnectionIDNone = 0,
 };
 
-EA_EXTERN_CLASS_AVAILABLE(3_0) @interface EAAccessory : NSObject {
+__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) @interface EAAccessory : NSObject {
 @private
     EAAccessoryInternal *_internal;
 }
 
-@property(nonatomic, readonly, getter=isConnected) BOOL connected __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property(nonatomic, readonly) NSUInteger connectionID __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property(nonatomic, readonly) NSString *manufacturer __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property(nonatomic, readonly) NSString *name __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property(nonatomic, readonly) NSString *modelNumber __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property(nonatomic, readonly) NSString *serialNumber __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property(nonatomic, readonly) NSString *firmwareRevision __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property(nonatomic, readonly) NSString *hardwareRevision __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-@property(nonatomic, readonly) NSString *dockType __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_9_0);
+@property(nonatomic, readonly, getter=isConnected) BOOL connected __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property(nonatomic, readonly) NSUInteger connectionID __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property(nonatomic, readonly) NSString *manufacturer __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property(nonatomic, readonly) NSString *name __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property(nonatomic, readonly) NSString *modelNumber __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property(nonatomic, readonly) NSString *serialNumber __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property(nonatomic, readonly) NSString *firmwareRevision __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property(nonatomic, readonly) NSString *hardwareRevision __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
+@property(nonatomic, readonly) NSString *dockType __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_9_0);
 
 // array of strings representing the protocols supported by the accessory
-@property(nonatomic, readonly) NSArray<NSString *> *protocolStrings __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+@property(nonatomic, readonly) NSArray<NSString *> *protocolStrings __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
 
-@property(nonatomic, assign, nullable) id<EAAccessoryDelegate> delegate __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+@property(nonatomic, assign, nullable) id<EAAccessoryDelegate> delegate __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
 
 @end
 
 @protocol EAAccessoryDelegate <NSObject>
 @optional
-- (void)accessoryDidDisconnect:(EAAccessory *)accessory __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+- (void)accessoryDidDisconnect:(EAAccessory *)accessory __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_3_0) __TVOS_AVAILABLE(10.0);
 @end
 
 NS_ASSUME_NONNULL_END

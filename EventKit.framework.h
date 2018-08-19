@@ -43,8 +43,9 @@ NS_CLASS_AVAILABLE(10_8, 4_0)
                 This is only settable when initially creating a calendar and then
                 effectively read-only after that. That is, you can create a calendar, 
                 but you cannot move it to another source.
+    @discussion This will be nil for new calendars until you set it.
 */
-@property(nonatomic, strong) EKSource        *source;
+@property(null_unspecified, nonatomic, strong) EKSource        *source;
 
 /*!
     @property   calendarIdentifier
@@ -93,14 +94,16 @@ NS_CLASS_AVAILABLE(10_8, 4_0)
 /*!
     @property   color
     @abstract   Returns the calendar color as a CGColorRef.
+    @discussion This will be nil for new calendars until you set it.
 */
-@property(nonatomic) CGColorRef CGColor;
+@property(null_unspecified, nonatomic) CGColorRef CGColor;
 #else
 /*!
     @property   color
     @abstract   Returns the calendar color as a NSColor.
+    @discussion This will be nil for new calendars until you set it.
 */
-@property(nonatomic, copy) NSColor *color;
+@property(null_unspecified, nonatomic, copy) NSColor *color;
 #endif
 
 /*!
@@ -137,13 +140,12 @@ NS_ASSUME_NONNULL_BEGIN
 @class MKMapItem;
 
 NS_CLASS_AVAILABLE(10_8, 6_0)
-@interface EKStructuredLocation : EKObject <NSCopying> {
-}
+@interface EKStructuredLocation : EKObject <NSCopying>
 
 + (instancetype)locationWithTitle:(NSString *)title;
 + (instancetype)locationWithMapItem:(MKMapItem *)mapItem NS_AVAILABLE(10_11, 9_0);
 
-@property(nonatomic, strong) NSString     *title;
+@property(nullable, nonatomic, strong) NSString     *title;
 @property(nonatomic, strong, nullable) CLLocation   *geoLocation;
 @property(nonatomic) double                radius; // 0 = use default, unit is meters
 
@@ -435,7 +437,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
     @method     sourceWithIdentifier:
     @abstract   Returns a source with a specified identifier.
 */
-- (EKSource *)sourceWithIdentifier:(NSString *)identifier NS_AVAILABLE(10_8, 5_0);
+- (nullable EKSource *)sourceWithIdentifier:(NSString *)identifier NS_AVAILABLE(10_8, 5_0);
 
 //----------------------------------------------------
 // CALENDARS
@@ -458,14 +460,16 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 /*!
     @property   defaultCalendarForNewEvents
     @abstract   Returns the calendar that events should be added to by default.
+    @discussion This may be nil if there is no default calendar for new events.
 */
-@property(nonatomic, readonly) EKCalendar *defaultCalendarForNewEvents;
+@property(nullable, nonatomic, readonly) EKCalendar *defaultCalendarForNewEvents;
 
 /*!
     @method     defaultCalendarForNewReminders
     @abstract   Returns the calendar that reminders should be added to by default.
+    @discussion This may be nil if there is no default calendar for new reminders.
 */
-- (EKCalendar *)defaultCalendarForNewReminders NS_AVAILABLE(10_8, 6_0);
+- (nullable EKCalendar *)defaultCalendarForNewReminders NS_AVAILABLE(10_8, 6_0);
 
 /*!
     @method     calendarWithIdentifier:
@@ -521,7 +525,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
     @method     calendarItemWithIdentifier:
     @abstract   Returns either a reminder or the first occurrence of an event.
 */
-- (EKCalendarItem *)calendarItemWithIdentifier:(NSString *)identifier NS_AVAILABLE(10_8, 6_0);
+- (nullable EKCalendarItem *)calendarItemWithIdentifier:(NSString *)identifier NS_AVAILABLE(10_8, 6_0);
 
 /*!
     @method     calendarItemsWithExternalIdentifier:
@@ -1390,8 +1394,7 @@ typedef NS_ENUM(NSInteger, EKEventStatus) {
     @abstract   The EKEvent class represents an occurrence of an event.
 */
 NS_CLASS_AVAILABLE(10_8, 4_0)
-@interface EKEvent : EKCalendarItem {
-}
+@interface EKEvent : EKCalendarItem
 
 /*!
     @method     eventWithEventStore:
@@ -1412,8 +1415,10 @@ NS_CLASS_AVAILABLE(10_8, 4_0)
                 currently also possible for the ID to change due to a sync operation. For example, if
                 a user moved an event on a different client to another calendar, we'd see it as a 
                 completely new event here.
+ 
+                This may be nil for events that have not been saved.
 */
-@property(nonatomic, readonly) NSString *eventIdentifier;
+@property(null_unspecified, nonatomic, readonly) NSString *eventIdentifier;
 
 /*!
     @property   allDay
@@ -1427,14 +1432,17 @@ NS_CLASS_AVAILABLE(10_8, 4_0)
      @discussion This property represents the start date for this event. Floating events (such
                  as all-day events) are currently always returned in the default time zone.
                  ([NSTimeZone defaultTimeZone])
+
+                 This will be nil for new events until you set it.
  */
-@property(nonatomic, copy) NSDate *startDate;
+@property(null_unspecified, nonatomic, copy) NSDate *startDate;
 
 /*!
     @property   endDate
     @abstract   The end date for the event.
+    @discussion This will be nil for new events until you set it.
 */
-@property(nonatomic, copy) NSDate *endDate;
+@property(null_unspecified, nonatomic, copy) NSDate *endDate;
 
 /*!
     @property   structuredLocation
@@ -1496,8 +1504,10 @@ NS_CLASS_AVAILABLE(10_8, 4_0)
                 This value will remain the same even if the event has been detached and its start 
                 date has changed. Floating events (such as all-day events) are currently returned
                 in the default time zone. ([NSTimeZone defaultTimeZone])
+ 
+                This will be nil for new events until you set startDate.
  */
-@property(nonatomic, readonly) NSDate *occurrenceDate NS_AVAILABLE(10_8, 9_0);
+@property(null_unspecified, nonatomic, readonly) NSDate *occurrenceDate NS_AVAILABLE(10_8, 9_0);
 
 /*!
      @method     refresh
@@ -1837,7 +1847,11 @@ typedef NS_ENUM(NSInteger, EKErrorCode) {
 #import <EventKit/EKObject.h>
 #import <EventKit/EKTypes.h>
 
+#if TARGET_OS_IPHONE
 #if !TARGET_OS_WATCH
+#import <AddressBook/ABPerson.h>
+#endif
+#else
 #import <AddressBook/AddressBook.h>
 #endif
 
@@ -1953,7 +1967,12 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
  */
 @property(nonatomic, readonly) NSString *UUID NS_DEPRECATED(NA, NA, 5_0, 6_0);
 
-@property(nonatomic, strong) EKCalendar *calendar;
+/*!
+    @property calendar
+    @abstract The calendar that this calendar item belongs to.
+    @discussion This will be nil for new calendar items until you set it.
+ */
+@property(nonatomic, strong, null_unspecified) EKCalendar *calendar;
 
 /*!
     @property   calendarItemIdentifier
@@ -1984,13 +2003,20 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
                 This identifier is the same for all occurrences of a recurring event. If you wish to differentiate
                 between occurrences, you may want to use the start date.
  
+                This may be nil for new calendar items that do not yet belong to a calendar.
+ 
                 In addition, there are two caveats for Exchange-based calendars:
                 - This identifier will be different between EventKit on iOS versus OS X
                 - This identifier will be different between devices for EKReminders
 */
-@property(nonatomic, readonly) NSString *calendarItemExternalIdentifier NS_AVAILABLE(10_8, 6_0);
+@property(nonatomic, readonly, null_unspecified) NSString *calendarItemExternalIdentifier NS_AVAILABLE(10_8, 6_0);
 
-@property(nonatomic, copy) NSString *title;
+/*!
+    @property title
+    @abstract The title of this calendar item.
+    @discussion This will be nill for new calendar items until you set it.
+ */
+@property(nonatomic, copy, null_unspecified) NSString *title;
 @property(nonatomic, copy, nullable) NSString *location;
 @property(nonatomic, copy, nullable) NSString *notes;
 @property(nonatomic, copy, nullable) NSURL *URL NS_AVAILABLE(10_8, 5_0);

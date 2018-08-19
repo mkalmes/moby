@@ -6,8 +6,9 @@
 //  Copyright © 2016 Apple Inc. All rights reserved.
 //
 
-#import <Availability.h>
+#import <os/availability.h>
 #import <VideoSubscriberAccount/VideoSubscriberAccountDefines.h>
+#import <VideoSubscriberAccount/VSAccountProviderResponse.h>
 #import <Foundation/NSObject.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Specifies which information the app wants to obtain about the subscriber's account.
 /// You should only request the information you need to fulfill your contractual obligations.
-NS_CLASS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
+VS_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0))
 @interface VSAccountMetadataRequest : NSObject
 
 /// Identifies who is making the request.
@@ -25,6 +26,11 @@ NS_CLASS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
 
 /// If non-empty, limits which account providers can respond to the request.
 @property (nonatomic, copy) NSArray<NSString *> *supportedAccountProviderIdentifiers;
+
+/// If non-empty, specifies providers which may be given more prominent placement
+/// when choosing an account provider during authentication.
+@property (nonatomic, copy) NSArray<NSString *> *featuredAccountProviderIdentifiers
+API_AVAILABLE(ios(11.0), tvos(11.0));
 
 /// A value that the account provider may use to verify the identity of the requesting app.
 @property (nonatomic, copy, nullable) NSString *verificationToken;
@@ -49,6 +55,12 @@ NS_CLASS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
 /// Attributes to add to a SAML attributeQuery request and sent to the account provider.
 @property (nonatomic, copy) NSArray<NSString *> *attributeNames;
 
+/// The collection of authentication schemes that the app supports for this request.
+/// This list may be used to determine compatibility of the app with providers.
+/// Defaults to SAML.
+@property (nonatomic, copy) NSArray<VSAccountProviderAuthenticationScheme> *supportedAuthenticationSchemes
+API_AVAILABLE(ios(10.2), tvos(10.1));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -60,7 +72,7 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2016 Apple Inc. All rights reserved.
 //
 
-#import <Availability.h>
+#import <os/availability.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSError.h>
 #import <VideoSubscriberAccount/VideoSubscriberAccountDefines.h>
@@ -71,19 +83,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// The domain of all errors returned by VideoSubscriberAccount framework.
 VS_EXTERN NSErrorDomain const VSErrorDomain
-NS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE;
+API_AVAILABLE(ios(10.0), tvos(10.0));
 
 /// A key that can be used to obtain the subscription provider's SAML response string from an error user info dictionary.
 VS_EXTERN NSString * const VSErrorInfoKeySAMLResponse
-NS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE;
+API_AVAILABLE(ios(10.0), tvos(10.0));
 
 /// A key that can be used to obtain the subscription provider's SAML status code string from an error user info dictionary.
 VS_EXTERN NSString * const VSErrorInfoKeySAMLResponseStatus
-NS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE;
+API_AVAILABLE(ios(10.0), tvos(10.0));
+
+/// A key that can be used to obtain the account provider's response object from an error user info dictionary.
+VS_EXTERN NSString * const VSErrorInfoKeyAccountProviderResponse
+API_AVAILABLE(ios(10.2), tvos(10.1));
 
 /// A key that can be used to obtain the identifier string of the user's unsupported subscription provider from an error user info dictionary.
 VS_EXTERN NSString * const VSErrorInfoKeyUnsupportedProviderIdentifier
-NS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE;
+API_AVAILABLE(ios(10.3), tvos(10.3));
 
 typedef NS_ENUM(NSInteger, VSErrorCode)
 {
@@ -94,7 +110,79 @@ typedef NS_ENUM(NSInteger, VSErrorCode)
     VSErrorCodeProviderRejected = 4,// The user's subscription provider did not allow the request to proceed, e.g. because the subscription tier doesn't include the resource, or interactive reauthentication is required, but the request does not allow interruption.
     VSErrorCodeInvalidVerificationToken = 5,// The request's verification token was rejected by the user's subscription provider.
 }
-NS_ENUM_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE;
+API_AVAILABLE(ios(10.0), tvos(10.0));
+
+NS_ASSUME_NONNULL_END
+// ==========  VideoSubscriberAccount.framework/Headers/VSSubscription.h
+//
+//  VSSubscription.h
+//  VideoSubscriberAccount
+//
+//  Copyright © 2016 Apple Inc. All rights reserved.
+//
+
+#import <Availability.h>
+#import <Foundation/NSObject.h>
+#import <VideoSubscriberAccount/VideoSubscriberAccountDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class NSArray<ObjectType>;
+@class NSDate;
+@class NSString;
+
+/// Describes the level of access to content.
+typedef NS_ENUM(NSInteger, VSSubscriptionAccessLevel)
+{
+    VSSubscriptionAccessLevelUnknown,/// The default access level.
+    VSSubscriptionAccessLevelFreeWithAccount, /// The customer has access to content that is offered for free to users with a valid account.  This value corresponds content in your availability feed with the "account" offering type.
+    VSSubscriptionAccessLevelPaid, /// The customer also has access to content that is offered as part of a paid subscription.  The value corresponds content in your availability feed with the "subscription" offering type.
+}
+#if TARGET_OS_IPHONE
+API_AVAILABLE(ios(11.0), tvos(11.0));
+#else
+;
+#endif // TARGET_OS_IPHONE
+
+/// A VSSubscription instance describes the extent to which a subscriber has
+/// access to content.
+#if TARGET_OS_IPHONE
+VS_EXPORT API_AVAILABLE(ios(11.0), tvos(11.0))
+#else
+VS_EXPORT
+#endif // #if TARGET_OS_IPHONE
+@interface VSSubscription : NSObject
+
+/// After this point in time, the subscription will be considered inactive.
+///
+/// If the current subscription becomes inactive, the system will behave as
+/// though the user is not subscribed at all, i.e. as though the registration
+/// center's current subscription had been set to nil.
+///
+/// Defaults to distantFuture.
+///
+/// Providing a value is useful in a limited number of scenarios, e.g. when the
+/// a subscriber decides not to renew their subscription, you should provide an
+/// expiration date that corresponds to the point in time when the final billing
+/// cycle will end.
+///
+/// This might also be useful if the subscription only grants access to content
+/// that is time-limited, e.g. a single season of games for a sports league.
+@property (nonatomic, copy, null_resettable) NSDate *expirationDate;
+
+/// Describes the level of access the subscriber has to your catalog of content.
+///
+/// It is an error to provide a subscription with an unknown access level as
+/// the current subscription.  Instead, choose the access level that describes
+/// the content that the subscriber can play.
+@property (nonatomic, assign) VSSubscriptionAccessLevel accessLevel;
+
+/// Identifies a subset of content from your catalog that subscriber can play.
+///
+/// Only provide values that are used in your availability feed's tier restrictions.
+@property (nonatomic, copy, null_resettable) NSArray<NSString *> *tierIdentifiers;
+
+@end
 
 NS_ASSUME_NONNULL_END
 // ==========  VideoSubscriberAccount.framework/Headers/VideoSubscriberAccountDefines.h
@@ -105,7 +193,7 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2016 Apple Inc. All rights reserved.
 //
 
-#import <Availability.h>
+#import <os/availability.h>
 #import <Foundation/NSObjCRuntime.h>
 
 #define VS_EXPORT __attribute__((visibility ("default")))
@@ -115,7 +203,53 @@ NS_ASSUME_NONNULL_END
 #else
 #define VS_EXTERN extern VS_EXPORT
 #endif
+// ==========  VideoSubscriberAccount.framework/Headers/VSSubscriptionRegistrationCenter.h
+//
+//  VSSubscriptionRegistrationCenter.h
+//  VideoSubscriberAccount
+//
+//  Copyright © 2016 Apple Inc. All rights reserved.
+//
 
+#import <Availability.h>
+#import <Foundation/NSObject.h>
+#import <VideoSubscriberAccount/VideoSubscriberAccountDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class VSSubscription;
+
+/// VSSubscriptionRegistrationCenter stores subscription information.
+#if TARGET_OS_IPHONE
+VS_EXPORT API_AVAILABLE(ios(11.0), tvos(11.0))
+#else
+VS_EXPORT
+#endif // #if TARGET_OS_IPHONE
+@interface VSSubscriptionRegistrationCenter : NSObject
+
+/// Use the default subscription registration center to tell the system about
+/// the customer's ability to access content within your app.
++ (VSSubscriptionRegistrationCenter *)defaultSubscriptionRegistrationCenter;
+
+/// Provide a subscription when the subscriber first authenticates, and when the
+/// subscription changes.
+///
+/// When the subscriber signs out or otherwise loses access to subscription
+/// content, invoke this method with nil.
+///
+/// You might also want to call this method opportunistically, if you happen to
+/// have just confirmed the validity of the subscription, or in response to app
+/// lifecycle events, e.g. when your app becomes active.  The system may use
+/// this activity as a hint that the user is actively using the subscription.
+///
+/// It is an error to provide a current subscription with an unknown access
+/// level; you should not provide a subscription if the user only has access to
+/// content that is offered for free without any account requirements.
+- (void)setCurrentSubscription:(nullable VSSubscription *)currentSubscription;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  VideoSubscriberAccount.framework/Headers/VideoSubscriberAccount.h
 //
 //  VideoSubscriberAccount.h
@@ -130,6 +264,9 @@ NS_ASSUME_NONNULL_END
 #import <VideoSubscriberAccount/VSAccountManagerResult.h>
 #import <VideoSubscriberAccount/VSAccountMetadata.h>
 #import <VideoSubscriberAccount/VSAccountMetadataRequest.h>
+#import <VideoSubscriberAccount/VSAccountProviderResponse.h>
+#import <VideoSubscriberAccount/VSSubscription.h>
+#import <VideoSubscriberAccount/VSSubscriptionRegistrationCenter.h>
 // ==========  VideoSubscriberAccount.framework/Headers/VSAccountManager.h
 //
 //  VSAccountManager.h
@@ -138,13 +275,14 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2016 Apple Inc. All rights reserved.
 //
 
-#import <Availability.h>
+#import <os/availability.h>
 #import <Foundation/NSObject.h>
 #import <VideoSubscriberAccount/VideoSubscriberAccountDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class NSDictionary<KeyType, ValueType>;
+@class NSString;
 @class NSError;
 @class UIViewController;
 @class VSAccountManagerResult;
@@ -161,21 +299,21 @@ typedef NS_ENUM(NSInteger, VSAccountAccessStatus)
     VSAccountAccessStatusDenied = 2, // The user has explicitly decided to not allow the app to access subscription information.
     VSAccountAccessStatusGranted = 3, // The user has currently decided to allow the app to access subscription information.
 }
-NS_ENUM_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE;
+API_AVAILABLE(ios(10.0), tvos(10.0));
 
 /// Options that may be provided when checking access status.
 typedef NSString * VSCheckAccessOption NS_STRING_ENUM
-NS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE;
+API_AVAILABLE(ios(10.0), tvos(10.0));
 
 /// A boolean indicating whether the user may be prompted to grant access.
 VS_EXTERN VSCheckAccessOption const VSCheckAccessOptionPrompt
-NS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE;
+API_AVAILABLE(ios(10.0), tvos(10.0));
 
 /// A VSAccountManager instance coordinates access to a subscriber's account.
-NS_CLASS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
+VS_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0))
 @interface VSAccountManager : NSObject
 
-/// An object that can help the account manager by presenting and dismissing view controllers when needed.
+/// An object that can help the account manager by presenting and dismissing view controllers when needed, and deciding whether to allow authentication with the selected provider.
 /// Some requests may fail if a delegate is not provided.  For example, an account metadata request may require a delegate if it allows interruption.
 @property (nonatomic, weak) id<VSAccountManagerDelegate> delegate;
 
@@ -184,7 +322,7 @@ NS_CLASS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
 /// @param completionHandler A block to be called when the request finishes.  It will always be called exactly once.  It may be called before the method call returns.  It may be called on any queue.
 /// @param accessStatus The current state the application's access to the user's subscription information.
 /// @param error If the user did not grant access to the app, this will contain an error describing the result of the operation.
-- (void)checkAccessStatusWithOptions:(NSDictionary<VSCheckAccessOption, id> *)options completionHandler:(void (^)(VSAccountAccessStatus accessStatus, NSError * __nullable error))completionHandler;
+- (void)checkAccessStatusWithOptions:(NSDictionary<VSCheckAccessOption, id> *)options completionHandler:(void (^)(VSAccountAccessStatus accessStatus, NSError * _Nullable error))completionHandler;
 
 /// Begins requesting information about the subscriber's account.
 /// @param request This identifies what specific information the app wants to know.
@@ -192,13 +330,13 @@ NS_CLASS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
 /// @param metadata If the request finished successfully, this will contain information about the subscriber's account.
 /// @param error If the request did not finish successfully, this will contain an error describing the result of the operation.
 /// @returns A result object that may be used to cancel the in-flight request.  Cancellation is advisory, and does not guarantee that the request will finish immediately.
-- (VSAccountManagerResult *)enqueueAccountMetadataRequest:(VSAccountMetadataRequest *)request completionHandler:(void (^)(VSAccountMetadata * __nullable metadata, NSError * __nullable error))completionHandler;
+- (VSAccountManagerResult *)enqueueAccountMetadataRequest:(VSAccountMetadataRequest *)request completionHandler:(void (^)(VSAccountMetadata * _Nullable metadata, NSError * _Nullable error))completionHandler;
 
 @end
 
 
 /// A VSAccountManager instance coordinates access to a subscriber's account.
-VS_EXPORT NS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
+API_AVAILABLE(ios(10.0), tvos(10.0))
 @protocol VSAccountManagerDelegate <NSObject>
 
 @required
@@ -213,6 +351,19 @@ VS_EXPORT NS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
 /// @param viewController The view controller that is being presented to the user.  You must use -dismissViewControllerAnimated:completion: to begin dismissing the view controller before returning from this method.
 - (void)accountManager:(VSAccountManager *)accountManager dismissViewController:(UIViewController *)viewController;
 
+@optional
+
+/// This method can be used to temporarily refrain from authenticating with an
+/// otherwise-supported provider during a transient outage.
+/// This method will be called when the user chooses a supported provider from
+/// the list of providers.
+/// If you do not implement this method, the user will be able to authenticate
+/// with all supported providers.
+/// @param accountManager The account manager instance that received a metadata request.
+/// @param accountProviderIdentifier Identifies the otherwise-supported account provider.
+/// @returns Returning NO will cause the request will fail with an unsupported provider error.
+- (BOOL)accountManager:(VSAccountManager *)accountManager shouldAuthenticateAccountProviderWithIdentifier:(NSString *)accountProviderIdentifier;
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -224,20 +375,59 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2016 Apple Inc. All rights reserved.
 //
 
-#import <Availability.h>
+#import <os/availability.h>
 #import <Foundation/NSObject.h>
 #import <VideoSubscriberAccount/VideoSubscriberAccountDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /// Represents an in-flight request to an account manger.
-NS_CLASS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
+VS_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0))
 @interface VSAccountManagerResult : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Advise the account manager that the app no longer needs the requested work to be done.
 - (void)cancel;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  VideoSubscriberAccount.framework/Headers/VSAccountProviderResponse.h
+//
+//  VSAccountProviderResponse.h
+//  VideoSubscriberAccount
+//
+//  Copyright © 2016 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/NSObject.h>
+#import <VideoSubscriberAccount/VideoSubscriberAccountDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// An opaque protocol name, to be coordinated with specific account providers.
+typedef NSString *VSAccountProviderAuthenticationScheme NS_EXTENSIBLE_STRING_ENUM;
+
+/// The authentication scheme for responses that use the SAML protocol.
+VS_EXTERN VSAccountProviderAuthenticationScheme const VSAccountProviderAuthenticationSchemeSAML
+NS_SWIFT_NAME(saml)
+API_AVAILABLE(ios(10.2), tvos(10.1));
+
+/// A value object that encapsulates the response given by an account provider.
+VS_EXPORT API_AVAILABLE(ios(10.2), tvos(10.1))
+@interface VSAccountProviderResponse : NSObject
+
+/// Identifies the protocol used in constructing this response.
+@property (nonatomic, readonly, copy) VSAccountProviderAuthenticationScheme authenticationScheme;
+
+/// The status code for this response.
+/// May be nil if there is no meaningful value for this type of response.
+@property (nonatomic, readonly, copy, nullable) NSString *status;
+
+/// The raw response from the provider.
+/// May be nil if the response contained security-sensitive information.
+@property (nonatomic, readonly, copy, nullable) NSString *body;
 
 @end
 
@@ -250,7 +440,7 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2016 Apple Inc. All rights reserved.
 //
 
-#import <Availability.h>
+#import <os/availability.h>
 #import <Foundation/NSObject.h>
 #import <VideoSubscriberAccount/VideoSubscriberAccountDefines.h>
 
@@ -258,9 +448,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class NSDate;
 @class NSString;
+@class VSAccountProviderResponse;
 
 /// A collection of information about a subscriber's account.
-NS_CLASS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
+VS_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0))
 @interface VSAccountMetadata : NSObject
 
 /// A value that uniquely identifies the account provider.
@@ -278,6 +469,12 @@ NS_CLASS_AVAILABLE_IOS(10_0) __TVOS_AVAILABLE(10.0) __WATCHOS_UNAVAILABLE
 /// The SAML AttributeQuery response received from the account provider.
 /// The value might be nil if your account metadata request did not specify any SAML attributes or if the user does not have a valid authentication.
 @property (nonatomic, readonly, copy, nullable) NSString *SAMLAttributeQueryResponse;
+
+/// The response received from the account provider.
+/// The value might be nil if your account metadata request did not specify any
+/// attributes, or if the user does not have a valid authentication.
+@property (nonatomic, readonly, strong, nullable) VSAccountProviderResponse *accountProviderResponse
+API_AVAILABLE(ios(10.2), tvos(10.1));
 
 @end
 

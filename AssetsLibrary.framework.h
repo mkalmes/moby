@@ -379,7 +379,7 @@ NS_CLASS_DEPRECATED_IOS(4_0, 9_0, "Use PHPhotoLibrary from the Photos framework 
 - (void)writeImageDataToSavedPhotosAlbum:(NSData *)imageData metadata:(NSDictionary *)metadata completionBlock:(ALAssetsLibraryWriteImageCompletionBlock)completionBlock NS_DEPRECATED_IOS(4_1, 9_0, "Use creationRequestForAssetFromImageData: on PHAssetChangeRequest from the Photos framework to create a new asset instead");
 
 - (void)writeVideoAtPathToSavedPhotosAlbum:(NSURL *)videoPathURL completionBlock:(ALAssetsLibraryWriteVideoCompletionBlock)completionBlock NS_DEPRECATED_IOS(4_0, 9_0, "Use creationRequestForAssetFromVideoAtFilePath: on PHAssetChangeRequest from the Photos framework to create a new asset instead");
-- (BOOL)videoAtPathIsCompatibleWithSavedPhotosAlbum:(NSURL *)videoPathURL NS_DEPRECATED_IOS(5_0, 9_0);
+- (BOOL)videoAtPathIsCompatibleWithSavedPhotosAlbum:(NSURL *)videoPathURL NS_DEPRECATED_IOS(5_0, 9_0, "Use isCompatibleWithSavedPhotosAlbum on AVAsset instead");
 
 // Returns photo data authorization status for this application
 + (ALAuthorizationStatus)authorizationStatus NS_DEPRECATED_IOS(6_0, 9_0, "Use authorizationStatus on the shared PHPhotoLibrary from the Photos framework instead");

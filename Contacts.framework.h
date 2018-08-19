@@ -169,8 +169,11 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 @interface CNPhoneNumber : NSObject <NSCopying, NSSecureCoding>
 
 /*! These will return nil if the stringValue is nil. */
-+ (instancetype)phoneNumberWithStringValue:(NSString *)stringValue;
-- (instancetype)initWithStringValue:(NSString *)string;
++ (nullable instancetype)phoneNumberWithStringValue:(NSString *)stringValue;
+- (nullable instancetype)initWithStringValue:(NSString *)string;
+
+- (instancetype)init NS_DEPRECATED(10_11, 10_13, 9_0, 11_0, "Use initWithStringValue:");
++ (instancetype)new  NS_DEPRECATED(10_11, 10_13, 9_0, 11_0, "Use phoneNumberWithStringValue:");
 
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *stringValue;
 
@@ -291,7 +294,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  * @param identifier The identifier of the contact to fetch.
  * @param keys The properties to fetch into the returned CNContact object. Should only fetch the properties that will be used. Can combine contact keys and contact key descriptors.
  * @param error If an error occurs, contains error information.
- * @return The unified contact matching or linked to the identifier. If no contact with the given identifier is found, nil is returned abd error is set to CNErrorCodeRecordDoesNotExist.
+ * @return The unified contact matching or linked to the identifier. If no contact with the given identifier is found, nil is returned and error is set to CNErrorCodeRecordDoesNotExist.
  */
 - (nullable CNContact *)unifiedContactWithIdentifier:(NSString *)identifier keysToFetch:(NSArray<id<CNKeyDescriptor>> *)keys error:(NSError *__nullable *__nullable)error;
 
@@ -362,9 +365,9 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  *
  *  @discussion This identifier can be used to fetch the default container.
  *
- *  @return The identifier of the default container.
+ *  @return The identifier of the default container. If the caller lacks Contacts authorization or an error occurs, nil is returned.
  */
-- (NSString *)defaultContainerIdentifier;
+- (nullable NSString *)defaultContainerIdentifier;
 
 @end
 
@@ -450,6 +453,8 @@ CONTACTS_EXTERN NSString * const CNLabelContactRelationMother             NS_AVA
 CONTACTS_EXTERN NSString * const CNLabelContactRelationParent             NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNLabelContactRelationBrother            NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNLabelContactRelationSister             NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSon                NS_AVAILABLE(10_13, 11_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationDaughter           NS_AVAILABLE(10_13, 11_0);
 CONTACTS_EXTERN NSString * const CNLabelContactRelationChild              NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNLabelContactRelationFriend             NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNLabelContactRelationSpouse             NS_AVAILABLE(10_11, 9_0);
@@ -483,7 +488,9 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 /*! multi-street address is delimited with carriage returns “\n” */
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *street;
+@property (copy, NS_NONATOMIC_IOSONLY) NSString *subLocality            NS_AVAILABLE(10_12_4, 10_3);
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *city;
+@property (copy, NS_NONATOMIC_IOSONLY) NSString *subAdministrativeArea  NS_AVAILABLE(10_12_4, 10_3);
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *state;
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *postalCode;
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *country;
@@ -652,7 +659,7 @@ NS_ASSUME_NONNULL_END
 //  CNPostalAddressFormatter.h
 //  Contacts
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015–2016 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -855,6 +862,20 @@ CONTACTS_EXTERN NSString * const CNGroupIdentifierKey	NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNGroupNameKey			NS_AVAILABLE(10_11, 9_0);
 
 NS_ASSUME_NONNULL_END
+// ==========  Contacts.framework/Headers/CNContact+NSItemProvider.h
+//
+//  CNContact+NSItemProvider.h
+//  Contacts
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Contacts/CNContact.h>
+
+@interface CNContact (NSItemProvider) <NSItemProviderReading, NSItemProviderWriting>
+
+@end
 // ==========  Contacts.framework/Headers/CNContactProperty.h
 //
 //  CNContactProperty.h
@@ -927,25 +948,30 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 /*! multi-street address is delimited with carriage returns “\n” */
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *street;
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *subLocality              NS_AVAILABLE(10_12_4, 10_3);
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *city;
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *subAdministrativeArea    NS_AVAILABLE(10_12_4, 10_3);
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *state;
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *postalCode;
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *country;
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *ISOCountryCode;
 
 /*! Returns a user displayable property name. */
-+ (NSString*)localizedStringForKey:(NSString *)key;
++ (NSString *)localizedStringForKey:(NSString *)key;
 
 @end
 
 
 // Properties that are always fetched. Can be used with key value coding and observing.
 CONTACTS_EXTERN NSString * const CNPostalAddressStreetKey                            NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNPostalAddressSubLocalityKey                       NS_AVAILABLE(10_12_4, 10_3);
 CONTACTS_EXTERN NSString * const CNPostalAddressCityKey                              NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNPostalAddressSubAdministrativeAreaKey             NS_AVAILABLE(10_12_4, 10_3);
 CONTACTS_EXTERN NSString * const CNPostalAddressStateKey                             NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNPostalAddressPostalCodeKey                        NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNPostalAddressCountryKey                           NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNPostalAddressISOCountryCodeKey                    NS_AVAILABLE(10_11, 9_0);
+
 
 NS_ASSUME_NONNULL_END
 // ==========  Contacts.framework/Headers/CNMutableGroup.h
@@ -1157,6 +1183,7 @@ NS_ASSUME_NONNULL_END
 #import <Contacts/CNContact.h>
 #import <Contacts/CNContact+Predicates.h>
 #import <Contacts/CNMutableContact.h>
+#import <Contacts/CNContact+NSItemProvider.h>
 
 #import <Contacts/CNLabeledValue.h>
 #import <Contacts/CNPhoneNumber.h>
@@ -1264,6 +1291,12 @@ typedef NS_ENUM(NSInteger, CNErrorCode)
     CNErrorCodePredicateInvalid = 400,
     
     CNErrorCodePolicyViolation = 500,
+    
+    CNErrorCodeClientIdentifierInvalid = 600,
+    CNErrorCodeClientIdentifierDoesNotExist = 601,
+    
+    CNErrorCodeVCardMalformed NS_ENUM_AVAILABLE(10_13, 11_0) = 700,
+    
 }  NS_ENUM_AVAILABLE(10_11, 9_0);
 
 /*! When available an array of one or more CNContact, CNGroup or CNContainer objects for which the error code applies. */
@@ -1298,11 +1331,14 @@ NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_AVAILABLE(10_11, 9_0)
 @interface CNContactFetchRequest : NSObject
 
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new  NS_UNAVAILABLE;
 
 /*!
- *  @abstract Use this initiliazer, using init raises an exception. Pass in the properties to fetch for the returned contacts.
+ *  @param      keysToFetch
+ *              The properties to fetch for the returned contacts.
  *
- *  @discussion Should only fetch the properties that will be used.
+ *  @discussion Only fetch the properties that will be used.
  */
 - (instancetype)initWithKeysToFetch:(NSArray <id<CNKeyDescriptor>>*)keysToFetch NS_DESIGNATED_INITIALIZER;
 

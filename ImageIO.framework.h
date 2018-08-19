@@ -768,6 +768,7 @@ IMAGEIO_EXTERN const CFStringRef kCGImagePropertyDNGDictionary  IMAGEIO_AVAILABL
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifAuxDictionary  IMAGEIO_AVAILABLE_STARTING(__MAC_10_5, __IPHONE_4_0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyOpenEXRDictionary  IMAGEIO_AVAILABLE_STARTING(__MAC_10_9, __IPHONE_NA);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyMakerAppleDictionary  IMAGEIO_AVAILABLE_STARTING(__MAC_10_10, __IPHONE_7_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyFileContentsDictionary IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
 
 
 /** Properties which may be returned by "CGImageSourceCopyProperties".  The
@@ -914,7 +915,7 @@ IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifSubjectArea  IMAGEIO_AVAILA
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifMakerNote  IMAGEIO_AVAILABLE_STARTING(__MAC_10_4, __IPHONE_4_0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifUserComment  IMAGEIO_AVAILABLE_STARTING(__MAC_10_4, __IPHONE_4_0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifSubsecTime  IMAGEIO_AVAILABLE_STARTING(__MAC_10_4, __IPHONE_4_0);
-IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifSubsecTimeOriginal  IMAGEIO_AVAILABLE_STARTING(__MAC_10_4, __IPHONE_4_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifSubsecTimeOriginal  IMAGEIO_AVAILABLE_STARTING(__MAC_10_11, __IPHONE_10_0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifSubsecTimeDigitized  IMAGEIO_AVAILABLE_STARTING(__MAC_10_4, __IPHONE_4_0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifFlashPixVersion  IMAGEIO_AVAILABLE_STARTING(__MAC_10_4, __IPHONE_4_0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifColorSpace  IMAGEIO_AVAILABLE_STARTING(__MAC_10_4, __IPHONE_4_0);
@@ -1204,6 +1205,37 @@ IMAGEIO_EXTERN const CFStringRef kCGImagePropertyPNGCompressionFilter IMAGEIO_AV
 #define IMAGEIO_PNG_ALL_FILTERS (IMAGEIO_PNG_FILTER_NONE | IMAGEIO_PNG_FILTER_SUB | IMAGEIO_PNG_FILTER_UP | IMAGEIO_PNG_FILTER_AVG | IMAGEIO_PNG_FILTER_PAETH)
 
 
+
+/* For use with CGImageSourceCopyAuxiliaryDataInfoAtIndex and CGImageDestinationAddAuxiliaryDataInfo:
+ * These strings specify the 'auxiliaryImageDataType':
+ */
+IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataTypeDepth IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataTypeDisparity IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+
+
+/* Depth/Disparity data support for JPEG, HEIF, and DNG images:
+ * CGImageSourceCopyAuxiliaryDataInfoAtIndex and CGImageDestinationAddAuxiliaryDataInfo will use these keys in the dictionary:
+ * kCGImageAuxiliaryDataInfoData - the depth data (CFDataRef)
+ * kCGImageAuxiliaryDataInfoDataDescription - the depth data description (CFDictionary)
+ * kCGImageAuxiliaryDataInfoMetadata - metadata (CGImageMetadataRef)
+ */
+IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataInfoData IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataInfoDataDescription IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataInfoMetadata IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+
+
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyImageCount IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyWidth IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyHeight IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyBytesPerRow IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyNamedColorSpace IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyPixelFormat IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyImages IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyThumbnailImages IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyAuxiliaryData IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyAuxiliaryDataType IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+
+
 CF_ASSUME_NONNULL_END
 
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -1315,7 +1347,7 @@ IMAGEIO_EXTERN const CFStringRef kCGImageSourceCreateThumbnailWithTransform  IMA
  * The resulting image will be smaller and have reduced spacial quality but will otherwise have the same characteristics
  * as the full size normal image.
  * If the specified scaling factor is not supported, a larger or full size normal image will be returned.
- * Supported file formats are JPEG, TIFF, and PNG.
+ * Supported file formats are JPEG, HEIF, TIFF, and PNG.
  * The value of this key must be an integer CFNumberRef (allowed values: 2, 4, and 8).
  */
 
@@ -1434,6 +1466,16 @@ IMAGEIO_EXTERN CGImageSourceStatus CGImageSourceGetStatus(CGImageSourceRef __non
 
 IMAGEIO_EXTERN CGImageSourceStatus CGImageSourceGetStatusAtIndex(CGImageSourceRef __nonnull isrc, size_t index)  IMAGEIO_AVAILABLE_STARTING(__MAC_10_4, __IPHONE_4_0);
 
+
+/* Depth data support for JPEG, HEIF, and DNG images.
+ * The returned CFDictionary contains:
+ *   - the depth data (CFDataRef) - (kCGImageAuxiliaryDataInfoData),
+ *   - the depth data description (CFDictionary) - (kCGImageAuxiliaryDataInfoDataDescription)
+ *   - metadata (CGImageMetadataRef) - (kCGImageAuxiliaryDataInfoMetadata)
+ * CGImageSourceCopyAuxiliaryDataInfoAtIndex returns nil if the image did not contain ‘auxiliaryImageDataType’ data.
+ */
+IMAGEIO_EXTERN CFDictionaryRef __nullable CGImageSourceCopyAuxiliaryDataInfoAtIndex(CGImageSourceRef __nonnull isrc, size_t index, CFStringRef __nonnull auxiliaryImageDataType ) IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+
 CF_IMPLICIT_BRIDGING_DISABLED
 
 
@@ -1487,7 +1529,7 @@ IMAGEIO_EXTERN const CFStringRef kCGImageDestinationBackgroundColor  IMAGEIO_AVA
 
 IMAGEIO_EXTERN const CFStringRef kCGImageDestinationImageMaxPixelSize  IMAGEIO_AVAILABLE_STARTING(__MAC_10_10, __IPHONE_8_0);
 
-/* Enable or disable JPEG thumbnail embedding.
+/* Enable or disable thumbnail embedding for JPEG and HEIF.
  * The value should be kCFBooleanTrue or kCFBooleanFalse. Defaults to kCFBooleanFalse */
 
 IMAGEIO_EXTERN const CFStringRef kCGImageDestinationEmbedThumbnail  IMAGEIO_AVAILABLE_STARTING(__MAC_10_10, __IPHONE_8_0);
@@ -1630,6 +1672,15 @@ CF_ASSUME_NONNULL_END
  * and 'err' will be set to a CFErrorRef. Not all image formats are supported 
  * for this operation. */
 IMAGEIO_EXTERN bool CGImageDestinationCopyImageSource(CGImageDestinationRef __nonnull idst, CGImageSourceRef __nonnull isrc, CFDictionaryRef __nullable options, __nullable CFErrorRef * __nullable err) IMAGEIO_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_7_0);
+
+/* Depth data support for JPEG, HEIF, and DNG images.
+ * The auxiliaryDataInfoDictionary should contain:
+ *   - the depth data (CFDataRef) - (kCGImageAuxiliaryDataInfoData),
+ *   - the depth data description (CFDictionary) - (kCGImageAuxiliaryDataInfoDataDescription)
+ *   - metadata (CGImageMetadataRef) - (kCGImageAuxiliaryDataInfoMetadata)
+ * To add depth data to an image, call CGImageDestinationAddAuxiliaryDataInfo() after adding the CGImage to the CGImageDestinationRef.
+ */
+IMAGEIO_EXTERN void CGImageDestinationAddAuxiliaryDataInfo(CGImageDestinationRef __nonnull idst, CFStringRef __nonnull auxiliaryImageDataType, CFDictionaryRef __nonnull auxiliaryDataInfoDictionary ) IMAGEIO_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
 
 
 CF_IMPLICIT_BRIDGING_DISABLED

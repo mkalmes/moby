@@ -1,3 +1,35 @@
+// ==========  Messages.framework/Headers/MSMessageLiveLayout.h
+/*!
+ @header     MSMessageLiveLayout
+ @copyright  Copyright (c) 2017 Apple Inc. All rights reserved.
+ */
+
+#import <Messages/Messages.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ @class      MSMessageLiveLayout
+ @abstract   The MSMessageLiveLayout is used to indicate a message should be rendered in Messages using an instance of `MSMessagesAppViewController` with a `presentationStyle` of `MSMessagesAppPresentationStyleTranscript`.
+ */
+NS_CLASS_AVAILABLE_IOS(11_0)
+@interface MSMessageLiveLayout : MSMessageLayout
+
+/*!
+ @param alternateLayout The alternate layout of the message. This layout will be used on devices that don't support live layout or don't have the iMessage app installed.
+ */
+- (instancetype)initWithAlternateLayout:(MSMessageTemplateLayout *)alternateLayout NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
+
+/*!
+ @property   alternateLayout
+ @abstract   The alternate layout of the message. This layout will be used on devices that don't support live layout or don't have the iMessage app installed.
+ */
+@property (nonatomic, readonly) MSMessageTemplateLayout *alternateLayout;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Messages.framework/Headers/MSMessage.h
 /*!
  @header     MSMessage
@@ -21,24 +53,31 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @method     init
  @abstract   Initializes a new message that is not part of a session.
  */
--(instancetype)init NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
 
 /*!
  @method     initWithSession:
  @abstract   Initializes a message with a session.
- @see insertMessage:localizedChangeDescription:completionHandler:
+ @see        insertMessage:completionHandler:
  @param      session  The session that new message will join.
  @discussion A message initialized with a session will be updated 
  and moved to the bottom of the conversation transcript when another message created
  with the same session is sent.
  */
--(instancetype)initWithSession:(MSSession *)session NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSession:(MSSession *)session NS_DESIGNATED_INITIALIZER;
 
 /*!
  @property   session
  @abstract   An MSSession that identifies the session that message belongs to.
  */
 @property (nonatomic, readonly, nullable) MSSession *session;
+
+/*!
+ @property   pending
+ @abstract   A BOOL representing whether the message is a pending message or is a message that has been sent/received.
+ @discussion This value starts as `YES` when creating an `MSMessage` for sending. After calling `-[MSConversation insertMessage:completionHandler:]`, `isPending` still returns `YES` until `-[MSMessagesAppViewController didStartSendingMessage:conversation]` is called. This property is useful for knowing if the `selectedMessage` of `-[MSMessagesAppViewController activeConversation]` represents an unsent message.
+ */
+@property (nonatomic, readonly, getter=isPending) BOOL pending NS_AVAILABLE_IOS(11_0);
 
 /*!
  @property   senderParticipantIdentifier
@@ -51,11 +90,11 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 
 /*!
  @property   layout
- @abstract   A subclass of to MSMessageLayout.
+ @abstract   A subclass of MSMessageLayout.
  @discussion The MSMessageLayout subclass will be used to construct UI
  representing the message in the conversation transcript.
  */
-@property (nonatomic, copy, nullable) MSMessageLayout* layout;
+@property (nonatomic, copy, nullable) MSMessageLayout *layout;
 
 /*!
  @property   URL
@@ -144,27 +183,26 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @property   animationDuration
  @abstract   The amount of time it takes to go through one cycle of the sticker animation.
  */
-@property(nonatomic, readonly) NSTimeInterval animationDuration;
+@property (nonatomic, readonly) NSTimeInterval animationDuration;
 
 /*!
  @method    startAnimating
  @abstract  Starts animating the sticker in the receiver.
  @discussion This method always starts the animation from the first frame.
  */
--(void) startAnimating;
+- (void)startAnimating;
 
 /*!
  @method    stopAnimating
  @abstract  Stops animating the sticker in the receiver.
  */
--(void) stopAnimating;
+- (void)stopAnimating;
 
 /*!
  @method   isAnimating
  @abstract   Returns a Boolean value indicating whether the animation is running.
  */
 - (BOOL)isAnimating;
-
 
 @end
 
@@ -185,16 +223,17 @@ NS_ASSUME_NONNULL_END
 
 #import <Messages/MSConversation.h>
 
-#import <Messages/MSSession.h>
 #import <Messages/MSMessage.h>
 #import <Messages/MSMessageLayout.h>
 #import <Messages/MSMessageTemplateLayout.h>
+#import <Messages/MSMessageLiveLayout.h>
+#import <Messages/MSSession.h>
 
 #import <Messages/MSSticker.h>
-#import <Messages/MSStickerView.h>
-#import <Messages/MSStickerBrowserViewDataSource.h>
 #import <Messages/MSStickerBrowserView.h>
 #import <Messages/MSStickerBrowserViewController.h>
+#import <Messages/MSStickerBrowserViewDataSource.h>
+#import <Messages/MSStickerView.h>
 
 #import <Messages/MSMessageError.h>
 // ==========  Messages.framework/Headers/MSMessageTemplateLayout.h
@@ -284,11 +323,12 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 #import <Messages/MessagesDefines.h>
 
-MESSAGES_EXTERN NSString * const MSStickersErrorDomain NS_AVAILABLE_IOS(10_0);
+MESSAGES_EXTERN NSString *const MSStickersErrorDomain NS_AVAILABLE_IOS(10_0);
 
-MESSAGES_EXTERN NSString * const MSMessagesErrorDomain NS_AVAILABLE_IOS(10_0);
+MESSAGES_EXTERN NSString *const MSMessagesErrorDomain NS_AVAILABLE_IOS(10_0);
 
 typedef NS_ENUM(NSInteger, MSMessageErrorCode) {
+    MSMessageErrorCodeUnknown NS_ENUM_AVAILABLE_IOS(11_0) = -1,
     MSMessageErrorCodeFileNotFound = 1,
     MSMessageErrorCodeFileUnreadable,
     MSMessageErrorCodeImproperFileType,
@@ -297,6 +337,8 @@ typedef NS_ENUM(NSInteger, MSMessageErrorCode) {
     MSMessageErrorCodeStickerFileImproperFileSize,
     MSMessageErrorCodeStickerFileImproperFileFormat,
     MSMessageErrorCodeURLExceedsMaxSize,
+    MSMessageErrorCodeSendWithoutRecentInteraction NS_ENUM_AVAILABLE_IOS(11_0),
+    MSMessageErrorCodeSendWhileNotVisible NS_ENUM_AVAILABLE_IOS(11_0),
 } NS_ENUM_AVAILABLE_IOS(10_0);
 // ==========  Messages.framework/Headers/MSMessageLayout.h
 /*!
@@ -326,12 +368,10 @@ NS_ASSUME_NONNULL_END
 //
 
 #ifdef __cplusplus
-#define MESSAGES_EXTERN		extern "C" __attribute__((visibility ("default")))
+#define MESSAGES_EXTERN extern "C" __attribute__((visibility("default")))
 #else
-#define MESSAGES_EXTERN	        extern __attribute__((visibility ("default")))
+#define MESSAGES_EXTERN extern __attribute__((visibility("default")))
 #endif
-
-
 // ==========  Messages.framework/Headers/MSSticker.h
 /*!
  @header     MSSticker
@@ -360,7 +400,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @param      error  If this method could not initialize a sticker, this will contain an NSError object describing the failure.
  @return     A new sticker object or nil if the method could not initialize a sticker from the specified file and localizedDescription.
  */
-- (nullable instancetype)initWithContentsOfFileURL:(NSURL *)fileURL localizedDescription:(NSString *)localizedDescription error:(NSError * _Nullable *)error NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithContentsOfFileURL:(NSURL *)fileURL localizedDescription:(NSString *)localizedDescription error:(NSError *_Nullable *)error NS_DESIGNATED_INITIALIZER;
 
 /*!
  @property   imageFileURL
@@ -383,8 +423,8 @@ NS_ASSUME_NONNULL_END
  @copyright  Copyright (c) 2016 Apple Inc. All rights reserved.
  */
 
-#import <UIKit/UIKit.h>
 #import <Messages/MSStickerBrowserViewDataSource.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -398,7 +438,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, MSStickerSize) {
     MSStickerSizeSmall,
     MSStickerSizeRegular,
-    MSStickerSizeLarge
+    MSStickerSizeLarge,
 } NS_ENUM_AVAILABLE_IOS(10_0);
 
 /*!
@@ -438,7 +478,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 /*!
  @abstract The Sticker Browser View data source.
  */
-@property (nonatomic, weak, nullable) id <MSStickerBrowserViewDataSource> dataSource;
+@property (nonatomic, weak, nullable) id<MSStickerBrowserViewDataSource> dataSource;
 
 /*!
  @abstract The Sticker Browser View content offset.
@@ -511,7 +551,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 @property (nonatomic, readonly, nullable) MSMessage *selectedMessage;
 
 /*!
- @method     insertMessage:localizedChangeDescription:completionHandler:
+ @method     insertMessage:completionHandler:
  @abstract   Stages provided the MSMessage for sending.
  @discussion This method inserts a MSMessage object into the Messages input field,
  Subsequent calls to this method will replace any existing message on the input field. 
@@ -521,7 +561,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @param      message            The MSMessage instance describing the message to be sent.
  @param      completionHandler  A completion handler called when the message has been staged or if there was an error.
  */
-- (void)insertMessage:(MSMessage *)message completionHandler:(nullable void (^)(NSError * _Nullable))completionHandler;
+- (void)insertMessage:(MSMessage *)message completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler;
 
 /*!
  @method     insertSticker:completionHandler:
@@ -529,7 +569,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @param      sticker            The sticker to be inserted.
  @param      completionHandler  A completion handler called when the insert is complete.
  */
-- (void)insertSticker:(MSSticker *)sticker completionHandler:(nullable void (^)(NSError * _Nullable))completionHandler;
+- (void)insertSticker:(MSSticker *)sticker completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler;
 
 /*!
  @method     insertText:completionHandler:
@@ -537,7 +577,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @param      text               The text to be inserted.
  @param      completionHandler  A completion handler called when the insert is complete.
  */
-- (void)insertText:(NSString *)text completionHandler:(nullable void (^)(NSError * _Nullable))completionHandler;
+- (void)insertText:(NSString *)text completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler;
 
 /*!
  @method     insertAttachment:withAlternateFilename:completionHandler:
@@ -547,9 +587,43 @@ NS_CLASS_AVAILABLE_IOS(10_0)
  @param      filename           If you supply a string here, the message UI uses it for the attachment. Use an alternate filename to better describe the attachment or to make the name more readable.
  @param      completionHandler  A completion handler called when the insert is complete.
  */
-- (void)insertAttachment:(NSURL *)URL withAlternateFilename:(nullable NSString *)filename completionHandler:(nullable void (^)(NSError * _Nullable))completionHandler;
+- (void)insertAttachment:(NSURL *)URL withAlternateFilename:(nullable NSString *)filename completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler;
 
+/*!
+ @method     sendMessage:completionHandler:
+ @abstract   Start sending a message
+ @discussion This method begins sending the provided MSMessage. The app must be visible and have had a recent touch interaction since either last launch or last send to succeed. If the message started sending successfully, the completion handler will be called with a nil error parameter. Otherwise the error parameter will be populated with an NSError object describing the failure.
+ @param      message            The MSMessage instance describing the message to be sent.
+ @param      completionHandler  A completion handler called when the message has been staged or if there was an error.
+ */
+- (void)sendMessage:(MSMessage *)message completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler NS_AVAILABLE_IOS(11_0);
 
+/*!
+ @method     sendSticker:completionHandler:
+ @abstract   Start sending a sticker
+ @param      sticker            The sticker to be inserted.
+ @param      completionHandler  A completion handler called when the insert is complete.
+ */
+- (void)sendSticker:(MSSticker *)sticker completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler NS_AVAILABLE_IOS(11_0);
+
+/*!
+ @method     sendText:completionHandler:
+ @abstract   Start sending text
+ @discussion This method begins sending the provided NSString. The app must be visible and have had a recent touch interaction since either last launch or last send to succeed. If the message started sending successfully, the completion handler will be called with a nil error parameter. Otherwise the error parameter will be populated with an NSError object describing the failure.
+ @param      text               The text to be inserted.
+ @param      completionHandler  A completion handler called when the insert is complete.
+ */
+- (void)sendText:(NSString *)text completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler NS_AVAILABLE_IOS(11_0);
+
+/*!
+ @method     sendAttachment:withAlternateFilename:completionHandler:
+ @abstract   Start sending a file located at the provided URL. This must be a file URL.
+ @discussion This method begins sending the file at the provided file URL. The app must be visible and have had a recent touch interaction since either last launch or last send to succeed. If the message started sending successfully, the completion handler will be called with a nil error parameter. Otherwise the error parameter will be populated with an NSError object describing the failure.
+ @param      URL                The URL to the media file to be inserted.
+ @param      filename           If you supply a string here, the message UI uses it for the attachment. Use an alternate filename to better describe the attachment or to make the name more readable.
+ @param      completionHandler  A completion handler called when the insert is complete.
+ */
+- (void)sendAttachment:(NSURL *)URL withAlternateFilename:(nullable NSString *)filename completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler NS_AVAILABLE_IOS(11_0);
 
 @end
 
@@ -560,8 +634,8 @@ NS_ASSUME_NONNULL_END
  @copyright  Copyright (c) 2016 Apple Inc. All rights reserved.
  */
 
-#import <UIKit/UIKit.h>
 #import <Messages/MSStickerBrowserView.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -608,7 +682,7 @@ NS_ASSUME_NONNULL_BEGIN
  entry in the conversation transcript.
  */
 NS_CLASS_AVAILABLE_IOS(10_0)
-@interface MSSession : NSObject
+@interface MSSession : NSObject <NSSecureCoding>
 @end
 
 NS_ASSUME_NONNULL_END
@@ -629,14 +703,31 @@ NS_ASSUME_NONNULL_BEGIN
  @abstract   Describes how the extension is presented in Messages.
  @constant   MSMessagesAppPresentationStyleCompact     The extension's UI is presented compact in the keyboard area.
  @constant   MSMessagesAppPresentationStyleExpanded   The extension's UI is presented expanded taking up most of the screen.
+ @constant   MSMessagesAppPresentationStyleTranscript   The extension's UI is presented in the transcript of the conversation in Messages.
  */
 typedef NS_ENUM(NSUInteger, MSMessagesAppPresentationStyle) {
     MSMessagesAppPresentationStyleCompact,
-    MSMessagesAppPresentationStyleExpanded
+    MSMessagesAppPresentationStyleExpanded,
+    MSMessagesAppPresentationStyleTranscript NS_ENUM_AVAILABLE_IOS(11_0),
 } NS_ENUM_AVAILABLE_IOS(10_0);
 
 
-@interface MSMessagesAppViewController : UIViewController
+NS_AVAILABLE_IOS(11_0)
+@protocol MSMessagesAppTranscriptPresentation
+
+/*!
+ @method     contentSizeThatFits:
+ @abstract   The content size of the view controller's view fitting the constraining size.
+ @discussion This method will only be called if the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
+ @param      size    The maximum size the view will be displayed at.
+ */
+- (CGSize)contentSizeThatFits:(CGSize)size NS_AVAILABLE_IOS(11_0);
+
+@end
+
+
+NS_CLASS_AVAILABLE_IOS(10_0)
+@interface MSMessagesAppViewController : UIViewController <MSMessagesAppTranscriptPresentation>
 
 /*!
  @property   activeConversation
@@ -653,105 +744,118 @@ typedef NS_ENUM(NSUInteger, MSMessagesAppPresentationStyle) {
 /*!
  @method     requestPresentationStyle:
  @abstract   Requests that Messages transition the extension to the specified presentation style.
- @param      presentationStyle   The presentation style to transition to.
+ @discussion When the current `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`, a new instance of `MSMessagesAppViewController` will be instantiated with the requested presentation style if needed.
+ @param      presentationStyle   The presentation style to transition to. `MSMessagesAppPresentationStyleTranscript` is not a valid presentation style to request.
  */
--(void)requestPresentationStyle:(MSMessagesAppPresentationStyle)presentationStyle;
-
-/*!
- @method    dismiss
- @abstract  Tells the Messages to dismiss the extension and present the keyboard.
- */
--(void)dismiss;
+- (void)requestPresentationStyle:(MSMessagesAppPresentationStyle)presentationStyle;
 
 /*!
  @method     willBecomeActiveWithConversation:
  @abstract   Called when the extension is about to become active.
  @param      conversation   The current conversation.
  */
--(void)willBecomeActiveWithConversation:(MSConversation *)conversation;
+- (void)willBecomeActiveWithConversation:(MSConversation *)conversation;
 
 /*!
  @method     didBecomeActiveWithConversation:
  @abstract   Called when the extension has become active active.
  @param      conversation   The current conversation.
  */
--(void)didBecomeActiveWithConversation:(MSConversation *)conversation;
+- (void)didBecomeActiveWithConversation:(MSConversation *)conversation;
 
 /*!
  @method     willResignActiveWithConversation:
  @abstract   Called when the extension will resign active.
  @param      conversation   The current conversation.
  */
--(void)willResignActiveWithConversation:(MSConversation *)conversation;
+- (void)willResignActiveWithConversation:(MSConversation *)conversation;
 
 /*!
  @method     didResignActiveWithConversation:
  @abstract   Called when the extension has resigned active.
  @param      conversation   The current conversation.
  */
--(void)didResignActiveWithConversation:(MSConversation *)conversation;
+- (void)didResignActiveWithConversation:(MSConversation *)conversation;
+
+@end
+
+
+@interface MSMessagesAppViewController (CompactOrExpandedPresentation)
+
+/*!
+ @method     dismiss
+ @abstract   Tells Messages to dismiss the extension and present the keyboard.
+ @discussion Calling this method does nothing when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
+ */
+- (void)dismiss NS_AVAILABLE_IOS(10_0);
 
 /*!
  @method     willSelectMessage:conversation:
  @abstract   Informs the extension that a new message will be selected in the conversation.
+ @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
  @param      message    The message selected.
  @param      conversation    The conversation.
  */
--(void)willSelectMessage:(MSMessage *)message conversation:(MSConversation *)conversation;
-
+- (void)willSelectMessage:(MSMessage *)message conversation:(MSConversation *)conversation NS_AVAILABLE_IOS(10_0);
 
 /*!
  @method     didSelectMessage:conversation:
  @abstract   Informs the extension that a new message has been selected in the conversation.
+ @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
  @param      message    The message selected.
  @param      conversation    The conversation.
  */
--(void)didSelectMessage:(MSMessage *)message conversation:(MSConversation *)conversation;
+- (void)didSelectMessage:(MSMessage *)message conversation:(MSConversation *)conversation NS_AVAILABLE_IOS(10_0);
 
 /*!
  @method     didReceiveMessage:conversation:
  @abstract   Informs the extension that a new message has arrived.
+ @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
  @param      message    The message received.
  @param      conversation    The conversation.
  */
--(void)didReceiveMessage:(MSMessage *)message conversation:(MSConversation *)conversation;
+- (void)didReceiveMessage:(MSMessage *)message conversation:(MSConversation *)conversation NS_AVAILABLE_IOS(10_0);
 
 /*!
  @method     didStartSendingMessage:conversation:
  @abstract   Informs the extension that the message send has been triggered.
- @discussion This is called when a user interaction with Messages start the message
- send process. It does not guarantee  that the message will be successfully sent or
- delivered.
+ @discussion This is called when a user interaction with Messages start the message send process. It does not guarantee the message will be successfully sent or delivered. This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
  @param      message    The message being sent.
  @param      conversation    The conversation the message belongs to.
  */
--(void)didStartSendingMessage:(MSMessage *)message conversation:(MSConversation *)conversation;
+- (void)didStartSendingMessage:(MSMessage *)message conversation:(MSConversation *)conversation NS_AVAILABLE_IOS(10_0);
 
 /*!
  @method     didCancelSendingMessage:conversation:
  @abstract   Informs the extension that the user has removed the message from the input field.
+ @discussion This method will not be called when the `presentationStyle` is MSMessagesAppPresentationStyleTranscript.
  @param      message    The message sent.
  @param      conversation    The conversation.
  */
--(void)didCancelSendingMessage:(MSMessage *)message conversation:(MSConversation *)conversation;
+- (void)didCancelSendingMessage:(MSMessage *)message conversation:(MSConversation *)conversation NS_AVAILABLE_IOS(10_0);
 
 /*!
  @method     willTransitionToPresentationStyle:
  @abstract   Called when the extension is about to transition to a new presentation style.
+ @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
  @param      presentationStyle   The new presentation style.
  */
--(void)willTransitionToPresentationStyle:(MSMessagesAppPresentationStyle)presentationStyle;
+- (void)willTransitionToPresentationStyle:(MSMessagesAppPresentationStyle)presentationStyle NS_AVAILABLE_IOS(10_0);
 
 /*!
  @method     didTransitionToPresentationStyle:
  @abstract   Called when the extension finished transitioning to a presentation style.
+ @discussion This method will not be called when the `presentationStyle` is `MSMessagesAppPresentationStyleTranscript`.
  @param      presentationStyle   The new presentation style.
  */
--(void)didTransitionToPresentationStyle:(MSMessagesAppPresentationStyle)presentationStyle;
+- (void)didTransitionToPresentationStyle:(MSMessagesAppPresentationStyle)presentationStyle NS_AVAILABLE_IOS(10_0);
 
 @end
 
+
 NS_ASSUME_NONNULL_END
+
+
 // ==========  Messages.framework/Headers/MSStickerBrowserViewDataSource.h
 /*!
  @header     MSStickerBrowserViewDataSource

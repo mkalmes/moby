@@ -182,7 +182,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
 /// List of all transactions that are incomplete.
 @property (nonatomic, readonly, copy) NSArray<CXTransaction *> *pendingTransactions;
 
-/// Returns subset of call actions contained in any transaction in -pendingTransactions of the specified class and with the specified call UUID
+/// Returns subset of call actions contained in any transaction in -pendingTransactions of the specified class and with the specified call UUID.
 - (NSArray<__kindof CXCallAction *> *)pendingCallActionsOfClass:(Class)callActionClass withCallUUID:(NSUUID *)callUUID;
 
 @end
@@ -247,11 +247,27 @@ CX_CLASS_AVAILABLE(ios(10.0))
 
 /// Request a transaction to be performed by the in-app provider.
 ///
-/// If the completion block is called with a nil error, then the transaction will be passed back via the executeTransaction delegate callback.
+/// If the completion block is called with a nil error, then the transaction will be passed to the CXProvider's -provider:executeTransaction: delegate callback.
 /// A non-nil error indicates that the requested transaction could not be executed.
 ///
 /// Completion block is performed on the queue supplied to designated initializer.
 - (void)requestTransaction:(CXTransaction *)transaction completion:(void (^)(NSError *_Nullable error))completion;
+
+/// Request a transaction containing the specified actions to be performed by the in-app provider.
+///
+/// If the completion block is called with a nil error, then the transaction will be passed to the CXProvider's -provider:executeTransaction: delegate callback.
+/// A non-nil error indicates that the requested transaction could not be executed.
+///
+/// Completion block is performed on the queue supplied to designated initializer.
+- (void)requestTransactionWithActions:(NSArray<CXAction *> *)actions completion:(void (^)(NSError *_Nullable error))completion API_AVAILABLE(ios(11.0));
+
+/// Request a transaction containing the specified action to be performed by the in-app provider.
+///
+/// If the completion block is called with a nil error, then the transaction will be passed to the CXProvider's -provider:executeTransaction: delegate callback.
+/// A non-nil error indicates that the requested transaction could not be executed.
+///
+/// Completion block is performed on the queue supplied to designated initializer.
+- (void)requestTransactionWithAction:(CXAction *)action completion:(void (^)(NSError *_Nullable error))completion API_AVAILABLE(ios(11.0));
 
 @end
 
@@ -321,9 +337,57 @@ CX_CLASS_AVAILABLE(ios(10.0))
 
 @property (nonatomic, weak, nullable) id<CXCallDirectoryExtensionContextDelegate> delegate;
 
+/**
+ Whether the request should provide incremental data.
+
+ If this is called at the beginning of the request (before any entries have been added or removed) and the result is YES,
+ then the request must only provide an "incremental" set of entries, i.e. only add or remove entries relative to the last time data
+ was loaded for the extension. Otherwise, if this method is not called OR is called and returns NO, then the request must provide
+ a "complete" set of entries, adding the full list of entries from scratch (and removing none), regardless of whether data has ever been
+ successfully loaded in the past.
+ */
+@property (nonatomic, readonly, getter=isIncremental) BOOL incremental API_AVAILABLE(ios(11.0));
+
 - (void)addBlockingEntryWithNextSequentialPhoneNumber:(CXCallDirectoryPhoneNumber)phoneNumber;
 
+/**
+ Remove blocking entry with the specified phone number.
+
+ May only be used when `-isIncremental` returns YES, indicating that the request should provide incremental entries and thus may use this
+ API to remove a previously-added blocking entry.
+
+ @param phoneNumber The blocking entry phone number to remove.
+ */
+- (void)removeBlockingEntryWithPhoneNumber:(CXCallDirectoryPhoneNumber)phoneNumber API_AVAILABLE(ios(11.0));
+
+/**
+ Remove all currently-stored blocking entries.
+
+ May only be used when `-isIncremental` returns YES, indicating that the request should provide incremental entries and thus may use this
+ API to remove all previously-added blocking entries.
+ */
+- (void)removeAllBlockingEntries API_AVAILABLE(ios(11.0));
+
 - (void)addIdentificationEntryWithNextSequentialPhoneNumber:(CXCallDirectoryPhoneNumber)phoneNumber label:(NSString *)label;
+
+/**
+ Remove identification entry with the specified phone number.
+
+ May only be used when `-isIncremental` returns YES, indicating that the request should provide incremental entries and thus may use this
+ API to remove a previously-added identification entry. Removes all identification entries with the specified phone number, even if
+ multiple identification entries with different labels are present for a single phone number.
+
+ @param phoneNumber The identification entry phone number to remove.
+ */
+- (void)removeIdentificationEntryWithPhoneNumber:(CXCallDirectoryPhoneNumber)phoneNumber API_AVAILABLE(ios(11.0));
+
+/**
+ Remove all currently-stored identification entries.
+
+ May only be used when `-isIncremental` returns YES, indicating that the request should provide incremental entries and thus may use this
+ API to remove all previously-added identification entries.
+ */
+- (void)removeAllIdentificationEntries API_AVAILABLE(ios(11.0));
 
 - (void)completeRequestWithCompletionHandler:(nullable void (^)(BOOL expired))completion;
 
@@ -519,7 +583,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
 ///
 /// - If the call for this action's UUID is already in a group, it should leave that group if necessary.
 /// - If nil, leave any group the call is currently in.
-@property (nonatomic, nullable) NSUUID *callUUIDToGroupWith;
+@property (nonatomic, copy, nullable) NSUUID *callUUIDToGroupWith;
 
 @end
 
@@ -612,9 +676,6 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 #define CX_CLASS_AVAILABLE(...) CX_EXTERN API_AVAILABLE(__VA_ARGS__)
-
-#define CXBundleIdentifier "com.apple.CallKit"
-#define CXBundleIdentifierLowercase "com.apple.callkit"
 
 NS_ASSUME_NONNULL_END
 // ==========  CallKit.framework/Headers/CXCallDirectoryManager.h
@@ -717,16 +778,16 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_EXTERN NSString *const CXErrorDomain API_AVAILABLE(ios(10.0));
-CX_EXTERN NSString *const CXErrorDomainIncomingCall API_AVAILABLE(ios(10.0));
-CX_EXTERN NSString *const CXErrorDomainRequestTransaction API_AVAILABLE(ios(10.0));
-CX_EXTERN NSString *const CXErrorDomainCallDirectoryManager API_AVAILABLE(ios(10.0));
+CX_EXTERN NSErrorDomain const CXErrorDomain API_AVAILABLE(ios(10.0));
+CX_EXTERN NSErrorDomain const CXErrorDomainIncomingCall API_AVAILABLE(ios(10.0));
+CX_EXTERN NSErrorDomain const CXErrorDomainRequestTransaction API_AVAILABLE(ios(10.0));
+CX_EXTERN NSErrorDomain const CXErrorDomainCallDirectoryManager API_AVAILABLE(ios(10.0));
 
-typedef NS_ENUM(NSInteger, CXErrorCode) {
+typedef NS_ERROR_ENUM(CXErrorDomain, CXErrorCode) {
     CXErrorCodeUnknownError = 0,
 } API_AVAILABLE(ios(10.0));
 
-typedef NS_ENUM(NSInteger, CXErrorCodeIncomingCallError) {
+typedef NS_ERROR_ENUM(CXErrorDomainIncomingCall, CXErrorCodeIncomingCallError) {
     CXErrorCodeIncomingCallErrorUnknown = 0,
     CXErrorCodeIncomingCallErrorUnentitled = 1,
     CXErrorCodeIncomingCallErrorCallUUIDAlreadyExists = 2,
@@ -734,7 +795,7 @@ typedef NS_ENUM(NSInteger, CXErrorCodeIncomingCallError) {
     CXErrorCodeIncomingCallErrorFilteredByBlockList = 4,
 } API_AVAILABLE(ios(10.0));
 
-typedef NS_ENUM(NSInteger, CXErrorCodeRequestTransactionError) {
+typedef NS_ERROR_ENUM(CXErrorDomainRequestTransaction, CXErrorCodeRequestTransactionError) {
     CXErrorCodeRequestTransactionErrorUnknown = 0,
     CXErrorCodeRequestTransactionErrorUnentitled = 1,
     CXErrorCodeRequestTransactionErrorUnknownCallProvider = 2,
@@ -745,7 +806,7 @@ typedef NS_ENUM(NSInteger, CXErrorCodeRequestTransactionError) {
     CXErrorCodeRequestTransactionErrorMaximumCallGroupsReached = 7,
 } API_AVAILABLE(ios(10.0));
 
-typedef NS_ENUM(NSInteger, CXErrorCodeCallDirectoryManagerError) {
+typedef NS_ERROR_ENUM(CXErrorDomainCallDirectoryManager, CXErrorCodeCallDirectoryManagerError) {
     CXErrorCodeCallDirectoryManagerErrorUnknown = 0,
     CXErrorCodeCallDirectoryManagerErrorNoExtensionFound = 1,
     CXErrorCodeCallDirectoryManagerErrorLoadingInterrupted = 2,
@@ -753,6 +814,8 @@ typedef NS_ENUM(NSInteger, CXErrorCodeCallDirectoryManagerError) {
     CXErrorCodeCallDirectoryManagerErrorDuplicateEntries = 4,
     CXErrorCodeCallDirectoryManagerErrorMaximumEntriesExceeded = 5,
     CXErrorCodeCallDirectoryManagerErrorExtensionDisabled = 6,
+    CXErrorCodeCallDirectoryManagerErrorCurrentlyLoading API_AVAILABLE(ios(10.3)) = 7,
+    CXErrorCodeCallDirectoryManagerErrorUnexpectedIncrementalRemoval API_AVAILABLE(ios(11.0)) = 8,
 } API_AVAILABLE(ios(10.0));
 
 NS_ASSUME_NONNULL_END
@@ -782,12 +845,16 @@ CX_CLASS_AVAILABLE(ios(10.0))
 @property (nonatomic) NSUInteger maximumCallGroups; // Default 2
 @property (nonatomic) NSUInteger maximumCallsPerCallGroup; // Default 5
 
+/// Whether this provider's calls should be included in the system's Recents list at the end of each call.
+/// Default: YES
+@property (nonatomic) BOOL includesCallsInRecents API_AVAILABLE(ios(11.0));
+
 @property (nonatomic) BOOL supportsVideo; // Default NO
 
 // Numbers are of type CXHandleType
 @property (nonatomic, copy) NSSet<NSNumber *> *supportedHandleTypes;
 
-- (instancetype)initWithLocalizedName:(NSString *)localizedName;
+- (instancetype)initWithLocalizedName:(NSString *)localizedName NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 
 @end

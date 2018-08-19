@@ -265,7 +265,7 @@ NS_CLASS_AVAILABLE(10_10, 7_0)
 - (void)                    session:(MCSession *)session
  didFinishReceivingResourceWithName:(NSString *)resourceName
                            fromPeer:(MCPeerID *)peerID
-                              atURL:(NSURL *)localURL
+                              atURL:(nullable NSURL *)localURL
                           withError:(nullable NSError *)error;
 
 @optional
@@ -302,7 +302,7 @@ NS_CLASS_AVAILABLE(10_10, 7_0)
 
 // Gets the connection data for a remote peer.
 - (void)nearbyConnectionDataForPeer:(MCPeerID *)peerID
-              withCompletionHandler:(void (^)(NSData *connectionData, NSError * __nullable error))completionHandler;
+              withCompletionHandler:(void (^)(NSData * __nullable connectionData, NSError * __nullable error))completionHandler;
 
 // Connect a peer to the session once connection data is received.
 - (void)connectPeer:(MCPeerID *)peerID withNearbyConnectionData:(NSData *)data;

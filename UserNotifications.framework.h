@@ -114,8 +114,8 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 // The method will be called on the delegate only if the application is in the foreground. If the method is not implemented or the handler is not called in a timely manner then the notification will not be presented. The application can choose to have the notification presented as a sound, badge, alert and/or in the notification list. This decision should be based on whether the information in the notification is otherwise visible to the user.
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
 
-// The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction. The delegate must be set before the application returns from applicationDidFinishLaunching:.
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
+// The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction. The delegate must be set before the application returns from application:didFinishLaunchingWithOptions:.
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
 
 @end
 
@@ -178,15 +178,21 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_OPTIONS(NSUInteger, UNNotificationCategoryOptions) {
-    UNNotificationCategoryOptionNone = (0),
     
     // Whether dismiss action should be sent to the UNUserNotificationCenter delegate
     UNNotificationCategoryOptionCustomDismissAction = (1 << 0),
     
     // Whether notifications of this category should be allowed in CarPlay
-    UNNotificationCategoryOptionAllowInCarPlay = (2 << 0),
+    UNNotificationCategoryOptionAllowInCarPlay = (1 << 1),
+    
+    // Whether the title should be shown if the user has previews off
+    UNNotificationCategoryOptionHiddenPreviewsShowTitle __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED = (1 << 2),
+    // Whether the subtitle should be shown if the user has previews off
+    UNNotificationCategoryOptionHiddenPreviewsShowSubtitle __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED  = (1 << 3),
 
 } __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED;
+
+static const UNNotificationCategoryOptions UNNotificationCategoryOptionNone NS_SWIFT_UNAVAILABLE("Use [] instead.") __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED = 0;
 
 __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
 @interface UNNotificationCategory : NSObject <NSCopying, NSSecureCoding>
@@ -202,7 +208,12 @@ __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
 
 @property (NS_NONATOMIC_IOSONLY, readonly) UNNotificationCategoryOptions options;
 
+// The format string that will replace the notification body if previews are hidden.
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *hiddenPreviewsBodyPlaceholder __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED;
+
 + (instancetype)categoryWithIdentifier:(NSString *)identifier actions:(NSArray<UNNotificationAction *> *)actions intentIdentifiers:(NSArray<NSString *> *)intentIdentifiers options:(UNNotificationCategoryOptions)options;
+
++ (instancetype)categoryWithIdentifier:(NSString *)identifier actions:(NSArray<UNNotificationAction *> *)actions intentIdentifiers:(NSArray<NSString *> *)intentIdentifiers hiddenPreviewsBodyPlaceholder:(NSString *)hiddenPreviewsBodyPlaceholder options:(UNNotificationCategoryOptions)options __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -460,7 +471,7 @@ __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0) __TVOS_PROHIBITED
 // The default sound used for notifications.
 + (instancetype)defaultSound;
 
-// The name of a sound file to be played for the notification. The sound file must be contained in the app’s bundle or in the Library/Sounds folder of the app's data container. If files exist in both locations then the file in ~/Library/Sounds will be preferred.
+// The name of a sound file to be played for the notification. The sound file must be contained in the app’s bundle or in the Library/Sounds folder of the app's data container. If files exist in both locations then the file in the app's data container will be preferred.
 + (instancetype)soundNamed:(NSString *)name __WATCHOS_PROHIBITED;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -644,6 +655,17 @@ typedef NS_ENUM(NSInteger, UNAuthorizationStatus) {
     UNAuthorizationStatusAuthorized
 } __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
 
+typedef NS_ENUM(NSInteger, UNShowPreviewsSetting) {
+    // Notification previews are always shown.
+    UNShowPreviewsSettingAlways,
+    
+    // Notifications previews are only shown when authenticated.
+    UNShowPreviewsSettingWhenAuthenticated,
+    
+    // Notifications previews are never shown.
+    UNShowPreviewsSettingNever
+} __IOS_AVAILABLE(11.0) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+
 typedef NS_ENUM(NSInteger, UNNotificationSetting) {
     // The application does not support this notification type
     UNNotificationSettingNotSupported  = 0,
@@ -676,6 +698,7 @@ __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0)
 
 @property (NS_NONATOMIC_IOSONLY, readonly) UNAlertStyle alertStyle __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
+@property (NS_NONATOMIC_IOSONLY, readonly) UNShowPreviewsSetting showPreviewsSetting  __IOS_AVAILABLE(11.0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 - (instancetype)init NS_UNAVAILABLE;
 
 @end

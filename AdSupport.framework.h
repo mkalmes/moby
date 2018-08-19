@@ -26,9 +26,9 @@
 NS_CLASS_AVAILABLE(NA, 6_0)
 @interface ASIdentifierManager : NSObject
 
-+ (ASIdentifierManager *)sharedManager;
++ (ASIdentifierManager * _Nonnull)sharedManager;
 
-@property (nonatomic,readonly) NSUUID *advertisingIdentifier;
-@property (nonatomic,readonly,getter=isAdvertisingTrackingEnabled) BOOL advertisingTrackingEnabled;
+@property (nonnull, nonatomic, readonly) NSUUID *advertisingIdentifier;
+@property (nonatomic, readonly, getter=isAdvertisingTrackingEnabled) BOOL advertisingTrackingEnabled;
 
 @end

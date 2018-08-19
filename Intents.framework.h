@@ -3,7 +3,7 @@
 //  INRestaurantReservationBooking.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -16,7 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 // represents a booking at a restaurant during a given time for a given party size
 @interface INRestaurantReservationBooking : NSObject <NSSecureCoding, NSCopying>
 
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_END
 //  INGetAvailableRestaurantReservationBookingDefaultsIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -59,7 +59,7 @@ typedef NS_ENUM(NSInteger, INGetAvailableRestaurantReservationBookingDefaultsInt
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INGetAvailableRestaurantReservationBookingDefaultsIntentResponse : INIntentResponse
 
 @property (readonly, NS_NONATOMIC_IOSONLY) NSUInteger defaultPartySize; // default party size for an available bookings request
@@ -74,22 +74,93 @@ API_UNAVAILABLE(macosx)
 
 @end
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCancelRideIntentResponse.h
+//
+//  INCancelRideIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INCurrencyAmount;
+
+typedef NS_ENUM(NSInteger, INCancelRideIntentResponseCode) {
+    INCancelRideIntentResponseCodeUnspecified = 0,
+    INCancelRideIntentResponseCodeReady,
+    INCancelRideIntentResponseCodeSuccess,
+    INCancelRideIntentResponseCodeFailure,
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, macos);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0))
+API_UNAVAILABLE(watchos, macos)
+@interface INCancelRideIntentResponse : INIntentResponse
+
+- (instancetype)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INCancelRideIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INCancelRideIntentResponseCode code;
+@property (readwrite, nullable, NS_NONATOMIC_IOSONLY) INCurrencyAmount *cancellationFee; // Used during confirmation to warn the user about any cancellation fees
+@property (readwrite, nullable, NS_NONATOMIC_IOSONLY) NSDateComponents *cancellationFeeThreshold; // The time after which canceling the ride will incur the cancellation fee
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCallRecordTypeOptionsResolutionResult.h
+//
+//  INCallRecordTypeOptionsResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INCallRecordTypeOptions.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13))
+@interface INCallRecordTypeOptionsResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCallRecordTypeOptions. The resolvedValue can be different than the original INCallRecordTypeOptions. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedCallRecordTypeOptions:(INCallRecordTypeOptions)resolvedCallRecordTypeOptions NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INCallRecordTypeOptions)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCallRecordTypeOptions:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithCallRecordTypeOptionsToConfirm:(INCallRecordTypeOptions)callRecordTypeOptionsToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INCallRecordTypeOptions)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCallRecordTypeOptionsToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INDoubleResolutionResult.h
 //
 //  INDoubleResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INDoubleResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given number. The resolvedValue can be different than the original number. This allows app extensions to apply business logic constraints. For example, the extension could precisely control rounding the value.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedValue:(double)resolvedValue NS_SWIFT_NAME(success(with:));
 
 // This resolution result is to ask Siri to confirm if this is the double value with which the user wants to continue.
@@ -103,29 +174,51 @@ NS_ASSUME_NONNULL_END
 //  INCarDefroster.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INCarDefroster_h
 #define INCarDefroster_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INCarDefroster) {
     INCarDefrosterUnknown = 0,
     INCarDefrosterFront,
     INCarDefrosterRear,
-};
+    INCarDefrosterAll,
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INCarDefroster_h
+// ==========  Intents.framework/Headers/INVisualCodeType.h
+//
+//  INVisualCodeType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INVisualCodeType_h
+#define INVisualCodeType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INVisualCodeType) {
+    INVisualCodeTypeUnknown = 0,
+    INVisualCodeTypeContact,
+    INVisualCodeTypeRequestPayment,
+    INVisualCodeTypeSendPayment,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INVisualCodeType_h
 // ==========  Intents.framework/Headers/INMessageAttributeResolutionResult.h
 //
 //  INMessageAttributeResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -134,13 +227,19 @@ typedef NS_ENUM(NSInteger, INCarDefroster) {
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 @interface INMessageAttributeResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INMessageAttribute)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INMessageAttribute. The resolvedValue can be different than the original INMessageAttribute. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedMessageAttribute:(INMessageAttribute)resolvedMessageAttribute NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INMessageAttribute)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedMessageAttribute:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INMessageAttribute)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithMessageAttributeToConfirm:(INMessageAttribute)messageAttributeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INMessageAttribute)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithMessageAttributeToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
 
 @end
 
@@ -150,7 +249,7 @@ NS_ASSUME_NONNULL_END
 //  INSaveProfileInCarIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -162,12 +261,12 @@ typedef NS_ENUM(NSInteger, INSaveProfileInCarIntentResponseCode) {
     INSaveProfileInCarIntentResponseCodeSuccess,
     INSaveProfileInCarIntentResponseCodeFailure,
     INSaveProfileInCarIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos, macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSaveProfileInCarIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -182,67 +281,186 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INGetCarPowerLevelStatusIntentResponse.h
+//
+//  INGetCarPowerLevelStatusIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+typedef NS_ENUM(NSInteger, INGetCarPowerLevelStatusIntentResponseCode) {
+    INGetCarPowerLevelStatusIntentResponseCodeUnspecified = 0,
+    INGetCarPowerLevelStatusIntentResponseCodeReady,
+    INGetCarPowerLevelStatusIntentResponseCodeInProgress,
+    INGetCarPowerLevelStatusIntentResponseCodeSuccess,
+    INGetCarPowerLevelStatusIntentResponseCodeFailure,
+    INGetCarPowerLevelStatusIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INGetCarPowerLevelStatusIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INGetCarPowerLevelStatusIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INGetCarPowerLevelStatusIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *fuelPercentRemaining NS_REFINED_FOR_SWIFT;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *chargePercentRemaining NS_REFINED_FOR_SWIFT;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSMeasurement<NSUnitLength *> *distanceRemaining;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INIntents.h
 //
 //  INIntents.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
-// Calls Intents
+#import <Intents/INSearchCallHistoryIntent.h>
 #import <Intents/INStartAudioCallIntent.h>
 #import <Intents/INStartVideoCallIntent.h>
-#import <Intents/INSearchCallHistoryIntent.h>
 
-// CarPlay Intents
+#import <Intents/INActivateCarSignalIntent.h>
+#import <Intents/INGetCarLockStatusIntent.h>
+#import <Intents/INGetCarPowerLevelStatusIntent.h>
+#import <Intents/INSaveProfileInCarIntent.h>
 #import <Intents/INSetAudioSourceInCarIntent.h>
+#import <Intents/INSetCarLockStatusIntent.h>
 #import <Intents/INSetClimateSettingsInCarIntent.h>
 #import <Intents/INSetDefrosterSettingsInCarIntent.h>
-#import <Intents/INSetSeatSettingsInCarIntent.h>
 #import <Intents/INSetProfileInCarIntent.h>
-#import <Intents/INSaveProfileInCarIntent.h>
+#import <Intents/INSetSeatSettingsInCarIntent.h>
 
-// Messages Intents
-#import <Intents/INSendMessageIntent.h>
-#import <Intents/INSearchForMessagesIntent.h>
-#import <Intents/INSetMessageAttributeIntent.h>
+#import <Intents/INCancelWorkoutIntent.h>
+#import <Intents/INEndWorkoutIntent.h>
+#import <Intents/INPauseWorkoutIntent.h>
+#import <Intents/INResumeWorkoutIntent.h>
+#import <Intents/INStartWorkoutIntent.h>
 
-// Radio Intents
 #import <Intents/INSetRadioStationIntent.h>
 
-// Payments Intents
-#import <Intents/INSendPaymentIntent.h>
-#import <Intents/INRequestPaymentIntent.h>
+#import <Intents/INSearchForMessagesIntent.h>
+#import <Intents/INSendMessageIntent.h>
+#import <Intents/INSetMessageAttributeIntent.h>
 
-// Photos Intents
+#import <Intents/INAddTasksIntent.h>
+#import <Intents/INAppendToNoteIntent.h>
+#import <Intents/INCreateNoteIntent.h>
+#import <Intents/INCreateTaskListIntent.h>
+#import <Intents/INSearchForNotebookItemsIntent.h>
+#import <Intents/INSetTaskAttributeIntent.h>
+
+#import <Intents/INPayBillIntent.h>
+#import <Intents/INRequestPaymentIntent.h>
+#import <Intents/INSearchForAccountsIntent.h>
+#import <Intents/INSearchForBillsIntent.h>
+#import <Intents/INSendPaymentIntent.h>
+#import <Intents/INTransferMoneyIntent.h>
+
 #import <Intents/INSearchForPhotosIntent.h>
 #import <Intents/INStartPhotoPlaybackIntent.h>
 
-// Ridesharing Intents
+#import <Intents/INGetRideStatusIntent.h>
 #import <Intents/INListRideOptionsIntent.h>
 #import <Intents/INRequestRideIntent.h>
-#import <Intents/INGetRideStatusIntent.h>
+#import <Intents/INCancelRideIntent.h>
+#import <Intents/INSendRideFeedbackIntent.h>
 
-// Workouts Intents
-#import <Intents/INStartWorkoutIntent.h>
-#import <Intents/INPauseWorkoutIntent.h>
-#import <Intents/INEndWorkoutIntent.h>
-#import <Intents/INCancelWorkoutIntent.h>
-#import <Intents/INResumeWorkoutIntent.h>
+#import <Intents/INGetVisualCodeIntent.h>
+
+// ==========  Intents.framework/Headers/INSendRideFeedbackIntentResponse.h
+//
+//  INSendRideFeedbackIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+typedef NS_ENUM(NSInteger, INSendRideFeedbackIntentResponseCode) {
+    INSendRideFeedbackIntentResponseCodeUnspecified = 0,
+    INSendRideFeedbackIntentResponseCodeReady,
+    INSendRideFeedbackIntentResponseCodeSuccess,
+    INSendRideFeedbackIntentResponseCodeFailure,
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, macos);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0))
+API_UNAVAILABLE(watchos, macos)
+@interface INSendRideFeedbackIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INSendRideFeedbackIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INSendRideFeedbackIntentResponseCode code;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSearchForMessagesIntent_Deprecated.h
+//
+//  INRequestRideIntent_Deprecated.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INSearchForMessagesIntent.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INSearchForMessagesIntent (DeprecatedSearchForMessages)
+
+- (instancetype)initWithRecipients:(nullable NSArray<INPerson *> *)recipients
+                           senders:(nullable NSArray<INPerson *> *)senders
+                       searchTerms:(nullable NSArray<NSString *> *)searchTerms
+                        attributes:(INMessageAttributeOptions)attributes
+                     dateTimeRange:(nullable INDateComponentsRange *)dateTimeRange
+                       identifiers:(nullable NSArray<NSString *> *)identifiers
+           notificationIdentifiers:(nullable NSArray<NSString *> *)notificationIdentifiers
+                        groupNames:(nullable NSArray<NSString *> *)groupNames API_DEPRECATED("Use the designated initializer instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *groupNames API_DEPRECATED("Use speakableGroupNames instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator groupNamesOperator API_DEPRECATED("Use speakableGroupNamesOperator instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INCarSeat.h
 //
 //  INCarSeat.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INCarSeat_h
 #define INCarSeat_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INCarSeat) {
@@ -258,7 +476,8 @@ typedef NS_ENUM(NSInteger, INCarSeat) {
     INCarSeatThirdRowLeft,
     INCarSeatThirdRowRight,
     INCarSeatThirdRow,
-};
+    INCarSeatAll,
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INCarSeat_h
 // ==========  Intents.framework/Headers/INSetDefrosterSettingsInCarIntentResponse.h
@@ -266,7 +485,7 @@ typedef NS_ENUM(NSInteger, INCarSeat) {
 //  INSetDefrosterSettingsInCarIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -278,12 +497,12 @@ typedef NS_ENUM(NSInteger, INSetDefrosterSettingsInCarIntentResponseCode) {
     INSetDefrosterSettingsInCarIntentResponseCodeSuccess,
     INSetDefrosterSettingsInCarIntentResponseCodeFailure,
     INSetDefrosterSettingsInCarIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos, macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetDefrosterSettingsInCarIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -303,21 +522,27 @@ NS_ASSUME_NONNULL_END
 //  INStartAudioCallIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
 #import <Intents/INIntentResolutionResult.h>
 
+#import <Intents/INCallDestinationType.h>
+
+@class INCallDestinationTypeResolutionResult;
 @class INPerson;
 @class INPersonResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 @interface INStartAudioCallIntent : INIntent
 
-- (instancetype)initWithContacts:(nullable NSArray<INPerson *> *)contacts NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithDestinationType:(INCallDestinationType)destinationType
+                               contacts:(nullable NSArray<INPerson *> *)contacts NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallDestinationType destinationType API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 // Recipients of the audio call.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPerson *> *contacts;
@@ -327,62 +552,58 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 @class INStartAudioCallIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INStartAudioCallIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INStartAudioCallIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 @protocol INStartAudioCallIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INStartAudioCallIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INStartAudioCallIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  startAudioCallIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INStartAudioCallIntentResponse containing the details of the result of having executed the intent
 
  @see  INStartAudioCallIntentResponse
  */
 
 - (void)handleStartAudioCall:(INStartAudioCallIntent *)intent
-                  completion:(void (^)(INStartAudioCallIntentResponse *response))completion NS_SWIFT_NAME(handle(startAudioCall:completion:));
+                  completion:(void (^)(INStartAudioCallIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  startAudioCallIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INStartAudioCallIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INStartAudioCallIntentResponse
-
  */
 
 - (void)confirmStartAudioCall:(INStartAudioCallIntent *)intent
-                   completion:(void (^)(INStartAudioCallIntentResponse *response))completion NS_SWIFT_NAME(confirm(startAudioCall:completion:));
+                   completion:(void (^)(INStartAudioCallIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  startAudioCallIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
+- (void)resolveDestinationTypeForStartAudioCall:(INStartAudioCallIntent *)intent
+                    withCompletion:(void (^)(INCallDestinationTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDestinationType(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
 - (void)resolveContactsForStartAudioCall:(INStartAudioCallIntent *)intent
-                          withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveContacts(forStartAudioCall:with:));
+                    withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveContacts(for:with:));
 
 @end
 
@@ -392,7 +613,7 @@ NS_ASSUME_NONNULL_END
 //  INSetClimateSettingsInCarIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -404,12 +625,12 @@ typedef NS_ENUM(NSInteger, INSetClimateSettingsInCarIntentResponseCode) {
     INSetClimateSettingsInCarIntentResponseCodeSuccess,
     INSetClimateSettingsInCarIntentResponseCodeFailure,
     INSetClimateSettingsInCarIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos, macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetClimateSettingsInCarIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -424,12 +645,38 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAccountType.h
+//
+//  INAccountType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INAccountType_h
+#define INAccountType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INAccountType) {
+    INAccountTypeUnknown = 0,
+    INAccountTypeChecking,
+    INAccountTypeCredit,
+    INAccountTypeDebit,
+    INAccountTypeInvestment,
+    INAccountTypeMortgage,
+    INAccountTypePrepaid,
+    INAccountTypeSaving,
+} API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+#endif // INAccountType_h
 // ==========  Intents.framework/Headers/INSetAudioSourceInCarIntentResponse.h
 //
 //  INSetAudioSourceInCarIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -441,12 +688,12 @@ typedef NS_ENUM(NSInteger, INSetAudioSourceInCarIntentResponseCode) {
     INSetAudioSourceInCarIntentResponseCodeSuccess,
     INSetAudioSourceInCarIntentResponseCodeFailure,
     INSetAudioSourceInCarIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos, macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetAudioSourceInCarIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -466,7 +713,7 @@ NS_ASSUME_NONNULL_END
 //  INGetUserCurrentRestaurantReservationBookingsIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -485,7 +732,7 @@ typedef NS_ENUM(NSInteger, INGetUserCurrentRestaurantReservationBookingsIntentRe
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INGetUserCurrentRestaurantReservationBookingsIntentResponse : INIntentResponse
 
 - (instancetype)initWithUserCurrentBookings:(NSArray<INRestaurantReservationUserBooking *> *)userCurrentBookings code:(INGetUserCurrentRestaurantReservationBookingsIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
@@ -501,7 +748,7 @@ NS_ASSUME_NONNULL_END
 //  INPaymentMethod.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -512,7 +759,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INPaymentMethod : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -544,7 +791,7 @@ NS_ASSUME_NONNULL_END
 //  INSetRadioStationIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -557,12 +804,12 @@ typedef NS_ENUM(NSInteger, INSetRadioStationIntentResponseCode) {
     INSetRadioStationIntentResponseCodeFailure,
     INSetRadioStationIntentResponseCodeFailureRequiringAppLaunch,
     INSetRadioStationIntentResponseCodeFailureNotSubscribed,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos, macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetRadioStationIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -582,7 +829,7 @@ NS_ASSUME_NONNULL_END
 //  INPaymentRecord.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -596,7 +843,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class INPaymentMethod;
 @class INPerson;
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INPaymentRecord : NSObject <NSCopying, NSSecureCoding>
 
 - (id)init NS_UNAVAILABLE;
@@ -636,12 +883,42 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTaskList.h
+//
+//  INTaskList.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class INSpeakableString;
+@class INTask;
+@class NSDateComponents;
+
+NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+@interface INTaskList : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)initWithTitle:(INSpeakableString *)title tasks:(NSArray <INTask *> *)tasks groupName:(nullable INSpeakableString *)groupName createdDateComponents:(nullable NSDateComponents *)createdDateComponents modifiedDateComponents:(nullable NSDateComponents *)modifiedDateComponents identifier:(nullable NSString *)identifier;
+
+@property (readonly, copy) INSpeakableString *title;
+@property (readonly, copy) NSArray <INTask *> *tasks;
+@property (readonly, copy, nullable) INSpeakableString *groupName;
+@property (readonly, copy, nullable) NSDateComponents *createdDateComponents;
+@property (readonly, copy, nullable) NSDateComponents *modifiedDateComponents;
+@property (readonly, copy, nullable) NSString *identifier;
+
+@end
+NS_ASSUME_NONNULL_END
+
 // ==========  Intents.framework/Headers/INStartAudioCallIntentResponse.h
 //
 //  INStartAudioCallIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -652,11 +929,15 @@ typedef NS_ENUM(NSInteger, INStartAudioCallIntentResponseCode) {
     INStartAudioCallIntentResponseCodeContinueInApp,
     INStartAudioCallIntentResponseCodeFailure,
     INStartAudioCallIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+    INStartAudioCallIntentResponseCodeFailureAppConfigurationRequired,
+    INStartAudioCallIntentResponseCodeFailureCallingServiceNotAvailable,
+    INStartAudioCallIntentResponseCodeFailureContactNotSupportedByApp,
+    INStartAudioCallIntentResponseCodeFailureNoValidNumber API_AVAILABLE(ios(11.0), macosx(10.13)),
+} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 @interface INStartAudioCallIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -676,7 +957,7 @@ NS_ASSUME_NONNULL_END
 //  INRideDriver.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INPerson.h>
@@ -686,40 +967,80 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INRideDriver : INPerson <NSCopying, NSSecureCoding>
 
-- (instancetype)initWithPersonHandle:(INPersonHandle *)personHandle
-                nameComponents:(nullable NSPersonNameComponents *)nameComponents
-                   displayName:(nullable NSString *)displayName
-                         image:(nullable INImage *)image
-                        rating:(nullable NSString *)rating
-                   phoneNumber:(nullable NSString *)phoneNumber NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)initWithHandle:(NSString *)handle
-                   displayName:(nullable NSString *)displayName
-                         image:(nullable INImage *)image
-                        rating:(nullable NSString *)rating
-                   phoneNumber:(nullable NSString *)phoneNumber NS_DEPRECATED(10_12, 10_12, 10_0, 10_0, "Use the designated initializer instead");
-
-- (instancetype)initWithHandle:(NSString *)handle
-                nameComponents:(NSPersonNameComponents *)nameComponents
-                         image:(nullable INImage *)image
-                        rating:(nullable NSString *)rating
-                   phoneNumber:(nullable NSString *)phoneNumber NS_DEPRECATED(10_12, 10_12, 10_0, 10_0, "Use the designated initializer instead");
-
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *rating;
-
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *phoneNumber;
+
+- (instancetype)initWithPhoneNumber:(NSString *)phoneNumber
+                     nameComponents:(nullable NSPersonNameComponents *)nameComponents
+                        displayName:(nullable NSString *)displayName
+                              image:(nullable INImage *)image
+                             rating:(nullable NSString *)rating NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+@end
+ 
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INRequestPaymentPayerResolutionResult.h
+//
+//  INRequestPaymentPayerResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INPersonResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INRequestPaymentPayerUnsupportedReason) {
+    INRequestPaymentPayerUnsupportedReasonCredentialsUnverified = 1,
+    INRequestPaymentPayerUnsupportedReasonNoAccount,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INRequestPaymentPayerResolutionResult : INPersonResolutionResult
+
++ (instancetype)unsupportedForReason:(INRequestPaymentPayerUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithPersonResolutionResult:(INPersonResolutionResult *)personResolutionResult;
 
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAmountType.h
+//
+//  INAmountType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INAmountType_h
+#define INAmountType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INAmountType) {
+    INAmountTypeUnknown = 0,
+    INAmountTypeMinimumDue,
+    INAmountTypeAmountDue,
+    INAmountTypeCurrentBalance,
+    INAmountTypeMaximumTransferAmount API_AVAILABLE(ios(11.0), watchos(4.0)),
+    INAmountTypeMinimumTransferAmount API_AVAILABLE(ios(11.0), watchos(4.0)),
+    INAmountTypeStatementBalance API_AVAILABLE(ios(11.0), watchos(4.0)),
+} API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+#endif // INAmountType_h
 // ==========  Intents.framework/Headers/INEndWorkoutIntent.h
 //
 //  INEndWorkoutIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -730,10 +1051,11 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INEndWorkoutIntent : INIntent
 
+// Designated initializer. The `workoutName` can use `INWorkoutNameIdentifier` as its `identifier` parameter.
 - (instancetype)initWithWorkoutName:(nullable INSpeakableString *)workoutName NS_DESIGNATED_INITIALIZER;
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *workoutName;
@@ -743,63 +1065,56 @@ API_UNAVAILABLE(macosx)
 @class INEndWorkoutIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INEndWorkoutIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INEndWorkoutIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INEndWorkoutIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INEndWorkoutIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INEndWorkoutIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  endWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INEndWorkoutIntentResponse containing the details of the result of having executed the intent
 
  @see  INEndWorkoutIntentResponse
  */
 
 - (void)handleEndWorkout:(INEndWorkoutIntent *)intent
-              completion:(void (^)(INEndWorkoutIntentResponse *response))completion NS_SWIFT_NAME(handle(endWorkout:completion:));
+              completion:(void (^)(INEndWorkoutIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  endWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INEndWorkoutIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INEndWorkoutIntentResponse
-
  */
 
 - (void)confirmEndWorkout:(INEndWorkoutIntent *)intent
-               completion:(void (^)(INEndWorkoutIntentResponse *response))completion NS_SWIFT_NAME(confirm(endWorkout:completion:));
+               completion:(void (^)(INEndWorkoutIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  endWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveWorkoutNameForEndWorkout:(INEndWorkoutIntent *)intent
-                         withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutName(forEndWorkout:with:));
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutName(for:with:));
 
 @end
 
@@ -809,7 +1124,7 @@ NS_ASSUME_NONNULL_END
 //  INCarSeatResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -818,13 +1133,46 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos, macosx)
 @interface INCarSeatResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INCarSeat)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCarSeat. The resolvedValue can be different than the original INCarSeat. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedCarSeat:(INCarSeat)resolvedCarSeat NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INCarSeat)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCarSeat:", ios(10.0, 11.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INCarSeat)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithCarSeatToConfirm:(INCarSeat)carSeatToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INCarSeat)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCarSeatToConfirm:", ios(10.0, 11.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSearchCallHistoryIntent_Deprecated.h
+//
+//  INSearchCallHistoryIntent_Deprecated.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INCallRecordType.h>
+#import <Intents/INSearchCallHistoryIntent.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INSearchCallHistoryIntent (Deprecated)
+
+- (instancetype)initWithCallType:(INCallRecordType)callType
+                     dateCreated:(nullable INDateComponentsRange *)dateCreated
+                       recipient:(nullable INPerson *)recipient
+                callCapabilities:(INCallCapabilityOptions)callCapabilities API_DEPRECATED("Use the designated initializer instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+
+// What type of call record to search for.
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallRecordType callType API_DEPRECATED("Use callTypes instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
 
 @end
 
@@ -834,27 +1182,69 @@ NS_ASSUME_NONNULL_END
 //  INMessage.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 @class INPerson;
+@class INSpeakableString;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+typedef NS_ENUM(NSInteger, INMessageType) {
+    INMessageTypeUnspecified = 0,
+    INMessageTypeText,
+    INMessageTypeAudio,
+    INMessageTypeDigitalTouch,
+    INMessageTypeHandwriting,
+    INMessageTypeSticker,
+    INMessageTypeTapbackLiked,
+    INMessageTypeTapbackDisliked,
+    INMessageTypeTapbackEmphasized,
+    INMessageTypeTapbackLoved,
+    INMessageTypeTapbackQuestioned,
+    INMessageTypeTapbackLaughed,
+    INMessageTypeMediaCalendar,
+    INMessageTypeMediaLocation,
+    INMessageTypeMediaAddressCard,
+    INMessageTypeMediaImage,
+    INMessageTypeMediaVideo,
+    INMessageTypeMediaPass,
+    INMessageTypeMediaAudio,
+} API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INMessage : NSObject <NSCopying, NSSecureCoding>
 
 - (id)init NS_UNAVAILABLE;
 
 - (instancetype)initWithIdentifier:(NSString *)identifier
+            conversationIdentifier:(nullable NSString *)conversationIdentifier
                            content:(nullable NSString *)content
                           dateSent:(nullable NSDate *)dateSent
                             sender:(nullable INPerson *)sender
-                        recipients:(nullable NSArray<INPerson *> *)recipients NS_DESIGNATED_INITIALIZER;
+                        recipients:(nullable NSArray<INPerson *> *)recipients
+                         groupName:(nullable INSpeakableString *)groupName
+                       messageType:(INMessageType)messageType NS_DESIGNATED_INITIALIZER API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+
+- (instancetype)initWithIdentifier:(NSString *)identifier
+            conversationIdentifier:(nullable NSString *)conversationIdentifier
+                           content:(nullable NSString *)content
+                          dateSent:(nullable NSDate *)dateSent
+                            sender:(nullable INPerson *)sender
+                        recipients:(nullable NSArray<INPerson *> *)recipients
+                       messageType:(INMessageType)messageType API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+
+- (instancetype)initWithIdentifier:(NSString *)identifier
+                           content:(nullable NSString *)content
+                          dateSent:(nullable NSDate *)dateSent
+                            sender:(nullable INPerson *)sender
+                        recipients:(nullable NSArray<INPerson *> *)recipients;
 
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *identifier;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *conversationIdentifier API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *content;
 
@@ -864,6 +1254,155 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPerson *> *recipients;
 
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *groupName API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INMessageType messageType API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INGetVisualCodeIntentResponse.h
+//
+//  INGetVisualCodeIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INImage;
+
+typedef NS_ENUM(NSInteger, INGetVisualCodeIntentResponseCode) {
+    INGetVisualCodeIntentResponseCodeUnspecified = 0,
+    INGetVisualCodeIntentResponseCodeReady,
+    INGetVisualCodeIntentResponseCodeContinueInApp,
+    INGetVisualCodeIntentResponseCodeInProgress,
+    INGetVisualCodeIntentResponseCodeSuccess,
+    INGetVisualCodeIntentResponseCodeFailure,
+    INGetVisualCodeIntentResponseCodeFailureRequiringAppLaunch,
+    INGetVisualCodeIntentResponseCodeFailureAppConfigurationRequired,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INGetVisualCodeIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INGetVisualCodeIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INGetVisualCodeIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INImage *visualCodeImage;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INRequestPaymentCurrencyAmountResolutionResult.h
+//
+//  INRequestPaymentCurrencyAmountResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INCurrencyAmountResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INRequestPaymentCurrencyAmountUnsupportedReason) {
+    INRequestPaymentCurrencyAmountUnsupportedReasonPaymentsAmountBelowMinimum = 1,
+    INRequestPaymentCurrencyAmountUnsupportedReasonPaymentsAmountAboveMaximum,
+    INRequestPaymentCurrencyAmountUnsupportedReasonPaymentsCurrencyUnsupported,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INRequestPaymentCurrencyAmountResolutionResult : INCurrencyAmountResolutionResult
+
++ (instancetype)unsupportedForReason:(INRequestPaymentCurrencyAmountUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithCurrencyAmountResolutionResult:(INCurrencyAmountResolutionResult *)currencyAmountResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INWorkoutNameIdentifier.h
+//
+//  INWorkoutNameIdentifier.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NSString *INWorkoutNameIdentifier NS_STRING_ENUM;
+
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierRun NS_SWIFT_NAME(INWorkoutNameIdentifier.run) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierSit NS_SWIFT_NAME(INWorkoutNameIdentifier.sit) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierSteps NS_SWIFT_NAME(INWorkoutNameIdentifier.steps) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierStand NS_SWIFT_NAME(INWorkoutNameIdentifier.stand) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierMove NS_SWIFT_NAME(INWorkoutNameIdentifier.move) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierWalk NS_SWIFT_NAME(INWorkoutNameIdentifier.walk) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierYoga NS_SWIFT_NAME(INWorkoutNameIdentifier.yoga) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierDance NS_SWIFT_NAME(INWorkoutNameIdentifier.dance) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierCrosstraining NS_SWIFT_NAME(INWorkoutNameIdentifier.crosstraining) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierElliptical NS_SWIFT_NAME(INWorkoutNameIdentifier.elliptical) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierRower NS_SWIFT_NAME(INWorkoutNameIdentifier.rower) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierCycle NS_SWIFT_NAME(INWorkoutNameIdentifier.cycle) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierStairs NS_SWIFT_NAME(INWorkoutNameIdentifier.stairs) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierOther NS_SWIFT_NAME(INWorkoutNameIdentifier.other) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierIndoorrun NS_SWIFT_NAME(INWorkoutNameIdentifier.indoorrun) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierIndoorcycle NS_SWIFT_NAME(INWorkoutNameIdentifier.indoorcycle) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierIndoorwalk NS_SWIFT_NAME(INWorkoutNameIdentifier.indoorwalk) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierExercise NS_SWIFT_NAME(INWorkoutNameIdentifier.exercise) API_AVAILABLE(ios(10.2), watchos(3.2)) API_UNAVAILABLE(macosx);
+// ==========  Intents.framework/Headers/INAppendToNoteIntentResponse.h
+//
+//  INAppendToNoteIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INNote;
+
+typedef NS_ENUM(NSInteger, INAppendToNoteIntentResponseCode) {
+    INAppendToNoteIntentResponseCodeUnspecified = 0,
+    INAppendToNoteIntentResponseCodeReady,
+    INAppendToNoteIntentResponseCodeInProgress,
+    INAppendToNoteIntentResponseCodeSuccess,
+    INAppendToNoteIntentResponseCodeFailure,
+    INAppendToNoteIntentResponseCodeFailureRequiringAppLaunch,
+    INAppendToNoteIntentResponseCodeFailureCannotUpdatePasswordProtectedNote,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INAppendToNoteIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INAppendToNoteIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INAppendToNoteIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INNote *note;
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -872,7 +1411,7 @@ NS_ASSUME_NONNULL_END
 //  INConditionalOperator.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INConditionalOperator_h
@@ -884,7 +1423,7 @@ typedef NS_ENUM(NSInteger, INConditionalOperator) {
     INConditionalOperatorAll = 0,
     INConditionalOperatorAny,
     INConditionalOperatorNone,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+} API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
 
 #endif // INConditionalOperator_h
 // ==========  Intents.framework/Headers/INSetRadioStationIntent.h
@@ -892,7 +1431,7 @@ typedef NS_ENUM(NSInteger, INConditionalOperator) {
 //  INSetRadioStationIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -900,15 +1439,15 @@ typedef NS_ENUM(NSInteger, INConditionalOperator) {
 
 #import <Intents/INRadioType.h>
 
-@class INRadioTypeResolutionResult;
 @class INDoubleResolutionResult;
-@class INStringResolutionResult;
 @class INIntegerResolutionResult;
+@class INRadioTypeResolutionResult;
+@class INStringResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetRadioStationIntent : INIntent
 
 - (instancetype)initWithRadioType:(INRadioType)radioType
@@ -932,75 +1471,68 @@ API_UNAVAILABLE(macosx)
 @class INSetRadioStationIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSetRadioStationIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSetRadioStationIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @protocol INSetRadioStationIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSetRadioStationIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSetRadioStationIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  setRadioStationIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSetRadioStationIntentResponse containing the details of the result of having executed the intent
 
  @see  INSetRadioStationIntentResponse
  */
 
 - (void)handleSetRadioStation:(INSetRadioStationIntent *)intent
-                   completion:(void (^)(INSetRadioStationIntentResponse *response))completion NS_SWIFT_NAME(handle(setRadioStation:completion:));
+                   completion:(void (^)(INSetRadioStationIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  setRadioStationIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSetRadioStationIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSetRadioStationIntentResponse
-
  */
 
 - (void)confirmSetRadioStation:(INSetRadioStationIntent *)intent
-                    completion:(void (^)(INSetRadioStationIntentResponse *response))completion NS_SWIFT_NAME(confirm(setRadioStation:completion:));
+                    completion:(void (^)(INSetRadioStationIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  setRadioStationIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveRadioTypeForSetRadioStation:(INSetRadioStationIntent *)intent
-                            withCompletion:(void (^)(INRadioTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRadioType(forSetRadioStation:with:));
+                    withCompletion:(void (^)(INRadioTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRadioType(for:with:));
 
 - (void)resolveFrequencyForSetRadioStation:(INSetRadioStationIntent *)intent
-                            withCompletion:(void (^)(INDoubleResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveFrequency(forSetRadioStation:with:));
+                    withCompletion:(void (^)(INDoubleResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveFrequency(for:with:));
 
 - (void)resolveStationNameForSetRadioStation:(INSetRadioStationIntent *)intent
-                              withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveStationName(forSetRadioStation:with:));
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveStationName(for:with:));
 
 - (void)resolveChannelForSetRadioStation:(INSetRadioStationIntent *)intent
-                          withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveChannel(forSetRadioStation:with:));
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveChannel(for:with:));
 
 - (void)resolvePresetNumberForSetRadioStation:(INSetRadioStationIntent *)intent
-                               withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePresetNumber(forSetRadioStation:with:));
+                    withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePresetNumber(for:with:));
 
 @end
 
@@ -1010,7 +1542,7 @@ NS_ASSUME_NONNULL_END
 //  INSpeakableStringResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -1019,10 +1551,11 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INSpeakableStringResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given string. The resolvedString need not be identical to the input string. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INSpeakableString. The resolvedString can be different than the original INSpeakableString. This allows app extensions to add a pronunciationHint, or otherwise tweak the string.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedString:(INSpeakableString *)resolvedString NS_SWIFT_NAME(success(with:));
 
 // This resolution result is to ask Siri to disambiguate between the provided strings.
@@ -1034,12 +1567,52 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 @end
 
 NS_ASSUME_NONNULL_END
-// ==========  Intents.framework/Headers/INResumeWorkoutIntent.h
+// ==========  Intents.framework/Headers/INStartAudioCallIntent_Deprecated.h
 //
-//  INResumeWorkoutIntent.h
+//  INStartAudioCallIntent_Deprecated.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INStartAudioCallIntent.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INStartAudioCallIntent (Deprecated)
+
+- (instancetype)initWithContacts:(nullable NSArray<INPerson *> *)contacts API_DEPRECATED("Use the designated initializer instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCallCapability.h
+//
+//  INCallCapability.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INCallCapability_h
+#define INCallCapability_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INCallCapability) {
+    INCallCapabilityUnknown = 0,
+    INCallCapabilityAudioCall,
+    INCallCapabilityVideoCall,
+} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+
+#endif // INCallCapability_h
+// ==========  Intents.framework/Headers/INGetCarPowerLevelStatusIntent.h
+//
+//  INGetCarPowerLevelStatusIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -1050,10 +1623,94 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INGetCarPowerLevelStatusIntent : INIntent
+
+- (instancetype)initWithCarName:(nullable INSpeakableString *)carName NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *carName;
+
+@end
+
+@class INGetCarPowerLevelStatusIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INGetCarPowerLevelStatusIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@protocol INGetCarPowerLevelStatusIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INGetCarPowerLevelStatusIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INGetCarPowerLevelStatusIntentResponse containing the details of the result of having executed the intent
+
+ @see  INGetCarPowerLevelStatusIntentResponse
+ */
+
+- (void)handleGetCarPowerLevelStatus:(INGetCarPowerLevelStatusIntent *)intent
+                          completion:(void (^)(INGetCarPowerLevelStatusIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INGetCarPowerLevelStatusIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INGetCarPowerLevelStatusIntentResponse
+ */
+
+- (void)confirmGetCarPowerLevelStatus:(INGetCarPowerLevelStatusIntent *)intent
+                           completion:(void (^)(INGetCarPowerLevelStatusIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveCarNameForGetCarPowerLevelStatus:(INGetCarPowerLevelStatusIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCarName(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INResumeWorkoutIntent.h
+//
+//  INResumeWorkoutIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INResumeWorkoutIntent : INIntent
 
+// Designated initializer. The `workoutName` can use `INWorkoutNameIdentifier` as its `identifier` parameter.
 - (instancetype)initWithWorkoutName:(nullable INSpeakableString *)workoutName NS_DESIGNATED_INITIALIZER;
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *workoutName;
@@ -1063,63 +1720,56 @@ API_UNAVAILABLE(macosx)
 @class INResumeWorkoutIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INResumeWorkoutIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INResumeWorkoutIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INResumeWorkoutIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INResumeWorkoutIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INResumeWorkoutIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  resumeWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INResumeWorkoutIntentResponse containing the details of the result of having executed the intent
 
  @see  INResumeWorkoutIntentResponse
  */
 
 - (void)handleResumeWorkout:(INResumeWorkoutIntent *)intent
-                 completion:(void (^)(INResumeWorkoutIntentResponse *response))completion NS_SWIFT_NAME(handle(resumeWorkout:completion:));
+                 completion:(void (^)(INResumeWorkoutIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  resumeWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INResumeWorkoutIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INResumeWorkoutIntentResponse
-
  */
 
 - (void)confirmResumeWorkout:(INResumeWorkoutIntent *)intent
-                  completion:(void (^)(INResumeWorkoutIntentResponse *response))completion NS_SWIFT_NAME(confirm(resumeWorkout:completion:));
+                  completion:(void (^)(INResumeWorkoutIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  resumeWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveWorkoutNameForResumeWorkout:(INResumeWorkoutIntent *)intent
-                            withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutName(forResumeWorkout:with:));
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutName(for:with:));
 
 @end
 
@@ -1129,12 +1779,14 @@ NS_ASSUME_NONNULL_END
 //  INVocabulary.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+@protocol INSpeakable;
 
 typedef NS_ENUM(NSInteger, INVocabularyStringType) {
     /// The name of a contact as a person will say it, for example “Jon Smith”, “Apple”.
@@ -1156,7 +1808,22 @@ typedef NS_ENUM(NSInteger, INVocabularyStringType) {
     /// The name of a vehicle configuration profile, for example "Roadtrip", "Rally", "Good Weather".
     /// For use by automaker apps that are enabled to work with CarPlay <https://developer.apple.com/carplay/>.
     INVocabularyStringTypeCarProfileName = 300,
-};
+    
+    /// The name of a vehicle as a person will say it, for example “BMW”, “My Convertible”.
+    INVocabularyStringTypeCarName NS_ENUM_AVAILABLE_IOS(10_3),
+    
+    /// The name of an organization to pay as a person will say it, for example “PG&E”, “Comcast”.
+    INVocabularyStringTypePaymentsOrganizationName NS_ENUM_AVAILABLE_IOS(10_3) = 400,
+    
+    /// The name of an account nick name as a person will say it, for example “Checking”, “Rainy day savings”.
+    INVocabularyStringTypePaymentsAccountNickname NS_ENUM_AVAILABLE_IOS(10_3),
+    
+    /// The title of a note, task, or task list as a person will say it; for example, "Grocery list" or "Weekly meeting minutes".
+    INVocabularyStringTypeNotebookItemTitle NS_ENUM_AVAILABLE_IOS(11_0) = 500,
+    
+    /// The name of the note or task list's group (folder, directory, account); for example, "iCloud" or "Shopping"
+    INVocabularyStringTypeNotebookItemGroupName NS_ENUM_AVAILABLE_IOS(11_0),
+} __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos, tvos)
 @interface INVocabulary : NSObject
@@ -1169,8 +1836,42 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos, tvos)
 /// Any strings larger than 1024 bytes when encoded as UTF-16 (roughly 500 characters) will be discarded.
 - (void)setVocabularyStrings:(NSOrderedSet<NSString *> *)vocabulary ofType:(INVocabularyStringType)type NS_EXTENSION_UNAVAILABLE("INVocabulary is not available to extensions. The main app is responsible for providing all vocabulary.");
 
+- (void)setVocabulary:(NSOrderedSet<id<INSpeakable>> *)vocabulary ofType:(INVocabularyStringType)type API_AVAILABLE(ios(11.0)) NS_EXTENSION_UNAVAILABLE("INVocabulary is not available to extensions. The main app is responsible for providing all vocabulary.");
+
 /// Removes all vocabulary strings for every INVocabularyStringType the calling app has previously registered.
 - (void)removeAllVocabularyStrings NS_EXTENSION_UNAVAILABLE("INVocabulary is not available to extensions. The main app is responsible for providing all vocabulary.");
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAccountTypeResolutionResult.h
+//
+//  INAccountTypeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INAccountType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INAccountTypeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INAccountType. The resolvedValue can be different than the original INAccountType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedAccountType:(INAccountType)resolvedAccountType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INAccountType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedAccountType:", ios(10.3, 11.0), watchos(3.2, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithAccountTypeToConfirm:(INAccountType)accountTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INAccountType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithAccountTypeToConfirm:", ios(10.3, 11.0), watchos(3.2, 4.0));
 
 @end
 
@@ -1180,7 +1881,7 @@ NS_ASSUME_NONNULL_END
 //  INListRideOptionsIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -1191,7 +1892,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INListRideOptionsIntent : INIntent
 
@@ -1207,76 +1908,120 @@ API_UNAVAILABLE(macosx)
 @class INListRideOptionsIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INListRideOptionsIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INListRideOptionsIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INListRideOptionsIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INListRideOptionsIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INListRideOptionsIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  listRideOptionsIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INListRideOptionsIntentResponse containing the details of the result of having executed the intent
 
  @see  INListRideOptionsIntentResponse
  */
 
 - (void)handleListRideOptions:(INListRideOptionsIntent *)intent
-                   completion:(void (^)(INListRideOptionsIntentResponse *response))completion NS_SWIFT_NAME(handle(listRideOptions:completion:));
+                   completion:(void (^)(INListRideOptionsIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  listRideOptionsIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INListRideOptionsIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INListRideOptionsIntentResponse
-
  */
 
 - (void)confirmListRideOptions:(INListRideOptionsIntent *)intent
-                    completion:(void (^)(INListRideOptionsIntentResponse *response))completion NS_SWIFT_NAME(confirm(listRideOptions:completion:));
+                    completion:(void (^)(INListRideOptionsIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  listRideOptionsIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolvePickupLocationForListRideOptions:(INListRideOptionsIntent *)intent
-                                 withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePickupLocation(forListRideOptions:with:));
+                    withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePickupLocation(for:with:));
 
 - (void)resolveDropOffLocationForListRideOptions:(INListRideOptionsIntent *)intent
-                                  withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDropOffLocation(forListRideOptions:with:));
+                    withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDropOffLocation(for:with:));
 
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INBillDetails.h
+//
+//  INBillDetails.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INBillType.h>
+#import <Intents/INPaymentStatus.h>
+
+@class INBillPayee;
+@class INCurrencyAmount;
+@class INSpeakableString;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx)
+@interface INBillDetails : NSObject <NSCopying, NSSecureCoding>
+
+- (id)init NS_UNAVAILABLE;
+
+- (nullable instancetype)initWithBillType:(INBillType)billType
+                            paymentStatus:(INPaymentStatus)paymentStatus
+                                billPayee:(nullable INBillPayee *)billPayee
+                                amountDue:(nullable INCurrencyAmount *)amountDue
+                               minimumDue:(nullable INCurrencyAmount *)minimumDue
+                                  lateFee:(nullable INCurrencyAmount *)lateFee
+                                  dueDate:(nullable NSDateComponents *)dueDate
+                              paymentDate:(nullable NSDateComponents *)paymentDate NS_DESIGNATED_INITIALIZER;
+
+@property (readwrite, assign, NS_NONATOMIC_IOSONLY) INBillType billType;
+
+@property (readwrite, assign, NS_NONATOMIC_IOSONLY) INPaymentStatus paymentStatus;
+
+// e.g. "Internet bill"
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INBillPayee *billPayee;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INCurrencyAmount *amountDue;
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INCurrencyAmount *minimumDue;
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INCurrencyAmount *lateFee;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSDateComponents *dueDate;
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSDateComponents *paymentDate;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  Intents.framework/Headers/INTemperatureResolutionResult.h
 //
 //  INTemperatureResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -1285,10 +2030,11 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INTemperatureResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given temperature. The resolvedTemperature need not be identical to the input temperature. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given temperature. The resolvedTemperature can be different than the original temperature. This allows app extensions to apply business logic constraints to the temperature. For example, constraining it to a maximum or minimum value.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedTemperature:(NSMeasurement<NSUnitTemperature *> *)resolvedTemperature NS_SWIFT_NAME(success(with:));
 
 // This resolution result is to ask Siri to disambiguate between the provided temperatures.
@@ -1305,89 +2051,86 @@ NS_ASSUME_NONNULL_END
 //  INSaveProfileInCarIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
 #import <Intents/INIntentResolutionResult.h>
 
 @class INIntegerResolutionResult;
+@class INStringResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSaveProfileInCarIntent : INIntent
 
 - (instancetype)initWithProfileNumber:(nullable NSNumber *)profileNumber
-                         profileLabel:(nullable NSString *)profileLabel NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+                          profileName:(nullable NSString *)profileName NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(10.2));
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *profileNumber NS_REFINED_FOR_SWIFT;
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *profileLabel;
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *profileName API_AVAILABLE(ios(10.2));
 
 @end
 
 @class INSaveProfileInCarIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSaveProfileInCarIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSaveProfileInCarIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @protocol INSaveProfileInCarIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSaveProfileInCarIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSaveProfileInCarIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  saveProfileInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSaveProfileInCarIntentResponse containing the details of the result of having executed the intent
 
  @see  INSaveProfileInCarIntentResponse
  */
 
 - (void)handleSaveProfileInCar:(INSaveProfileInCarIntent *)intent
-                    completion:(void (^)(INSaveProfileInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(saveProfileInCar:completion:));
+                    completion:(void (^)(INSaveProfileInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  saveProfileInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSaveProfileInCarIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSaveProfileInCarIntentResponse
-
  */
 
 - (void)confirmSaveProfileInCar:(INSaveProfileInCarIntent *)intent
-                     completion:(void (^)(INSaveProfileInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(saveProfileInCar:completion:));
+                     completion:(void (^)(INSaveProfileInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  saveProfileInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveProfileNumberForSaveProfileInCar:(INSaveProfileInCarIntent *)intent
-                                 withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveProfileNumber(forSaveProfileInCar:with:));
+                    withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveProfileNumber(for:with:));
+
+- (void)resolveProfileNameForSaveProfileInCar:(INSaveProfileInCarIntent *)intent
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveProfileName(for:with:)) API_AVAILABLE(ios(10.2));
 
 @end
 
@@ -1397,7 +2140,7 @@ NS_ASSUME_NONNULL_END
 //  INBookRestaurantReservationIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -1417,8 +2160,16 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INBookRestaurantReservationIntent : INIntent <NSCopying>
+
+- (instancetype)initWithRestaurant:(INRestaurant *)restaurant
+             bookingDateComponents:(NSDateComponents *)bookingDateComponents
+                         partySize:(NSUInteger)partySize
+                 bookingIdentifier:(nullable NSString *)bookingIdentifier
+                             guest:(nullable INRestaurantGuest *)guest
+                     selectedOffer:(nullable INRestaurantOffer *)selectedOffer
+   guestProvidedSpecialRequestText:(nullable NSString *)guestProvidedSpecialRequestText API_AVAILABLE(ios(11.0));
 
 @property (copy, NS_NONATOMIC_IOSONLY) INRestaurant *restaurant;
 @property (copy, NS_NONATOMIC_IOSONLY) NSDateComponents *bookingDateComponents;
@@ -1433,16 +2184,14 @@ API_UNAVAILABLE(macosx)
 @class INBookRestaurantReservationIntentResponse;
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @protocol INBookRestaurantReservationIntentHandling <NSObject>
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INBookRestaurantReservationIntent that's passed in
+ @discussion This method is called to actually execute the intent, the app must return a response for this intent and an NSUserActivity capturing the state that the app must be restored to at the end of handling this intent
  
- @abstract Execute the task represented by the INBookRestaurantReservationIntent that's passed in
- @discussion This method are called to actually execute the intent, the app must return a response for this intent and an NSUserActivity capturing the state that the app must be restored to at the end of handling this intent
- 
- @param  bookingIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block to invoke with the response to handling the intent.
  
  @see  INBookRestaurantReservationIntentResponse
@@ -1454,11 +2203,10 @@ API_UNAVAILABLE(macosx)
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
  @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
  
- @param  bookingIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INBookRestaurantReservationIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
  
  @see INEndWorkoutIntentResponse
@@ -1468,11 +2216,10 @@ API_UNAVAILABLE(macosx)
 - (void)confirmBookRestaurantReservation:(INBookRestaurantReservationIntent *)intent completion:(void (^)(INBookRestaurantReservationIntentResponse *response))completion  NS_SWIFT_NAME(confirm(bookRestaurantReservation:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
  @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
  
- @param  bookingIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
  
  @see INIntentResolutionResult
@@ -1492,14 +2239,14 @@ NS_ASSUME_NONNULL_END
 //  INRestaurantGuestDisplayPreferences.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
 // http://mapsconnect.apple.com/info/extensions
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INRestaurantGuestDisplayPreferences : NSObject <NSSecureCoding, NSCopying>
 
 @property (NS_NONATOMIC_IOSONLY) BOOL nameFieldFirstNameOptional; // indicates whether first name field is marked optional, defaults to NO
@@ -1514,60 +2261,252 @@ API_UNAVAILABLE(macosx)
 @property (NS_NONATOMIC_IOSONLY) BOOL phoneNumberEditable; // indicates whether the phone number field should be user editable, defaults to YES
 
 @end
+// ==========  Intents.framework/Headers/INDateSearchTypeResolutionResult.h
+//
+//  INDateSearchTypeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INDateSearchType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INDateSearchTypeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INDateSearchType. The resolvedValue can be different than the original INDateSearchType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedDateSearchType:(INDateSearchType)resolvedDateSearchType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INDateSearchType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedDateSearchType:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithDateSearchTypeToConfirm:(INDateSearchType)dateSearchTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INDateSearchType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithDateSearchTypeToConfirm:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTransferMoneyIntent.h
+//
+//  INTransferMoneyIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INDateComponentsRange;
+@class INDateComponentsRangeResolutionResult;
+@class INPaymentAccount;
+@class INPaymentAccountResolutionResult;
+@class INPaymentAmount;
+@class INPaymentAmountResolutionResult;
+@class INStringResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INTransferMoneyIntent : INIntent
+
+- (instancetype)initWithFromAccount:(nullable INPaymentAccount *)fromAccount
+                          toAccount:(nullable INPaymentAccount *)toAccount
+                  transactionAmount:(nullable INPaymentAmount *)transactionAmount
+           transactionScheduledDate:(nullable INDateComponentsRange *)transactionScheduledDate
+                    transactionNote:(nullable NSString *)transactionNote NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentAccount *fromAccount;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentAccount *toAccount;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentAmount *transactionAmount;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *transactionScheduledDate;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *transactionNote;
+
+@end
+
+@class INTransferMoneyIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INTransferMoneyIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INTransferMoneyIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INTransferMoneyIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INTransferMoneyIntentResponse containing the details of the result of having executed the intent
+
+ @see  INTransferMoneyIntentResponse
+ */
+
+- (void)handleTransferMoney:(INTransferMoneyIntent *)intent
+                 completion:(void (^)(INTransferMoneyIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INTransferMoneyIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INTransferMoneyIntentResponse
+ */
+
+- (void)confirmTransferMoney:(INTransferMoneyIntent *)intent
+                  completion:(void (^)(INTransferMoneyIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveFromAccountForTransferMoney:(INTransferMoneyIntent *)intent
+                    withCompletion:(void (^)(INPaymentAccountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveFromAccount(for:with:));
+
+- (void)resolveToAccountForTransferMoney:(INTransferMoneyIntent *)intent
+                    withCompletion:(void (^)(INPaymentAccountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveToAccount(for:with:));
+
+- (void)resolveTransactionAmountForTransferMoney:(INTransferMoneyIntent *)intent
+                    withCompletion:(void (^)(INPaymentAmountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTransactionAmount(for:with:));
+
+- (void)resolveTransactionScheduledDateForTransferMoney:(INTransferMoneyIntent *)intent
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTransactionScheduledDate(for:with:));
+
+- (void)resolveTransactionNoteForTransferMoney:(INTransferMoneyIntent *)intent
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTransactionNote(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INBalanceAmount.h
+//
+//  INBalanceAmount.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INBalanceType.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx)
+@interface INBalanceAmount : NSObject <NSCopying, NSSecureCoding>
+
+- (id)init NS_UNAVAILABLE;
+
+- (nullable instancetype)initWithAmount:(NSDecimalNumber *)amount
+                            balanceType:(INBalanceType)balanceType NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithAmount:(NSDecimalNumber *)amount
+                           currencyCode:(NSString *)currencyCode NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSDecimalNumber *amount;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INBalanceType balanceType;
+
+// The ISO 4217 currency code that applies to the monetary amount.
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *currencyCode;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INIntentResponses.h
 //
 //  INIntentResponses.h
-//  Intent Responses
+//  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
-// Calls Intent Responses
+#import <Intents/INSearchCallHistoryIntentResponse.h>
 #import <Intents/INStartAudioCallIntentResponse.h>
 #import <Intents/INStartVideoCallIntentResponse.h>
-#import <Intents/INSearchCallHistoryIntentResponse.h>
 
-// CarPlay Intent Responses
+#import <Intents/INActivateCarSignalIntentResponse.h>
+#import <Intents/INGetCarLockStatusIntentResponse.h>
+#import <Intents/INGetCarPowerLevelStatusIntentResponse.h>
+#import <Intents/INSaveProfileInCarIntentResponse.h>
 #import <Intents/INSetAudioSourceInCarIntentResponse.h>
+#import <Intents/INSetCarLockStatusIntentResponse.h>
 #import <Intents/INSetClimateSettingsInCarIntentResponse.h>
 #import <Intents/INSetDefrosterSettingsInCarIntentResponse.h>
-#import <Intents/INSetSeatSettingsInCarIntentResponse.h>
 #import <Intents/INSetProfileInCarIntentResponse.h>
-#import <Intents/INSaveProfileInCarIntentResponse.h>
+#import <Intents/INSetSeatSettingsInCarIntentResponse.h>
 
-// Messages Intent Responses
-#import <Intents/INSendMessageIntentResponse.h>
-#import <Intents/INSearchForMessagesIntentResponse.h>
-#import <Intents/INSetMessageAttributeIntentResponse.h>
+#import <Intents/INCancelWorkoutIntentResponse.h>
+#import <Intents/INEndWorkoutIntentResponse.h>
+#import <Intents/INPauseWorkoutIntentResponse.h>
+#import <Intents/INResumeWorkoutIntentResponse.h>
+#import <Intents/INStartWorkoutIntentResponse.h>
 
-// Radio Intent Responses
 #import <Intents/INSetRadioStationIntentResponse.h>
 
-// Payments Intent Responses
-#import <Intents/INSendPaymentIntentResponse.h>
-#import <Intents/INRequestPaymentIntentResponse.h>
+#import <Intents/INSearchForMessagesIntentResponse.h>
+#import <Intents/INSendMessageIntentResponse.h>
+#import <Intents/INSetMessageAttributeIntentResponse.h>
 
-// Photos Intent Responses
+#import <Intents/INAddTasksIntentResponse.h>
+#import <Intents/INAppendToNoteIntentResponse.h>
+#import <Intents/INCreateNoteIntentResponse.h>
+#import <Intents/INCreateTaskListIntentResponse.h>
+#import <Intents/INSearchForNotebookItemsIntentResponse.h>
+#import <Intents/INSetTaskAttributeIntentResponse.h>
+
+#import <Intents/INPayBillIntentResponse.h>
+#import <Intents/INRequestPaymentIntentResponse.h>
+#import <Intents/INSearchForAccountsIntentResponse.h>
+#import <Intents/INSearchForBillsIntentResponse.h>
+#import <Intents/INSendPaymentIntentResponse.h>
+#import <Intents/INTransferMoneyIntentResponse.h>
+
 #import <Intents/INSearchForPhotosIntentResponse.h>
 #import <Intents/INStartPhotoPlaybackIntentResponse.h>
 
-// Ridesharing Intent Responses
+#import <Intents/INGetRideStatusIntentResponse.h>
 #import <Intents/INListRideOptionsIntentResponse.h>
 #import <Intents/INRequestRideIntentResponse.h>
-#import <Intents/INGetRideStatusIntentResponse.h>
+#import <Intents/INCancelRideIntentResponse.h>
+#import <Intents/INSendRideFeedbackIntentResponse.h>
 
-// Workouts Intent Responses
-#import <Intents/INStartWorkoutIntentResponse.h>
-#import <Intents/INPauseWorkoutIntentResponse.h>
-#import <Intents/INEndWorkoutIntentResponse.h>
-#import <Intents/INCancelWorkoutIntentResponse.h>
-#import <Intents/INResumeWorkoutIntentResponse.h>
+#import <Intents/INGetVisualCodeIntentResponse.h>
+
 // ==========  Intents.framework/Headers/INSearchForMessagesIntentResponse.h
 //
 //  INSearchForMessagesIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -1582,11 +2521,12 @@ typedef NS_ENUM(NSInteger, INSearchForMessagesIntentResponseCode) {
     INSearchForMessagesIntentResponseCodeFailure,
     INSearchForMessagesIntentResponseCodeFailureRequiringAppLaunch,
     INSearchForMessagesIntentResponseCodeFailureMessageServiceNotAvailable,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+    INSearchForMessagesIntentResponseCodeFailureMessageTooManyResults,
+} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 @interface INSearchForMessagesIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -1608,7 +2548,7 @@ NS_ASSUME_NONNULL_END
 //  INRidePartySizeOption.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1632,12 +2572,59 @@ NS_CLASS_AVAILABLE(NA, 10_0) __TVOS_PROHIBITED __WATCHOS_AVAILABLE(3_0)
 
 NS_ASSUME_NONNULL_END
 
+// ==========  Intents.framework/Headers/INCallRecord.h
+//
+//  INCallRecord.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INCallRecordType.h>
+#import <Intents/INCallCapability.h>
+
+@class INPerson;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+@interface INCallRecord : NSObject <NSCopying, NSSecureCoding>
+
+- (id)init NS_UNAVAILABLE;
+
+- (instancetype)initWithIdentifier:(NSString *)identifier
+                       dateCreated:(nullable NSDate *)dateCreated
+                            caller:(nullable INPerson *)caller
+                    callRecordType:(INCallRecordType)callRecordType
+                    callCapability:(INCallCapability)callCapability
+                      callDuration:(nullable NSNumber *)callDuration
+                            unseen:(nullable NSNumber *)unseen NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *identifier;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSDate *dateCreated;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPerson *caller;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INCallRecordType callRecordType;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INCallCapability callCapability;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *callDuration NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *unseen NS_REFINED_FOR_SWIFT;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INStartPhotoPlaybackIntent.h
 //
 //  INStartPhotoPlaybackIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -1646,17 +2633,17 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INConditionalOperator.h>
 #import <Intents/INPhotoAttributeOptions.h>
 
+@class CLPlacemark;
 @class INDateComponentsRange;
 @class INDateComponentsRangeResolutionResult;
-@class CLPlacemark;
-@class INPlacemarkResolutionResult;
-@class INStringResolutionResult;
 @class INPerson;
 @class INPersonResolutionResult;
+@class INPlacemarkResolutionResult;
+@class INStringResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INStartPhotoPlaybackIntent : INIntent
 
@@ -1680,7 +2667,7 @@ API_UNAVAILABLE(macosx)
 // Include photos with keywords, names, descriptions, etc. that match these search terms.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *searchTerms;
 
-// Describes how to combine the contents of the searchTerm array.";
+// Describes how to combine the contents of the searchTerm array.
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator searchTermsOperator;
 
 // When specified, only match photos of the given types.
@@ -1700,72 +2687,104 @@ API_UNAVAILABLE(macosx)
 @class INStartPhotoPlaybackIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INStartPhotoPlaybackIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INStartPhotoPlaybackIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INStartPhotoPlaybackIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INStartPhotoPlaybackIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INStartPhotoPlaybackIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  startPhotoPlaybackIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INStartPhotoPlaybackIntentResponse containing the details of the result of having executed the intent
 
  @see  INStartPhotoPlaybackIntentResponse
  */
 
 - (void)handleStartPhotoPlayback:(INStartPhotoPlaybackIntent *)intent
-                      completion:(void (^)(INStartPhotoPlaybackIntentResponse *response))completion NS_SWIFT_NAME(handle(startPhotoPlayback:completion:));
+                      completion:(void (^)(INStartPhotoPlaybackIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  startPhotoPlaybackIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INStartPhotoPlaybackIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INStartPhotoPlaybackIntentResponse
-
  */
 
 - (void)confirmStartPhotoPlayback:(INStartPhotoPlaybackIntent *)intent
-                       completion:(void (^)(INStartPhotoPlaybackIntentResponse *response))completion NS_SWIFT_NAME(confirm(startPhotoPlayback:completion:));
+                       completion:(void (^)(INStartPhotoPlaybackIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  startPhotoPlaybackIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveDateCreatedForStartPhotoPlayback:(INStartPhotoPlaybackIntent *)intent
-                                 withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateCreated(forStartPhotoPlayback:with:));
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateCreated(for:with:));
 
 - (void)resolveLocationCreatedForStartPhotoPlayback:(INStartPhotoPlaybackIntent *)intent
-                                     withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveLocationCreated(forStartPhotoPlayback:with:));
+                    withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveLocationCreated(for:with:));
 
 - (void)resolveAlbumNameForStartPhotoPlayback:(INStartPhotoPlaybackIntent *)intent
-                               withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAlbumName(forStartPhotoPlayback:with:));
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAlbumName(for:with:));
 
 - (void)resolvePeopleInPhotoForStartPhotoPlayback:(INStartPhotoPlaybackIntent *)intent
-                                   withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolvePeopleInPhoto(forStartPhotoPlayback:with:));
+                    withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolvePeopleInPhoto(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INGetCarLockStatusIntentResponse.h
+//
+//  INGetCarLockStatusIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+typedef NS_ENUM(NSInteger, INGetCarLockStatusIntentResponseCode) {
+    INGetCarLockStatusIntentResponseCodeUnspecified = 0,
+    INGetCarLockStatusIntentResponseCodeReady,
+    INGetCarLockStatusIntentResponseCodeInProgress,
+    INGetCarLockStatusIntentResponseCodeSuccess,
+    INGetCarLockStatusIntentResponseCodeFailure,
+    INGetCarLockStatusIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INGetCarLockStatusIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INGetCarLockStatusIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INGetCarLockStatusIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *locked NS_REFINED_FOR_SWIFT;
 
 @end
 
@@ -1775,13 +2794,12 @@ NS_ASSUME_NONNULL_END
 //  CLPlacemark+IntentsAdditions.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <Contacts/CNPostalAddress.h>
 #import <CoreLocation/CLPlacemark.h>
-
-@class CNPostalAddress;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1789,7 +2807,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)placemarkWithLocation:(CLLocation *)location
                                  name:(nullable NSString *)name
-                        postalAddress:(nullable CNPostalAddress *)postalAddress API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos, tvos);
+                        postalAddress:(nullable CNPostalAddress *)postalAddress API_AVAILABLE(ios(10.0), watchos(3.2));
 
 @end
 
@@ -1799,7 +2817,7 @@ NS_ASSUME_NONNULL_END
 //  INCarAudioSourceResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -1808,13 +2826,20 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos, macosx)
 @interface INCarAudioSourceResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INCarAudioSource)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCarAudioSource. The resolvedValue can be different than the original INCarAudioSource. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedCarAudioSource:(INCarAudioSource)resolvedCarAudioSource NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INCarAudioSource)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCarAudioSource:", ios(10.0, 11.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INCarAudioSource)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithCarAudioSourceToConfirm:(INCarAudioSource)carAudioSourceToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INCarAudioSource)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCarAudioSourceToConfirm:", ios(10.0, 11.0));
 
 @end
 
@@ -1824,7 +2849,7 @@ NS_ASSUME_NONNULL_END
 //  INSetDefrosterSettingsInCarIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -1838,7 +2863,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetDefrosterSettingsInCarIntent : INIntent
 
 - (instancetype)initWithEnable:(nullable NSNumber *)enable
@@ -1853,66 +2878,89 @@ API_UNAVAILABLE(macosx)
 @class INSetDefrosterSettingsInCarIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSetDefrosterSettingsInCarIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSetDefrosterSettingsInCarIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @protocol INSetDefrosterSettingsInCarIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSetDefrosterSettingsInCarIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSetDefrosterSettingsInCarIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  setDefrosterSettingsInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSetDefrosterSettingsInCarIntentResponse containing the details of the result of having executed the intent
 
  @see  INSetDefrosterSettingsInCarIntentResponse
  */
 
 - (void)handleSetDefrosterSettingsInCar:(INSetDefrosterSettingsInCarIntent *)intent
-                             completion:(void (^)(INSetDefrosterSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(setDefrosterSettingsInCar:completion:));
+                             completion:(void (^)(INSetDefrosterSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  setDefrosterSettingsInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSetDefrosterSettingsInCarIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSetDefrosterSettingsInCarIntentResponse
-
  */
 
 - (void)confirmSetDefrosterSettingsInCar:(INSetDefrosterSettingsInCarIntent *)intent
-                              completion:(void (^)(INSetDefrosterSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(setDefrosterSettingsInCar:completion:));
+                              completion:(void (^)(INSetDefrosterSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  setDefrosterSettingsInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveEnableForSetDefrosterSettingsInCar:(INSetDefrosterSettingsInCarIntent *)intent
-                                   withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnable(forSetDefrosterSettingsInCar:with:));
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnable(for:with:));
 
 - (void)resolveDefrosterForSetDefrosterSettingsInCar:(INSetDefrosterSettingsInCarIntent *)intent
-                                      withCompletion:(void (^)(INCarDefrosterResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDefroster(forSetDefrosterSettingsInCar:with:));
+                    withCompletion:(void (^)(INCarDefrosterResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDefroster(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INPaymentAmount.h
+//
+//  INPaymentAmount.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Intents/INAmountType.h>
+
+@class INCurrencyAmount;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx)
+@interface INPaymentAmount : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithAmountType:(INAmountType)amountType
+                            amount:(INCurrencyAmount *)amount NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INCurrencyAmount *amount;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INAmountType amountType;
 
 @end
 
@@ -1922,7 +2970,7 @@ NS_ASSUME_NONNULL_END
 //  INCancelWorkoutIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -1930,15 +2978,17 @@ NS_ASSUME_NONNULL_END
 typedef NS_ENUM(NSInteger, INCancelWorkoutIntentResponseCode) {
     INCancelWorkoutIntentResponseCodeUnspecified = 0,
     INCancelWorkoutIntentResponseCodeReady,
-    INCancelWorkoutIntentResponseCodeContinueInApp,
+    INCancelWorkoutIntentResponseCodeContinueInApp API_AVAILABLE(watchos(3.2)) API_DEPRECATED("INCancelWorkoutIntentResponseCodeContinueInApp is deprecated on iOS. Please use INCancelWorkoutIntentResponseCodeHandleInApp instead", ios(10.0, 11.0)),
     INCancelWorkoutIntentResponseCodeFailure,
     INCancelWorkoutIntentResponseCodeFailureRequiringAppLaunch,
     INCancelWorkoutIntentResponseCodeFailureNoMatchingWorkout,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+    INCancelWorkoutIntentResponseCodeSuccess NS_EXTENSION_UNAVAILABLE("INCancelWorkoutIntentResponseCodeSuccess is not available to extensions. This can only be returned from the app.") API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos),
+    INCancelWorkoutIntentResponseCodeHandleInApp API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos),
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INCancelWorkoutIntentResponse : INIntentResponse
 
@@ -1959,7 +3009,7 @@ NS_ASSUME_NONNULL_END
 //  INSetClimateSettingsInCarIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -1971,16 +3021,16 @@ NS_ASSUME_NONNULL_END
 
 @class INBooleanResolutionResult;
 @class INCarAirCirculationModeResolutionResult;
-@class INIntegerResolutionResult;
+@class INCarSeatResolutionResult;
 @class INDoubleResolutionResult;
+@class INIntegerResolutionResult;
 @class INRelativeSettingResolutionResult;
 @class INTemperatureResolutionResult;
-@class INCarSeatResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetClimateSettingsInCarIntent : INIntent
 
 - (instancetype)initWithEnableFan:(nullable NSNumber *)enableFan
@@ -2022,93 +3072,86 @@ API_UNAVAILABLE(macosx)
 @class INSetClimateSettingsInCarIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSetClimateSettingsInCarIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSetClimateSettingsInCarIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @protocol INSetClimateSettingsInCarIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSetClimateSettingsInCarIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSetClimateSettingsInCarIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  setClimateSettingsInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSetClimateSettingsInCarIntentResponse containing the details of the result of having executed the intent
 
  @see  INSetClimateSettingsInCarIntentResponse
  */
 
 - (void)handleSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                           completion:(void (^)(INSetClimateSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(setClimateSettingsInCar:completion:));
+                           completion:(void (^)(INSetClimateSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  setClimateSettingsInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSetClimateSettingsInCarIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSetClimateSettingsInCarIntentResponse
-
  */
 
 - (void)confirmSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                            completion:(void (^)(INSetClimateSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(setClimateSettingsInCar:completion:));
+                            completion:(void (^)(INSetClimateSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  setClimateSettingsInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveEnableFanForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableFan(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableFan(for:with:));
 
 - (void)resolveEnableAirConditionerForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                               withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableAirConditioner(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableAirConditioner(for:with:));
 
 - (void)resolveEnableClimateControlForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                               withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableClimateControl(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableClimateControl(for:with:));
 
 - (void)resolveEnableAutoModeForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                         withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableAutoMode(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableAutoMode(for:with:));
 
 - (void)resolveAirCirculationModeForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                             withCompletion:(void (^)(INCarAirCirculationModeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAirCirculationMode(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INCarAirCirculationModeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAirCirculationMode(for:with:));
 
 - (void)resolveFanSpeedIndexForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                        withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveFanSpeedIndex(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveFanSpeedIndex(for:with:));
 
 - (void)resolveFanSpeedPercentageForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                             withCompletion:(void (^)(INDoubleResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveFanSpeedPercentage(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INDoubleResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveFanSpeedPercentage(for:with:));
 
 - (void)resolveRelativeFanSpeedSettingForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                                  withCompletion:(void (^)(INRelativeSettingResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRelativeFanSpeedSetting(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INRelativeSettingResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRelativeFanSpeedSetting(for:with:));
 
 - (void)resolveTemperatureForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                      withCompletion:(void (^)(INTemperatureResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTemperature(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INTemperatureResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTemperature(for:with:));
 
 - (void)resolveRelativeTemperatureSettingForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                                     withCompletion:(void (^)(INRelativeSettingResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRelativeTemperatureSetting(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INRelativeSettingResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRelativeTemperatureSetting(for:with:));
 
 - (void)resolveClimateZoneForSetClimateSettingsInCar:(INSetClimateSettingsInCarIntent *)intent
-                                      withCompletion:(void (^)(INCarSeatResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveClimateZone(forSetClimateSettingsInCar:with:));
+                    withCompletion:(void (^)(INCarSeatResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveClimateZone(for:with:));
 
 @end
 
@@ -2118,7 +3161,7 @@ NS_ASSUME_NONNULL_END
 //  INCarAirCirculationModeResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -2127,13 +3170,20 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos, macosx)
 @interface INCarAirCirculationModeResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INCarAirCirculationMode)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCarAirCirculationMode. The resolvedValue can be different than the original INCarAirCirculationMode. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedCarAirCirculationMode:(INCarAirCirculationMode)resolvedCarAirCirculationMode NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INCarAirCirculationMode)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCarAirCirculationMode:", ios(10.0, 11.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INCarAirCirculationMode)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithCarAirCirculationModeToConfirm:(INCarAirCirculationMode)carAirCirculationModeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INCarAirCirculationMode)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCarAirCirculationModeToConfirm:", ios(10.0, 11.0));
 
 @end
 
@@ -2143,7 +3193,7 @@ NS_ASSUME_NONNULL_END
 //  INRequestPaymentIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -2162,11 +3212,12 @@ typedef NS_ENUM(NSInteger, INRequestPaymentIntentResponseCode) {
     INRequestPaymentIntentResponseCodeFailurePaymentsAmountAboveMaximum,
     INRequestPaymentIntentResponseCodeFailurePaymentsCurrencyUnsupported,
     INRequestPaymentIntentResponseCodeFailureNoBankAccount,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+    INRequestPaymentIntentResponseCodeFailureNotEligible,
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INRequestPaymentIntentResponse : INIntentResponse
 
@@ -2184,12 +3235,72 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCarSignalOptionsResolutionResult.h
+//
+//  INCarSignalOptionsResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INCarSignalOptions.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INCarSignalOptionsResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCarSignalOptions. The resolvedValue can be different than the original INCarSignalOptions. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedCarSignalOptions:(INCarSignalOptions)resolvedCarSignalOptions NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INCarSignalOptions)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCarSignalOptions:", ios(10.3, 11.0), watchos(3.2, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithCarSignalOptionsToConfirm:(INCarSignalOptions)carSignalOptionsToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INCarSignalOptions)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCarSignalOptionsToConfirm:", ios(10.3, 11.0), watchos(3.2, 4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSendMessageRecipientResolutionResult.h
+//
+//  INSendMessageRecipientResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INPersonResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INSendMessageRecipientUnsupportedReason) {
+    INSendMessageRecipientUnsupportedReasonNoAccount = 1,
+    INSendMessageRecipientUnsupportedReasonOffline,
+    INSendMessageRecipientUnsupportedReasonMessagingServiceNotEnabledForRecipient,
+} API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13))
+@interface INSendMessageRecipientResolutionResult : INPersonResolutionResult
+
++ (instancetype)unsupportedForReason:(INSendMessageRecipientUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithPersonResolutionResult:(INPersonResolutionResult *)personResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INImage.h
 //
 //  INImage.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2198,12 +3309,13 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INImage : NSObject <NSCopying, NSSecureCoding>
 
 + (instancetype)imageNamed:(NSString *)name;
 + (instancetype)imageWithImageData:(NSData *)imageData;
-+ (instancetype)imageWithURL:(NSURL *)URL;
++ (nullable instancetype)imageWithURL:(NSURL *)URL;
++ (nullable instancetype)imageWithURL:(NSURL *)URL width:(double)width height:(double)height API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
 
 @end
 
@@ -2213,28 +3325,29 @@ NS_ASSUME_NONNULL_END
 //  INSetProfileInCarIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
 #import <Intents/INIntentResolutionResult.h>
 
 @class INIntegerResolutionResult;
+@class INStringResolutionResult;
 @class INBooleanResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetProfileInCarIntent : INIntent
 
 - (instancetype)initWithProfileNumber:(nullable NSNumber *)profileNumber
-                         profileLabel:(nullable NSString *)profileLabel
-                       defaultProfile:(nullable NSNumber *)defaultProfile NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+                          profileName:(nullable NSString *)profileName
+                       defaultProfile:(nullable NSNumber *)defaultProfile NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(10.2));
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *profileNumber NS_REFINED_FOR_SWIFT;
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *profileLabel;
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *profileName API_AVAILABLE(ios(10.2));
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *defaultProfile NS_REFINED_FOR_SWIFT;
 
@@ -2243,66 +3356,62 @@ API_UNAVAILABLE(macosx)
 @class INSetProfileInCarIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSetProfileInCarIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSetProfileInCarIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @protocol INSetProfileInCarIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSetProfileInCarIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSetProfileInCarIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  setProfileInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSetProfileInCarIntentResponse containing the details of the result of having executed the intent
 
  @see  INSetProfileInCarIntentResponse
  */
 
 - (void)handleSetProfileInCar:(INSetProfileInCarIntent *)intent
-                   completion:(void (^)(INSetProfileInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(setProfileInCar:completion:));
+                   completion:(void (^)(INSetProfileInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  setProfileInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSetProfileInCarIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSetProfileInCarIntentResponse
-
  */
 
 - (void)confirmSetProfileInCar:(INSetProfileInCarIntent *)intent
-                    completion:(void (^)(INSetProfileInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(setProfileInCar:completion:));
+                    completion:(void (^)(INSetProfileInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  setProfileInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveProfileNumberForSetProfileInCar:(INSetProfileInCarIntent *)intent
-                                withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveProfileNumber(forSetProfileInCar:with:));
+                    withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveProfileNumber(for:with:));
+
+- (void)resolveProfileNameForSetProfileInCar:(INSetProfileInCarIntent *)intent
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveProfileName(for:with:)) API_AVAILABLE(ios(10.2));
 
 - (void)resolveDefaultProfileForSetProfileInCar:(INSetProfileInCarIntent *)intent
-                                 withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDefaultProfile(forSetProfileInCar:with:));
+                                 withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDefaultProfile(forSetProfileInCar:with:)) API_DEPRECATED("The property doesn't need to be resolved", ios(10.0, 11.0));
 
 @end
 
@@ -2312,14 +3421,13 @@ NS_ASSUME_NONNULL_END
 //  INRidePhase.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INRidePhase_h
 #define INRidePhase_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INRidePhase) {
@@ -2330,7 +3438,7 @@ typedef NS_ENUM(NSInteger, INRidePhase) {
     INRidePhaseCompleted,
     INRidePhaseApproachingPickup,
     INRidePhasePickup,
-};
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INRidePhase_h
 // ==========  Intents.framework/Headers/INRideFareLineItem.h
@@ -2338,7 +3446,7 @@ typedef NS_ENUM(NSInteger, INRidePhase) {
 //  INRideFareLineItem.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2360,21 +3468,20 @@ NS_CLASS_AVAILABLE(NA, 10_0) __TVOS_PROHIBITED __WATCHOS_AVAILABLE(3_0)
 //  INWorkoutLocationType.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INWorkoutLocationType_h
 #define INWorkoutLocationType_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INWorkoutLocationType) {
     INWorkoutLocationTypeUnknown = 0,
     INWorkoutLocationTypeOutdoor,
     INWorkoutLocationTypeIndoor,
-};
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INWorkoutLocationType_h
 // ==========  Intents.framework/Headers/INGetRestaurantGuestIntent.h
@@ -2382,7 +3489,7 @@ typedef NS_ENUM(NSInteger, INWorkoutLocationType) {
 //  INGetRestaurantGuestIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -2394,7 +3501,7 @@ typedef NS_ENUM(NSInteger, INWorkoutLocationType) {
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INGetRestaurantGuestIntent : INIntent
 
 @end
@@ -2402,16 +3509,14 @@ API_UNAVAILABLE(macosx)
 @class INGetRestaurantGuestIntentResponse;
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @protocol INGetRestaurantGuestIntentHandling <NSObject>
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INGetRestaurantGuestIntent that's passed in
+ @discussion This method is called to actually execute the intent, the app must return a response for this intent and an NSUserActivity capturing the state that the app must be restored to at the end of handling this intent
  
- @abstract Execute the task represented by the INGetRestaurantGuestIntent that's passed in
- @discussion This method are called to actually execute the intent, the app must return a response for this intent and an NSUserActivity capturing the state that the app must be restored to at the end of handling this intent
- 
- @param  guestIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block to invoke with the response to handling the intent.
  
  @see  INGetRestaurantGuestIntentResponse
@@ -2422,8 +3527,7 @@ API_UNAVAILABLE(macosx)
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
  @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
  
  @param  guestIntent The input intent
@@ -2442,7 +3546,7 @@ NS_ASSUME_NONNULL_END
 //  INRelativeSettingResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -2451,13 +3555,20 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos, macosx)
 @interface INRelativeSettingResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INRelativeSetting)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INRelativeSetting. The resolvedValue can be different than the original INRelativeSetting. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedRelativeSetting:(INRelativeSetting)resolvedRelativeSetting NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INRelativeSetting)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedRelativeSetting:", ios(10.0, 11.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INRelativeSetting)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithRelativeSettingToConfirm:(INRelativeSetting)relativeSettingToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INRelativeSetting)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithRelativeSettingToConfirm:", ios(10.0, 11.0));
 
 @end
 
@@ -2467,7 +3578,7 @@ NS_ASSUME_NONNULL_END
 //  Intents.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2492,6 +3603,7 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INDomainHandling.h>
 #import <Intents/INInteraction.h>
 #import <Intents/INSpeakable.h>
+#import <Intents/INParameter.h>
 
 // Intents & Intent Responses
 #import <Intents/INIntents.h>
@@ -2508,7 +3620,10 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INPaymentMethod.h>
 #import <Intents/INPaymentMethodType.h>
 #import <Intents/INPerson.h>
+#import <Intents/INRecurrenceRule.h>
 #import <Intents/INSpeakableString.h>
+#import <Intents/INPersonHandleLabel.h>
+#import <Intents/INPersonRelationship.h>
 
 // Common Resolution Results
 #import <Intents/INBooleanResolutionResult.h>
@@ -2526,41 +3641,26 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INRestaurantGuestResolutionResult.h>
 
 // Calls Domain
-#import <Intents/INSearchCallHistoryIntent.h>
-#import <Intents/INSearchCallHistoryIntentResponse.h>
-#import <Intents/INStartAudioCallIntent.h>
-#import <Intents/INStartAudioCallIntentResponse.h>
-#import <Intents/INStartVideoCallIntent.h>
-#import <Intents/INStartVideoCallIntentResponse.h>
-
+#import <Intents/INCallRecord.h>
 #import <Intents/INCallRecordType.h>
 #import <Intents/INCallRecordTypeResolutionResult.h>
+#import <Intents/INCallDestinationType.h>
+#import <Intents/INCallDestinationTypeResolutionResult.h>
+#import <Intents/INCallCapability.h>
 #import <Intents/INCallCapabilityOptions.h>
+#import <Intents/INCallRecordTypeOptionsResolutionResult.h>
 
 // CarPlay & Radio Domains
-#import <Intents/INSetAudioSourceInCarIntent.h>
-#import <Intents/INSetAudioSourceInCarIntentResponse.h>
-#import <Intents/INSetClimateSettingsInCarIntent.h>
-#import <Intents/INSetClimateSettingsInCarIntentResponse.h>
-#import <Intents/INSetDefrosterSettingsInCarIntent.h>
-#import <Intents/INSetDefrosterSettingsInCarIntentResponse.h>
-#import <Intents/INSetSeatSettingsInCarIntent.h>
-#import <Intents/INSetSeatSettingsInCarIntentResponse.h>
-#import <Intents/INSetProfileInCarIntent.h>
-#import <Intents/INSetProfileInCarIntentResponse.h>
-#import <Intents/INSaveProfileInCarIntent.h>
-#import <Intents/INSaveProfileInCarIntentResponse.h>
-#import <Intents/INSetRadioStationIntent.h>
-#import <Intents/INSetRadioStationIntentResponse.h>
-
-#import <Intents/INCarAudioSource.h>
-#import <Intents/INCarAudioSourceResolutionResult.h>
 #import <Intents/INCarAirCirculationMode.h>
 #import <Intents/INCarAirCirculationModeResolutionResult.h>
+#import <Intents/INCarAudioSource.h>
+#import <Intents/INCarAudioSourceResolutionResult.h>
 #import <Intents/INCarDefroster.h>
 #import <Intents/INCarDefrosterResolutionResult.h>
 #import <Intents/INCarSeat.h>
 #import <Intents/INCarSeatResolutionResult.h>
+#import <Intents/INCarSignalOptions.h>
+#import <Intents/INCarSignalOptionsResolutionResult.h>
 #import <Intents/INRadioType.h>
 #import <Intents/INRadioTypeResolutionResult.h>
 #import <Intents/INRelativeReference.h>
@@ -2569,12 +3669,7 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INRelativeSettingResolutionResult.h>
 
 // Messages Domain
-#import <Intents/INSearchForMessagesIntent.h>
-#import <Intents/INSearchForMessagesIntentResponse.h>
-#import <Intents/INSendMessageIntent.h>
-#import <Intents/INSendMessageIntentResponse.h>
-#import <Intents/INSetMessageAttributeIntent.h>
-#import <Intents/INSetMessageAttributeIntentResponse.h>
+#import <Intents/INSendMessageRecipientResolutionResult.h>
 
 #import <Intents/INMessage.h>
 #import <Intents/INMessageAttribute.h>
@@ -2583,30 +3678,30 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INMessageAttributeOptionsResolutionResult.h>
 
 // Payments Domain
-#import <Intents/INSendPaymentIntent.h>
-#import <Intents/INSendPaymentIntentResponse.h>
-#import <Intents/INRequestPaymentIntent.h>
-#import <Intents/INRequestPaymentIntentResponse.h>
-
+#import <Intents/INAccountTypeResolutionResult.h>
+#import <Intents/INBalanceAmount.h>
+#import <Intents/INBalanceTypeResolutionResult.h>
+#import <Intents/INBillDetails.h>
+#import <Intents/INBillPayee.h>
+#import <Intents/INBillPayeeResolutionResult.h>
+#import <Intents/INBillType.h>
 #import <Intents/INPaymentRecord.h>
 #import <Intents/INPaymentStatus.h>
+#import <Intents/INPaymentAccount.h>
+#import <Intents/INPaymentAccountResolutionResult.h>
+#import <Intents/INPaymentAmount.h>
+#import <Intents/INPaymentAmountResolutionResult.h>
+#import <Intents/INBillTypeResolutionResult.h>
+#import <Intents/INPaymentStatusResolutionResult.h>
+#import <Intents/INSendPaymentCurrencyAmountResolutionResult.h>
+#import <Intents/INRequestPaymentCurrencyAmountResolutionResult.h>
+#import <Intents/INSendPaymentPayeeResolutionResult.h>
+#import <Intents/INRequestPaymentPayerResolutionResult.h>
 
 // Photos Domain
-#import <Intents/INSearchForPhotosIntent.h>
-#import <Intents/INSearchForPhotosIntentResponse.h>
-#import <Intents/INStartPhotoPlaybackIntent.h>
-#import <Intents/INStartPhotoPlaybackIntentResponse.h>
-
 #import <Intents/INPhotoAttributeOptions.h>
 
 // Ridesharing Domain
-#import <Intents/INListRideOptionsIntent.h>
-#import <Intents/INListRideOptionsIntentResponse.h>
-#import <Intents/INRequestRideIntent.h>
-#import <Intents/INRequestRideIntentResponse.h>
-#import <Intents/INGetRideStatusIntent.h>
-#import <Intents/INGetRideStatusIntentResponse.h>
-
 #import <Intents/INPriceRange.h>
 #import <Intents/INRideOption.h>
 #import <Intents/INRideStatus.h>
@@ -2616,23 +3711,18 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INRideFareLineItem.h>
 #import <Intents/INRidePartySizeOption.h>
 #import <Intents/INRideCompletionStatus.h>
+#import <Intents/INRideFeedbackTypeOptions.h>
+
+// Visual Code Domain
+#import <Intents/INVisualCodeType.h>
+#import <Intents/INVisualCodeTypeResolutionResult.h>
 
 // Workouts Domain
-#import <Intents/INStartWorkoutIntent.h>
-#import <Intents/INStartWorkoutIntentResponse.h>
-#import <Intents/INPauseWorkoutIntent.h>
-#import <Intents/INPauseWorkoutIntentResponse.h>
-#import <Intents/INEndWorkoutIntent.h>
-#import <Intents/INEndWorkoutIntentResponse.h>
-#import <Intents/INCancelWorkoutIntent.h>
-#import <Intents/INCancelWorkoutIntentResponse.h>
-#import <Intents/INResumeWorkoutIntent.h>
-#import <Intents/INResumeWorkoutIntentResponse.h>
-
 #import <Intents/INWorkoutGoalUnitType.h>
 #import <Intents/INWorkoutGoalUnitTypeResolutionResult.h>
 #import <Intents/INWorkoutLocationType.h>
 #import <Intents/INWorkoutLocationTypeResolutionResult.h>
+#import <Intents/INWorkoutNameIdentifier.h>
 
 // Restaurant Booking
 #import <Intents/INIntentRestaurantReservation.h>
@@ -2646,26 +3736,161 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/CLPlacemark+IntentsAdditions.h>
 #import <Intents/NSUserActivity+IntentsAdditions.h>
 #import <Intents/INPerson+SiriAdditions.h>
-// ==========  Intents.framework/Headers/INSendPaymentIntent.h
+
+// Notes
+#import <Intents/INNoteContent.h>
+#import <Intents/INTextNoteContent.h>
+#import <Intents/INNote.h>
+#import <Intents/INTask.h>
+#import <Intents/INTaskList.h>
+#import <Intents/INSpatialEventTrigger.h>
+#import <Intents/INTemporalEventTrigger.h>
+#import <Intents/INDateSearchType.h>
+#import <Intents/INLocationSearchType.h>
+#import <Intents/INNoteContentType.h>
+#import <Intents/INNotebookItemType.h>
+#import <Intents/INImageNoteContent.h>
+#import <Intents/INSortType.h>
+
+#import <Intents/INDateSearchTypeResolutionResult.h>
+#import <Intents/INLocationSearchTypeResolutionResult.h>
+#import <Intents/INNoteResolutionResult.h>
+#import <Intents/INNoteContentResolutionResult.h>
+#import <Intents/INNoteContentTypeResolutionResult.h>
+#import <Intents/INNotebookItemTypeResolutionResult.h>
+#import <Intents/INTaskResolutionResult.h>
+#import <Intents/INTaskListResolutionResult.h>
+#import <Intents/INTaskStatusResolutionResult.h>
+#import <Intents/INSpatialEventTriggerResolutionResult.h>
+#import <Intents/INTemporalEventTriggerResolutionResult.h>
+
+// Deprecated
+#import <Intents/INPerson_Deprecated.h>
+#import <Intents/INRequestRideIntent_Deprecated.h>
+#import <Intents/INRideDriver_Deprecated.h>
+#import <Intents/INSaveProfileInCarIntent_Deprecated.h>
+#import <Intents/INSearchCallHistoryIntent_Deprecated.h>
+#import <Intents/INStartAudioCallIntent_Deprecated.h>
+#import <Intents/INSearchForMessagesIntent_Deprecated.h>
+#import <Intents/INSendMessageIntent_Deprecated.h>
+#import <Intents/INSetProfileInCarIntent_Deprecated.h>
+// ==========  Intents.framework/Headers/INCreateTaskListIntent.h
 //
-//  INSendPaymentIntent.h
+//  INCreateTaskListIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
 #import <Intents/INIntentResolutionResult.h>
 
-@class INPerson;
-@class INPersonResolutionResult;
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INCreateTaskListIntent : INIntent
+
+- (instancetype)initWithTitle:(nullable INSpeakableString *)title
+                   taskTitles:(nullable NSArray<INSpeakableString *> *)taskTitles
+                    groupName:(nullable INSpeakableString *)groupName NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *title;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INSpeakableString *> *taskTitles;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *groupName;
+
+@end
+
+@class INCreateTaskListIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INCreateTaskListIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INCreateTaskListIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INCreateTaskListIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INCreateTaskListIntentResponse containing the details of the result of having executed the intent
+
+ @see  INCreateTaskListIntentResponse
+ */
+
+- (void)handleCreateTaskList:(INCreateTaskListIntent *)intent
+                  completion:(void (^)(INCreateTaskListIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INCreateTaskListIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INCreateTaskListIntentResponse
+ */
+
+- (void)confirmCreateTaskList:(INCreateTaskListIntent *)intent
+                   completion:(void (^)(INCreateTaskListIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveTitleForCreateTaskList:(INCreateTaskListIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTitle(for:with:));
+
+- (void)resolveTaskTitlesForCreateTaskList:(INCreateTaskListIntent *)intent
+                    withCompletion:(void (^)(NSArray<INSpeakableStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveTaskTitles(for:with:));
+
+- (void)resolveGroupNameForCreateTaskList:(INCreateTaskListIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveGroupName(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSendPaymentIntent.h
+//
+//  INSendPaymentIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
 @class INCurrencyAmount;
 @class INCurrencyAmountResolutionResult;
+@class INPerson;
+@class INPersonResolutionResult;
+@class INSendPaymentCurrencyAmountResolutionResult;
+@class INSendPaymentPayeeResolutionResult;
 @class INStringResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INSendPaymentIntent : INIntent
 
@@ -2684,69 +3909,68 @@ API_UNAVAILABLE(macosx)
 @class INSendPaymentIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSendPaymentIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSendPaymentIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INSendPaymentIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSendPaymentIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSendPaymentIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  sendPaymentIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSendPaymentIntentResponse containing the details of the result of having executed the intent
 
  @see  INSendPaymentIntentResponse
  */
 
 - (void)handleSendPayment:(INSendPaymentIntent *)intent
-               completion:(void (^)(INSendPaymentIntentResponse *response))completion NS_SWIFT_NAME(handle(sendPayment:completion:));
+               completion:(void (^)(INSendPaymentIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  sendPaymentIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSendPaymentIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSendPaymentIntentResponse
-
  */
 
 - (void)confirmSendPayment:(INSendPaymentIntent *)intent
-                completion:(void (^)(INSendPaymentIntentResponse *response))completion NS_SWIFT_NAME(confirm(sendPayment:completion:));
+                completion:(void (^)(INSendPaymentIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  sendPaymentIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolvePayeeForSendPayment:(INSendPaymentIntent *)intent
-                    withCompletion:(void (^)(INPersonResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePayee(forSendPayment:with:));
+                    withCompletion:(void (^)(INPersonResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePayee(for:with:)) API_DEPRECATED("resolvePayeeForSendPayment:withCompletion: is deprecated. Use resolvePayeeForSendPayment:completion: instead", ios(10.0, 11.0), watchos(3.2, 4.0));
+
+- (void)resolvePayeeForSendPayment:(INSendPaymentIntent *)intent
+                    completion:(void (^)(INSendPaymentPayeeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePayee(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0));
 
 - (void)resolveCurrencyAmountForSendPayment:(INSendPaymentIntent *)intent
-                             withCompletion:(void (^)(INCurrencyAmountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCurrencyAmount(forSendPayment:with:));
+                    withCompletion:(void (^)(INCurrencyAmountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCurrencyAmount(for:with:)) API_DEPRECATED("resolveCurrencyAmountForSendPayment:withCompletion: is deprecated. Use resolveCurrencyAmountForSendPayment:completion: instead", ios(10.0, 11.0), watchos(3.2, 4.0));
+
+- (void)resolveCurrencyAmountForSendPayment:(INSendPaymentIntent *)intent
+                    completion:(void (^)(INSendPaymentCurrencyAmountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCurrencyAmount(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0));
 
 - (void)resolveNoteForSendPayment:(INSendPaymentIntent *)intent
-                   withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveNote(forSendPayment:with:));
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveNote(for:with:));
 
 @end
 
@@ -2756,7 +3980,7 @@ NS_ASSUME_NONNULL_END
 //  INRideStatus.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2764,6 +3988,7 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INRidePhase.h>
 
 @class CLPlacemark;
+@class INDateComponentsRange;
 @class INRideVehicle;
 @class INRideDriver;
 @class INRideOption;
@@ -2791,6 +4016,9 @@ NS_CLASS_AVAILABLE(NA, 10_0) __TVOS_PROHIBITED __WATCHOS_AVAILABLE(3_0)
 // The passenger is expected to arrive at pickup before this date.
 @property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSDate *estimatedPickupEndDate;
 
+// Time range for the scheduled pickup.
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *scheduledPickupTime API_AVAILABLE(ios(10.3), watchos(3.2));
+
 @property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *pickupLocation;
 @property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<CLPlacemark *> *waypoints;
 @property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *dropOffLocation;
@@ -2811,14 +4039,13 @@ NS_ASSUME_NONNULL_END
 //  INMessageAttributeOptions.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INMessageAttributeOptions_h
 #define INMessageAttributeOptions_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_OPTIONS(NSUInteger, INMessageAttributeOptions) {
@@ -2826,7 +4053,8 @@ typedef NS_OPTIONS(NSUInteger, INMessageAttributeOptions) {
     INMessageAttributeOptionUnread = (1UL << 1),
     INMessageAttributeOptionFlagged = (1UL << 2),
     INMessageAttributeOptionUnflagged = (1UL << 3),
-};
+    INMessageAttributeOptionPlayed = (1UL << 4),
+} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
 
 #endif // INMessageAttributeOptions_h
 // ==========  Intents.framework/Headers/INIntentResponse.h
@@ -2834,14 +4062,14 @@ typedef NS_OPTIONS(NSUInteger, INMessageAttributeOptions) {
 //  INIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INIntentResponse : NSObject <NSCopying, NSSecureCoding>
 
 // This user activity will be used to launch the containing application when host application finds appropriate or when users request so.
@@ -2856,24 +4084,281 @@ NS_ASSUME_NONNULL_END
 //  INSpeakable.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 @protocol INSpeakable <NSObject>
 
-@property (readonly, nullable, NS_NONATOMIC_IOSONLY) NSString *spokenPhrase;
+@property (readonly, nonnull, NS_NONATOMIC_IOSONLY) NSString *spokenPhrase;
 @property (readonly, nullable, NS_NONATOMIC_IOSONLY) NSString *pronunciationHint;
-@property (readonly, nullable, NS_NONATOMIC_IOSONLY) NSString *identifier;
+@property (readonly, nullable, NS_NONATOMIC_IOSONLY) NSString *vocabularyIdentifier;
+
+@property (readonly, nullable, NS_NONATOMIC_IOSONLY) NSArray<id<INSpeakable>> *alternativeSpeakableMatches;
+
+@optional
+
+@property (readonly, nullable, NS_NONATOMIC_IOSONLY) NSString *identifier API_DEPRECATED("Please use vocabularyIdentifier", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
 
 @end
+// ==========  Intents.framework/Headers/INGetVisualCodeIntent.h
+//
+//  INGetVisualCodeIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INVisualCodeType.h>
+
+@class INVisualCodeTypeResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INGetVisualCodeIntent : INIntent
+
+- (instancetype)initWithVisualCodeType:(INVisualCodeType)visualCodeType NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INVisualCodeType visualCodeType;
+
+@end
+
+@class INGetVisualCodeIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INGetVisualCodeIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INGetVisualCodeIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INGetVisualCodeIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INGetVisualCodeIntentResponse containing the details of the result of having executed the intent
+
+ @see  INGetVisualCodeIntentResponse
+ */
+
+- (void)handleGetVisualCode:(INGetVisualCodeIntent *)intent
+                 completion:(void (^)(INGetVisualCodeIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INGetVisualCodeIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INGetVisualCodeIntentResponse
+ */
+
+- (void)confirmGetVisualCode:(INGetVisualCodeIntent *)intent
+                  completion:(void (^)(INGetVisualCodeIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveVisualCodeTypeForGetVisualCode:(INGetVisualCodeIntent *)intent
+                    withCompletion:(void (^)(INVisualCodeTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveVisualCodeType(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INImageNoteContent.h
+//
+//  INImageNoteContent.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INNoteContent.h>
+
+@class INImage;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+@interface INImageNoteContent : INNoteContent <NSSecureCoding, NSCopying>
+
+- (instancetype)initWithImage:(INImage *)image;
+
+// The image that comprises the note content
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INImage *image;
+
+@end
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSendPaymentCurrencyAmountResolutionResult.h
+//
+//  INSendPaymentCurrencyAmountResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INCurrencyAmountResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INSendPaymentCurrencyAmountUnsupportedReason) {
+    INSendPaymentCurrencyAmountUnsupportedReasonPaymentsAmountBelowMinimum = 1,
+    INSendPaymentCurrencyAmountUnsupportedReasonPaymentsAmountAboveMaximum,
+    INSendPaymentCurrencyAmountUnsupportedReasonPaymentsCurrencyUnsupported,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INSendPaymentCurrencyAmountResolutionResult : INCurrencyAmountResolutionResult
+
++ (instancetype)unsupportedForReason:(INSendPaymentCurrencyAmountUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithCurrencyAmountResolutionResult:(INCurrencyAmountResolutionResult *)currencyAmountResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INGetCarLockStatusIntent.h
+//
+//  INGetCarLockStatusIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INGetCarLockStatusIntent : INIntent
+
+- (instancetype)initWithCarName:(nullable INSpeakableString *)carName NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *carName;
+
+@end
+
+@class INGetCarLockStatusIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INGetCarLockStatusIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@protocol INGetCarLockStatusIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INGetCarLockStatusIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INGetCarLockStatusIntentResponse containing the details of the result of having executed the intent
+
+ @see  INGetCarLockStatusIntentResponse
+ */
+
+- (void)handleGetCarLockStatus:(INGetCarLockStatusIntent *)intent
+                    completion:(void (^)(INGetCarLockStatusIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INGetCarLockStatusIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INGetCarLockStatusIntentResponse
+ */
+
+- (void)confirmGetCarLockStatus:(INGetCarLockStatusIntent *)intent
+                     completion:(void (^)(INGetCarLockStatusIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveCarNameForGetCarLockStatus:(INGetCarLockStatusIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCarName(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCallDestinationTypeResolutionResult.h
+//
+//  INCallDestinationTypeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INCallDestinationType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13))
+@interface INCallDestinationTypeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCallDestinationType. The resolvedValue can be different than the original INCallDestinationType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedCallDestinationType:(INCallDestinationType)resolvedCallDestinationType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INCallDestinationType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCallDestinationType:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithCallDestinationTypeToConfirm:(INCallDestinationType)callDestinationTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INCallDestinationType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCallDestinationTypeToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRequestRideIntentResponse.h
 //
 //  INRequestRideIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -2883,7 +4368,7 @@ NS_ASSUME_NONNULL_END
 typedef NS_ENUM(NSInteger, INRequestRideIntentResponseCode) {
     INRequestRideIntentResponseCodeUnspecified = 0,
     INRequestRideIntentResponseCodeReady,
-    INRequestRideIntentResponseCodeInProgress,
+    INRequestRideIntentResponseCodeInProgress API_DEPRECATED("INRequestRideIntentResponseCodeInProgress is deprecated.", ios(10.0, 11.0), watchos(3.2, 4.0)),
     INRequestRideIntentResponseCodeSuccess,
     INRequestRideIntentResponseCodeFailure,
     INRequestRideIntentResponseCodeFailureRequiringAppLaunch,
@@ -2891,11 +4376,11 @@ typedef NS_ENUM(NSInteger, INRequestRideIntentResponseCode) {
     INRequestRideIntentResponseCodeFailureRequiringAppLaunchNoServiceInArea,
     INRequestRideIntentResponseCodeFailureRequiringAppLaunchServiceTemporarilyUnavailable,
     INRequestRideIntentResponseCodeFailureRequiringAppLaunchPreviousRideNeedsCompletion,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INRequestRideIntentResponse : INIntentResponse
 
@@ -2913,32 +4398,234 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INNote.h
+//
+//  INNote.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class NSDateComponents;
+@class INNoteContent;
+@class INSpeakableString;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+@interface INNote : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)initWithTitle:(INSpeakableString *)title contents:(NSArray <INNoteContent *> *)contents groupName:(nullable INSpeakableString *)groupName createdDateComponents:(nullable NSDateComponents *)createdDateComponents modifiedDateComponents:(nullable NSDateComponents *)modifiedDateComponents identifier:(nullable NSString *)identifier;
+
+@property (readonly, copy) INSpeakableString *title;
+@property (readonly, copy) NSArray <INNoteContent *> *contents;
+@property (readonly, copy, nullable) INSpeakableString *groupName;
+@property (readonly, copy, nullable) NSDateComponents *createdDateComponents;
+@property (readonly, copy, nullable) NSDateComponents *modifiedDateComponents;
+@property (readonly, copy, nullable) NSString *identifier;
+
+@end
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INPayBillIntentResponse.h
+//
+//  INPayBillIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INBillDetails;
+@class INDateComponentsRange;
+@class INPaymentAccount;
+@class INPaymentAmount;
+
+typedef NS_ENUM(NSInteger, INPayBillIntentResponseCode) {
+    INPayBillIntentResponseCodeUnspecified = 0,
+    INPayBillIntentResponseCodeReady,
+    INPayBillIntentResponseCodeInProgress,
+    INPayBillIntentResponseCodeSuccess,
+    INPayBillIntentResponseCodeFailure,
+    INPayBillIntentResponseCodeFailureRequiringAppLaunch,
+    INPayBillIntentResponseCodeFailureCredentialsUnverified,
+    INPayBillIntentResponseCodeFailureInsufficientFunds,
+} API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INPayBillIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INPayBillIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INPayBillIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentAccount *fromAccount;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INBillDetails *billDetails;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentAmount *transactionAmount;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *transactionScheduledDate;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *transactionNote;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INPersonHandle.h
 //
 //  INPersonHandle.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+
+#import <Intents/INPersonHandleLabel.h>
 
 typedef NS_ENUM(NSInteger, INPersonHandleType) {
     INPersonHandleTypeUnknown = 0,
     INPersonHandleTypeEmailAddress,
     INPersonHandleTypePhoneNumber,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+} API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INPersonHandle : NSObject <NSCopying, NSSecureCoding>
 
-@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *value;
+@property (readonly, nullable, copy, NS_NONATOMIC_IOSONLY) NSString *value;
 @property (readonly, NS_NONATOMIC_IOSONLY) INPersonHandleType type;
+@property (readonly, nullable, NS_NONATOMIC_IOSONLY) INPersonHandleLabel label API_AVAILABLE(ios(10.2), macosx(10.12.2));
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithValue:(NSString *)value type:(INPersonHandleType)type NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithValue:(nullable NSString *)value type:(INPersonHandleType)type label:(nullable INPersonHandleLabel)label NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(10.2), macosx(10.12.2));
+- (instancetype)initWithValue:(nullable NSString *)value type:(INPersonHandleType)type;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSendRideFeedbackIntent.h
+//
+//  INSendRideFeedbackIntent.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+
+@class INSendRideFeedbackIntentResponse, INCurrencyAmount;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0))
+API_UNAVAILABLE(watchos, macos)
+@interface INSendRideFeedbackIntent : INIntent
+
+- (id)init NS_UNAVAILABLE;
+
+- (instancetype)initWithRideIdentifier:(NSString *)rideIdentifier NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *rideIdentifier; // Specifies the identifier of the ride to send feedback for.
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *rating; // Will be between 0 and 10 inclusive.
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INCurrencyAmount *tip;
+
+@end
+
+/*!
+ @abstract Protocol to declare support for handling an INSendRideFeedbackIntent. By implementing this protocol, a class can provide logic for confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The handling method is always called last, after confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0))
+API_UNAVAILABLE(watchos, macos)
+@protocol INSendRideFeedbackIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INSendRideFeedbackIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+ 
+ @param  sendRideFeedbackintent The input intent
+ @param  completion The response handling block takes a INSendRideFeedbackIntentResponse containing the details of the result of having executed the intent
+ 
+ @see  INSendRideFeedbackIntentResponse
+ */
+
+- (void)handleSendRideFeedback:(INSendRideFeedbackIntent *)sendRideFeedbackintent
+                    completion:(void (^)(INSendRideFeedbackIntentResponse *response))completion NS_SWIFT_NAME(handle(sendRideFeedback:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will not allow calling of the handle method.
+ 
+ @param  sendRideFeedbackIntent The input intent
+ @param  completion The response block contains an INSendRideFeedbackIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+ 
+ @see INSendRideFeedbackIntentResponse
+ 
+ */
+
+- (void)confirmSendRideFeedback:(INSendRideFeedbackIntent *)sendRideFeedbackIntent
+                     completion:(void (^)(INSendRideFeedbackIntentResponse *response))completion NS_SWIFT_NAME(confirm(sendRideFeedback:completion:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSearchForBillsIntentResponse.h
+//
+//  INSearchForBillsIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INBillDetails;
+
+typedef NS_ENUM(NSInteger, INSearchForBillsIntentResponseCode) {
+    INSearchForBillsIntentResponseCodeUnspecified = 0,
+    INSearchForBillsIntentResponseCodeReady,
+    INSearchForBillsIntentResponseCodeInProgress,
+    INSearchForBillsIntentResponseCodeSuccess,
+    INSearchForBillsIntentResponseCodeFailure,
+    INSearchForBillsIntentResponseCodeFailureRequiringAppLaunch,
+    INSearchForBillsIntentResponseCodeFailureCredentialsUnverified,
+    INSearchForBillsIntentResponseCodeFailureBillNotFound,
+} API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INSearchForBillsIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INSearchForBillsIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INSearchForBillsIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INBillDetails *> *bills;
 
 @end
 
@@ -2948,7 +4635,7 @@ NS_ASSUME_NONNULL_END
 //  INSetAudioSourceInCarIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -2963,7 +4650,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetAudioSourceInCarIntent : INIntent
 
 - (instancetype)initWithAudioSource:(INCarAudioSource)audioSource
@@ -2978,66 +4665,91 @@ API_UNAVAILABLE(macosx)
 @class INSetAudioSourceInCarIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSetAudioSourceInCarIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSetAudioSourceInCarIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @protocol INSetAudioSourceInCarIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSetAudioSourceInCarIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSetAudioSourceInCarIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  setAudioSourceInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSetAudioSourceInCarIntentResponse containing the details of the result of having executed the intent
 
  @see  INSetAudioSourceInCarIntentResponse
  */
 
 - (void)handleSetAudioSourceInCar:(INSetAudioSourceInCarIntent *)intent
-                       completion:(void (^)(INSetAudioSourceInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(setAudioSourceInCar:completion:));
+                       completion:(void (^)(INSetAudioSourceInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  setAudioSourceInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSetAudioSourceInCarIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSetAudioSourceInCarIntentResponse
-
  */
 
 - (void)confirmSetAudioSourceInCar:(INSetAudioSourceInCarIntent *)intent
-                        completion:(void (^)(INSetAudioSourceInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(setAudioSourceInCar:completion:));
+                        completion:(void (^)(INSetAudioSourceInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  setAudioSourceInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveAudioSourceForSetAudioSourceInCar:(INSetAudioSourceInCarIntent *)intent
-                                  withCompletion:(void (^)(INCarAudioSourceResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAudioSource(forSetAudioSourceInCar:with:));
+                    withCompletion:(void (^)(INCarAudioSourceResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAudioSource(for:with:));
 
 - (void)resolveRelativeAudioSourceReferenceForSetAudioSourceInCar:(INSetAudioSourceInCarIntent *)intent
-                                                   withCompletion:(void (^)(INRelativeReferenceResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRelativeAudioSourceReference(forSetAudioSourceInCar:with:));
+                    withCompletion:(void (^)(INRelativeReferenceResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRelativeAudioSourceReference(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INLocationSearchTypeResolutionResult.h
+//
+//  INLocationSearchTypeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INLocationSearchType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INLocationSearchTypeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INLocationSearchType. The resolvedValue can be different than the original INLocationSearchType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedLocationSearchType:(INLocationSearchType)resolvedLocationSearchType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INLocationSearchType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedLocationSearchType:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithLocationSearchTypeToConfirm:(INLocationSearchType)locationSearchTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INLocationSearchType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithLocationSearchTypeToConfirm:", ios(11.0, 11.0), watchos(4.0, 4.0));
 
 @end
 
@@ -3046,7 +4758,7 @@ NS_ASSUME_NONNULL_END
 //
 //  INExtension.h
 //
-//  Copyright © 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3055,7 +4767,126 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0), watchos(3.2))
 @interface INExtension : NSObject <INIntentHandlerProviding>
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INNoteContentType.h
+//
+//  INNoteContentType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INNoteContentType_h
+#define INNoteContentType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INNoteContentType) {
+    INNoteContentTypeUnknown = 0,
+    INNoteContentTypeText,
+    INNoteContentTypeImage,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INNoteContentType_h
+// ==========  Intents.framework/Headers/INCreateNoteIntent.h
+//
+//  INCreateNoteIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INNoteContent;
+@class INNoteContentResolutionResult;
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INCreateNoteIntent : INIntent
+
+- (instancetype)initWithTitle:(nullable INSpeakableString *)title
+                      content:(nullable INNoteContent *)content
+                    groupName:(nullable INSpeakableString *)groupName NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *title;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INNoteContent *content;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *groupName;
+
+@end
+
+@class INCreateNoteIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INCreateNoteIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INCreateNoteIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INCreateNoteIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INCreateNoteIntentResponse containing the details of the result of having executed the intent
+
+ @see  INCreateNoteIntentResponse
+ */
+
+- (void)handleCreateNote:(INCreateNoteIntent *)intent
+              completion:(void (^)(INCreateNoteIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INCreateNoteIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INCreateNoteIntentResponse
+ */
+
+- (void)confirmCreateNote:(INCreateNoteIntent *)intent
+               completion:(void (^)(INCreateNoteIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveTitleForCreateNote:(INCreateNoteIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTitle(for:with:));
+
+- (void)resolveContentForCreateNote:(INCreateNoteIntent *)intent
+                    withCompletion:(void (^)(INNoteContentResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveContent(for:with:));
+
+- (void)resolveGroupNameForCreateNote:(INCreateNoteIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveGroupName(for:with:));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -3064,7 +4895,7 @@ NS_ASSUME_NONNULL_END
 //  INCancelWorkoutIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -3075,10 +4906,11 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INCancelWorkoutIntent : INIntent
 
+// Designated initializer. The `workoutName` can use `INWorkoutNameIdentifier` as its `identifier` parameter.
 - (instancetype)initWithWorkoutName:(nullable INSpeakableString *)workoutName NS_DESIGNATED_INITIALIZER;
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *workoutName;
@@ -3088,63 +4920,56 @@ API_UNAVAILABLE(macosx)
 @class INCancelWorkoutIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INCancelWorkoutIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INCancelWorkoutIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INCancelWorkoutIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INCancelWorkoutIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INCancelWorkoutIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  cancelWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INCancelWorkoutIntentResponse containing the details of the result of having executed the intent
 
  @see  INCancelWorkoutIntentResponse
  */
 
 - (void)handleCancelWorkout:(INCancelWorkoutIntent *)intent
-                 completion:(void (^)(INCancelWorkoutIntentResponse *response))completion NS_SWIFT_NAME(handle(cancelWorkout:completion:));
+                 completion:(void (^)(INCancelWorkoutIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  cancelWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INCancelWorkoutIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INCancelWorkoutIntentResponse
-
  */
 
 - (void)confirmCancelWorkout:(INCancelWorkoutIntent *)intent
-                  completion:(void (^)(INCancelWorkoutIntentResponse *response))completion NS_SWIFT_NAME(confirm(cancelWorkout:completion:));
+                  completion:(void (^)(INCancelWorkoutIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  cancelWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveWorkoutNameForCancelWorkout:(INCancelWorkoutIntent *)intent
-                            withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutName(forCancelWorkout:with:));
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutName(for:with:));
 
 @end
 
@@ -3154,14 +4979,13 @@ NS_ASSUME_NONNULL_END
 //  INPaymentStatus.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INPaymentStatus_h
 #define INPaymentStatus_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INPaymentStatus) {
@@ -3170,7 +4994,8 @@ typedef NS_ENUM(NSInteger, INPaymentStatus) {
     INPaymentStatusCompleted,
     INPaymentStatusCanceled,
     INPaymentStatusFailed,
-};
+    INPaymentStatusUnpaid,
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INPaymentStatus_h
 // ==========  Intents.framework/Headers/INPerson+SiriAdditions.h
@@ -3178,7 +5003,7 @@ typedef NS_ENUM(NSInteger, INPaymentStatus) {
 //  INPerson+SiriAdditions.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INPerson.h>
@@ -3188,6 +5013,277 @@ typedef NS_ENUM(NSInteger, INPaymentStatus) {
 NS_ASSUME_NONNULL_BEGIN
 
 @interface INPerson (SiriAdditions) <INSpeakable>
+
+// This property is filled in with what Siri thinks are close matches to what the user said
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPerson *> *siriMatches API_AVAILABLE(ios(10.3), watchos(3.2));
+
+// This property is set to YES when the user says things like "Search for messages from me", etc.
+@property (readonly, NS_NONATOMIC_IOSONLY) BOOL isMe API_AVAILABLE(ios(11.0), macosx(10.13));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTemporalEventTriggerResolutionResult.h
+//
+//  INTemporalEventTriggerResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INTemporalEventTrigger;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INTemporalEventTriggerResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INTemporalEventTrigger. The resolvedTemporalEventTrigger can be different than the original INTemporalEventTrigger. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedTemporalEventTrigger:(INTemporalEventTrigger *)resolvedTemporalEventTrigger NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INTemporalEventTrigger.
++ (instancetype)disambiguationWithTemporalEventTriggersToDisambiguate:(NSArray<INTemporalEventTrigger *> *)temporalEventTriggersToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the temporalEventTrigger with which the user wants to continue.
++ (instancetype)confirmationRequiredWithTemporalEventTriggerToConfirm:(nullable INTemporalEventTrigger *)temporalEventTriggerToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSetTaskAttributeIntentResponse.h
+//
+//  INSetTaskAttributeIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INTask;
+
+typedef NS_ENUM(NSInteger, INSetTaskAttributeIntentResponseCode) {
+    INSetTaskAttributeIntentResponseCodeUnspecified = 0,
+    INSetTaskAttributeIntentResponseCodeReady,
+    INSetTaskAttributeIntentResponseCodeInProgress,
+    INSetTaskAttributeIntentResponseCodeSuccess,
+    INSetTaskAttributeIntentResponseCodeFailure,
+    INSetTaskAttributeIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INSetTaskAttributeIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INSetTaskAttributeIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INSetTaskAttributeIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INTask *modifiedTask;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INRideFeedbackTypeOptions.h
+//
+//  INRideFeedbackTypeOptions.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INRideFeedbackTypeOptions_h
+#define INRideFeedbackTypeOptions_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_OPTIONS(NSUInteger, INRideFeedbackTypeOptions) {
+    INRideFeedbackTypeOptionRate = (1UL << 0),
+    INRideFeedbackTypeOptionTip = (1UL << 1),
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INRideFeedbackTypeOptions_h
+// ==========  Intents.framework/Headers/INTaskStatus.h
+//
+//  INTaskStatus.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INTaskStatus_h
+#define INTaskStatus_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INTaskStatus) {
+    INTaskStatusUnknown = 0,
+    INTaskStatusNotCompleted,
+    INTaskStatusCompleted,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INTaskStatus_h
+// ==========  Intents.framework/Headers/INAddTasksIntent.h
+//
+//  INAddTasksIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INSpatialEventTrigger;
+@class INSpatialEventTriggerResolutionResult;
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
+@class INTaskList;
+@class INTaskListResolutionResult;
+@class INTemporalEventTrigger;
+@class INTemporalEventTriggerResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INAddTasksIntent : INIntent
+
+- (instancetype)initWithTargetTaskList:(nullable INTaskList *)targetTaskList
+                            taskTitles:(nullable NSArray<INSpeakableString *> *)taskTitles
+                   spatialEventTrigger:(nullable INSpatialEventTrigger *)spatialEventTrigger
+                  temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INTaskList *targetTaskList;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INSpeakableString *> *taskTitles;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpatialEventTrigger *spatialEventTrigger;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INTemporalEventTrigger *temporalEventTrigger;
+
+@end
+
+@class INAddTasksIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INAddTasksIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INAddTasksIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INAddTasksIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INAddTasksIntentResponse containing the details of the result of having executed the intent
+
+ @see  INAddTasksIntentResponse
+ */
+
+- (void)handleAddTasks:(INAddTasksIntent *)intent
+            completion:(void (^)(INAddTasksIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INAddTasksIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INAddTasksIntentResponse
+ */
+
+- (void)confirmAddTasks:(INAddTasksIntent *)intent
+             completion:(void (^)(INAddTasksIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveTargetTaskListForAddTasks:(INAddTasksIntent *)intent
+                    withCompletion:(void (^)(INTaskListResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTargetTaskList(for:with:));
+
+- (void)resolveTaskTitlesForAddTasks:(INAddTasksIntent *)intent
+                    withCompletion:(void (^)(NSArray<INSpeakableStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveTaskTitles(for:with:));
+
+- (void)resolveSpatialEventTriggerForAddTasks:(INAddTasksIntent *)intent
+                    withCompletion:(void (^)(INSpatialEventTriggerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveSpatialEventTrigger(for:with:));
+
+- (void)resolveTemporalEventTriggerForAddTasks:(INAddTasksIntent *)intent
+                    withCompletion:(void (^)(INTemporalEventTriggerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTemporalEventTrigger(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAddTasksIntentResponse.h
+//
+//  INAddTasksIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INTask;
+@class INTaskList;
+
+typedef NS_ENUM(NSInteger, INAddTasksIntentResponseCode) {
+    INAddTasksIntentResponseCodeUnspecified = 0,
+    INAddTasksIntentResponseCodeReady,
+    INAddTasksIntentResponseCodeInProgress,
+    INAddTasksIntentResponseCodeSuccess,
+    INAddTasksIntentResponseCodeFailure,
+    INAddTasksIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INAddTasksIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INAddTasksIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INAddTasksIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INTaskList *modifiedTaskList;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INTask *> *addedTasks;
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -3196,7 +5292,7 @@ NS_ASSUME_NONNULL_END
 //  INResumeWorkoutIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -3204,15 +5300,17 @@ NS_ASSUME_NONNULL_END
 typedef NS_ENUM(NSInteger, INResumeWorkoutIntentResponseCode) {
     INResumeWorkoutIntentResponseCodeUnspecified = 0,
     INResumeWorkoutIntentResponseCodeReady,
-    INResumeWorkoutIntentResponseCodeContinueInApp,
+    INResumeWorkoutIntentResponseCodeContinueInApp API_AVAILABLE(watchos(3.2)) API_DEPRECATED("INResumeWorkoutIntentResponseCodeContinueInApp is deprecated on iOS. Please use INResumeWorkoutIntentResponseCodeHandleInApp instead", ios(10.0, 11.0)),
     INResumeWorkoutIntentResponseCodeFailure,
     INResumeWorkoutIntentResponseCodeFailureRequiringAppLaunch,
     INResumeWorkoutIntentResponseCodeFailureNoMatchingWorkout,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+    INResumeWorkoutIntentResponseCodeSuccess NS_EXTENSION_UNAVAILABLE("INResumeWorkoutIntentResponseCodeSuccess is not available to extensions. This can only be returned from the app.") API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos),
+    INResumeWorkoutIntentResponseCodeHandleInApp API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos),
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INResumeWorkoutIntentResponse : INIntentResponse
 
@@ -3228,19 +5326,55 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INNotebookItemTypeResolutionResult.h
+//
+//  INNotebookItemTypeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INNotebookItemType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INNotebookItemTypeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INNotebookItemType. The resolvedValue can be different than the original INNotebookItemType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedNotebookItemType:(INNotebookItemType)resolvedNotebookItemType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INNotebookItemType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedNotebookItemType:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+// This resolution result is to ask Siri to disambiguate between the provided values.
++ (instancetype)disambiguationWithNotebookItemTypesToDisambiguate:(NSArray<NSNumber *> *)notebookItemTypesToDisambiguate NS_REFINED_FOR_SWIFT;
+
++ (instancetype)disambiguationWithValuesToDisambiguate:(NSArray<NSNumber *> *)valuesToDisambiguate NS_REFINED_FOR_SWIFT API_DEPRECATED_WITH_REPLACEMENT("+disambiguationWithNotebookItemTypesToDisambiguate:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithNotebookItemTypeToConfirm:(INNotebookItemType)notebookItemTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INNotebookItemType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithNotebookItemTypeToConfirm:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRadioType.h
 //
 //  INRadioType.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INRadioType_h
 #define INRadioType_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INRadioType) {
@@ -3250,15 +5384,67 @@ typedef NS_ENUM(NSInteger, INRadioType) {
     INRadioTypeHD,
     INRadioTypeSatellite,
     INRadioTypeDAB,
-};
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INRadioType_h
+// ==========  Intents.framework/Headers/INPaymentAccount.h
+//
+//  INPaymentAccount.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INAccountType.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class INSpeakableString;
+@class INBalanceAmount;
+
+API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx)
+@interface INPaymentAccount : NSObject <NSCopying, NSSecureCoding>
+
+- (id)init NS_UNAVAILABLE;
+
+- (instancetype)initWithNickname:(INSpeakableString *)nickname
+                          number:(nullable NSString *)accountNumber
+                     accountType:(INAccountType)accountType
+                organizationName:(nullable INSpeakableString *)organizationName
+                         balance:(nullable INBalanceAmount *)balance
+                secondaryBalance:(nullable INBalanceAmount *)secondaryBalance NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(11.0), watchos(4.0));
+
+- (nullable instancetype)initWithNickname:(INSpeakableString *)nickname
+                          number:(nullable NSString *)accountNumber
+                     accountType:(INAccountType)accountType
+                organizationName:(nullable INSpeakableString *)organizationName API_DEPRECATED("Please use 'initWithNickname:number:accountType:organizationName:balance:secondaryBalance:' instead", ios(10.3, 11.0), watchos(3.2, 4.0));
+
+// e.g. "Salary deposit account"
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *nickname;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *accountNumber;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INAccountType accountType;
+
+// e.g. "Bank of Narnia"
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *organizationName;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INBalanceAmount *balance API_AVAILABLE(ios(11.0), watchos(4.0));
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INBalanceAmount *secondaryBalance API_AVAILABLE(ios(11.0), watchos(4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INIntentIdentifiers.h
 //
 //  INIntentIdentifiers.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3266,96 +5452,128 @@ typedef NS_ENUM(NSInteger, INRadioType) {
 #import <Intents/IntentsDefines.h>
 
 // Identifier for INStartAudioCallIntent class.
-INTENTS_EXTERN NSString *const INStartAudioCallIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0));
+INTENTS_EXTERN NSString *const INStartAudioCallIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
 
 // Identifier for INStartVideoCallIntent class.
-INTENTS_EXTERN NSString *const INStartVideoCallIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0));
+INTENTS_EXTERN NSString *const INStartVideoCallIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos);
 
 // Identifier for INSearchCallHistoryIntent class.
-INTENTS_EXTERN NSString *const INSearchCallHistoryIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0));
+INTENTS_EXTERN NSString *const INSearchCallHistoryIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
 
 // Identifier for INSetAudioSourceInCarIntent class.
-INTENTS_EXTERN NSString *const INSetAudioSourceInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INSetAudioSourceInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos);
 
 // Identifier for INSetClimateSettingsInCarIntent class.
-INTENTS_EXTERN NSString *const INSetClimateSettingsInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INSetClimateSettingsInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos);
 
 // Identifier for INSetDefrosterSettingsInCarIntent class.
-INTENTS_EXTERN NSString *const INSetDefrosterSettingsInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INSetDefrosterSettingsInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos);
 
 // Identifier for INSetSeatSettingsInCarIntent class.
-INTENTS_EXTERN NSString *const INSetSeatSettingsInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INSetSeatSettingsInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos);
 
 // Identifier for INSetProfileInCarIntent class.
-INTENTS_EXTERN NSString *const INSetProfileInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INSetProfileInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos);
 
 // Identifier for INSaveProfileInCarIntent class.
-INTENTS_EXTERN NSString *const INSaveProfileInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INSaveProfileInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos);
 
 // Identifier for INStartWorkoutIntent class.
-INTENTS_EXTERN NSString *const INStartWorkoutIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INStartWorkoutIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INPauseWorkoutIntent class.
-INTENTS_EXTERN NSString *const INPauseWorkoutIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INPauseWorkoutIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INEndWorkoutIntent class.
-INTENTS_EXTERN NSString *const INEndWorkoutIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INEndWorkoutIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INCancelWorkoutIntent class.
-INTENTS_EXTERN NSString *const INCancelWorkoutIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INCancelWorkoutIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INResumeWorkoutIntent class.
-INTENTS_EXTERN NSString *const INResumeWorkoutIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INResumeWorkoutIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INSetRadioStationIntent class.
-INTENTS_EXTERN NSString *const INSetRadioStationIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INSetRadioStationIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos);
 
 // Identifier for INSendMessageIntent class.
-INTENTS_EXTERN NSString *const INSendMessageIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0));
+INTENTS_EXTERN NSString *const INSendMessageIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
 
 // Identifier for INSearchForMessagesIntent class.
-INTENTS_EXTERN NSString *const INSearchForMessagesIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0));
+INTENTS_EXTERN NSString *const INSearchForMessagesIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
 
 // Identifier for INSetMessageAttributeIntent class.
-INTENTS_EXTERN NSString *const INSetMessageAttributeIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0));
+INTENTS_EXTERN NSString *const INSetMessageAttributeIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos);
 
 // Identifier for INSendPaymentIntent class.
-INTENTS_EXTERN NSString *const INSendPaymentIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INSendPaymentIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INRequestPaymentIntent class.
-INTENTS_EXTERN NSString *const INRequestPaymentIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INRequestPaymentIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INSearchForPhotosIntent class.
-INTENTS_EXTERN NSString *const INSearchForPhotosIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INSearchForPhotosIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INStartPhotoPlaybackIntent class.
-INTENTS_EXTERN NSString *const INStartPhotoPlaybackIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INStartPhotoPlaybackIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INListRideOptionsIntent class.
-INTENTS_EXTERN NSString *const INListRideOptionsIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INListRideOptionsIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INRequestRideIntent class.
-INTENTS_EXTERN NSString *const INRequestRideIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INRequestRideIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INGetRideStatusIntent class.
-INTENTS_EXTERN NSString *const INGetRideStatusIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+INTENTS_EXTERN NSString *const INGetRideStatusIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
+// ==========  Intents.framework/Headers/INBillTypeResolutionResult.h
+//
+//  INBillTypeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INBillType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INBillTypeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INBillType. The resolvedValue can be different than the original INBillType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedBillType:(INBillType)resolvedBillType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INBillType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedBillType:", ios(10.3, 11.0), watchos(3.2, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithBillTypeToConfirm:(INBillType)billTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INBillType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithBillTypeToConfirm:", ios(10.3, 11.0), watchos(3.2, 4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INListRideOptionsIntentResponse.h
 //
 //  INListRideOptionsIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
 
-@class INRideOption;
 @class INPaymentMethod;
+@class INRideOption;
 
 typedef NS_ENUM(NSInteger, INListRideOptionsIntentResponseCode) {
     INListRideOptionsIntentResponseCodeUnspecified = 0,
     INListRideOptionsIntentResponseCodeReady,
-    INListRideOptionsIntentResponseCodeInProgress,
+    INListRideOptionsIntentResponseCodeInProgress API_DEPRECATED("INListRideOptionsIntentResponseCodeInProgress is deprecated.", ios(10.0, 11.0), watchos(3.2, 4.0)),
     INListRideOptionsIntentResponseCodeSuccess,
     INListRideOptionsIntentResponseCodeFailure,
     INListRideOptionsIntentResponseCodeFailureRequiringAppLaunch,
@@ -3363,11 +5581,12 @@ typedef NS_ENUM(NSInteger, INListRideOptionsIntentResponseCode) {
     INListRideOptionsIntentResponseCodeFailureRequiringAppLaunchNoServiceInArea,
     INListRideOptionsIntentResponseCodeFailureRequiringAppLaunchServiceTemporarilyUnavailable,
     INListRideOptionsIntentResponseCodeFailureRequiringAppLaunchPreviousRideNeedsCompletion,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+    INListRideOptionsIntentResponseCodeFailurePreviousRideNeedsFeedback API_AVAILABLE(ios(11.0), watchos(4.0)),
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INListRideOptionsIntentResponse : INIntentResponse
 
@@ -3394,10 +5613,12 @@ NS_ASSUME_NONNULL_END
 //  INSearchCallHistoryIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
+
+@class INCallRecord;
 
 typedef NS_ENUM(NSInteger, INSearchCallHistoryIntentResponseCode) {
     INSearchCallHistoryIntentResponseCodeUnspecified = 0,
@@ -3405,11 +5626,14 @@ typedef NS_ENUM(NSInteger, INSearchCallHistoryIntentResponseCode) {
     INSearchCallHistoryIntentResponseCodeContinueInApp,
     INSearchCallHistoryIntentResponseCodeFailure,
     INSearchCallHistoryIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+    INSearchCallHistoryIntentResponseCodeFailureAppConfigurationRequired,
+    INSearchCallHistoryIntentResponseCodeInProgress API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)),
+    INSearchCallHistoryIntentResponseCodeSuccess API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)),
+} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 @interface INSearchCallHistoryIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -3421,6 +5645,8 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 
 @property (readonly, NS_NONATOMIC_IOSONLY) INSearchCallHistoryIntentResponseCode code;
 
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INCallRecord *> *callRecords API_AVAILABLE(ios(11.0), macosx(10.13));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -3429,7 +5655,7 @@ NS_ASSUME_NONNULL_END
 //  INCallRecordTypeResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -3438,13 +5664,19 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 @interface INCallRecordTypeResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INCallRecordType)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCallRecordType. The resolvedValue can be different than the original INCallRecordType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedCallRecordType:(INCallRecordType)resolvedCallRecordType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INCallRecordType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCallRecordType:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INCallRecordType)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithCallRecordTypeToConfirm:(INCallRecordType)callRecordTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INCallRecordType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCallRecordTypeToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
 
 @end
 
@@ -3454,7 +5686,7 @@ NS_ASSUME_NONNULL_END
 //  INSendPaymentIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -3474,11 +5706,12 @@ typedef NS_ENUM(NSInteger, INSendPaymentIntentResponseCode) {
     INSendPaymentIntentResponseCodeFailurePaymentsCurrencyUnsupported,
     INSendPaymentIntentResponseCodeFailureInsufficientFunds,
     INSendPaymentIntentResponseCodeFailureNoBankAccount,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+    INSendPaymentIntentResponseCodeFailureNotEligible,
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INSendPaymentIntentResponse : INIntentResponse
 
@@ -3496,12 +5729,70 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSaveProfileInCarIntent_Deprecated.h
+//
+//  INSaveProfileInCarIntent_Deprecated.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#if (defined(TARGET_OS_WATCH) && !TARGET_OS_WATCH)
+
+#import <Intents/INSaveProfileInCarIntent.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INSaveProfileInCarIntent (Deprecated)
+
+- (instancetype)initWithProfileNumber:(nullable NSNumber *)profileNumber
+                         profileLabel:(nullable NSString *)profileLabel API_DEPRECATED("Use `-initWithProfileNumber:profileName:` method instead.", ios(10.0, 10.2)) API_UNAVAILABLE(watchos) NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *profileLabel API_DEPRECATED("Use `profileName` property instead.", ios(10.0, 10.2)) API_UNAVAILABLE(watchos);
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+// ==========  Intents.framework/Headers/INBalanceTypeResolutionResult.h
+//
+//  INBalanceTypeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INBalanceType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INBalanceTypeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INBalanceType. The resolvedValue can be different than the original INBalanceType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedBalanceType:(INBalanceType)resolvedBalanceType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INBalanceType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedBalanceType:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithBalanceTypeToConfirm:(INBalanceType)balanceTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INBalanceType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithBalanceTypeToConfirm:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSearchCallHistoryIntent.h
 //
 //  INSearchCallHistoryIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -3509,7 +5800,10 @@ NS_ASSUME_NONNULL_END
 
 #import <Intents/INCallCapabilityOptions.h>
 #import <Intents/INCallRecordType.h>
+#import <Intents/INCallRecordTypeOptions.h>
 
+@class INBooleanResolutionResult;
+@class INCallRecordTypeOptionsResolutionResult;
 @class INCallRecordTypeResolutionResult;
 @class INDateComponentsRange;
 @class INDateComponentsRangeResolutionResult;
@@ -3518,16 +5812,14 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 @interface INSearchCallHistoryIntent : INIntent
 
-- (instancetype)initWithCallType:(INCallRecordType)callType
-                     dateCreated:(nullable INDateComponentsRange *)dateCreated
-                       recipient:(nullable INPerson *)recipient
-                callCapabilities:(INCallCapabilityOptions)callCapabilities NS_DESIGNATED_INITIALIZER;
-
-// What type of call record to search for.
-@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallRecordType callType;
+- (instancetype)initWithDateCreated:(nullable INDateComponentsRange *)dateCreated
+                          recipient:(nullable INPerson *)recipient
+                   callCapabilities:(INCallCapabilityOptions)callCapabilities
+                          callTypes:(INCallRecordTypeOptions)callTypes
+                             unseen:(nullable NSNumber *)unseen NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 // Date of the call to search for in the call history.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *dateCreated;
@@ -3536,73 +5828,117 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallCapabilityOptions callCapabilities;
 
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallRecordTypeOptions callTypes API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *unseen NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
 @end
 
 @class INSearchCallHistoryIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSearchCallHistoryIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSearchCallHistoryIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 @protocol INSearchCallHistoryIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSearchCallHistoryIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSearchCallHistoryIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  searchCallHistoryIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSearchCallHistoryIntentResponse containing the details of the result of having executed the intent
 
  @see  INSearchCallHistoryIntentResponse
  */
 
 - (void)handleSearchCallHistory:(INSearchCallHistoryIntent *)intent
-                     completion:(void (^)(INSearchCallHistoryIntentResponse *response))completion NS_SWIFT_NAME(handle(searchCallHistory:completion:));
+                     completion:(void (^)(INSearchCallHistoryIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  searchCallHistoryIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSearchCallHistoryIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSearchCallHistoryIntentResponse
-
  */
 
 - (void)confirmSearchCallHistory:(INSearchCallHistoryIntent *)intent
-                      completion:(void (^)(INSearchCallHistoryIntentResponse *response))completion NS_SWIFT_NAME(confirm(searchCallHistory:completion:));
+                      completion:(void (^)(INSearchCallHistoryIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  searchCallHistoryIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveCallTypeForSearchCallHistory:(INSearchCallHistoryIntent *)intent
-                             withCompletion:(void (^)(INCallRecordTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCallType(forSearchCallHistory:with:));
+                    withCompletion:(void (^)(INCallRecordTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCallType(for:with:)) API_DEPRECATED("resolveCallTypeForSearchCallHistory:withCompletion: is deprecated. Use resolveCallTypesForSearchCallHistory:withCompletion: instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
 
 - (void)resolveDateCreatedForSearchCallHistory:(INSearchCallHistoryIntent *)intent
-                                withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateCreated(forSearchCallHistory:with:));
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateCreated(for:with:));
 
 - (void)resolveRecipientForSearchCallHistory:(INSearchCallHistoryIntent *)intent
-                              withCompletion:(void (^)(INPersonResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRecipient(forSearchCallHistory:with:));
+                    withCompletion:(void (^)(INPersonResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRecipient(for:with:));
+
+- (void)resolveCallTypesForSearchCallHistory:(INSearchCallHistoryIntent *)intent
+                    withCompletion:(void (^)(INCallRecordTypeOptionsResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCallTypes(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
+- (void)resolveUnseenForSearchCallHistory:(INSearchCallHistoryIntent *)intent
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveUnseen(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INActivateCarSignalIntentResponse.h
+//
+//  INActivateCarSignalIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+#import <Intents/INCarSignalOptions.h>
+
+typedef NS_ENUM(NSInteger, INActivateCarSignalIntentResponseCode) {
+    INActivateCarSignalIntentResponseCodeUnspecified = 0,
+    INActivateCarSignalIntentResponseCodeReady,
+    INActivateCarSignalIntentResponseCodeInProgress,
+    INActivateCarSignalIntentResponseCodeSuccess,
+    INActivateCarSignalIntentResponseCodeFailure,
+    INActivateCarSignalIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INActivateCarSignalIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INActivateCarSignalIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INActivateCarSignalIntentResponseCode code;
+
+@property (readwrite, assign, NS_NONATOMIC_IOSONLY) INCarSignalOptions signals;
 
 @end
 
@@ -3612,7 +5948,7 @@ NS_ASSUME_NONNULL_END
 //  INSetSeatSettingsInCarIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -3624,12 +5960,12 @@ typedef NS_ENUM(NSInteger, INSetSeatSettingsInCarIntentResponseCode) {
     INSetSeatSettingsInCarIntentResponseCodeSuccess,
     INSetSeatSettingsInCarIntentResponseCodeFailure,
     INSetSeatSettingsInCarIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos, macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetSeatSettingsInCarIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -3649,7 +5985,7 @@ NS_ASSUME_NONNULL_END
 //  INGetAvailableRestaurantReservationBookingDefaultsIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -3663,8 +5999,10 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INGetAvailableRestaurantReservationBookingDefaultsIntent : INIntent
+
+- (instancetype)initWithRestaurant:(nullable INRestaurant *)restaurant API_AVAILABLE(ios(11.0));
 
 @property (copy, nullable, NS_NONATOMIC_IOSONLY) INRestaurant *restaurant; // an optional restaurant that the extension may or may not use to tailor reservation defaults
 
@@ -3673,16 +6011,14 @@ API_UNAVAILABLE(macosx)
 @class INGetAvailableRestaurantReservationBookingDefaultsIntentResponse;
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @protocol INGetAvailableRestaurantReservationBookingDefaultsIntentHandling <NSObject>
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INGetAvailableRestaurantReservationBookingDefaultsIntent that's passed in
+ @discussion This method is called to actually execute the intent, the app must return a response for this intent and an NSUserActivity capturing the state that the app must be restored to at the end of handling this intent
  
- @abstract Execute the task represented by the INGetAvailableRestaurantReservationBookingDefaultsIntent that's passed in
- @discussion This method are called to actually execute the intent, the app must return a response for this intent and an NSUserActivity capturing the state that the app must be restored to at the end of handling this intent
- 
- @param  bookingDefaultsIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block to invoke with the response to handling the intent.
  
  @see  INGetAvailableRestaurantReservationBookingDefaultsIntentResponse
@@ -3694,11 +6030,10 @@ API_UNAVAILABLE(macosx)
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
  @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
  
- @param  bookingDefaultsIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INGetAvailableRestaurantReservationBookingDefaultsIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
  
  @see INGetAvailableRestaurantReservationBookingDefaultsIntentResponse
@@ -3708,11 +6043,10 @@ API_UNAVAILABLE(macosx)
 - (void)confirmGetAvailableRestaurantReservationBookingDefaults:(INGetAvailableRestaurantReservationBookingDefaultsIntent *)intent completion:(void (^)(INGetAvailableRestaurantReservationBookingDefaultsIntentResponse *response))completion NS_SWIFT_NAME(confirm(getAvailableRestaurantReservationBookingDefaults:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
  @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
  
- @param  bookingDefaultsIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
  
  @see INGetAvailableRestaurantReservationBookingDefaultsIntentResponse
@@ -3723,35 +6057,92 @@ API_UNAVAILABLE(macosx)
 
 @end
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INBillPayee.h
+//
+//  INBillPayee.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class INSpeakableString;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx)
+@interface INBillPayee : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (nullable instancetype)initWithNickname:(INSpeakableString *)nickname
+                                   number:(nullable NSString *)accountNumber
+                         organizationName:(nullable INSpeakableString *)organizationName NS_DESIGNATED_INITIALIZER;
+
+// e.g. "Internet bill"
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *nickname;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *accountNumber;
+
+// e.g. "Skylab Internet services"
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *organizationName;
+
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INRecurrenceRule.h
+//
+//  INRecurrenceRule.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INRecurrenceFrequency.h>
+
+NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+@interface INRecurrenceRule : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)initWithInterval:(NSUInteger)interval frequency:(INRecurrenceFrequency)frequency;
+
+@property (readonly) NSUInteger interval;
+@property (readonly) INRecurrenceFrequency frequency;
+
+@end
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INPerson.h
 //
 //  INPerson.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+
+#import <Intents/INPersonRelationship.h>
 
 @class INImage;
 @class INPersonHandle;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INPerson : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithPersonHandle:(INPersonHandle *)personHandle
-                nameComponents:(nullable NSPersonNameComponents *)nameComponents
-                   displayName:(nullable NSString *)displayName
-                         image:(nullable INImage *)image
-             contactIdentifier:(nullable NSString *)contactIdentifier
-              customIdentifier:(nullable NSString *)customIdentifier NS_DESIGNATED_INITIALIZER;
-
-// The identity of the person in the application (e.g. email address, phone number, user handle, etc.)
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *handle  NS_DEPRECATED(10_12, 10_12, 10_0, 10_0, "Use personHandle instead");
+                      nameComponents:(nullable NSPersonNameComponents *)nameComponents
+                         displayName:(nullable NSString *)displayName
+                               image:(nullable INImage *)image
+                   contactIdentifier:(nullable NSString *)contactIdentifier
+                    customIdentifier:(nullable NSString *)customIdentifier NS_DESIGNATED_INITIALIZER;
 
 // The identity of the person in the application
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPersonHandle *personHandle;
@@ -3769,27 +6160,11 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *contactIdentifier;
 
 // This property can be set to the app's identifier for this person
+// It is also used as the vocabulary identifier for this person
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *customIdentifier;
 
-@end
-
-@interface INPerson (INPersonCreation)
-
-//  This is the preferred convenience initializer if the app knows the name components of the person (e.g. given name, family name, etc).
-- (instancetype)initWithHandle:(NSString *)handle
-                nameComponents:(NSPersonNameComponents *)nameComponents
-             contactIdentifier:(nullable NSString *)contactIdentifier NS_DEPRECATED(10_12, 10_12, 10_0, 10_0, "Use the designated initializer instead");
-
-// Use this convenience initializer if the person's name is unknown
-- (instancetype)initWithHandle:(NSString *)handle
-                   displayName:(nullable NSString *)displayName
-             contactIdentifier:(nullable NSString *)contactIdentifier NS_DEPRECATED(10_12, 10_12, 10_0, 10_0, "Use the designated initializer instead");
-
-- (instancetype)initWithHandle:(NSString *)handle
-                nameComponents:(nullable NSPersonNameComponents *)nameComponents
-                   displayName:(nullable NSString *)displayName
-                         image:(nullable INImage *)image
-             contactIdentifier:(nullable NSString *)contactIdentifier NS_DEPRECATED(10_12, 10_12, 10_0, 10_0, "Use the designated initializer instead");
+// This person's relationship to the user
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPersonRelationship relationship API_AVAILABLE(ios(10.2), macosx(10.12.2));
 
 @end
 
@@ -3807,13 +6182,13 @@ typedef NS_ENUM(NSInteger, INPersonSuggestionType) {
 @property (readonly, NS_NONATOMIC_IOSONLY) INPersonSuggestionType suggestionType;
 
 - (instancetype)initWithPersonHandle:(INPersonHandle *)personHandle
-                nameComponents:(nullable NSPersonNameComponents *)nameComponents
-                   displayName:(nullable NSString *)displayName
-                         image:(nullable INImage *)image
-             contactIdentifier:(nullable NSString *)contactIdentifier
-              customIdentifier:(nullable NSString *)customIdentifier
-                       aliases:(nullable NSArray<INPersonHandle *> *)aliases
-                suggestionType:(INPersonSuggestionType)suggestionType;
+                      nameComponents:(nullable NSPersonNameComponents *)nameComponents
+                         displayName:(nullable NSString *)displayName
+                               image:(nullable INImage *)image
+                   contactIdentifier:(nullable NSString *)contactIdentifier
+                    customIdentifier:(nullable NSString *)customIdentifier
+                             aliases:(nullable NSArray<INPersonHandle *> *)aliases
+                      suggestionType:(INPersonSuggestionType)suggestionType;
 
 @end
 
@@ -3823,7 +6198,7 @@ NS_ASSUME_NONNULL_END
 //  INStartVideoCallIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -3834,7 +6209,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), macosx(10.12))
+API_UNAVAILABLE(watchos)
 @interface INStartVideoCallIntent : INIntent
 
 - (instancetype)initWithContacts:(nullable NSArray<INPerson *> *)contacts NS_DESIGNATED_INITIALIZER;
@@ -3847,62 +6223,56 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 @class INStartVideoCallIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INStartVideoCallIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INStartVideoCallIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos)
 @protocol INStartVideoCallIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INStartVideoCallIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INStartVideoCallIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  startVideoCallIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INStartVideoCallIntentResponse containing the details of the result of having executed the intent
 
  @see  INStartVideoCallIntentResponse
  */
 
 - (void)handleStartVideoCall:(INStartVideoCallIntent *)intent
-                  completion:(void (^)(INStartVideoCallIntentResponse *response))completion NS_SWIFT_NAME(handle(startVideoCall:completion:));
+                  completion:(void (^)(INStartVideoCallIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  startVideoCallIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INStartVideoCallIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INStartVideoCallIntentResponse
-
  */
 
 - (void)confirmStartVideoCall:(INStartVideoCallIntent *)intent
-                   completion:(void (^)(INStartVideoCallIntentResponse *response))completion NS_SWIFT_NAME(confirm(startVideoCall:completion:));
+                   completion:(void (^)(INStartVideoCallIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  startVideoCallIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveContactsForStartVideoCall:(INStartVideoCallIntent *)intent
-                          withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveContacts(forStartVideoCall:with:));
+                    withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveContacts(for:with:));
 
 @end
 
@@ -3912,24 +6282,36 @@ NS_ASSUME_NONNULL_END
 //  INDateComponentsRange.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
+@class EKRecurrenceRule;
+@class INRecurrenceRule;
+
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INDateComponentsRange : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithStartDateComponents:(nullable NSDateComponents *)startDateComponents
-                          endDateComponents:(nullable NSDateComponents *)endDateComponents NS_DESIGNATED_INITIALIZER;
+                          endDateComponents:(nullable NSDateComponents *)endDateComponents;
+
+- (instancetype)initWithStartDateComponents:(nullable NSDateComponents *)startDateComponents
+                          endDateComponents:(nullable NSDateComponents *)endDateComponents
+                             recurrenceRule:(nullable INRecurrenceRule *)recurrenceRule NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 @property (copy, readonly, nullable, NS_NONATOMIC_IOSONLY) NSDateComponents *startDateComponents;
 
 @property (copy, readonly, nullable, NS_NONATOMIC_IOSONLY) NSDateComponents *endDateComponents;
+
+@property (copy, readonly, nullable, NS_NONATOMIC_IOSONLY) INRecurrenceRule *recurrenceRule API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
+- (instancetype)initWithEKRecurrenceRule:(EKRecurrenceRule *)recurrenceRule API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+- (nullable EKRecurrenceRule *)EKRecurrenceRule API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 @end
 
@@ -3939,7 +6321,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchForPhotosIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -3948,17 +6330,17 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INConditionalOperator.h>
 #import <Intents/INPhotoAttributeOptions.h>
 
+@class CLPlacemark;
 @class INDateComponentsRange;
 @class INDateComponentsRangeResolutionResult;
-@class CLPlacemark;
-@class INPlacemarkResolutionResult;
-@class INStringResolutionResult;
 @class INPerson;
 @class INPersonResolutionResult;
+@class INPlacemarkResolutionResult;
+@class INStringResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INSearchForPhotosIntent : INIntent
 
@@ -4002,72 +6384,68 @@ API_UNAVAILABLE(macosx)
 @class INSearchForPhotosIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSearchForPhotosIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSearchForPhotosIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INSearchForPhotosIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSearchForPhotosIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSearchForPhotosIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  searchForPhotosIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSearchForPhotosIntentResponse containing the details of the result of having executed the intent
 
  @see  INSearchForPhotosIntentResponse
  */
 
 - (void)handleSearchForPhotos:(INSearchForPhotosIntent *)intent
-                   completion:(void (^)(INSearchForPhotosIntentResponse *response))completion NS_SWIFT_NAME(handle(searchForPhotos:completion:));
+                   completion:(void (^)(INSearchForPhotosIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  searchForPhotosIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSearchForPhotosIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSearchForPhotosIntentResponse
-
  */
 
 - (void)confirmSearchForPhotos:(INSearchForPhotosIntent *)intent
-                    completion:(void (^)(INSearchForPhotosIntentResponse *response))completion NS_SWIFT_NAME(confirm(searchForPhotos:completion:));
+                    completion:(void (^)(INSearchForPhotosIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  searchForPhotosIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveDateCreatedForSearchForPhotos:(INSearchForPhotosIntent *)intent
-                              withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateCreated(forSearchForPhotos:with:));
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateCreated(for:with:));
 
 - (void)resolveLocationCreatedForSearchForPhotos:(INSearchForPhotosIntent *)intent
-                                  withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveLocationCreated(forSearchForPhotos:with:));
+                    withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveLocationCreated(for:with:));
 
 - (void)resolveAlbumNameForSearchForPhotos:(INSearchForPhotosIntent *)intent
-                            withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAlbumName(forSearchForPhotos:with:));
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAlbumName(for:with:));
+
+- (void)resolveSearchTermsForSearchForPhotos:(INSearchForPhotosIntent *)intent
+                    withCompletion:(void (^)(NSArray<INStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveSearchTerms(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 - (void)resolvePeopleInPhotoForSearchForPhotos:(INSearchForPhotosIntent *)intent
-                                withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolvePeopleInPhoto(forSearchForPhotos:with:));
+                    withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolvePeopleInPhoto(for:with:));
 
 @end
 
@@ -4077,7 +6455,7 @@ NS_ASSUME_NONNULL_END
 //  INGetUserCurrentRestaurantReservationBookingsIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -4091,8 +6469,13 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INGetUserCurrentRestaurantReservationBookingsIntent : INIntent <NSCopying>
+
+- (instancetype)initWithRestaurant:(nullable INRestaurant *)restaurant
+             reservationIdentifier:(nullable NSString *)reservationIdentifier
+            maximumNumberOfResults:(nullable NSNumber *)maximumNumberOfResults
+     earliestBookingDateForResults:(nullable NSDate *)earliestBookingDateForResults API_AVAILABLE(ios(11.0));
 
 @property (copy, nullable, NS_NONATOMIC_IOSONLY) INRestaurant *restaurant; // optional filter to just reservations at restaurant
 @property (copy, nullable, NS_NONATOMIC_IOSONLY) NSString *reservationIdentifier; // optional filter to reservation with exact ID
@@ -4105,16 +6488,14 @@ API_UNAVAILABLE(macosx)
 @class INGetUserCurrentRestaurantReservationBookingsIntentResponse;
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @protocol INGetUserCurrentRestaurantReservationBookingsIntentHandling <NSObject>
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INGetUserCurrentRestaurantReservationBookingsIntent that's passed in
+ @discussion This method is called to actually execute the intent, the app must return a response for this intent and an NSUserActivity capturing the state that the app must be restored to at the end of handling this intent
  
- @abstract Execute the task represented by the INGetUserCurrentRestaurantReservationBookingsIntent that's passed in
- @discussion This method are called to actually execute the intent, the app must return a response for this intent and an NSUserActivity capturing the state that the app must be restored to at the end of handling this intent
- 
- @param  showCurrentBookingsIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block to invoke with the response to handling the intent.
  
  @see  INGetUserCurrentRestaurantReservationBookingsIntentResponse
@@ -4126,11 +6507,10 @@ API_UNAVAILABLE(macosx)
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
  @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
  
- @param  showCurrentBookingsIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INGetUserCurrentRestaurantReservationBookingsIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
  
  @see INGetUserCurrentRestaurantReservationBookingsIntentResponse
@@ -4140,11 +6520,10 @@ API_UNAVAILABLE(macosx)
 - (void)confirmGetUserCurrentRestaurantReservationBookings:(INGetUserCurrentRestaurantReservationBookingsIntent *)intent completion:(void (^)(INGetUserCurrentRestaurantReservationBookingsIntentResponse *response))completion NS_SWIFT_NAME(confirm(getUserCurrentRestaurantReservationBookings:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
  @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
  
- @param  showCurrentBookingsIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
  
  @see INGetUserCurrentRestaurantReservationBookingsIntentResponse
@@ -4156,12 +6535,153 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INActivateCarSignalIntent.h
+//
+//  INActivateCarSignalIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INCarSignalOptions.h>
+
+@class INCarSignalOptionsResolutionResult;
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INActivateCarSignalIntent : INIntent
+
+- (instancetype)initWithCarName:(nullable INSpeakableString *)carName
+                        signals:(INCarSignalOptions)signals NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *carName;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCarSignalOptions signals;
+
+@end
+
+@class INActivateCarSignalIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INActivateCarSignalIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@protocol INActivateCarSignalIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INActivateCarSignalIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INActivateCarSignalIntentResponse containing the details of the result of having executed the intent
+
+ @see  INActivateCarSignalIntentResponse
+ */
+
+- (void)handleActivateCarSignal:(INActivateCarSignalIntent *)intent
+                     completion:(void (^)(INActivateCarSignalIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INActivateCarSignalIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INActivateCarSignalIntentResponse
+ */
+
+- (void)confirmActivateCarSignal:(INActivateCarSignalIntent *)intent
+                      completion:(void (^)(INActivateCarSignalIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveCarNameForActivateCarSignal:(INActivateCarSignalIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCarName(for:with:));
+
+- (void)resolveSignalsForActivateCarSignal:(INActivateCarSignalIntent *)intent
+                    withCompletion:(void (^)(INCarSignalOptionsResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveSignals(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INPersonRelationship.h
+//
+//  INPersonRelationship.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NSString *INPersonRelationship NS_EXTENSIBLE_STRING_ENUM;
+
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipFather NS_SWIFT_NAME(INPersonRelationship.father) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipMother NS_SWIFT_NAME(INPersonRelationship.mother) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipParent NS_SWIFT_NAME(INPersonRelationship.parent) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipBrother NS_SWIFT_NAME(INPersonRelationship.brother) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipSister NS_SWIFT_NAME(INPersonRelationship.sister) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipChild NS_SWIFT_NAME(INPersonRelationship.child) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipFriend NS_SWIFT_NAME(INPersonRelationship.friend) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipSpouse NS_SWIFT_NAME(INPersonRelationship.spouse) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipPartner NS_SWIFT_NAME(INPersonRelationship.partner) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipAssistant NS_SWIFT_NAME(INPersonRelationship.assistant) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipManager NS_SWIFT_NAME(INPersonRelationship.manager) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+// ==========  Intents.framework/Headers/INRecurrenceFrequency.h
+//
+//  INRecurrenceFrequency.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INRecurrenceFrequency_h
+#define INRecurrenceFrequency_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INRecurrenceFrequency) {
+    INRecurrenceFrequencyUnknown = 0,
+    INRecurrenceFrequencyMinute,
+    INRecurrenceFrequencyHourly,
+    INRecurrenceFrequencyDaily,
+    INRecurrenceFrequencyWeekly,
+    INRecurrenceFrequencyMonthly,
+    INRecurrenceFrequencyYearly,
+} API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
+#endif // INRecurrenceFrequency_h
 // ==========  Intents.framework/Headers/INMessageAttributeOptionsResolutionResult.h
 //
 //  INMessageAttributeOptionsResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -4170,13 +6690,19 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 @interface INMessageAttributeOptionsResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INMessageAttributeOptions)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INMessageAttributeOptions. The resolvedValue can be different than the original INMessageAttributeOptions. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedMessageAttributeOptions:(INMessageAttributeOptions)resolvedMessageAttributeOptions NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INMessageAttributeOptions)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedMessageAttributeOptions:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INMessageAttributeOptions)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithMessageAttributeOptionsToConfirm:(INMessageAttributeOptions)messageAttributeOptionsToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INMessageAttributeOptions)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithMessageAttributeOptionsToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
 
 @end
 
@@ -4186,7 +6712,7 @@ NS_ASSUME_NONNULL_END
 //  INWorkoutGoalUnitTypeResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -4195,23 +6721,47 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INWorkoutGoalUnitTypeResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INWorkoutGoalUnitType)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INWorkoutGoalUnitType. The resolvedValue can be different than the original INWorkoutGoalUnitType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedWorkoutGoalUnitType:(INWorkoutGoalUnitType)resolvedWorkoutGoalUnitType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INWorkoutGoalUnitType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedWorkoutGoalUnitType:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INWorkoutGoalUnitType)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithWorkoutGoalUnitTypeToConfirm:(INWorkoutGoalUnitType)workoutGoalUnitTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INWorkoutGoalUnitType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithWorkoutGoalUnitTypeToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 @end
 
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INNoteContent.h
+//
+//  INNoteContent.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+@interface INNoteContent : NSObject <NSSecureCoding, NSCopying>
+
+@end
 NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INBookRestaurantReservationIntentResponse.h
 //
 //  INBookRestaurantReservationIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -4232,7 +6782,7 @@ typedef NS_ENUM(NSInteger, INBookRestaurantReservationIntentCode) {
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INBookRestaurantReservationIntentResponse : INIntentResponse
 
 - (instancetype)initWithCode:(INBookRestaurantReservationIntentCode)code userActivity:(nullable NSUserActivity *)userActivity;
@@ -4243,12 +6793,162 @@ API_UNAVAILABLE(macosx)
 
 @end
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INRideDriver_Deprecated.h
+//
+//  INRideDriver_Deprecated.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INRideDriver.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INRideDriver (Deprecated)
+
+- (instancetype)initWithPersonHandle:(INPersonHandle *)personHandle
+                      nameComponents:(nullable NSPersonNameComponents *)nameComponents
+                         displayName:(nullable NSString *)displayName
+                               image:(nullable INImage *)image
+                              rating:(nullable NSString *)rating
+                         phoneNumber:(nullable NSString *)phoneNumber API_DEPRECATED("Use the designated initializer instead", ios(10.0, 10.2));
+
+- (instancetype)initWithHandle:(NSString *)handle
+                   displayName:(nullable NSString *)displayName
+                         image:(nullable INImage *)image
+                        rating:(nullable NSString *)rating
+                   phoneNumber:(nullable NSString *)phoneNumber API_DEPRECATED("Use the designated initializer instead", ios(10.0, 10.0));
+
+- (instancetype)initWithHandle:(NSString *)handle
+                nameComponents:(NSPersonNameComponents *)nameComponents
+                         image:(nullable INImage *)image
+                        rating:(nullable NSString *)rating
+                   phoneNumber:(nullable NSString *)phoneNumber API_DEPRECATED("Use the designated initializer instead", ios(10.0, 10.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSearchForBillsIntent.h
+//
+//  INSearchForBillsIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INBillType.h>
+#import <Intents/INPaymentStatus.h>
+
+@class INBillPayee;
+@class INBillPayeeResolutionResult;
+@class INBillTypeResolutionResult;
+@class INDateComponentsRange;
+@class INDateComponentsRangeResolutionResult;
+@class INPaymentStatusResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INSearchForBillsIntent : INIntent
+
+- (instancetype)initWithBillPayee:(nullable INBillPayee *)billPayee
+                 paymentDateRange:(nullable INDateComponentsRange *)paymentDateRange
+                         billType:(INBillType)billType
+                           status:(INPaymentStatus)status
+                     dueDateRange:(nullable INDateComponentsRange *)dueDateRange NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INBillPayee *billPayee;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *paymentDateRange;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INBillType billType;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INPaymentStatus status;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *dueDateRange;
+
+@end
+
+@class INSearchForBillsIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INSearchForBillsIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@protocol INSearchForBillsIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INSearchForBillsIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INSearchForBillsIntentResponse containing the details of the result of having executed the intent
+
+ @see  INSearchForBillsIntentResponse
+ */
+
+- (void)handleSearchForBills:(INSearchForBillsIntent *)intent
+                  completion:(void (^)(INSearchForBillsIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INSearchForBillsIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INSearchForBillsIntentResponse
+ */
+
+- (void)confirmSearchForBills:(INSearchForBillsIntent *)intent
+                   completion:(void (^)(INSearchForBillsIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveBillPayeeForSearchForBills:(INSearchForBillsIntent *)intent
+                    withCompletion:(void (^)(INBillPayeeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveBillPayee(for:with:));
+
+- (void)resolvePaymentDateRangeForSearchForBills:(INSearchForBillsIntent *)intent
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePaymentDateRange(for:with:));
+
+- (void)resolveBillTypeForSearchForBills:(INSearchForBillsIntent *)intent
+                    withCompletion:(void (^)(INBillTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveBillType(for:with:));
+
+- (void)resolveStatusForSearchForBills:(INSearchForBillsIntent *)intent
+                    withCompletion:(void (^)(INPaymentStatusResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveStatus(for:with:));
+
+- (void)resolveDueDateRangeForSearchForBills:(INSearchForBillsIntent *)intent
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDueDateRange(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/NSUserActivity+IntentsAdditions.h
 //
 //  NSUserActivity+IntentsAdditions.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4259,7 +6959,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSUserActivity (IntentsAdditions)
 
-@property (readonly, nullable, NS_NONATOMIC_IOSONLY) INInteraction *interaction API_AVAILABLE(macosx(10.12), ios(10.0));
+@property (readonly, nullable, NS_NONATOMIC_IOSONLY) INInteraction *interaction API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
 
 @end
 
@@ -4269,7 +6969,7 @@ NS_ASSUME_NONNULL_END
 //  INSetSeatSettingsInCarIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -4286,7 +6986,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetSeatSettingsInCarIntent : INIntent
 
 - (instancetype)initWithEnableHeating:(nullable NSNumber *)enableHeating
@@ -4313,78 +7013,71 @@ API_UNAVAILABLE(macosx)
 @class INSetSeatSettingsInCarIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSetSeatSettingsInCarIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSetSeatSettingsInCarIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @protocol INSetSeatSettingsInCarIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSetSeatSettingsInCarIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSetSeatSettingsInCarIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  setSeatSettingsInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSetSeatSettingsInCarIntentResponse containing the details of the result of having executed the intent
 
  @see  INSetSeatSettingsInCarIntentResponse
  */
 
 - (void)handleSetSeatSettingsInCar:(INSetSeatSettingsInCarIntent *)intent
-                        completion:(void (^)(INSetSeatSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(setSeatSettingsInCar:completion:));
+                        completion:(void (^)(INSetSeatSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  setSeatSettingsInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSetSeatSettingsInCarIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSetSeatSettingsInCarIntentResponse
-
  */
 
 - (void)confirmSetSeatSettingsInCar:(INSetSeatSettingsInCarIntent *)intent
-                         completion:(void (^)(INSetSeatSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(setSeatSettingsInCar:completion:));
+                         completion:(void (^)(INSetSeatSettingsInCarIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  setSeatSettingsInCarIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveEnableHeatingForSetSeatSettingsInCar:(INSetSeatSettingsInCarIntent *)intent
-                                     withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableHeating(forSetSeatSettingsInCar:with:));
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableHeating(for:with:));
 
 - (void)resolveEnableCoolingForSetSeatSettingsInCar:(INSetSeatSettingsInCarIntent *)intent
-                                     withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableCooling(forSetSeatSettingsInCar:with:));
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableCooling(for:with:));
 
 - (void)resolveEnableMassageForSetSeatSettingsInCar:(INSetSeatSettingsInCarIntent *)intent
-                                     withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableMassage(forSetSeatSettingsInCar:with:));
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveEnableMassage(for:with:));
 
 - (void)resolveSeatForSetSeatSettingsInCar:(INSetSeatSettingsInCarIntent *)intent
-                            withCompletion:(void (^)(INCarSeatResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveSeat(forSetSeatSettingsInCar:with:));
+                    withCompletion:(void (^)(INCarSeatResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveSeat(for:with:));
 
 - (void)resolveLevelForSetSeatSettingsInCar:(INSetSeatSettingsInCarIntent *)intent
-                             withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveLevel(forSetSeatSettingsInCar:with:));
+                    withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveLevel(for:with:));
 
 - (void)resolveRelativeLevelSettingForSetSeatSettingsInCar:(INSetSeatSettingsInCarIntent *)intent
-                                            withCompletion:(void (^)(INRelativeSettingResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRelativeLevelSetting(forSetSeatSettingsInCar:with:));
+                    withCompletion:(void (^)(INRelativeSettingResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRelativeLevelSetting(for:with:));
 
 @end
 
@@ -4394,7 +7087,7 @@ NS_ASSUME_NONNULL_END
 //  INGetRideStatusIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -4402,7 +7095,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INGetRideStatusIntent : INIntent
 
@@ -4415,69 +7108,62 @@ API_UNAVAILABLE(macosx)
 @protocol INGetRideStatusIntentResponseObserver;
 
 /*!
- @brief Protocol to declare support for handling an INGetRideStatusIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INGetRideStatusIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INGetRideStatusIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INGetRideStatusIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INGetRideStatusIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  getRideStatusIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INGetRideStatusIntentResponse containing the details of the result of having executed the intent
 
  @see  INGetRideStatusIntentResponse
  */
 
 - (void)handleGetRideStatus:(INGetRideStatusIntent *)intent
-                 completion:(void (^)(INGetRideStatusIntentResponse *response))completion NS_SWIFT_NAME(handle(getRideStatus:completion:));
+                 completion:(void (^)(INGetRideStatusIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 - (void)startSendingUpdatesForGetRideStatus:(INGetRideStatusIntent *)intent
-                                 toObserver:(id<INGetRideStatusIntentResponseObserver>)observer NS_SWIFT_NAME(startSendingUpdates(forGetRideStatus:to:));
+                                 toObserver:(id<INGetRideStatusIntentResponseObserver>)observer NS_SWIFT_NAME(startSendingUpdates(for:to:));
 
-- (void)stopSendingUpdatesForGetRideStatus:(INGetRideStatusIntent *)intent NS_SWIFT_NAME(stopSendingUpdates(forGetRideStatus:));
+- (void)stopSendingUpdatesForGetRideStatus:(INGetRideStatusIntent *)intent NS_SWIFT_NAME(stopSendingUpdates(for:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  getRideStatusIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INGetRideStatusIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INGetRideStatusIntentResponse
-
  */
 
 - (void)confirmGetRideStatus:(INGetRideStatusIntent *)intent
-                  completion:(void (^)(INGetRideStatusIntentResponse *response))completion NS_SWIFT_NAME(confirm(getRideStatus:completion:));
+                  completion:(void (^)(INGetRideStatusIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  getRideStatusIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 @end
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INGetRideStatusIntentResponseObserver <NSObject>
 
@@ -4491,7 +7177,7 @@ NS_ASSUME_NONNULL_END
 //  INSendMessageIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -4499,18 +7185,22 @@ NS_ASSUME_NONNULL_END
 
 @class INPerson;
 @class INPersonResolutionResult;
+@class INSendMessageRecipientResolutionResult;
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
 @class INStringResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 @interface INSendMessageIntent : INIntent
 
 - (instancetype)initWithRecipients:(nullable NSArray<INPerson *> *)recipients
                            content:(nullable NSString *)content
-                         groupName:(nullable NSString *)groupName
+                speakableGroupName:(nullable INSpeakableString *)speakableGroupName
+            conversationIdentifier:(nullable NSString *)conversationIdentifier
                        serviceName:(nullable NSString *)serviceName
-                            sender:(nullable INPerson *)sender NS_DESIGNATED_INITIALIZER;
+                            sender:(nullable INPerson *)sender NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 // Contacts to whom the message should be sent.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPerson *> *recipients;
@@ -4518,7 +7208,9 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 // Body text of the message.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *content;
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *groupName;
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *speakableGroupName API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *conversationIdentifier API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 // Specified service for the message.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *serviceName;
@@ -4531,68 +7223,135 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 @class INSendMessageIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSendMessageIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSendMessageIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 @protocol INSendMessageIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSendMessageIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSendMessageIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  sendMessageIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSendMessageIntentResponse containing the details of the result of having executed the intent
 
  @see  INSendMessageIntentResponse
  */
 
 - (void)handleSendMessage:(INSendMessageIntent *)intent
-               completion:(void (^)(INSendMessageIntentResponse *response))completion NS_SWIFT_NAME(handle(sendMessage:completion:));
+               completion:(void (^)(INSendMessageIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  sendMessageIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSendMessageIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSendMessageIntentResponse
-
  */
 
 - (void)confirmSendMessage:(INSendMessageIntent *)intent
-                completion:(void (^)(INSendMessageIntentResponse *response))completion NS_SWIFT_NAME(confirm(sendMessage:completion:));
+                completion:(void (^)(INSendMessageIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  sendMessageIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveRecipientsForSendMessage:(INSendMessageIntent *)intent
-                         withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveRecipients(forSendMessage:with:));
+                    withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveRecipients(for:with:)) API_DEPRECATED("resolveRecipientsForSendMessage:withCompletion: is deprecated. Use resolveRecipientsForSendMessage:completion: instead", ios(10.0, 11.0), watchos(3.2, 4.0));
 
-- (void)resolveContentForSendMessage:(INSendMessageIntent *)intent
-                      withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveContent(forSendMessage:with:));
+- (void)resolveRecipientsForSendMessage:(INSendMessageIntent *)intent
+                    completion:(void (^)(NSArray<INSendMessageRecipientResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveRecipients(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0));
 
 - (void)resolveGroupNameForSendMessage:(INSendMessageIntent *)intent
-                        withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveGroupName(forSendMessage:with:));
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveGroupName(for:with:)) API_DEPRECATED("resolveGroupNameForSendMessage:withCompletion: is deprecated. Use resolveSpeakableGroupNameForSendMessage:withCompletion: instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+
+- (void)resolveContentForSendMessage:(INSendMessageIntent *)intent
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveContent(for:with:));
+
+- (void)resolveSpeakableGroupNameForSendMessage:(INSendMessageIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveSpeakableGroupName(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCancelRideIntent.h
+//
+//  INCancelRideIntent.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0))
+API_UNAVAILABLE(watchos, macos)
+@interface INCancelRideIntent : INIntent
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithRideIdentifier:(NSString *)rideIdentifier NS_DESIGNATED_INITIALIZER;
+// Specifies the identifier of the ride to cancel.
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *rideIdentifier;
+
+@end
+
+@class INCancelRideIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INCancelRideIntent. By implementing this protocol, a class can provide logic for confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to confirm and handle the intent. The handling method is always called last, after confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0))
+API_UNAVAILABLE(watchos, macos)
+@protocol INCancelRideIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INCancelRideIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+ 
+ @param  intent The input intent
+ @param  completion The response handling block takes a INCancelRideIntentResponse containing the details of the result of having executed the intent
+ 
+ @see  INCancelRideIntentResponse
+ */
+
+- (void)handleCancelRide:(INCancelRideIntent *)intent
+              completion:(void (^)(INCancelRideIntentResponse *response))completion NS_SWIFT_NAME(handle(cancelRide:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system may not use the cancel ride intent.
+ 
+ @param  intent The input intent
+ @param  completion The response block contains an INCancelRideIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+ 
+ @see INCancelRideIntentResponse
+ 
+ */
+
+- (void)confirmCancelRide:(INCancelRideIntent *)intent
+               completion:(void (^)(INCancelRideIntentResponse *response))completion NS_SWIFT_NAME(confirm(cancelRide:completion:));
 
 @end
 
@@ -4602,14 +7361,14 @@ NS_ASSUME_NONNULL_END
 //  INPriceRange.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INPriceRange : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -4636,12 +7395,270 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INNoteContentResolutionResult.h
+//
+//  INNoteContentResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INNoteContent;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INNoteContentResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INNoteContent. The resolvedNoteContent can be different than the original INNoteContent. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedNoteContent:(INNoteContent *)resolvedNoteContent NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INNoteContent.
++ (instancetype)disambiguationWithNoteContentsToDisambiguate:(NSArray<INNoteContent *> *)noteContentsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the noteContent with which the user wants to continue.
++ (instancetype)confirmationRequiredWithNoteContentToConfirm:(nullable INNoteContent *)noteContentToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INBillType.h
+//
+//  INBillType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INBillType_h
+#define INBillType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INBillType) {
+    INBillTypeUnknown = 0,
+    INBillTypeAutoInsurance,
+    INBillTypeCable,
+    INBillTypeCarLease,
+    INBillTypeCarLoan,
+    INBillTypeCreditCard,
+    INBillTypeElectricity,
+    INBillTypeGas,
+    INBillTypeGarbageAndRecycling,
+    INBillTypeHealthInsurance,
+    INBillTypeHomeInsurance,
+    INBillTypeInternet,
+    INBillTypeLifeInsurance,
+    INBillTypeMortgage,
+    INBillTypeMusicStreaming,
+    INBillTypePhone,
+    INBillTypeRent,
+    INBillTypeSewer,
+    INBillTypeStudentLoan,
+    INBillTypeTrafficTicket,
+    INBillTypeTuition,
+    INBillTypeUtilities,
+    INBillTypeWater,
+} API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+#endif // INBillType_h
+// ==========  Intents.framework/Headers/INSearchForAccountsIntentResponse.h
+//
+//  INSearchForAccountsIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INPaymentAccount;
+
+typedef NS_ENUM(NSInteger, INSearchForAccountsIntentResponseCode) {
+    INSearchForAccountsIntentResponseCodeUnspecified = 0,
+    INSearchForAccountsIntentResponseCodeReady,
+    INSearchForAccountsIntentResponseCodeInProgress,
+    INSearchForAccountsIntentResponseCodeSuccess,
+    INSearchForAccountsIntentResponseCodeFailure,
+    INSearchForAccountsIntentResponseCodeFailureRequiringAppLaunch,
+    INSearchForAccountsIntentResponseCodeFailureCredentialsUnverified,
+    INSearchForAccountsIntentResponseCodeFailureAccountNotFound,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INSearchForAccountsIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INSearchForAccountsIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INSearchForAccountsIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPaymentAccount *> *accounts;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSpatialEvent.h
+//
+//  INSpatialEvent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INSpatialEvent_h
+#define INSpatialEvent_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INSpatialEvent) {
+    INSpatialEventUnknown = 0,
+    INSpatialEventArrive,
+    INSpatialEventDepart,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INSpatialEvent_h
+// ==========  Intents.framework/Headers/INPerson_Deprecated.h
+//
+//  INPerson_Deprecated.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INPerson.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INPerson (Deprecated)
+
+// The identity of the person in the application (e.g. email address, phone number, user handle, etc.)
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *handle  API_DEPRECATED("Use personHandle instead", ios(10.0, 10.0), macosx(10.12, 10.12));
+
+//  This is the preferred convenience initializer if the app knows the name components of the person (e.g. given name, family name, etc).
+- (instancetype)initWithHandle:(NSString *)handle
+                nameComponents:(NSPersonNameComponents *)nameComponents
+             contactIdentifier:(nullable NSString *)contactIdentifier API_DEPRECATED("Use the designated initializer instead", ios(10.0, 10.0), macosx(10.12, 10.12));
+
+// Use this convenience initializer if the person's name is unknown
+- (instancetype)initWithHandle:(NSString *)handle
+                   displayName:(nullable NSString *)displayName
+             contactIdentifier:(nullable NSString *)contactIdentifier API_DEPRECATED("Use the designated initializer instead", ios(10.0, 10.0), macosx(10.12, 10.12));
+
+- (instancetype)initWithHandle:(NSString *)handle
+                nameComponents:(nullable NSPersonNameComponents *)nameComponents
+                   displayName:(nullable NSString *)displayName
+                         image:(nullable INImage *)image
+             contactIdentifier:(nullable NSString *)contactIdentifier API_DEPRECATED("Use the designated initializer instead", ios(10.0, 10.0), macosx(10.12, 10.12));
+
+
+
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTaskType.h
+//
+//  INTaskType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INTaskType_h
+#define INTaskType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INTaskType) {
+    INTaskTypeUnknown = 0,
+    INTaskTypeNotCompletable,
+    INTaskTypeCompletable,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INTaskType_h
+// ==========  Intents.framework/Headers/INPaymentAmountResolutionResult.h
+//
+//  INPaymentAmountResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INPaymentAmount;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INPaymentAmountResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INPaymentAmount. The resolvedPaymentAmount can be different than the original INPaymentAmount. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedPaymentAmount:(INPaymentAmount *)resolvedPaymentAmount NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INPaymentAmount.
++ (instancetype)disambiguationWithPaymentAmountsToDisambiguate:(NSArray<INPaymentAmount *> *)paymentAmountsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the paymentAmount with which the user wants to continue.
++ (instancetype)confirmationRequiredWithPaymentAmountToConfirm:(nullable INPaymentAmount *)paymentAmountToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INPaymentAccountResolutionResult.h
+//
+//  INPaymentAccountResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INPaymentAccount;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INPaymentAccountResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INPaymentAccount. The resolvedPaymentAccount can be different than the original INPaymentAccount. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedPaymentAccount:(INPaymentAccount *)resolvedPaymentAccount NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INPaymentAccount.
++ (instancetype)disambiguationWithPaymentAccountsToDisambiguate:(NSArray<INPaymentAccount *> *)paymentAccountsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the paymentAccount with which the user wants to continue.
++ (instancetype)confirmationRequiredWithPaymentAccountToConfirm:(nullable INPaymentAccount *)paymentAccountToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRadioTypeResolutionResult.h
 //
 //  INRadioTypeResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -4650,13 +7667,20 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos, macosx)
 @interface INRadioTypeResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INRadioType)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INRadioType. The resolvedValue can be different than the original INRadioType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedRadioType:(INRadioType)resolvedRadioType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INRadioType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedRadioType:", ios(10.0, 11.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INRadioType)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithRadioTypeToConfirm:(INRadioType)radioTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INRadioType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithRadioTypeToConfirm:", ios(10.0, 11.0));
 
 @end
 
@@ -4666,7 +7690,7 @@ NS_ASSUME_NONNULL_END
 //  INPauseWorkoutIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -4674,15 +7698,17 @@ NS_ASSUME_NONNULL_END
 typedef NS_ENUM(NSInteger, INPauseWorkoutIntentResponseCode) {
     INPauseWorkoutIntentResponseCodeUnspecified = 0,
     INPauseWorkoutIntentResponseCodeReady,
-    INPauseWorkoutIntentResponseCodeContinueInApp,
+    INPauseWorkoutIntentResponseCodeContinueInApp API_AVAILABLE(watchos(3.2)) API_DEPRECATED("INPauseWorkoutIntentResponseCodeContinueInApp is deprecated on iOS. Please use INPauseWorkoutIntentResponseCodeHandleInApp instead", ios(10.0, 11.0)),
     INPauseWorkoutIntentResponseCodeFailure,
     INPauseWorkoutIntentResponseCodeFailureRequiringAppLaunch,
     INPauseWorkoutIntentResponseCodeFailureNoMatchingWorkout,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+    INPauseWorkoutIntentResponseCodeSuccess NS_EXTENSION_UNAVAILABLE("INPauseWorkoutIntentResponseCodeSuccess is not available to extensions. This can only be returned from the app.") API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos),
+    INPauseWorkoutIntentResponseCodeHandleInApp API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos),
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INPauseWorkoutIntentResponse : INIntentResponse
 
@@ -4703,7 +7729,7 @@ NS_ASSUME_NONNULL_END
 //  INStartWorkoutIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -4711,16 +7737,18 @@ NS_ASSUME_NONNULL_END
 typedef NS_ENUM(NSInteger, INStartWorkoutIntentResponseCode) {
     INStartWorkoutIntentResponseCodeUnspecified = 0,
     INStartWorkoutIntentResponseCodeReady,
-    INStartWorkoutIntentResponseCodeContinueInApp,
+    INStartWorkoutIntentResponseCodeContinueInApp API_AVAILABLE(watchos(3.2)) API_DEPRECATED("INStartWorkoutIntentResponseCodeContinueInApp is deprecated on iOS. Please use INStartWorkoutIntentResponseCodeHandleInApp instead", ios(10.0, 11.0)),
     INStartWorkoutIntentResponseCodeFailure,
     INStartWorkoutIntentResponseCodeFailureRequiringAppLaunch,
     INStartWorkoutIntentResponseCodeFailureOngoingWorkout,
     INStartWorkoutIntentResponseCodeFailureNoMatchingWorkout,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+    INStartWorkoutIntentResponseCodeSuccess NS_EXTENSION_UNAVAILABLE("INStartWorkoutIntentResponseCodeSuccess is not available to extensions. This can only be returned from the app.") API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos),
+    INStartWorkoutIntentResponseCodeHandleInApp API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos),
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INStartWorkoutIntentResponse : INIntentResponse
 
@@ -4736,59 +7764,142 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCarSignalOptions.h
+//
+//  INCarSignalOptions.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INCarSignalOptions_h
+#define INCarSignalOptions_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_OPTIONS(NSUInteger, INCarSignalOptions) {
+    INCarSignalOptionAudible = (1UL << 0),
+    INCarSignalOptionVisible = (1UL << 1),
+} API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+#endif // INCarSignalOptions_h
 // ==========  Intents.framework/Headers/INDomainHandling.h
 //
 //  INDomainHandling.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntents.h>
 
-API_AVAILABLE(macosx(10.12),ios(10.0))
+#if !TARGET_OS_WATCH
+API_AVAILABLE(macosx(10.13), ios(11.0))
 @protocol INCallsDomainHandling <INStartAudioCallIntentHandling, INStartVideoCallIntentHandling, INSearchCallHistoryIntentHandling>
+@end
+#else
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+@protocol INCallsDomainHandling <INStartAudioCallIntentHandling, INSearchCallHistoryIntentHandling>
+@end
+#endif
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@protocol INCarCommandsDomainHandling <INActivateCarSignalIntentHandling, INSetCarLockStatusIntentHandling, INGetCarLockStatusIntentHandling, INGetCarPowerLevelStatusIntentHandling>
 @end
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @protocol INCarPlayDomainHandling <INSetAudioSourceInCarIntentHandling, INSetClimateSettingsInCarIntentHandling, INSetDefrosterSettingsInCarIntentHandling, INSetSeatSettingsInCarIntentHandling, INSetProfileInCarIntentHandling, INSaveProfileInCarIntentHandling>
 @end
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INWorkoutsDomainHandling <INStartWorkoutIntentHandling, INPauseWorkoutIntentHandling, INEndWorkoutIntentHandling, INCancelWorkoutIntentHandling, INResumeWorkoutIntentHandling>
 @end
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @protocol INRadioDomainHandling <INSetRadioStationIntentHandling>
 @end
 
+#if !TARGET_OS_WATCH
 API_AVAILABLE(macosx(10.12), ios(10.0))
 @protocol INMessagesDomainHandling <INSendMessageIntentHandling, INSearchForMessagesIntentHandling, INSetMessageAttributeIntentHandling>
 @end
+#else
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+@protocol INMessagesDomainHandling <INSendMessageIntentHandling, INSearchForMessagesIntentHandling>
+@end
+#endif
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 110000
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INPaymentsDomainHandling <INSendPaymentIntentHandling, INRequestPaymentIntentHandling, INPayBillIntentHandling, INSearchForBillsIntentHandling, INSearchForAccountsIntentHandling, INTransferMoneyIntentHandling>
+@end
+
+#elif __IPHONE_OS_VERSION_MIN_REQUIRED >= 100300
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@protocol INPaymentsDomainHandling <INSendPaymentIntentHandling, INRequestPaymentIntentHandling, INPayBillIntentHandling, INSearchForBillsIntentHandling>
+@end
+
+#else
 
 API_AVAILABLE(ios(10.0))
 API_UNAVAILABLE(macosx)
 @protocol INPaymentsDomainHandling <INSendPaymentIntentHandling, INRequestPaymentIntentHandling>
 @end
 
-API_AVAILABLE(ios(10.0))
+#endif
+
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INPhotosDomainHandling <INSearchForPhotosIntentHandling, INStartPhotoPlaybackIntentHandling>
 @end
 
-API_AVAILABLE(ios(10.0))
+#if !TARGET_OS_WATCH
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 110000
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INRidesharingDomainHandling <INListRideOptionsIntentHandling, INRequestRideIntentHandling, INGetRideStatusIntentHandling, INCancelRideIntentHandling, INSendRideFeedbackIntentHandling>
+@end
+
+#else
+
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INRidesharingDomainHandling <INListRideOptionsIntentHandling, INRequestRideIntentHandling, INGetRideStatusIntentHandling>
+@end
+
+#endif
+#else
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@protocol INRidesharingDomainHandling <INListRideOptionsIntentHandling, INRequestRideIntentHandling, INGetRideStatusIntentHandling>
+@end
+#endif
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INNotebookDomainHandling <INCreateNoteIntentHandling, INAppendToNoteIntentHandling, INAddTasksIntentHandling, INCreateTaskListIntentHandling, INSetTaskAttributeIntentHandling, INSearchForNotebookItemsIntentHandling>
+@end
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INVisualCodeDomainHandling <INGetVisualCodeIntentHandling>
 @end
 // ==========  Intents.framework/Headers/INTermsAndConditions.h
 //
 //  INTermsAndConditions.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -4797,7 +7908,7 @@ API_UNAVAILABLE(macosx)
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INTermsAndConditions : NSObject <NSSecureCoding, NSCopying>
 
 - (instancetype)initWithLocalizedTermsAndConditionsText:(NSString *)localizedTermsAndConditionsText privacyPolicyURL:(nullable NSURL*)privacyPolicyURL termsAndConditionsURL:(nullable NSURL *)termsAndConditionsURL NS_DESIGNATED_INITIALIZER;
@@ -4813,7 +7924,7 @@ NS_ASSUME_NONNULL_END
 //  INIntentRestaurantReservation.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -4836,12 +7947,39 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INRestaurantOffer.h>
 #import <Intents/INGetRestaurantGuestIntent.h>
 #import <Intents/INGetRestaurantGuestIntentResponse.h>
+// ==========  Intents.framework/Headers/INRequestRideIntent_Deprecated.h
+//
+//  INRequestRideIntent_Deprecated.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INRequestRideIntent.h>
+
+#if (defined(TARGET_OS_IOS) && TARGET_OS_IOS)
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INRequestRideIntent (Deprecated)
+
+- (instancetype)initWithPickupLocation:(nullable CLPlacemark *)pickupLocation
+                       dropOffLocation:(nullable CLPlacemark *)dropOffLocation
+                        rideOptionName:(nullable INSpeakableString *)rideOptionName
+                             partySize:(nullable NSNumber *)partySize
+                         paymentMethod:(nullable INPaymentMethod *)paymentMethod NS_REFINED_FOR_SWIFT API_DEPRECATED("Use the designated initializer instead", ios(10.0, 10.3));
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
 // ==========  Intents.framework/Headers/INPauseWorkoutIntent.h
 //
 //  INPauseWorkoutIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -4852,10 +7990,11 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INPauseWorkoutIntent : INIntent
 
+// Designated initializer. The `workoutName` can use `INWorkoutNameIdentifier` as its `identifier` parameter.
 - (instancetype)initWithWorkoutName:(nullable INSpeakableString *)workoutName NS_DESIGNATED_INITIALIZER;
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *workoutName;
@@ -4865,80 +8004,96 @@ API_UNAVAILABLE(macosx)
 @class INPauseWorkoutIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INPauseWorkoutIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INPauseWorkoutIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INPauseWorkoutIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INPauseWorkoutIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INPauseWorkoutIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  pauseWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INPauseWorkoutIntentResponse containing the details of the result of having executed the intent
 
  @see  INPauseWorkoutIntentResponse
  */
 
 - (void)handlePauseWorkout:(INPauseWorkoutIntent *)intent
-                completion:(void (^)(INPauseWorkoutIntentResponse *response))completion NS_SWIFT_NAME(handle(pauseWorkout:completion:));
+                completion:(void (^)(INPauseWorkoutIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  pauseWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INPauseWorkoutIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INPauseWorkoutIntentResponse
-
  */
 
 - (void)confirmPauseWorkout:(INPauseWorkoutIntent *)intent
-                 completion:(void (^)(INPauseWorkoutIntentResponse *response))completion NS_SWIFT_NAME(confirm(pauseWorkout:completion:));
+                 completion:(void (^)(INPauseWorkoutIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  pauseWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveWorkoutNameForPauseWorkout:(INPauseWorkoutIntent *)intent
-                           withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutName(forPauseWorkout:with:));
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutName(for:with:));
 
 @end
 
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTemporalEventTrigger.h
+//
+//  INTemporalEventTrigger.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class INDateComponentsRange;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+@interface INTemporalEventTrigger : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)initWithDateComponentsRange:(INDateComponentsRange *)dateComponentsRange;
+
+@property (readonly) INDateComponentsRange *dateComponentsRange;
+
+@end
 NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INBooleanResolutionResult.h
 //
 //  INBooleanResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INBooleanResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
@@ -4950,12 +8105,43 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTaskListResolutionResult.h
+//
+//  INTaskListResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INTaskList;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INTaskListResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INTaskList. The resolvedTaskList can be different than the original INTaskList. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedTaskList:(INTaskList *)resolvedTaskList NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INTaskList.
++ (instancetype)disambiguationWithTaskListsToDisambiguate:(NSArray<INTaskList *> *)taskListsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the taskList with which the user wants to continue.
++ (instancetype)confirmationRequiredWithTaskListToConfirm:(nullable INTaskList *)taskListToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INWorkoutLocationTypeResolutionResult.h
 //
 //  INWorkoutLocationTypeResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -4964,23 +8150,57 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INWorkoutLocationTypeResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INWorkoutLocationType)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INWorkoutLocationType. The resolvedValue can be different than the original INWorkoutLocationType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedWorkoutLocationType:(INWorkoutLocationType)resolvedWorkoutLocationType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INWorkoutLocationType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedWorkoutLocationType:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INWorkoutLocationType)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithWorkoutLocationTypeToConfirm:(INWorkoutLocationType)workoutLocationTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INWorkoutLocationType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithWorkoutLocationTypeToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSetProfileInCarIntent_Deprecated.h
+//
+//  INSetProfileInCarIntent_Deprecated.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#if (defined(TARGET_OS_WATCH) && !TARGET_OS_WATCH)
+
+#import <Intents/INSetProfileInCarIntent.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INSetProfileInCarIntent (Deprecated)
+
+- (instancetype)initWithProfileNumber:(nullable NSNumber *)profileNumber
+                         profileLabel:(nullable NSString *)profileLabel
+                       defaultProfile:(nullable NSNumber *)defaultProfile API_DEPRECATED("Use `-initWithProfileNumber:profileName:defaultProfile:` method instead.", ios(10.0, 10.2)) API_UNAVAILABLE(watchos) NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *profileLabel API_DEPRECATED("Use `profileName` property instead.", ios(10.0, 10.2)) API_UNAVAILABLE(watchos);
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
 // ==========  Intents.framework/Headers/INGetRideStatusIntentResponse.h
 //
 //  INGetRideStatusIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -4990,17 +8210,17 @@ NS_ASSUME_NONNULL_END
 typedef NS_ENUM(NSInteger, INGetRideStatusIntentResponseCode) {
     INGetRideStatusIntentResponseCodeUnspecified = 0,
     INGetRideStatusIntentResponseCodeReady,
-    INGetRideStatusIntentResponseCodeInProgress,
+    INGetRideStatusIntentResponseCodeInProgress API_DEPRECATED("INGetRideStatusIntentResponseCodeInProgress is deprecated.", ios(10.0, 11.0), watchos(3.2, 4.0)),
     INGetRideStatusIntentResponseCodeSuccess,
     INGetRideStatusIntentResponseCodeFailure,
     INGetRideStatusIntentResponseCodeFailureRequiringAppLaunch,
     INGetRideStatusIntentResponseCodeFailureRequiringAppLaunchMustVerifyCredentials,
     INGetRideStatusIntentResponseCodeFailureRequiringAppLaunchServiceTemporarilyUnavailable,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INGetRideStatusIntentResponse : INIntentResponse
 
@@ -5023,7 +8243,7 @@ NS_ASSUME_NONNULL_END
 //  INPersonResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -5032,10 +8252,11 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INPersonResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given person. The resolvedPerson need not be identical to the input person. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INPerson. The resolvedPerson can be different than the original INPerson. This allows app extensions to add and correct attributes of the INPerson. For example, an extension may add a nickname from the app.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedPerson:(INPerson *)resolvedPerson NS_SWIFT_NAME(success(with:));
 
 // This resolution result is to ask Siri to disambiguate between the provided people.
@@ -5052,14 +8273,13 @@ NS_ASSUME_NONNULL_END
 //  INRelativeSetting.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INRelativeSetting_h
 #define INRelativeSetting_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INRelativeSetting) {
@@ -5068,29 +8288,168 @@ typedef NS_ENUM(NSInteger, INRelativeSetting) {
     INRelativeSettingLower,
     INRelativeSettingHigher,
     INRelativeSettingHighest,
-};
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INRelativeSetting_h
+// ==========  Intents.framework/Headers/INPaymentStatusResolutionResult.h
+//
+//  INPaymentStatusResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INPaymentStatus.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INPaymentStatusResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INPaymentStatus. The resolvedValue can be different than the original INPaymentStatus. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedPaymentStatus:(INPaymentStatus)resolvedPaymentStatus NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INPaymentStatus)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedPaymentStatus:", ios(10.0, 11.0), watchos(3.2, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithPaymentStatusToConfirm:(INPaymentStatus)paymentStatusToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INPaymentStatus)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithPaymentStatusToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSetTaskAttributeIntent.h
+//
+//  INSetTaskAttributeIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INTaskStatus.h>
+
+@class INSpatialEventTrigger;
+@class INSpatialEventTriggerResolutionResult;
+@class INTask;
+@class INTaskResolutionResult;
+@class INTaskStatusResolutionResult;
+@class INTemporalEventTrigger;
+@class INTemporalEventTriggerResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INSetTaskAttributeIntent : INIntent
+
+- (instancetype)initWithTargetTask:(nullable INTask *)targetTask
+                            status:(INTaskStatus)status
+               spatialEventTrigger:(nullable INSpatialEventTrigger *)spatialEventTrigger
+              temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INTask *targetTask;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INTaskStatus status;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpatialEventTrigger *spatialEventTrigger;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INTemporalEventTrigger *temporalEventTrigger;
+
+@end
+
+@class INSetTaskAttributeIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INSetTaskAttributeIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INSetTaskAttributeIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INSetTaskAttributeIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INSetTaskAttributeIntentResponse containing the details of the result of having executed the intent
+
+ @see  INSetTaskAttributeIntentResponse
+ */
+
+- (void)handleSetTaskAttribute:(INSetTaskAttributeIntent *)intent
+                    completion:(void (^)(INSetTaskAttributeIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INSetTaskAttributeIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INSetTaskAttributeIntentResponse
+ */
+
+- (void)confirmSetTaskAttribute:(INSetTaskAttributeIntent *)intent
+                     completion:(void (^)(INSetTaskAttributeIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveTargetTaskForSetTaskAttribute:(INSetTaskAttributeIntent *)intent
+                    withCompletion:(void (^)(INTaskResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTargetTask(for:with:));
+
+- (void)resolveStatusForSetTaskAttribute:(INSetTaskAttributeIntent *)intent
+                    withCompletion:(void (^)(INTaskStatusResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveStatus(for:with:));
+
+- (void)resolveSpatialEventTriggerForSetTaskAttribute:(INSetTaskAttributeIntent *)intent
+                    withCompletion:(void (^)(INSpatialEventTriggerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveSpatialEventTrigger(for:with:));
+
+- (void)resolveTemporalEventTriggerForSetTaskAttribute:(INSetTaskAttributeIntent *)intent
+                    withCompletion:(void (^)(INTemporalEventTriggerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTemporalEventTrigger(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INCarAirCirculationMode.h
 //
 //  INCarAirCirculationMode.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INCarAirCirculationMode_h
 #define INCarAirCirculationMode_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INCarAirCirculationMode) {
     INCarAirCirculationModeUnknown = 0,
     INCarAirCirculationModeFreshAir,
     INCarAirCirculationModeRecirculateAir,
-};
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INCarAirCirculationMode_h
 // ==========  Intents.framework/Headers/INSetProfileInCarIntentResponse.h
@@ -5098,7 +8457,7 @@ typedef NS_ENUM(NSInteger, INCarAirCirculationMode) {
 //  INSetProfileInCarIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -5110,12 +8469,12 @@ typedef NS_ENUM(NSInteger, INSetProfileInCarIntentResponseCode) {
     INSetProfileInCarIntentResponseCodeSuccess,
     INSetProfileInCarIntentResponseCodeFailure,
     INSetProfileInCarIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos, macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(watchos, macosx)
 @interface INSetProfileInCarIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -5135,7 +8494,7 @@ NS_ASSUME_NONNULL_END
 //  INRestaurantOffer.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -5146,7 +8505,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INRestaurantOffer : NSObject <NSSecureCoding, NSCopying>
 
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *offerTitleText;
@@ -5160,10 +8519,12 @@ NS_ASSUME_NONNULL_END
 //  INSendMessageIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
+
+@class INMessage;
 
 typedef NS_ENUM(NSInteger, INSendMessageIntentResponseCode) {
     INSendMessageIntentResponseCodeUnspecified = 0,
@@ -5173,11 +8534,11 @@ typedef NS_ENUM(NSInteger, INSendMessageIntentResponseCode) {
     INSendMessageIntentResponseCodeFailure,
     INSendMessageIntentResponseCodeFailureRequiringAppLaunch,
     INSendMessageIntentResponseCodeFailureMessageServiceNotAvailable,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 @interface INSendMessageIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -5189,6 +8550,8 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 
 @property (readonly, NS_NONATOMIC_IOSONLY) INSendMessageIntentResponseCode code;
 
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INMessage *sentMessage API_AVAILABLE(ios(10.3), watchos(3.2), macosx(10.13));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -5197,7 +8560,7 @@ NS_ASSUME_NONNULL_END
 //  INRestaurant.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -5209,7 +8572,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INRestaurant : NSObject <NSSecureCoding, NSCopying>
 
 - (instancetype)initWithLocation:(CLLocation *)location name:(NSString *)name vendorIdentifier:(NSString *)vendorIdentifier restaurantIdentifier:(NSString *)restaurantIdentifier NS_DESIGNATED_INITIALIZER;
@@ -5221,19 +8584,74 @@ API_UNAVAILABLE(macosx)
 
 @end
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTransferMoneyIntentResponse.h
+//
+//  INTransferMoneyIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INCurrencyAmount;
+@class INDateComponentsRange;
+@class INPaymentAccount;
+@class INPaymentAmount;
+
+typedef NS_ENUM(NSInteger, INTransferMoneyIntentResponseCode) {
+    INTransferMoneyIntentResponseCodeUnspecified = 0,
+    INTransferMoneyIntentResponseCodeReady,
+    INTransferMoneyIntentResponseCodeInProgress,
+    INTransferMoneyIntentResponseCodeSuccess,
+    INTransferMoneyIntentResponseCodeFailure,
+    INTransferMoneyIntentResponseCodeFailureRequiringAppLaunch,
+    INTransferMoneyIntentResponseCodeFailureCredentialsUnverified,
+    INTransferMoneyIntentResponseCodeFailureInsufficientFunds,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INTransferMoneyIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INTransferMoneyIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INTransferMoneyIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentAccount *fromAccount;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentAccount *toAccount;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentAmount *transactionAmount;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *transactionScheduledDate;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *transactionNote;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INCurrencyAmount *transferFee;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INMessageAttribute.h
 //
 //  INMessageAttribute.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INMessageAttribute_h
 #define INMessageAttribute_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INMessageAttribute) {
@@ -5242,7 +8660,8 @@ typedef NS_ENUM(NSInteger, INMessageAttribute) {
     INMessageAttributeUnread,
     INMessageAttributeFlagged,
     INMessageAttributeUnflagged,
-};
+    INMessageAttributePlayed API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)),
+} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
 
 #endif // INMessageAttribute_h
 // ==========  Intents.framework/Headers/INRideVehicle.h
@@ -5250,7 +8669,7 @@ typedef NS_ENUM(NSInteger, INMessageAttribute) {
 //  INRideVehicle.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5274,16 +8693,18 @@ NS_CLASS_AVAILABLE(NA, 10_0) __TVOS_PROHIBITED __WATCHOS_AVAILABLE(3_0)
 //  INRideCompletionStatus.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import "INRideFeedbackTypeOptions.h"
 
-@class INCurrencyAmount;
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(NA, 10_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+@class INCurrencyAmount;
+
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INRideCompletionStatus: NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -5298,6 +8719,10 @@ NS_CLASS_AVAILABLE(NA, 10_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 // The .completionUserActivity should be set, and will be continued in your application to perform payment tasks.
 + (instancetype)completedWithOutstandingPaymentAmount:(INCurrencyAmount *)outstandingPaymentAmount NS_SWIFT_NAME(completed(outstanding:));
 
+// The ride completed but there is feedback outstanding that the user may provide to the system. See INSendRideFeedbackIntent.
+// If feedbackType includes INRideFeedbackTypeOptionTip, the .defaultTippingOptions should be set.
++ (instancetype)completedWithOutstandingFeedbackType:(INRideFeedbackTypeOptions)feedbackType API_AVAILABLE(ios(11.0), watchos(4.0)) NS_SWIFT_NAME(completed(feedbackType:));
+
 // The ride was canceled by the service (e.g. because the driver asked to cancel)
 + (instancetype)canceledByService;
 
@@ -5307,7 +8732,7 @@ NS_CLASS_AVAILABLE(NA, 10_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 // The ride was canceled by the service because the passenger was not present for pickup and the vehicle maximum wait time elapsed.
 + (instancetype)canceledMissedPickup;
 
-// If this property is set, UI may be shown to the user to complete post-ride tasks (e.g. for feedback or settling outstanding payment). Acting on that UI will continue this activity in your application.
+// If this property is set, UI may be shown to the user to complete post-ride tasks (e.g. for settling outstanding payment). Acting on that UI will continue this activity in your application.
 @property (readwrite, strong, nullable, NS_NONATOMIC_IOSONLY) NSUserActivity *completionUserActivity;
 
 // YES if the ride was completed.
@@ -5322,30 +8747,59 @@ NS_CLASS_AVAILABLE(NA, 10_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 // The payment amount, if any.
 @property (readonly, strong, nullable, NS_NONATOMIC_IOSONLY) INCurrencyAmount *paymentAmount;
 
+// The type of feedback requested, if any.
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INRideFeedbackTypeOptions feedbackType API_AVAILABLE(ios(11.0), watchos(4.0));
+
 // Whether the payment is outstanding (YES) or settled (NO).
 @property (readonly, NS_NONATOMIC_IOSONLY, getter=isOutstanding) BOOL outstanding;
 
+// Default options the user can choose from when adding a tip.
+@property (readwrite, strong, nullable, NS_NONATOMIC_IOSONLY) NSSet<INCurrencyAmount *> *defaultTippingOptions API_AVAILABLE(ios(11.0), watchos(4.0));
+                                                                                                           
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INLocationSearchType.h
+//
+//  INLocationSearchType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INLocationSearchType_h
+#define INLocationSearchType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INLocationSearchType) {
+    INLocationSearchTypeUnknown = 0,
+    INLocationSearchTypeByLocationTrigger,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INLocationSearchType_h
 // ==========  Intents.framework/Headers/INIntent.h
 //
 //  INIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INIntent : NSObject <NSCopying, NSSecureCoding>
 
 // Returns the identifier of the receiver.
 // Could be used to keep track of the entire transaction for resolve, confirm and handleIntent
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *identifier;
+
+// A human-understandable string representation of the intent's user-facing behavior
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *intentDescription API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 @end
 
@@ -5355,14 +8809,14 @@ NS_ASSUME_NONNULL_END
 //  INCurrencyAmount.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INCurrencyAmount : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -5372,17 +8826,91 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSDecimalNumber *amount;
 
+// The ISO 4217 currency code that applies to the monetary amount.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *currencyCode;
 
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSearchForNotebookItemsIntentResponse.h
+//
+//  INSearchForNotebookItemsIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+#import <Intents/INSortType.h>
+
+@class INNote;
+@class INTask;
+@class INTaskList;
+
+typedef NS_ENUM(NSInteger, INSearchForNotebookItemsIntentResponseCode) {
+    INSearchForNotebookItemsIntentResponseCodeUnspecified = 0,
+    INSearchForNotebookItemsIntentResponseCodeReady,
+    INSearchForNotebookItemsIntentResponseCodeInProgress,
+    INSearchForNotebookItemsIntentResponseCodeSuccess,
+    INSearchForNotebookItemsIntentResponseCodeFailure,
+    INSearchForNotebookItemsIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INSearchForNotebookItemsIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INSearchForNotebookItemsIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INSearchForNotebookItemsIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INNote *> *notes;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INTaskList *> *taskLists;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INTask *> *tasks;
+
+@property (readwrite, assign, NS_NONATOMIC_IOSONLY) INSortType sortType;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INBalanceType.h
+//
+//  INBalanceType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INBalanceType_h
+#define INBalanceType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INBalanceType) {
+    INBalanceTypeUnknown = 0,
+    INBalanceTypeMoney,
+    INBalanceTypePoints,
+    INBalanceTypeMiles,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INBalanceType_h
 // ==========  Intents.framework/Headers/IntentsDefines.h
 //
 //  IntentsDefines.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016 Apple Inc. All rights reserved.
 //
 
 #import <Availability.h>
@@ -5392,12 +8920,223 @@ NS_ASSUME_NONNULL_END
 #else
 #define INTENTS_EXTERN extern __attribute__((visibility ("default")))
 #endif
+// ==========  Intents.framework/Headers/INTask.h
+//
+//  INTask.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INTaskStatus.h>
+#import <Intents/INTaskType.h>
+
+@class INSpatialEventTrigger;
+@class INSpeakableString;
+@class INTemporalEventTrigger;
+@class NSDateComponents;
+
+NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+@interface INTask : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)initWithTitle:(INSpeakableString *)title status:(INTaskStatus)status taskType:(INTaskType)taskType spatialEventTrigger:(nullable INSpatialEventTrigger *)spatialEventTrigger temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger createdDateComponents:(nullable NSDateComponents *)createdDateComponents modifiedDateComponents:(nullable NSDateComponents *)modifiedDateComponents identifier:(nullable NSString *)identifier;
+
+@property (readonly, copy) INSpeakableString *title;
+@property (readonly) INTaskStatus status;
+@property (readonly) INTaskType taskType;
+@property (readonly, copy, nullable) INSpatialEventTrigger *spatialEventTrigger;
+@property (readonly, copy, nullable) INTemporalEventTrigger *temporalEventTrigger;
+@property (readonly, copy, nullable) NSDateComponents *createdDateComponents;
+@property (readonly, copy, nullable) NSDateComponents *modifiedDateComponents;
+@property (readonly, copy, nullable) NSString *identifier;
+
+@end
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSearchForNotebookItemsIntent.h
+//
+//  INSearchForNotebookItemsIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INDateSearchType.h>
+#import <Intents/INLocationSearchType.h>
+#import <Intents/INNotebookItemType.h>
+#import <Intents/INTaskStatus.h>
+
+@class CLPlacemark;
+@class INDateComponentsRange;
+@class INDateComponentsRangeResolutionResult;
+@class INDateSearchTypeResolutionResult;
+@class INLocationSearchTypeResolutionResult;
+@class INNotebookItemTypeResolutionResult;
+@class INPlacemarkResolutionResult;
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
+@class INStringResolutionResult;
+@class INTaskStatusResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INSearchForNotebookItemsIntent : INIntent
+
+- (instancetype)initWithTitle:(nullable INSpeakableString *)title
+                      content:(nullable NSString *)content
+                     itemType:(INNotebookItemType)itemType
+                       status:(INTaskStatus)status
+                     location:(nullable CLPlacemark *)location
+           locationSearchType:(INLocationSearchType)locationSearchType
+                     dateTime:(nullable INDateComponentsRange *)dateTime
+               dateSearchType:(INDateSearchType)dateSearchType NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *title;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *content;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INNotebookItemType itemType;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INTaskStatus status;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *location;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INLocationSearchType locationSearchType;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *dateTime;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INDateSearchType dateSearchType;
+
+@end
+
+@class INSearchForNotebookItemsIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INSearchForNotebookItemsIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INSearchForNotebookItemsIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INSearchForNotebookItemsIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INSearchForNotebookItemsIntentResponse containing the details of the result of having executed the intent
+
+ @see  INSearchForNotebookItemsIntentResponse
+ */
+
+- (void)handleSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                          completion:(void (^)(INSearchForNotebookItemsIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INSearchForNotebookItemsIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INSearchForNotebookItemsIntentResponse
+ */
+
+- (void)confirmSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                           completion:(void (^)(INSearchForNotebookItemsIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveTitleForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTitle(for:with:));
+
+- (void)resolveContentForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveContent(for:with:));
+
+- (void)resolveItemTypeForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                    withCompletion:(void (^)(INNotebookItemTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveItemType(for:with:));
+
+- (void)resolveStatusForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                    withCompletion:(void (^)(INTaskStatusResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveStatus(for:with:));
+
+- (void)resolveLocationForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                    withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveLocation(for:with:));
+
+- (void)resolveLocationSearchTypeForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                    withCompletion:(void (^)(INLocationSearchTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveLocationSearchType(for:with:));
+
+- (void)resolveDateTimeForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateTime(for:with:));
+
+- (void)resolveDateSearchTypeForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                    withCompletion:(void (^)(INDateSearchTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateSearchType(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSetCarLockStatusIntentResponse.h
+//
+//  INSetCarLockStatusIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+typedef NS_ENUM(NSInteger, INSetCarLockStatusIntentResponseCode) {
+    INSetCarLockStatusIntentResponseCodeUnspecified = 0,
+    INSetCarLockStatusIntentResponseCodeReady,
+    INSetCarLockStatusIntentResponseCodeInProgress,
+    INSetCarLockStatusIntentResponseCodeSuccess,
+    INSetCarLockStatusIntentResponseCodeFailure,
+    INSetCarLockStatusIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INSetCarLockStatusIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INSetCarLockStatusIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INSetCarLockStatusIntentResponseCode code;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INPlacemarkResolutionResult.h
 //
 //  INPlacemarkResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -5406,10 +9145,12 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INPlacemarkResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given placemark. The resolvedPlacemark need not be identical to the input placemark. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given CLPlacemark. The resolvedPlacemark can be different than the original CLPlacemark. This allows app extensions to dynamically fill-in details about the CLPlacemark, as appropriate. To make a new CLPlacemark, see <Intents/CLPlacemark+IntentsAdditions.h>. 
+// Use +notRequired to continue with a 'nil' value.
+
 + (instancetype)successWithResolvedPlacemark:(CLPlacemark *)resolvedPlacemark NS_SWIFT_NAME(success(with:));
 
 // This resolution result is to ask Siri to disambiguate between the provided placemarks.
@@ -5426,28 +9167,133 @@ NS_ASSUME_NONNULL_END
 //  INCallCapabilityOptions.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INCallCapabilityOptions_h
 #define INCallCapabilityOptions_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_OPTIONS(NSUInteger, INCallCapabilityOptions) {
     INCallCapabilityOptionAudioCall = (1UL << 0),
     INCallCapabilityOptionVideoCall = (1UL << 1),
-};
+} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
 
 #endif // INCallCapabilityOptions_h
+// ==========  Intents.framework/Headers/INSearchForAccountsIntent.h
+//
+//  INSearchForAccountsIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INAccountType.h>
+#import <Intents/INBalanceType.h>
+
+@class INAccountTypeResolutionResult;
+@class INBalanceTypeResolutionResult;
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INSearchForAccountsIntent : INIntent
+
+- (instancetype)initWithAccountNickname:(nullable INSpeakableString *)accountNickname
+                            accountType:(INAccountType)accountType
+                       organizationName:(nullable INSpeakableString *)organizationName
+                   requestedBalanceType:(INBalanceType)requestedBalanceType NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *accountNickname;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INAccountType accountType;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *organizationName;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INBalanceType requestedBalanceType;
+
+@end
+
+@class INSearchForAccountsIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INSearchForAccountsIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INSearchForAccountsIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INSearchForAccountsIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INSearchForAccountsIntentResponse containing the details of the result of having executed the intent
+
+ @see  INSearchForAccountsIntentResponse
+ */
+
+- (void)handleSearchForAccounts:(INSearchForAccountsIntent *)intent
+                     completion:(void (^)(INSearchForAccountsIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INSearchForAccountsIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INSearchForAccountsIntentResponse
+ */
+
+- (void)confirmSearchForAccounts:(INSearchForAccountsIntent *)intent
+                      completion:(void (^)(INSearchForAccountsIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveAccountNicknameForSearchForAccounts:(INSearchForAccountsIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAccountNickname(for:with:));
+
+- (void)resolveAccountTypeForSearchForAccounts:(INSearchForAccountsIntent *)intent
+                    withCompletion:(void (^)(INAccountTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAccountType(for:with:));
+
+- (void)resolveOrganizationNameForSearchForAccounts:(INSearchForAccountsIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveOrganizationName(for:with:));
+
+- (void)resolveRequestedBalanceTypeForSearchForAccounts:(INSearchForAccountsIntent *)intent
+                    withCompletion:(void (^)(INBalanceTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRequestedBalanceType(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INDateComponentsRangeResolutionResult.h
 //
 //  INDateComponentsRangeResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -5456,10 +9302,11 @@ typedef NS_OPTIONS(NSUInteger, INCallCapabilityOptions) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INDateComponentsRangeResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given date components range. The resolvedDateComponentsRange need not be identical to the input date components range. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INDateComponentsRange. The resolvedDateComponentsRange can be different than the original INDateComponentsRange. This allows app extensions to pick a suitable range.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedDateComponentsRange:(INDateComponentsRange *)resolvedDateComponentsRange NS_SWIFT_NAME(success(with:));
 
 // This resolution result is to ask Siri to disambiguate between the provided date components ranges.
@@ -5476,21 +9323,23 @@ NS_ASSUME_NONNULL_END
 //  INRequestPaymentIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
 #import <Intents/INIntentResolutionResult.h>
 
-@class INPerson;
-@class INPersonResolutionResult;
 @class INCurrencyAmount;
 @class INCurrencyAmountResolutionResult;
+@class INPerson;
+@class INPersonResolutionResult;
+@class INRequestPaymentCurrencyAmountResolutionResult;
+@class INRequestPaymentPayerResolutionResult;
 @class INStringResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INRequestPaymentIntent : INIntent
 
@@ -5509,69 +9358,97 @@ API_UNAVAILABLE(macosx)
 @class INRequestPaymentIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INRequestPaymentIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INRequestPaymentIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INRequestPaymentIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INRequestPaymentIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INRequestPaymentIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  requestPaymentIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INRequestPaymentIntentResponse containing the details of the result of having executed the intent
 
  @see  INRequestPaymentIntentResponse
  */
 
 - (void)handleRequestPayment:(INRequestPaymentIntent *)intent
-                  completion:(void (^)(INRequestPaymentIntentResponse *response))completion NS_SWIFT_NAME(handle(requestPayment:completion:));
+                  completion:(void (^)(INRequestPaymentIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  requestPaymentIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INRequestPaymentIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INRequestPaymentIntentResponse
-
  */
 
 - (void)confirmRequestPayment:(INRequestPaymentIntent *)intent
-                   completion:(void (^)(INRequestPaymentIntentResponse *response))completion NS_SWIFT_NAME(confirm(requestPayment:completion:));
+                   completion:(void (^)(INRequestPaymentIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  requestPaymentIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolvePayerForRequestPayment:(INRequestPaymentIntent *)intent
-                       withCompletion:(void (^)(INPersonResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePayer(forRequestPayment:with:));
+                    withCompletion:(void (^)(INPersonResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePayer(for:with:)) API_DEPRECATED("resolvePayerForRequestPayment:withCompletion: is deprecated. Use resolvePayerForRequestPayment:completion: instead", ios(10.0, 11.0), watchos(3.2, 4.0));
+
+- (void)resolvePayerForRequestPayment:(INRequestPaymentIntent *)intent
+                    completion:(void (^)(INRequestPaymentPayerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePayer(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0));
 
 - (void)resolveCurrencyAmountForRequestPayment:(INRequestPaymentIntent *)intent
-                                withCompletion:(void (^)(INCurrencyAmountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCurrencyAmount(forRequestPayment:with:));
+                    withCompletion:(void (^)(INCurrencyAmountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCurrencyAmount(for:with:)) API_DEPRECATED("resolveCurrencyAmountForRequestPayment:withCompletion: is deprecated. Use resolveCurrencyAmountForRequestPayment:completion: instead", ios(10.0, 11.0), watchos(3.2, 4.0));
+
+- (void)resolveCurrencyAmountForRequestPayment:(INRequestPaymentIntent *)intent
+                    completion:(void (^)(INRequestPaymentCurrencyAmountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCurrencyAmount(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0));
 
 - (void)resolveNoteForRequestPayment:(INRequestPaymentIntent *)intent
-                      withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveNote(forRequestPayment:with:));
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveNote(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSendPaymentPayeeResolutionResult.h
+//
+//  INSendPaymentPayeeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INPersonResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INSendPaymentPayeeUnsupportedReason) {
+    INSendPaymentPayeeUnsupportedReasonCredentialsUnverified = 1,
+    INSendPaymentPayeeUnsupportedReasonInsufficientFunds,
+    INSendPaymentPayeeUnsupportedReasonNoAccount,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INSendPaymentPayeeResolutionResult : INPersonResolutionResult
+
++ (instancetype)unsupportedForReason:(INSendPaymentPayeeUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithPersonResolutionResult:(INPersonResolutionResult *)personResolutionResult;
 
 @end
 
@@ -5581,7 +9458,7 @@ NS_ASSUME_NONNULL_END
 //  INSpeakableString.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5590,13 +9467,20 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INSpeakableString : NSObject <INSpeakable>
 
 - (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithVocabularyIdentifier:(NSString *)vocabularyIdentifier
+                                spokenPhrase:(NSString *)spokenPhrase
+                           pronunciationHint:(nullable NSString *)pronunciationHint NS_DESIGNATED_INITIALIZER;
+
 - (instancetype)initWithIdentifier:(NSString *)identifier
-                   spokenPhrase:(NSString *)spokenPhrase
-                   pronunciationHint:(nullable NSString *)pronunciationHint NS_DESIGNATED_INITIALIZER;
+                      spokenPhrase:(NSString *)spokenPhrase
+                 pronunciationHint:(nullable NSString *)pronunciationHint API_DEPRECATED("Please use -initWithVocabularyIdentifier:spokenPhrase:pronunciationHint:", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+
+- (instancetype)initWithSpokenPhrase:(NSString *)spokenPhrase API_AVAILABLE(ios(10.2), macosx(10.12.2));
 
 @end
 
@@ -5607,14 +9491,14 @@ NS_ASSUME_NONNULL_END
 //  INIntentResolution.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INIntentResolutionResult<ObjectType> : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -5622,11 +9506,52 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 // This result is to tell Siri that the user must provide a non-nil value for this parameter in order to continue
 + (instancetype)needsValue NS_SWIFT_NAME(needsValue());
 
-// This result is to tell Siri to continue whether or the user has provided a value for this parameter
+// This result is to tell Siri to continue regardless of whether the user has provided a value for this parameter or not
 + (instancetype)notRequired NS_SWIFT_NAME(notRequired());
 
 // This result is for informing Siri that this value is unsupported
 + (instancetype)unsupported NS_SWIFT_NAME(unsupported());
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCreateTaskListIntentResponse.h
+//
+//  INCreateTaskListIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INTaskList;
+
+typedef NS_ENUM(NSInteger, INCreateTaskListIntentResponseCode) {
+    INCreateTaskListIntentResponseCodeUnspecified = 0,
+    INCreateTaskListIntentResponseCodeReady,
+    INCreateTaskListIntentResponseCodeInProgress,
+    INCreateTaskListIntentResponseCodeSuccess,
+    INCreateTaskListIntentResponseCodeFailure,
+    INCreateTaskListIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INCreateTaskListIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INCreateTaskListIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INCreateTaskListIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INTaskList *createdTaskList;
 
 @end
 
@@ -5636,7 +9561,7 @@ NS_ASSUME_NONNULL_END
 //  INGetAvailableRestaurantReservationBookingsIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -5656,7 +9581,7 @@ typedef NS_ENUM(NSInteger, INGetAvailableRestaurantReservationBookingsIntentCode
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INGetAvailableRestaurantReservationBookingsIntentResponse : INIntentResponse
 
 - (instancetype)initWithAvailableBookings:(NSArray<INRestaurantReservationBooking *> *)availableBookings code:(INGetAvailableRestaurantReservationBookingsIntentCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
@@ -5675,7 +9600,7 @@ NS_ASSUME_NONNULL_END
 //  INSetMessageAttributeIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -5683,12 +9608,12 @@ NS_ASSUME_NONNULL_END
 
 #import <Intents/INMessageAttribute.h>
 
-@class INStringResolutionResult;
 @class INMessageAttributeResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos)
 @interface INSetMessageAttributeIntent : INIntent
 
 - (instancetype)initWithIdentifiers:(nullable NSArray<NSString *> *)identifiers
@@ -5703,62 +9628,56 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 @class INSetMessageAttributeIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSetMessageAttributeIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSetMessageAttributeIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos)
 @protocol INSetMessageAttributeIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSetMessageAttributeIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSetMessageAttributeIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  setMessageAttributeIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSetMessageAttributeIntentResponse containing the details of the result of having executed the intent
 
  @see  INSetMessageAttributeIntentResponse
  */
 
 - (void)handleSetMessageAttribute:(INSetMessageAttributeIntent *)intent
-                       completion:(void (^)(INSetMessageAttributeIntentResponse *response))completion NS_SWIFT_NAME(handle(setMessageAttribute:completion:));
+                       completion:(void (^)(INSetMessageAttributeIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  setMessageAttributeIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSetMessageAttributeIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSetMessageAttributeIntentResponse
-
  */
 
 - (void)confirmSetMessageAttribute:(INSetMessageAttributeIntent *)intent
-                        completion:(void (^)(INSetMessageAttributeIntentResponse *response))completion NS_SWIFT_NAME(confirm(setMessageAttribute:completion:));
+                        completion:(void (^)(INSetMessageAttributeIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  setMessageAttributeIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveAttributeForSetMessageAttribute:(INSetMessageAttributeIntent *)intent
-                                withCompletion:(void (^)(INMessageAttributeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAttribute(forSetMessageAttribute:with:));
+                    withCompletion:(void (^)(INMessageAttributeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAttribute(for:with:));
 
 @end
 
@@ -5768,7 +9687,7 @@ NS_ASSUME_NONNULL_END
 //  INRestaurantGuestResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 //  This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -5781,15 +9700,17 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos)
 @interface INRestaurantGuestResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given restaurant guest. The resolvedRestaurantGuest need not be identical to the input restaurant. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to proceed, with a given restaurant guest. The resolvedRestaurantGuest can be different than the original restaurant guest. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedRestaurantGuest:(INRestaurantGuest *)resolvedRestaurantGuest NS_SWIFT_NAME(success(with:));
 
-// This resolution result is to ask Siri to disambiguate between the provided restaurant guests.
+// This resolution result is to disambiguate between the provided restaurant guests.
 + (instancetype)disambiguationWithRestaurantGuestsToDisambiguate:(NSArray<INRestaurantGuest *> *)restaurantGuestsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
 
-// This resolution result is to ask Siri to confirm if this is the restaurant guest with which the user wants to continue.
+// This resolution result is to confirm if this is the restaurant guest with which the user wants to continue.
 + (instancetype)confirmationRequiredWithRestaurantGuestToConfirm:(nullable INRestaurantGuest *)restaurantGuestToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
 
 @end
@@ -5800,7 +9721,7 @@ NS_ASSUME_NONNULL_END
 //  INIntentHandlerProviding.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5817,12 +9738,44 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INVisualCodeTypeResolutionResult.h
+//
+//  INVisualCodeTypeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INVisualCodeType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INVisualCodeTypeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INVisualCodeType. The resolvedValue can be different than the original INVisualCodeType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedVisualCodeType:(INVisualCodeType)resolvedVisualCodeType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INVisualCodeType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedVisualCodeType:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithVisualCodeTypeToConfirm:(INVisualCodeType)visualCodeTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INVisualCodeType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithVisualCodeTypeToConfirm:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INCurrencyAmountResolutionResult.h
 //
 //  INCurrencyAmountResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -5831,16 +9784,18 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INCurrencyAmountResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given currency amount. The resolvedCurrencyAmount need not be identical to the input currency amount. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCurrencyAmount. The resolvedCurrencyAmount can be different than the original INCurrencyAmount. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedCurrencyAmount:(INCurrencyAmount *)resolvedCurrencyAmount NS_SWIFT_NAME(success(with:));
 
-// This resolution result is to ask Siri to disambiguate between the provided currency amounts.
+// This resolution result is to ask Siri to disambiguate between the provided INCurrencyAmount.
 + (instancetype)disambiguationWithCurrencyAmountsToDisambiguate:(NSArray<INCurrencyAmount *> *)currencyAmountsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
 
-// This resolution result is to ask Siri to confirm if this is the currency amount with which the user wants to continue.
+// This resolution result is to ask Siri to confirm if this is the currencyAmount with which the user wants to continue.
 + (instancetype)confirmationRequiredWithCurrencyAmountToConfirm:(nullable INCurrencyAmount *)currencyAmountToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
 
 @end
@@ -5851,7 +9806,7 @@ NS_ASSUME_NONNULL_END
 //  INEndWorkoutIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -5859,15 +9814,17 @@ NS_ASSUME_NONNULL_END
 typedef NS_ENUM(NSInteger, INEndWorkoutIntentResponseCode) {
     INEndWorkoutIntentResponseCodeUnspecified = 0,
     INEndWorkoutIntentResponseCodeReady,
-    INEndWorkoutIntentResponseCodeContinueInApp,
+    INEndWorkoutIntentResponseCodeContinueInApp API_AVAILABLE(watchos(3.2)) API_DEPRECATED("INEndWorkoutIntentResponseCodeContinueInApp is deprecated on iOS. Please use INEndWorkoutIntentResponseCodeHandleInApp instead", ios(10.0, 11.0)),
     INEndWorkoutIntentResponseCodeFailure,
     INEndWorkoutIntentResponseCodeFailureRequiringAppLaunch,
     INEndWorkoutIntentResponseCodeFailureNoMatchingWorkout,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+    INEndWorkoutIntentResponseCodeSuccess NS_EXTENSION_UNAVAILABLE("INEndWorkoutIntentResponseCodeSuccess is not available to extensions. This can only be returned from the app.") API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos),
+    INEndWorkoutIntentResponseCodeHandleInApp API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos),
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INEndWorkoutIntentResponse : INIntentResponse
 
@@ -5883,12 +9840,53 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCreateNoteIntentResponse.h
+//
+//  INCreateNoteIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INNote;
+
+typedef NS_ENUM(NSInteger, INCreateNoteIntentResponseCode) {
+    INCreateNoteIntentResponseCodeUnspecified = 0,
+    INCreateNoteIntentResponseCodeReady,
+    INCreateNoteIntentResponseCodeInProgress,
+    INCreateNoteIntentResponseCodeSuccess,
+    INCreateNoteIntentResponseCodeFailure,
+    INCreateNoteIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INCreateNoteIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INCreateNoteIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INCreateNoteIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INNote *createdNote;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSearchForPhotosIntentResponse.h
 //
 //  INSearchForPhotosIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -5899,11 +9897,12 @@ typedef NS_ENUM(NSInteger, INSearchForPhotosIntentResponseCode) {
     INSearchForPhotosIntentResponseCodeContinueInApp,
     INSearchForPhotosIntentResponseCodeFailure,
     INSearchForPhotosIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+    INSearchForPhotosIntentResponseCodeFailureAppConfigurationRequired,
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INSearchForPhotosIntentResponse : INIntentResponse
 
@@ -5921,27 +9920,118 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTaskResolutionResult.h
+//
+//  INTaskResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INTask;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INTaskResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INTask. The resolvedTask can be different than the original INTask. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedTask:(INTask *)resolvedTask NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INTask.
++ (instancetype)disambiguationWithTasksToDisambiguate:(NSArray<INTask *> *)tasksToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the task with which the user wants to continue.
++ (instancetype)confirmationRequiredWithTaskToConfirm:(nullable INTask *)taskToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTaskStatusResolutionResult.h
+//
+//  INTaskStatusResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INTaskStatus.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INTaskStatusResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INTaskStatus. The resolvedValue can be different than the original INTaskStatus. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedTaskStatus:(INTaskStatus)resolvedTaskStatus NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INTaskStatus)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedTaskStatus:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithTaskStatusToConfirm:(INTaskStatus)taskStatusToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INTaskStatus)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithTaskStatusToConfirm:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSpatialEventTrigger.h
+//
+//  INSpatialEventTrigger.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INSpatialEvent.h>
+
+@class CLPlacemark;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+@interface INSpatialEventTrigger : NSObject
+
+- (instancetype)initWithPlacemark:(CLPlacemark *)placemark event:(INSpatialEvent)event;
+
+@property (readonly) CLPlacemark *placemark;
+@property (readonly) INSpatialEvent event;
+
+@end
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRequestRideIntent.h
 //
 //  INRequestRideIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
 #import <Intents/INIntentResolutionResult.h>
 
 @class CLPlacemark;
+@class INDateComponentsRange;
+@class INDateComponentsRangeResolutionResult;
+@class INIntegerResolutionResult;
+@class INPaymentMethod;
 @class INPlacemarkResolutionResult;
 @class INSpeakableString;
 @class INSpeakableStringResolutionResult;
-@class INIntegerResolutionResult;
-@class INPaymentMethod;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INRequestRideIntent : INIntent
 
@@ -5949,7 +10039,8 @@ API_UNAVAILABLE(macosx)
                        dropOffLocation:(nullable CLPlacemark *)dropOffLocation
                         rideOptionName:(nullable INSpeakableString *)rideOptionName
                              partySize:(nullable NSNumber *)partySize
-                         paymentMethod:(nullable INPaymentMethod *)paymentMethod NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+                         paymentMethod:(nullable INPaymentMethod *)paymentMethod
+                   scheduledPickupTime:(nullable INDateComponentsRange *)scheduledPickupTime NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(10.3), watchos(3.2));
 
 // Specifies the location to to begin the ride.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *pickupLocation;
@@ -5964,77 +10055,75 @@ API_UNAVAILABLE(macosx)
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentMethod *paymentMethod;
 
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *scheduledPickupTime API_AVAILABLE(ios(10.3), watchos(3.2));
+
 @end
 
 @class INRequestRideIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INRequestRideIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INRequestRideIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INRequestRideIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INRequestRideIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INRequestRideIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  requestRideIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INRequestRideIntentResponse containing the details of the result of having executed the intent
 
  @see  INRequestRideIntentResponse
  */
 
 - (void)handleRequestRide:(INRequestRideIntent *)intent
-               completion:(void (^)(INRequestRideIntentResponse *response))completion NS_SWIFT_NAME(handle(requestRide:completion:));
+               completion:(void (^)(INRequestRideIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  requestRideIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INRequestRideIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INRequestRideIntentResponse
-
  */
 
 - (void)confirmRequestRide:(INRequestRideIntent *)intent
-                completion:(void (^)(INRequestRideIntentResponse *response))completion NS_SWIFT_NAME(confirm(requestRide:completion:));
+                completion:(void (^)(INRequestRideIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  requestRideIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolvePickupLocationForRequestRide:(INRequestRideIntent *)intent
-                             withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePickupLocation(forRequestRide:with:));
+                    withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePickupLocation(for:with:));
 
 - (void)resolveDropOffLocationForRequestRide:(INRequestRideIntent *)intent
-                              withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDropOffLocation(forRequestRide:with:));
+                    withCompletion:(void (^)(INPlacemarkResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDropOffLocation(for:with:));
 
 - (void)resolveRideOptionNameForRequestRide:(INRequestRideIntent *)intent
-                             withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRideOptionName(forRequestRide:with:));
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRideOptionName(for:with:));
 
 - (void)resolvePartySizeForRequestRide:(INRequestRideIntent *)intent
-                        withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePartySize(forRequestRide:with:));
+                    withCompletion:(void (^)(INIntegerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePartySize(for:with:));
+
+- (void)resolveScheduledPickupTimeForRequestRide:(INRequestRideIntent *)intent
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveScheduledPickupTime(for:with:)) API_AVAILABLE(ios(10.3), watchos(3.2));
 
 @end
 
@@ -6044,17 +10133,18 @@ NS_ASSUME_NONNULL_END
 //  INStringResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INStringResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given string. The resolvedString need not be identical to the input string. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given string. The resolvedString can be different than the original string. This allows app extensions to apply business logic constraints to the string.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedString:(NSString *)resolvedString NS_SWIFT_NAME(success(with:));
 
 // This resolution result is to ask Siri to disambiguate between the provided strings.
@@ -6071,7 +10161,7 @@ NS_ASSUME_NONNULL_END
 //  INGetRestaurantGuestIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -6089,7 +10179,7 @@ typedef NS_ENUM(NSInteger, INGetRestaurantGuestIntentResponseCode) {
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INGetRestaurantGuestIntentResponse : INIntentResponse
 
 - (instancetype)initWithCode:(INGetRestaurantGuestIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
@@ -6106,7 +10196,7 @@ NS_ASSUME_NONNULL_END
 //  INGetAvailableRestaurantReservationBookingsIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -6122,8 +10212,15 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INGetAvailableRestaurantReservationBookingsIntent : INIntent <NSCopying>
+
+- (instancetype)initWithRestaurant:(INRestaurant *)restaurant
+                         partySize:(NSUInteger)partySize
+    preferredBookingDateComponents:(nullable NSDateComponents *)preferredBookingDateComponents
+            maximumNumberOfResults:(nullable NSNumber *)maximumNumberOfResults
+     earliestBookingDateForResults:(nullable NSDate *)earliestBookingDateForResults
+       latestBookingDateForResults:(nullable NSDate *)latestBookingDateForResults API_AVAILABLE(ios(11.0));
 
 @property (copy, NS_NONATOMIC_IOSONLY) INRestaurant *restaurant;
 @property (NS_NONATOMIC_IOSONLY) NSUInteger partySize;
@@ -6140,16 +10237,14 @@ API_UNAVAILABLE(macosx)
 @class INGetAvailableRestaurantReservationBookingsIntentResponse;
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @protocol INGetAvailableRestaurantReservationBookingsIntentHandling <NSObject>
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INGetAvailableRestaurantReservationBookingsIntent that's passed in
+ @discussion This method is called to actually execute the intent, the app must return a response for this intent and an NSUserActivity capturing the state that the app must be restored to at the end of handling this intent
  
- @abstract Execute the task represented by the INGetAvailableRestaurantReservationBookingsIntent that's passed in
- @discussion This method are called to actually execute the intent, the app must return a response for this intent and an NSUserActivity capturing the state that the app must be restored to at the end of handling this intent
- 
- @param  showBookingsIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block to invoke with the response to handling the intent.
  
  @see  INGetAvailableRestaurantReservationBookingsIntentResponse
@@ -6161,11 +10256,10 @@ API_UNAVAILABLE(macosx)
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
  @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
  
- @param  bookingDefaultsIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INGetAvailableRestaurantReservationBookingDefaultsIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
  
  @see INGetAvailableRestaurantReservationBookingsIntentResponse
@@ -6175,11 +10269,10 @@ API_UNAVAILABLE(macosx)
 - (void)confirmGetAvailableRestaurantReservationBookings:(INGetAvailableRestaurantReservationBookingsIntent *)intent completion:(void (^)(INGetAvailableRestaurantReservationBookingsIntentResponse *response))completion NS_SWIFT_NAME(confirm(getAvailableRestaurantReservationBookings:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
  @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
  
- @param  bookingDefaultsIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
  
  @see INGetAvailableRestaurantReservationBookingsIntentResponse
@@ -6198,7 +10291,7 @@ NS_ASSUME_NONNULL_END
 //  INRestaurantReservationUserBooking.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -6216,7 +10309,7 @@ typedef NS_ENUM (NSUInteger, INRestaurantReservationUserBookingStatus) {
 };
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 NS_ASSUME_NONNULL_BEGIN
 @interface INRestaurantReservationUserBooking : INRestaurantReservationBooking <NSCopying>
 
@@ -6236,36 +10329,211 @@ NS_ASSUME_NONNULL_END
 //  INRelativeReference.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INRelativeReference_h
 #define INRelativeReference_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INRelativeReference) {
     INRelativeReferenceUnknown = 0,
     INRelativeReferenceNext,
     INRelativeReferencePrevious,
-};
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INRelativeReference_h
+// ==========  Intents.framework/Headers/INSpatialEventTriggerResolutionResult.h
+//
+//  INSpatialEventTriggerResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INSpatialEventTrigger;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INSpatialEventTriggerResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INSpatialEventTrigger. The resolvedSpatialEventTrigger can be different than the original INSpatialEventTrigger. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedSpatialEventTrigger:(INSpatialEventTrigger *)resolvedSpatialEventTrigger NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INSpatialEventTrigger.
++ (instancetype)disambiguationWithSpatialEventTriggersToDisambiguate:(NSArray<INSpatialEventTrigger *> *)spatialEventTriggersToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the spatialEventTrigger with which the user wants to continue.
++ (instancetype)confirmationRequiredWithSpatialEventTriggerToConfirm:(nullable INSpatialEventTrigger *)spatialEventTriggerToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INNotebookItemType.h
+//
+//  INNotebookItemType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INNotebookItemType_h
+#define INNotebookItemType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INNotebookItemType) {
+    INNotebookItemTypeUnknown = 0,
+    INNotebookItemTypeNote,
+    INNotebookItemTypeTaskList,
+    INNotebookItemTypeTask,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INNotebookItemType_h
+// ==========  Intents.framework/Headers/INNoteContentTypeResolutionResult.h
+//
+//  INNoteContentTypeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INNoteContentType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INNoteContentTypeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INNoteContentType. The resolvedValue can be different than the original INNoteContentType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedNoteContentType:(INNoteContentType)resolvedNoteContentType NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INNoteContentType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedNoteContentType:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithNoteContentTypeToConfirm:(INNoteContentType)noteContentTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INNoteContentType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithNoteContentTypeToConfirm:", ios(11.0, 11.0), watchos(4.0, 4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAppendToNoteIntent.h
+//
+//  INAppendToNoteIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INNote;
+@class INNoteContent;
+@class INNoteContentResolutionResult;
+@class INNoteResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INAppendToNoteIntent : INIntent
+
+- (instancetype)initWithTargetNote:(nullable INNote *)targetNote
+                           content:(nullable INNoteContent *)content NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INNote *targetNote;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INNoteContent *content;
+
+@end
+
+@class INAppendToNoteIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INAppendToNoteIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@protocol INAppendToNoteIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INAppendToNoteIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INAppendToNoteIntentResponse containing the details of the result of having executed the intent
+
+ @see  INAppendToNoteIntentResponse
+ */
+
+- (void)handleAppendToNote:(INAppendToNoteIntent *)intent
+                completion:(void (^)(INAppendToNoteIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INAppendToNoteIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INAppendToNoteIntentResponse
+ */
+
+- (void)confirmAppendToNote:(INAppendToNoteIntent *)intent
+                 completion:(void (^)(INAppendToNoteIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveTargetNoteForAppendToNote:(INAppendToNoteIntent *)intent
+                    withCompletion:(void (^)(INNoteResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTargetNote(for:with:));
+
+- (void)resolveContentForAppendToNote:(INAppendToNoteIntent *)intent
+                    withCompletion:(void (^)(INNoteContentResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveContent(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INIntentErrors.h
 //
 //  INIntentErrors.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 #import <Intents/IntentsDefines.h>
 
-INTENTS_EXTERN NSString * const INIntentErrorDomain API_AVAILABLE(macosx(10.12), ios(10.0));
+INTENTS_EXTERN NSString * const INIntentErrorDomain API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
 
 typedef NS_ENUM(NSInteger, INIntentErrorCode) {
     // Interactions
@@ -6286,13 +10554,42 @@ typedef NS_ENUM(NSInteger, INIntentErrorCode) {
     
     // User Vocabulary Sync
     INIntentErrorInvalidUserVocabularyFileLocation = 4000,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+    
+    // Extension connection
+    INIntentErrorExtensionLaunchingTimeout = 5000,
+    INIntentErrorExtensionBringUpFailed = 5001,
+    
+    
+} API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+// ==========  Intents.framework/Headers/INCallRecordTypeOptions.h
+//
+//  INCallRecordTypeOptions.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INCallRecordTypeOptions_h
+#define INCallRecordTypeOptions_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_OPTIONS(NSUInteger, INCallRecordTypeOptions) {
+    INCallRecordTypeOptionOutgoing = (1UL << 0),
+    INCallRecordTypeOptionMissed = (1UL << 1),
+    INCallRecordTypeOptionReceived = (1UL << 2),
+    INCallRecordTypeOptionLatest = (1UL << 3),
+    INCallRecordTypeOptionVoicemail = (1UL << 4),
+} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+
+#endif // INCallRecordTypeOptions_h
 // ==========  Intents.framework/Headers/INSiriAuthorizationStatus.h
 //
 //  INSiriAuthorizationStatus.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INSiriAuthorizationStatus_h
@@ -6320,7 +10617,7 @@ typedef NS_ENUM(NSInteger, INSiriAuthorizationStatus) {
     
     // User has authorized this application to use Siri services.
     INSiriAuthorizationStatusAuthorized
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif /* INSiriAuthorizationStatus_h */
 // ==========  Intents.framework/Headers/INRelativeReferenceResolutionResult.h
@@ -6328,7 +10625,7 @@ typedef NS_ENUM(NSInteger, INSiriAuthorizationStatus) {
 //  INRelativeReferenceResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -6337,13 +10634,20 @@ typedef NS_ENUM(NSInteger, INSiriAuthorizationStatus) {
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos, macosx)
 @interface INRelativeReferenceResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INRelativeReference)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INRelativeReference. The resolvedValue can be different than the original INRelativeReference. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedRelativeReference:(INRelativeReference)resolvedRelativeReference NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INRelativeReference)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedRelativeReference:", ios(10.0, 11.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INRelativeReference)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithRelativeReferenceToConfirm:(INRelativeReference)relativeReferenceToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INRelativeReference)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithRelativeReferenceToConfirm:", ios(10.0, 11.0));
 
 @end
 
@@ -6353,14 +10657,13 @@ NS_ASSUME_NONNULL_END
 //  INWorkoutGoalUnitType.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INWorkoutGoalUnitType_h
 #define INWorkoutGoalUnitType_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INWorkoutGoalUnitType) {
@@ -6375,7 +10678,7 @@ typedef NS_ENUM(NSInteger, INWorkoutGoalUnitType) {
     INWorkoutGoalUnitTypeHour,
     INWorkoutGoalUnitTypeJoule,
     INWorkoutGoalUnitTypeKiloCalorie,
-};
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INWorkoutGoalUnitType_h
 // ==========  Intents.framework/Headers/INSetMessageAttributeIntentResponse.h
@@ -6383,7 +10686,7 @@ typedef NS_ENUM(NSInteger, INWorkoutGoalUnitType) {
 //  INSetMessageAttributeIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -6397,11 +10700,12 @@ typedef NS_ENUM(NSInteger, INSetMessageAttributeIntentResponseCode) {
     INSetMessageAttributeIntentResponseCodeFailureRequiringAppLaunch,
     INSetMessageAttributeIntentResponseCodeFailureMessageNotFound,
     INSetMessageAttributeIntentResponseCodeFailureMessageAttributeNotSet,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+} API_AVAILABLE(ios(10.0), macosx(10.12)) API_UNAVAILABLE(watchos);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), macosx(10.12))
+API_UNAVAILABLE(watchos)
 @interface INSetMessageAttributeIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -6421,14 +10725,13 @@ NS_ASSUME_NONNULL_END
 //  INPhotoAttributeOptions.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INPhotoAttributeOptions_h
 #define INPhotoAttributeOptions_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_OPTIONS(NSUInteger, INPhotoAttributeOptions) {
@@ -6456,25 +10759,94 @@ typedef NS_OPTIONS(NSUInteger, INPhotoAttributeOptions) {
     INPhotoAttributeOptionMonoFilter = (1UL << 21),
     INPhotoAttributeOptionFadeFilter = (1UL << 22),
     INPhotoAttributeOptionProcessFilter = (1UL << 23),
-};
+} API_AVAILABLE(ios(10.0), watchos(3.2));
 
 #endif // INPhotoAttributeOptions_h
+// ==========  Intents.framework/Headers/INSendMessageIntent_Deprecated.h
+//
+//  INRequestRideIntent_Deprecated.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INSendMessageIntent.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INSendMessageIntent (Deprecated)
+
+- (instancetype)initWithRecipients:(nullable NSArray<INPerson *> *)recipients
+                           content:(nullable NSString *)content
+                         groupName:(nullable NSString *)groupName
+                       serviceName:(nullable NSString *)serviceName
+                            sender:(nullable INPerson *)sender API_DEPRECATED("Use the designated initializer instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *groupName API_DEPRECATED("Use speakableGroupNames instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INDateSearchType.h
+//
+//  INDateSearchType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INDateSearchType_h
+#define INDateSearchType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INDateSearchType) {
+    INDateSearchTypeUnknown = 0,
+    INDateSearchTypeByDueDate,
+    INDateSearchTypeByModifiedDate,
+    INDateSearchTypeByCreatedDate,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INDateSearchType_h
+// ==========  Intents.framework/Headers/INSortType.h
+//
+//  INSortType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INSortType_h
+#define INSortType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INSortType) {
+    INSortTypeUnknown = 0,
+    INSortTypeAsIs,
+    INSortTypeByDate,
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+#endif // INSortType_h
 // ==========  Intents.framework/Headers/INIntegerResolutionResult.h
 //
 //  INIntegerResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INIntegerResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given integer. The resolvedValue can be different than the original integer. This allows app extensions to apply business logic constraints. For example, the extension could constrain the value to some maximum.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedValue:(NSInteger)resolvedValue NS_SWIFT_NAME(success(with:));
 
 // This resolution result is to ask Siri to confirm if this is the integer value with which the user wants to continue.
@@ -6488,7 +10860,7 @@ NS_ASSUME_NONNULL_END
 //  INStartPhotoPlaybackIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -6499,11 +10871,12 @@ typedef NS_ENUM(NSInteger, INStartPhotoPlaybackIntentResponseCode) {
     INStartPhotoPlaybackIntentResponseCodeContinueInApp,
     INStartPhotoPlaybackIntentResponseCodeFailure,
     INStartPhotoPlaybackIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
+    INStartPhotoPlaybackIntentResponseCodeFailureAppConfigurationRequired,
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INStartPhotoPlaybackIntentResponse : INIntentResponse
 
@@ -6526,7 +10899,7 @@ NS_ASSUME_NONNULL_END
 //  INInteraction.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6541,13 +10914,13 @@ typedef NS_ENUM(NSInteger, INIntentHandlingStatus) {
     INIntentHandlingStatusSuccess,
     INIntentHandlingStatusFailure,
     INIntentHandlingStatusDeferredToApplication,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+} API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
 
 typedef NS_ENUM(NSInteger, INInteractionDirection) {
     INInteractionDirectionUnspecified = 0,
     INInteractionDirectionOutgoing,
     INInteractionDirectionIncoming,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+} API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -6557,7 +10930,7 @@ NS_ASSUME_NONNULL_BEGIN
  The system may also launch the app with an NSUserActivity containing an INInteraction such that the app can perform the action if it chooses.
 */
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @interface INInteraction : NSObject <NSSecureCoding, NSCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -6603,7 +10976,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchForMessagesIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -6612,16 +10985,18 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INConditionalOperator.h>
 #import <Intents/INMessageAttributeOptions.h>
 
-@class INPerson;
-@class INPersonResolutionResult;
-@class INMessageAttributeOptionsResolutionResult;
 @class INDateComponentsRange;
 @class INDateComponentsRangeResolutionResult;
+@class INMessageAttributeOptionsResolutionResult;
+@class INPerson;
+@class INPersonResolutionResult;
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
 @class INStringResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 @interface INSearchForMessagesIntent : INIntent
 
 - (instancetype)initWithRecipients:(nullable NSArray<INPerson *> *)recipients
@@ -6631,20 +11006,23 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
                      dateTimeRange:(nullable INDateComponentsRange *)dateTimeRange
                        identifiers:(nullable NSArray<NSString *> *)identifiers
            notificationIdentifiers:(nullable NSArray<NSString *> *)notificationIdentifiers
-                        groupNames:(nullable NSArray<NSString *> *)groupNames NS_DESIGNATED_INITIALIZER;
+               speakableGroupNames:(nullable NSArray<INSpeakableString *> *)speakableGroupNames NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 // Contact that received the messages to be found.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPerson *> *recipients;
 
+// Describes how to combine the contents of the recipient array.
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator recipientsOperator;
 
 // Sender of the messages to be found.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPerson *> *senders;
 
+// Describes how to combine the contents of the sender array.
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator sendersOperator;
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *searchTerms;
 
+// Describes how to combine the contents of the searchTerm array.
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator searchTermsOperator;
 
 // Attributes of the message to be found.
@@ -6656,89 +11034,88 @@ API_AVAILABLE(macosx(10.12), ios(10.0))
 // If available, the identifier of a particular message to be found.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *identifiers;
 
+// Describes how to combine the contents of the identifier array.
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator identifiersOperator;
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *notificationIdentifiers;
 
+// Describes how to combine the contents of the notificationIdentifier array.
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator notificationIdentifiersOperator;
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *groupNames;
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INSpeakableString *> *speakableGroupNames API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
-@property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator groupNamesOperator;
+// Describes how to combine the contents of the speakableGroupName array.
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator speakableGroupNamesOperator API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 @end
 
 @class INSearchForMessagesIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INSearchForMessagesIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INSearchForMessagesIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 @protocol INSearchForMessagesIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INSearchForMessagesIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INSearchForMessagesIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  searchForMessagesIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INSearchForMessagesIntentResponse containing the details of the result of having executed the intent
 
  @see  INSearchForMessagesIntentResponse
  */
 
 - (void)handleSearchForMessages:(INSearchForMessagesIntent *)intent
-                     completion:(void (^)(INSearchForMessagesIntentResponse *response))completion NS_SWIFT_NAME(handle(searchForMessages:completion:));
+                     completion:(void (^)(INSearchForMessagesIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  searchForMessagesIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INSearchForMessagesIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INSearchForMessagesIntentResponse
-
  */
 
 - (void)confirmSearchForMessages:(INSearchForMessagesIntent *)intent
-                      completion:(void (^)(INSearchForMessagesIntentResponse *response))completion NS_SWIFT_NAME(confirm(searchForMessages:completion:));
+                      completion:(void (^)(INSearchForMessagesIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  searchForMessagesIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveRecipientsForSearchForMessages:(INSearchForMessagesIntent *)intent
-                               withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveRecipients(forSearchForMessages:with:));
+                    withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveRecipients(for:with:));
 
 - (void)resolveSendersForSearchForMessages:(INSearchForMessagesIntent *)intent
-                            withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveSenders(forSearchForMessages:with:));
+                    withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveSenders(for:with:));
 
 - (void)resolveAttributesForSearchForMessages:(INSearchForMessagesIntent *)intent
-                               withCompletion:(void (^)(INMessageAttributeOptionsResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAttributes(forSearchForMessages:with:));
+                    withCompletion:(void (^)(INMessageAttributeOptionsResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAttributes(for:with:));
 
 - (void)resolveDateTimeRangeForSearchForMessages:(INSearchForMessagesIntent *)intent
-                                  withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateTimeRange(forSearchForMessages:with:));
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateTimeRange(for:with:));
 
 - (void)resolveGroupNamesForSearchForMessages:(INSearchForMessagesIntent *)intent
-                               withCompletion:(void (^)(NSArray<INStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveGroupNames(forSearchForMessages:with:));
+                    withCompletion:(void (^)(NSArray<INStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveGroupNames(for:with:)) API_DEPRECATED("resolveGroupNamesForSearchForMessages:withCompletion: is deprecated. Use resolveSpeakableGroupNamesForSearchForMessages:withCompletion: instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+
+- (void)resolveSpeakableGroupNamesForSearchForMessages:(INSearchForMessagesIntent *)intent
+                    withCompletion:(void (^)(NSArray<INSpeakableStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveSpeakableGroupNames(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
 @end
 
@@ -6748,7 +11125,7 @@ NS_ASSUME_NONNULL_END
 //  INRestaurantResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 //  This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -6761,16 +11138,197 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos)
 @interface INRestaurantResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given restaurant. The resolvedRestaurant need not be identical to the input restaurant. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to proceed, with a given restaurant. The resolvedRestaurant can be different than the original restaurant. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedRestaurant:(INRestaurant *)resolvedRestaurant NS_SWIFT_NAME(success(with:));
 
-// This resolution result is to ask Siri to disambiguate between the provided restaurants.
+// This resolution result is to disambiguate between the provided restaurants.
 + (instancetype)disambiguationWithRestaurantsToDisambiguate:(NSArray<INRestaurant *> *)restaurantsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
 
-// This resolution result is to ask Siri to confirm if this is the restaurant with which the user wants to continue.
+// This resolution result is to confirm if this is the restaurant with which the user wants to continue.
 + (instancetype)confirmationRequiredWithRestaurantToConfirm:(nullable INRestaurant *)restaurantToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INParameter.h
+//
+//  INParameter.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INInteraction.h>
+
+@class INParameter;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INInteraction ()
+
+- (nullable id)parameterValueForParameter:(INParameter *)parameter;
+
+@end
+
+API_AVAILABLE(ios(11.0))
+@interface INParameter : NSObject <NSSecureCoding>
+
++ (instancetype)parameterForClass:(Class)aClass keyPath:(NSString *)keyPath;
+
+@property (nonatomic, readonly) Class parameterClass;
+@property (nonatomic, copy, readonly) NSString *parameterKeyPath;
+
+- (BOOL)isEqualToParameter:(INParameter *)parameter;
+
+- (void)setIndex:(NSUInteger)index forSubKeyPath:(NSString *)subKeyPath;
+- (NSUInteger)indexForSubKeyPath:(NSString *)subKeyPath;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSetCarLockStatusIntent.h
+//
+//  INSetCarLockStatusIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INBooleanResolutionResult;
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INSetCarLockStatusIntent : INIntent
+
+- (instancetype)initWithLocked:(nullable NSNumber *)locked
+                       carName:(nullable INSpeakableString *)carName NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *locked NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *carName;
+
+@end
+
+@class INSetCarLockStatusIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INSetCarLockStatusIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@protocol INSetCarLockStatusIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INSetCarLockStatusIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INSetCarLockStatusIntentResponse containing the details of the result of having executed the intent
+
+ @see  INSetCarLockStatusIntentResponse
+ */
+
+- (void)handleSetCarLockStatus:(INSetCarLockStatusIntent *)intent
+                    completion:(void (^)(INSetCarLockStatusIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INSetCarLockStatusIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INSetCarLockStatusIntentResponse
+ */
+
+- (void)confirmSetCarLockStatus:(INSetCarLockStatusIntent *)intent
+                     completion:(void (^)(INSetCarLockStatusIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveLockedForSetCarLockStatus:(INSetCarLockStatusIntent *)intent
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveLocked(for:with:));
+
+- (void)resolveCarNameForSetCarLockStatus:(INSetCarLockStatusIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCarName(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTextNoteContent.h
+//
+//  INTextNoteContent.h
+//  Intents
+//
+//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INNoteContent.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+@interface INTextNoteContent : INNoteContent <NSSecureCoding, NSCopying>
+
+- (instancetype)initWithText:(NSString *)text;
+
+// The text that comprises the note content
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *text;
+
+@end
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INBillPayeeResolutionResult.h
+//
+//  INBillPayeeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INBillPayee;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INBillPayeeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INBillPayee. The resolvedBillPayee can be different than the original INBillPayee. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedBillPayee:(INBillPayee *)resolvedBillPayee NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INBillPayee.
++ (instancetype)disambiguationWithBillPayeesToDisambiguate:(NSArray<INBillPayee *> *)billPayeesToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the billPayee with which the user wants to continue.
++ (instancetype)confirmationRequiredWithBillPayeeToConfirm:(nullable INBillPayee *)billPayeeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
 
 @end
 
@@ -6780,14 +11338,13 @@ NS_ASSUME_NONNULL_END
 //  INPaymentMethodType.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INPaymentMethodType_h
 #define INPaymentMethodType_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INPaymentMethodType) {
@@ -6800,7 +11357,7 @@ typedef NS_ENUM(NSInteger, INPaymentMethodType) {
     INPaymentMethodTypePrepaid,
     INPaymentMethodTypeStore,
     INPaymentMethodTypeApplePay,
-};
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INPaymentMethodType_h
 // ==========  Intents.framework/Headers/INRestaurantGuest.h
@@ -6808,7 +11365,7 @@ typedef NS_ENUM(NSInteger, INPaymentMethodType) {
 //  INRestaurantGuest.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -6819,7 +11376,7 @@ typedef NS_ENUM(NSInteger, INPaymentMethodType) {
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0))
-API_UNAVAILABLE(macosx)
+API_UNAVAILABLE(macosx, watchos)
 @interface INRestaurantGuest : INPerson
 
 - (instancetype)initWithNameComponents:(nullable NSPersonNameComponents *)nameComponents phoneNumber:(nullable NSString *)phoneNumber emailAddress:(nullable NSString *)emailAddress NS_DESIGNATED_INITIALIZER;
@@ -6834,7 +11391,7 @@ NS_ASSUME_NONNULL_END
 //  INStartWorkoutIntent.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -6843,19 +11400,20 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INWorkoutGoalUnitType.h>
 #import <Intents/INWorkoutLocationType.h>
 
+@class INBooleanResolutionResult;
+@class INDoubleResolutionResult;
 @class INSpeakableString;
 @class INSpeakableStringResolutionResult;
-@class INDoubleResolutionResult;
 @class INWorkoutGoalUnitTypeResolutionResult;
 @class INWorkoutLocationTypeResolutionResult;
-@class INBooleanResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @interface INStartWorkoutIntent : INIntent
 
+// Designated initializer. The `workoutName` can use `INWorkoutNameIdentifier` as its `identifier` parameter.
 - (instancetype)initWithWorkoutName:(nullable INSpeakableString *)workoutName
                           goalValue:(nullable NSNumber *)goalValue
                 workoutGoalUnitType:(INWorkoutGoalUnitType)workoutGoalUnitType
@@ -6877,85 +11435,105 @@ API_UNAVAILABLE(macosx)
 @class INStartWorkoutIntentResponse;
 
 /*!
- @brief Protocol to declare support for handling an INStartWorkoutIntent 
- @abstract By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @abstract Protocol to declare support for handling an INStartWorkoutIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 API_UNAVAILABLE(macosx)
 @protocol INStartWorkoutIntentHandling <NSObject>
 
 @required
 
 /*!
- @brief handling method
+ @abstract Handling method - Execute the task represented by the INStartWorkoutIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
 
- @abstract Execute the task represented by the INStartWorkoutIntent that's passed in
- @discussion This method is called to actually execute the intent. The app must return a response for this intent.
-
- @param  startWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response handling block takes a INStartWorkoutIntentResponse containing the details of the result of having executed the intent
 
  @see  INStartWorkoutIntentResponse
  */
 
 - (void)handleStartWorkout:(INStartWorkoutIntent *)intent
-                completion:(void (^)(INStartWorkoutIntentResponse *response))completion NS_SWIFT_NAME(handle(startWorkout:completion:));
+                completion:(void (^)(INStartWorkoutIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
 
 @optional
 
 /*!
- @brief Confirmation method
- @abstract Validate that this intent is ready for the next step (i.e. handling)
- @discussion These methods are called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
 
- @param  startWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INStartWorkoutIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
 
  @see INStartWorkoutIntentResponse
-
  */
 
 - (void)confirmStartWorkout:(INStartWorkoutIntent *)intent
-                 completion:(void (^)(INStartWorkoutIntentResponse *response))completion NS_SWIFT_NAME(confirm(startWorkout:completion:));
+                 completion:(void (^)(INStartWorkoutIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
 /*!
- @brief Resolution methods
- @abstract Determine if this intent is ready for the next step (confirmation)
- @discussion These methods are called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
 
- @param  startWorkoutIntent The input intent
+ @param  intent The input intent
  @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
 
  @see INIntentResolutionResult
-
  */
 
 - (void)resolveWorkoutNameForStartWorkout:(INStartWorkoutIntent *)intent
-                           withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutName(forStartWorkout:with:));
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutName(for:with:));
 
 - (void)resolveGoalValueForStartWorkout:(INStartWorkoutIntent *)intent
-                         withCompletion:(void (^)(INDoubleResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveGoalValue(forStartWorkout:with:));
+                    withCompletion:(void (^)(INDoubleResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveGoalValue(for:with:));
 
 - (void)resolveWorkoutGoalUnitTypeForStartWorkout:(INStartWorkoutIntent *)intent
-                                   withCompletion:(void (^)(INWorkoutGoalUnitTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutGoalUnitType(forStartWorkout:with:));
+                    withCompletion:(void (^)(INWorkoutGoalUnitTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutGoalUnitType(for:with:));
 
 - (void)resolveWorkoutLocationTypeForStartWorkout:(INStartWorkoutIntent *)intent
-                                   withCompletion:(void (^)(INWorkoutLocationTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutLocationType(forStartWorkout:with:));
+                    withCompletion:(void (^)(INWorkoutLocationTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveWorkoutLocationType(for:with:));
 
 - (void)resolveIsOpenEndedForStartWorkout:(INStartWorkoutIntent *)intent
-                           withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveIsOpenEnded(forStartWorkout:with:));
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveIsOpenEnded(for:with:));
 
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCallDestinationType.h
+//
+//  INCallDestinationType.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#ifndef INCallDestinationType_h
+#define INCallDestinationType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INCallDestinationType) {
+    INCallDestinationTypeUnknown = 0,
+    INCallDestinationTypeNormal,
+    INCallDestinationTypeEmergency,
+    INCallDestinationTypeVoicemail,
+    INCallDestinationTypeRedial,
+    INCallDestinationTypeNormalDestination API_DEPRECATED("Use INCallDestinationTypeNormal instead", ios(11.0, 11.0), watchos(4.0, 4.0), macosx(10.13, 10.13)) = 1,
+    INCallDestinationTypeEmergencyDestination API_DEPRECATED("Use INCallDestinationTypeEmergency instead", ios(11.0, 11.0), watchos(4.0, 4.0), macosx(10.13, 10.13)) = 2,
+    INCallDestinationTypeVoicemailDestination API_DEPRECATED("Use INCallDestinationTypeVoicemail instead", ios(11.0, 11.0), watchos(4.0, 4.0), macosx(10.13, 10.13)) = 3,
+    INCallDestinationTypeRedialDestination API_DEPRECATED("Use INCallDestinationTypeRedial instead", ios(11.0, 11.0), watchos(4.0, 4.0), macosx(10.13, 10.13)) = 4,
+} API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+
+#endif // INCallDestinationType_h
 // ==========  Intents.framework/Headers/INCarDefrosterResolutionResult.h
 //
 //  INCarDefrosterResolutionResult.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -6964,33 +11542,63 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(10.0))
+API_UNAVAILABLE(watchos, macosx)
 @interface INCarDefrosterResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
-+ (instancetype)successWithResolvedValue:(INCarDefroster)resolvedValue NS_SWIFT_NAME(success(with:));
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCarDefroster. The resolvedValue can be different than the original INCarDefroster. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedCarDefroster:(INCarDefroster)resolvedCarDefroster NS_SWIFT_NAME(success(with:));
+
++ (instancetype)successWithResolvedValue:(INCarDefroster)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCarDefroster:", ios(10.0, 11.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INCarDefroster)valueToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
++ (instancetype)confirmationRequiredWithCarDefrosterToConfirm:(INCarDefroster)carDefrosterToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(INCarDefroster)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCarDefrosterToConfirm:", ios(10.0, 11.0));
 
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INPersonHandleLabel.h
+//
+//  INPersonHandleLabel.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NSString *INPersonHandleLabel NS_EXTENSIBLE_STRING_ENUM;
+
+INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabelHome NS_SWIFT_NAME(INPersonHandleLabel.home) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabelWork NS_SWIFT_NAME(INPersonHandleLabel.work) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabeliPhone NS_SWIFT_NAME(INPersonHandleLabel.iPhone) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabelMobile NS_SWIFT_NAME(INPersonHandleLabel.mobile) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabelMain NS_SWIFT_NAME(INPersonHandleLabel.main) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabelHomeFax NS_SWIFT_NAME(INPersonHandleLabel.homeFax) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabelWorkFax NS_SWIFT_NAME(INPersonHandleLabel.workFax) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabelPager NS_SWIFT_NAME(INPersonHandleLabel.pager) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabelOther NS_SWIFT_NAME(INPersonHandleLabel.other) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
 // ==========  Intents.framework/Headers/INDateComponentsResolutionResult.h
 //
 //  INDateComponentsResolutionResult.m
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), watchos(3.2))
 @interface INDateComponentsResolutionResult : INIntentResolutionResult
 
-// This resolution result is for when the app extension wants to tell Siri to proceed with a given dateComponents. The resolvedDateComponents need not be identical to the input dateComponents. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given NSDateComponents. The resolvedDateComponents can be different than the original NSDateComponents. This allows app extensions to apply business logic constraints. For example, the extension could round the interval to the nearest day.
+// Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedDateComponents:(NSDateComponents *)resolvedDateComponents NS_SWIFT_NAME(success(with:));
 
 // This resolution result is to ask Siri to disambiguate between the provided dateComponentss.
@@ -7002,12 +11610,43 @@ API_AVAILABLE(ios(10.0))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INNoteResolutionResult.h
+//
+//  INNoteResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INNote;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
+@interface INNoteResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INNote. The resolvedNote can be different than the original INNote. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedNote:(INNote *)resolvedNote NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INNote.
++ (instancetype)disambiguationWithNotesToDisambiguate:(NSArray<INNote *> *)notesToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the note with which the user wants to continue.
++ (instancetype)confirmationRequiredWithNoteToConfirm:(nullable INNote *)noteToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INStartVideoCallIntentResponse.h
 //
 //  INStartVideoCallIntentResponse.h
 //  Intents
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -7018,11 +11657,16 @@ typedef NS_ENUM(NSInteger, INStartVideoCallIntentResponseCode) {
     INStartVideoCallIntentResponseCodeContinueInApp,
     INStartVideoCallIntentResponseCodeFailure,
     INStartVideoCallIntentResponseCodeFailureRequiringAppLaunch,
-} API_AVAILABLE(macosx(10.12), ios(10.0));
+    INStartVideoCallIntentResponseCodeFailureAppConfigurationRequired,
+    INStartVideoCallIntentResponseCodeFailureCallingServiceNotAvailable,
+    INStartVideoCallIntentResponseCodeFailureContactNotSupportedByApp,
+    INStartVideoCallIntentResponseCodeFailureInvalidNumber API_AVAILABLE(ios(11.0), macosx(10.13)),
+} API_AVAILABLE(ios(10.0), macosx(10.12)) API_UNAVAILABLE(watchos);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0))
+API_AVAILABLE(ios(10.0), macosx(10.12))
+API_UNAVAILABLE(watchos)
 @interface INStartVideoCallIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -7042,14 +11686,13 @@ NS_ASSUME_NONNULL_END
 //  INCallRecordType.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INCallRecordType_h
 #define INCallRecordType_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INCallRecordType) {
@@ -7057,15 +11700,146 @@ typedef NS_ENUM(NSInteger, INCallRecordType) {
     INCallRecordTypeOutgoing,
     INCallRecordTypeMissed,
     INCallRecordTypeReceived,
-};
+    INCallRecordTypeLatest API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)),
+    INCallRecordTypeVoicemail API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)),
+} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
 
 #endif // INCallRecordType_h
+// ==========  Intents.framework/Headers/INPayBillIntent.h
+//
+//  INPayBillIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INBillType.h>
+
+@class INBillPayee;
+@class INBillPayeeResolutionResult;
+@class INBillTypeResolutionResult;
+@class INDateComponentsRange;
+@class INDateComponentsRangeResolutionResult;
+@class INPaymentAccount;
+@class INPaymentAccountResolutionResult;
+@class INPaymentAmount;
+@class INPaymentAmountResolutionResult;
+@class INStringResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@interface INPayBillIntent : INIntent
+
+- (instancetype)initWithBillPayee:(nullable INBillPayee *)billPayee
+                      fromAccount:(nullable INPaymentAccount *)fromAccount
+                transactionAmount:(nullable INPaymentAmount *)transactionAmount
+         transactionScheduledDate:(nullable INDateComponentsRange *)transactionScheduledDate
+                  transactionNote:(nullable NSString *)transactionNote
+                         billType:(INBillType)billType
+                          dueDate:(nullable INDateComponentsRange *)dueDate NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INBillPayee *billPayee;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentAccount *fromAccount;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPaymentAmount *transactionAmount;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *transactionScheduledDate;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *transactionNote;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INBillType billType;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *dueDate;
+
+@end
+
+@class INPayBillIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INPayBillIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(10.3), watchos(3.2))
+API_UNAVAILABLE(macosx)
+@protocol INPayBillIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INPayBillIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INPayBillIntentResponse containing the details of the result of having executed the intent
+
+ @see  INPayBillIntentResponse
+ */
+
+- (void)handlePayBill:(INPayBillIntent *)intent
+           completion:(void (^)(INPayBillIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INPayBillIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INPayBillIntentResponse
+ */
+
+- (void)confirmPayBill:(INPayBillIntent *)intent
+            completion:(void (^)(INPayBillIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveBillPayeeForPayBill:(INPayBillIntent *)intent
+                    withCompletion:(void (^)(INBillPayeeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveBillPayee(for:with:));
+
+- (void)resolveFromAccountForPayBill:(INPayBillIntent *)intent
+                    withCompletion:(void (^)(INPaymentAccountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveFromAccount(for:with:));
+
+- (void)resolveTransactionAmountForPayBill:(INPayBillIntent *)intent
+                    withCompletion:(void (^)(INPaymentAmountResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTransactionAmount(for:with:));
+
+- (void)resolveTransactionScheduledDateForPayBill:(INPayBillIntent *)intent
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTransactionScheduledDate(for:with:));
+
+- (void)resolveTransactionNoteForPayBill:(INPayBillIntent *)intent
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTransactionNote(for:with:));
+
+- (void)resolveBillTypeForPayBill:(INPayBillIntent *)intent
+                    withCompletion:(void (^)(INBillTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveBillType(for:with:));
+
+- (void)resolveDueDateForPayBill:(INPayBillIntent *)intent
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDueDate(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRideOption.h
 //
 //  INRideOption.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7092,7 +11866,7 @@ NS_CLASS_AVAILABLE(NA, 10_0) __TVOS_PROHIBITED __WATCHOS_AVAILABLE(3_0)
 @property (readwrite, copy, NS_NONATOMIC_IOSONLY) NSDate *estimatedPickupDate; // used for providing an ETA to the user.
 
 @property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INPriceRange *priceRange; // The indicative range of prices for this option.
-@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *usesMeteredFare; // If @YES, the fare will be metered by the driver, and price range information will be noted as unavailable.
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *usesMeteredFare NS_REFINED_FOR_SWIFT; // If true, the fare will be metered by the driver, and price range information will be noted as unavailable.
 
 @property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *disclaimerMessage; // A message that includes warnings or disclaimers shown to the user before they confirm the request. For example: "This ride may make multiple stops", or "This ride may be shared with other passengers".
 
@@ -7121,18 +11895,18 @@ NS_ASSUME_NONNULL_END
 //  INPreferences.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSiriAuthorizationStatus.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INPreferences : NSObject
 
-+ (INSiriAuthorizationStatus)siriAuthorizationStatus;
-+ (void)requestSiriAuthorization:(void (^)(INSiriAuthorizationStatus status))handler;
++ (INSiriAuthorizationStatus)siriAuthorizationStatus NS_EXTENSION_UNAVAILABLE("siriAuthorizationStatus is not available to extensions. The main app is responsible for Siri authorization.") API_UNAVAILABLE(watchos);
++ (void)requestSiriAuthorization:(void (^)(INSiriAuthorizationStatus status))handler NS_EXTENSION_UNAVAILABLE("requestSiriAuthorization is not available to extensions. The main app is responsible for Siri authorization.") API_UNAVAILABLE(watchos);
 + (NSString *)siriLanguageCode;
 
 @end
@@ -7143,14 +11917,13 @@ NS_ASSUME_NONNULL_END
 //  INCarAudioSource.h
 //  Intents
 //
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
 //
 
 #ifndef INCarAudioSource_h
 #define INCarAudioSource_h
 
 #import <Foundation/Foundation.h>
-
 #import <Intents/IntentsDefines.h>
 
 typedef NS_ENUM(NSInteger, INCarAudioSource) {
@@ -7164,6 +11937,6 @@ typedef NS_ENUM(NSInteger, INCarAudioSource) {
     INCarAudioSourceMemoryCard,
     INCarAudioSourceOpticalDrive,
     INCarAudioSourceHardDrive,
-};
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INCarAudioSource_h
