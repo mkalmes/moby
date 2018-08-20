@@ -1,0 +1,34 @@
+// ==========  AdSupport.framework/Headers/AdSupport.h
+/*
+    File: AdSupport.h
+ 
+    Framework: AdSupport
+ 
+    Copyright (c) 2012, Apple Inc. All rights reserved.
+*/
+
+#ifndef AdSupport_AdSupport_h
+#define AdSupport_AdSupport_h
+
+#import <AdSupport/ASIdentifierManager.h>
+
+#endif// ==========  AdSupport.framework/Headers/ASIdentifierManager.h
+/*
+ File: ASIdentifierManager.h
+ 
+ Framework: AdSupport
+ 
+ Copyright (c) 2012, Apple Inc. All rights reserved.
+*/
+
+#import <Foundation/Foundation.h>
+
+NS_CLASS_AVAILABLE(NA, 6_0)
+@interface ASIdentifierManager : NSObject
+
++ (ASIdentifierManager *)sharedManager;
+
+@property (nonatomic,readonly) NSUUID *advertisingIdentifier;
+@property (nonatomic,readonly,getter=isAdvertisingTrackingEnabled) BOOL advertisingTrackingEnabled;
+
+@end
