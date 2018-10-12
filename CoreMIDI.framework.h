@@ -2941,8 +2941,8 @@ MIDIObjectRemoveProperty(		MIDIObjectRef 		obj,
 */
 extern OSStatus
 MIDIObjectFindByUniqueID(	MIDIUniqueID 		inUniqueID,
-							MIDIObjectRef *		outObject,
-							MIDIObjectType *	outObjectType)
+							MIDIObjectRef * __nullable outObject,
+							MIDIObjectType * __nullable outObjectType)
 							
 															API_AVAILABLE(macos(10.2), ios(4.2));
 

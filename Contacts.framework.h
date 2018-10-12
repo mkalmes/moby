@@ -69,7 +69,7 @@ typedef NS_ENUM(NSInteger, CNContactDisplayNameOrder)
  * @discussion This formatter handles international ordering and delimiting of the contact name components. This includes applying the user defaults when appropriate.
  */
 NS_CLASS_AVAILABLE(10_11, 9_0)
-@interface CNContactFormatter : NSFormatter
+@interface CNContactFormatter : NSFormatter <NSSecureCoding>
 
 /*!
  * @abstract The contact key descriptor required for the formatter.
@@ -172,8 +172,8 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 + (nullable instancetype)phoneNumberWithStringValue:(NSString *)stringValue;
 - (nullable instancetype)initWithStringValue:(NSString *)string;
 
-- (instancetype)init NS_DEPRECATED(10_11, 10_13, 9_0, 11_0, "Use initWithStringValue:");
-+ (instancetype)new  NS_DEPRECATED(10_11, 10_13, 9_0, 11_0, "Use phoneNumberWithStringValue:");
+- (null_unspecified instancetype)init NS_DEPRECATED(10_11, 10_13, 9_0, 11_0, "Use initWithStringValue:");
++ (null_unspecified instancetype)new  NS_DEPRECATED(10_11, 10_13, 9_0, 11_0, "Use phoneNumberWithStringValue:");
 
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *stringValue;
 
@@ -385,7 +385,7 @@ NS_ASSUME_NONNULL_END
 //  CNContact+Predicates.h
 //  Contacts
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015–2018 Apple Inc. All rights reserved.
 //
 
 #import <Contacts/CNContact.h>
@@ -406,6 +406,30 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion The name can contain any number of words.
  */
 + (NSPredicate *)predicateForContactsMatchingName:(NSString *)name;
+
+/*!
+ * @abstract    Fetch contacts matching an email address.
+ *
+ * @discussion  Use this predicate to find the contact(s) which contain the specified
+ *              email address. The search is not case-sensitive.
+ *
+ * @param       emailAddress
+ *              The email address to search for. Do not include a scheme (e.g., "mailto:").
+ */
++ (NSPredicate *)predicateForContactsMatchingEmailAddress:(NSString *)emailAddress API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0));
+
+/*!
+ * @abstract    Fetch contacts matching a phone number.
+ *
+ * @discussion  If the predicate and contact differ in their use or presence of country
+ *              codes, a best effort will be made to match results; however, inexact
+ *              matches are not guaranteed.
+ *
+ * @param       phoneNumber
+ *              A @c CNPhoneNumber representing the phone number to search for.
+ *              Do not include a scheme (e.g., "tel:").
+ */
++ (NSPredicate *)predicateForContactsMatchingPhoneNumber:(CNPhoneNumber *)phoneNumber API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0));
 
 /*! To fetch contacts matching contact identifiers. */
 + (NSPredicate *)predicateForContactsWithIdentifiers:(NSArray<NSString*> *)identifiers;
@@ -608,7 +632,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 /*! The identifier is unique among contacts on the device. It can be saved and used for finding labeled values next application launch. */
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *identifier;
 
-@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *label;
+@property (readonly, nullable, copy, NS_NONATOMIC_IOSONLY) NSString *label;
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) ValueType value;
 
 /*! Returns a new CNLabeledValue with a new identifier. */
@@ -814,6 +838,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  * @abstract The user defaults for contacts.
+ *
+ * @note This class is not thread safe.
  */
 NS_CLASS_AVAILABLE(10_11, 9_0)
 @interface CNContactsUserDefaults : NSObject
@@ -1070,19 +1096,20 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *nameSuffix;
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *nickname;
 
-@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *phoneticGivenName;
-@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *phoneticMiddleName;
-@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *phoneticFamilyName;
-
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *organizationName;
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *departmentName;
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *jobTitle;
+
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *phoneticGivenName;
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *phoneticMiddleName;
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *phoneticFamilyName;
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *phoneticOrganizationName NS_AVAILABLE(10_12, 10_0);
 
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *note;
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSData *imageData;
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSData *thumbnailImageData;
-@property (readonly, NS_NONATOMIC_IOSONLY) BOOL imageDataAvailable NS_AVAILABLE(NA, 9_0);
+@property (readonly, NS_NONATOMIC_IOSONLY) BOOL imageDataAvailable NS_AVAILABLE(10_12, 9_0);
 
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSArray<CNLabeledValue<CNPhoneNumber*>*>             *phoneNumbers;
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSArray<CNLabeledValue<NSString*>*>                  *emailAddresses;
@@ -1145,18 +1172,19 @@ CONTACTS_EXTERN NSString * const CNContactFamilyNameKey                      NS_
 CONTACTS_EXTERN NSString * const CNContactPreviousFamilyNameKey              NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactNameSuffixKey                      NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactNicknameKey                        NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNContactPhoneticGivenNameKey               NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNContactPhoneticMiddleNameKey              NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNContactPhoneticFamilyNameKey              NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactOrganizationNameKey                NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactDepartmentNameKey                  NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactJobTitleKey                        NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNContactPhoneticGivenNameKey               NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNContactPhoneticMiddleNameKey              NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNContactPhoneticFamilyNameKey              NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNContactPhoneticOrganizationNameKey        NS_AVAILABLE(10_12, 10_0);
 CONTACTS_EXTERN NSString * const CNContactBirthdayKey                        NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactNonGregorianBirthdayKey            NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactNoteKey                            NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactImageDataKey                       NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactThumbnailImageDataKey              NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNContactImageDataAvailableKey              NS_AVAILABLE(NA, 9_0);
+CONTACTS_EXTERN NSString * const CNContactImageDataAvailableKey              NS_AVAILABLE(10_12, 9_0);
 CONTACTS_EXTERN NSString * const CNContactTypeKey                            NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactPhoneNumbersKey                    NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNContactEmailAddressesKey                  NS_AVAILABLE(10_11, 9_0);
@@ -1235,25 +1263,52 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol CNKeyDescriptor;
+@class CNContact;
 
 /*!
- * @abstract Contact vCard support.
+ * @abstract    Contact vCard support.
  *
- * @discussion This converts between a contact and its vCard representation.
+ * @discussion  This converts between a contact and its vCard representation.
  */
 NS_CLASS_AVAILABLE(10_11, 9_0)
 @interface CNContactVCardSerialization : NSObject
 
 /*!
- *  @abstract Descriptor for all contact keys required by vCard serialization
+ * @abstract    Descriptor for all contact keys required by vCard serialization
  *
- *  @discussion This descriptor must be passed to the fetch request if the returned
+ * @discussion  This descriptor must be passed to the fetch request if the returned
  *              contacts are to be serialized with dataWithContacts:error:.
  */
 + (id<CNKeyDescriptor>)descriptorForRequiredKeys;
 
-+ (nullable NSData *)dataWithContacts:(NSArray *)contacts error:(NSError *__nullable *__nullable)error;
-+ (nullable NSArray *)contactsWithData:(NSData *)data error:(NSError *__nullable *__nullable)error;
+/*!
+ * @abstract    Serialize contacts to data.
+ *
+ * @discussion  The contacts to be serialized must have been fetched with
+ *              @c +descriptorForRequiredKeys.
+ *
+ * @param       contacts
+ *              The contacts to serialize.
+ *
+ * @param       error
+ *              An optional outparameter. If the serialization fails, this will be set.
+ *
+ * @returns     The encoded data. If the serialization fails, this will be @c nil.
+ */
++ (nullable NSData *)dataWithContacts:(NSArray<CNContact *>*)contacts error:(NSError **)error;
+
+/*!
+ * @abstract    Parse data into contacts.
+ *
+ * @param       data
+ *              The data to parse.
+ *
+ * @param       error
+ *              An optional outparameter. If the parsing fails, this will be set.
+ *
+ * @returns     The parsed contacts. If the parsing fails, this will be @c nil.
+ */
++ (nullable NSArray<CNContact *>*)contactsWithData:(NSData *)data error:(NSError **)error;
 
 @end
 
@@ -1277,12 +1332,14 @@ typedef NS_ENUM(NSInteger, CNErrorCode)
     CNErrorCodeDataAccessError = 2,
     
     CNErrorCodeAuthorizationDenied = 100,
-    
+    CNErrorCodeNoAccessableWritableContainers NS_ENUM_AVAILABLE(10_13_3, 11_3) = 101,
+
     CNErrorCodeRecordDoesNotExist = 200,
     CNErrorCodeInsertedRecordAlreadyExists = 201,
     CNErrorCodeContainmentCycle = 202,
     CNErrorCodeContainmentScope = 203,
     CNErrorCodeParentRecordDoesNotExist = 204,
+    CNErrorCodeRecordIdentifierInvalid = 205,
     
     CNErrorCodeValidationMultipleErrors = 300,
     CNErrorCodeValidationTypeMismatch = 301,
@@ -1296,6 +1353,7 @@ typedef NS_ENUM(NSInteger, CNErrorCode)
     CNErrorCodeClientIdentifierDoesNotExist = 601,
     
     CNErrorCodeVCardMalformed NS_ENUM_AVAILABLE(10_13, 11_0) = 700,
+    CNErrorCodeVCardSummarizationError NS_ENUM_AVAILABLE(10_14, 12_0) = 701,
     
 }  NS_ENUM_AVAILABLE(10_11, 9_0);
 
@@ -1329,7 +1387,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion Used with [CNContactStore enumerateContactsWithFetchRequest:error:usingBlock:]. Can combine any of these options to create a contact fetch request.
  */
 NS_CLASS_AVAILABLE(10_11, 9_0)
-@interface CNContactFetchRequest : NSObject
+@interface CNContactFetchRequest : NSObject <NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new  NS_UNAVAILABLE;
@@ -1361,7 +1419,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  *
  * @discussion If YES returns CNMutableContact objects, otherwise returns CNContact objects. Default is NO.
  */
-@property (NS_NONATOMIC_IOSONLY) BOOL mutableObjects;
+@property (NS_NONATOMIC_IOSONLY) BOOL mutableObjects NS_AVAILABLE(10_12, 10_0);
 
 /*!
  * @abstract To return linked contacts as unified contacts.
@@ -1415,13 +1473,14 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *nameSuffix;
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *nickname;
 
-@property (copy, NS_NONATOMIC_IOSONLY) NSString *phoneticGivenName;
-@property (copy, NS_NONATOMIC_IOSONLY) NSString *phoneticMiddleName;
-@property (copy, NS_NONATOMIC_IOSONLY) NSString *phoneticFamilyName;
-
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *organizationName;
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *departmentName;
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *jobTitle;
+
+@property (copy, NS_NONATOMIC_IOSONLY) NSString *phoneticGivenName;
+@property (copy, NS_NONATOMIC_IOSONLY) NSString *phoneticMiddleName;
+@property (copy, NS_NONATOMIC_IOSONLY) NSString *phoneticFamilyName;
+@property (copy, NS_NONATOMIC_IOSONLY) NSString *phoneticOrganizationName;
 
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *note;
 

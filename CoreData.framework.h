@@ -1,15 +1,87 @@
+// ==========  CoreData.framework/Headers/NSPersistentHistoryTransaction.h
+/*
+    NSPersistentHistoryTransaction.h
+    Core Data
+    Copyright (c) 2016-2018, Apple Inc.
+    All rights reserved.
+*/
+
+#import <Foundation/NSArray.h>
+#import <Foundation/NSDate.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class NSNotification;
+@class NSPersistentHistoryToken;
+@class NSPersistentHistoryChange;
+
+API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
+@interface NSPersistentHistoryTransaction : NSObject <NSCopying>
+
+@property (readonly,copy) NSDate *timestamp;
+@property (nullable,readonly,copy) NSArray<NSPersistentHistoryChange *>*changes;
+@property (readonly) int64_t transactionNumber;
+@property (readonly,copy) NSString *storeID;
+@property (readonly,copy) NSString *bundleID;
+@property (readonly,copy) NSString *processID;
+@property (nullable,readonly,copy) NSString *contextName;
+@property (nullable,readonly,copy) NSString *author;
+@property (readonly,strong) NSPersistentHistoryToken *token;
+
+// Get a notification that can be consumed by a NSManagedObjectContext
+- (NSNotification *) objectIDNotification;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  CoreData.framework/Headers/NSFetchIndexDescription.h
+/*
+    NSFetchIndexDescription.h
+    Core Data
+    Copyright (c) 2017-2018, Apple Inc.
+    All rights reserved.
+*/
+
+#import <Foundation/NSArray.h>
+#import <Foundation/NSPredicate.h>
+#import <Foundation/NSString.h>
+
+@class NSEntityDescription;
+@class NSFetchIndexElementDescription;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
+@interface NSFetchIndexDescription : NSObject <NSCoding> {
+}
+
+- (instancetype)initWithName:(NSString*)name elements:(nullable NSArray <NSFetchIndexElementDescription *>*)elements;
+
+@property (copy) NSString *name;
+/* Will throw if the new value is invalid (ie includes both rtree and non-rtree elements). */
+@property (copy) NSArray <NSFetchIndexElementDescription *>*elements;
+@property (readonly, nonatomic, nullable, assign) NSEntityDescription *entity;
+
+/* If the index should be a partial index, specifies the predicate selecting rows for indexing */
+@property (nullable, copy) NSPredicate *partialIndexPredicate;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/CoreDataDefines.h
 /*
-	CoreDataDefines.h
+    CoreDataDefines.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
-	All rights reserved.
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
 */
+
 #ifndef _COREDATADEFINES_H
 #define _COREDATADEFINES_H
 
 #import <AvailabilityMacros.h>
 #import <Availability.h>
+#import <TargetConditionals.h>
 
 //
 //  Platform specific defs for externs
@@ -90,6 +162,8 @@ COREDATA_EXTERN double NSCoreDataVersionNumber;
 #define NSCoreDataVersionNumber10_10      526.0
 #define NSCoreDataVersionNumber10_10_2    526.1
 #define NSCoreDataVersionNumber10_10_3    526.2
+#define NSCoreDataVersionNumber10_11      640.0
+#define NSCoreDataVersionNumber10_11_3    641.3
 
 #define NSCoreDataVersionNumber_iPhoneOS_3_0		241.0
 #define NSCoreDataVersionNumber_iPhoneOS_3_1		248.0
@@ -106,13 +180,16 @@ COREDATA_EXTERN double NSCoreDataVersionNumber;
 #define NSCoreDataVersionNumber_iPhoneOS_7_1		479.3
 #define NSCoreDataVersionNumber_iPhoneOS_8_0		519.0
 #define NSCoreDataVersionNumber_iPhoneOS_8_3		519.15
+#define NSCoreDataVersionNumber_iPhoneOS_9_0		640.0
+#define NSCoreDataVersionNumber_iPhoneOS_9_2		641.4
+#define NSCoreDataVersionNumber_iPhoneOS_9_3		641.6
 
 #endif // _COREDATADEFINES_H
 // ==========  CoreData.framework/Headers/NSEntityMigrationPolicy.h
 /*
     NSEntityMigrationPolicy.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -131,19 +208,19 @@ NS_ASSUME_NONNULL_BEGIN
  NSMigrationPropertyMappingKey   $propertyMapping
  NSMigrationEntityPolicyKey      $entityPolicy
 */
-COREDATA_EXTERN NSString * const NSMigrationManagerKey NS_AVAILABLE(10_5,3_0);
-COREDATA_EXTERN NSString * const NSMigrationSourceObjectKey NS_AVAILABLE(10_5,3_0);
-COREDATA_EXTERN NSString * const NSMigrationDestinationObjectKey NS_AVAILABLE(10_5,3_0);
-COREDATA_EXTERN NSString * const NSMigrationEntityMappingKey NS_AVAILABLE(10_5,3_0);
-COREDATA_EXTERN NSString * const NSMigrationPropertyMappingKey NS_AVAILABLE(10_5,3_0);
-COREDATA_EXTERN NSString * const NSMigrationEntityPolicyKey NS_AVAILABLE(10_5,3_0);
+COREDATA_EXTERN NSString * const NSMigrationManagerKey API_AVAILABLE(macosx(10.5),ios(3.0));
+COREDATA_EXTERN NSString * const NSMigrationSourceObjectKey API_AVAILABLE(macosx(10.5),ios(3.0));
+COREDATA_EXTERN NSString * const NSMigrationDestinationObjectKey API_AVAILABLE(macosx(10.5),ios(3.0));
+COREDATA_EXTERN NSString * const NSMigrationEntityMappingKey API_AVAILABLE(macosx(10.5),ios(3.0));
+COREDATA_EXTERN NSString * const NSMigrationPropertyMappingKey API_AVAILABLE(macosx(10.5),ios(3.0));
+COREDATA_EXTERN NSString * const NSMigrationEntityPolicyKey API_AVAILABLE(macosx(10.5),ios(3.0));
 
 @class NSManagedObject;
 @class NSEntityMapping;
 @class NSMigrationManager;
 @class NSError;
 
-NS_CLASS_AVAILABLE(10_5,3_0)
+API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSEntityMigrationPolicy : NSObject
 
 
@@ -188,11 +265,11 @@ associate the source and destination instances as required if super is not calle
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSExpressionDescription.h
 /*
- NSExpressionDescription.h
- Core Data
- Copyright (c) 2004-2015, Apple Inc.
- All rights reserved.
- */
+    NSExpressionDescription.h
+    Core Data
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
+*/
 
 #import <Foundation/NSObject.h>
 #import <CoreData/NSPropertyDescription.h>
@@ -206,8 +283,9 @@ NS_ASSUME_NONNULL_BEGIN
    An NSExpressionDescription describes a column to be returned from a fetch that may not appear 
    directly as an attribute or relationship on an entity. Examples would be: upper(attribute) or
    max(attribute). NSExpressionDescriptions cannot be set as properties on NSEntityDescription. */
-NS_CLASS_AVAILABLE(10_6,3_0)
+API_AVAILABLE(macosx(10.6),ios(3.0))
 @interface NSExpressionDescription : NSPropertyDescription {
+#if (!__OBJC2__)
 	@private
 	id _reservedtype1_1;
 	id _reservedtype1_2;
@@ -220,6 +298,7 @@ NS_CLASS_AVAILABLE(10_6,3_0)
 	void *_reservedtype2_3;
 	NSExpression *_expression;
 	NSAttributeType _expressionResultType;
+#endif
 }
 
 @property (nullable, strong) NSExpression *expression;
@@ -230,11 +309,53 @@ NS_CLASS_AVAILABLE(10_6,3_0)
 
 NS_ASSUME_NONNULL_END
 
+// ==========  CoreData.framework/Headers/NSFetchIndexElementDescription.h
+/*
+    NSFetchIndexElementDescription.h
+    Core Data
+    Copyright (c) 2017-2018, Apple Inc.
+    All rights reserved.
+*/
+
+#import <Foundation/NSArray.h>
+#import <Foundation/NSString.h>
+
+@class NSPropertyDescription;
+@class NSFetchIndexDescription;
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSUInteger, NSFetchIndexElementType) {
+    NSFetchIndexElementTypeBinary,
+    NSFetchIndexElementTypeRTree,
+} API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0));
+
+API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
+@interface NSFetchIndexElementDescription : NSObject <NSCoding> {
+}
+
+- (instancetype)initWithProperty:(NSPropertyDescription*)property collationType:(NSFetchIndexElementType)collationType;
+
+/* This may be an NSExpressionDescription that expresses a function */
+@property (readonly, nullable, retain) NSPropertyDescription *property;
+@property (readonly, nullable, retain) NSString *propertyName;
+/* Default NSIndexTypeBinary */
+@property NSFetchIndexElementType collationType;
+/* Default YES. Control whether this is an ascending or descending index for indexes which support direction. */
+
+@property (getter=isAscending) BOOL ascending;
+
+@property (readonly, nonatomic, nullable, assign) NSFetchIndexDescription *indexDescription;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSAttributeDescription.h
 /*
     NSAttributeDescription.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -260,25 +381,15 @@ typedef NS_ENUM(NSUInteger, NSAttributeType) {
     NSBooleanAttributeType = 800,
     NSDateAttributeType = 900,
     NSBinaryDataAttributeType = 1000,
-    NSTransformableAttributeType NS_ENUM_AVAILABLE(10_5,3_0) = 1800, // If your attribute is of NSTransformableAttributeType, the attributeValueClassName must be set or attribute value class must implement NSCopying.
-    NSObjectIDAttributeType NS_ENUM_AVAILABLE(10_6,3_0) = 2000
+    NSUUIDAttributeType API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = 1100,
+    NSURIAttributeType API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = 1200,
+    NSTransformableAttributeType API_AVAILABLE(macosx(10.5), ios(3.0)) = 1800, // If your attribute is of NSTransformableAttributeType, the attributeValueClassName must be set or attribute value class must implement NSCopying.
+    NSObjectIDAttributeType API_AVAILABLE(macosx(10.6), ios(3.0)) = 2000
  };
 
 // Attributes represent individual values like strings, numbers, dates, etc.
-NS_CLASS_AVAILABLE(10_4,3_0)
+API_AVAILABLE(macosx(10.4),ios(3.0))
 @interface NSAttributeDescription : NSPropertyDescription {
-@private
-	Class _attributeValueClass;
-	NSString *_valueTransformerName;
-    NSAttributeType _type;
-    NSString *_attributeValueClassName;
-    struct __attributeDescriptionFlags {
-		unsigned int _hasMaxValueInExtraIvars:1;
-		unsigned int _hasMinValueInExtraIvars:1;
-		unsigned int _storeBinaryDataExternally:1;
-        unsigned int _reservedAttributeDescription:29;
-    } _attributeDescriptionFlags;
-    id _defaultValue;
 }
 
 // NSUndefinedAttributeType is valid for transient properties - Core Data will still track the property as an id value and register undo/redo actions, etc. NSUndefinedAttributeType is illegal for non-transient properties.
@@ -289,12 +400,67 @@ NS_CLASS_AVAILABLE(10_4,3_0)
 @property (nullable, retain) id defaultValue;   // value is retained and not copied
 
 /* Returns the version hash for the attribute.  This value includes the versionHash information from the NSPropertyDescription superclass, and the attribute type.*/
-@property (readonly, copy) NSData *versionHash NS_AVAILABLE(10_5,3_0);
+@property (readonly, copy) NSData *versionHash API_AVAILABLE(macosx(10.5),ios(3.0));
 
 /* The name of the transformer used to convert a NSTransformedAttributeType.  The transformer must output NSData from transformValue and allow reverse transformation.  If this value is not set, or set to nil, Core Data will default to using a transformer which uses NSCoding to archive/unarchive the attribute value.*/
-@property (nullable, copy) NSString *valueTransformerName NS_AVAILABLE(10_5,3_0);
+@property (nullable, copy) NSString *valueTransformerName API_AVAILABLE(macosx(10.5),ios(3.0));
 
-@property () BOOL allowsExternalBinaryDataStorage NS_AVAILABLE(10_7, 5_0);
+@property () BOOL allowsExternalBinaryDataStorage API_AVAILABLE(macosx(10.7),ios(5.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  CoreData.framework/Headers/NSPersistentHistoryToken.h
+/*
+    NSPersistentHistoryToken.h
+    Core Data
+    Copyright (c) 2017-2018, Apple Inc.
+    All rights reserved.
+*/
+
+#import <Foundation/NSArray.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
+@interface NSPersistentHistoryToken : NSObject <NSCopying, NSSecureCoding>
+@end
+
+NS_ASSUME_NONNULL_END
+
+// ==========  CoreData.framework/Headers/NSPersistentHistoryChangeRequest.h
+/*
+    NSPersistentHistoryChangeRequest.h
+    Core Data
+    Copyright (c) 2014-2018, Apple Inc.
+    All rights reserved.
+*/
+
+#import <Foundation/NSArray.h>
+#import <Foundation/NSDate.h>
+#import <CoreData/NSPersistentStoreRequest.h>
+#import <CoreData/NSPersistentStoreResult.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class NSPersistentHistoryTransaction;
+@class NSPersistentHistoryToken;
+
+API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
+@interface NSPersistentHistoryChangeRequest : NSPersistentStoreRequest {
+}
+
++ (nonnull instancetype)fetchHistoryAfterDate:(NSDate *)date;
++ (nonnull instancetype)fetchHistoryAfterToken:(nullable NSPersistentHistoryToken *)token;
++ (nonnull instancetype)fetchHistoryAfterTransaction:(nullable NSPersistentHistoryTransaction *)transaction;
+
++ (nonnull instancetype)deleteHistoryBeforeDate:(NSDate *)date;
++ (nonnull instancetype)deleteHistoryBeforeToken:(nullable NSPersistentHistoryToken *)token;
++ (nonnull instancetype)deleteHistoryBeforeTransaction:(nullable NSPersistentHistoryTransaction *)transaction;
+
+// The type of result that should be returned from this request. Defaults to NSPersistentHistoryResultTypeTransactionsAndChanges
+@property NSPersistentHistoryResultType resultType;
+@property (nullable,readonly,strong) NSPersistentHistoryToken *token;
 
 @end
 
@@ -303,7 +469,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPropertyDescription.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -317,31 +483,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSPredicate;
 
 // Properties describe values within a managed object. There are different types of properties, each of them represented by a subclass which encapsulates the specific property behavior.
-NS_CLASS_AVAILABLE(10_4,3_0)
+API_AVAILABLE(macosx(10.4),ios(3.0))
 @interface NSPropertyDescription : NSObject <NSCoding, NSCopying> {
-@private
-	NSString *_versionHashModifier;
-	id _underlyingProperty;
-	NSData *_versionHash;
-    __weak NSEntityDescription *_entity;
-    NSString *_name;
-    NSArray *_validationPredicates;
-    NSArray *_validationWarnings;
-    struct __propertyDescriptionFlags {
-        unsigned int _isReadOnly:1;
-        unsigned int _isTransient:1;
-        unsigned int _isOptional:1;
-        unsigned int _isIndexed:1;
-        unsigned int _skipValidation:1;
-        unsigned int _isIndexedBySpotlight:1;
-        unsigned int _isStoredInExternalRecord:1;
-		unsigned int _extraIvarsAreInDataBlob:1;
-        unsigned int _isOrdered:1;
-        unsigned int _reservedPropertyDescription:23;
-    } _propertyDescriptionFlags;    
-    __strong void *_extraIvars;
-    NSMutableDictionary *_userInfo;
-	long _entitysReferenceIDForProperty;
 }
 
 @property (nonatomic, readonly, assign) NSEntityDescription *entity;
@@ -363,25 +506,25 @@ NS_CLASS_AVAILABLE(10_4,3_0)
 
 /* Returns a boolean value indicating if the property is important for searching.  NSPersistentStores can optionally utilize this information upon store creation for operations like defining indexes.
 */
-@property (getter=isIndexed) BOOL indexed NS_AVAILABLE(10_5,3_0);
+@property (getter=isIndexed) BOOL indexed API_DEPRECATED( "Use NSEntityDescription.indexes instead", macosx(10.5,10.13),ios(3.0,11.0),tvos(9.0, 11.0),watchos(2.0, 4.0));
 
 /* Returns the version hash for the property.  The version hash is used to uniquely identify a property based on its configuration.  The version hash uses only values which affect the persistence of data and the user-defined versionHashModifier value.  (The values which affect persistence are the name of the property, the flags for isOptional, isTransient, and isReadOnly).  This value is stored as part of the version information in the metadata for stores, as well as a definition of a property involved in an NSPropertyMapping.
 */
-@property (readonly, copy) NSData *versionHash NS_AVAILABLE(10_5,3_0);
+@property (readonly, copy) NSData *versionHash API_AVAILABLE(macosx(10.5),ios(3.0));
 
 /* Returns/sets the version hash modifier for the property.  This value is included in the version hash for the property, allowing developers to mark/denote a property as being a different "version" than another, even if all of the values which affects persistence are equal.  (Such a difference is important in cases where the design of a property is unchanged, but the format or content of data has changed.)
 */
-@property (nullable, copy) NSString *versionHashModifier NS_AVAILABLE(10_5,3_0);
+@property (nullable, copy) NSString *versionHashModifier API_AVAILABLE(macosx(10.5),ios(3.0));
 
 /* Returns a boolean value indicating if the property should be indexed by Spotlight.
 */
-@property (getter=isIndexedBySpotlight) BOOL indexedBySpotlight NS_AVAILABLE(10_6,3_0);
+@property (getter=isIndexedBySpotlight) BOOL indexedBySpotlight API_AVAILABLE(macosx(10.6),ios(3.0));
 
 /* Returns a boolean value indicating if the property data should be written out to the external record file.
 */
-@property (getter=isStoredInExternalRecord) BOOL storedInExternalRecord NS_AVAILABLE(10_6,3_0);
+@property (getter=isStoredInExternalRecord) BOOL storedInExternalRecord API_DEPRECATED("Spotlight integration is deprecated. Use CoreSpotlight integration instead.", macosx(10.6,10.13),ios(3.0,11.0));
 
-@property (nullable, copy) NSString *renamingIdentifier NS_AVAILABLE(10_6,3_0);
+@property (nullable, copy) NSString *renamingIdentifier API_AVAILABLE(macosx(10.6),ios(3.0));
 
 @end
 
@@ -390,12 +533,14 @@ NS_ASSUME_NONNULL_END
 /*
     NSFetchRequest.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
 #import <Foundation/NSArray.h>
 #import <CoreData/NSPersistentStoreRequest.h>
+#import <CoreData/NSManagedObject.h>
+#import <CoreData/NSManagedObjectID.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -410,48 +555,40 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_OPTIONS(NSUInteger, NSFetchRequestResultType) {
     NSManagedObjectResultType		= 0x00,
     NSManagedObjectIDResultType		= 0x01,
-    NSDictionaryResultType          NS_ENUM_AVAILABLE(10_6,3_0) = 0x02,
-	NSCountResultType				NS_ENUM_AVAILABLE(10_6,3_0) = 0x04
+    NSDictionaryResultType          API_AVAILABLE(macosx(10.6), ios(3.0)) = 0x02,
+    NSCountResultType				API_AVAILABLE(macosx(10.6), ios(3.0)) = 0x04
 };
 
+/* Protocol conformance for possible result types a fetch request can return. */
+@protocol NSFetchRequestResult <NSObject>
+@end
 
+@interface NSNumber (NSFetchedResultSupport) <NSFetchRequestResult>
+@end
 
-NS_CLASS_AVAILABLE(10_4, 3_0)
-@interface NSFetchRequest : NSPersistentStoreRequest <NSCoding> {
-@private
-	NSArray *_groupByProperties;
-	NSPredicate *_havingPredicate;
-	id* _additionalPrivateIvars;
-	NSArray *_valuesToFetch;
-    NSEntityDescription *_entity;
-    NSPredicate *_predicate;
-    NSArray *_sortDescriptors;
-    NSUInteger _batchSize;
-    unsigned long _fetchLimit;
-    NSArray *_relationshipKeyPathsForPrefetching;
-    struct _fetchRequestFlags {
-        unsigned int distinctValuesOnly:1;
-        unsigned int includesSubentities:1;
-        unsigned int includesPropertyValues:1;
-        unsigned int resultType:3;
-        unsigned int returnsObjectsAsFaults:1;
-        unsigned int excludePendingChanges:1;
-        unsigned int isInUse:1;
-        unsigned int entityIsName:1;
-        unsigned int refreshesRefetched:1;
-        unsigned int propertiesValidated:1;
-        unsigned int disableCaching:1;
-        unsigned int _RESERVED:19;
-    } _flags;
+@interface NSDictionary (NSFetchedResultSupport) <NSFetchRequestResult>
+@end
+
+@interface NSManagedObject (NSFetchedResultSupport) <NSFetchRequestResult>
+@end
+
+@interface NSManagedObjectID (NSFetchedResultSupport) <NSFetchRequestResult>
+@end
+
+API_AVAILABLE(macosx(10.4),ios(3.0))
+@interface NSFetchRequest<__covariant ResultType:id<NSFetchRequestResult>> : NSPersistentStoreRequest <NSCoding> {
 }
 
-+ (instancetype)fetchRequestWithEntityName:(NSString*)entityName NS_AVAILABLE(10_7, 4_0);
++ (instancetype)fetchRequestWithEntityName:(NSString*)entityName API_AVAILABLE(macosx(10.7),ios(4.0));
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
-- (instancetype)initWithEntityName:(NSString*)entityName NS_AVAILABLE(10_7, 4_0);
+- (instancetype)initWithEntityName:(NSString*)entityName API_AVAILABLE(macosx(10.7),ios(4.0));
+
+// Executes the fetch request using the current managed object context. This method must be called from within a block submitted to a managed object context.
+- (nullable NSArray<ResultType> *)execute:(NSError **)error  API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
 
 @property (nullable, nonatomic, strong) NSEntityDescription *entity;
-@property (nullable, nonatomic, readonly, strong) NSString *entityName NS_AVAILABLE(10_7, 4_0);
+@property (nullable, nonatomic, readonly, strong) NSString *entityName API_AVAILABLE(macosx(10.7),ios(4.0));
 
 @property (nullable, nonatomic, strong) NSPredicate *predicate;
 
@@ -463,57 +600,73 @@ NS_CLASS_AVAILABLE(10_4, 3_0)
 
 /* Returns/sets the result type of the fetch request (the instance type of objects returned from executing the request.)  Setting the value to NSManagedObjectIDResultType will demote any sort orderings to "best effort" hints if property values are not included in the request.  Defaults to NSManagedObjectResultType.   
 */
-@property (nonatomic) NSFetchRequestResultType resultType NS_AVAILABLE(10_5,3_0);
+@property (nonatomic) NSFetchRequestResultType resultType API_AVAILABLE(macosx(10.5),ios(3.0));
 
 
 /* Returns/sets if the fetch request includes subentities.  If set to NO, the request will fetch objects of exactly the entity type of the request;  if set to YES, the request will include all subentities of the entity for the request.  Defaults to YES. 
 */
-@property (nonatomic) BOOL includesSubentities NS_AVAILABLE(10_5,3_0);
+@property (nonatomic) BOOL includesSubentities API_AVAILABLE(macosx(10.5),ios(3.0));
 
 
 /* Returns/sets if, when the fetch is executed, property data is obtained from the persistent store.  If the value is set to NO, the request will not obtain property information, but only information to identify each object (used to create NSManagedObjectIDs.)  If managed objects for these IDs are later faulted (as a result attempting to access property values), they will incur subsequent access to the persistent store to obtain their property values.  Defaults to YES. 
 */
-@property (nonatomic) BOOL includesPropertyValues NS_AVAILABLE(10_5,3_0);
+@property (nonatomic) BOOL includesPropertyValues API_AVAILABLE(macosx(10.5),ios(3.0));
 
 
 /* Returns/sets if the objects resulting from a fetch request are faults.  If the value is set to NO, the returned objects are pre-populated with their property values (making them fully-faulted objects, which will immediately return NO if sent the -isFault message.)  If the value is set to YES, the returned objects are not pre-populated (and will receive a -didFireFault message when the properties are accessed the first time.)  This setting is not utilized if the result type of the request is NSManagedObjectIDResultType, as object IDs do not have property values.  Defaults to YES. 
 */
-@property (nonatomic) BOOL returnsObjectsAsFaults NS_AVAILABLE(10_5,3_0);
+@property (nonatomic) BOOL returnsObjectsAsFaults API_AVAILABLE(macosx(10.5),ios(3.0));
 
 /* Returns/sets an array of relationship keypaths to prefetch along with the entity for the request.  The array contains keypath strings in NSKeyValueCoding notation, as you would normally use with valueForKeyPath.  (Prefetching allows Core Data to obtain developer-specified related objects in a single fetch (per entity), rather than incurring subsequent access to the store for each individual record as their faults are tripped.)  Defaults to an empty array (no prefetching.) 
 */
-@property (nullable, nonatomic, copy) NSArray<NSString *> *relationshipKeyPathsForPrefetching NS_AVAILABLE(10_5,3_0);
+@property (nullable, nonatomic, copy) NSArray<NSString *> *relationshipKeyPathsForPrefetching API_AVAILABLE(macosx(10.5),ios(3.0));
 
 
 /* Results accommodate the currently unsaved changes in the NSManagedObjectContext.  When disabled, the fetch request skips checking unsaved changes and only returns objects that matched the predicate in the persistent store.  Defaults to YES.
 */
-@property (nonatomic) BOOL includesPendingChanges NS_AVAILABLE(10_6, 3_0);
+@property (nonatomic) BOOL includesPendingChanges API_AVAILABLE(macosx(10.6),ios(3.0));
 
 /* Returns/sets if the fetch request returns only distinct values for the fields specified by propertiesToFetch. This value is only used for NSDictionaryResultType. Defaults to NO. */
-@property (nonatomic) BOOL returnsDistinctResults NS_AVAILABLE(10_6, 3_0);
+@property (nonatomic) BOOL returnsDistinctResults API_AVAILABLE(macosx(10.6),ios(3.0));
 
 /* Specifies a collection of either NSPropertyDescriptions or NSString property names that should be fetched. The collection may represent attributes, to-one relationships, or NSExpressionDescription.  If NSDictionaryResultType is set, the results of the fetch will be dictionaries containing key/value pairs where the key is the name of the specified property description.  If NSManagedObjectResultType is set, then NSExpressionDescription cannot be used, and the results are managed object faults partially pre-populated with the named properties */
-@property (nullable, nonatomic, copy) NSArray *propertiesToFetch NS_AVAILABLE(10_6, 3_0);
+@property (nullable, nonatomic, copy) NSArray *propertiesToFetch API_AVAILABLE(macosx(10.6),ios(3.0));
 
 /* Allows you to specify an offset at which rows will begin being returned.  Effectively, the request will skip over 'offset' number of matching entries.  For example, given a fetch which would normally return a, b, c, and d, specifying an offset of 1 will return b, c, and d and an offset of 4  will return an empty array. Offsets are ignored in nested requests such as subqueries.  Default value is 0.  */
-@property (nonatomic) NSUInteger fetchOffset NS_AVAILABLE(10_6, 3_0);
+@property (nonatomic) NSUInteger fetchOffset API_AVAILABLE(macosx(10.6),ios(3.0));
 
 /* This breaks the result set into batches.  The entire request will be evaluated, and the identities of all matching objects will be recorded, but no more than batchSize objects' data will be fetched from the persistent store at a time.  The array returned from executing the request will be a subclass that transparently faults batches on demand.  For purposes of thread safety, the returned array proxy is owned by the NSManagedObjectContext the request is executed against, and should be treated as if it were a managed object registered with that context.  A batch size of 0 is treated as infinite, which disables the batch faulting behavior.  The default is 0. */
 
-@property (nonatomic) NSUInteger fetchBatchSize NS_AVAILABLE(10_6, 3_0);
+@property (nonatomic) NSUInteger fetchBatchSize API_AVAILABLE(macosx(10.6),ios(3.0));
 
-@property (nonatomic) BOOL shouldRefreshRefetchedObjects NS_AVAILABLE(10_7,  5_0);
+@property (nonatomic) BOOL shouldRefreshRefetchedObjects API_AVAILABLE(macosx(10.7),ios(5.0));
 
 /* Specifies the way in which data should be grouped before a select statement is run in an SQL database.
  Values passed to propertiesToGroupBy must be NSPropertyDescriptions, NSExpressionDescriptions, or keypath strings; keypaths can not contain 
  any to-many steps. 
  If GROUP BY is used, then you must set the resultsType to NSDictionaryResultsType, and the SELECT values must be literals, aggregates, 
  or columns specified in the GROUP BY. Aggregates will operate on the groups specified in the GROUP BY rather than the whole table. */
-@property (nullable, nonatomic, copy) NSArray *propertiesToGroupBy NS_AVAILABLE(10_7,  5_0);
+@property (nullable, nonatomic, copy) NSArray *propertiesToGroupBy API_AVAILABLE(macosx(10.7),ios(5.0));
 
 /* Specifies a predicate that will be used to filter rows being returned by a query containing a GROUP BY. If a having predicate is
  supplied, it will be run after the GROUP BY.  Specifying a HAVING predicate requires that a GROUP BY also be specified. */
-@property (nullable, nonatomic, strong) NSPredicate *havingPredicate NS_AVAILABLE(10_7,  5_0);
+@property (nullable, nonatomic, strong) NSPredicate *havingPredicate API_AVAILABLE(macosx(10.7),ios(5.0));
+
+@end
+
+
+@class NSAsynchronousFetchResult<ResultType:id<NSFetchRequestResult>>;
+
+typedef void (^NSPersistentStoreAsynchronousFetchResultCompletionBlock)(NSAsynchronousFetchResult *result);
+
+API_AVAILABLE(macosx(10.10),ios(8.0))
+@interface NSAsynchronousFetchRequest<ResultType:id<NSFetchRequestResult>> : NSPersistentStoreRequest {
+}
+@property (strong, readonly) NSFetchRequest<ResultType> * fetchRequest;
+@property (nullable, strong, readonly) NSPersistentStoreAsynchronousFetchResultCompletionBlock completionBlock;
+@property (nonatomic) NSInteger estimatedResultCount;
+
+- (instancetype)initWithFetchRequest:(NSFetchRequest<ResultType> *)request completionBlock:(nullable void(^)(NSAsynchronousFetchResult<ResultType> *))blk;
 
 @end
 
@@ -522,7 +675,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSRelationshipDescription.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -541,18 +694,8 @@ typedef NS_ENUM(NSUInteger, NSDeleteRule) {
 } ;
 
 // Relationships represent references to other objects. They usually come in pairs, where the reference back is called the "inverse".
-NS_CLASS_AVAILABLE(10_4,3_0)
+API_AVAILABLE(macosx(10.4),ios(3.0))
 @interface NSRelationshipDescription : NSPropertyDescription {
-@private
-	void *_reserved5;
-	void *_reserved6;
-    __weak NSEntityDescription *_destinationEntity;
-    NSString *_lazyDestinationEntityName;
-    NSRelationshipDescription *_inverseRelationship;
-    NSString *_lazyInverseRelationshipName;
-    unsigned long _maxCount;
-    unsigned long _minCount;
-    NSDeleteRule _deleteRule;
 }
 
 @property (nullable, nonatomic, assign) NSEntityDescription *destinationEntity;
@@ -567,20 +710,20 @@ NS_CLASS_AVAILABLE(10_4,3_0)
 @property (getter=isToMany, readonly) BOOL toMany;    // convenience method to test whether the relationship is to-one or to-many
 
 // Returns the version hash for the relationship.  This value includes the versionHash information from the NSPropertyDescription superclass, the name of the destination entity and the inverse relationship, and the min and max count.
-@property (readonly, copy) NSData *versionHash NS_AVAILABLE(10_5,3_0);
+@property (readonly, copy) NSData *versionHash API_AVAILABLE(macosx(10.5),ios(3.0));
 
-@property (getter=isOrdered) BOOL ordered NS_AVAILABLE(10_7,  5_0);
+@property (getter=isOrdered) BOOL ordered API_AVAILABLE(macosx(10.7),ios(5.0));
 
 @end
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSIncrementalStore.h
 /*
- NSIncrementalStore.h
- Core Data
- Copyright (c) 2004-2015, Apple Inc.
- All rights reserved.
- */
+    NSIncrementalStore.h
+    Core Data
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
+*/
 
 #import <Foundation/NSArray.h>
 #import <CoreData/NSPersistentStore.h>
@@ -598,13 +741,8 @@ NS_ASSUME_NONNULL_BEGIN
 // Abstract class defining the API through which Core Data communicates with a store. 
 // This API is designed to allow users to create persistent stores which load and save 
 // data incrementally, allowing for the management of large and/or shared datasets.
-NS_CLASS_AVAILABLE(10_7,5_0)
+API_AVAILABLE(macosx(10.7),ios(5.0))
 @interface NSIncrementalStore : NSPersistentStore {
-	@private
-	NSDictionary *_storeMetadata;
-	uint64_t _lastIdentifier;
-	void* _reserveda;
-	void* _reservedb;
 }
 
 // CoreData expects loadMetadata: to validate that the URL used to create the store is usable
@@ -669,11 +807,83 @@ NS_CLASS_AVAILABLE(10_7,5_0)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreData.framework/Headers/NSQueryGenerationToken.h
+/*
+    NSQueryGenerationToken.h
+    Core Data
+    Copyright (c) 2016-2018, Apple Inc.
+    All rights reserved.
+*/
+#import <Foundation/NSArray.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0))
+// Class used to track database generations for generational querying.
+// See NSManagedObjectContext for details on how it is used.
+@interface NSQueryGenerationToken : NSObject <NSCopying, NSSecureCoding>
+
+@property (class, readonly, strong) NSQueryGenerationToken *currentQueryGenerationToken; // Used to inform a context that it should use the current generation
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+// ==========  CoreData.framework/Headers/NSCoreDataCoreSpotlightDelegate.h
+/*
+    NSCoreDataCoreSpotlightDelegate.h
+    Core Data
+    Copyright (c) 2017-2018, Apple Inc.
+    All rights reserved.
+*/
+
+
+#import <Foundation/NSArray.h>
+
+@class NSManagedObjectContext;
+@class NSPersistentStoreDescription;
+@class NSManagedObjectModel;
+@class NSManagedObject;
+@class CSSearchableIndex;
+@class CSSearchableItemAttributeSet;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/* NSCoreDataSpotlightDelegate implements the CSSearchableIndexDelegate API, but can't
+ publicly declare it due to linkage requirements.
+ */
+API_AVAILABLE(macosx(10.13),ios(11.0)) API_UNAVAILABLE(tvos,watchos)
+@interface NSCoreDataCoreSpotlightDelegate : NSObject {
+}
+
+/* CoreSpotlight domain identifer; default nil */
+- (NSString *)domainIdentifier;
+/* CoreSpotlight index name; default is the store's identifier */
+- (nullable NSString *)indexName;
+
+
+- (instancetype)initForStoreWithDescription:(NSPersistentStoreDescription *)description  model:(NSManagedObjectModel *)model NS_DESIGNATED_INITIALIZER;
+
+/* Create the searchable attributes for the managed object. Override to return nil if you don't
+ want the object in the index for some reason.
+ */
+- (nullable CSSearchableItemAttributeSet *)attributeSetForObject:(NSManagedObject*)object;
+
+/* CSSearchableIndexDelegate conformance */
+- (void)searchableIndex:(CSSearchableIndex *)searchableIndex reindexAllSearchableItemsWithAcknowledgementHandler:(void (^)(void))acknowledgementHandler;
+
+- (void)searchableIndex:(CSSearchableIndex *)searchableIndex reindexSearchableItemsWithIdentifiers:(NSArray <NSString *> *)identifiers
+ acknowledgementHandler:(void (^)(void))acknowledgementHandler;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  CoreData.framework/Headers/NSAtomicStoreCacheNode.h
 /*
     NSAtomicStoreCacheNode.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -690,13 +900,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class NSEntityDescription;
 
-NS_CLASS_AVAILABLE(10_5,3_0)
+API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSAtomicStoreCacheNode : NSObject {
+#if (!__OBJC2__)
     @private
     NSManagedObjectID *_objectID;
     uintptr_t __versionNumber;
 	NSMutableDictionary *_propertyCache;
 	void *_reserved1;
+#endif
 }
 
 /* The designated initializer for the cache node. */
@@ -723,13 +935,51 @@ The default implementation forwards the request to the -propertyCache dictionary
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreData.framework/Headers/NSPersistentHistoryChange.h
+/*
+    NSPersistentHistoryChange.h
+    Core Data
+    Copyright (c) 2016-2018, Apple Inc.
+    All rights reserved.
+*/
+
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSData.h>
+#import <Foundation/NSSet.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class NSPersistentHistoryTransaction;
+@class NSManagedObjectID;
+@class NSPropertyDescription;
+
+
+typedef NS_ENUM (NSInteger, NSPersistentHistoryChangeType) {
+    NSPersistentHistoryChangeTypeInsert,
+    NSPersistentHistoryChangeTypeUpdate,
+    NSPersistentHistoryChangeTypeDelete,
+} API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0));
+
+API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
+@interface NSPersistentHistoryChange : NSObject <NSCopying>
+
+@property (readonly) int64_t changeID;
+@property (readonly,copy) NSManagedObjectID *changedObjectID;
+@property (readonly) NSPersistentHistoryChangeType changeType;
+@property (nullable,readonly,copy) NSDictionary *tombstone;
+@property (nullable,readonly,strong) NSPersistentHistoryTransaction *transaction;
+@property (nullable,readonly,copy) NSSet<NSPropertyDescription *> *updatedProperties;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSBatchDeleteRequest.h
 /*
     NSBatchDeleteRequest.h
     Core Data
-    Copyright (c) 2015-2015, Apple Inc.
+    Copyright (c) 2015-2018, Apple Inc.
     All rights reserved.
- */
+*/
 
 
 #import <Foundation/NSArray.h>
@@ -749,12 +999,14 @@ NS_ASSUME_NONNULL_BEGIN
 //  It is up to the developer creating the request to ensure that changes made by the request to
 //  the underlying store do not violate any validation rules specified in the model beyond basic
 //  delete rules (for example, minimum relationship counts).
-NS_CLASS_AVAILABLE(10_11,9_0)
+API_AVAILABLE(macosx(10.11),ios(9.0))
 @interface NSBatchDeleteRequest : NSPersistentStoreRequest {
+#if (!__OBJC2__)
     @private
     NSBatchDeleteRequestResultType _resultType;
     NSFetchRequest *_deleteTarget;
-    void *_reserved;
+    intptr_t _flags;
+#endif
 }
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -772,13 +1024,14 @@ NS_CLASS_AVAILABLE(10_11,9_0)
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSPersistentStoreResult.h
 /*
- NSPersistentStoreResult.h
- Core Data
- Copyright (c) 2004-2015, Apple Inc.
- All rights reserved.
- */
+    NSPersistentStoreResult.h
+    Core Data
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
+*/
+
 #import <Foundation/NSArray.h>
-#import <CoreData/NSPersistentStoreRequest.h>
+#import <CoreData/NSFetchRequest.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -791,32 +1044,36 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSAsynchronousFetchRequest;
 
 typedef NS_ENUM(NSUInteger, NSBatchUpdateRequestResultType) {
-    NSStatusOnlyResultType = 0x0,                 // Don't return anything
-    NSUpdatedObjectIDsResultType = 0x1,   // Return the object IDs of the rows that were updated
+    NSStatusOnlyResultType = 0x0,            // Return a status boolean
+    NSUpdatedObjectIDsResultType = 0x1,      // Return the object IDs of the rows that were updated
     NSUpdatedObjectsCountResultType = 0x2    // Return the number of rows that were updated
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macosx(10.10), ios(8.0));
 
 typedef NS_ENUM(NSUInteger, NSBatchDeleteRequestResultType) {
-    NSBatchDeleteResultTypeStatusOnly = 0x0,                 // Don't return anything
-    NSBatchDeleteResultTypeObjectIDs = 0x1,   // Return the object IDs of the rows that were deleted
-    NSBatchDeleteResultTypeCount = 0x2,   // Return the object IDs of the rows that were deleted
-} NS_ENUM_AVAILABLE(10_11, 9_0);
+    NSBatchDeleteResultTypeStatusOnly = 0x0, // Return a status boolean
+    NSBatchDeleteResultTypeObjectIDs = 0x1,  // Return the object IDs of the rows that were deleted
+    NSBatchDeleteResultTypeCount = 0x2,      // Return the number of rows that were deleted
+} API_AVAILABLE(macosx(10.11), ios(9.0));
+
+
+typedef NS_ENUM(NSInteger, NSPersistentHistoryResultType) {
+    NSPersistentHistoryResultTypeStatusOnly = 0x0,
+    NSPersistentHistoryResultTypeObjectIDs = 0x1,   // Return the object IDs of the changes objects
+    NSPersistentHistoryResultTypeCount = 0x2,       // Return the number of changes
+    NSPersistentHistoryResultTypeTransactionsOnly = 0x3,// Return the transactions since
+    NSPersistentHistoryResultTypeChangesOnly = 0x4,     // Return the changes since
+    NSPersistentHistoryResultTypeTransactionsAndChanges = 0x5,// Return the transactions and changes since
+} API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0));
 
 // Used to wrap the result of whatever is returned by the persistent store coordinator when
 // -[NSManagedObjectContext executeRequest:error:] is called
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macosx(10.10),ios(8.0))
 @interface NSPersistentStoreResult : NSObject
 
 @end
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macosx(10.10),ios(8.0))
 @interface NSPersistentStoreAsynchronousResult : NSPersistentStoreResult {
-@private
-    NSProgress* _requestProgress;
-    NSError* _requestError;
-    NSManagedObjectContext* _requestContext;
-    id _requestCompletionBlock;
-    int32_t _flags;
 }
 
 @property (strong, readonly) NSManagedObjectContext* managedObjectContext;
@@ -827,26 +1084,18 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 @end
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
-@interface NSAsynchronousFetchResult : NSPersistentStoreAsynchronousResult {
-@private
-    NSAsynchronousFetchRequest* _fetchRequest;
-    NSArray* _finalResult;
-    id _intermediateResultCallback;
+API_AVAILABLE(macosx(10.10),ios(8.0))
+@interface NSAsynchronousFetchResult<ResultType:id<NSFetchRequestResult>> : NSPersistentStoreAsynchronousResult {
 }
 
-@property (strong, readonly) NSAsynchronousFetchRequest* fetchRequest;
-@property (nullable, strong, readonly) NSArray * finalResult;
+@property (strong, readonly) NSAsynchronousFetchRequest<ResultType> * fetchRequest;
+@property (nullable, strong, readonly) NSArray<ResultType> * finalResult;
 
 @end
 
 // The result returned when executing an NSBatchUpdateRequest
-NS_CLASS_AVAILABLE(10_10,8_0)
+API_AVAILABLE(macosx(10.10),ios(8.0))
 @interface NSBatchUpdateResult : NSPersistentStoreResult {
-@private
-    id _aggregatedResult;
-    NSBatchUpdateRequestResultType _resultType;
- 
 }
 
 // Return the result. See NSBatchUpdateRequestResultType for options
@@ -857,12 +1106,8 @@ NS_CLASS_AVAILABLE(10_10,8_0)
 
 
 // The result returned when executing an NSBatchDeleteRequest
-NS_CLASS_AVAILABLE(10_11,9_0)
+API_AVAILABLE(macosx(10.11),ios(9.0))
 @interface NSBatchDeleteResult : NSPersistentStoreResult {
-@private
-    id _aggregatedResult;
-    NSBatchDeleteRequestResultType _resultType;
-    
 }
 
 // Return the result. See NSBatchDeleteRequestResultType for options
@@ -871,12 +1116,24 @@ NS_CLASS_AVAILABLE(10_11,9_0)
 
 @end
 
+
+// The result returned when executing an NSPersistentHistoryChangeRequest
+API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
+@interface NSPersistentHistoryResult : NSPersistentStoreResult {
+}
+
+// Return the result. See NSPersistentHistoryResultType for options
+@property (nullable, strong, readonly) id result;
+@property (readonly) NSPersistentHistoryResultType resultType;
+
+@end
+
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSPersistentStoreCoordinator.h
 /*
     NSPersistentStoreCoordinator.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -896,12 +1153,223 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSManagedObjectContext;
 @class NSPersistentStore;
 @class NSPersistentStoreRequest;
+@class NSPersistentStoreDescription;
 
 // Persistent store types supported by Core Data:
-COREDATA_EXTERN NSString * const NSSQLiteStoreType NS_AVAILABLE(10_4, 3_0);
-COREDATA_EXTERN NSString * const NSXMLStoreType NS_AVAILABLE(10_4, NA);
-COREDATA_EXTERN NSString * const NSBinaryStoreType NS_AVAILABLE(10_4, 3_0);
-COREDATA_EXTERN NSString * const NSInMemoryStoreType NS_AVAILABLE(10_4, 3_0);
+COREDATA_EXTERN NSString * const NSSQLiteStoreType API_AVAILABLE(macosx(10.4),ios(3.0));
+COREDATA_EXTERN NSString * const NSXMLStoreType API_AVAILABLE(macosx(10.4)) API_UNAVAILABLE(ios);
+COREDATA_EXTERN NSString * const NSBinaryStoreType API_AVAILABLE(macosx(10.4),ios(3.0));
+COREDATA_EXTERN NSString * const NSInMemoryStoreType API_AVAILABLE(macosx(10.4),ios(3.0));
+
+// Persistent store metadata dictionary keys:
+
+// key in the metadata dictionary to identify the store type
+COREDATA_EXTERN NSString * const NSStoreTypeKey API_AVAILABLE(macosx(10.4),ios(3.0));    
+
+// key in the metadata dictionary to identify the store UUID - the store UUID is useful to identify stores through URI representations, but it is NOT guaranteed to be unique (while the UUID generated for new stores is unique, users can freely copy files and thus the UUID stored inside, so developers that track/reference stores explicitly do need to be aware of duplicate UUIDs and potentially override the UUID when a new store is added to the list of known stores in their application)
+COREDATA_EXTERN NSString * const NSStoreUUIDKey API_AVAILABLE(macosx(10.4),ios(3.0));    
+
+/* A notification posted before the list of open persistent stores changes, similar to NSPersistentStoreCoordinatorStoresDidChangeNotification.  If the application is running, Core Data will post this before responding to iCloud account changes or "Delete All" from Documents & Data.
+ */
+COREDATA_EXTERN NSString * const NSPersistentStoreCoordinatorStoresWillChangeNotification API_AVAILABLE(macosx(10.9),ios(7.0));
+
+// user info dictionary contains information about the stores that were added or removed
+COREDATA_EXTERN NSString * const NSPersistentStoreCoordinatorStoresDidChangeNotification API_AVAILABLE(macosx(10.4),ios(3.0));    
+
+// sent during the invocation of NSPersistentStore's willRemoveFromPersistentStoreCoordinator during store deallocation or removal
+COREDATA_EXTERN NSString * const NSPersistentStoreCoordinatorWillRemoveStoreNotification API_AVAILABLE(macosx(10.5),ios(3.0));    
+
+// User info keys for NSPersistentStoreCoordinatorStoresDidChangeNotification:
+
+// The object values for NSAddedPersistentStoresKey and NSRemovedPersistentStoresKey will be arrays containing added/removed stores
+COREDATA_EXTERN NSString * const NSAddedPersistentStoresKey API_AVAILABLE(macosx(10.4),ios(3.0));
+COREDATA_EXTERN NSString * const NSRemovedPersistentStoresKey API_AVAILABLE(macosx(10.4),ios(3.0));
+
+// The object value for NSUUIDChangedPersistentStoresKey will be an array where the object at index 0 will be the old store instance, and the object at index 1 the new
+COREDATA_EXTERN NSString * const NSUUIDChangedPersistentStoresKey API_AVAILABLE(macosx(10.4),ios(3.0));
+
+// Persistent store option keys:
+
+// flag indicating whether a store is treated as read-only or not - default is NO
+COREDATA_EXTERN NSString * const NSReadOnlyPersistentStoreOption API_AVAILABLE(macosx(10.4),ios(3.0));    
+
+// flag indicating whether an XML file should be validated with the DTD while opening - default is NO
+COREDATA_EXTERN NSString * const NSValidateXMLStoreOption API_AVAILABLE(macosx(10.4)) API_UNAVAILABLE(ios);    
+
+// Migration keys:
+
+/* Options key specifying the connection timeout for Core Data stores.  This value (an NSNumber) represents the duration, in seconds, Core Data will wait while attempting to create a connection to a persistent store.  If a connection is unable to be made within that timeframe, the operation is aborted and an error is returned.  
+*/
+COREDATA_EXTERN NSString * const NSPersistentStoreTimeoutOption API_AVAILABLE(macosx(10.5),ios(3.0));
+
+/* Options key for a dictionary of sqlite pragma settings with pragma values indexed by pragma names as keys.  All pragma values must be specified as strings.  The fullfsync and synchronous pragmas control the tradeoff between write performance (write to disk speed & cache utilization) and durability (data loss/corruption sensitivity to power interruption).  For more information on pragma settings visit <http://sqlite.org/pragma.html>
+*/
+COREDATA_EXTERN NSString * const NSSQLitePragmasOption API_AVAILABLE(macosx(10.5),ios(3.0));
+
+/* Option key to run an analysis of the store data to optimize indices based on statistical information when the store is added to the coordinator.  This invokes SQLite's ANALYZE command.  Ignored by other stores.
+*/
+COREDATA_EXTERN NSString * const NSSQLiteAnalyzeOption API_AVAILABLE(macosx(10.5),ios(3.0));
+
+/* Option key to rebuild the store file, forcing a database wide defragmentation when the store is added to the coordinator.  This invokes SQLite's VACUUM command.  Ignored by other stores.
+ */
+COREDATA_EXTERN NSString * const NSSQLiteManualVacuumOption API_AVAILABLE(macosx(10.6),ios(3.0));
+
+/* Options key to ignore the built-in versioning provided by Core Data.  If the value for this key (an NSNumber) evaluates to YES (using boolValue), Core Data will not compare the version hashes between the managed object model in the coordinator and the metadata for the loaded store.  (It will, however, continue to update the version hash information in the metadata.)  This key is specified by default for all applications linked on or before Mac OS X 10.4.
+*/
+COREDATA_EXTERN NSString * const NSIgnorePersistentStoreVersioningOption API_AVAILABLE(macosx(10.5),ios(3.0));
+
+/* Options key to automatically attempt to migrate versioned stores.  If the value for this key (an NSNumber) evaluates to YES (using boolValue) Core Data will, if the version hash information for added store is determined to be incompatible with the model for the coordinator, attempt to locate the source and mapping models in the application bundles, and perform a migration.  
+*/
+COREDATA_EXTERN NSString * const NSMigratePersistentStoresAutomaticallyOption API_AVAILABLE(macosx(10.5),ios(3.0));
+
+/* When combined with NSMigratePersistentStoresAutomaticallyOption, coordinator will attempt to infer a mapping model if none can be found */
+COREDATA_EXTERN NSString * const NSInferMappingModelAutomaticallyOption API_AVAILABLE(macosx(10.6),ios(3.0));
+
+/* Key to represent the version hash information (dictionary) for the model used to create a persistent store.  This key is used in the metadata for a persistent store.
+*/
+COREDATA_EXTERN NSString * const NSStoreModelVersionHashesKey API_AVAILABLE(macosx(10.5),ios(3.0));    
+
+/* Key to represent the version identifier for the model used to create the store. This key is used in the metadata for a persistent store.
+*/
+COREDATA_EXTERN NSString * const NSStoreModelVersionIdentifiersKey API_AVAILABLE(macosx(10.5),ios(3.0));    
+
+/* Key to represent the earliest version of MacOS X the persistent store should support.  Backward compatibility may preclude some features.  The numeric values are defined in AvailabilityMacros.h
+*/
+COREDATA_EXTERN NSString * const NSPersistentStoreOSCompatibility API_AVAILABLE(macosx(10.5),ios(3.0));    
+
+/* User info key specifying the maximum connection pool size that should be used on a store that supports concurrent request handling, the value should be an NSNumber. The connection pool size determines the number of requests a store can handle concurrently, and should be a function of how many contexts are attempting to access store data at any time. Generally, application developers should not set this, and should use the default value. The default connection pool size is implementation dependent and may vary by store type and/or platform.
+ */
+COREDATA_EXTERN NSString * const NSPersistentStoreConnectionPoolMaxSizeKey API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+
+/* Spotlight indexing and external record support keys */
+
+COREDATA_EXTERN NSString * const NSCoreDataCoreSpotlightExporter API_AVAILABLE(macosx(10.13),ios(11.0)) API_UNAVAILABLE(tvos,watchos);
+
+
+/* store option for the destroy... and replace... to indicate that the store file should be destroyed even if the operation might be unsafe (overriding locks
+ */
+COREDATA_EXTERN NSString * const NSPersistentStoreForceDestroyOption API_AVAILABLE(macosx(10.8),ios(6.0));
+
+/* Key to represent the protection class for the persistent store.  Backward compatibility may preclude some features.  The acceptable values are those defined in Foundation for the NSFileProtectionKey.  The default value of NSPersistentStoreFileProtectionKey is NSFileProtectionCompleteUntilFirstUserAuthentication for all applications built on or after iOS5.  The default value for all older applications is NSFileProtectionNone. */
+COREDATA_EXTERN NSString * const NSPersistentStoreFileProtectionKey API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macosx);
+
+/* Dictionary key for enabling persistent history - default is NO */
+COREDATA_EXTERN NSString * const NSPersistentHistoryTrackingKey API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0));
+
+/*
+ Allows developers to provide an additional set of classes (which must implement NSSecureCoding) that should be used while
+ decoding a binary store.
+ Using this option is preferable to using NSBinaryStoreInsecureDecodingCompatibilityOption.
+ */
+COREDATA_EXTERN NSString * const NSBinaryStoreSecureDecodingClasses API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0));
+
+/*
+ Indicate that the binary store should be decoded insecurely. This may be necessary if a store has metadata or transformable
+ properties containing non-standard classes. If possible, developers should use the NSBinaryStoreSecureDecodingClasses option
+ to specify the contained classes, allowing the binary store to to be securely decoded.
+ Applications linked before the availability date will default to using this option.
+ */
+COREDATA_EXTERN NSString * const NSBinaryStoreInsecureDecodingCompatibilityOption API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0));
+
+API_AVAILABLE(macosx(10.4),ios(3.0))
+@interface NSPersistentStoreCoordinator : NSObject <NSLocking> {
+}
+
+- (instancetype)initWithManagedObjectModel:(NSManagedObjectModel *)model NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, strong) NSManagedObjectModel *managedObjectModel;
+
+@property (readonly, strong) NSArray<__kindof NSPersistentStore *> *persistentStores;
+
+/* custom name for a coordinator.  Coordinators will set the label on their queue */
+@property (nullable, copy) NSString *name  API_AVAILABLE(macosx(10.10),ios(8.0));
+
+- (nullable __kindof NSPersistentStore *)persistentStoreForURL:(NSURL *)URL;
+- (NSURL *)URLForPersistentStore:(NSPersistentStore *)store;
+
+/* Sets the URL for the specified store in the coordinator.  For atomic stores, this will alter the location to which the next save operation will persist the file;  for non-atomic stores, invoking this method will release the existing connection and create a new one at the specified URL.  (For non-atomic stores, a store must pre-exist at the destination URL; a new store will not be created.)
+ */
+- (BOOL)setURL:(NSURL*)url forPersistentStore:(NSPersistentStore *)store API_AVAILABLE(macosx(10.5),ios(3.0));
+
+/* Adds the store at the specified URL (of the specified type) to the coordinator with the model configuration and options.  The configuration can be nil -- then it's the complete model; storeURL is usually the file location of the database
+ */
+- (nullable __kindof NSPersistentStore *)addPersistentStoreWithType:(NSString *)storeType configuration:(nullable NSString *)configuration URL:(nullable NSURL *)storeURL options:(nullable NSDictionary *)options error:(NSError **)error;
+
+- (void)addPersistentStoreWithDescription:(NSPersistentStoreDescription *)storeDescription completionHandler:(void (^)(NSPersistentStoreDescription *, NSError * _Nullable))block API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+
+- (BOOL)removePersistentStore:(NSPersistentStore *)store error:(NSError **)error;
+
+/* Sets the metadata stored in the persistent store during the next save operation executed on it; the store type and UUID (NSStoreTypeKey and NSStoreUUIDKey) are always added automatically (but NSStoreUUIDKey is only added if it is not set manually as part of the dictionary argument)
+ */
+- (void)setMetadata:(nullable NSDictionary<NSString *, id> *)metadata forPersistentStore:(NSPersistentStore *)store;
+
+/* Returns the metadata currently stored or to-be-stored in the persistent store
+ */
+- (NSDictionary<NSString *, id> *)metadataForPersistentStore:(NSPersistentStore *)store;
+
+/* Given a URI representation of an object ID, returns an object ID if a matching store is available or nil if a matching store cannot be found (the URI representation contains a UUID of the store the ID is coming from, and the coordinator can match it against the stores added to it)
+ */
+- (nullable NSManagedObjectID *)managedObjectIDForURIRepresentation:(NSURL *)url;
+
+/* Sends a request to all of the stores associated with this coordinator.
+ Returns an array if successful,  nil if not.
+ The contents of the array will vary depending on the request type: NSFetchRequest results will be an array of managed objects, managed object IDs, or NSDictionaries;
+ NSSaveChangesRequests will an empty array. User defined requests will return arrays of arrays, where the nested array is the result returned form a single store.
+ */
+- (nullable id)executeRequest:(NSPersistentStoreRequest *)request withContext:(NSManagedObjectContext *)context error:(NSError**)error API_AVAILABLE(macosx(10.7),ios(5.0));
+
+/* Returns a dictionary of the registered store types:  the keys are the store type strings and the values are the NSPersistentStore subclasses wrapped in NSValues.
+*/
+@property(class, readonly, strong) NSDictionary<NSString *, NSValue *> *registeredStoreTypes API_AVAILABLE(macosx(10.5),ios(3.0));
+
+/* Registers the specified NSPersistentStore subclass for the specified store type string.  This method must be invoked before a custom subclass of NSPersistentStore can be loaded into a persistent store coordinator.  Passing nil for the store class argument will unregister the specified store type.
+*/
++ (void)registerStoreClass:(Class _Nullable)storeClass forStoreType:(NSString *)storeType API_AVAILABLE(macosx(10.5),ios(3.0));
+
+/* Allows to access the metadata stored in a persistent store without warming up a CoreData stack; the guaranteed keys in this dictionary are NSStoreTypeKey and NSStoreUUIDKey. If storeType is nil, Core Data will guess which store class should be used to get/set the store file's metadata. 
+ */
++ (nullable NSDictionary<NSString *, id> *)metadataForPersistentStoreOfType:(NSString*)storeType URL:(NSURL *)url options:(nullable NSDictionary *)options error:(NSError **)error API_AVAILABLE(macosx(10.9),ios(7.0));
++ (BOOL)setMetadata:(nullable NSDictionary<NSString *, id> *)metadata forPersistentStoreOfType:(NSString*)storeType URL:(NSURL*)url options:(nullable NSDictionary*)options error:(NSError**)error API_AVAILABLE(macosx(10.9),ios(7.0));
+
+    
+/* Used for save as - performance may vary depending on the type of old and new store; the old store is usually removed from the coordinator by the migration operation, and therefore is no longer a useful reference after invoking this method 
+*/
+- (nullable NSPersistentStore *)migratePersistentStore:(NSPersistentStore *)store toURL:(NSURL *)URL options:(nullable NSDictionary *)options withType:(NSString *)storeType error:(NSError **)error;
+
+/* delete or truncate the target persistent store in accordance with the store class's requirements.  It is important to pass similar options as addPersistentStoreWithType: ... SQLite stores will honor file locks, journal files, journaling modes, and other intricacies.  It is not possible to unlink a database file safely out from underneath another thread or process, so this API performs a truncation.  Other stores will default to using NSFileManager.
+ */
+- (BOOL)destroyPersistentStoreAtURL:(NSURL *)url withType:(NSString *)storeType options:(nullable NSDictionary *)options error:(NSError**)error API_AVAILABLE(macosx(10.11),ios(9.0));
+
+/* copy or overwrite the target persistent store in accordance with the store class's requirements.  It is important to pass similar options as addPersistentStoreWithType: ... SQLite stores will honor file locks, journal files, journaling modes, and other intricacies.  Other stores will default to using NSFileManager.
+ */
+- (BOOL)replacePersistentStoreAtURL:(NSURL *)destinationURL destinationOptions:(nullable NSDictionary *)destinationOptions withPersistentStoreFromURL:(NSURL *)sourceURL sourceOptions:(nullable NSDictionary *)sourceOptions storeType:(NSString *)storeType error:(NSError**)error API_AVAILABLE(macosx(10.11),ios(9.0));
+
+/* asynchronously performs the block on the coordinator's queue.  Encapsulates an autorelease pool. */
+- (void)performBlock:(void (^)(void))block  API_AVAILABLE(macosx(10.10),ios(8.0));
+
+/* synchronously performs the block on the coordinator's queue.  May safely be called reentrantly. Encapsulates an autorelease pool. */
+- (void)performBlockAndWait:(void (NS_NOESCAPE ^)(void))block  API_AVAILABLE(macosx(10.10),ios(8.0));
+
+ /*
+  *   DEPRECATED
+  */
+    
+    
+- (void)lock API_DEPRECATED( "Use -performBlockAndWait: instead", macosx(10.4,10.10), ios(3.0,8.0));
+- (void)unlock API_DEPRECATED( "Use -performBlockAndWait: instead", macosx(10.4,10.10), ios(3.0,8.0));
+- (BOOL)tryLock API_DEPRECATED( "Use -performBlock: instead", macosx(10.4,10.10), ios(3.0,8.0));
+    
++ (nullable NSDictionary<NSString *, id> *)metadataForPersistentStoreOfType:(nullable NSString *)storeType URL:(NSURL *)url error:(NSError **)error API_DEPRECATED("Use -metadataForPersistentStoreOfType:URL:options:error: and pass in an options dictionary matching addPersistentStoreWithType", macosx(10.5,10.11), ios(3.0,9.0));
+
++ (BOOL)setMetadata:(nullable NSDictionary<NSString *, id> *)metadata forPersistentStoreOfType:(nullable NSString *)storeType URL:(NSURL*)url error:(NSError **)error API_DEPRECATED("Use  -setMetadata:forPersistentStoreOfType:URL:options:error: and pass in an options dictionary matching addPersistentStoreWithType", macosx(10.5,10.11), ios(3.0,9.0));
+
+/*
+ Delete all ubiquitous content for all peers for the persistent store at the given URL and also delete the local store file. storeOptions should contain the options normally passed to addPersistentStoreWithType:URL:options:error. Errors may be returned as a result of file I/O, iCloud network or iCloud account issues.
+ */
++ (BOOL)removeUbiquitousContentAndPersistentStoreAtURL:(NSURL *)storeURL options:(nullable NSDictionary *)options error:(NSError**)error API_DEPRECATED("Please see the release notes and Core Data documentation.", macosx(10.7,10.12), ios(5.0,10.0));
+
+
+@end
 
 /*
  NSPersistentStoreUbiquitousTransitionTypeAccountAdded
@@ -923,234 +1391,47 @@ typedef NS_ENUM(NSUInteger, NSPersistentStoreUbiquitousTransitionType) {
     NSPersistentStoreUbiquitousTransitionTypeAccountRemoved,
     NSPersistentStoreUbiquitousTransitionTypeContentRemoved,
     NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted
-} NS_ENUM_AVAILABLE(10_9, 7_0);
-
-// Persistent store metadata dictionary keys:
-
-// key in the metadata dictionary to identify the store type
-COREDATA_EXTERN NSString * const NSStoreTypeKey NS_AVAILABLE(10_4, 3_0);    
-
-// key in the metadata dictionary to identify the store UUID - the store UUID is useful to identify stores through URI representations, but it is NOT guaranteed to be unique (while the UUID generated for new stores is unique, users can freely copy files and thus the UUID stored inside, so developers that track/reference stores explicitly do need to be aware of duplicate UUIDs and potentially override the UUID when a new store is added to the list of known stores in their application)
-COREDATA_EXTERN NSString * const NSStoreUUIDKey NS_AVAILABLE(10_4, 3_0);    
-
-/* A notification posted before the list of open persistent stores changes, similar to NSPersistentStoreCoordinatorStoresDidChangeNotification.  If the application is running, Core Data will post this before responding to iCloud account changes or "Delete All" from Documents & Data.
- */
-COREDATA_EXTERN NSString * const NSPersistentStoreCoordinatorStoresWillChangeNotification NS_AVAILABLE(10_9, 7_0);
-
-// user info dictionary contains information about the stores that were added or removed
-COREDATA_EXTERN NSString * const NSPersistentStoreCoordinatorStoresDidChangeNotification NS_AVAILABLE(10_4, 3_0);    
-
-// sent during the invocation of NSPersistentStore's willRemoveFromPersistentStoreCoordinator during store deallocation or removal
-COREDATA_EXTERN NSString * const NSPersistentStoreCoordinatorWillRemoveStoreNotification NS_AVAILABLE(10_5, 3_0);    
-
-// User info keys for NSPersistentStoreCoordinatorStoresDidChangeNotification:
-
-// The object values for NSAddedPersistentStoresKey and NSRemovedPersistentStoresKey will be arrays containing added/removed stores
-COREDATA_EXTERN NSString * const NSAddedPersistentStoresKey NS_AVAILABLE(10_4, 3_0);
-COREDATA_EXTERN NSString * const NSRemovedPersistentStoresKey NS_AVAILABLE(10_4, 3_0);
-
-// The object value for NSUUIDChangedPersistentStoresKey will be an array where the object at index 0 will be the old store instance, and the object at index 1 the new
-COREDATA_EXTERN NSString * const NSUUIDChangedPersistentStoresKey NS_AVAILABLE(10_4, 3_0);
-
-// Persistent store option keys:
-
-// flag indicating whether a store is treated as read-only or not - default is NO
-COREDATA_EXTERN NSString * const NSReadOnlyPersistentStoreOption NS_AVAILABLE(10_4, 3_0);    
-
-// flag indicating whether an XML file should be validated with the DTD while opening - default is NO
-COREDATA_EXTERN NSString * const NSValidateXMLStoreOption NS_AVAILABLE(10_4, NA);    
-
-// Migration keys:
-
-/* Options key specifying the connection timeout for Core Data stores.  This value (an NSNumber) represents the duration, in seconds, Core Data will wait while attempting to create a connection to a persistent store.  If a connection is unable to be made within that timeframe, the operation is aborted and an error is returned.  
-*/
-COREDATA_EXTERN NSString * const NSPersistentStoreTimeoutOption NS_AVAILABLE(10_5, 3_0);
-
-/* Options key for a dictionary of sqlite pragma settings with pragma values indexed by pragma names as keys.  All pragma values must be specified as strings.  The fullfsync and synchronous pragmas control the tradeoff between write performance (write to disk speed & cache utilization) and durability (data loss/corruption sensitivity to power interruption).  For more information on pragma settings visit <http://sqlite.org/pragma.html>
-*/
-COREDATA_EXTERN NSString * const NSSQLitePragmasOption NS_AVAILABLE(10_5, 3_0);
-
-/* Option key to run an analysis of the store data to optimize indices based on statistical information when the store is added to the coordinator.  This invokes SQLite's ANALYZE command.  Ignored by other stores.
-*/
-COREDATA_EXTERN NSString * const NSSQLiteAnalyzeOption NS_AVAILABLE(10_5, 3_0);
-
-/* Option key to rebuild the store file, forcing a database wide defragmentation when the store is added to the coordinator.  This invokes SQLite's VACUUM command.  Ignored by other stores.
- */
-COREDATA_EXTERN NSString * const NSSQLiteManualVacuumOption NS_AVAILABLE(10_6, 3_0);
-
-/* Options key to ignore the built-in versioning provided by Core Data.  If the value for this key (an NSNumber) evaluates to YES (using boolValue), Core Data will not compare the version hashes between the managed object model in the coordinator and the metadata for the loaded store.  (It will, however, continue to update the version hash information in the metadata.)  This key is specified by default for all applications linked on or before Mac OS X 10.4.
-*/
-COREDATA_EXTERN NSString * const NSIgnorePersistentStoreVersioningOption NS_AVAILABLE(10_5, 3_0);
-
-/* Options key to automatically attempt to migrate versioned stores.  If the value for this key (an NSNumber) evaluates to YES (using boolValue) Core Data will, if the version hash information for added store is determined to be incompatible with the model for the coordinator, attempt to locate the source and mapping models in the application bundles, and perform a migration.  
-*/
-COREDATA_EXTERN NSString * const NSMigratePersistentStoresAutomaticallyOption NS_AVAILABLE(10_5, 3_0);
-
-/* When combined with NSMigratePersistentStoresAutomaticallyOption, coordinator will attempt to infer a mapping model if none can be found */
-COREDATA_EXTERN NSString * const NSInferMappingModelAutomaticallyOption NS_AVAILABLE(10_6, 3_0);
-
-/* Key to represent the version hash information (dictionary) for the model used to create a persistent store.  This key is used in the metadata for a persistent store.
-*/
-COREDATA_EXTERN NSString * const NSStoreModelVersionHashesKey NS_AVAILABLE(10_5, 3_0);    
-
-/* Key to represent the version identifier for the model used to create the store. This key is used in the metadata for a persistent store.
-*/
-COREDATA_EXTERN NSString * const NSStoreModelVersionIdentifiersKey NS_AVAILABLE(10_5, 3_0);    
-
-/* Key to represent the earliest version of MacOS X the persistent store should support.  Backward compatibility may preclude some features.  The numeric values are defined in AvailabilityMacros.h
-*/
-COREDATA_EXTERN NSString * const NSPersistentStoreOSCompatibility NS_AVAILABLE(10_5, 3_0);
+} API_DEPRECATED("Please see the release notes and Core Data documentation.", macosx(10.9,10.12), ios(7.0,10.0));
 
 /* option indicating that a persistent store has a given name in ubiquity, this option is required for ubiquity to function  */
-COREDATA_EXTERN NSString * const NSPersistentStoreUbiquitousContentNameKey NS_AVAILABLE(10_7, 5_0);    
+COREDATA_EXTERN NSString * const NSPersistentStoreUbiquitousContentNameKey API_DEPRECATED("Please see the release notes and Core Data documentation.", macosx(10.7,10.12), ios(5.0,10.0));
 
 /* option indicating the log path to use for ubiquity logs, this option is optional for ubiquity, a default path will be generated for the store if none is provided */
-COREDATA_EXTERN NSString * const NSPersistentStoreUbiquitousContentURLKey NS_AVAILABLE(10_7, 5_0);
+COREDATA_EXTERN NSString * const NSPersistentStoreUbiquitousContentURLKey API_DEPRECATED("Please see the release notes and Core Data documentation.", macosx(10.7,10.12), ios(5.0,10.0));
 
 /* Notification sent after records are imported from the ubiquity store. The notification is sent with the object set to the NSPersistentStoreCoordinator instance which registered the store. */
-COREDATA_EXTERN NSString * const NSPersistentStoreDidImportUbiquitousContentChangesNotification NS_AVAILABLE(10_7, 5_0);
+COREDATA_EXTERN NSString * const NSPersistentStoreDidImportUbiquitousContentChangesNotification API_DEPRECATED("Please see the release notes and Core Data documentation.", macosx(10.7,10.12), ios(5.0,10.0));
 
 /*
  In the NSPersistentStoreCoordinatorStoresWillChangeNotification / NSPersistentStoreCoordinatorStoresDidChangeNotification userInfo dictionaries, this identifies the type of event. This could be one of the NSPersistentStoreUbiquitousTransitionType enum values as an NSNumber
  */
-COREDATA_EXTERN NSString * const NSPersistentStoreUbiquitousTransitionTypeKey NS_AVAILABLE(10_9, 7_0);
+COREDATA_EXTERN NSString * const NSPersistentStoreUbiquitousTransitionTypeKey API_DEPRECATED("Please see the release notes and Core Data documentation.", macosx(10.9,10.12), ios(7.0,10.0));
 
 /*
  Optionally specified string which will be mixed in to Core Data’s identifier for each iCloud peer. The value must be an alphanumeric string without any special characters, whitespace or punctuation.  The primary use for this option is to allow multiple applications on the same peer (device) to share a Core Data store integrated with iCloud. Each application will require its own store file.
  */
-COREDATA_EXTERN NSString * const NSPersistentStoreUbiquitousPeerTokenOption NS_AVAILABLE(10_9, 7_0);
+COREDATA_EXTERN NSString * const NSPersistentStoreUbiquitousPeerTokenOption API_DEPRECATED("Please see the release notes and Core Data documentation.", macosx(10.9,10.12), ios(7.0,10.0));
 
 /* NSNumber boolean indicating that the receiver should remove all associated ubiquity metadata from a persistent store. This is mostly used during migration or copying to disassociate a persistent store file from an iCloud account
  */
-COREDATA_EXTERN NSString * const NSPersistentStoreRemoveUbiquitousMetadataOption NS_AVAILABLE(10_9, 7_0);
+COREDATA_EXTERN NSString * const NSPersistentStoreRemoveUbiquitousMetadataOption API_DEPRECATED("Please see the release notes and Core Data documentation.", macosx(10.9,10.12), ios(7.0,10.0));
 
 /* NSString specifying the iCloud container identifier Core Data should pass to  -URLForUbiquitousContainerIdentifier:
  */
-COREDATA_EXTERN NSString * const NSPersistentStoreUbiquitousContainerIdentifierKey NS_AVAILABLE(10_9, 7_0);
+COREDATA_EXTERN NSString * const NSPersistentStoreUbiquitousContainerIdentifierKey API_DEPRECATED("Please see the release notes and Core Data documentation.", macosx(10.9,10.12), ios(7.0,10.0));
 
 /* NSNumber boolean indicating that the receiver should erase the local store file and rebuild it from the iCloud data in Mobile Documents.
  */
-COREDATA_EXTERN NSString * const NSPersistentStoreRebuildFromUbiquitousContentOption NS_AVAILABLE(10_9, 7_0);
-
-/* store option for the destroy... and replace... to indicate that the store file should be destroyed even if the operation might be unsafe (overriding locks
- */
-COREDATA_EXTERN NSString * const NSPersistentStoreForceDestroyOption NS_AVAILABLE(10_8, 6_0);
-
-/* Key to represent the protection class for the persistent store.  Backward compatibility may preclude some features.  The acceptable values are those defined in Foundation for the NSFileProtectionKey.  The default value of NSPersistentStoreFileProtectionKey is NSFileProtectionCompleteUntilFirstUserAuthentication for all applications built on or after iOS5.  The default value for all older applications is NSFileProtectionNone. */
-COREDATA_EXTERN NSString * const NSPersistentStoreFileProtectionKey NS_AVAILABLE(NA, 5_0);
-
-NS_CLASS_AVAILABLE(10_4,3_0)
-@interface NSPersistentStoreCoordinator : NSObject <NSLocking> {
-@private
-    volatile id _queueOwner;
-    void *_dispatchQueue;
-    struct _persistentStoreCoordinatorFlags {
-        unsigned int _isRegistered:1;
-        unsigned int _reservedFlags:31;
-    } _flags;
-#ifdef __LP64__
-	uint32_t _reserved32;
-#endif
-    long _miniLock;
-    id *_additionalPrivateIvars;
-    NSManagedObjectModel *_managedObjectModel;
-    NSArray *_persistentStores;
-}
-
-- (instancetype)initWithManagedObjectModel:(NSManagedObjectModel *)model NS_DESIGNATED_INITIALIZER;
-
-@property (readonly, strong) NSManagedObjectModel *managedObjectModel;
-
-@property (readonly, strong) NSArray<__kindof NSPersistentStore *> *persistentStores;
-
-/* custom name for a coordinator.  Coordinators will set the label on their queue */
-@property (nullable, copy) NSString *name  NS_AVAILABLE(10_10, 8_0);
-
-- (nullable __kindof NSPersistentStore *)persistentStoreForURL:(NSURL *)URL;
-- (NSURL *)URLForPersistentStore:(NSPersistentStore *)store;
-
-/* Sets the URL for the specified store in the coordinator.  For atomic stores, this will alter the location to which the next save operation will persist the file;  for non-atomic stores, invoking this method will release the existing connection and create a new one at the specified URL.  (For non-atomic stores, a store must pre-exist at the destination URL; a new store will not be created.)
- */
-- (BOOL)setURL:(NSURL*)url forPersistentStore:(NSPersistentStore *)store NS_AVAILABLE(10_5, 3_0);
-
-/* Adds the store at the specified URL (of the specified type) to the coordinator with the model configuration and options.  The configuration can be nil -- then it's the complete model; storeURL is usually the file location of the database
- */
-- (nullable __kindof NSPersistentStore *)addPersistentStoreWithType:(NSString *)storeType configuration:(nullable NSString *)configuration URL:(nullable NSURL *)storeURL options:(nullable NSDictionary *)options error:(NSError **)error;
-
-- (BOOL)removePersistentStore:(NSPersistentStore *)store error:(NSError **)error;
-
-/* Sets the metadata stored in the persistent store during the next save operation executed on it; the store type and UUID (NSStoreTypeKey and NSStoreUUIDKey) are always added automatically (but NSStoreUUIDKey is only added if it is not set manually as part of the dictionary argument)
- */
-- (void)setMetadata:(nullable NSDictionary<NSString *, id> *)metadata forPersistentStore:(NSPersistentStore *)store;
-
-/* Returns the metadata currently stored or to-be-stored in the persistent store
- */
-- (NSDictionary<NSString *, id> *)metadataForPersistentStore:(NSPersistentStore *)store;
-
-/* Given a URI representation of an object ID, returns an object ID if a matching store is available or nil if a matching store cannot be found (the URI representation contains a UUID of the store the ID is coming from, and the coordinator can match it against the stores added to it)
- */
-- (nullable NSManagedObjectID *)managedObjectIDForURIRepresentation:(NSURL *)url;
-
-/* Sends a request to all of the stores associated with this coordinator.
- Returns an array if successful,  nil if not.
- The contents of the array will vary depending on the request type: NSFetchRequest results will be an array of managed objects, managed object IDs, or NSDictionaries;
- NSSaveChangesRequests will an empty array. User defined requests will return arrays of arrays, where the nested array is the result returned form a single store.
- */
-- (nullable id)executeRequest:(NSPersistentStoreRequest *)request withContext:(NSManagedObjectContext *)context error:(NSError**)error NS_AVAILABLE(10_7,  5_0);
-
-/* Returns a dictionary of the registered store types:  the keys are the store type strings and the values are the NSPersistentStore subclasses wrapped in NSValues.
-*/
-
-+ (NSDictionary<NSString *, NSValue*> *)registeredStoreTypes NS_AVAILABLE(10_5, 3_0);
-
-/* Registers the specified NSPersistentStore subclass for the specified store type string.  This method must be invoked before a custom subclass of NSPersistentStore can be loaded into a persistent store coordinator.  Passing nil for the store class argument will unregister the specified store type.
-*/
-+ (void)registerStoreClass:(Class)storeClass forStoreType:(NSString *)storeType NS_AVAILABLE(10_5, 3_0);
-
-/* Allows to access the metadata stored in a persistent store without warming up a CoreData stack; the guaranteed keys in this dictionary are NSStoreTypeKey and NSStoreUUIDKey. If storeType is nil, Core Data will guess which store class should be used to get/set the store file's metadata. 
- */
-+ (nullable NSDictionary<NSString *, id> *)metadataForPersistentStoreOfType:(NSString*)storeType URL:(NSURL *)url options:(nullable NSDictionary *)options error:(NSError **)error NS_AVAILABLE(10_9,7_0);
-+ (BOOL)setMetadata:(nullable NSDictionary<NSString *, id> *)metadata forPersistentStoreOfType:(NSString*)storeType URL:(NSURL*)url options:(nullable NSDictionary*)options error:(NSError**)error NS_AVAILABLE(10_9,7_0);
+COREDATA_EXTERN NSString * const NSPersistentStoreRebuildFromUbiquitousContentOption API_DEPRECATED("Please see the release notes and Core Data documentation.", macosx(10.9,10.12), ios(7.0,10.0));
     
-+ (nullable NSDictionary<NSString *, id> *)metadataForPersistentStoreOfType:(nullable NSString *)storeType URL:(NSURL *)url error:(NSError **)error NS_DEPRECATED(10_5,10_11,3_0,9_0, "Use a -metadataForPersistentStoreOfType:URL:options:error: and pass in an options dictionary matching addPersistentStoreWithType");
-+ (BOOL)setMetadata:(nullable NSDictionary<NSString *, id> *)metadata forPersistentStoreOfType:(nullable NSString *)storeType URL:(NSURL*)url error:(NSError **)error NS_DEPRECATED(10_5, 10_11,3_0,9_0,"Use a -setMetadata:forPersistentStoreOfType:URL:options:error: and pass in an options dictionary matching addPersistentStoreWithType");
-    
-
-/*
- Delete all ubiquitous content for all peers for the persistent store at the given URL and also delete the local store file. storeOptions should contain the options normally passed to addPersistentStoreWithType:URL:options:error. Errors may be returned as a result of file I/O, iCloud network or iCloud account issues.
- */
-+ (BOOL)removeUbiquitousContentAndPersistentStoreAtURL:(NSURL *)storeURL options:(nullable NSDictionary *)options error:(NSError**)error NS_AVAILABLE(10_9, 7_0);
-
-/* Used for save as - performance may vary depending on the type of old and new store; the old store is usually removed from the coordinator by the migration operation, and therefore is no longer a useful reference after invoking this method
-*/
-- (nullable NSPersistentStore *)migratePersistentStore:(NSPersistentStore *)store toURL:(NSURL *)URL options:(nullable NSDictionary *)options withType:(NSString *)storeType error:(NSError **)error;
-
-/* delete or truncate the target persistent store in accordance with the store class's requirements.  It is important to pass similar options as addPersistentStoreWithType: ... SQLite stores will honor file locks, journal files, journaling modes, and other intricacies.  It is not possible to unlink a database file safely out from underneath another thread or process, so this API performs a truncation.  Other stores will default to using NSFileManager.
- */
-- (BOOL)destroyPersistentStoreAtURL:(NSURL *)url withType:(NSString *)storeType options:(nullable NSDictionary *)options error:(NSError**)error NS_AVAILABLE(10_11, 9_0);
-    
-/* copy or overwrite the target persistent store in accordance with the store class's requirements.  It is important to pass similar options as addPersistentStoreWithType: ... SQLite stores will honor file locks, journal files, journaling modes, and other intricacies.  Other stores will default to using NSFileManager.
- */
-- (BOOL)replacePersistentStoreAtURL:(NSURL *)destinationURL destinationOptions:(nullable NSDictionary *)destinationOptions withPersistentStoreFromURL:(NSURL *)sourceURL sourceOptions:(nullable NSDictionary *)sourceOptions storeType:(NSString *)storeType error:(NSError**)error NS_AVAILABLE(10_11, 9_0);
-
-/* asynchronously performs the block on the coordinator's queue.  Encapsulates an autorelease pool. */
-- (void)performBlock:(void (^)())block  NS_AVAILABLE(10_10, 8_0);
-
-/* synchronously performs the block on the coordinator's queue.  May safely be called reentrantly. Encapsulates an autorelease pool. */
-- (void)performBlockAndWait:(void (^)())block  NS_AVAILABLE(10_10, 8_0);
-
-- (void)lock NS_DEPRECATED(10_4, 10_10, 3_0, 8_0, "Use -performBlockAndWait: instead");
-- (void)unlock NS_DEPRECATED(10_4, 10_10, 3_0, 8_0, "Use -performBlockAndWait: instead");
-- (BOOL)tryLock NS_DEPRECATED(10_4, 10_10, 3_0, 8_0, "Use -performBlock: instead");
-
-@end
 
 NS_ASSUME_NONNULL_END
+
 // ==========  CoreData.framework/Headers/NSPersistentStore.h
 /*
     NSPersistentStore.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -1170,24 +1451,10 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSPersistentStoreRequest;
 @class NSPersistentStoreCoordinator;
 
-NS_CLASS_AVAILABLE(10_5, 3_0)
+@class NSCoreDataCoreSpotlightDelegate;
+
+API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSPersistentStore : NSObject {
-    @private
-    __weak NSPersistentStoreCoordinator *_coordinator;
-    NSString *_configurationName;
-    NSURL *_url;
-    NSDictionary *_options;
-    id* _oidFactories;
-    id _defaultFaultHandler;
-    struct _objectStoreFlags {
-        unsigned int isReadOnly:1;
-        unsigned int cleanOnRemove:1;
-        unsigned int isMDDirty:1;
-        unsigned int _RESERVED:29;
-    } _flags;
-	void *_temporaryIDClass;
-	id _externalRecordsMonitor;
-	void *_reserved3;
 }
 
 /* Get metadata from the persistent store at url. Must be overriden by subclasses.
@@ -1201,7 +1468,7 @@ NS_CLASS_AVAILABLE(10_5, 3_0)
 
 /* Returns the NSMigrationManager class optimized for this store class.  Subclasses of NSPersistentStore can override this to provide a custom migration manager subclass (eg to take advantage of store-specific functionality to improve migration performance).
  */
-+ (Class)migrationManagerClass NS_AVAILABLE(10_6, 3_0);
++ (Class)migrationManagerClass API_AVAILABLE(macosx(10.6),ios(3.0));
 
 /* the designated initializer for object stores. */
 - (instancetype)initWithPersistentStoreCoordinator:(nullable NSPersistentStoreCoordinator *)root configurationName:(nullable NSString *)name URL:(NSURL *)url options:(nullable NSDictionary *)options NS_DESIGNATED_INITIALIZER;
@@ -1234,15 +1501,19 @@ NS_CLASS_AVAILABLE(10_5, 3_0)
 // before removal.
 - (void)willRemoveFromPersistentStoreCoordinator:(nullable NSPersistentStoreCoordinator *)coordinator;
 
+/* Return the Core Spotlight exporter if one exists for this store. The exporter
+    can be set as part of the store options when it is added to the coordinator. */
+@property (nonatomic, readonly) NSCoreDataCoreSpotlightDelegate *coreSpotlightExporter API_AVAILABLE(macosx(10.13),ios(11.0)) API_UNAVAILABLE(tvos,watchos);
+
 @end
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/CoreData.h
 /*
-	CoreData.h
-	Core Data
-    Copyright (c) 2004-2015, Apple Inc.
-	All rights reserved.
+    CoreData.h
+    Core Data
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
 */
 
 #import <Foundation/Foundation.h>
@@ -1256,6 +1527,8 @@ NS_ASSUME_NONNULL_END
 #import <CoreData/NSPropertyDescription.h>
 #import <CoreData/NSExpressionDescription.h>
 #import <CoreData/NSRelationshipDescription.h>
+#import <CoreData/NSFetchIndexDescription.h>
+#import <CoreData/NSFetchIndexElementDescription.h>
 #import <CoreData/NSFetchRequest.h>
 #import <CoreData/NSFetchRequestExpression.h>
 #import <CoreData/NSManagedObjectModel.h>
@@ -1287,12 +1560,23 @@ NS_ASSUME_NONNULL_END
 #import <CoreData/NSMergePolicy.h>
 
 #import <CoreData/NSFetchedResultsController.h>
+#import <CoreData/NSQueryGenerationToken.h>
+#import <CoreData/NSPersistentStoreDescription.h>
+#import <CoreData/NSPersistentContainer.h>
 
+#import <CoreData/NSFetchIndexDescription.h>
+#import <CoreData/NSFetchIndexElementDescription.h>
+#import <CoreData/NSPersistentHistoryChange.h>
+#import <CoreData/NSPersistentHistoryChangeRequest.h>
+#import <CoreData/NSPersistentHistoryToken.h>
+#import <CoreData/NSPersistentHistoryTransaction.h>
+
+#import <CoreData/NSCoreDataCoreSpotlightDelegate.h>
 // ==========  CoreData.framework/Headers/NSMigrationManager.h
 /*
     NSMigrationManager.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -1310,28 +1594,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSMappingModel;
 @class NSMigrationContext;
 
-NS_CLASS_AVAILABLE(10_5, 3_0)
+API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSMigrationManager : NSObject {
-    @private
-    NSManagedObjectModel *_sourceModel;
-    NSDictionary *_sourceEntitiesByVersionHash;
-    NSManagedObjectModel *_destinationModel;
-    NSDictionary *_destinationEntitiesByVersionHash;
-    NSMappingModel *_mappingModel;
-    NSManagedObjectContext *_sourceManagedObjectContext;
-    NSManagedObjectContext *_destinationManagedObjectContext;
-    NSMigrationContext *_migrationContext;
-    NSDictionary *_userInfo;
-    struct _migrationManagerFlags {
-        unsigned int _migrationWasCancelled:1;
-        unsigned int _usesStoreSpecificMigrationManager:1;
-        unsigned int _reservedMigrationManager:30;
-    } _migrationManagerFlags;
-	NSError *_migrationCancellationError;
-	id _reserved1;
-	id _reserved2;
-	id _reserved3;
-	id _reserved4;
 }
 
 /* Creates a migration manager instance with the corresponding source and destination models.  (All validation of the arguments is performed during migrateStoreFromURL:toURL:)  As with the NSPersistentStoreCoordinator, once models are added to the migration manager they are immutable and cannot be altered.*/
@@ -1343,7 +1607,7 @@ NS_CLASS_AVAILABLE(10_5, 3_0)
 
 /* Tries to use a store specific migration manager to perform the store migration, note that a store specific migration manager class is not guaranteed to perform any of the migration manager delegate callbacks or update values for the observable properties.  
  Defaults to YES */
-@property () BOOL usesStoreSpecificMigrationManager NS_AVAILABLE(10_7,  5_0);
+@property () BOOL usesStoreSpecificMigrationManager API_AVAILABLE(macosx(10.7),ios(5.0));
 
 /* Resets the association tables for the migration.  (Note this does NOT reset the source or destination contexts).*/
 - (void)reset;
@@ -1390,7 +1654,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSAtomicStore.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -1410,8 +1674,9 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSEntityDescription;
 @class NSManagedObjectID;
 
-NS_CLASS_AVAILABLE(10_5,3_0)
+API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSAtomicStore : NSPersistentStore {
+#if (!__OBJC2__)
 	@private
     NSMutableDictionary *_nodeCache;
     NSMutableDictionary *_entityCache;
@@ -1419,6 +1684,7 @@ NS_CLASS_AVAILABLE(10_5,3_0)
     NSInteger _nextReference;
 	void *_reserved4;
 	void *_reserved5;
+#endif
 }
 
 // API method that may be overriden by subclasses for custom initialization
@@ -1467,44 +1733,40 @@ NS_ASSUME_NONNULL_END
 /*
     NSFetchedResultsController.h
     Core Data
-    Copyright (c) 2009-2015, Apple Inc.
+    Copyright (c) 2009-2018, Apple Inc.
     All rights reserved.
-
-Class Overview
-==============
-
-This class is intended to efficiently manage the results returned from a Core Data fetch request.
-
-You configure an instance of this class using a fetch request that specifies the entity, optionally a filter predicate, and an array containing at least one sort ordering. When you execute the fetch, the instance efficiently collects information about the results without the need to bring all the result objects into memory at the same time. As you access the results, objects are automatically faulted into memory in batches to match likely access patterns, and objects from previous accessed disposed of. This behavior further serves to keep memory requirements low, so even if you traverse a collection containing tens of thousands of objects, you should never have more than tens of them in memory at the same time.
-
-This class is tailored to work in conjunction with UITableView, however you are free to use it with your own views. UITableView expects its data source to present the results as an array of sections made up of rows. NSFetchedResultsController can efficiently analyze the result of the fetch request and pre-compute all the information about sections in the result set. Moreover, the controller can cache the results of this computation so that if the same data is subsequently re-displayed, the work does not have to be repeated. In addition:
-* The controller monitors changes to objects in its associated managed object context, and updates the results accordingly. It reports changes in the results set to its delegate.
-* The controller automatically purges unneeded objects if it receives an application low memory notification.
-* The controller maintains a persistent cache of the section information across application launches if the cacheName is not nil.  If caching is enabled, you must not mutate the fetch request, its predicate, or its sort descriptor without first calling +deleteCacheWithName:
-
-Typical use
-===========
-
-	Developers create an instance of NSFetchedResultsController and configure it with a fetchRequest.  It is expected that the sort descriptor used in the request groups the results into sections. This allows for section information to be pre-computed.
-	After creating an instance, the performFetch: method should be called to actually perform the fetching. 
-	Once configured, this class can be a helper class when implementing the following methods from the UITableViewDataSource protocol
-
-- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section;
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView; 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section; 
-- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView;   
-- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index; 
-
-	The instance of NSFetchedResultsController also registers to receive change notifications on the managed object context that holds the fetched objects. Any change in the context that affects the result set or section information is properly processed. A delegate can be set on the class so that it's also notified when the result objects have changed. This would typically be used to update the display of the table view.  
-	WARNING: The controller only performs change tracking if a delegate is set and responds to any of the change tracking notification methods.  See the NSFetchedResultsControllerDelegate protocol for which delegate methods are change tracking.
-
-Handling of Invalidated Objects
-===============================
-	
-		When a managed object context notifies the NSFetchedResultsController of individual objects being invalidated (NSInvalidatedObjectsKey), the controller treats these as deleted objects and sends the proper delegate calls.
-		It's possible for all the objects in a managed object context to be invalidated simultaneously. This can happen as a result of calling -reset on NSManagedObjectContext, or if a store is removed from the the NSPersistentStoreCoordinator. When this happens, NSFetchedResultsController currently does not invalidate all objects, nor does it send individual notifications for object deletions. Instead, developers must call performFetch: again to reset the state of the controller if all the objects in a context have been invalidated. They should also reload all their data in the UITableView.
-		
 */
+
+/*
+ Class Overview
+ ==============
+ 
+ This class is intended to efficiently manage the results returned from a Core Data fetch request.
+ 
+ You configure an instance of this class using a fetch request that specifies the entity, optionally a filter predicate, and an array containing at least one sort ordering. When you execute the fetch, the instance efficiently collects information about the results without the need to bring all the result objects into memory at the same time. As you access the results, objects are automatically faulted into memory in batches to match likely access patterns, and objects from previous accessed disposed of. This behavior further serves to keep memory requirements low, so even if you traverse a collection containing tens of thousands of objects, you should never have more than tens of them in memory at the same time.
+ 
+ This class is tailored to work in conjunction with views that present collections of objects. These views typically expect their data source to present results as a list of sections made up of rows. NSFetchedResultsController can efficiently analyze the result of the fetch request and pre-compute all the information about sections in the result set. Moreover, the controller can cache the results of this computation so that if the same data is subsequently re-displayed, the work does not have to be repeated. In addition:
+ * The controller monitors changes to objects in its associated managed object context, and updates the results accordingly. It reports changes in the results set to its delegate.
+ * The controller automatically purges unneeded objects if it receives an application low memory notification.
+ * The controller maintains a persistent cache of the section information across application launches if the cacheName is not nil.  If caching is enabled, you must not mutate the fetch request, its predicate, or its sort descriptor without first calling +deleteCacheWithName:
+ 
+ Typical use
+ ===========
+ 
+	Developers create an instance of NSFetchedResultsController and configure it with a fetchRequest.  It is expected that the sort descriptor used in the request groups the results into sections. This allows for section information to be pre-computed.
+	After creating an instance, the performFetch: method should be called to actually perform the fetching.
+	Once started, convenience methods on the instance can be used for configuring the initial state of the view.
+
+	The instance of NSFetchedResultsController also registers to receive change notifications on the managed object context that holds the fetched objects. Any change in the context that affects the result set or section information is properly processed. A delegate can be set on the class so that it's also notified when the result objects have changed. This would typically be used to update the display of the view.
+	WARNING: The controller only performs change tracking if a delegate is set and responds to any of the change tracking notification methods.  See the NSFetchedResultsControllerDelegate protocol for which delegate methods are change tracking.
+ 
+ Handling of Invalidated Objects
+ ===============================
+	
+ When a managed object context notifies the NSFetchedResultsController of individual objects being invalidated (NSInvalidatedObjectsKey), the controller treats these as deleted objects and sends the proper delegate calls.
+ It's possible for all the objects in a managed object context to be invalidated simultaneously. This can happen as a result of calling -reset on NSManagedObjectContext, or if a store is removed from the the NSPersistentStoreCoordinator. When this happens, NSFetchedResultsController currently does not invalidate all objects, nor does it send individual notifications for object deletions. Instead, developers must call performFetch: again to reset the state of the controller if all the objects in a context have been invalidated. They should also reset the state of their view.
+ 
+ */
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
@@ -1520,37 +1782,8 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol NSFetchedResultsControllerDelegate;
 @protocol NSFetchedResultsSectionInfo;
 
-NS_CLASS_AVAILABLE(NA,3_0)
-@interface NSFetchedResultsController : NSObject {
-@private
-	NSFetchRequest *_fetchRequest;
-	NSManagedObjectContext *_managedObjectContext;
-	NSString *_sectionNameKeyPath;
-	NSString *_sectionNameKey;
-	NSString *_cacheName;
-	void	  *_cache;
-	struct _fetchResultsControllerFlags {
-	  unsigned int _sendObjectChangeNotifications:1;
-	  unsigned int _sendSectionChangeNotifications:1;
-	  unsigned int _sendDidChangeContentNotifications:1;
-	  unsigned int _sendWillChangeContentNotifications:1;
-	  unsigned int _sendSectionIndexTitleForSectionName:1;
-	  unsigned int _changedResultsSinceLastSave:1;
-	  unsigned int _hasMutableFetchedResults:1;
-	  unsigned int _hasBatchedArrayResults:1;
-	  unsigned int _hasSections:1;
-	  unsigned int _usesNonpersistedProperties:1;
-	  unsigned int _includesSubentities:1;
-	  unsigned int _reservedFlags:21;
-	} _flags;
-	id _delegate;
-	id _sortKeys;
-	id _fetchedObjects;
-	id _sections;
-	id _sectionsByName;
-	id _sectionIndexTitles;
-	id _sectionIndexTitlesSections;
-	
+API_AVAILABLE(macosx(10.12),ios(3.0))
+@interface NSFetchedResultsController<ResultType:id<NSFetchRequestResult>> : NSObject {
 }
 
 /* ========================================================*/
@@ -1562,8 +1795,8 @@ NS_CLASS_AVAILABLE(NA,3_0)
 	context - the context that will hold the fetched objects
 	sectionNameKeyPath - keypath on resulting objects that returns the section name. This will be used to pre-compute the section information.
 	cacheName - Section info is cached persistently to a private file under this name. Cached sections are checked to see if the time stamp matches the store, but not if you have illegally mutated the readonly fetch request, predicate, or sort descriptor.
-*/
-- (instancetype)initWithFetchRequest:(NSFetchRequest *)fetchRequest managedObjectContext: (NSManagedObjectContext *)context sectionNameKeyPath:(nullable NSString *)sectionNameKeyPath cacheName:(nullable NSString *)name;
+ */
+- (instancetype)initWithFetchRequest:(NSFetchRequest<ResultType> *)fetchRequest managedObjectContext: (NSManagedObjectContext *)context sectionNameKeyPath:(nullable NSString *)sectionNameKeyPath cacheName:(nullable NSString *)name;
 
 /* Executes the fetch request on the store to get objects.
     Returns YES if successful or NO (and an error) if a problem occurred. 
@@ -1578,19 +1811,19 @@ NS_CLASS_AVAILABLE(NA,3_0)
 
 /* NSFetchRequest instance used to do the fetching. You must not change it, its predicate, or its sort descriptor after initialization without disabling caching or calling +deleteCacheWithName.  The sort descriptor used in the request groups objects into sections. 
 */
-@property (nonatomic, readonly) NSFetchRequest *fetchRequest;
+@property(nonatomic,readonly) NSFetchRequest<ResultType> *fetchRequest;
 
 /* Managed Object Context used to fetch objects. The controller registers to listen to change notifications on this context and properly update its result set and section information. 
 */
-@property (nonatomic, readonly) NSManagedObjectContext *managedObjectContext;
+@property (nonatomic,readonly) NSManagedObjectContext *managedObjectContext;
 
 /* The keyPath on the fetched objects used to determine the section they belong to. 
 */
-@property (nullable, nonatomic, readonly) NSString *sectionNameKeyPath;
+@property (nonatomic,nullable, readonly) NSString *sectionNameKeyPath;
 
 /* Name of the persistent cached section information. Use nil to disable persistent caching, or +deleteCacheWithName to clear a cache.
 */
-@property (nullable, nonatomic, readonly) NSString *cacheName;
+@property (nonatomic,nullable, readonly) NSString *cacheName;
 
 /* Delegate that is notified when the result set changes.
 */
@@ -1608,15 +1841,15 @@ NS_CLASS_AVAILABLE(NA,3_0)
 /* Returns the results of the fetch.
     Returns nil if the performFetch: hasn't been called.
 */
-@property  (nullable, nonatomic, readonly) NSArray *fetchedObjects;
+@property  (nullable, nonatomic, readonly) NSArray<ResultType> *fetchedObjects;
 
 /* Returns the fetched object at a given indexPath.
 */
-- (id)objectAtIndexPath:(NSIndexPath *)indexPath;
+- (ResultType)objectAtIndexPath:(NSIndexPath *)indexPath;
 
 /* Returns the indexPath of a given object.
 */
--(nullable NSIndexPath *)indexPathForObject:(id)object;
+-(nullable NSIndexPath *)indexPathForObject:(ResultType)object;
 
 /* ========================================================*/
 /* =========== CONFIGURING SECTION INFORMATION ============*/
@@ -1632,10 +1865,7 @@ NS_CLASS_AVAILABLE(NA,3_0)
 - (nullable NSString *)sectionIndexTitleForSectionName:(NSString *)sectionName;
 
 /* Returns the array of section index titles.
-    It's expected that developers call this method when implementing UITableViewDataSource's
-	- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
-	
-    The default implementation returns the array created by calling sectionIndexTitleForSectionName: on all the known sections.
+    Default implementation returns the array created by calling sectionIndexTitleForSectionName: on all the known sections.
     Developers should override this method if they wish to return a different array for the section index.
     Only needed if a section index is used.
 */
@@ -1646,18 +1876,11 @@ NS_CLASS_AVAILABLE(NA,3_0)
 /* ========================================================*/
 
 /* Returns an array of objects that implement the NSFetchedResultsSectionInfo protocol.
-   It's expected that developers use the returned array when implementing the following methods of the UITableViewDataSource protocol
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView; 
-- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section;
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section; 
-
+   This provide a convenience interface for determining the number of sections, the names and titles of the sections, and access to the model objects that belong to each section.
 */
 @property (nullable, nonatomic, readonly) NSArray<id<NSFetchedResultsSectionInfo>> *sections;
 
 /* Returns the section number for a given section title and index in the section index.
-    It's expected that developers call this method when executing UITableViewDataSource's
-	- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index;
 */
 - (NSInteger)sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)sectionIndex;
 
@@ -1673,7 +1896,7 @@ NS_CLASS_AVAILABLE(NA,3_0)
 
 /* Title of the section (used when displaying the index)
 */
-@property (nullable, nonatomic, readonly) NSString *indexTitle;
+@property(nullable, nonatomic, readonly) NSString *indexTitle;
 
 /* Number of objects in section
 */
@@ -1694,20 +1917,20 @@ typedef NS_ENUM(NSUInteger, NSFetchedResultsChangeType) {
 	NSFetchedResultsChangeDelete = 2,
 	NSFetchedResultsChangeMove = 3,
 	NSFetchedResultsChangeUpdate = 4
-} NS_ENUM_AVAILABLE(NA,  3_0);
+} API_AVAILABLE(macosx(10.12), ios(3.0));
 
 /* Notifies the delegate that a fetched object has been changed due to an add, remove, move, or update. Enables NSFetchedResultsController change tracking.
 	controller - controller instance that noticed the change on its fetched objects
 	anObject - changed object
 	indexPath - indexPath of changed object (nil for inserts)
 	type - indicates if the change was an insert, delete, move, or update
-	newIndexPath - the destination path for inserted or moved objects, nil otherwise
+	newIndexPath - the destination path of changed object (nil for deletes)
 	
 	Changes are reported with the following heuristics:
 
-	On Adds and Removes, only the Added/Removed object is reported. It's assumed that all objects that come after the affected object are also moved, but these moves are not reported. 
-	The Move object is reported when the changed attribute on the object is one of the sort descriptors used in the fetch request.  An update of the object is assumed in this case, but no separate update message is sent to the delegate.
-	The Update object is reported when an object's state changes, and the changed attributes aren't part of the sort keys. 
+	Inserts and Deletes are reported when an object is created, destroyed, or changed in such a way that changes whether it matches the fetch request's predicate. Only the Inserted/Deleted object is reported; like inserting/deleting from an array, it's assumed that all objects that come after the affected object shift appropriately.
+	Move is reported when an object changes in a manner that affects its position in the results.  An update of the object is assumed in this case, no separate update message is sent to the delegate.
+	Update is reported when an object's state changes, and the changes do not affect the object's position in the results.
 */
 @optional
 - (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(nullable NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(nullable NSIndexPath *)newIndexPath;
@@ -1725,12 +1948,13 @@ typedef NS_ENUM(NSUInteger, NSFetchedResultsChangeType) {
 - (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type;
 
 /* Notifies the delegate that section and object changes are about to be processed and notifications will be sent.  Enables NSFetchedResultsController change tracking.
-   Clients utilizing a UITableView may prepare for a batch of updates by responding to this method with -beginUpdates
+   Clients may prepare for a batch of updates by using this method to begin an update block for their view.
 */
 @optional
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller;
 
 /* Notifies the delegate that all section and object changes have been sent. Enables NSFetchedResultsController change tracking.
+   Clients may prepare for a batch of updates by using this method to begin an update block for their view.
    Providing an empty implementation will enable change tracking if you do not care about the individual callbacks.
 */
 @optional
@@ -1741,7 +1965,63 @@ typedef NS_ENUM(NSUInteger, NSFetchedResultsChangeType) {
     Only needed if a section index is used.
 */
 @optional
-- (nullable NSString *)controller:(NSFetchedResultsController *)controller sectionIndexTitleForSectionName:(NSString *)sectionName __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+- (nullable NSString *)controller:(NSFetchedResultsController *)controller sectionIndexTitleForSectionName:(NSString *)sectionName API_AVAILABLE(macosx(10.12),ios(4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+// ==========  CoreData.framework/Headers/NSPersistentStoreDescription.h
+/*
+    NSPersistentStoreDescription.h
+    Core Data
+    Copyright (c) 2016-2018, Apple Inc.
+    All rights reserved.
+*/
+
+#import <Foundation/NSArray.h>
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSDate.h>
+
+@class NSURL;
+
+NS_ASSUME_NONNULL_BEGIN
+
+// An instance of NSPersistentStoreDescription encapsulates all information needed to describe a persistent store.
+API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0))
+@interface NSPersistentStoreDescription : NSObject <NSCopying> {
+#if (!__OBJC2__)
+@private
+    id _type;
+    id _configuration;
+    id _url;
+    id _options;
+#endif
+}
+
++ (instancetype)persistentStoreDescriptionWithURL:(NSURL *)URL;
+
+@property (copy) NSString *type;
+@property (copy, nullable) NSString *configuration;
+@property (copy, nullable) NSURL *URL;
+@property (nonatomic, copy, readonly) NSDictionary<NSString *, NSObject *> *options;
+
+- (void)setOption:(nullable NSObject *)option forKey:(NSString *)key;
+
+// Store options
+@property (getter = isReadOnly) BOOL readOnly;
+@property NSTimeInterval timeout;
+@property (nonatomic, copy, readonly) NSDictionary<NSString *, NSObject *> *sqlitePragmas;
+
+- (void)setValue:(nullable NSObject *)value forPragmaNamed:(NSString *)name;
+
+// addPersistentStore-time behaviours
+@property BOOL shouldAddStoreAsynchronously;
+@property BOOL shouldMigrateStoreAutomatically;
+@property BOOL shouldInferMappingModelAutomatically;
+
+// Returns a store description instance with default values for the store located at `URL` that can be used immediately with `addPersistentStoreWithDescription:completionHandler:`.
+- (instancetype)initWithURL:(NSURL *)url NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -1750,7 +2030,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSFetchRequestExpression.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -1762,8 +2042,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 static const NSExpressionType NSFetchRequestExpressionType = (NSExpressionType)50;
 
-NS_CLASS_AVAILABLE(10_5,3_0)
+API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSFetchRequestExpression : NSExpression {
+#if (!__OBJC2__)
 @private
     void* _reserved1;
     void* _reserved2;
@@ -1775,6 +2056,7 @@ NS_CLASS_AVAILABLE(10_5,3_0)
         unsigned int isCountOnly:1;
         unsigned int _RESERVED:31;
     } _flags;
+#endif
 }
 
 /* Returns an expression which will evaluate to the result of executing a fetch request on a context.  The first argument must be an expression which evaluates to an NSFetchRequest *, and the second must be an expression which evaluates to an NSManagedObjectContext *.  If the desired result is simply the count for the request, the "countOnly" argument should be YES.
@@ -1803,7 +2085,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSEntityDescription.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -1820,45 +2102,12 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSPropertyDescription;
 @class NSRelationshipDescription;
 @class NSAttributeDescription;
+@class NSFetchIndexDescription;
+@class NSExpression;
 
 // Entities describe the "types" of objects available.
-NS_CLASS_AVAILABLE(10_4,3_0)
+API_AVAILABLE(macosx(10.4),ios(3.0))
 @interface NSEntityDescription : NSObject <NSCoding, NSCopying, NSFastEnumeration> {
-@private
-	int32_t  _cd_rc;
-	id _snapshotClass;
-	NSString *_versionHashModifier;
-	NSData *_versionHash;
-    __weak NSManagedObjectModel *_model;
-    NSString *_classNameForEntity;
-    Class _instanceClass;
-    NSString *_name;
-    __weak NSEntityDescription *_rootentity;
-    __weak NSEntityDescription *_superentity;
-    NSMutableDictionary *_subentities;
-    NSMutableDictionary *_properties;
-    id _propertyMapping;
-    __strong NSRange *_propertyRanges;
-    struct __entityDescriptionFlags {
-        unsigned int _isAbstract:1;
-        unsigned int _shouldValidateOnSave:1;
-        unsigned int _isImmutable:1;
-        unsigned int _isFlattened:1;
-        unsigned int _skipValidation:1;
-        unsigned int _hasPropertiesIndexedBySpotlight:1;
-        unsigned int _hasPropertiesStoredInTruthFile:1;
-        unsigned int _rangesAreInDataBlob:1; 
-		unsigned int _hasAttributesWithExternalDataReferences:1;
-        unsigned int _hasNonstandardPrimitiveProperties:2;
-        unsigned int _hasUniqueProperties:1;
-        unsigned int _validationUniqueProperties:1;
-        unsigned int _reservedEntityDescription:19;
-    } _entityDescriptionFlags;
-    __strong void *_extraIvars;
-    NSMutableDictionary *_userInfo;
-    id _flattenedSubentities;
-    id** _kvcPropertyAccessors;
-    long _modelsReferenceIDForEntity;
 }
 
 + (nullable NSEntityDescription *)entityForName:(NSString *)entityName inManagedObjectContext:(NSManagedObjectContext *)context;
@@ -1886,42 +2135,54 @@ NS_CLASS_AVAILABLE(10_4,3_0)
 
 /* Returns a boolean indicating if the receiver is a subentity of the specified entity.  (This method is the Core Data entity inheritance equivalent of -isKindOfClass:)
 */
-- (BOOL)isKindOfEntity:(NSEntityDescription *)entity NS_AVAILABLE(10_5,3_0);
+- (BOOL)isKindOfEntity:(NSEntityDescription *)entity API_AVAILABLE(macosx(10.5),ios(3.0));
 
 /* Returns the version hash for the entity.  The version hash is used to uniquely identify an entity based on the collection and configuration of properties for the entity.  The version hash uses only values which affect the persistence of data and the user-defined versionHashModifier value.  (The values which affect persistence are the name of the entity, the version hash of the superentity (if present), if the entity is abstract, and all of the version hashes for the properties.)  This value is stored as part of the version information in the metadata for stores which use this entity, as well as a definition of an entity involved in an NSEntityMapping.
 */
-@property (readonly, copy) NSData *versionHash NS_AVAILABLE(10_5,3_0);
+@property (readonly, copy) NSData *versionHash API_AVAILABLE(macosx(10.5),ios(3.0));
 
 /* Returns/sets the version hash modifier for the entity.  This value is included in the version hash for the entity, allowing developers to mark/denote an entity as being a different "version" than another, even if all of the values which affect persistence are equal.  (Such a difference is important in cases where the structure of an entity is unchanged, but the format or content of data has changed.)
 */
-@property (nullable, copy) NSString *versionHashModifier NS_AVAILABLE(10_5,3_0);
+@property (nullable, copy) NSString *versionHashModifier API_AVAILABLE(macosx(10.5),ios(3.0));
 
-@property (nullable, copy) NSString *renamingIdentifier NS_AVAILABLE(10_6,3_0);
+@property (nullable, copy) NSString *renamingIdentifier API_AVAILABLE(macosx(10.6),ios(3.0));
 
-/* Returns/sets the set of compound indices for the entity. Returns/takes an array of arrays, each of which contains one or more NSPropertyDescription or NSString instances (strings must be the names of properties of the entity on which the index is created).
-    This value does not form part of the entity's version hash, and may be ignored by stores which do not natively support compound
-    indexes.
+/* Returns/sets the set of indexes for the entity. Returns/takes an array of NSFetchIndexDescription instances. This value does not form part of the entity's version hash, and may be ignored by stores which do not natively support indexing.
+    IMPORTANT: Indexes should be the last things set in a model. Changing an entity hierarchy in any way that could affect the validity of indexes (adding or removing super/subentities, adding or removing properties anywhere in the hierarchy) will cause all exisiting indexes for entities in that hierarchy to be dropped.
  */
-@property (strong) NSArray<NSArray<id> *> *compoundIndexes NS_AVAILABLE(10_7,5_0);
+@property (copy) NSArray <NSFetchIndexDescription *>*indexes API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0));
+
 
 /* Returns/sets uniqueness constraints for the entity. A uniqueness constraint is a set of one or more attributes whose value must be unique over the set of instances of that entity.
-    Returns/sets an array of arrays, each of which contains one or more NSAttributeDescription or NSString instances (strings must be the names of attributes on the entity) on which the constraint is registered. 
+
+    Sets an array of arrays, each of which contains one or more NSAttributeDescription or NSString instances (strings must be the names of attributes on the entity) on which the constraint is registered.
+    Returns an array of arrays, each of which contains instances of NSString which identify the attributes on the entity that comprise the constraint.
     This value forms part of the entity's version hash. Stores which do not support uniqueness constraints should refuse to initialize when given a model containing such constraints.
     Discussion: uniqueness constraint violations can be computationally expensive to handle. It is highly suggested that there be only one uniqueness constraint per entity hierarchy,
     although subentites may extend a sueprentity's constraint.
 */
                                                                                                                                                                       
-@property (strong)NSArray<NSArray<id> *> *uniquenessConstraints NS_AVAILABLE(10_11,9_0);
+@property (strong)NSArray<NSArray<id> *> *uniquenessConstraints API_AVAILABLE(macosx(10.11),ios(9.0));
+
+/*  Getter returns an array of arrays of NSPropertyDescription objects describing the components of the indexes.
+    Setter takes an array of arrays of NSPropertyDescription objects and/or strings that are the names of properties of the entity on which the index is created. The special strings @"self" and @"entity" can be used to indicate that an index should contain a reference to the object's primary or entity key.
+    This value does not form part of the entity's version hash, and may be ignored by stores which do not natively support compound indexes.
+ */
+@property (strong) NSArray<NSArray<id> *> *compoundIndexes API_DEPRECATED( "Use NSEntityDescription.indexes instead", macosx(10.5,10.13),ios(3.0,11.0),tvos(9.0, 11.0),watchos(2.0, 4.0));
+
+/* Expression used to compute the CoreSpotlight display name for instance of this entity. */
+@property (nonatomic, retain) NSExpression *coreSpotlightDisplayNameExpression API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSSaveChangesRequest.h
 /*
- NSSaveChangesRequest.h
- Core Data
- Copyright (c) 2004-2015, Apple Inc.
- All rights reserved.
- */
+    NSSaveChangesRequest.h
+    Core Data
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
+*/
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSSet.h>
@@ -1932,15 +2193,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSPersistentStoreRequest;
 @class NSManagedObject;
 
-NS_CLASS_AVAILABLE(10_7,5_0)
+API_AVAILABLE(macosx(10.7),ios(5.0))
 @interface NSSaveChangesRequest : NSPersistentStoreRequest {
-@private
-    NSSet *_insertedObjects;
-    NSSet *_updatedObjects;
-    NSSet *_deletedObjects;
-    NSSet* _optimisticallyLockedObjects;
-    uintptr_t _flags;
-    void* _reserved1;
 }
 
 // Default initializer.
@@ -1960,31 +2214,27 @@ NS_CLASS_AVAILABLE(10_7,5_0)
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSPersistentStoreRequest.h
 /*
- NSPersistentStoreRequest.h
- Core Data
- Copyright (c) 2004-2015, Apple Inc.
- All rights reserved.
- */
+    NSPersistentStoreRequest.h
+    Core Data
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
+*/
 
 #import <Foundation/NSArray.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NSFetchRequest;
-@class NSAsynchronousFetchResult;
 @class NSPersistentStore;
 
 typedef NS_ENUM(NSUInteger, NSPersistentStoreRequestType) {
     NSFetchRequestType = 1,
     NSSaveRequestType,
-    NSBatchUpdateRequestType NS_ENUM_AVAILABLE(10_10, 8_0) = 6,
-    NSBatchDeleteRequestType NS_ENUM_AVAILABLE(10_11, 9_0) = 7
+    NSBatchUpdateRequestType API_AVAILABLE(macosx(10.10), ios(8.0)) = 6,
+    NSBatchDeleteRequestType API_AVAILABLE(macosx(10.11), ios(9.0)) = 7
 };
 
-NS_CLASS_AVAILABLE(10_7, 5_0)
+API_AVAILABLE(macosx(10.7),ios(5.0))
 @interface NSPersistentStoreRequest : NSObject <NSCopying> {
-	@private
-	NSArray *_affectedStores;
 }
 
 // Stores this request should be sent to.
@@ -1995,32 +2245,14 @@ NS_CLASS_AVAILABLE(10_7, 5_0)
 
 @end
 
-typedef void (^NSPersistentStoreAsynchronousFetchResultCompletionBlock)(NSAsynchronousFetchResult *result);
-
-
-NS_CLASS_AVAILABLE(10_10,8_0)
-@interface NSAsynchronousFetchRequest : NSPersistentStoreRequest {
-@private
-    NSFetchRequest* _fetchRequest;
-    id _requestCompletionBlock;
-    NSInteger _estimatedResultCount;
-}
-@property (strong, readonly) NSFetchRequest* fetchRequest;
-@property (nullable, strong, readonly) NSPersistentStoreAsynchronousFetchResultCompletionBlock completionBlock;
-@property (nonatomic) NSInteger estimatedResultCount;
-
-- (instancetype)initWithFetchRequest:(NSFetchRequest*)request completionBlock:(nullable NSPersistentStoreAsynchronousFetchResultCompletionBlock)blk;
-
-@end
-
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSIncrementalStoreNode.h
 /*
- NSIncrementalStoreNode.h
- Core Data
- Copyright (c) 2004-2015, Apple Inc.
- All rights reserved.
- */
+    NSIncrementalStoreNode.h
+    Core Data
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
+*/
 
 #import <CoreData/NSManagedObjectID.h>
 #import <Foundation/NSDictionary.h>
@@ -2030,13 +2262,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSPropertyDescription;
 
 // Provides the basic unit of external data that the Core Data stack interacts with.
-NS_CLASS_AVAILABLE(10_7,5_0)
+API_AVAILABLE(macosx(10.7),ios(5.0))
 @interface NSIncrementalStoreNode : NSObject {
-@private
-    NSManagedObjectID *_objectID;
-    uint64_t _versionNumber;
-	id _propertyCache;
-	void *_reserved1;
 }
 
 // Returns an object initialized with the following values
@@ -2077,7 +2304,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSEntityMapping.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -2102,9 +2329,9 @@ typedef NS_ENUM(NSUInteger, NSEntityMappingType) {
     NSTransformEntityMappingType    = 0x05,         /* entity exists in source and destination and is mapped */
 };
 
-NS_CLASS_AVAILABLE(10_5,3_0)
+API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSEntityMapping : NSObject {
-
+#if (!__OBJC2__)
 @private
     void *_reserved;
     void *_reserved1;
@@ -2123,9 +2350,10 @@ NS_CLASS_AVAILABLE(10_5,3_0)
 
     struct __entityMappingFlags {
         unsigned int _isInUse:1;
-        unsigned int _reservedEntityMapping:31;
+        unsigned int _changeIsConstraintOnly:1;
+        unsigned int _reservedEntityMapping:30;
     } _entityMappingFlags;
-
+#endif
 }
 
 /* Returns/sets the name of the mapping. The name is used only as a means of distinguishing mappings in a model.  If not specified, defaults to the string composed by the source entity name followed by the destination entity name (ex. SourceName->DestinationName)
@@ -2179,7 +2407,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSFetchedPropertyDescription.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -2191,13 +2419,15 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSFetchRequest;
 
 // Fetched properties allow to specify related objects through a "weakly" resolved property, so there is no actual join necessary.
-NS_CLASS_AVAILABLE(10_4,3_0)
+API_AVAILABLE(macosx(10.4),ios(3.0))
 @interface NSFetchedPropertyDescription : NSPropertyDescription {
+#if (!__OBJC2__)
 @private
 	void *_reserved5;
 	void *_reserved6;
     NSFetchRequest *_fetchRequest;
     NSString *_lazyFetchRequestEntityName;
+#endif
 }
 
 // As part of the predicate for a fetched property, you can use the two variables $FETCH_SOURCE (which is the managed object fetching the property) and $FETCHED_PROPERTY (which is the NSFetchedPropertyDescription instance).
@@ -2210,7 +2440,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSManagedObjectModel.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -2226,26 +2456,11 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSBundle;
 
 // Models describe object graphs to be managed. Models (and their entities/properties/fetch request templates) are editable until they are used by a persistent store coordinator, allowing developers to create/modify them dynamically. However, once a model is being used, it MUST NOT be changed. When the persistent store coordinator first fetches data using a model, it will become uneditable. Any attempt to mutate a model or any of its subobjects after that point will cause an exception to be thrown. If you need to modify a model that is in use, create a copy, modify the copy, and then discard the objects with the old model.
-NS_CLASS_AVAILABLE(10_4,3_0)
+API_AVAILABLE(macosx(10.4),ios(3.0))
 @interface NSManagedObjectModel : NSObject <NSCoding, NSCopying, NSFastEnumeration> {
-@private
-	id _dataForOptimization;
-	id *_optimizationHints; 
-    id _localizationPolicy;
-    NSMutableDictionary *_entities;
-    NSMutableDictionary *_configurations;
-    NSMutableDictionary *_fetchRequestTemplates;
-	NSSet *_versionIdentifiers;
-    struct __managedObjectModelFlags {
-        unsigned int _isInUse:1;
-        unsigned int _isImmutable:1;
-		unsigned int _isOptimizedForEncoding:1;
-        unsigned int _hasEntityWithConstraints:1;
-        unsigned int _reservedEntityDescription:28;
-    } _managedObjectModelFlags;
 }
 
-+ (nullable NSManagedObjectModel *)mergedModelFromBundles:(nullable NSArray<NSBundle *> *)bundles;    // looks up all models in the specified bundles and merges them; if nil is specified as argument, uses the main bundle
++ (nullable NSManagedObjectModel *)mergedModelFromBundles:(nullable NSArray<NSBundle *> *)bundles;  // looks up all models in the specified bundles and merges them; if nil is specified as argument, uses the main bundle
 
 + (nullable NSManagedObjectModel *)modelByMergingModels:(nullable NSArray<NSManagedObjectModel *> *)models;    // combines multiple models (typically from different frameworks) into one
 
@@ -2283,41 +2498,42 @@ NS_CLASS_AVAILABLE(10_4,3_0)
 
 /* Returns the managed object model used to create the store for the specified metadata.  This method is a companion to the mergedModelFromBundles: method;  in this case, the framework uses the version information stored in the metadata for a store to locate the models/entities used to create the store in the available bundles, and return the model.  If the model for the store cannot be found, this method will return nil.
 */
-+ (nullable NSManagedObjectModel *)mergedModelFromBundles:(nullable NSArray<NSBundle *> *)bundles forStoreMetadata:(NSDictionary<NSString *, id> *)metadata NS_AVAILABLE(10_5,3_0);
++ (nullable NSManagedObjectModel *)mergedModelFromBundles:(nullable NSArray<NSBundle *> *)bundles forStoreMetadata:(NSDictionary<NSString *, id> *)metadata API_AVAILABLE(macosx(10.5),ios(3.0));
 
 
 /* Returns a merged model from the specified array for the version information in the provided metadata.  (This is the companion method to mergedModelFromBundles:forStoreMetadata:)  If a model cannot be created to match the version information in the specified metadata, this method will return nil.  
 */
-+ (nullable NSManagedObjectModel *)modelByMergingModels:(NSArray<NSManagedObjectModel *> *)models forStoreMetadata:(NSDictionary<NSString *, id> *)metadata NS_AVAILABLE(10_5,3_0);
++ (nullable NSManagedObjectModel *)modelByMergingModels:(NSArray<NSManagedObjectModel *> *)models forStoreMetadata:(NSDictionary<NSString *, id> *)metadata API_AVAILABLE(macosx(10.5),ios(3.0));
 
 
 /* Returns the dictionary of fetch request templates, keyed by name, for the model.  If the template contains a predicate with substitution variables, you should instead use fetchRequestFromTemplateWithName:substitutionVariables: to create a new fetch request.
 */
-@property (readonly, copy) NSDictionary<NSString *, NSFetchRequest *> *fetchRequestTemplatesByName NS_AVAILABLE(10_5,3_0);
+@property (readonly, copy) NSDictionary<NSString *, NSFetchRequest *> *fetchRequestTemplatesByName API_AVAILABLE(macosx(10.5),ios(3.0));
 
 /* Returns the collection of developer-defined version identifiers for the model.  For models created in Xcode, this value is set by the developer in the model inspector. Merged models return the combined  collection of identifiers. This value is meant to be used as a debugging hint to help developers determine the models that were combined to create a merged model. The framework does not give models a default identifier, nor does it depend this value at runtime.
 */
-@property (copy) NSSet *versionIdentifiers NS_AVAILABLE(10_5,3_0);
+@property (copy) NSSet *versionIdentifiers API_AVAILABLE(macosx(10.5),ios(3.0));
 
 
 /* Compares the version information in the store metadata with the entity version of a given configuration. Returns NO if there are differences between the version information.  (For information on specific differences, developers should utilize the entityVersionHashesByName method, and perform a comparison.)
 */
-- (BOOL)isConfiguration:(nullable NSString *)configuration compatibleWithStoreMetadata:(NSDictionary<NSString *, id> *)metadata NS_AVAILABLE(10_5,3_0);
+- (BOOL)isConfiguration:(nullable NSString *)configuration compatibleWithStoreMetadata:(NSDictionary<NSString *, id> *)metadata API_AVAILABLE(macosx(10.5),ios(3.0));
 
 
 /* Returns a dictionary of the version hashes for the entities in the model, keyed by entity name.  (The dictionary of version hash information is used by Core Data to determine schema compatibility.)
 */
-@property (readonly, copy) NSDictionary<NSString *, NSData *> *entityVersionHashesByName NS_AVAILABLE(10_5,3_0);
+@property (readonly, copy) NSDictionary<NSString *, NSData *> *entityVersionHashesByName API_AVAILABLE(macosx(10.5),ios(3.0));
 
 @end
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSMergePolicy.h
-//
-//  NSMergePolicy.h
-//  Core Data
-//  Copyright (c) 2004-2015, Apple Inc. All rights reserved.
-//
+/*
+    NSMergePolicy.h
+    Core Data
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
+*/
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
@@ -2330,19 +2546,19 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSManagedObject;
 
 // Default policy for all managed object contexts - save returns with an error that contains the object IDs of the objects that had conflicts(NSInsertedObjectsKey, NSUpdatedObjectsKey).
-COREDATA_EXTERN id NSErrorMergePolicy NS_AVAILABLE(10_4, 3_0);
+COREDATA_EXTERN id NSErrorMergePolicy API_AVAILABLE(macosx(10.4),ios(3.0));
 
 // This singleton policy merges conflicts between the persistent store's version of the object and the current in memory version. The merge occurs by individual property. For properties which have been changed in both the external source and in memory, the external changes trump the in memory ones.
-COREDATA_EXTERN id NSMergeByPropertyStoreTrumpMergePolicy NS_AVAILABLE(10_4, 3_0);    
+COREDATA_EXTERN id NSMergeByPropertyStoreTrumpMergePolicy API_AVAILABLE(macosx(10.4),ios(3.0));    
 
 // This singleton policy merges conflicts between the persistent store's version of the object and the current in memory version. The merge occurs by individual property. For properties which have been changed in both the external source and in memory, the in memory changes trump the external ones.
-COREDATA_EXTERN id NSMergeByPropertyObjectTrumpMergePolicy NS_AVAILABLE(10_4, 3_0);    
+COREDATA_EXTERN id NSMergeByPropertyObjectTrumpMergePolicy API_AVAILABLE(macosx(10.4),ios(3.0));    
 
 // This singleton policy overwrites all state for the changed objects in conflict The current object's state is pushed upon the persistent store.
-COREDATA_EXTERN id NSOverwriteMergePolicy NS_AVAILABLE(10_4, 3_0);    
+COREDATA_EXTERN id NSOverwriteMergePolicy API_AVAILABLE(macosx(10.4),ios(3.0));    
 
 // This singleton policy discards all state for the changed objects in conflict. The persistent store's version of the object is used.
-COREDATA_EXTERN id NSRollbackMergePolicy NS_AVAILABLE(10_4, 3_0);    
+COREDATA_EXTERN id NSRollbackMergePolicy API_AVAILABLE(macosx(10.4),ios(3.0));    
 
 
 typedef NS_ENUM(NSUInteger, NSMergePolicyType) {
@@ -2353,15 +2569,8 @@ typedef NS_ENUM(NSUInteger, NSMergePolicyType) {
     NSRollbackMergePolicyType                   = 0x04
 };
 
-NS_CLASS_AVAILABLE(10_7, 5_0)
+API_AVAILABLE(macosx(10.7),ios(5.0))
 @interface NSMergeConflict : NSObject {
-@private
-    id _source;
-    id _snapshot1;
-    id _snapshot2;
-    id _snapshot3;
-    NSUInteger _newVersion;
-    NSUInteger _oldVersion;
 }
 
 @property (readonly, retain) NSManagedObject* sourceObject;
@@ -2386,7 +2595,7 @@ NS_CLASS_AVAILABLE(10_7, 5_0)
  *
  *  A newVersion number of 0 means the object was deleted and the corresponding snapshot is nil.
  */
-- (instancetype)initWithSource:(NSManagedObject*)srcObject newVersion:(NSUInteger)newvers oldVersion:(NSUInteger)oldvers cachedSnapshot:(nullable NSDictionary<NSString *, id> *)cachesnap persistedSnapshot:(nullable NSDictionary<NSString *, id> *)persnap NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSource:(NSManagedObject*)srcObject newVersion:(NSUInteger)newvers oldVersion:(NSUInteger)oldvers cachedSnapshot:(nullable NSDictionary<NSString *, id> *)cachesnap persistedSnapshot:(nullable NSDictionary<NSString *, id>  *)persnap NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 
 @end
@@ -2396,23 +2605,16 @@ NS_CLASS_AVAILABLE(10_7, 5_0)
  although if an entity hierarchy has a constraint which is extended in subentities, all constraint violations for that constraint
  will be collapsed into a single report.
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macosx(10.11),ios(9.0))
 @interface NSConstraintConflict : NSObject {
-@private
-    NSArray *_constraint;
-    NSManagedObject *_databaseObject;
-    NSDictionary *_databaseSnapshot;
-    NSDictionary *_conflictedValues;
-    NSArray *_conflictingObjects;
-    NSArray *_conflictingSnapshots;
 }
 
-@property (readonly, retain) NSArray<NSString*> *constraint; // The constraint which has been violated.
-@property (readonly, retain) NSDictionary<NSString *, id> *constraintValues; // The values which the conflictingObjects had when this conflict was created. May no longer match the values of any conflicted object if something else resolved the conflict.
+@property (readonly, copy) NSArray <NSString *> *constraint; // The constraint which has been violated.
+@property (readonly, copy) NSDictionary <NSString *, id> *constraintValues; // The values which the conflictingObjects had when this conflict was created. May no longer match the values of any conflicted object if something else resolved the conflict.
 @property (nullable, readonly, retain) NSManagedObject *databaseObject; // Object whose DB row is using constraint values. May be null if this is a context-level violation.
 @property (nullable, readonly, retain) NSDictionary<NSString *, id> *databaseSnapshot; // DB row already using constraint values. May be null if this is a context-level violation.
-@property (readonly, retain) NSArray<NSManagedObject *> *conflictingObjects; // The objects in violation of the constraint. May contain one (in the case of a db level conflict) or more objects.
-@property (readonly, retain) NSArray<NSDictionary *> *conflictingSnapshots; // The original property values of objects in violation of the constraint.  Will contain as many objects as there are conflictingObjects. If an object was unchanged, its snapshot will instead be -[NSNull null].
+@property (readonly, copy) NSArray <NSManagedObject *> *conflictingObjects; // The objects in violation of the constraint. May contain one (in the case of a db level conflict) or more objects.
+@property (readonly, copy) NSArray <NSDictionary *> *conflictingSnapshots; // The original property values of objects in violation of the constraint.  Will contain as many objects as there are conflictingObjects. If an object was unchanged, its snapshot will instead be -[NSNull null].
 
 /*
  * There are two situations in which a constraint conflict may occur:
@@ -2432,13 +2634,15 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 @end
 
-NS_CLASS_AVAILABLE(10_7, 5_0)
+API_AVAILABLE(macosx(10.7),ios(5.0))
 @interface NSMergePolicy : NSObject {
-@private
-    NSUInteger _type;
-    void* _reserved2;
-    void* _reserved3;
 }
+
+@property (class, readonly, strong) NSMergePolicy *errorMergePolicy API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+@property (class, readonly, strong) NSMergePolicy *rollbackMergePolicy API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+@property (class, readonly, strong) NSMergePolicy *overwriteMergePolicy API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+@property (class, readonly, strong) NSMergePolicy *mergeByPropertyObjectTrumpMergePolicy API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+@property (class, readonly, strong) NSMergePolicy *mergeByPropertyStoreTrumpMergePolicy API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
 
 @property (readonly) NSMergePolicyType mergeType;
 
@@ -2462,23 +2666,23 @@ NS_CLASS_AVAILABLE(10_7, 5_0)
  *  any mistakes will cause permanent data corruption in the form of dangling foreign keys.
  * Will be called before -resolveConstraintConflicts:error:
  */
-- (BOOL)resolveOptimisticLockingVersionConflicts:(NSArray<NSMergeConflict *> *)list error:(NSError **)error NS_AVAILABLE(10_11, 9_0);
+- (BOOL)resolveOptimisticLockingVersionConflicts:(NSArray<NSMergeConflict *> *)list error:(NSError **)error API_AVAILABLE(macosx(10.11),ios(9.0));
 
 /* Resolve uniqueness constraint violations for the list of failures.
  *  Will be called after -resolveOptimisticLockingVersionConflicts:error:
  */
-- (BOOL)resolveConstraintConflicts:(NSArray<NSConstraintConflict *> *)list error:(NSError **)error NS_AVAILABLE(10_11, 9_0);
+- (BOOL)resolveConstraintConflicts:(NSArray<NSConstraintConflict *> *)list error:(NSError **)error API_AVAILABLE(macosx(10.11),ios(9.0));
 
 @end
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSBatchUpdateRequest.h
 /*
- NSBatchUpdateRequest.h
- Core Data
- Copyright (c) 2004-2015, Apple Inc.
- All rights reserved.
- */
+    NSBatchUpdateRequest.h
+    Core Data
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
+*/
 
 #import <Foundation/NSPredicate.h>
 #import <Foundation/NSDictionary.h>
@@ -2495,8 +2699,9 @@ NS_ASSUME_NONNULL_BEGIN
 //  WARNING:
 //  It is up to the developer creating the request to ensure that changes made by the request to
 //  the underlying store do not violate any validation rules specified in the model.
-NS_CLASS_AVAILABLE(10_10,8_0)
+API_AVAILABLE(macosx(10.10),ios(8.0))
 @interface NSBatchUpdateRequest : NSPersistentStoreRequest {
+#if (!__OBJC2__)
     @private
     id _entity;
     NSPredicate *_predicate;
@@ -2504,15 +2709,17 @@ NS_CLASS_AVAILABLE(10_10,8_0)
         unsigned int includesSubentities:1;
         unsigned int resultType:2;
         unsigned int entityIsName:1;
-        unsigned int _RESERVED:28;
+        unsigned int secureOperation:1;
+        unsigned int _RESERVED:27;
     } _flags;
     NSDictionary *_columnsToUpdate;
+#endif
 }
 
 + (instancetype)batchUpdateRequestWithEntityName:(NSString*)entityName;
 
-- (instancetype)initWithEntityName:(NSString *)entityName;
-- (instancetype)initWithEntity:(NSEntityDescription *)entity;
+- (instancetype)initWithEntityName:(NSString *)entityName NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithEntity:(NSEntityDescription *)entity NS_DESIGNATED_INITIALIZER;
 
 @property (copy, readonly) NSString* entityName;
 @property (strong, readonly) NSEntityDescription *entity;
@@ -2535,7 +2742,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSManagedObject.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -2550,7 +2757,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSError;
 @class NSManagedObjectContext;
 @class NSManagedObjectID;
-
+@class NSFetchRequest;
 
 typedef NS_OPTIONS(NSUInteger, NSSnapshotEventType) {
 	NSSnapshotEventUndoInsertion = 1 << 1,
@@ -2561,28 +2768,28 @@ typedef NS_OPTIONS(NSUInteger, NSSnapshotEventType) {
 	NSSnapshotEventMergePolicy = 1 << 6
 };
 
-NS_CLASS_AVAILABLE(10_4,3_0) NS_REQUIRES_PROPERTY_DEFINITIONS
+API_AVAILABLE(macosx(10.4),ios(3.0)) NS_REQUIRES_PROPERTY_DEFINITIONS
 @interface NSManagedObject : NSObject {
-@private
-    int32_t             _cd_rc;
-    uintptr_t           _cd_stateFlags;
-    id                  _cd_rawData;
-    id                  _cd_entity;
-    NSManagedObjectContext* _cd_managedObjectContext;
-    NSManagedObjectID*  _cd_objectID;
-    uintptr_t           _cd_extraFlags;
-    id                  _cd_observationInfo;
-    id*                 _cd_snapshots;
-    uintptr_t           _cd_lockingInfo;
-    id                  _cd_queueReference;
 }
 
 /*  Distinguish between changes that should and should not dirty the object for any key unknown to Core Data.  10.5 & earlier default to NO.  10.6 and later default to YES. */
 /*    Similarly, transient attributes may be individually flagged as not dirtying the object by adding +(BOOL)contextShouldIgnoreChangesFor<key> where <key> is the property name. */
-+ (BOOL)contextShouldIgnoreUnmodeledPropertyChanges NS_AVAILABLE(10_6,3_0);
+@property(class, readonly) BOOL contextShouldIgnoreUnmodeledPropertyChanges API_AVAILABLE(macosx(10.6),ios(3.0));
 
-// The designated initializer.
+/* The Entity represented by this subclass. This method is only legal to call on subclasses of NSManagedObject that represent a single entity in the model.
+ */
++ (NSEntityDescription*)entity API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+
+/* A new fetch request initialized with the Entity represented by this subclass. This property's getter is only legal to call on subclasses of NSManagedObject that represent a single entity in the model.
+ */
++ (NSFetchRequest*)fetchRequest API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+
+/* The designated initializer. */
 - (__kindof NSManagedObject*)initWithEntity:(NSEntityDescription *)entity insertIntoManagedObjectContext:(nullable NSManagedObjectContext *)context NS_DESIGNATED_INITIALIZER;
+
+/* Returns a new object, inserted into managedObjectContext. This method is only legal to call on subclasses of NSManagedObject that represent a single entity in the model. 
+ */
+-(instancetype)initWithContext:(NSManagedObjectContext*)moc API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
 
 // identity
 @property (nullable, nonatomic, readonly, assign) NSManagedObjectContext *managedObjectContext;
@@ -2594,22 +2801,22 @@ NS_CLASS_AVAILABLE(10_4,3_0) NS_REQUIRES_PROPERTY_DEFINITIONS
 @property (nonatomic, getter=isUpdated, readonly) BOOL updated;
 @property (nonatomic, getter=isDeleted, readonly) BOOL deleted;
 
-@property (nonatomic, readonly) BOOL hasChanges NS_AVAILABLE(10_7, 5_0);
+@property (nonatomic, readonly) BOOL hasChanges API_AVAILABLE(macosx(10.7),ios(5.0));
 
 /* returns YES if any persistent properties do not compare isEqual to their last saved state.  Relationship faults will not be unnecessarily fired.  This differs from the existing -hasChanges method which is a simple dirty flag and also includes transient properties */
-@property (nonatomic, readonly) BOOL hasPersistentChangedValues NS_AVAILABLE(10_9,7_0);
+@property (nonatomic, readonly) BOOL hasPersistentChangedValues API_AVAILABLE(macosx(10.9),ios(7.0));
 
 // this information is useful in many situations when computations are optional - this can be used to avoid growing the object graph unnecessarily (which allows to control performance as it can avoid time consuming fetches from databases)
 @property (nonatomic, getter=isFault, readonly) BOOL fault;    
 
 // returns a Boolean indicating if the relationship for the specified key is a fault.  If a value of NO is returned, the resulting relationship is a realized object;  otherwise the relationship is a fault.  If the specified relationship is a fault, calling this method does not result in the fault firing.
-- (BOOL)hasFaultForRelationshipNamed:(NSString *)key NS_AVAILABLE(10_5,3_0); 
+- (BOOL)hasFaultForRelationshipNamed:(NSString *)key API_AVAILABLE(macosx(10.5),ios(3.0)); 
 
 /* returns an array of objectIDs for the contents of a relationship.  to-one relationships will return an NSArray with a single NSManagedObjectID.  Optional relationships may return an empty NSArray.  The objectIDs will be returned in an NSArray regardless of the type of the relationship.  */
-- (NSArray<NSManagedObjectID *> *)objectIDsForRelationshipNamed:(NSString *)key NS_AVAILABLE(10_11,8_3);
+- (NSArray<NSManagedObjectID *> *)objectIDsForRelationshipNamed:(NSString *)key API_AVAILABLE(macosx(10.11),ios(8.3));
 
 /* Allow developers to determine if an object is in a transitional phase when receiving a KVO notification.  Returns 0 if the object is fully initialized as a managed object and not transitioning to or from another state */
-@property (nonatomic, readonly) NSUInteger faultingState NS_AVAILABLE(10_5,3_0);
+@property (nonatomic, readonly) NSUInteger faultingState API_AVAILABLE(macosx(10.5),ios(3.0));
 
 // lifecycle/change management (includes key-value observing methods)
 - (void)willAccessValueForKey:(nullable NSString *)key; // read notification
@@ -2628,10 +2835,10 @@ NS_CLASS_AVAILABLE(10_4,3_0) NS_REQUIRES_PROPERTY_DEFINITIONS
 - (void)awakeFromInsert;
 
 /* Callback for undo, redo, and other multi-property state resets */
-- (void)awakeFromSnapshotEvents:(NSSnapshotEventType)flags NS_AVAILABLE(10_6,3_0);
+- (void)awakeFromSnapshotEvents:(NSSnapshotEventType)flags API_AVAILABLE(macosx(10.6),ios(3.0));
 
 /* Callback before delete propagation while the object is still alive.  Useful to perform custom propagation before the relationships are torn down or reconfigure KVO observers. */
-- (void)prepareForDeletion NS_AVAILABLE(10_6,3_0);
+- (void)prepareForDeletion API_AVAILABLE(macosx(10.6),ios(3.0));
 
 // commonly used to compute persisted values from other transient/scratchpad values, to set timestamps, etc. - this method can have "side effects" on the persisted values
 - (void)willSave;    
@@ -2640,7 +2847,7 @@ NS_CLASS_AVAILABLE(10_4,3_0) NS_REQUIRES_PROPERTY_DEFINITIONS
 - (void)didSave;    
 
 // invoked automatically by the Core Data framework before receiver is converted (back) to a fault.  This method is the companion of the -didTurnIntoFault method, and may be used to (re)set state which requires access to property values (for example, observers across keypaths.)  The default implementation does nothing.  
-- (void)willTurnIntoFault NS_AVAILABLE(10_5,3_0);
+- (void)willTurnIntoFault API_AVAILABLE(macosx(10.5),ios(3.0));
 
 // commonly used to clear out additional transient values or caches
 - (void)didTurnIntoFault;    
@@ -2648,13 +2855,13 @@ NS_CLASS_AVAILABLE(10_4,3_0) NS_REQUIRES_PROPERTY_DEFINITIONS
 // value access (includes key-value coding methods)
 
 // KVC - overridden to access generic dictionary storage unless subclasses explicitly provide accessors
-- (nullable id)valueForKey:(NSString *)key;
+- (nullable id)valueForKey:(NSString *)key;    
 
 // KVC - overridden to access generic dictionary storage unless subclasses explicitly provide accessors
-- (void)setValue:(nullable id)value forKey:(NSString *)key;
+- (void)setValue:(nullable id)value forKey:(NSString *)key;    
 
 // primitive methods give access to the generic dictionary storage from subclasses that implement explicit accessors like -setName/-name to add custom document logic
-- (nullable id)primitiveValueForKey:(NSString *)key;
+- (nullable id)primitiveValueForKey:(NSString *)key;    
 - (void)setPrimitiveValue:(nullable id)value forKey:(NSString *)key;
 
 // returns a dictionary of the last fetched or saved keys and values of this object.  Pass nil to get all persistent modeled properties.
@@ -2663,13 +2870,71 @@ NS_CLASS_AVAILABLE(10_4,3_0) NS_REQUIRES_PROPERTY_DEFINITIONS
 // returns a dictionary with the keys and (new) values that have been changed since last fetching or saving the object (this is implemented efficiently without firing relationship faults)
 - (NSDictionary<NSString *, id> *)changedValues;
 
-- (NSDictionary<NSString *, id> *)changedValuesForCurrentEvent NS_AVAILABLE(10_7, 5_0);
+- (NSDictionary<NSString *, id> *)changedValuesForCurrentEvent API_AVAILABLE(macosx(10.7),ios(5.0));
 
 // validation - in addition to KVC validation managed objects have hooks to validate their lifecycle state; validation is a critical piece of functionality and the following methods are likely the most commonly overridden methods in custom subclasses
-- (BOOL)validateValue:(id __nullable * __nonnull)value forKey:(NSString *)key error:(NSError **)error;    // KVC
+- (BOOL)validateValue:(id _Nullable * _Nonnull)value forKey:(NSString *)key error:(NSError **)error;    // KVC
 - (BOOL)validateForDelete:(NSError **)error;
 - (BOOL)validateForInsert:(NSError **)error;
 - (BOOL)validateForUpdate:(NSError **)error;
+
+    
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  CoreData.framework/Headers/NSPersistentContainer.h
+/*
+    NSPersistentContainer.h
+    Core Data
+    Copyright (c) 2016-2018, Apple Inc.
+    All rights reserved.
+*/
+
+#import <Foundation/NSArray.h>
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSError.h>
+#import <CoreData/NSManagedObjectContext.h>
+#import <CoreData/NSPersistentStoreCoordinator.h>
+#import <CoreData/NSManagedObjectModel.h>
+#import <CoreData/NSPersistentStoreDescription.h>
+
+@class NSURL;
+
+NS_ASSUME_NONNULL_BEGIN
+
+// An instance of NSPersistentContainer includes all objects needed to represent a functioning Core Data stack, and provides convenience methods and properties for common patterns.
+API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0))
+@interface NSPersistentContainer : NSObject {
+#if (!__OBJC2__)
+@private
+    id _name;
+    NSManagedObjectContext *_viewContext;
+    id _storeCoordinator;
+    id _storeDescriptions;
+#endif
+}
+
++ (instancetype)persistentContainerWithName:(NSString *)name;
++ (instancetype)persistentContainerWithName:(NSString *)name managedObjectModel:(NSManagedObjectModel *)model;
+
++ (NSURL *)defaultDirectoryURL;
+
+@property (copy, readonly) NSString *name;
+@property (strong, readonly) NSManagedObjectContext *viewContext;
+@property (strong, readonly) NSManagedObjectModel *managedObjectModel;
+@property (strong, readonly) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (copy) NSArray<NSPersistentStoreDescription *> *persistentStoreDescriptions;
+
+// Creates a container using the model named `name` in the main bundle
+- (instancetype)initWithName:(NSString *)name;
+
+- (instancetype)initWithName:(NSString *)name managedObjectModel:(NSManagedObjectModel *)model NS_DESIGNATED_INITIALIZER;
+
+// Load stores from the storeDescriptions property that have not already been successfully added to the container. The completion handler is called once for each store that succeeds or fails.
+- (void)loadPersistentStoresWithCompletionHandler:(void (^)(NSPersistentStoreDescription *, NSError * _Nullable))block;
+
+- (NSManagedObjectContext *)newBackgroundContext NS_RETURNS_RETAINED;
+- (void)performBackgroundTask:(void (^)(NSManagedObjectContext *))block;
 
 @end
 
@@ -2678,7 +2943,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSManagedObjectID.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -2691,7 +2956,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSURL;
 
 // Managed object IDs are opaque identifiers for managed objects.
-NS_CLASS_AVAILABLE(10_4,3_0)
+API_AVAILABLE(macosx(10.4),ios(3.0))
 @interface NSManagedObjectID : NSObject <NSCopying> {
 }
 
@@ -2709,7 +2974,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSManagedObjectContext.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -2731,131 +2996,78 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSPersistentStore;
 @class NSPersistentStoreCoordinator;
 @class NSPropertyDescription;
+@class NSQueryGenerationToken;
 @class NSUndoManager;
 @class NSNotification;
 
 // Notifications immediately before and immediately after the context saves.  The user info dictionary contains information about the objects that changed and what changed
-COREDATA_EXTERN NSString * const NSManagedObjectContextWillSaveNotification NS_AVAILABLE(10_5, 3_0);
-COREDATA_EXTERN NSString * const NSManagedObjectContextDidSaveNotification NS_AVAILABLE(10_4, 3_0);
+COREDATA_EXTERN NSString * const NSManagedObjectContextWillSaveNotification API_AVAILABLE(macosx(10.5),ios(3.0));
+COREDATA_EXTERN NSString * const NSManagedObjectContextDidSaveNotification API_AVAILABLE(macosx(10.4),ios(3.0));
 
 // Notification when objects in a context changed:  the user info dictionary contains information about the objects that changed and what changed
-COREDATA_EXTERN NSString * const NSManagedObjectContextObjectsDidChangeNotification NS_AVAILABLE(10_4, 3_0);    
+COREDATA_EXTERN NSString * const NSManagedObjectContextObjectsDidChangeNotification API_AVAILABLE(macosx(10.4),ios(3.0));    
 
 // User info keys for NSManagedObjectContextObjectsDidChangeNotification:  the values for these keys are sets of managed objects
-COREDATA_EXTERN NSString * const NSInsertedObjectsKey NS_AVAILABLE(10_4, 3_0);
-COREDATA_EXTERN NSString * const NSUpdatedObjectsKey NS_AVAILABLE(10_4, 3_0);
-COREDATA_EXTERN NSString * const NSDeletedObjectsKey NS_AVAILABLE(10_4, 3_0);
+COREDATA_EXTERN NSString * const NSInsertedObjectsKey API_AVAILABLE(macosx(10.4),ios(3.0));
+COREDATA_EXTERN NSString * const NSUpdatedObjectsKey API_AVAILABLE(macosx(10.4),ios(3.0));
+COREDATA_EXTERN NSString * const NSDeletedObjectsKey API_AVAILABLE(macosx(10.4),ios(3.0));
 
-COREDATA_EXTERN NSString * const NSRefreshedObjectsKey NS_AVAILABLE(10_5, 3_0);
-COREDATA_EXTERN NSString * const NSInvalidatedObjectsKey NS_AVAILABLE(10_5, 3_0);
+COREDATA_EXTERN NSString * const NSRefreshedObjectsKey API_AVAILABLE(macosx(10.5),ios(3.0));
+COREDATA_EXTERN NSString * const NSInvalidatedObjectsKey API_AVAILABLE(macosx(10.5),ios(3.0));
+
+COREDATA_EXTERN NSString * const NSManagedObjectContextQueryGenerationKey API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
 
 // User info keys for NSManagedObjectContextObjectsDidChangeNotification:  the values for these keys are arrays of objectIDs
-COREDATA_EXTERN NSString * const NSInvalidatedAllObjectsKey NS_AVAILABLE(10_5, 3_0); // All objects in the context have been invalidated
+COREDATA_EXTERN NSString * const NSInvalidatedAllObjectsKey API_AVAILABLE(macosx(10.5),ios(3.0)); // All objects in the context have been invalidated
 
 // Default policy for all managed object contexts - save returns with an error that contains the object IDs of the objects that had conflicts(NSInsertedObjectsKey, NSUpdatedObjectsKey).
-COREDATA_EXTERN id NSErrorMergePolicy NS_AVAILABLE(10_4, 3_0);
+COREDATA_EXTERN id NSErrorMergePolicy API_AVAILABLE(macosx(10.4),ios(3.0));
 
 // This singleton policy merges conflicts between the persistent store's version of the object and the current in memory version. The merge occurs by individual property. For properties which have been changed in both the external source and in memory, the external changes trump the in memory ones.
-COREDATA_EXTERN id NSMergeByPropertyStoreTrumpMergePolicy NS_AVAILABLE(10_4, 3_0);    
+COREDATA_EXTERN id NSMergeByPropertyStoreTrumpMergePolicy API_AVAILABLE(macosx(10.4),ios(3.0));    
 
 // This singleton policy merges conflicts between the persistent store's version of the object and the current in memory version. The merge occurs by individual property. For properties which have been changed in both the external source and in memory, the in memory changes trump the external ones.
-COREDATA_EXTERN id NSMergeByPropertyObjectTrumpMergePolicy NS_AVAILABLE(10_4, 3_0);    
+COREDATA_EXTERN id NSMergeByPropertyObjectTrumpMergePolicy API_AVAILABLE(macosx(10.4),ios(3.0));    
 
 // This singleton policy overwrites all state for the changed objects in conflict The current object's state is pushed upon the persistent store.
-COREDATA_EXTERN id NSOverwriteMergePolicy NS_AVAILABLE(10_4, 3_0);    
+COREDATA_EXTERN id NSOverwriteMergePolicy API_AVAILABLE(macosx(10.4),ios(3.0));    
 
 // This singleton policy discards all state for the changed objects in conflict. The persistent store's version of the object is used.
-COREDATA_EXTERN id NSRollbackMergePolicy NS_AVAILABLE(10_4, 3_0);    
+COREDATA_EXTERN id NSRollbackMergePolicy API_AVAILABLE(macosx(10.4),ios(3.0));    
 
 typedef NS_ENUM(NSUInteger, NSManagedObjectContextConcurrencyType) {
-    NSConfinementConcurrencyType  NS_ENUM_DEPRECATED(10_4,10_11,3_0,9_0, "Use another NSManagedObjectContextConcurrencyType") = 0x00,
+    NSConfinementConcurrencyType API_DEPRECATED( "Use another NSManagedObjectContextConcurrencyType", macosx(10.4,10.11), ios(3.0,9.0)) = 0x00,
     NSPrivateQueueConcurrencyType		= 0x01,
     NSMainQueueConcurrencyType			= 0x02
-} NS_ENUM_AVAILABLE(10_7,  5_0);
+} API_AVAILABLE(macosx(10.7), ios(5.0));
 
-NS_CLASS_AVAILABLE(10_4,3_0)
+API_AVAILABLE(macosx(10.4),ios(3.0))
 @interface NSManagedObjectContext : NSObject <NSCoding, NSLocking> {
-@private
-  volatile id _queueOwner;
-  void *_dispatchQueue;
-  void* _reserved1;
-  int32_t _spinLock;
-  id _parentObjectStore;
-  struct _managedObjectContextFlags {
-      unsigned int _registeredForCallback:1;
-      unsigned int _propagatesDeletesAtEndOfEvent:1;
-      unsigned int _exhaustiveValidation:1;
-      unsigned int _processingChanges:1;
-      unsigned int _useCommittedSnapshot:1;
-      unsigned int _registeredUndoTransactionID:1;
-      unsigned int _retainsAllRegisteredObjects:1;
-      unsigned int _savingInProgress:1;
-      unsigned int _wasDisposed:1;
-      unsigned int _unprocessedChangesPending:1;
-      unsigned int _isDirty:1;
-      unsigned int _ignoreUndoCheckpoints:1;
-	  unsigned int _propagatingDeletes:1;
-	  unsigned int _isNSEditorEditing:1;
-      unsigned int _isMainThreadBlessed:1;
-      unsigned int _isImportContext:1;
-      unsigned int _preflightSaveInProgress:1;
-      unsigned int _disableDiscardEditing:1;
-      unsigned int _isParentStoreContext:1;
-      unsigned int _postSaveNotifications:1;
-      unsigned int _isMerging:1;
-      unsigned int _concurrencyType:1;
-      unsigned int _deleteInaccessible:1;
-      unsigned int _reservedFlags:9;
-  } _flags;
-  NSMutableSet *_unprocessedChanges;
-  NSMutableSet *_unprocessedDeletes;
-  NSMutableSet *_unprocessedInserts;
-  NSMutableSet *_insertedObjects;
-  NSMutableSet *_deletedObjects;
-  NSMutableSet *_changedObjects;
-  NSMutableSet *_lockedObjects;
-  NSMutableSet *_refreshedObjects;
-  id _infoByGID;
-  id *_cachedObsInfoByEntity;
-  short _undoTransactionID;
-  id _lock;
-  long _lockCount;
-  long _objectStoreLockCount;
-  NSTimeInterval _fetchTimestamp;
-  intptr_t _referenceCallbackRegistration;
-  id _referenceQueue;
-  id _reserved3;
-  id _reserved4;
-  int32_t _cd_rc;
-  int32_t _ignoreChangeNotification;
-  id _reserved6;
-  NSString* _contextLabel;
-  id* _additionalPrivateIvars;
 }
 
-+ (instancetype)new NS_DEPRECATED(10_4,10_11,3_0,9_0, "Use -initWithConcurrencyType: instead");
-- (instancetype)init NS_DEPRECATED(10_4,10_11,3_0,9_0, "Use -initWithConcurrencyType: instead");
-- (instancetype)initWithConcurrencyType:(NSManagedObjectContextConcurrencyType)ct NS_DESIGNATED_INITIALIZER  NS_AVAILABLE(10_7,  5_0);
++ (instancetype)new API_DEPRECATED( "Use -initWithConcurrencyType: instead", macosx(10.4,10.11), ios(3.0,9.0));
+- (instancetype)init API_DEPRECATED( "Use -initWithConcurrencyType: instead", macosx(10.4,10.11), ios(3.0,9.0));
+- (instancetype)initWithConcurrencyType:(NSManagedObjectContextConcurrencyType)ct NS_DESIGNATED_INITIALIZER  API_AVAILABLE(macosx(10.7),ios(5.0));
 
 /* asynchronously performs the block on the context's queue.  Encapsulates an autorelease pool and a call to processPendingChanges */
-- (void)performBlock:(void (^)())block NS_AVAILABLE(10_7,  5_0);
+- (void)performBlock:(void (^)(void))block API_AVAILABLE(macosx(10.7),ios(5.0));
 
 /* synchronously performs the block on the context's queue.  May safely be called reentrantly.  */
-- (void)performBlockAndWait:(void (^)())block NS_AVAILABLE(10_7,  5_0);
+- (void)performBlockAndWait:(void (NS_NOESCAPE ^)(void))block API_AVAILABLE(macosx(10.7),ios(5.0));
 
 /* coordinator which provides model and handles persistency (multiple contexts can share a coordinator) */
 @property (nullable, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
-@property (nullable, strong) NSManagedObjectContext *parentContext NS_AVAILABLE(10_7,  5_0);
+@property (nullable, strong) NSManagedObjectContext *parentContext API_AVAILABLE(macosx(10.7),ios(5.0));
 
 /* custom label for a context.  NSPrivateQueueConcurrencyType contexts will set the label on their queue */
-@property (nullable, copy) NSString *name NS_AVAILABLE(10_10, 8_0);
+@property (nullable, copy) NSString *name API_AVAILABLE(macosx(10.10),ios(8.0));
 
 @property (nullable, nonatomic, strong) NSUndoManager *undoManager;
 
 @property (nonatomic, readonly) BOOL hasChanges;
-@property (nonatomic, readonly, strong) NSMutableDictionary *userInfo NS_AVAILABLE(10_7,  5_0);
-@property (readonly) NSManagedObjectContextConcurrencyType concurrencyType NS_AVAILABLE(10_7,  5_0);
+@property (nonatomic, readonly, strong) NSMutableDictionary *userInfo API_AVAILABLE(macosx(10.7),ios(5.0));
+@property (readonly) NSManagedObjectContextConcurrencyType concurrencyType API_AVAILABLE(macosx(10.7),ios(5.0));
 
 /* returns the object for the specified ID if it is registered in the context already or nil. It never performs I/O. */
 - (nullable __kindof NSManagedObject *)objectRegisteredForID:(NSManagedObjectID *)objectID;
@@ -2864,13 +3076,13 @@ NS_CLASS_AVAILABLE(10_4,3_0)
 - (__kindof NSManagedObject *)objectWithID:(NSManagedObjectID *)objectID;
 
 /* returns the object for the specified ID if it is already registered in the context, or faults the object into the context.  It might perform I/O if the data is uncached.  If the object cannot be fetched, or does not exist, or cannot be faulted, it returns nil.  Unlike -objectWithID: it never returns a fault.  */
-- (nullable __kindof NSManagedObject *)existingObjectWithID:(NSManagedObjectID*)objectID error:(NSError**)error NS_AVAILABLE(10_6, 3_0);
+- (nullable __kindof NSManagedObject*)existingObjectWithID:(NSManagedObjectID*)objectID error:(NSError**)error API_AVAILABLE(macosx(10.6),ios(3.0));
 
 // method to fetch objects from the persistent stores into the context (fetch request defines the entity and predicate as well as a sort order for the objects); context will match the results from persistent stores with current changes in the context (so inserted objects are returned even if they are not persisted yet); to fetch a single object with an ID if it is not guaranteed to exist and thus -objectWithObjectID: cannot be used, one would create a predicate like [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:@"objectID"] rightExpression:[NSExpression expressionForConstantValue:<object id>] modifier:NSPredicateModifierDirect type:NSEqualToPredicateOperatorType options:0]
 - (nullable NSArray *)executeFetchRequest:(NSFetchRequest *)request error:(NSError **)error;
 
 // returns the number of objects a fetch request would have returned if it had been passed to -executeFetchRequest:error:.   If an error occurred during the processing of the request, this method will return NSNotFound. 
-- (NSUInteger) countForFetchRequest: (NSFetchRequest *)request error: (NSError **)error NS_AVAILABLE(10_5, 3_0);    
+- (NSUInteger) countForFetchRequest: (NSFetchRequest *)request error: (NSError **)error API_AVAILABLE(macosx(10.5),ios(3.0)) __attribute__((swift_error(nonnull_error)));
 
 // Method to pass a request to the store without affecting the contents of the managed object context.
 // Will return an NSPersistentStoreResult which may contain additional information about the result of the action
@@ -2878,7 +3090,7 @@ NS_CLASS_AVAILABLE(10_4,3_0)
 // A request may succeed in some stores and fail in others. In this case, the error will contain information
 // about each individual store failure.
 // Will always reject NSSaveChangesRequests.
-- (nullable __kindof NSPersistentStoreResult *)executeRequest:(NSPersistentStoreRequest*)request error:(NSError **)error NS_AVAILABLE(10_10, 8_0);
+- (nullable __kindof NSPersistentStoreResult *)executeRequest:(NSPersistentStoreRequest*)request error:(NSError **)error API_AVAILABLE(macosx(10.10),ios(8.0));
 
 - (void)insertObject:(NSManagedObject *)object;
 - (void)deleteObject:(NSManagedObject *)object;
@@ -2910,11 +3122,11 @@ NS_CLASS_AVAILABLE(10_4,3_0)
 - (BOOL)save:(NSError **)error;
 
 /* calls -refreshObject:mergeChanges: on all currently registered objects with this context.  It handles dirtied objects and clearing the context reference queue */
-- (void)refreshAllObjects NS_AVAILABLE(10_11,8_3);
+- (void)refreshAllObjects API_AVAILABLE(macosx(10.11),ios(8.3));
 
-- (void)lock NS_DEPRECATED(10_4, 10_10, 3_0, 8_0, "Use a queue style context and -performBlockAndWait: instead");
-- (void)unlock NS_DEPRECATED(10_4, 10_10, 3_0, 8_0, "Use a queue style context and -performBlockAndWait: instead");
-- (BOOL)tryLock NS_DEPRECATED(10_4, 10_10, 3_0, 8_0, "Use a queue style context and -performBlock: instead");
+- (void)lock API_DEPRECATED( "Use a queue style context and -performBlockAndWait: instead", macosx(10.4,10.10), ios(3.0,8.0));
+- (void)unlock API_DEPRECATED( "Use a queue style context and -performBlockAndWait: instead", macosx(10.4,10.10), ios(3.0,8.0));
+- (BOOL)tryLock API_DEPRECATED( "Use a queue style context and -performBlock: instead", macosx(10.4,10.10), ios(3.0,8.0));
     
 // whether or not the context propagates deletes to related objects at the end of the event, or only at save time
 @property (nonatomic) BOOL propagatesDeletesAtEndOfEvent;   // The default is YES.
@@ -2923,10 +3135,10 @@ NS_CLASS_AVAILABLE(10_4,3_0)
 @property (nonatomic) BOOL retainsRegisteredObjects;   // The default is NO.
 
 /*  set the rule to handle inaccessible faults.  If YES, then the managed object is marked deleted and all its properties, including scalars, nonnullable, and mandatory properties, will be nil or zero’d out.  If NO, the context will throw an exception. Managed objects that are inaccessible because their context is nil due to memory management issues will throw an exception regardless. */
-@property BOOL shouldDeleteInaccessibleFaults NS_AVAILABLE(10_11,9_0);
+@property BOOL shouldDeleteInaccessibleFaults API_AVAILABLE(macosx(10.11),ios(9.0));
 
 /*  this method will not be called from APIs which return an NSError like -existingObjectWithID:error: nor for managed objects with a nil context (e.g. the fault is inaccessible because the object or its context have been released) this method will not be called if Core Data determines there is an unambiguously correct action to recover.  This might happen if a fault was tripped during delete propagation.  In that case, the fault will simply be deleted.  triggeringProperty may be nil when either all properties are involved, or Core Data is unable to determine the reason for firing the fault. the default implementation logs and then returns the value of -shouldDeleteInaccessibleFaults. */
-- (BOOL)shouldHandleInaccessibleFault:(NSManagedObject*)fault forObjectID:(NSManagedObjectID*)oid triggeredByProperty:(nullable NSPropertyDescription*)property NS_AVAILABLE(10_11,9_0);
+- (BOOL)shouldHandleInaccessibleFault:(NSManagedObject*)fault forObjectID:(NSManagedObjectID*)oid triggeredByProperty:(nullable NSPropertyDescription*)property API_AVAILABLE(macosx(10.11),ios(9.0));
 
 // Staleness interval is the relative time until cached data should be considered stale. The value is applied on a per object basis. For example, a value of 300.0 informs the context to utilize cached information for no more than 5 minutes after that object was originally fetched. This does not affect objects currently in use. Principly, this controls whether fulfilling a fault uses data previously fetched by the application, or issues a new fetch.  It is a hint which may not be supported by all persistent store types.
 @property () NSTimeInterval stalenessInterval; // a negative value is considered infinite.  The default is infinite staleness.
@@ -2935,18 +3147,55 @@ NS_CLASS_AVAILABLE(10_4,3_0)
 
 /* Converts the object IDs of the specified objects to permanent IDs.  This implementation will convert the object ID of each managed object in the specified array to a permanent ID.  Any object in the target array with a permanent ID will be ignored;  additionally, any managed object in the array not already assigned to a store will be assigned, based on the same rules Core Data uses for assignment during a save operation (first writable store supporting the entity, and appropriate for the instance and its related items.)  Although the object will have a permanent ID, it will still respond positively to -isInserted until it is saved.  If an error is encountered obtaining an identifier, the return value will be NO.
 */
-- (BOOL)obtainPermanentIDsForObjects:(NSArray<NSManagedObject *> *)objects error:(NSError **)error NS_AVAILABLE(10_5, 3_0);
+- (BOOL)obtainPermanentIDsForObjects:(NSArray<NSManagedObject *> *)objects error:(NSError **)error API_AVAILABLE(macosx(10.5),ios(3.0));
 
 /* Merges the changes specified in notification object received from another context's NSManagedObjectContextDidSaveNotification into the receiver.  This method will refresh any objects which have been updated in the other context, fault in any newly inserted objects, and invoke deleteObject: on those which have been deleted.  The developer is only responsible for the thread safety of the receiver.
 */
-- (void)mergeChangesFromContextDidSaveNotification:(NSNotification *)notification NS_AVAILABLE(10_5, 3_0);
+- (void)mergeChangesFromContextDidSaveNotification:(NSNotification *)notification API_AVAILABLE(macosx(10.5),ios(3.0));
 
 /* Similar to mergeChangesFromContextDidSaveNotification, this method handles changes from potentially other processes or serialized state.  It more efficiently
-     * merges changes into multiple contexts, as well as nested context. The keys in the dictionary should be one those from an
-     *  NSManagedObjectContextObjectsDidChangeNotification: NSInsertedObjectsKey, NSUpdatedObjectsKey, etc.
-     *  the values should be an NSArray of either NSManagedObjectID or NSURL objects conforming to valid results from -URIRepresentation
-     */
-+ (void)mergeChangesFromRemoteContextSave:(NSDictionary*)changeNotificationData intoContexts:(NSArray<NSManagedObjectContext*> *)contexts NS_AVAILABLE(10_11,9_0);
+ * merges changes into multiple contexts, as well as nested context. The keys in the dictionary should be one those from an
+ *  NSManagedObjectContextObjectsDidChangeNotification: NSInsertedObjectsKey, NSUpdatedObjectsKey, etc.
+ *  the values should be an NSArray of either NSManagedObjectID or NSURL objects conforming to valid results from -URIRepresentation
+ */
++ (void)mergeChangesFromRemoteContextSave:(NSDictionary*)changeNotificationData intoContexts:(NSArray<NSManagedObjectContext*> *)contexts API_AVAILABLE(macosx(10.11),ios(9.0));
+
+/* Return the query generation currently in use by this context. Will be one of the following:
+ * - nil, default value => this context is not using generational querying
+ * - an opaque token => specifies the generation of data this context is vending
+ *
+ * All child contexts will return nil.
+ */
+@property (nullable, nonatomic, strong, readonly) NSQueryGenerationToken *queryGenerationToken API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+
+/* Set the query generation this context should use. Must be one of the following values:
+ * - nil => this context will not use generational querying
+ * - the value returned by +[NSQueryGenerationToken currentQueryGenerationToken] => this context will pin itself to the generation of the database when it first loads data
+ * - the result of calling -[NSManagedObjectContext queryGenerationToken] on another managed object context => this context will be set to whatever query generation the original context is currently using;
+ *
+ * Query generations are for fetched data only; they are not used during saving. If a pinned context saves,
+ * its query generation will be updated after the save. Executing a NSBatchUpdateRequest or NSBatchDeleteRequest 
+ * will not cause the query generation to advance, since these do not otherwise consider or affect the 
+ * managed object context's content.
+ *
+ * All nested contexts will defer to their parent context’s data. It is a programmer error to try to set
+ * the queryGenerationToken on a child context.
+ *
+ * Query generations are tracked across the union of stores. Additions to the persistent store coordinator's
+ * persistent stores will be ignored until the context's query generation is updated to include them.
+ *
+ * May partially fail if one or more stores being tracked by the token are removed from the persistent
+ * store coordinator.
+ */
+- (BOOL)setQueryGenerationFromToken:(nullable NSQueryGenerationToken *)generation error:(NSError **)error API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+
+/* Whether the context automatically merges changes saved to its coordinator or parent context. Setting this property to YES when the context is pinned to a non-current query generation is not supported.
+ */
+@property (nonatomic) BOOL automaticallyMergesChangesFromParent API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0));
+
+/* Set the author for the context, this will be used as an identifier in the Persistent History Transactions (NSPersistentHistoryTransaction)
+ */
+@property (nullable, copy) NSString *transactionAuthor API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0));
 
 @end
 
@@ -2955,7 +3204,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSMappingModel.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -2969,8 +3218,9 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSManagedObjectModel;
 @class NSEntityMapping;
 
-NS_CLASS_AVAILABLE(10_5,3_0)
+API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSMappingModel: NSObject {
+#if (!__OBJC2__)
     @private
     void *_reserved;
     void *_reserved1;
@@ -2981,7 +3231,7 @@ NS_CLASS_AVAILABLE(10_5,3_0)
         unsigned int _isInUse:1;
         unsigned int _reservedModelMapping:31;
     } _modelMappingFlags;
-
+#endif
 }
 
 /* Returns the mapping model to translate data from the source to the destination model.  This method is a companion to the mergedModelFromBundles: methods;  in this case, the framework uses the version information from the models to locate the appropriate mapping model in the available bundles.  If the mapping model for the models cannot be found, this method returns nil. 
@@ -2990,7 +3240,7 @@ NS_CLASS_AVAILABLE(10_5,3_0)
 
 /* Returns a newly created mapping model to translate data from the source to the destination model, if possible.  The differences between the source and destination model are compared and if all changes are simple enough to be able to reasonably infer a data migration mapping model, such a model is created and returned.  If the mapping model can not be created, nil is returned and an error code is returned to indicate why inferring a mapping model automatically failed.
  */
-+ (nullable NSMappingModel *)inferredMappingModelForSourceModel:(NSManagedObjectModel *)sourceModel destinationModel:(NSManagedObjectModel *)destinationModel error:(NSError **)error NS_AVAILABLE(10_6,3_0);
++ (nullable NSMappingModel *)inferredMappingModelForSourceModel:(NSManagedObjectModel *)sourceModel destinationModel:(NSManagedObjectModel *)destinationModel error:(NSError **)error API_AVAILABLE(macosx(10.6),ios(3.0));
 
 /* Loads the mapping model from the specified URL.
 */
@@ -3011,11 +3261,11 @@ NS_CLASS_AVAILABLE(10_5,3_0)
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/CoreDataErrors.h
 /*
-	CoreDataErrors.h
-	Core Data
-    Copyright (c) 2004-2015, Apple Inc.
-	All rights reserved.
- */
+    CoreDataErrors.h
+    Core Data
+    Copyright (c) 2004-2018, Apple Inc.
+    All rights reserved.
+*/
 
 #import <Foundation/NSObject.h>
 
@@ -3027,19 +3277,19 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 // User info keys for errors created by Core Data:
-COREDATA_EXTERN NSString * const NSDetailedErrorsKey NS_AVAILABLE(10_4,3_0);           // if multiple validation errors occur in one operation, they are collected in an array and added with this key to the "top-level error" of the operation
+COREDATA_EXTERN NSString * const NSDetailedErrorsKey API_AVAILABLE(macosx(10.4),ios(3.0));           // if multiple validation errors occur in one operation, they are collected in an array and added with this key to the "top-level error" of the operation
 
-COREDATA_EXTERN NSString * const NSValidationObjectErrorKey NS_AVAILABLE(10_4,3_0);    // object that failed to validate for a validation error
-COREDATA_EXTERN NSString * const NSValidationKeyErrorKey NS_AVAILABLE(10_4,3_0);       // key that failed to validate for a validation error
-COREDATA_EXTERN NSString * const NSValidationPredicateErrorKey NS_AVAILABLE(10_4,3_0); // for predicate-based validation, the predicate for the condition that failed to validate
-COREDATA_EXTERN NSString * const NSValidationValueErrorKey NS_AVAILABLE(10_4,3_0);     // if non-nil, the value for the key that failed to validate for a validation error
+COREDATA_EXTERN NSString * const NSValidationObjectErrorKey API_AVAILABLE(macosx(10.4),ios(3.0));    // object that failed to validate for a validation error
+COREDATA_EXTERN NSString * const NSValidationKeyErrorKey API_AVAILABLE(macosx(10.4),ios(3.0));       // key that failed to validate for a validation error
+COREDATA_EXTERN NSString * const NSValidationPredicateErrorKey API_AVAILABLE(macosx(10.4),ios(3.0)); // for predicate-based validation, the predicate for the condition that failed to validate
+COREDATA_EXTERN NSString * const NSValidationValueErrorKey API_AVAILABLE(macosx(10.4),ios(3.0));     // if non-nil, the value for the key that failed to validate for a validation error
 
-COREDATA_EXTERN NSString * const NSAffectedStoresErrorKey NS_AVAILABLE(10_4,3_0);      // stores prompting an error
-COREDATA_EXTERN NSString * const NSAffectedObjectsErrorKey NS_AVAILABLE(10_4,3_0);     // objects prompting an error
+COREDATA_EXTERN NSString * const NSAffectedStoresErrorKey API_AVAILABLE(macosx(10.4),ios(3.0));      // stores prompting an error
+COREDATA_EXTERN NSString * const NSAffectedObjectsErrorKey API_AVAILABLE(macosx(10.4),ios(3.0));     // objects prompting an error
 
-COREDATA_EXTERN NSString * const NSPersistentStoreSaveConflictsErrorKey NS_AVAILABLE(10_7, 5_0);     // key in NSError's userInfo specifying the NSArray of NSMergeConflict
+COREDATA_EXTERN NSString * const NSPersistentStoreSaveConflictsErrorKey API_AVAILABLE(macosx(10.7),ios(5.0));     // key in NSError's userInfo specifying the NSArray of NSMergeConflict
 
-COREDATA_EXTERN NSString * const NSSQLiteErrorDomain NS_AVAILABLE(10_5,3_0);           // Predefined domain for SQLite errors, value of "code" will correspond to preexisting values in SQLite.
+COREDATA_EXTERN NSString * const NSSQLiteErrorDomain API_AVAILABLE(macosx(10.5),ios(3.0));           // Predefined domain for SQLite errors, value of "code" will correspond to preexisting values in SQLite.
 
 enum : NSInteger {
     NSManagedObjectValidationError                   = 1550,   // generic validation error
@@ -3057,6 +3307,7 @@ enum : NSInteger {
     NSValidationStringTooLongError                   = 1660,   // some string value is too long
     NSValidationStringTooShortError                  = 1670,   // some string value is too short
     NSValidationStringPatternMatchingError           = 1680,   // some string value fails to match some pattern
+    NSValidationInvalidURIError                      = 1690,   // some URI value cannot be represented as a string
     
     NSManagedObjectContextLockingError               = 132000, // can't acquire a lock in a managed object context
     NSPersistentStoreCoordinatorLockingError         = 132010, // can't acquire a lock in a persistent store coordinator
@@ -3092,8 +3343,9 @@ enum : NSInteger {
     NSSQLiteError                                    = 134180,  // general SQLite error 
 
     NSInferredMappingModelError                      = 134190, // inferred mapping model creation error
-    NSExternalRecordImportError                      = 134200 // general error encountered while importing external records
-
+    NSExternalRecordImportError                      = 134200, // general error encountered while importing external records
+    
+    NSPersistentHistoryTokenExpiredError             = 134301  // The history token passed to NSPersistentChangeRequest was invalid
 };
 
 NS_ASSUME_NONNULL_END
@@ -3101,7 +3353,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPropertyMapping.h
     Core Data
-    Copyright (c) 2004-2015, Apple Inc.
+    Copyright (c) 2004-2018, Apple Inc.
     All rights reserved.
 */
 
@@ -3113,8 +3365,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class NSExpression;
 
-NS_CLASS_AVAILABLE(10_5,3_0)
+API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSPropertyMapping : NSObject {
+#if (!__OBJC2__)
     @private
     void *_reserved;
     NSArray *_transformValidations;
@@ -3126,6 +3379,7 @@ NS_CLASS_AVAILABLE(10_5,3_0)
         unsigned int _isInUse:1;
         unsigned int _reservedPropertyMapping:31;
     } _propertyMappingFlags;
+#endif
 }
 
 /* Returns/sets the name of the property in the destination entity for the mapping.  

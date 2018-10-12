@@ -161,6 +161,9 @@ NS_ASSUME_NONNULL_END
  *
  */
 
+#import <TargetConditionals.h>
+#import <Availability.h>
+
 #if __IPHONE_4_0 <= __IPHONE_OS_VERSION_MAX_ALLOWED || !TARGET_OS_IPHONE
 
 #import <EventKit/EventKitDefines.h>
@@ -641,7 +644,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
     @discussion Creates a simple query predicate to search for events within a certain date range. At present,
                 this will return events in the default time zone ([NSTimeZone defaultTimeZone]).
 
-                OS X Only: For performance reasons, this method will only return events within a four year timespan.
+                For performance reasons, this method will only return events within a four year timespan.
                 If the date range between the startDate and endDate is greater than four years, then it will be shortened 
                 to the first four years.
  
@@ -997,7 +1000,7 @@ NS_CLASS_AVAILABLE(10_8, 4_0)
 
 /*!
     @property       calendarIdentifier;
-    @description    Calendar used by this recurrence rule.
+    @discussion     Calendar used by this recurrence rule.
 */
 @property(nonatomic, readonly) NSString *calendarIdentifier;
 
@@ -1548,7 +1551,7 @@ NS_CLASS_AVAILABLE(10_8, 4_0)
 /*!
     @property   birthdayPersonUniqueID
     @abstract   Specifies the address book unique ID of the person this event was created for.
-    @disussion  This property is only valid for events in the built-in Birthdays calendar. It specifies
+    @discussion This property is only valid for events in the built-in Birthdays calendar. It specifies
                 the Address Book unique ID of the person this event was created for. For any other type of event,
                 this property returns nil.
  */
@@ -1903,7 +1906,7 @@ NS_CLASS_AVAILABLE(10_8, 4_0)
 @property(nonatomic, readonly) EKParticipantType participantType;
 
 /*!
-    @property   isCurrentUser
+    @property   currentUser
     @abstract   A boolean indicating whether this participant represents the
                 owner of this account.
  */
@@ -2022,7 +2025,7 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 @property(nonatomic, copy, nullable) NSURL *URL NS_AVAILABLE(10_8, 5_0);
 
 @property(nonatomic, readonly, nullable) NSDate *lastModifiedDate;
-@property(nonatomic, readonly, nullable) NSDate *creationDate NS_AVAILABLE(10_8, 5_0);
+@property(nonatomic, readonly, nullable, strong) NSDate *creationDate NS_AVAILABLE(10_8, 5_0);
 @property(nonatomic, copy, nullable) NSTimeZone *timeZone  NS_AVAILABLE(10_8, 5_0);
 
 // These exist to do simple checks for the presence of data without

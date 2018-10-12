@@ -1,16 +1,15 @@
 // ==========  CoreText.framework/Headers/CTRunDelegate.h
 /*
- *	CTRunDelegate.h
- *	CoreText
+ *  CTRunDelegate.h
+ *  CoreText
  *
- *	Copyright (c) 2006-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
  *
  */
 
 #ifndef __CTRUNDELEGATE__
 #define __CTRUNDELEGATE__
 
-#include <CoreText/CTDefines.h>
 #include <CoreText/CTRun.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -24,11 +23,11 @@ CF_ASSUME_NONNULL_BEGIN
 typedef const struct CF_BRIDGED_TYPE(id) __CTRunDelegate * CTRunDelegateRef;
 
 /*!
-	@function	CTRunDelegateGetTypeID
-	@abstract	Returns the CFType of CTRunDelegate objects.
+    @function   CTRunDelegateGetTypeID
+    @abstract   Returns the CFType of CTRunDelegate objects.
 */
 
-CFTypeID CTRunDelegateGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTRunDelegateGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -36,101 +35,101 @@ CFTypeID CTRunDelegateGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@typedef	CTRunDelegateDeallocateCallback
-	@abstract	The callback invoked when a CTRunDelegate is deallocated.
-	
-	@param		refCon
-				The value supplied to CTRunDelegateCreate.
+    @typedef    CTRunDelegateDeallocateCallback
+    @abstract   The callback invoked when a CTRunDelegate is deallocated.
+    
+    @param      refCon
+                The value supplied to CTRunDelegateCreate.
 */
 
 typedef void (*CTRunDelegateDeallocateCallback) (
-	void * refCon );
+    void * refCon );
 
 /*!
-	@typedef	CTRunDelegateGetAscentCallback
-	@abstract	The callback used to determine typographic ascent.
-	
-	@param		refCon
-				The value supplied to CTRunDelegateCreate.
-				
-	@result		A CGFloat value indicating the typographic ascent of glyphs to
-				which a run delegate pertains.
+    @typedef    CTRunDelegateGetAscentCallback
+    @abstract   The callback used to determine typographic ascent.
+    
+    @param      refCon
+                The value supplied to CTRunDelegateCreate.
+                
+    @result     A CGFloat value indicating the typographic ascent of glyphs to
+                which a run delegate pertains.
 */
 
 typedef CGFloat (*CTRunDelegateGetAscentCallback) (
-	void * refCon );
+    void * refCon );
 
 /*!
-	@typedef	CTRunDelegateGetDescentCallback
-	@abstract	The callback used to determine typographic descent.
-	
-	@param		refCon
-				The value supplied to CTRunDelegateCreate.
-				
-	@result		A CGFloat value indicating the typographic descent of glyphs to
-				which a run delegate pertains.
+    @typedef    CTRunDelegateGetDescentCallback
+    @abstract   The callback used to determine typographic descent.
+    
+    @param      refCon
+                The value supplied to CTRunDelegateCreate.
+                
+    @result     A CGFloat value indicating the typographic descent of glyphs to
+                which a run delegate pertains.
 */
 
 typedef CGFloat (*CTRunDelegateGetDescentCallback) (
-	void * refCon );
+    void * refCon );
 
 /*!
-	@typedef	CTRunDelegateGetWidthCallback
-	@abstract	The callback used to determine width.
-	
-	@param		refCon
-				The value supplied to CTRunDelegateCreate.
-				
-	@result		A CGFloat value indicating the width of glyphs to which a run
-				delegate pertains. A value of 0.0 indicates that the glyphs
-				should not be drawn.
+    @typedef    CTRunDelegateGetWidthCallback
+    @abstract   The callback used to determine width.
+    
+    @param      refCon
+                The value supplied to CTRunDelegateCreate.
+                
+    @result     A CGFloat value indicating the width of glyphs to which a run
+                delegate pertains. A value of 0.0 indicates that the glyphs
+                should not be drawn.
 */
 
 typedef CGFloat (*CTRunDelegateGetWidthCallback) (
-	void * refCon );
+    void * refCon );
 
 /*!
-	@typedef	CTRunDelegateCallbacks
-	@abstract	Structure containing the callbacks of a CTRunDelegate.
-	
-	@discussion These callbacks are provided by the owner of a run delegate and
-				are used to modify glyph metrics during layout. The values
-				returned by a delegate are applied to each glyph in the run(s)
-				corresponding to the attribute containing that delegate.
-				
-	@field		version
-				The version number of the callbacks being passed in as a
-				parameter to CTRunDelegateCreate. This field should always 
-				be set to kCTRunDelegateCurrentVersion.
-				
-	@field		dealloc
-				The callback used when a CTRunDelegate's retain count reaches
-				0 and the CTRunDelegate is deallocated. This callback may be
-				NULL.
-				
-	@field		getAscent
-				The callback used to indicate the ascent of the
-				CTRunDelegate. This callback may be NULL, which is equivalent
-				to a getAscent callback that always returns 0.
-				
-	@field		getDescent
-				The callback used to indicate the descent of the
-				CTRunDelegate. This callback may be NULL, which is equivalent
-				to a getDescent callback that always returns 0.
-				
-	@field		getWidth
-				The callback used to indicate the width of the
-				CTRunDelegate. This callback may be NULL, which is equivalent
-				to a getWidth callback that always returns 0.
+    @typedef    CTRunDelegateCallbacks
+    @abstract   Structure containing the callbacks of a CTRunDelegate.
+    
+    @discussion These callbacks are provided by the owner of a run delegate and
+                are used to modify glyph metrics during layout. The values
+                returned by a delegate are applied to each glyph in the run(s)
+                corresponding to the attribute containing that delegate.
+                
+    @field      version
+                The version number of the callbacks being passed in as a
+                parameter to CTRunDelegateCreate. This field should always 
+                be set to kCTRunDelegateCurrentVersion.
+                
+    @field      dealloc
+                The callback used when a CTRunDelegate's retain count reaches
+                0 and the CTRunDelegate is deallocated. This callback may be
+                NULL.
+                
+    @field      getAscent
+                The callback used to indicate the ascent of the
+                CTRunDelegate. This callback may be NULL, which is equivalent
+                to a getAscent callback that always returns 0.
+                
+    @field      getDescent
+                The callback used to indicate the descent of the
+                CTRunDelegate. This callback may be NULL, which is equivalent
+                to a getDescent callback that always returns 0.
+                
+    @field      getWidth
+                The callback used to indicate the width of the
+                CTRunDelegate. This callback may be NULL, which is equivalent
+                to a getWidth callback that always returns 0.
 */
 
 typedef struct
 {
-	CFIndex							version;
-	CTRunDelegateDeallocateCallback	dealloc;
-	CTRunDelegateGetAscentCallback	getAscent;
-	CTRunDelegateGetDescentCallback	getDescent;
-	CTRunDelegateGetWidthCallback	getWidth;
+    CFIndex                         version;
+    CTRunDelegateDeallocateCallback dealloc;
+    CTRunDelegateGetAscentCallback  getAscent;
+    CTRunDelegateGetDescentCallback getDescent;
+    CTRunDelegateGetWidthCallback   getWidth;
 } CTRunDelegateCallbacks;
 
 /* --------------------------------------------------------------------------- */
@@ -138,13 +137,13 @@ typedef struct
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@enum		Run Delegate Versions
-	@discussion Set version field of CTRunDelegateCallbacks to kCTRunDelegateCurrentVersion
-				when calling CTRunDelegateCreate.
+    @enum       Run Delegate Versions
+    @discussion Set version field of CTRunDelegateCallbacks to kCTRunDelegateCurrentVersion
+                when calling CTRunDelegateCreate.
  */
 enum {
-	kCTRunDelegateVersion1 = 1,
-	kCTRunDelegateCurrentVersion = kCTRunDelegateVersion1
+    kCTRunDelegateVersion1 = 1,
+    kCTRunDelegateCurrentVersion = kCTRunDelegateVersion1
 };
 
 /* --------------------------------------------------------------------------- */
@@ -152,24 +151,24 @@ enum {
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTRunDelegateCreate
-	@abstract	Creates an immutable instance of a run delegate.
+    @function   CTRunDelegateCreate
+    @abstract   Creates an immutable instance of a run delegate.
 
-	@discussion This function creates an immutable instance of a run delegate
-				that can be used for reserving space in a line or for eliding the
-				glyphs for a range of text altogether. 
-				
-	@param		callbacks
-				The callbacks for this run delegate.
-				
-	@result		If run delegate creation was successful, this function will
-				return a valid reference to an immutable CTRunDelegate
-				object. Otherwise, this function will return NULL.
+    @discussion This function creates an immutable instance of a run delegate
+                that can be used for reserving space in a line or for eliding the
+                glyphs for a range of text altogether. 
+                
+    @param      callbacks
+                The callbacks for this run delegate.
+                
+    @result     If run delegate creation was successful, this function will
+                return a valid reference to an immutable CTRunDelegate
+                object. Otherwise, this function will return NULL.
 */
 
-CTRunDelegateRef __nullable CTRunDelegateCreate(
-	const CTRunDelegateCallbacks* callbacks,
-	void * __nullable refCon ) CT_AVAILABLE(10_5, 3_2);
+CTRunDelegateRef _Nullable CTRunDelegateCreate(
+    const CTRunDelegateCallbacks* callbacks,
+    void * _Nullable refCon ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -177,20 +176,20 @@ CTRunDelegateRef __nullable CTRunDelegateCreate(
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTRunDelegateGetRefCon
-	@abstract	Returns a run delegate's refCon value.
+    @function   CTRunDelegateGetRefCon
+    @abstract   Returns a run delegate's refCon value.
 
-	@discussion This function returns the refCon value that a run delegate was
-				created with.
-				
-	@param		runDelegate
-				The run delegate to be queried.
-				
-	@result		The refCon value of the supplied run delegate.
+    @discussion This function returns the refCon value that a run delegate was
+                created with.
+                
+    @param      runDelegate
+                The run delegate to be queried.
+                
+    @result     The refCon value of the supplied run delegate.
 */
 
 void * CTRunDelegateGetRefCon(
-	CTRunDelegateRef runDelegate ) CT_AVAILABLE(10_5, 3_2);
+    CTRunDelegateRef runDelegate ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 CF_ASSUME_NONNULL_END
@@ -200,10 +199,10 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif
 // ==========  CoreText.framework/Headers/CTTextTab.h
 /*
- *	CTTextTab.h
- *	CoreText
+ *  CTTextTab.h
+ *  CoreText
  *
- *	Copyright (c) 2004-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2004-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -218,10 +217,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #ifndef __CTTEXTTAB__
 #define __CTTEXTTAB__
 
-#include <CoreText/CTDefines.h>
 #include <CoreText/CTParagraphStyle.h>
-#include <CoreFoundation/CFCharacterSet.h>
-#include <CoreFoundation/CFDictionary.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
@@ -232,26 +228,26 @@ CF_ASSUME_NONNULL_BEGIN
 /* --------------------------------------------------------------------------- */
 
 /* A CTTextTab represents a tab in an CTParagraphStyle object, storing an
-	alignment type and location.
+    alignment type and location.
 
-	CoreText supports four alignment types: left, center, right, and decimal.
-	These alignment types are absolute, not based on the line sweep direction
-	of text. For example, tabbed text is always positioned to the left of a
-	right-aligned tab, whether the line sweep direction is left to right or right
-	to left. A tab's location, on the other hand, is relative to the back margin.
-	A tab set at 1.5", for example, is at 1.5" from the right in right to left
-	text.
+    CoreText supports four alignment types: left, center, right, and decimal.
+    These alignment types are absolute, not based on the line sweep direction
+    of text. For example, tabbed text is always positioned to the left of a
+    right-aligned tab, whether the line sweep direction is left to right or right
+    to left. A tab's location, on the other hand, is relative to the back margin.
+    A tab set at 1.5", for example, is at 1.5" from the right in right to left
+    text.
 */
 
 typedef const struct CF_RELATED_TYPE(NSTextTab,,) __CTTextTab * CTTextTabRef;
 
 
 /*!
-	@function	CTTypesetterGetTypeID
-	@abstract	Returns the CFType of the text tab object
+    @function   CTTypesetterGetTypeID
+    @abstract   Returns the CFType of the text tab object
 */
 
-CFTypeID CTTextTabGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTTextTabGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -259,18 +255,18 @@ CFTypeID CTTextTabGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@const		kCTTabColumnTerminatorsAttributeName
-	@abstract	Used to specify the terminating character for a tab column
+    @const      kCTTabColumnTerminatorsAttributeName
+    @abstract   Used to specify the terminating character for a tab column
 
-	@discussion The value associated with this attribute is a CFCharacterSet. The
-				character set is used to determine the terminating character for
-				a tab column. The tab and newline characters are implied even if
-				they don't exist in the character set. This attribute can be used
-				to implement decimal tabs, for instance. This attribute is
-				optional.
+    @discussion The value associated with this attribute is a CFCharacterSet. The
+                character set is used to determine the terminating character for
+                a tab column. The tab and newline characters are implied even if
+                they don't exist in the character set. This attribute can be used
+                to implement decimal tabs, for instance. This attribute is
+                optional.
 */
 
-extern const CFStringRef kCTTabColumnTerminatorsAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTTabColumnTerminatorsAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -278,29 +274,29 @@ extern const CFStringRef kCTTabColumnTerminatorsAttributeName CT_AVAILABLE(10_5,
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTTextTabCreate
-	@abstract	Creates and initializes a new text tab.
+    @function   CTTextTabCreate
+    @abstract   Creates and initializes a new text tab.
 
-	@param		alignment
-				The tab's alignment. This is used to determine the position of
-				text inside the tab column. This parameter must be set to a valid
-				CTTextAlignment value or this function will return NULL.
+    @param      alignment
+                The tab's alignment. This is used to determine the position of
+                text inside the tab column. This parameter must be set to a valid
+                CTTextAlignment value or this function will return NULL.
 
-	@param		location
-				The tab's ruler location, relative to the back margin.
+    @param      location
+                The tab's ruler location, relative to the back margin.
 
-	@param		options
-				Options to pass in when the tab is created. Currently, the only
-				option available is kCTTabColumnTerminatorsAttributeName. This
-				parameter is optional and can be set to NULL if not needed.
+    @param      options
+                Options to pass in when the tab is created. Currently, the only
+                option available is kCTTabColumnTerminatorsAttributeName. This
+                parameter is optional and can be set to NULL if not needed.
 
-	@result		The new CTTextTab.
+    @result     The new CTTextTab.
 */
 
 CTTextTabRef CTTextTabCreate(
-	CTTextAlignment alignment,
-	double location,
-	CFDictionaryRef __nullable options ) CT_AVAILABLE(10_5, 3_2);
+    CTTextAlignment alignment,
+    double location,
+    CFDictionaryRef _Nullable options ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -308,46 +304,46 @@ CTTextTabRef CTTextTabCreate(
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTTextTabGetAlignment
-	@abstract	Returns the text alignment of the tab.
+    @function   CTTextTabGetAlignment
+    @abstract   Returns the text alignment of the tab.
 
-	@param		tab
-				The tab whose text alignment you wish to access.
+    @param      tab
+                The tab whose text alignment you wish to access.
 
-	@result		The tab's text alignment value.
+    @result     The tab's text alignment value.
 */
 
 CTTextAlignment CTTextTabGetAlignment(
-	CTTextTabRef tab ) CT_AVAILABLE(10_5, 3_2);
+    CTTextTabRef tab ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTTextTabGetLocation
-	@abstract	Returns the tab's ruler location.
+    @function   CTTextTabGetLocation
+    @abstract   Returns the tab's ruler location.
 
-	@param		tab
-				The tab whose location you wish to access.
+    @param      tab
+                The tab whose location you wish to access.
 
-	@result		The tab's ruler location relative to the back margin.
+    @result     The tab's ruler location relative to the back margin.
 */
 
 double CTTextTabGetLocation(
-	CTTextTabRef tab ) CT_AVAILABLE(10_5, 3_2);
+    CTTextTabRef tab ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTTextTabGetOptions
-	@abstract	Returns the dictionary of attributes associated with the tab. 
+    @function   CTTextTabGetOptions
+    @abstract   Returns the dictionary of attributes associated with the tab. 
 
-	@param		tab
-				The tab whose attributes you wish to access.
+    @param      tab
+                The tab whose attributes you wish to access.
 
-	@result		The dictionary of attributes associated with the tab or NULL if
-				no dictionary is present.
+    @result     The dictionary of attributes associated with the tab or NULL if
+                no dictionary is present.
 */
 
-CFDictionaryRef __nullable CTTextTabGetOptions(
-	CTTextTabRef tab ) CT_AVAILABLE(10_5, 3_2);
+CFDictionaryRef _Nullable CTTextTabGetOptions(
+    CTTextTabRef tab ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 CF_ASSUME_NONNULL_END
@@ -360,7 +356,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CTFontDescriptor.h
  *  CoreText
  *
- *  Copyright (c) 2006-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -375,15 +371,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #ifndef __CTFONTDESCRIPTOR__
 #define __CTFONTDESCRIPTOR__
 
-#include <CoreText/CTDefines.h>
 #include <CoreText/CTFontTraits.h>
 
-#include <CoreFoundation/CFArray.h>
-#include <CoreFoundation/CFCharacterSet.h>
-#include <CoreFoundation/CFData.h>
-#include <CoreFoundation/CFDictionary.h>
-#include <CoreFoundation/CFSet.h>
-#include <CoreGraphics/CGAffineTransform.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
@@ -410,7 +400,7 @@ typedef const struct CF_BRIDGED_TYPE(NSFontDescriptor) __CTFontDescriptor * CTFo
                 references.
     @result     The identifier for the opaque type CTFontDescriptorRef.
 */
-CFTypeID CTFontDescriptorGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTFontDescriptorGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Descriptor Constants
@@ -421,91 +411,91 @@ CFTypeID CTFontDescriptorGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
     @abstract   The font URL.
     @discussion This is the key for accessing the font URL from the font descriptor. The value associated with this key is a CFURLRef.
 */
-extern const CFStringRef kCTFontURLAttribute CT_AVAILABLE(10_6, 3_2);
+CT_EXPORT const CFStringRef kCTFontURLAttribute CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontNameAttribute
     @abstract   The PostScript name.
     @discussion This is the key for retrieving the PostScript name from the font descriptor. When matching, this is treated more generically: the system first tries to find fonts with this PostScript name. If none is found, the system tries to find fonts with this family name, and, finally, if still nothing, tries to find fonts with this display name. The value associated with this key is a CFStringRef. If unspecified, defaults to "Helvetica", if unavailable falls back to global font cascade list.
 */
-extern const CFStringRef kCTFontNameAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontNameAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontDisplayNameAttribute
     @abstract   The display name.
     @discussion This is the key for accessing the name used to display the font. Most commonly this is the full name. The value associated with this key is a CFStringRef.
 */
-extern const CFStringRef kCTFontDisplayNameAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontDisplayNameAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFamilyNameAttribute
     @abstract   The family name.
     @discussion This is the key for accessing the family name from the font descriptor. The value associated with this key is a CFStringRef.
 */
-extern const CFStringRef kCTFontFamilyNameAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFamilyNameAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontStyleNameAttribute
     @abstract   The style name.
     @discussion This is the key for accessing the style name of the font. This name represents the designer's description of the font's style. The value associated with this key is a CFStringRef.
 */
-extern const CFStringRef kCTFontStyleNameAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontStyleNameAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontTraitsAttribute
     @abstract   The font traits dictionary.
     @discussion This is the key for accessing the dictionary of font traits for stylistic information. See CTFontTraits.h for the list of font traits. The value associated with this key is a CFDictionaryRef.
 */
-extern const CFStringRef kCTFontTraitsAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontTraitsAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontVariationAttribute
     @abstract   The font variation dictionary.
     @discussion This key is used to obtain the font variation instance as a CFDictionaryRef. If specified in a font descriptor, fonts with the specified axes will be primary match candidates, if no such fonts exist, this attribute will be ignored.
 */
-extern const CFStringRef kCTFontVariationAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontVariationAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontSizeAttribute
     @abstract   The font point size.
     @discussion This key is used to obtain or specify the font point size. Creating a font with this unspecified will default to a point size of 12.0. The value for this key is represented as a CFNumberRef.
 */
-extern const CFStringRef kCTFontSizeAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontSizeAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontMatrixAttribute
     @abstract   The font transformation matrix.
     @discussion This key is used to specify the font transformation matrix when creating a font. The default value is CGAffineTransformIdentity. The value for this key is a CFDataRef containing a CGAffineTransform, of which only the a, b, c, and d fields are used.
 */
-extern const CFStringRef kCTFontMatrixAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontMatrixAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontCascadeListAttribute
     @abstract   The font cascade list.
     @discussion This key is used to specify or obtain the cascade list used for a font reference. The cascade list is a CFArrayRef containing CTFontDescriptorRefs. If unspecified, the global cascade list is used. This list is not consulted for private-use characters on OS X 10.10, iOS 8, or earlier.
 */
-extern const CFStringRef kCTFontCascadeListAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontCascadeListAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontCharacterSetAttribute
     @abstract   The font unicode character coverage set.
     @discussion This key is used to specify or obtain the character set for a font reference. This value for this key is a CFCharacterSetRef. If specified this can be used to restrict the font to a subset of its actual character set. If unspecified this attribute is ignored and the actual character set is used.
 */
-extern const CFStringRef kCTFontCharacterSetAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontCharacterSetAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontLanguagesAttribute
     @abstract   The list of supported languages.
     @discussion This key is used to specify or obtain a list of covered languages for a font reference. The value for this key is a CFArrayRef of CFStringRefs. If specified this restricts the search to matching fonts that support the specified languages. The language identifier string should conform to UTS #35. If unspecified this attribute is ignored.
 */
-extern const CFStringRef kCTFontLanguagesAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontLanguagesAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontBaselineAdjustAttribute
     @abstract   The baseline adjustment to apply to font metrics.
     @discussion This key is used to specify or obtain the baseline adjustment for a font reference. This is primary used when defining font descriptors for a cascade list to keep the baseline of all fonts even. The value associated with this is a float represented as a CFNumberRef.
 */
-extern const CFStringRef kCTFontBaselineAdjustAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontBaselineAdjustAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontMacintoshEncodingsAttribute
     @abstract   The macintosh encodings attribute.
-    @discussion This key is used to specify or obtain the macintosh encodings for a font reference. The value associated with this key is a CFNumberRef containing a bitfield of the Macintosh encodings. This attribute is provided for legacy compatibility.
+    @discussion This key is used to specify or obtain the Macintosh encodings for a font reference. The value associated with this key is a CFNumberRef containing a bitfield of the script codes in <CoreText/SFNTTypes.h>; bit 0 corresponds to kFontRomanScript, and so on. This attribute is provided for legacy compatibility.
 */
-extern const CFStringRef kCTFontMacintoshEncodingsAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontMacintoshEncodingsAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFeaturesAttribute
     @abstract   The array of font features.
     @discussion This key is used to specify or obtain the font features for a font reference. The value associated with this key is a CFArrayRef of font feature dictionaries. This features list contains the feature information from the 'feat' table of the font. See the CTFontCopyFeatures() API in   CTFont.h.
 */
-extern const CFStringRef kCTFontFeaturesAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFeaturesAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFeatureSettingsAttribute
     @abstract   The array of typographic feature settings.
@@ -517,32 +507,35 @@ extern const CFStringRef kCTFontFeaturesAttribute CT_AVAILABLE(10_5, 3_2);
                 An OpenType setting can be either an array pair of tag string and value number, or a tag string on its own. For example: @[ @"c2sc", @1 ] or simply @"c2sc". An unspecified value enables the feature and a value of zero disables it.
                 An AAT setting can be specified as an array pair of type and selector numbers. For example: @[ @(kUpperCaseType), @(kUpperCaseSmallCapsSelector) ].
 */
-extern const CFStringRef kCTFontFeatureSettingsAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFeatureSettingsAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFixedAdvanceAttribute
     @abstract   Specifies advance width.
     @discussion This key is used to specify a constant advance width, which affects the glyph metrics of any font instance created with this key; it overrides font values and the font transformation matrix, if any. The value associated with this key must be a CFNumberRef.
 */
-extern const CFStringRef kCTFontFixedAdvanceAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFixedAdvanceAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontOrientationAttribute
     @abstract   The orientation attribute.
     @discussion This key is used to specify a particular orientation for the glyphs of the font. The value associated with this key is a int as a CFNumberRef. If you want to receive vertical metrics from a font for vertical rendering, specify kCTFontVerticalOrientation. If unspecified, the font will use its native orientation.
 */
-extern const CFStringRef kCTFontOrientationAttribute CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontOrientationAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @enum       CTFontOrientation
     @abstract   Specifies the intended rendering orientation of the font for obtaining glyph metrics.
 */
 typedef CF_ENUM(uint32_t, CTFontOrientation) {
-    kCTFontOrientationDefault    CT_ENUM_AVAILABLE(10_8, 6_0) = 0,
-    kCTFontOrientationHorizontal CT_ENUM_AVAILABLE(10_8, 6_0) = 1,
-    kCTFontOrientationVertical   CT_ENUM_AVAILABLE(10_8, 6_0) = 2,
+    kCTFontOrientationDefault    = 0,
+    kCTFontOrientationHorizontal = 1,
+    kCTFontOrientationVertical   = 2,
 
-    kCTFontDefaultOrientation CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontOrientationDefault,
-    kCTFontHorizontalOrientation CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontOrientationHorizontal,
-    kCTFontVerticalOrientation CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontOrientationVertical
+    kCTFontDefaultOrientation CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontOrientationDefault,
+    kCTFontHorizontalOrientation CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontOrientationHorizontal,
+    kCTFontVerticalOrientation CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontOrientationVertical
 };
 
 /*!
@@ -550,7 +543,7 @@ typedef CF_ENUM(uint32_t, CTFontOrientation) {
     @abstract   Specifies the recognized format of the font.
     @discussion The attribute is used to specify or obtain the format of the font. The returned value is a CFNumber containing one of the constants defined below.
 */
-extern const CFStringRef kCTFontFormatAttribute CT_AVAILABLE(10_6, 3_2);
+CT_EXPORT const CFStringRef kCTFontFormatAttribute CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @constant   kCTFontFormatUnrecognized
@@ -580,13 +573,13 @@ typedef CF_ENUM(uint32_t, CTFontFormat) {
     @abstract   Specifies the font descriptor's registration scope.
     @discussion The attribute is used to specify or obtain the font registration scope. The value returned is a CFNumberRef containing one of the CTFontManagerScope enumerated values. A value of NULL can be returned for font descriptors that are not registered.
 */
-extern const CFStringRef kCTFontRegistrationScopeAttribute CT_AVAILABLE(10_6, 3_2);
+CT_EXPORT const CFStringRef kCTFontRegistrationScopeAttribute CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontPriorityAttribute
     @abstract   The font descriptors priority when resolving duplicates and sorting match results.
     @discussion This key is used to obtain or specify the font priority. The value returned is a CFNumberRef containing an integer value as defined below. The higher the value, the higher the priority of the font. Only registered fonts will have a priority. Unregistered font descriptors will return NULL.
 */
-extern const CFStringRef kCTFontPriorityAttribute CT_AVAILABLE(10_6, 3_2);
+CT_EXPORT const CFStringRef kCTFontPriorityAttribute CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @constant   kCTFontPrioritySystem
@@ -617,21 +610,21 @@ typedef uint32_t CTFontPriority;
     @abstract   The font enabled state.
     @discussion This key is used to obtain the font state. The returned value is a CFNumberRef representing a boolean value. Unregistered font descriptors will return NULL, which is equivalent to false.
 */
-extern const CFStringRef kCTFontEnabledAttribute CT_AVAILABLE(10_6, 3_2);
+CT_EXPORT const CFStringRef kCTFontEnabledAttribute CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
-	@defined    kCTFontDownloadableAttribute
-	@abstract   The font downloadable state.
-	@discussion The value associated with this key is a CFBoolean.  If it is kCFBooleanTrue, CoreText attempts to download a font if necessary when matching a descriptor.
+    @defined    kCTFontDownloadableAttribute
+    @abstract   The font downloadable state.
+    @discussion The value associated with this key is a CFBoolean.  If it is kCFBooleanTrue, CoreText attempts to download a font if necessary when matching a descriptor.
 */
-extern const CFStringRef kCTFontDownloadableAttribute CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTFontDownloadableAttribute CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /*!
     @defined    kCTFontDownloadedAttribute
     @abstract   The download state.
     @discussion The value associated with this key is a CFBoolean.  If it is kCFBooleanTrue, corresponding FontAsset has been downloaded. (but still it may be necessary to call appropriate API in order to use the font in the FontAsset.)
 */
-extern const CFStringRef kCTFontDownloadedAttribute CT_AVAILABLE_IOS(7_0);
+CT_EXPORT const CFStringRef kCTFontDownloadedAttribute CT_AVAILABLE(macos(10.12), ios(7.0), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Descriptor Creation
@@ -651,7 +644,7 @@ extern const CFStringRef kCTFontDownloadedAttribute CT_AVAILABLE_IOS(7_0);
 */
 CTFontDescriptorRef CTFontDescriptorCreateWithNameAndSize(
     CFStringRef         name,
-    CGFloat             size ) CT_AVAILABLE(10_5, 3_2);
+    CGFloat             size ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontDescriptorCreateWithAttributes
@@ -663,7 +656,7 @@ CTFontDescriptorRef CTFontDescriptorCreateWithNameAndSize(
     @result     This function creates a new font descriptor with the attributes specified. This dictionary can contain arbitrary attributes that will be preserved, however unrecognized attributes will be ignored on font creation and and may not be preserved over the round trip (descriptor -> font -> descriptor).
 */
 CTFontDescriptorRef CTFontDescriptorCreateWithAttributes(
-    CFDictionaryRef     attributes ) CT_AVAILABLE(10_5, 3_2);
+    CFDictionaryRef     attributes ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontDescriptorCreateCopyWithAttributes
@@ -676,10 +669,12 @@ CTFontDescriptorRef CTFontDescriptorCreateWithAttributes(
                 A CFDictionaryRef of arbitrary attributes.
 
     @result     This function creates a new copy of the original font descriptor with attributes augmented by those specified. If there are conflicts between attributes, the new attributes will replace existing ones, except for kCTFontVariationAttribute and kCTFontFeatureSettingsAttribute which will be merged.
+
+                Starting with macOS 10.12 and iOS 10.0, setting the value of kCTFontFeatureSettingsAttribute to kCFNull will clear the feature settings of the original font descriptor. Setting the value of any individual feature settings pair in the kCTFontFeatureSettingsAttribute value array to kCFNull will clear that feature setting alone. For example, an element like @{ (id)kCTFontFeatureTypeIdentifierKey: @(kLigaturesType), (id)kCTFontFeatureSelectorIdentifierKey: (id)kCFNull } means clear the kLigatureType feature set in the original font descriptor. An element like @[ @"liga", (id)kCFNull ] will have the same effect.
 */
 CTFontDescriptorRef CTFontDescriptorCreateCopyWithAttributes(
     CTFontDescriptorRef     original,
-    CFDictionaryRef         attributes ) CT_AVAILABLE(10_5, 3_2);
+    CFDictionaryRef         attributes ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCreateCopyWithFamily
@@ -688,14 +683,14 @@ CTFontDescriptorRef CTFontDescriptorCreateCopyWithAttributes(
     @param      original
                 The original font descriptor reference.
 
-    @param		family
+    @param      family
                 The name of the desired family.
 
     @result     Returns a new font reference with the original traits in the given family, or NULL if none found in the system.
 */
-CTFontDescriptorRef __nullable CTFontDescriptorCreateCopyWithFamily(
+CTFontDescriptorRef _Nullable CTFontDescriptorCreateCopyWithFamily(
     CTFontDescriptorRef     original,
-    CFStringRef             family ) CT_AVAILABLE(10_9, 7_0);
+    CFStringRef             family ) CT_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontDescriptorCreateCopyWithSymbolicTraits
@@ -704,18 +699,18 @@ CTFontDescriptorRef __nullable CTFontDescriptorCreateCopyWithFamily(
     @param      original
                 The original font descriptor reference.
 
-    @param		symTraitValue
+    @param      symTraitValue
                 The value of the symbolic traits. This bitfield is used to indicate the desired value for the traits specified by the symTraitMask parameter. Used in conjunction, they can allow for trait removal as well as addition.
 
-    @param		symTraitMask
+    @param      symTraitMask
                 The mask bits of the symbolic traits. This bitfield is used to indicate the traits that should be changed.
 
     @result     Returns a new font descriptor reference in the same family with the given symbolic traits, or NULL if none found in the system.
 */
-CTFontDescriptorRef __nullable CTFontDescriptorCreateCopyWithSymbolicTraits(
+CTFontDescriptorRef _Nullable CTFontDescriptorCreateCopyWithSymbolicTraits(
     CTFontDescriptorRef     original,
     CTFontSymbolicTraits    symTraitValue,
-    CTFontSymbolicTraits    symTraitMask ) CT_AVAILABLE(10_9, 7_0);
+    CTFontSymbolicTraits    symTraitMask ) CT_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontDescriptorCreateCopyWithVariation
@@ -735,7 +730,7 @@ CTFontDescriptorRef __nullable CTFontDescriptorCreateCopyWithSymbolicTraits(
 CTFontDescriptorRef CTFontDescriptorCreateCopyWithVariation(
     CTFontDescriptorRef     original,
     CFNumberRef             variationIdentifier,
-    CGFloat                 variationValue ) CT_AVAILABLE(10_5, 3_2);
+    CGFloat                 variationValue ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontDescriptorCreateCopyWithFeature
@@ -757,7 +752,7 @@ CTFontDescriptorRef CTFontDescriptorCreateCopyWithVariation(
 CTFontDescriptorRef CTFontDescriptorCreateCopyWithFeature(
     CTFontDescriptorRef     original,
     CFNumberRef             featureTypeIdentifier,
-    CFNumberRef             featureSelectorIdentifier ) CT_AVAILABLE(10_5, 3_2);
+    CFNumberRef             featureSelectorIdentifier ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontDescriptorCreateMatchingFontDescriptors
@@ -771,9 +766,9 @@ CTFontDescriptorRef CTFontDescriptorCreateCopyWithFeature(
 
     @result     This function returns a retained array of normalized font descriptors matching the attributes present in descriptor. If descriptor itself is normalized then the array will contain only one item, the original descriptor.
 */
-CFArrayRef __nullable CTFontDescriptorCreateMatchingFontDescriptors(
+CFArrayRef _Nullable CTFontDescriptorCreateMatchingFontDescriptors(
     CTFontDescriptorRef     descriptor,
-    CFSetRef __nullable     mandatoryAttributes ) CT_AVAILABLE(10_5, 3_2);
+    CFSetRef _Nullable      mandatoryAttributes ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontDescriptorCreateMatchingFontDescriptor
@@ -787,9 +782,9 @@ CFArrayRef __nullable CTFontDescriptorCreateMatchingFontDescriptors(
 
     @result     This function returns a retained normalized font descriptor matching the attributes present in descriptor. The original descriptor may be returned in normalized form.
 */
-CTFontDescriptorRef __nullable CTFontDescriptorCreateMatchingFontDescriptor(
+CTFontDescriptorRef _Nullable CTFontDescriptorCreateMatchingFontDescriptor(
     CTFontDescriptorRef     descriptor,
-    CFSetRef __nullable     mandatoryAttributes ) CT_AVAILABLE(10_5, 3_2);
+    CFSetRef _Nullable      mandatoryAttributes ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
     
 /*!
@@ -817,28 +812,28 @@ typedef CF_ENUM(uint32_t, CTFontDescriptorMatchingState) {
  */
 
 /* CTFontDescriptorRef; The current font descriptor.   Valid when state is kCTFontDescriptorMatchingDidMatch. */
-extern const CFStringRef kCTFontDescriptorMatchingSourceDescriptor CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTFontDescriptorMatchingSourceDescriptor CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /* CFArray; Array of descriptors to be queried.   Valid while downloading or when state is kCTFontDescriptorMatchingWillBeginQuerying. */
-extern const CFStringRef kCTFontDescriptorMatchingDescriptors CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTFontDescriptorMatchingDescriptors CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /* CFArray; Array of matched font descriptors.   Valid when state is kCTFontDescriptorMatchingDidMatch or CTFontDescriptorMatchingEnd. */
-extern const CFStringRef kCTFontDescriptorMatchingResult CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTFontDescriptorMatchingResult CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /* CFNumber; Download progress in 0 - 100.   Valid during Downloading state. */
-extern const CFStringRef kCTFontDescriptorMatchingPercentage CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTFontDescriptorMatchingPercentage CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /* CFNumber; Byte size to download for the current descriptor.   Valid during Downloading state. */
-extern const CFStringRef kCTFontDescriptorMatchingCurrentAssetSize CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTFontDescriptorMatchingCurrentAssetSize CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /* CFNumber; Total downloaded byte size.   Valid during Downloading state. */
-extern const CFStringRef kCTFontDescriptorMatchingTotalDownloadedSize CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTFontDescriptorMatchingTotalDownloadedSize CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /* CFNumber; Total byte size to download.   Always valid, but may be Zero when information is not available. */
-extern const CFStringRef kCTFontDescriptorMatchingTotalAssetSize CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTFontDescriptorMatchingTotalAssetSize CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /* CFError; Valid when state kCTFontDescriptorMatchingDidFailWithError. */
-extern const CFStringRef kCTFontDescriptorMatchingError CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTFontDescriptorMatchingError CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 #if defined(__BLOCKS__)
 
@@ -863,8 +858,8 @@ typedef bool (^CTFontDescriptorProgressHandler)(CTFontDescriptorMatchingState st
     
 bool CTFontDescriptorMatchFontDescriptorsWithProgressHandler(
     CFArrayRef                          descriptors,
-    CFSetRef __nullable                 mandatoryAttributes,
-    CTFontDescriptorProgressHandler     progressBlock) CT_AVAILABLE(10_9, 6_0);
+    CFSetRef _Nullable                  mandatoryAttributes,
+    CTFontDescriptorProgressHandler     progressBlock) CT_AVAILABLE(macos(10.9), ios(6.0), watchos(2.0), tvos(9.0));
 
 #endif // defined(__BLOCKS__)
 
@@ -882,7 +877,7 @@ bool CTFontDescriptorMatchFontDescriptorsWithProgressHandler(
     @result     A retained reference to the font descriptor attributes dictionary. This dictionary will contain the minimum number of attributes to fully specify this particular font descriptor.
 */
 CFDictionaryRef CTFontDescriptorCopyAttributes(
-    CTFontDescriptorRef     descriptor ) CT_AVAILABLE(10_5, 3_2);
+    CTFontDescriptorRef     descriptor ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontDescriptorCopyAttribute
@@ -896,9 +891,9 @@ CFDictionaryRef CTFontDescriptorCopyAttributes(
 
     @result     A retained reference to the requested attribute, or NULL if the requested attribute is not present. Refer to the attribute definitions for documentation as to how each attribute is packaged as a CFType.
 */
-CFTypeRef __nullable CTFontDescriptorCopyAttribute(
+CFTypeRef _Nullable CTFontDescriptorCopyAttribute(
     CTFontDescriptorRef     descriptor,
-    CFStringRef             attribute ) CT_AVAILABLE(10_5, 3_2);
+    CFStringRef             attribute ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     function    CTFontDescriptorCopyLocalizedAttribute
@@ -918,10 +913,10 @@ CFTypeRef __nullable CTFontDescriptorCopyAttribute(
 
     @result     A retained reference to the requested attribute, or NULL if the requested attribute is not present. Refer to the attribute definitions for documentation as to how each attribute is packaged as a CFType.
 */
-CFTypeRef __nullable CTFontDescriptorCopyLocalizedAttribute(
+CFTypeRef _Nullable CTFontDescriptorCopyLocalizedAttribute(
     CTFontDescriptorRef     descriptor,
     CFStringRef             attribute,
-    CFStringRef __nullable * __nullable language ) CT_AVAILABLE(10_5, 3_2);
+    CFStringRef _Nullable * _Nullable language ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 CF_ASSUME_NONNULL_END
 CF_EXTERN_C_END
@@ -940,7 +935,11 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #ifndef __SFNTTYPES__
 #define __SFNTTYPES__
 
+#if !TARGET_OS_WIN32
 #include <MacTypes.h>
+#elif !defined(__MACTYPES__)
+typedef SInt32 Fixed;
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -1410,7 +1409,7 @@ typedef struct FontVariation            FontVariation;
  *  CTFont.h
  *  CoreText
  *
- *  Copyright (c) 2006-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -1425,12 +1424,7 @@ typedef struct FontVariation            FontVariation;
 #ifndef __CTFONT__
 #define __CTFONT__
 
-#include <CoreText/CTDefines.h>
 #include <CoreText/CTFontDescriptor.h>
-
-#include <CoreGraphics/CGFont.h>
-#include <CoreGraphics/CGPath.h>
-#include <CoreGraphics/CGContext.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
@@ -1456,7 +1450,7 @@ typedef const struct CF_BRIDGED_TYPE(NSFont) __CTFont * CTFontRef;
     @abstract   Returns the type identifier for Core Text font references.
     @result     The identifier for the opaque type CTFontRef.
 */
-CFTypeID CTFontGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTFontGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Font Constants
@@ -1467,94 +1461,94 @@ CFTypeID CTFontGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
     @defined    kCTFontCopyrightNameKey
     @abstract   The name specifier for the copyright name.
 */
-extern const CFStringRef kCTFontCopyrightNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontCopyrightNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFamilyNameKey
     @abstract   The name specifier for the family name.
 */
-extern const CFStringRef kCTFontFamilyNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFamilyNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontSubFamilyNameKey
     @abstract   The name specifier for the subfamily name.
 */
-extern const CFStringRef kCTFontSubFamilyNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontSubFamilyNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontStyleNameKey
     @abstract   The name specifier for the style name.
 */
-extern const CFStringRef kCTFontStyleNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontStyleNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontUniqueNameKey
     @abstract   The name specifier for the unique name.
     @discussion Note that this name is often not unique and should not be
                 assumed to be truly unique.
 */
-extern const CFStringRef kCTFontUniqueNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontUniqueNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFullNameKey
     @abstract   The name specifier for the full name.
 */
-extern const CFStringRef kCTFontFullNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFullNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontVersionNameKey
     @abstract   The name specifier for the version name.
 */
-extern const CFStringRef kCTFontVersionNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontVersionNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontPostScriptNameKey
-    @abstract   The name specifier for the Postscript name.
+    @abstract   The name specifier for the PostScript name.
 */
-extern const CFStringRef kCTFontPostScriptNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontPostScriptNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontTrademarkNameKey
     @abstract   The name specifier for the trademark name.
 */
-extern const CFStringRef kCTFontTrademarkNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontTrademarkNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontManufacturerNameKey
     @abstract   The name specifier for the manufacturer name.
 */
-extern const CFStringRef kCTFontManufacturerNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontManufacturerNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontDesignerNameKey
     @abstract   The name specifier for the designer name.
 */
-extern const CFStringRef kCTFontDesignerNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontDesignerNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontDescriptionNameKey
     @abstract   The name specifier for the description name.
 */
-extern const CFStringRef kCTFontDescriptionNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontDescriptionNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontVendorURLNameKey
     @abstract   The name specifier for the vendor url name.
 */
-extern const CFStringRef kCTFontVendorURLNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontVendorURLNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontDesignerURLNameKey
     @abstract   The name specifier for the designer url name.
 */
-extern const CFStringRef kCTFontDesignerURLNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontDesignerURLNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontLicenseNameKey
     @abstract   The name specifier for the license name.
 */
-extern const CFStringRef kCTFontLicenseNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontLicenseNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontLicenseURLNameKey
     @abstract   The name specifier for the license url name.
 */
-extern const CFStringRef kCTFontLicenseURLNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontLicenseURLNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontSampleTextNameKey
     @abstract   The name specifier for the sample text name string.
 */
-extern const CFStringRef kCTFontSampleTextNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontSampleTextNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontPostScriptCIDNameKey
-    @abstract   The name specifier for the Postscript CID name.
+    @abstract   The name specifier for the PostScript CID name.
 */
-extern const CFStringRef kCTFontPostScriptCIDNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontPostScriptCIDNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Font Creation
@@ -1563,6 +1557,8 @@ extern const CFStringRef kCTFontPostScriptCIDNameKey CT_AVAILABLE(10_5, 3_2);
 /*!
     @function   CTFontCreateWithName
     @abstract   Returns a new font reference for the given name.
+
+    @discussion This function uses font descriptor matching so only registered fonts can be returned; see CTFontManager.h for more information.
 
     @param      name
                 The font name for which you wish to create a new font reference. A valid PostScript name is preferred, although other font name types will be matched in a fallback manner.
@@ -1576,9 +1572,9 @@ extern const CFStringRef kCTFontPostScriptCIDNameKey CT_AVAILABLE(10_5, 3_2);
     @result     This function will return a CTFontRef that best matches the name provided with size and matrix attributes. The name parameter is the only required parameters, and default values will be used for unspecified parameters. A best match will be found if all parameters cannot be matched identically.
 */
 CTFontRef CTFontCreateWithName(
-    CFStringRef __nullable      name,
+    CFStringRef                 name,
     CGFloat                     size,
-    const CGAffineTransform * __nullable matrix ) CT_AVAILABLE(10_5, 3_2);
+    const CGAffineTransform * _Nullable matrix ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCreateWithFontDescriptor
@@ -1598,7 +1594,7 @@ CTFontRef CTFontCreateWithName(
 CTFontRef CTFontCreateWithFontDescriptor(
     CTFontDescriptorRef     descriptor,
     CGFloat                 size,
-    const CGAffineTransform * __nullable matrix ) CT_AVAILABLE(10_5, 3_2);
+    const CGAffineTransform * _Nullable matrix ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @enum       CTFontOptions
@@ -1619,6 +1615,8 @@ typedef CF_OPTIONS(CFOptionFlags, CTFontOptions) {
     @function   CTFontCreateWithNameAndOptions
     @abstract   Returns a new font reference for the given name.
 
+    @discussion This function uses font descriptor matching so only registered fonts can be returned; see CTFontManager.h for more information.
+
     @param      name
                 The font name for which you wish to create a new font reference. A valid PostScript name is preferred, although other font name types will be matched in a fallback manner.
 
@@ -1636,8 +1634,8 @@ typedef CF_OPTIONS(CFOptionFlags, CTFontOptions) {
 CTFontRef CTFontCreateWithNameAndOptions(
     CFStringRef                 name,
     CGFloat                     size,
-    const CGAffineTransform * __nullable matrix,
-    CTFontOptions               options ) CT_AVAILABLE(10_6, 3_2);
+    const CGAffineTransform * _Nullable matrix,
+    CTFontOptions               options ) CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCreateWithFontDescriptorAndOptions
@@ -1660,8 +1658,8 @@ CTFontRef CTFontCreateWithNameAndOptions(
 CTFontRef CTFontCreateWithFontDescriptorAndOptions(
     CTFontDescriptorRef     descriptor,
     CGFloat                 size,
-    const CGAffineTransform * __nullable matrix,
-    CTFontOptions           options ) CT_AVAILABLE(10_6, 3_2);
+    const CGAffineTransform * _Nullable matrix,
+    CTFontOptions           options ) CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @enum       UI Type constants
@@ -1669,63 +1667,91 @@ CTFontRef CTFontCreateWithFontDescriptorAndOptions(
     @discussion Use these constants with CTFontCreateUIFontForLanguage to indicate the intended user interface usage of the font reference to be created.
 */
 typedef CF_ENUM(uint32_t, CTFontUIFontType) {
-    kCTFontUIFontNone                   CT_ENUM_AVAILABLE(10_8, 6_0) = (uint32_t)-1,
-    kCTFontUIFontUser                   CT_ENUM_AVAILABLE(10_8, 6_0) =  0,
-    kCTFontUIFontUserFixedPitch         CT_ENUM_AVAILABLE(10_8, 6_0) =  1,
-    kCTFontUIFontSystem                 CT_ENUM_AVAILABLE(10_8, 6_0) =  2,
-    kCTFontUIFontEmphasizedSystem       CT_ENUM_AVAILABLE(10_8, 6_0) =  3,
-    kCTFontUIFontSmallSystem            CT_ENUM_AVAILABLE(10_8, 6_0) =  4,
-    kCTFontUIFontSmallEmphasizedSystem  CT_ENUM_AVAILABLE(10_8, 6_0) =  5,
-    kCTFontUIFontMiniSystem             CT_ENUM_AVAILABLE(10_8, 6_0) =  6,
-    kCTFontUIFontMiniEmphasizedSystem   CT_ENUM_AVAILABLE(10_8, 6_0) =  7,
-    kCTFontUIFontViews                  CT_ENUM_AVAILABLE(10_8, 6_0) =  8,
-    kCTFontUIFontApplication            CT_ENUM_AVAILABLE(10_8, 6_0) =  9,
-    kCTFontUIFontLabel                  CT_ENUM_AVAILABLE(10_8, 6_0) = 10,
-    kCTFontUIFontMenuTitle              CT_ENUM_AVAILABLE(10_8, 6_0) = 11,
-    kCTFontUIFontMenuItem               CT_ENUM_AVAILABLE(10_8, 6_0) = 12,
-    kCTFontUIFontMenuItemMark           CT_ENUM_AVAILABLE(10_8, 6_0) = 13,
-    kCTFontUIFontMenuItemCmdKey         CT_ENUM_AVAILABLE(10_8, 6_0) = 14,
-    kCTFontUIFontWindowTitle            CT_ENUM_AVAILABLE(10_8, 6_0) = 15,
-    kCTFontUIFontPushButton             CT_ENUM_AVAILABLE(10_8, 6_0) = 16,
-    kCTFontUIFontUtilityWindowTitle     CT_ENUM_AVAILABLE(10_8, 6_0) = 17,
-    kCTFontUIFontAlertHeader            CT_ENUM_AVAILABLE(10_8, 6_0) = 18,
-    kCTFontUIFontSystemDetail           CT_ENUM_AVAILABLE(10_8, 6_0) = 19,
-    kCTFontUIFontEmphasizedSystemDetail CT_ENUM_AVAILABLE(10_8, 6_0) = 20,
-    kCTFontUIFontToolbar                CT_ENUM_AVAILABLE(10_8, 6_0) = 21,
-    kCTFontUIFontSmallToolbar           CT_ENUM_AVAILABLE(10_8, 6_0) = 22,
-    kCTFontUIFontMessage                CT_ENUM_AVAILABLE(10_8, 6_0) = 23,
-    kCTFontUIFontPalette                CT_ENUM_AVAILABLE(10_8, 6_0) = 24,
-    kCTFontUIFontToolTip                CT_ENUM_AVAILABLE(10_8, 6_0) = 25,
-    kCTFontUIFontControlContent         CT_ENUM_AVAILABLE(10_8, 6_0) = 26,
+    kCTFontUIFontNone                   = (uint32_t)-1,
+    kCTFontUIFontUser                   =  0,
+    kCTFontUIFontUserFixedPitch         =  1,
+    kCTFontUIFontSystem                 =  2,
+    kCTFontUIFontEmphasizedSystem       =  3,
+    kCTFontUIFontSmallSystem            =  4,
+    kCTFontUIFontSmallEmphasizedSystem  =  5,
+    kCTFontUIFontMiniSystem             =  6,
+    kCTFontUIFontMiniEmphasizedSystem   =  7,
+    kCTFontUIFontViews                  =  8,
+    kCTFontUIFontApplication            =  9,
+    kCTFontUIFontLabel                  = 10,
+    kCTFontUIFontMenuTitle              = 11,
+    kCTFontUIFontMenuItem               = 12,
+    kCTFontUIFontMenuItemMark           = 13,
+    kCTFontUIFontMenuItemCmdKey         = 14,
+    kCTFontUIFontWindowTitle            = 15,
+    kCTFontUIFontPushButton             = 16,
+    kCTFontUIFontUtilityWindowTitle     = 17,
+    kCTFontUIFontAlertHeader            = 18,
+    kCTFontUIFontSystemDetail           = 19,
+    kCTFontUIFontEmphasizedSystemDetail = 20,
+    kCTFontUIFontToolbar                = 21,
+    kCTFontUIFontSmallToolbar           = 22,
+    kCTFontUIFontMessage                = 23,
+    kCTFontUIFontPalette                = 24,
+    kCTFontUIFontToolTip                = 25,
+    kCTFontUIFontControlContent         = 26,
 
-    kCTFontNoFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontNone,
-    kCTFontUserFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontUser,
-    kCTFontUserFixedPitchFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontUserFixedPitch,
-    kCTFontSystemFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontSystem,
-    kCTFontEmphasizedSystemFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontEmphasizedSystem,
-    kCTFontSmallSystemFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontSmallSystem,
-    kCTFontSmallEmphasizedSystemFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontSmallEmphasizedSystem,
-    kCTFontMiniSystemFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontMiniSystem,
-    kCTFontMiniEmphasizedSystemFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontMiniEmphasizedSystem,
-    kCTFontViewsFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontViews,
-    kCTFontApplicationFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontApplication,
-    kCTFontLabelFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontLabel,
-    kCTFontMenuTitleFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontMenuTitle,
-    kCTFontMenuItemFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontMenuItem,
-    kCTFontMenuItemMarkFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontMenuItemMark,
-    kCTFontMenuItemCmdKeyFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontMenuItemCmdKey,
-    kCTFontWindowTitleFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontWindowTitle,
-    kCTFontPushButtonFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontPushButton,
-    kCTFontUtilityWindowTitleFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontUtilityWindowTitle,
-    kCTFontAlertHeaderFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontAlertHeader,
-    kCTFontSystemDetailFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontSystemDetail,
-    kCTFontEmphasizedSystemDetailFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontEmphasizedSystemDetail,
-    kCTFontToolbarFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontToolbar,
-    kCTFontSmallToolbarFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontSmallToolbar,
-    kCTFontMessageFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontMessage,
-    kCTFontPaletteFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontPalette,
-    kCTFontToolTipFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontToolTip,
-    kCTFontControlContentFontType CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTFontUIFontControlContent
+    kCTFontNoFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontNone,
+    kCTFontUserFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontUser,
+    kCTFontUserFixedPitchFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontUserFixedPitch,
+    kCTFontSystemFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontSystem,
+    kCTFontEmphasizedSystemFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontEmphasizedSystem,
+    kCTFontSmallSystemFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontSmallSystem,
+    kCTFontSmallEmphasizedSystemFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontSmallEmphasizedSystem,
+    kCTFontMiniSystemFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontMiniSystem,
+    kCTFontMiniEmphasizedSystemFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontMiniEmphasizedSystem,
+    kCTFontViewsFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontViews,
+    kCTFontApplicationFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontApplication,
+    kCTFontLabelFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontLabel,
+    kCTFontMenuTitleFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontMenuTitle,
+    kCTFontMenuItemFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontMenuItem,
+    kCTFontMenuItemMarkFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontMenuItemMark,
+    kCTFontMenuItemCmdKeyFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontMenuItemCmdKey,
+    kCTFontWindowTitleFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontWindowTitle,
+    kCTFontPushButtonFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontPushButton,
+    kCTFontUtilityWindowTitleFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontUtilityWindowTitle,
+    kCTFontAlertHeaderFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontAlertHeader,
+    kCTFontSystemDetailFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontSystemDetail,
+    kCTFontEmphasizedSystemDetailFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontEmphasizedSystemDetail,
+    kCTFontToolbarFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontToolbar,
+    kCTFontSmallToolbarFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontSmallToolbar,
+    kCTFontMessageFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontMessage,
+    kCTFontPaletteFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontPalette,
+    kCTFontToolTipFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontToolTip,
+    kCTFontControlContentFontType CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTFontUIFontControlContent
 };
 
 /*!
@@ -1743,10 +1769,10 @@ typedef CF_ENUM(uint32_t, CTFontUIFontType) {
 
     @result     This function returns the correct font for various UI uses. The only required parameter is the uiType selector, unspecified optional parameters will use default values.
 */
-CTFontRef __nullable CTFontCreateUIFontForLanguage(
+CTFontRef _Nullable CTFontCreateUIFontForLanguage(
     CTFontUIFontType    uiType,
     CGFloat             size,
-    CFStringRef __nullable language ) CT_AVAILABLE(10_5, 3_2);
+    CFStringRef _Nullable language ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCreateCopyWithAttributes
@@ -1771,8 +1797,8 @@ CTFontRef __nullable CTFontCreateUIFontForLanguage(
 CTFontRef CTFontCreateCopyWithAttributes(
     CTFontRef                   font,
     CGFloat                     size,
-    const CGAffineTransform * __nullable matrix,
-    CTFontDescriptorRef __nullable attributes ) CT_AVAILABLE(10_5, 3_2);
+    const CGAffineTransform * _Nullable matrix,
+    CTFontDescriptorRef _Nullable attributes ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCreateCopyWithSymbolicTraits
@@ -1795,12 +1821,12 @@ CTFontRef CTFontCreateCopyWithAttributes(
 
     @result     Returns a new font reference in the same family with the given symbolic traits, or NULL if none found in the system.
 */
-CTFontRef __nullable CTFontCreateCopyWithSymbolicTraits(
+CTFontRef _Nullable CTFontCreateCopyWithSymbolicTraits(
     CTFontRef                   font,
     CGFloat                     size,
-    const CGAffineTransform * __nullable matrix,
+    const CGAffineTransform * _Nullable matrix,
     CTFontSymbolicTraits        symTraitValue,
-    CTFontSymbolicTraits        symTraitMask ) CT_AVAILABLE(10_5, 3_2);
+    CTFontSymbolicTraits        symTraitMask ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCreateCopyWithFamily
@@ -1820,11 +1846,11 @@ CTFontRef __nullable CTFontCreateCopyWithSymbolicTraits(
 
     @result     Returns a new font reference with the original traits in the given family. NULL if non found in the system.
 */
-CTFontRef __nullable CTFontCreateCopyWithFamily(
+CTFontRef _Nullable CTFontCreateCopyWithFamily(
     CTFontRef                   font,
     CGFloat                     size,
-    const CGAffineTransform * __nullable matrix,
-    CFStringRef                 family ) CT_AVAILABLE(10_5, 3_2);
+    const CGAffineTransform * _Nullable matrix,
+    CFStringRef                 family ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Font Cascading
@@ -1854,7 +1880,7 @@ CTFontRef __nullable CTFontCreateCopyWithFamily(
 CTFontRef CTFontCreateForString(
     CTFontRef       currentFont,
     CFStringRef     string,
-    CFRange         range ) CT_AVAILABLE(10_5, 3_2);
+    CFRange         range ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Font Accessors
@@ -1870,7 +1896,7 @@ CTFontRef CTFontCreateForString(
     @result     This function returns a normalized font descriptor for a font. The font descriptor contains enough information to recreate this font at a later time.
 */
 CTFontDescriptorRef CTFontCopyFontDescriptor(
-    CTFontRef       font ) CT_AVAILABLE(10_5, 3_2);
+    CTFontRef       font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyAttribute
@@ -1884,9 +1910,9 @@ CTFontDescriptorRef CTFontCopyFontDescriptor(
 
     @result     This function returns a retained reference to an arbitrary attribute. If the requested attribute is not present, NULL is returned. Refer to the attribute definitions for documentation as to how each attribute is packaged as a CFType.
 */
-CFTypeRef __nullable CTFontCopyAttribute(
+CFTypeRef _Nullable CTFontCopyAttribute(
     CTFontRef       font,
-    CFStringRef     attribute ) CT_AVAILABLE(10_5, 3_2);
+    CFStringRef     attribute ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetSize
@@ -1897,7 +1923,7 @@ CFTypeRef __nullable CTFontCopyAttribute(
 
     @result     This function returns the point size of the given font reference. This is the point size provided when the font was created.
 */
-CGFloat CTFontGetSize( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGFloat CTFontGetSize( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetMatrix
@@ -1908,7 +1934,7 @@ CGFloat CTFontGetSize( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the transformation matrix for this given font reference. This is the matrix that was provided when the font was created.
 */
-CGAffineTransform CTFontGetMatrix( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGAffineTransform CTFontGetMatrix( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetSymbolicTraits
@@ -1919,7 +1945,7 @@ CGAffineTransform CTFontGetMatrix( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the symbolic traits of the font. This is equivalent to the kCTFontSymbolicTrait of traits dictionary. See CTFontTraits.h for a definition of the font traits.
 */
-CTFontSymbolicTraits CTFontGetSymbolicTraits( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CTFontSymbolicTraits CTFontGetSymbolicTraits( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyTraits
@@ -1930,7 +1956,7 @@ CTFontSymbolicTraits CTFontGetSymbolicTraits( CTFontRef font ) CT_AVAILABLE(10_5
 
     @result     This function returns a retained reference to the font traits dictionary. Individual traits can be accessed with the trait key constants. See CTFontTraits.h for a definition of the font traits.
 */
-CFDictionaryRef CTFontCopyTraits( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFDictionaryRef CTFontCopyTraits( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Font Names
@@ -1945,7 +1971,7 @@ CFDictionaryRef CTFontCopyTraits( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns a retained reference to the PostScript name of the font.
 */
-CFStringRef CTFontCopyPostScriptName( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFStringRef CTFontCopyPostScriptName( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyFamilyName
@@ -1956,7 +1982,7 @@ CFStringRef CTFontCopyPostScriptName( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns a retained reference to the family name of the font.
 */
-CFStringRef CTFontCopyFamilyName( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFStringRef CTFontCopyFamilyName( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyFullName
@@ -1967,7 +1993,7 @@ CFStringRef CTFontCopyFamilyName( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns a retained reference to the full name of the font.
 */
-CFStringRef CTFontCopyFullName( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFStringRef CTFontCopyFullName( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyDisplayName
@@ -1978,7 +2004,7 @@ CFStringRef CTFontCopyFullName( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns a retained reference to the localized display name of the font.
 */
-CFStringRef CTFontCopyDisplayName( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFStringRef CTFontCopyDisplayName( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyName
@@ -1992,9 +2018,9 @@ CFStringRef CTFontCopyDisplayName( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function creates the requested name for the font, or NULL if the font does not have an entry for the requested name. The Unicode version of the name will be preferred, otherwise the first available will be used.
 */
-CFStringRef __nullable CTFontCopyName(
+CFStringRef _Nullable CTFontCopyName(
     CTFontRef       font,
-    CFStringRef     nameKey ) CT_AVAILABLE(10_5, 3_2);
+    CFStringRef     nameKey ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyLocalizedName
@@ -2012,10 +2038,10 @@ CFStringRef __nullable CTFontCopyName(
 
     @result     This function returns a specific localized name from the font reference. The name is localized based on the user's global language precedence. If the font does not have an entry for the requested name, NULL will be returned. The matched language will be returned in the caller's buffer.
 */
-CFStringRef __nullable CTFontCopyLocalizedName(
+CFStringRef _Nullable CTFontCopyLocalizedName(
     CTFontRef       font,
     CFStringRef     nameKey,
-    CFStringRef __nullable * __nullable actualLanguage ) CT_AVAILABLE(10_5, 3_2);
+    CFStringRef _Nullable * _Nullable actualLanguage ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Font Encoding
@@ -2030,7 +2056,7 @@ CFStringRef __nullable CTFontCopyLocalizedName(
 
     @result     This function returns a retained reference to the font's character set. This character set covers the nominal referenced by the font's Unicode cmap table (or equivalent).
 */
-CFCharacterSetRef CTFontCopyCharacterSet( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFCharacterSetRef CTFontCopyCharacterSet( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetStringEncoding
@@ -2041,7 +2067,7 @@ CFCharacterSetRef CTFontCopyCharacterSet( CTFontRef font ) CT_AVAILABLE(10_5, 3_
 
     @result     This function returns the best string encoding for the font.
 */
-CFStringEncoding CTFontGetStringEncoding( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFStringEncoding CTFontGetStringEncoding( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopySupportedLanguages
@@ -2052,7 +2078,7 @@ CFStringEncoding CTFontGetStringEncoding( CTFontRef font ) CT_AVAILABLE(10_5, 3_
 
     @result     This function returns a retained reference to an array of languages supported by the font. The array contains language identifier strings as CFStringRefs. The format of the language identifier will conform to UTS #35.
 */
-CFArrayRef CTFontCopySupportedLanguages( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFArrayRef CTFontCopySupportedLanguages( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetGlyphsForCharacters
@@ -2078,9 +2104,9 @@ CFArrayRef CTFontCopySupportedLanguages( CTFontRef font ) CT_AVAILABLE(10_5, 3_2
 */
 bool CTFontGetGlyphsForCharacters(
     CTFontRef       font,
-    const UniChar   characters[],
-    CGGlyph         glyphs[],
-    CFIndex         count ) CT_AVAILABLE(10_5, 3_2);
+    const UniChar   characters[_Nonnull],
+    CGGlyph         glyphs[_Nonnull],
+    CFIndex         count ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Font Metrics
@@ -2095,7 +2121,7 @@ bool CTFontGetGlyphsForCharacters(
 
     @result     This function returns the font ascent metric scaled based on the point size and matrix of the font reference.
 */
-CGFloat CTFontGetAscent( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGFloat CTFontGetAscent( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetDescent
@@ -2106,7 +2132,7 @@ CGFloat CTFontGetAscent( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the font descent metric scaled based on the point size and matrix of the font reference.
 */
-CGFloat CTFontGetDescent( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGFloat CTFontGetDescent( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetLeading
@@ -2117,7 +2143,7 @@ CGFloat CTFontGetDescent( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the font leading metric scaled based on the point size and matrix of the font reference.
 */
-CGFloat CTFontGetLeading( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGFloat CTFontGetLeading( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetUnitsPerEm
@@ -2128,7 +2154,7 @@ CGFloat CTFontGetLeading( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the units per em of the font.
 */
-unsigned CTFontGetUnitsPerEm( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+unsigned CTFontGetUnitsPerEm( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetGlyphCount
@@ -2139,7 +2165,7 @@ unsigned CTFontGetUnitsPerEm( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the number of glyphs in the font.
 */
-CFIndex CTFontGetGlyphCount( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFIndex CTFontGetGlyphCount( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetBoundingBox
@@ -2150,7 +2176,7 @@ CFIndex CTFontGetGlyphCount( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This will return the design bounding box of the font, which is the rectangle defined by xMin, yMin, xMax, and yMax values for the font.
 */
-CGRect CTFontGetBoundingBox( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGRect CTFontGetBoundingBox( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetUnderlinePosition
@@ -2161,7 +2187,7 @@ CGRect CTFontGetBoundingBox( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the font underline position metric scaled based on the point size and matrix of the font reference.
 */
-CGFloat CTFontGetUnderlinePosition( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGFloat CTFontGetUnderlinePosition( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetUnderlineThickness
@@ -2172,7 +2198,7 @@ CGFloat CTFontGetUnderlinePosition( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the font underline thickness metric scaled based on the point size and matrix of the font reference.
 */
-CGFloat CTFontGetUnderlineThickness( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGFloat CTFontGetUnderlineThickness( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetSlantAngle
@@ -2183,7 +2209,7 @@ CGFloat CTFontGetUnderlineThickness( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the transformed slant angle of the font. This is equivalent to the italic or caret angle with any skew from the transformation matrix applied.
 */
-CGFloat CTFontGetSlantAngle( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGFloat CTFontGetSlantAngle( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetCapHeight
@@ -2194,7 +2220,7 @@ CGFloat CTFontGetSlantAngle( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the font cap height metric scaled based on the point size and matrix of the font reference.
 */
-CGFloat CTFontGetCapHeight( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGFloat CTFontGetCapHeight( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetXHeight
@@ -2205,7 +2231,7 @@ CGFloat CTFontGetCapHeight( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 
     @result     This function returns the font X height metric scaled based on the point size and matrix of the font reference.
 */
-CGFloat CTFontGetXHeight( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CGFloat CTFontGetXHeight( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Font Glyphs
@@ -2225,7 +2251,7 @@ CGFloat CTFontGetXHeight( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
 */
 CGGlyph CTFontGetGlyphWithName(
     CTFontRef           font,
-    CFStringRef         glyphName ) CT_AVAILABLE(10_5, 3_2);
+    CFStringRef         glyphName ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetBoundingRectsForGlyphs
@@ -2251,9 +2277,9 @@ CGGlyph CTFontGetGlyphWithName(
 CGRect CTFontGetBoundingRectsForGlyphs(
     CTFontRef           font,
     CTFontOrientation   orientation,
-    const CGGlyph       glyphs[],
+    const CGGlyph       glyphs[_Nonnull],
     CGRect * __nullable boundingRects,
-    CFIndex             count ) CT_AVAILABLE(10_5, 3_2);
+    CFIndex             count ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetOpticalBoundsForGlyphs
@@ -2280,10 +2306,10 @@ CGRect CTFontGetBoundingRectsForGlyphs(
 */
 CGRect CTFontGetOpticalBoundsForGlyphs(
     CTFontRef           font,
-    const CGGlyph       glyphs[],
+    const CGGlyph       glyphs[_Nonnull],
     CGRect * __nullable boundingRects,
     CFIndex             count,
-    CFOptionFlags       options ) CT_AVAILABLE(10_8, 6_0);
+    CFOptionFlags       options ) CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetAdvancesForGlyphs
@@ -2309,9 +2335,9 @@ CGRect CTFontGetOpticalBoundsForGlyphs(
 double CTFontGetAdvancesForGlyphs(
     CTFontRef           font,
     CTFontOrientation   orientation,
-    const CGGlyph       glyphs[],
+    const CGGlyph       glyphs[_Nonnull],
     CGSize * __nullable advances,
-    CFIndex             count ) CT_AVAILABLE(10_5, 3_2);
+    CFIndex             count ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontGetVerticalTranslationsForGlyphs
@@ -2331,9 +2357,9 @@ double CTFontGetAdvancesForGlyphs(
 */
 void CTFontGetVerticalTranslationsForGlyphs(
     CTFontRef       font,
-    const CGGlyph   glyphs[],
-    CGSize          translations[],
-    CFIndex         count ) CT_AVAILABLE(10_5, 3_2);
+    const CGGlyph   glyphs[_Nonnull],
+    CGSize          translations[_Nonnull],
+    CFIndex         count ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCreatePathForGlyph
@@ -2347,18 +2373,18 @@ void CTFontGetVerticalTranslationsForGlyphs(
     @param      glyph
                 The glyph.
 
-    @param      transform
+    @param      matrix
                 An affine transform applied to the path. Can be NULL, in which case CGAffineTransformIdentity will be used.
 
     @result     A retained CGPath reference containing the glyph outlines or NULL if there is no such glyph or it has no outline.
 */
-CGPathRef __nullable CTFontCreatePathForGlyph(
+CGPathRef _Nullable CTFontCreatePathForGlyph(
     CTFontRef                   font,
     CGGlyph                     glyph,
-    const CGAffineTransform * __nullable matrix ) CT_AVAILABLE(10_5, 3_2);
+    const CGAffineTransform * _Nullable matrix ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
-    @group Font Variations        (this functionality is not supported on iOS)
+    @group Font Variations
 *///--------------------------------------------------------------------------
 
 /*!
@@ -2366,53 +2392,63 @@ CGPathRef __nullable CTFontCreatePathForGlyph(
     @abstract   Key to get the variation axis identifier.
     @discussion This key is used with a variation axis dictionary to get the axis identifier value as a CFNumberRef.
 */
-extern const CFStringRef kCTFontVariationAxisIdentifierKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontVariationAxisIdentifierKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontVariationAxisMinimumValueKey
     @abstract   Key to get the variation axis minimum value.
     @discussion This key is used with a variation axis dictionary to get the minimum axis value as a CFNumberRef.
 */
-extern const CFStringRef kCTFontVariationAxisMinimumValueKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontVariationAxisMinimumValueKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontVariationAxisMaximumValueKey
     @abstract   Key to get the variation axis maximum value.
     @discussion This key is used with a variation axis dictionary to get the maximum axis value as a CFNumberRef.
 */
-extern const CFStringRef kCTFontVariationAxisMaximumValueKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontVariationAxisMaximumValueKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontVariationAxisDefaultValueKey
     @abstract   Key to get the variation axis default value.
     @discussion This key is used with a variation axis dictionary to get the default axis value as a CFNumberRef.
 */
-extern const CFStringRef kCTFontVariationAxisDefaultValueKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontVariationAxisDefaultValueKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontVariationAxisNameKey
     @abstract   Key to get the variation axis name string.
     @discussion This key is used with a variation axis dictionary to get the localized variation axis name.
 */
-extern const CFStringRef kCTFontVariationAxisNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontVariationAxisNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
+/*!
+    @defined    kCTFontVariationAxisHiddenKey
+    @abstract   Key to get the hidden axis flag.
+    @discussion This key contains a CFBoolean value that is true when the font designer recommends the axis not be exposed directly to end users in application interfaces.
+*/
+CT_EXPORT const CFStringRef kCTFontVariationAxisHiddenKey CT_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
 
 /*!
     @function   CTFontCopyVariationAxes
-    @abstract   Returns an array of variation axes.
+    @abstract   Returns an array of variation axis dictionaries.
 
     @param      font
                 The font reference.
 
-    @result     This function returns an array of variation axis dictionaries. Each variation axis dictionary contains the five variation axis keys above.
+    @result     This function returns an array of variation axis dictionaries or null if the font does not support variations. Each variation axis dictionary contains the five kCTFontVariationAxis* keys above.
 */
-CFArrayRef __nullable CTFontCopyVariationAxes( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFArrayRef _Nullable CTFontCopyVariationAxes( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyVariation
-    @abstract   Returns a variation dictionary from the font reference.
+    @abstract   Returns a variation dictionary.
+    @discussion This function describes the current configuration of a variation font: a dictionary of number values with variation identifier number keys. As of macOS 10.12 and iOS 10.0, only non-default values (as determined by the variation axis) are returned.
 
     @param      font
                 The font reference.
 
-    @result     This function returns the current variation instance as a dictionary. The keys for each variation correspond to the variation identifier obtained via kCTFontVariationAxisIdentifierKey which represents the axis' four character code as a CFNumber.
+    @result     This function returns a variation dictionary or null if the font does not support variations.
+    
+    @seealso    kCTFontVariationAxisIdentifierKey
+    @seealso    kCTFontVariationAxisDefaultValueKey
 */
-CFDictionaryRef __nullable CTFontCopyVariation( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFDictionaryRef _Nullable CTFontCopyVariation( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Font Features
@@ -2423,61 +2459,61 @@ CFDictionaryRef __nullable CTFontCopyVariation( CTFontRef font ) CT_AVAILABLE(10
     @abstract   Key to get the OpenType feature tag.
     @discussion This key can be used with a font feature dictionary to get the tag as a CFStringRef.
 */
-extern const CFStringRef kCTFontOpenTypeFeatureTag CT_AVAILABLE(10_10, 8_0);
+CT_EXPORT const CFStringRef kCTFontOpenTypeFeatureTag CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontOpenTypeFeatureValue
     @abstract   Key to get the OpenType feature value.
     @discussion This key can be used with a font feature dictionary to get the value as a CFNumberRef.
 */
-extern const CFStringRef kCTFontOpenTypeFeatureValue CT_AVAILABLE(10_10, 8_0);
+CT_EXPORT const CFStringRef kCTFontOpenTypeFeatureValue CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFeatureTypeIdentifierKey
     @abstract   Key to get the font feature type value.
     @discussion This key can be used with a font feature dictionary to get the type identifier as a CFNumberRef.
 */
-extern const CFStringRef kCTFontFeatureTypeIdentifierKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFeatureTypeIdentifierKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFeatureTypeNameKey
     @abstract   Key to get the font feature name.
     @discussion This key can be used with a font feature dictionary to get the localized type name string as a CFString.
 */
-extern const CFStringRef kCTFontFeatureTypeNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFeatureTypeNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFeatureTypeExclusiveKey
     @abstract   Key to get the font feature exclusive setting.
     @discussion This key can be used with a font feature dictionary to get the the exclusive setting of the feature as a CFBoolean. The value associated with this key indicates whether the feature selectors associated with this type should be mutually exclusive.
 */
-extern const CFStringRef kCTFontFeatureTypeExclusiveKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFeatureTypeExclusiveKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFeatureTypeSelectorsKey
     @abstract   Key to get the font feature selectors.
     @discussion This key can be used with a font feature dictionary to get the array of font feature selectors as a CFArrayRef. This is an array of selector dictionaries that contain the values for the following selector keys.
 */
-extern const CFStringRef kCTFontFeatureTypeSelectorsKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFeatureTypeSelectorsKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFeatureSelectorIdentifierKey
     @abstract   Key to get the font feature selector identifier.
     @discussion This key can be used with a selector dictionary corresponding to a feature type to obtain the selector identifier value as a CFNumberRef.
 */
-extern const CFStringRef kCTFontFeatureSelectorIdentifierKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFeatureSelectorIdentifierKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFeatureSelectorNameKey
     @abstract   Key to get the font feature selector name.
     @discussion This key is used with a selector dictionary to get the localized name string for the selector as a CFStringRef.
 */
-extern const CFStringRef kCTFontFeatureSelectorNameKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFeatureSelectorNameKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFeatureSelectorDefaultKey
     @abstract   Key to get the font feature selector default setting value.
     @discussion This key is used with a selector dictionary to get the default indicator for the selector. This value is a CFBooleanRef which if present and true indicates that this selector is the default setting for the current feature type.
 */
-extern const CFStringRef kCTFontFeatureSelectorDefaultKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFeatureSelectorDefaultKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontFeatureSelectorSettingKey
     @abstract   Key to get or specify the current feature setting.
     @discussion This key is used with a selector dictionary to get or specify the current setting for the selector. This value is a CFBooleanRef to indicate whether this selector is on or off. If this key is not present, the default setting is used.
 */
-extern const CFStringRef kCTFontFeatureSelectorSettingKey CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontFeatureSelectorSettingKey CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyFeatures
@@ -2488,7 +2524,7 @@ extern const CFStringRef kCTFontFeatureSelectorSettingKey CT_AVAILABLE(10_5, 3_2
 
     @result     This function returns an array of font feature dictionaries for the font reference.
 */
-CFArrayRef __nullable CTFontCopyFeatures( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFArrayRef _Nullable CTFontCopyFeatures( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyFeatureSettings
@@ -2501,7 +2537,7 @@ CFArrayRef __nullable CTFontCopyFeatures( CTFontRef font ) CT_AVAILABLE(10_5, 3_
 
     @result     This function returns a normalized array of font feature setting dictionaries. The array will only contain the non-default settings that should be applied to the font, or NULL if the default settings should be used.
 */
-CFArrayRef __nullable CTFontCopyFeatureSettings( CTFontRef font ) CT_AVAILABLE(10_5, 3_2);
+CFArrayRef _Nullable CTFontCopyFeatureSettings( CTFontRef font ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Font Conversion
@@ -2521,7 +2557,7 @@ CFArrayRef __nullable CTFontCopyFeatureSettings( CTFontRef font ) CT_AVAILABLE(1
 */
 CGFontRef CTFontCopyGraphicsFont(
     CTFontRef           font,
-    CTFontDescriptorRef __nullable * __nullable attributes ) CT_AVAILABLE(10_5, 3_2);
+    CTFontDescriptorRef _Nullable * _Nullable attributes ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCreateWithGraphicsFont
@@ -2544,8 +2580,8 @@ CGFontRef CTFontCopyGraphicsFont(
 CTFontRef CTFontCreateWithGraphicsFont(
     CGFontRef                   graphicsFont,
     CGFloat                     size,
-    const CGAffineTransform * __nullable matrix,
-    CTFontDescriptorRef __nullable attributes ) CT_AVAILABLE(10_5, 3_2);
+    const CGAffineTransform * _Nullable matrix,
+    CTFontDescriptorRef _Nullable attributes ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 #ifndef ATSFONTREF_DEFINED
 typedef UInt32 ATSFontRef;
@@ -2567,7 +2603,7 @@ typedef UInt32 ATSFontRef;
 
 ATSFontRef CTFontGetPlatformFont(
     CTFontRef               font,
-    CTFontDescriptorRef __nullable * __nullable attributes ) CT_AVAILABLE_MAC(10_5);
+    CTFontDescriptorRef _Nullable * _Nullable attributes ) CT_AVAILABLE(macos(10.5)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontCreateWithPlatformFont
@@ -2587,11 +2623,11 @@ ATSFontRef CTFontGetPlatformFont(
 
     @result     This function returns a new font reference for an ATSFontRef with the specified size, matrix, and additional attributes.
 */
-CTFontRef __nullable CTFontCreateWithPlatformFont(
+CTFontRef _Nullable CTFontCreateWithPlatformFont(
     ATSFontRef                  platformFont,
     CGFloat                     size,
-    const CGAffineTransform * __nullable matrix,
-    CTFontDescriptorRef __nullable attributes ) CT_AVAILABLE_MAC(10_5);
+    const CGAffineTransform * _Nullable matrix,
+    CTFontDescriptorRef _Nullable attributes ) CT_AVAILABLE(macos(10.5)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontCreateWithQuickdrawInstance
@@ -2614,51 +2650,64 @@ CTFontRef __nullable CTFontCreateWithPlatformFont(
     @result     This function returns the best font instance matching the Quickdraw instance information.
 */
 CTFontRef CTFontCreateWithQuickdrawInstance(
-    ConstStr255Param __nullable name,
+    ConstStr255Param _Nullable name,
     int16_t             identifier,
     uint8_t             style,
-    CGFloat             size ) CT_AVAILABLE_MAC(10_5);
+    CGFloat             size ) CT_AVAILABLE(macos(10.5)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*! --------------------------------------------------------------------------
     @group Font Tables
 *///--------------------------------------------------------------------------
 
 enum {
-    kCTFontTableBASE    = 'BASE',   // Baseline
-    kCTFontTableCFF     = 'CFF ',   // PostScript font program
+    kCTFontTableBASE    = 'BASE',   // Baseline data
+    kCTFontTableCBDT    = 'CBDT',   // Color bitmap data
+    kCTFontTableCBLC    = 'CBLC',   // Color bitmap location data
+    kCTFontTableCFF     = 'CFF ',   // Compact Font Format 1.0
+    kCTFontTableCFF2    = 'CFF2',   // Compact Font Format 2.0
+    kCTFontTableCOLR    = 'COLR',   // Color table
+    kCTFontTableCPAL    = 'CPAL',   // Color palette table
     kCTFontTableDSIG    = 'DSIG',   // Digital signature
-    kCTFontTableEBDT    = 'EBDT',   // Embedded bitmap
-    kCTFontTableEBLC    = 'EBLC',   // Embedded bitmap location
-    kCTFontTableEBSC    = 'EBSC',   // Embedded bitmap scaling
-    kCTFontTableGDEF    = 'GDEF',   // Glyph definition
-    kCTFontTableGPOS    = 'GPOS',   // Glyph positioning
-    kCTFontTableGSUB    = 'GSUB',   // Glyph substitution
-    kCTFontTableJSTF    = 'JSTF',   // Justification
-    kCTFontTableLTSH    = 'LTSH',   // Linear threshold
-    kCTFontTableMATH    = 'MATH',   // Math
+    kCTFontTableEBDT    = 'EBDT',   // Embedded bitmap data
+    kCTFontTableEBLC    = 'EBLC',   // Embedded bitmap location data
+    kCTFontTableEBSC    = 'EBSC',   // Embedded bitmap scaling data
+    kCTFontTableGDEF    = 'GDEF',   // Glyph definition data
+    kCTFontTableGPOS    = 'GPOS',   // Glyph positioning data
+    kCTFontTableGSUB    = 'GSUB',   // Glyph substitution data
+    kCTFontTableHVAR    = 'HVAR',   // Horizontal metrics variations
+    kCTFontTableJSTF    = 'JSTF',   // Justification data
+    kCTFontTableLTSH    = 'LTSH',   // Linear threshold data
+    kCTFontTableMATH    = 'MATH',   // Math layout data
+    kCTFontTableMERG    = 'MERG',   // Merge
+    kCTFontTableMVAR    = 'MVAR',   // Metrics variations
     kCTFontTableOS2     = 'OS/2',   // OS/2 and Windows specific metrics
     kCTFontTablePCLT    = 'PCLT',   // PCL 5 data
+    kCTFontTableSTAT    = 'STAT',   // Style attributes
+    kCTFontTableSVG     = 'SVG ',   // Scalable vector graphics
     kCTFontTableVDMX    = 'VDMX',   // Vertical device metrics
     kCTFontTableVORG    = 'VORG',   // Vertical origin
+    kCTFontTableVVAR    = 'VVAR',   // Vertical metrics variations
     kCTFontTableZapf    = 'Zapf',   // Glyph reference
     kCTFontTableAcnt    = 'acnt',   // Accent attachment
     kCTFontTableAnkr    = 'ankr',   // Anchor points
-    kCTFontTableAvar    = 'avar',   // Axis variation
+    kCTFontTableAvar    = 'avar',   // Axis variations
     kCTFontTableBdat    = 'bdat',   // Bitmap data
     kCTFontTableBhed    = 'bhed',   // Bitmap font header
     kCTFontTableBloc    = 'bloc',   // Bitmap location
     kCTFontTableBsln    = 'bsln',   // Baseline
+    kCTFontTableCidg    = 'cidg',   // CID to glyph mapping
     kCTFontTableCmap    = 'cmap',   // Character to glyph mapping
-    kCTFontTableCvar    = 'cvar',   // CVT variation
+    kCTFontTableCvar    = 'cvar',   // CVT variations
     kCTFontTableCvt     = 'cvt ',   // Control value table
     kCTFontTableFdsc    = 'fdsc',   // Font descriptor
     kCTFontTableFeat    = 'feat',   // Layout feature
     kCTFontTableFmtx    = 'fmtx',   // Font metrics
+    kCTFontTableFond    = 'fond',   // 'FOND' and 'NFNT' data
     kCTFontTableFpgm    = 'fpgm',   // Font program
-    kCTFontTableFvar    = 'fvar',   // Font variation
-    kCTFontTableGasp    = 'gasp',   // Grid-fitting/Scan-conversion
+    kCTFontTableFvar    = 'fvar',   // Font variations
+    kCTFontTableGasp    = 'gasp',   // Grid-fitting/scan-conversion
     kCTFontTableGlyf    = 'glyf',   // Glyph data
-    kCTFontTableGvar    = 'gvar',   // Glyph variation
+    kCTFontTableGvar    = 'gvar',   // Glyph variations
     kCTFontTableHdmx    = 'hdmx',   // Horizontal device metrics
     kCTFontTableHead    = 'head',   // Font header
     kCTFontTableHhea    = 'hhea',   // Horizontal header
@@ -2668,9 +2717,10 @@ enum {
     kCTFontTableKern    = 'kern',   // Kerning
     kCTFontTableKerx    = 'kerx',   // Extended kerning
     kCTFontTableLcar    = 'lcar',   // Ligature caret
-    kCTFontTableLtag    = 'ltag',   // Language tags
     kCTFontTableLoca    = 'loca',   // Index to location
+    kCTFontTableLtag    = 'ltag',   // Language tags
     kCTFontTableMaxp    = 'maxp',   // Maximum profile
+    kCTFontTableMeta    = 'meta',   // Metadata
     kCTFontTableMort    = 'mort',   // Morph
     kCTFontTableMorx    = 'morx',   // Extended morph
     kCTFontTableName    = 'name',   // Naming table
@@ -2679,16 +2729,17 @@ enum {
     kCTFontTablePrep    = 'prep',   // CVT program
     kCTFontTableProp    = 'prop',   // Properties
     kCTFontTableSbit    = 'sbit',   // Bitmap data
-    kCTFontTableSbix    = 'sbix',   // Extended bitmap data
+    kCTFontTableSbix    = 'sbix',   // Standard bitmap graphics
     kCTFontTableTrak    = 'trak',   // Tracking
     kCTFontTableVhea    = 'vhea',   // Vertical header
-    kCTFontTableVmtx    = 'vmtx'    // Vertical metrics
+    kCTFontTableVmtx    = 'vmtx',   // Vertical metrics
+    kCTFontTableXref    = 'xref'    // Cross-reference
 };
 typedef FourCharCode CTFontTableTag;
 
 typedef CF_OPTIONS(uint32_t, CTFontTableOptions) {
-    kCTFontTableOptionNoOptions CT_ENUM_AVAILABLE(10_5, 3_2) = 0,
-    kCTFontTableOptionExcludeSynthetic CT_ENUM_DEPRECATED(10_5, 10_8, 3_2, 6_0) = (1 << 0)
+    kCTFontTableOptionNoOptions = 0,
+    kCTFontTableOptionExcludeSynthetic CT_ENUM_DEPRECATED("Unsupported", macos(10.5, 10.8), ios(3.2, 6.0)) CT_ENUM_UNAVAILABLE(watchos, tvos) = (1 << 0)
 };
 
 /*!
@@ -2699,13 +2750,14 @@ typedef CF_OPTIONS(uint32_t, CTFontTableOptions) {
                 The font reference.
 
     @param      options
+                The options used when copying font tables.
 
     @result     This function returns an array of CTFontTableTag values for the given font and the supplied options. The returned set will contain unboxed values, which may be extracted like so:
                 <code>CTFontTableTag tag = (CTFontTableTag)(uintptr_t)CFArrayGetValueAtIndex(tags, index);</code>
 */
-CFArrayRef __nullable CTFontCopyAvailableTables(
+CFArrayRef _Nullable CTFontCopyAvailableTables(
     CTFontRef           font,
-    CTFontTableOptions  options ) CT_AVAILABLE(10_5, 3_2);
+    CTFontTableOptions  options ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCopyTable
@@ -2718,13 +2770,14 @@ CFArrayRef __nullable CTFontCopyAvailableTables(
                 The font table identifier as a CTFontTableTag.
 
     @param      options
+                The options used when copying font table.
 
     @result     This function returns a retained reference to the font table data as CFDataRef or NULL if the table is not present.
 */
-CFDataRef __nullable CTFontCopyTable(
+CFDataRef _Nullable CTFontCopyTable(
     CTFontRef           font,
     CTFontTableTag      table,
-    CTFontTableOptions  options ) CT_AVAILABLE(10_5, 3_2);
+    CTFontTableOptions  options ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -2747,15 +2800,13 @@ CFDataRef __nullable CTFontCopyTable(
 
     @param      context
                 CGContext used to render the glyphs.
-
-    @result     void
 */
 void CTFontDrawGlyphs(
     CTFontRef       font, 
-    const CGGlyph   glyphs[], 
-    const CGPoint   positions[], 
+    const CGGlyph   glyphs[_Nonnull],
+    const CGPoint   positions[_Nonnull],
     size_t          count, 
-    CGContextRef    context ) CT_AVAILABLE(10_7, 4_2);
+    CGContextRef    context ) CT_AVAILABLE(macos(10.7), ios(4.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -2786,7 +2837,7 @@ CFIndex CTFontGetLigatureCaretPositions(
     CTFontRef       font,
     CGGlyph         glyph,
     CGFloat * __nullable positions,
-    CFIndex         maxPositions ) CT_AVAILABLE(10_5, 3_2);
+    CFIndex         maxPositions ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
     @group Baseline Alignment
@@ -2799,7 +2850,7 @@ CFIndex CTFontGetLigatureCaretPositions(
  
     @discussion This key can be used with a baseline info dictionary to offset to the Roman baseline as a CFNumberRef float. It can also be used as the value for kCTBaselineClassAttributeName.
 */
-extern const CFStringRef kCTBaselineClassRoman CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineClassRoman CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /*!
     @defined    kCTBaselineClassIdeographicCentered
@@ -2808,7 +2859,7 @@ extern const CFStringRef kCTBaselineClassRoman CT_AVAILABLE(10_8, 6_0);
  
     @discussion This key can be used with a baseline info dictionary to offset to the Ideographic Centered baseline as a CFNumberRef float. It can also be used as the value for kCTBaselineClassAttributeName.
 */
-extern const CFStringRef kCTBaselineClassIdeographicCentered CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineClassIdeographicCentered CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
     
 /*!
     @defined    kCTBaselineClassIdeographicLow
@@ -2817,7 +2868,7 @@ extern const CFStringRef kCTBaselineClassIdeographicCentered CT_AVAILABLE(10_8, 
  
     @discussion This key can be used with a baseline info dictionary to offset to the Ideographic Low baseline as a CFNumberRef float. It can also be used as the value for kCTBaselineClassAttributeName.
 */
-extern const CFStringRef kCTBaselineClassIdeographicLow CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineClassIdeographicLow CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
     
 /*!
     @defined    kCTBaselineClassIdeographicHigh
@@ -2826,7 +2877,7 @@ extern const CFStringRef kCTBaselineClassIdeographicLow CT_AVAILABLE(10_8, 6_0);
 
     @discussion This key can be used with a baseline info dictionary to offset to the Ideographic High baseline as a CFNumberRef float. It can also be used as the value for kCTBaselineClassAttributeName.
 */
-extern const CFStringRef kCTBaselineClassIdeographicHigh CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineClassIdeographicHigh CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /*!
     @defined    kCTBaselineClassHanging
@@ -2835,7 +2886,7 @@ extern const CFStringRef kCTBaselineClassIdeographicHigh CT_AVAILABLE(10_8, 6_0)
  
     @discussion This key can be used with a baseline info dictionary to offset to the Hanging baseline as a CFNumberRef float. It can also be used as the value for kCTBaselineClassAttributeName.
 */
-extern const CFStringRef kCTBaselineClassHanging CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineClassHanging CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /*!
     @defined    kCTBaselineClassMathKey
@@ -2844,7 +2895,7 @@ extern const CFStringRef kCTBaselineClassHanging CT_AVAILABLE(10_8, 6_0);
 
     @discussion This key can be used with a baseline info dictionary to offset to the Math baseline as a CFNumberRef float. It can also be used as the value for kCTBaselineClassAttributeName.
 */
-extern const CFStringRef kCTBaselineClassMath CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineClassMath CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /*!
     @defined    kCTBaselineReferenceFont
@@ -2853,7 +2904,7 @@ extern const CFStringRef kCTBaselineClassMath CT_AVAILABLE(10_8, 6_0);
  
     @discussion This key can be used to specify a font for the reference baseline. The value is a CTFontRef or the kCTBaselineOriginalFont constant.
 */
-extern const CFStringRef kCTBaselineReferenceFont CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineReferenceFont CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /*!
     @defined    kCTBaselineOriginalFont
@@ -2862,7 +2913,7 @@ extern const CFStringRef kCTBaselineReferenceFont CT_AVAILABLE(10_8, 6_0);
  
     @discussion This constant can be used as the value for kCTBaselineReferenceFont to specify that the original font should be used for the reference baseline.
 */
-extern const CFStringRef kCTBaselineOriginalFont CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineOriginalFont CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -2877,7 +2928,7 @@ extern const CFStringRef kCTBaselineOriginalFont CT_AVAILABLE(10_8, 6_0);
 
     @result     The ordered list of fallback fonts - ordered array of CTFontDescriptors.
 */
-CFArrayRef __nullable CTFontCopyDefaultCascadeListForLanguages( CTFontRef font, CFArrayRef __nullable languagePrefList ) CT_AVAILABLE(10_8, 6_0);
+CFArrayRef _Nullable CTFontCopyDefaultCascadeListForLanguages( CTFontRef font, CFArrayRef _Nullable languagePrefList ) CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 CF_ASSUME_NONNULL_END
 CF_EXTERN_C_END
@@ -2889,7 +2940,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CTLine.h
  *  CoreText
  *
- *  Copyright (c) 2003-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2003-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -2905,9 +2956,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define __CTLINE__
 
 #include <CoreText/CTDefines.h>
-#include <CoreFoundation/CFArray.h>
-#include <CoreFoundation/CFAttributedString.h>
-#include <CoreGraphics/CGContext.h>
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
@@ -2961,7 +3012,7 @@ typedef CF_OPTIONS(CFOptionFlags, CTLineBoundsOptions) {
     kCTLineBoundsUseHangingPunctuation      = 1 << 2,
     kCTLineBoundsUseGlyphPathBounds         = 1 << 3,
     kCTLineBoundsUseOpticalBounds           = 1 << 4,
-    kCTLineBoundsIncludeLanguageExtents CT_ENUM_AVAILABLE(10_11, 8_0) = 1 << 5,
+    kCTLineBoundsIncludeLanguageExtents     = 1 << 5,
 };
 
 
@@ -2996,7 +3047,7 @@ typedef CF_ENUM(uint32_t, CTLineTruncationType) {
     @abstract   Returns the CFType of the line object
 */
 
-CFTypeID CTLineGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTLineGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3021,7 +3072,7 @@ CFTypeID CTLineGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
 */
 
 CTLineRef CTLineCreateWithAttributedString(
-    CFAttributedStringRef attrString ) CT_AVAILABLE(10_5, 3_2);
+    CFAttributedStringRef attrString ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3053,11 +3104,11 @@ CTLineRef CTLineCreateWithAttributedString(
                 NULL.
 */
 
-CTLineRef __nullable CTLineCreateTruncatedLine(
+CTLineRef _Nullable CTLineCreateTruncatedLine(
     CTLineRef line,
     double width,
     CTLineTruncationType truncationType,
-    CTLineRef __nullable truncationToken ) CT_AVAILABLE(10_5, 3_2);
+    CTLineRef _Nullable truncationToken ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3084,10 +3135,10 @@ CTLineRef __nullable CTLineCreateTruncatedLine(
                 NULL.
 */
 
-CTLineRef __nullable CTLineCreateJustifiedLine(
+CTLineRef _Nullable CTLineCreateJustifiedLine(
     CTLineRef line,
     CGFloat justificationFactor,
-    double justificationWidth ) CT_AVAILABLE(10_5, 3_2);
+    double justificationWidth ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3108,7 +3159,7 @@ CTLineRef __nullable CTLineCreateJustifiedLine(
 */
 
 CFIndex CTLineGetGlyphCount(
-    CTLineRef line ) CT_AVAILABLE(10_5, 3_2);
+    CTLineRef line ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3122,7 +3173,7 @@ CFIndex CTLineGetGlyphCount(
 */
 
 CFArrayRef CTLineGetGlyphRuns(
-    CTLineRef line ) CT_AVAILABLE(10_5, 3_2);
+    CTLineRef line ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3139,7 +3190,7 @@ CFArrayRef CTLineGetGlyphRuns(
 */
 
 CFRange CTLineGetStringRange(
-    CTLineRef line ) CT_AVAILABLE(10_5, 3_2);
+    CTLineRef line ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3166,7 +3217,7 @@ CFRange CTLineGetStringRange(
 double CTLineGetPenOffsetForFlush(
     CTLineRef line,
     CGFloat flushFactor,
-    double flushWidth ) CT_AVAILABLE(10_5, 3_2);
+    double flushWidth ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3175,9 +3226,10 @@ double CTLineGetPenOffsetForFlush(
 
     @discussion This is a convenience call, since the line could be drawn
                 run-by-run by getting the glyph runs and accessing the glyphs out
-                of them. Note that this call may leave the graphics context in
-                any state and does not flush the context after the draw
-                operation.
+                of them. This call may leave the graphics context in any state and
+                does not flush the context after drawing. This call also expects
+                a text matrix with `y` values increasing from bottom to top; a
+                flipped text matrix may result in misplaced diacritics.
 
     @param      line
                 The line that you want to draw.
@@ -3188,7 +3240,7 @@ double CTLineGetPenOffsetForFlush(
 
 void CTLineDraw(
     CTLineRef line,
-    CGContextRef context ) CT_AVAILABLE(10_5, 3_2);
+    CGContextRef context ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3226,9 +3278,9 @@ void CTLineDraw(
 
 double CTLineGetTypographicBounds(
     CTLineRef line,
-    CGFloat * __nullable ascent,
-    CGFloat * __nullable descent,
-    CGFloat * __nullable leading ) CT_AVAILABLE(10_5, 3_2);
+    CGFloat * _Nullable ascent,
+    CGFloat * _Nullable descent,
+    CGFloat * _Nullable leading ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3249,7 +3301,7 @@ double CTLineGetTypographicBounds(
 
 CGRect CTLineGetBoundsWithOptions(
     CTLineRef line,
-    CTLineBoundsOptions options ) CT_AVAILABLE(10_8, 6_0);
+    CTLineBoundsOptions options ) CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3269,7 +3321,7 @@ CGRect CTLineGetBoundsWithOptions(
 */
 
 double CTLineGetTrailingWhitespaceWidth(
-    CTLineRef line ) CT_AVAILABLE(10_5, 3_2);
+    CTLineRef line ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3301,7 +3353,7 @@ double CTLineGetTrailingWhitespaceWidth(
 
 CGRect CTLineGetImageBounds(
     CTLineRef line,
-    CGContextRef __nullable context ) CT_AVAILABLE(10_5, 3_2);
+    CGContextRef _Nullable context ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3333,7 +3385,7 @@ CGRect CTLineGetImageBounds(
 
 CFIndex CTLineGetStringIndexForPosition(
     CTLineRef line,
-    CGPoint position ) CT_AVAILABLE(10_5, 3_2);
+    CGPoint position ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3371,7 +3423,7 @@ CFIndex CTLineGetStringIndexForPosition(
 CGFloat CTLineGetOffsetForStringIndex(
     CTLineRef line,
     CFIndex charIndex,
-    CGFloat * __nullable secondaryOffset ) CT_AVAILABLE(10_5, 3_2);
+    CGFloat * _Nullable secondaryOffset ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 #if defined(__BLOCKS__)
@@ -3388,7 +3440,7 @@ CGFloat CTLineGetOffsetForStringIndex(
 
 void CTLineEnumerateCaretOffsets(
     CTLineRef line,
-    void (^block)(double offset, CFIndex charIndex, bool leadingEdge, bool* stop) ) CT_AVAILABLE(10_11, 9_0);
+    void (^block)(double offset, CFIndex charIndex, bool leadingEdge, bool* stop) ) CT_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
 
 #endif // defined(__BLOCKS__)
 
@@ -3400,10 +3452,10 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif
 // ==========  CoreText.framework/Headers/CTFramesetter.h
 /*
- *	CTFramesetter.h
- *	CoreText
+ *  CTFramesetter.h
+ *  CoreText
  *
- *	Copyright (c) 2003-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2003-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -3418,7 +3470,6 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #ifndef __CTFRAMESETTER__
 #define __CTFRAMESETTER__
 
-#include <CoreText/CTDefines.h>
 #include <CoreText/CTFrame.h>
 #include <CoreText/CTTypesetter.h>
 
@@ -3434,11 +3485,11 @@ typedef const struct CF_BRIDGED_TYPE(id) __CTFramesetter * CTFramesetterRef;
 
 
 /*!
-	@function	CTFramesetterGetTypeID
-	@abstract	Returns the CFType of the framesetter object
+    @function   CTFramesetterGetTypeID
+    @abstract   Returns the CFType of the framesetter object
 */
 
-CFTypeID CTFramesetterGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTFramesetterGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3446,23 +3497,45 @@ CFTypeID CTFramesetterGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTFramesetterCreateWithAttributedString
-	@abstract	Creates an immutable framesetter object from an attributed
-				string.
+    @function   CTFramesetterCreateWithTypesetter
+    @abstract   Creates a framesetter directly from a typesetter.
 
-	@discussion The resultant framesetter object can be used to create and
-				fill text frames with the CTFramesetterCreateFrame call.
+    @discussion Each framesetter uses a typesetter internally to perform
+                line breaking and other contextual analysis based on the
+                characters in a string. This function allows use of a
+                typesetter that was constructed using specific options.
 
-	@param		string
-				The run with which you want to construct the framesetter
-				object with.
+    @param      typesetter
+                The typesetter to be used by the newly-created framesetter.
 
-	@result		This function will return a reference to a CTFramesetter if
-				the call was successful. Otherwise, it will return NULL.
+    @result     This function will return a reference to a CTFramesetter if
+                the call was successful. Otherwise, it will return NULL.
+
+    @seealso    CTTypesetterCreateWithAttributedStringAndOptions
+*/
+
+CTFramesetterRef CTFramesetterCreateWithTypesetter(
+    CTTypesetterRef typesetter ) CT_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
+
+
+/*!
+    @function   CTFramesetterCreateWithAttributedString
+    @abstract   Creates an immutable framesetter object from an attributed
+                string.
+
+    @discussion The resultant framesetter object can be used to create and
+                fill text frames with the CTFramesetterCreateFrame call.
+
+    @param      string
+                The run with which you want to construct the framesetter
+                object with.
+
+    @result     This function will return a reference to a CTFramesetter if
+                the call was successful. Otherwise, it will return NULL.
 */
 
 CTFramesetterRef CTFramesetterCreateWithAttributedString(
-	CFAttributedStringRef string ) CT_AVAILABLE(10_5, 3_2);
+    CFAttributedStringRef string ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3470,62 +3543,62 @@ CTFramesetterRef CTFramesetterCreateWithAttributedString(
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTFramesetterCreateFrame
-	@abstract	Creates an immutable frame from a framesetter.
+    @function   CTFramesetterCreateFrame
+    @abstract   Creates an immutable frame from a framesetter.
 
-	@discussion This call will create a frame full of glyphs in the shape of
-				the path provided by the "path" parameter. The framesetter
-				will continue to fill the frame until it either runs out of
-				text or it finds that text no longer fits.
+    @discussion This call will create a frame full of glyphs in the shape of
+                the path provided by the "path" parameter. The framesetter
+                will continue to fill the frame until it either runs out of
+                text or it finds that text no longer fits.
 
-	@param		framesetter
-				The framesetter that will be used to create the frame.
+    @param      framesetter
+                The framesetter that will be used to create the frame.
 
-	@param		stringRange
-				The string range which the new frame will be based on. The
-				string range is a range over the string that was used to
-				create the framesetter. If the length portion of the range
-				is set to 0, then the framesetter will continue to add lines
-				until it runs out of text or space.
+    @param      stringRange
+                The string range which the new frame will be based on. The
+                string range is a range over the string that was used to
+                create the framesetter. If the length portion of the range
+                is set to 0, then the framesetter will continue to add lines
+                until it runs out of text or space.
 
-	@param		path
-				A CGPath object that specifies the shape which the frame will
-				take on.
+    @param      path
+                A CGPath object that specifies the shape which the frame will
+                take on.
 
-	@param		frameAttributes
-				Additional attributes that control the frame filling process
-				can be specified here, or NULL if there are no such attributes.
-				See CTFrame.h for available attributes.
+    @param      frameAttributes
+                Additional attributes that control the frame filling process
+                can be specified here, or NULL if there are no such attributes.
+                See CTFrame.h for available attributes.
 
-	@result		This function will return a reference to a new CTFrame object.
+    @result     This function will return a reference to a new CTFrame object.
 */
 
 CTFrameRef CTFramesetterCreateFrame(
-	CTFramesetterRef framesetter,
-	CFRange stringRange,
-	CGPathRef path,
-	CFDictionaryRef __nullable frameAttributes ) CT_AVAILABLE(10_5, 3_2);
+    CTFramesetterRef framesetter,
+    CFRange stringRange,
+    CGPathRef path,
+    CFDictionaryRef _Nullable frameAttributes ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTFramesetterGetTypesetter
-	@abstract	Returns the typesetter object being used by the framesetter.
+    @function   CTFramesetterGetTypesetter
+    @abstract   Returns the typesetter object being used by the framesetter.
 
-	@discussion Each framesetter uses a typesetter internally to perform
-				line breaking and other contextual analysis based on the
-				characters in a string; this function returns the typesetter
-				being used by a particular framesetter if the caller would
-				like to perform other operations on that typesetter.
+    @discussion Each framesetter uses a typesetter internally to perform
+                line breaking and other contextual analysis based on the
+                characters in a string; this function returns the typesetter
+                being used by a particular framesetter if the caller would
+                like to perform other operations on that typesetter.
 
-	@param		framesetter
-				The framesetter from which a typesetter is being requested.
+    @param      framesetter
+                The framesetter from which a typesetter is being requested.
 
-	@result		This function will return a reference to a CTTypesetter
-				object, which should not be released by the caller.
+    @result     This function will return a reference to a CTTypesetter
+                object, which should not be released by the caller.
 */
 
 CTTypesetterRef CTFramesetterGetTypesetter(
-	CTFramesetterRef framesetter ) CT_AVAILABLE(10_5, 3_2);
+    CTFramesetterRef framesetter ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3533,44 +3606,44 @@ CTTypesetterRef CTFramesetterGetTypesetter(
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTFramesetterSuggestFrameSizeWithConstraints
-	@abstract	Determines the frame size needed for a string range.
+    @function   CTFramesetterSuggestFrameSizeWithConstraints
+    @abstract   Determines the frame size needed for a string range.
 
-	@discussion	This function may be used to determine how much space is needed
-				to display a string, optionally by constraining the space along
-				either dimension.
+    @discussion This function may be used to determine how much space is needed
+                to display a string, optionally by constraining the space along
+                either dimension.
 
-	@param		framesetter
-				The framesetter that will be used for measuring the frame size.
+    @param      framesetter
+                The framesetter that will be used for measuring the frame size.
 
-	@param		stringRange
-				The string range to which the frame size will apply. The
-				string range is a range over the string that was used to
-				create the framesetter. If the length portion of the range
-				is set to 0, then the framesetter will continue to add lines
-				until it runs out of text or space.
+    @param      stringRange
+                The string range to which the frame size will apply. The
+                string range is a range over the string that was used to
+                create the framesetter. If the length portion of the range
+                is set to 0, then the framesetter will continue to add lines
+                until it runs out of text or space.
 
-	@param		frameAttributes
-				Additional attributes that control the frame filling process
-				can be specified here, or NULL if there are no such attributes.
+    @param      frameAttributes
+                Additional attributes that control the frame filling process
+                can be specified here, or NULL if there are no such attributes.
 
-	@param		constraints
-				The width and height to which the frame size will be constrained,
-				A value of CGFLOAT_MAX for either dimension indicates that it
-				should be treated as unconstrained.
+    @param      constraints
+                The width and height to which the frame size will be constrained,
+                A value of CGFLOAT_MAX for either dimension indicates that it
+                should be treated as unconstrained.
 
-	@param		fitRange
-				The range of the string that actually fit in the constrained size.
+    @param      fitRange
+                The range of the string that actually fit in the constrained size.
 
-	@result		The actual dimensions for the given string range and constraints.
+    @result     The actual dimensions for the given string range and constraints.
 */
 
 CGSize CTFramesetterSuggestFrameSizeWithConstraints(
-	CTFramesetterRef framesetter,
-	CFRange stringRange,
-	CFDictionaryRef __nullable frameAttributes,
-	CGSize constraints,
-	CFRange * __nullable fitRange ) CT_AVAILABLE(10_5, 3_2);
+    CTFramesetterRef framesetter,
+    CFRange stringRange,
+    CFDictionaryRef _Nullable frameAttributes,
+    CGSize constraints,
+    CFRange * _Nullable fitRange ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 CF_ASSUME_NONNULL_END
@@ -3583,7 +3656,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CTRubyAnnotation.h
  *  CoreText
  *
- *  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -3599,7 +3672,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define __CTRUBYANNOTATION__
 
 #include <CoreText/CTDefines.h>
-#include <CoreGraphics/CGBase.h>
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
@@ -3617,7 +3692,7 @@ typedef const struct CF_BRIDGED_TYPE(id) __CTRubyAnnotation * CTRubyAnnotationRe
     @abstract	Returns the CFType of the ruby annotation object
 */
 
-CFTypeID CTRubyAnnotationGetTypeID( void ) CT_AVAILABLE(10_10, 8_0);
+CFTypeID CTRubyAnnotationGetTypeID( void ) CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3659,7 +3734,7 @@ typedef CF_ENUM(uint8_t, CTRubyAlignment) {
     kCTRubyAlignmentDistributeLetter = 4,
     kCTRubyAlignmentDistributeSpace = 5,
     kCTRubyAlignmentLineEdge = 6
-} CT_AVAILABLE(10_10, 8_0);
+} CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3689,7 +3764,7 @@ typedef CF_ENUM(uint8_t, CTRubyOverhang) {
     kCTRubyOverhangStart = 1,
     kCTRubyOverhangEnd = 2,
     kCTRubyOverhangNone = 3
-} CT_AVAILABLE(10_10, 8_0);
+} CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3719,7 +3794,7 @@ typedef CF_ENUM(uint8_t, CTRubyPosition) {
     kCTRubyPositionInterCharacter = 2,
     kCTRubyPositionInline = 3,
     kCTRubyPositionCount
-} CT_AVAILABLE(10_10, 8_0);
+} CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -3745,14 +3820,70 @@ typedef CF_ENUM(uint8_t, CTRubyPosition) {
     @param      text
                 An array of CFStringRef, indexed by CTRubyPosition. Supply NULL for any unused positions.
 
-    @result     This function will return a reference to a CTRubyAlignment object.
+    @result     This function will return a reference to a CTRubyAnnotation object.
 */
 
 CTRubyAnnotationRef CTRubyAnnotationCreate(
     CTRubyAlignment alignment,
     CTRubyOverhang overhang,
     CGFloat sizeFactor,
-    CFStringRef text[kCTRubyPositionCount] ) CT_AVAILABLE(10_10, 8_0);
+    CFStringRef _Nullable text[_Nonnull kCTRubyPositionCount] ) CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
+
+/*!
+    @const      kCTRubyAnnotationSizeFactorAttributeName
+    @abstract   Specifies the size of the annotation text as a percent of the size of the base text.
+
+    @discussion Value must be a CFNumberRef.
+*/
+
+CT_EXPORT const CFStringRef kCTRubyAnnotationSizeFactorAttributeName CT_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+
+/*!
+    @const      kCTRubyAnnotationScaleToFitAttributeName
+    @abstract   Treat the size specified in kCTRubyAnnotationSizeFactorAttributeName as the maximum
+                scale factor, when the base text size is smaller than annotation text size, we will
+                try to scale the annotation font size down so that it will fit the base text without
+                overhang or adding extra padding between base text.
+
+    @discussion Value must be a CFBooleanRef. Default is false.
+*/
+
+CT_EXPORT const CFStringRef kCTRubyAnnotationScaleToFitAttributeName CT_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+
+/*!
+    @function   CTRubyAnnotationCreateWithAttributes
+    @abstract   Creates an immutable ruby annotation object.
+
+    @discussion Using this function to create a ruby annotation object with more precise
+                control of the annotation text.
+
+    @param      alignment
+                Specifies how the ruby text and the base text should be aligned relative to each other.
+
+    @param      overhang
+                Specifies how the ruby text can overhang adjacent characters.
+
+    @param      position
+                The position of the annotation text.
+
+    @param      string
+                A string without any formatting, its format will be derived from the attrs specified below.
+
+    @param      attributes
+                A attribute dictionary to combine with the string specified above. If you don't specify
+                kCTFontAttributeName, the font used by the Ruby annotation will be deduced from the base
+                text, with a size factor specified by a CFNumberRef value keyed by
+                kCTRubyAnnotationSizeFactorAttributeName.
+
+    @result     This function will return a reference to a CTRubyAnnotation object.
+*/
+
+CTRubyAnnotationRef CTRubyAnnotationCreateWithAttributes(
+    CTRubyAlignment alignment,
+    CTRubyOverhang overhang,
+    CTRubyPosition position,
+    CFStringRef string,
+    CFDictionaryRef attributes ) CT_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 /*!
     @function   CTRubyAnnotationCreateCopy
@@ -3768,7 +3899,7 @@ CTRubyAnnotationRef CTRubyAnnotationCreate(
 */
 
 CTRubyAnnotationRef CTRubyAnnotationCreateCopy(
-    CTRubyAnnotationRef rubyAnnotation ) CT_AVAILABLE(10_10, 8_0);
+    CTRubyAnnotationRef rubyAnnotation ) CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3783,7 +3914,7 @@ CTRubyAnnotationRef CTRubyAnnotationCreateCopy(
 */
 
 CTRubyAlignment CTRubyAnnotationGetAlignment(
-    CTRubyAnnotationRef rubyAnnotation ) CT_AVAILABLE(10_10, 8_0);
+    CTRubyAnnotationRef rubyAnnotation ) CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3798,7 +3929,7 @@ CTRubyAlignment CTRubyAnnotationGetAlignment(
 */
 
 CTRubyOverhang CTRubyAnnotationGetOverhang(
-    CTRubyAnnotationRef rubyAnnotation ) CT_AVAILABLE(10_10, 8_0);
+    CTRubyAnnotationRef rubyAnnotation ) CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTRubyAnnotationGetSizeFactor
@@ -3812,7 +3943,7 @@ CTRubyOverhang CTRubyAnnotationGetOverhang(
 */
 
 CGFloat CTRubyAnnotationGetSizeFactor(
-    CTRubyAnnotationRef rubyAnnotation ) CT_AVAILABLE(10_10, 8_0);
+    CTRubyAnnotationRef rubyAnnotation ) CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -3822,16 +3953,16 @@ CGFloat CTRubyAnnotationGetSizeFactor(
     @param      rubyAnnotation
                 The ruby annotation object.
 
-    @param      postion
+    @param      position
                 The position for which you want to get the ruby text.
 
     @result     If the "rubyAnnotation" reference and the position are valid, then this
                 function will return a CFStringRef for the text. Otherwise it will return NULL.
 */
 
-CFStringRef __nullable CTRubyAnnotationGetTextForPosition(
+CFStringRef _Nullable CTRubyAnnotationGetTextForPosition(
     CTRubyAnnotationRef rubyAnnotation,
-    CTRubyPosition position ) CT_AVAILABLE(10_10, 8_0);
+    CTRubyPosition position ) CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 
 CF_ASSUME_NONNULL_END
@@ -3844,7 +3975,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CTFontManagerErrors.h
  *  CoreText
  *
- *  Copyright (c) 2008-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -3852,7 +3983,8 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define __CTFONTMANAGERERRORS__
 
 #include <CoreText/CTDefines.h>
-#include <CoreFoundation/CFString.h>
+
+#include <CoreFoundation/CoreFoundation.h>
 
 CF_EXTERN_C_BEGIN
 CF_ASSUME_NONNULL_BEGIN
@@ -3862,14 +3994,14 @@ CF_ASSUME_NONNULL_BEGIN
     @abstract   CFError domain for CTFontManager errors
     @discussion CFErrors with this domain will have error codes corresponding to one of the CTFontManagerErrors above.
 */
-extern const CFStringRef kCTFontManagerErrorDomain CT_AVAILABLE(10_6, 3_2);
+CT_EXPORT const CFStringRef kCTFontManagerErrorDomain CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @constant   kCTFontManagerErrorFontURLsKey
     @abstract   User info key to be used with CFError references returned from registration functions.
     @discussion The value associated with this key in the user info dictionary of a CFError is a CFArray of font URLs that failed with given error.
 */
-extern const CFStringRef kCTFontManagerErrorFontURLsKey CT_AVAILABLE(10_6, 3_2);
+CT_EXPORT const CFStringRef kCTFontManagerErrorFontURLsKey CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @enum
@@ -3885,10 +4017,6 @@ extern const CFStringRef kCTFontManagerErrorFontURLsKey CT_AVAILABLE(10_6, 3_2);
                 The file contains invalid font data that could cause system problems.
     @constant   kCTFontManagerErrorAlreadyRegistered
                 The file has already been registered in the specified scope.
-*/
-/*!
-    @enum
-    @abstract   Font un-registration errors
     @discussion Errors that would prevent un-registration of fonts for a specified font file URL.
     @constant   kCTFontManagerErrorNotRegistered
                 The file is not registered in the specified scope.
@@ -3917,7 +4045,7 @@ CF_EXTERN_C_END
  *  CTFontManager.h
  *  CoreText
  *
- *  Copyright (c) 2008-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -3932,13 +4060,8 @@ CF_EXTERN_C_END
 #ifndef __CTFONTMANAGER__
 #define __CTFONTMANAGER__
 
-#include <CoreText/CTDefines.h>
 #include <CoreText/CTFontDescriptor.h>
 #include <CoreText/CTFontManagerErrors.h>
-#include <CoreFoundation/CFError.h>
-#include <CoreFoundation/CFRunLoop.h>
-#include <CoreFoundation/CFURL.h>
-#include <CoreGraphics/CGFont.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
@@ -3955,7 +4078,7 @@ CF_ASSUME_NONNULL_BEGIN
  
     @result     An array of CFStrings.
 */
-CFArrayRef CTFontManagerCopyAvailablePostScriptNames( void ) CT_AVAILABLE_MAC(10_6);
+CFArrayRef CTFontManagerCopyAvailablePostScriptNames( void ) CT_AVAILABLE(macos(10.6), ios(10.0), watchos(3.0), tvos(10.0));
 
 /*!
     @function   CTFontManagerCopyAvailableFontFamilyNames
@@ -3963,7 +4086,7 @@ CFArrayRef CTFontManagerCopyAvailablePostScriptNames( void ) CT_AVAILABLE_MAC(10
 
     @result     An array of CFStrings.
 */
-CFArrayRef CTFontManagerCopyAvailableFontFamilyNames( void ) CT_AVAILABLE_MAC(10_6);
+CFArrayRef CTFontManagerCopyAvailableFontFamilyNames( void ) CT_AVAILABLE(macos(10.6), ios(10.0), watchos(3.0), tvos(10.0));
 
 /*!
     @function   CTFontManagerCopyAvailableFontURLs
@@ -3971,7 +4094,7 @@ CFArrayRef CTFontManagerCopyAvailableFontFamilyNames( void ) CT_AVAILABLE_MAC(10
 
     @result     An array of CFURLs.
 */
-CFArrayRef CTFontManagerCopyAvailableFontURLs( void ) CT_AVAILABLE_MAC(10_6);
+CFArrayRef CTFontManagerCopyAvailableFontURLs( void ) CT_AVAILABLE(macos(10.6)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontManagerCompareFontFamilyNames
@@ -3988,7 +4111,7 @@ CFArrayRef CTFontManagerCopyAvailableFontURLs( void ) CT_AVAILABLE_MAC(10_6);
 CFComparisonResult CTFontManagerCompareFontFamilyNames(
     const void *        family1,
     const void *        family2,
-    void * __nullable   context ) CT_AVAILABLE_MAC(10_6);
+    void * _Nullable   context ) CT_AVAILABLE(macos(10.6)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontManagerCreateFontDescriptorsFromURL
@@ -4000,21 +4123,23 @@ CFComparisonResult CTFontManagerCompareFontFamilyNames(
 
     @result     An array of CTFontDescriptors or NULL if there are no valid fonts.
 */
-CFArrayRef __nullable CTFontManagerCreateFontDescriptorsFromURL(
-    CFURLRef            fileURL ) CT_AVAILABLE(10_6, 7_0);
+CFArrayRef _Nullable CTFontManagerCreateFontDescriptorsFromURL(
+    CFURLRef            fileURL ) CT_AVAILABLE(macos(10.6), ios(7.0), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontManagerCreateFontDescriptorFromData
     @abstract   Returns a font descriptor representing the font in the supplied data.
                 Note: the font descriptor is not available through font descriptor matching.
 
+    @discussion If the data contains a font collection (TTC or OTC), only the first font in the collection will be returned.
+
     @param      data
                 A CFData containing font data.
 
     @result     A font descriptor created from the data or NULL if it is not a valid font.
 */
-CTFontDescriptorRef __nullable CTFontManagerCreateFontDescriptorFromData(
-    CFDataRef               data ) CT_AVAILABLE(10_7, 7_0);
+CTFontDescriptorRef _Nullable CTFontManagerCreateFontDescriptorFromData(
+    CFDataRef               data ) CT_AVAILABLE(macos(10.7), ios(7.0), watchos(2.0), tvos(9.0));
 
 /*!
     @enum       CTFontManagerScope
@@ -4037,7 +4162,7 @@ typedef CF_ENUM(uint32_t, CTFontManagerScope) {
 
 /*!
     @function   CTFontManagerRegisterFontsForURL
-    @abstract   Registers fonts from the specified font URL with the font manager. Registered fonts are discoverable through font descriptor matching.
+    @abstract   Registers fonts from the specified font URL with the font manager. Registered fonts participate in font descriptor matching.
 
     @param      fontURL
                 Font URL.
@@ -4053,11 +4178,11 @@ typedef CF_ENUM(uint32_t, CTFontManagerScope) {
 bool CTFontManagerRegisterFontsForURL(
     CFURLRef                fontURL,
     CTFontManagerScope      scope,
-    CFErrorRef *            error ) CT_AVAILABLE(10_6, 4_1);
+    CFErrorRef *            error ) CT_AVAILABLE(macos(10.6), ios(4.1), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontManagerUnregisterFontsForURL
-    @abstract   Unregisters fonts from the specified font URL with the font manager. Unregistered fonts are no longer discoverable through font descriptor matching.
+    @abstract   Unregisters fonts from the specified font URL with the font manager. Unregistered fonts do not participate in font descriptor matching.
                 iOS note: only fonts registered with CTFontManagerRegisterFontsForURL or CTFontManagerRegisterFontsForURLs can be unregistered with this API.
 
     @param      fontURL
@@ -4075,12 +4200,12 @@ bool CTFontManagerRegisterFontsForURL(
 bool CTFontManagerUnregisterFontsForURL(
     CFURLRef                fontURL,
     CTFontManagerScope      scope,
-    CFErrorRef *            error ) CT_AVAILABLE(10_6, 4_1);
+    CFErrorRef *            error ) CT_AVAILABLE(macos(10.6), ios(4.1), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontManagerRegisterGraphicsFont
-    @abstract   Registers the specified graphics font with the font manager. Registered fonts are discoverable through font descriptor matching.
-                Attempts to register a font that is either already registered or contains the same Postscript of an already registered font will fail.
+    @abstract   Registers the specified graphics font with the font manager. Registered fonts participate in font descriptor matching.
+                Attempts to register a font that is either already registered or contains the same PostScript name of an already registered font will fail.
                 This functionality is useful for fonts that may be embedded in documents or present/constructed in memory. A graphics font is obtained
                 by calling CGFontCreateWithDataProvider. Fonts that are backed by files should be registered using CTFontManagerRegisterFontsForURL.
  
@@ -4094,11 +4219,11 @@ bool CTFontManagerUnregisterFontsForURL(
 */
 bool CTFontManagerRegisterGraphicsFont(
     CGFontRef               font,
-    CFErrorRef *            error ) CT_AVAILABLE(10_8, 4_1);
+    CFErrorRef *            error ) CT_AVAILABLE(macos(10.8), ios(4.1), watchos(2.0), tvos(9.0));
     
 /*!
     @function   CTFontManagerUnregisterGraphicsFont
-    @abstract   Unregisters the specified graphics font with the font manager. Unregistered fonts are no longer discoverable through font descriptor matching.
+    @abstract   Unregisters the specified graphics font with the font manager. Unregistered fonts do not participate in font descriptor matching.
  
     @param      font
                 Graphics font to be unregistered.
@@ -4110,7 +4235,7 @@ bool CTFontManagerRegisterGraphicsFont(
 */
 bool CTFontManagerUnregisterGraphicsFont(
     CGFontRef               font,
-    CFErrorRef *            error ) CT_AVAILABLE(10_8, 4_1);
+    CFErrorRef *            error ) CT_AVAILABLE(macos(10.8), ios(4.1), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontManagerRegisterFontsForURLs
@@ -4130,11 +4255,11 @@ bool CTFontManagerUnregisterGraphicsFont(
 bool CTFontManagerRegisterFontsForURLs(
     CFArrayRef              fontURLs,
     CTFontManagerScope      scope,
-    CFArrayRef __nullable * __nullable errors ) CT_AVAILABLE(10_6, 4_1);
+    CFArrayRef _Nullable * _Nullable errors ) CT_AVAILABLE(macos(10.6), ios(4.1), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontManagerUnregisterFontsForURLs
-    @abstract   Unregisters fonts from the specified font URLs with the font manager. Unregistered fonts are no longer discoverable through font descriptor matching.
+    @abstract   Unregisters fonts from the specified font URLs with the font manager. Unregistered fonts do not participate in font descriptor matching.
                 iOS note: only fonts registered with CTFontManagerRegisterFontsForURL or CTFontManagerRegisterFontsForURLs can be unregistered with this API.
 
     @param      fontURLs
@@ -4151,7 +4276,7 @@ bool CTFontManagerRegisterFontsForURLs(
 bool CTFontManagerUnregisterFontsForURLs(
     CFArrayRef              fontURLs,
     CTFontManagerScope      scope,
-    CFArrayRef __nullable * __nullable errors ) CT_AVAILABLE(10_6, 4_1);
+    CFArrayRef _Nullable * _Nullable errors ) CT_AVAILABLE(macos(10.6), ios(4.1), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontManagerEnableFontDescriptors
@@ -4165,7 +4290,7 @@ bool CTFontManagerUnregisterFontsForURLs(
 */
 void CTFontManagerEnableFontDescriptors(
     CFArrayRef              descriptors,
-    bool                    enable ) CT_AVAILABLE_MAC(10_6);
+    bool                    enable ) CT_AVAILABLE(macos(10.6)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontManagerGetScopeForURL
@@ -4177,7 +4302,7 @@ void CTFontManagerEnableFontDescriptors(
     @result     Returns the registration scope of the specified URL, will return kCTFontManagerScopeNone if not currently registered.
 */
 CTFontManagerScope CTFontManagerGetScopeForURL(
-    CFURLRef                fontURL ) CT_AVAILABLE_MAC(10_6);
+    CFURLRef                fontURL ) CT_AVAILABLE(macos(10.6)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontManagerIsSupportedFontFile
@@ -4189,7 +4314,7 @@ CTFontManagerScope CTFontManagerGetScopeForURL(
     @result     This function returns true if the URL represents a valid font that can be used on the current platform.
 */
 bool CTFontManagerIsSupportedFont(
-    CFURLRef                fontURL ) CT_AVAILABLE_MAC(10_6);
+    CFURLRef                fontURL ) CT_AVAILABLE(macos(10.6)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*! --------------------------------------------------------------------------
     @group Manager Auto-Activation
@@ -4205,9 +4330,9 @@ bool CTFontManagerIsSupportedFont(
                 A block to handle the font request.
     @result     A CFRunLoopSourceRef that should be added to the run loop. To stop receiving requests, invalidate this run loop source. Will return NULL on error, in the case of a duplicate requestPortName or invalid context structure.
 */
-CFRunLoopSourceRef __nullable CTFontManagerCreateFontRequestRunLoopSource(
+CFRunLoopSourceRef _Nullable CTFontManagerCreateFontRequestRunLoopSource(
     CFIndex         sourceOrder,
-    CFArrayRef    (^createMatchesCallback)(CFDictionaryRef requestAttributes, pid_t requestingProcess)) CT_AVAILABLE_MAC(10_6);
+    CFArrayRef    (^createMatchesCallback)(CFDictionaryRef requestAttributes, pid_t requestingProcess)) CT_AVAILABLE(macos(10.6)) CT_UNAVAILABLE(ios, watchos, tvos);
 #endif // defined(__BLOCKS__)
 
 /*!
@@ -4215,7 +4340,7 @@ CFRunLoopSourceRef __nullable CTFontManagerCreateFontRequestRunLoopSource(
     @abstract   CTFontManage bundle identifier
     @discussion The CTFontManager bundle identifier to be used with get or set global auto-activation settings.
 */
-extern const CFStringRef kCTFontManagerBundleIdentifier CT_AVAILABLE_MAC(10_6);
+CT_EXPORT const CFStringRef kCTFontManagerBundleIdentifier CT_AVAILABLE(macos(10.6)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @enum
@@ -4226,7 +4351,7 @@ extern const CFStringRef kCTFontManagerBundleIdentifier CT_AVAILABLE_MAC(10_6);
                 Disables auto-activation.
     @constant   kCTFontManagerAutoActivationEnabled
                 Enables auto-activation.
-    @constant   kCTFontManagerAutoActivationPromptUser
+    @constant   kCTFontManagerAutoActivationPromptUser - deprecated and treated as kCTFontManagerAutoActivationDefault on 10.13.
                 Requires user input for auto-activation. A dialog will be presented to the user to confirm auto
                 activation of the font.
 */
@@ -4234,7 +4359,7 @@ typedef CF_ENUM(uint32_t, CTFontManagerAutoActivationSetting) {
     kCTFontManagerAutoActivationDefault     = 0,
     kCTFontManagerAutoActivationDisabled    = 1,
     kCTFontManagerAutoActivationEnabled     = 2,
-    kCTFontManagerAutoActivationPromptUser  = 3
+    kCTFontManagerAutoActivationPromptUser CT_ENUM_DEPRECATED("Deprecated", macos(10.6, 10.13)) CT_ENUM_UNAVAILABLE(ios, watchos, tvos) = 3
 };
 
 /*!
@@ -4246,11 +4371,11 @@ typedef CF_ENUM(uint32_t, CTFontManagerAutoActivationSetting) {
                 will set the global auto-activation settings.
     @param      setting
                 The new setting.
-    @result     Function will apply the setting to the appropriate preferences location.
+    @discussion Function will apply the setting to the appropriate preferences location.
 */
 void CTFontManagerSetAutoActivationSetting(
-    CFStringRef __nullable              bundleIdentifier,
-    CTFontManagerAutoActivationSetting  setting ) CT_AVAILABLE_MAC(10_6);
+    CFStringRef _Nullable               bundleIdentifier,
+    CTFontManagerAutoActivationSetting  setting ) CT_AVAILABLE(macos(10.6)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontManagerGetAutoActivationSetting
@@ -4262,7 +4387,7 @@ void CTFontManagerSetAutoActivationSetting(
     @result     Will return the auto-activation setting for specified bundle identifier.
 */
 CTFontManagerAutoActivationSetting CTFontManagerGetAutoActivationSetting(
-    CFStringRef __nullable bundleIdentifier ) CT_AVAILABLE_MAC(10_6);
+    CFStringRef _Nullable bundleIdentifier ) CT_AVAILABLE(macos(10.6)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*! --------------------------------------------------------------------------
     @group Manager Notifications
@@ -4277,7 +4402,7 @@ CTFontManagerAutoActivationSetting CTFontManagerGetAutoActivationSetting(
                 for changes in session or user scopes and with the local notification center for changes in process scope.
                 iOS clients should register as an observer of the notification with the local notification center for all changes.
 */
-extern const CFStringRef kCTFontManagerRegisteredFontsChangedNotification CT_AVAILABLE(10_6, 7_0);
+CT_EXPORT const CFStringRef kCTFontManagerRegisteredFontsChangedNotification CT_AVAILABLE(macos(10.6), ios(7.0), watchos(2.0), tvos(9.0));
 
 CF_ASSUME_NONNULL_END
 CF_EXTERN_C_END
@@ -4289,14 +4414,18 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  SFNTLayoutTypes.h
  *  CoreText
  *
- *  Copyright 1994-2015 Apple Inc. All rights reserved.
+ *  Copyright 1994-2016 Apple Inc. All rights reserved.
  *
  */
 
 #ifndef __SFNTLAYOUTTYPES__
 #define __SFNTLAYOUTTYPES__
 
+#if !TARGET_OS_WIN32
 #include <MacTypes.h>
+#elif !defined(__MACTYPES__)
+typedef SInt32 Fixed;
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -4310,7 +4439,7 @@ extern "C" {
     The following values can be used to set run feature values. Note that unless the
     feature is defaulted differently in different fonts, the zero value for the
     selectors represents the default value. Consult the following URL for further info:
-    <http://developer.apple.com/fonts/registry/>
+    <https://developer.apple.com/fonts/TrueType-Reference-Manual/RM09/AppendixF.html>
 */
 
 
@@ -4925,7 +5054,8 @@ enum {
   kSFNTLookupSegmentSingle      = 2,    /* segment mapping to single value */
   kSFNTLookupSegmentArray       = 4,    /* segment mapping to lookup array */
   kSFNTLookupSingleTable        = 6,    /* sorted list of glyph, value pairs */
-  kSFNTLookupTrimmedArray       = 8     /* a simple trimmed array indexed by glyph code */
+  kSFNTLookupTrimmedArray       = 8,    /* a simple trimmed array indexed by glyph code */
+  kSFNTLookupVector             = 10    /* a simple trimmed vector indexed by glyph code */
 };
 
 typedef UInt16                          SFNTLookupTableFormat;
@@ -4958,6 +5088,14 @@ struct SFNTLookupTrimmedArrayHeader {
   SFNTLookupValue     valueArray[1];
 };
 typedef struct SFNTLookupTrimmedArrayHeader SFNTLookupTrimmedArrayHeader;
+/* A format 10 lookup table maps some range of glyphs in the font to lookup values of the specified size */
+struct SFNTLookupVectorHeader {
+  UInt16              valueSize;
+  UInt16              firstGlyph;
+  UInt16              count;
+  UInt8               values[1];
+};
+typedef struct SFNTLookupVectorHeader SFNTLookupVectorHeader;
 /*
     Format 2 and format 4 lookup tables map ranges of glyphs to either single lookup
     values (format 2), or per-glyph lookup values (format 4). Since both formats
@@ -4992,6 +5130,7 @@ union SFNTLookupFormatSpecificHeader {
   SFNTLookupSegmentHeader  segment;
   SFNTLookupSingleHeader  single;
   SFNTLookupTrimmedArrayHeader  trimmedArray;
+  SFNTLookupVectorHeader  vector;
 };
 typedef union SFNTLookupFormatSpecificHeader SFNTLookupFormatSpecificHeader;
 /* The overall subtable header */
@@ -5752,8 +5891,8 @@ enum {
   kKERXOrderedList              = 0,    /* ordered list of kerning pairs */
   kKERXStateTable               = 1,    /* state table for n-way contextual kerning */
   kKERXSimpleArray              = 2,    /* simple n X m array of kerning values */
-  kKERXIndexArray               = 3,    /* modified version of SimpleArray */
-  kKERXControlPoint             = 4     /* state table for control point positioning */
+  kKERXControlPoint             = 4,    /* state table for control point positioning */
+  kKERXIndexArray               = 6     /* index-based n X m array of kerning values */
 };
 
 /* Message Type Flags */
@@ -5775,6 +5914,11 @@ enum {
   kKERXActionTypeCoordinates    = (2U << 30), /* Actions have control point coordinates */
   kKERXUnusedFlags              = 0x3F000000, /* Unused, must be zero */
   kKERXActionOffsetMask         = 0x00FFFFFF, /* Mask to extract offset to action table */
+};
+
+/* Flags in KerxIndexArrayHeader */
+enum {
+  kKERXValuesAreLong            = 0x00000001
 };
 
 /* TYPES */
@@ -5886,15 +6030,13 @@ struct KerxSimpleArrayHeader {
 typedef struct KerxSimpleArrayHeader    KerxSimpleArrayHeader;
 /* Index Array */
 struct KerxIndexArrayHeader {
-  UInt16              glyphCount;
-  UInt16              kernValueCount;
-  UInt16              leftClassCount;
-  UInt16              rightClassCount;
-  UInt16              flags;                  /* set to 0 for now */
-  SInt16              kernValue[1];           /* actual kerning values reference by index in kernIndex */
-  UInt16              leftClass[1];           /* maps left glyph to offset into kern index */
-  UInt16              rightClass[1];          /* maps right glyph to offset into kern index */
-  UInt16              kernIndex[1];           /* contains indicies into kernValue */
+  UInt32              flags;
+  UInt16              rowCount;
+  UInt16              columnCount;
+  UInt32              rowIndexTableOffset;    /* offset to row index lookup table */
+  UInt32              columnIndexTableOffset; /* offset to column index offset table */
+  UInt32              kerningArrayOffset;     /* offset to start of kerning array */
+  UInt32              kerningVectorOffset;    /* offset to start of kerning vectors (if tupleCount is 1 or more) */
 };
 typedef struct KerxIndexArrayHeader     KerxIndexArrayHeader;
 /* format specific part of subtable header */
@@ -5904,14 +6046,13 @@ union KerxFormatSpecificHeader {
   KerxSimpleArrayHeader  simpleArray;
   KerxIndexArrayHeader  indexArray;
   KerxControlPointHeader  controlPoint;
-
 };
 typedef union KerxFormatSpecificHeader  KerxFormatSpecificHeader;
 /* Overall Subtable header format */
 struct KerxSubtableHeader {
   UInt32              length;                 /* length in bytes (including this header) */
   KerxSubtableCoverage  stInfo;               /* subtable coverage */
-  UInt32              tupleIndex;             /* tuple index for variation subtables */
+  UInt32              tupleCount;             /* tuple count for variation subtables (ignored if the 'kerx' table version is less than 4) */
   KerxFormatSpecificHeader  fsHeader;         /* format specific sub-header */
 };
 typedef struct KerxSubtableHeader       KerxSubtableHeader;
@@ -6104,7 +6245,7 @@ typedef struct LtagTable                LtagTable;
  *  CTFontTraits.h
  *  CoreText
  *
- *  Copyright (c) 2006-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -6112,8 +6253,8 @@ typedef struct LtagTable                LtagTable;
 #define __CTFONTTRAITS__
 
 #include <CoreText/CTDefines.h>
-#include <CoreFoundation/CFNumber.h>
-#include <CoreFoundation/CFString.h>
+
+#include <CoreFoundation/CoreFoundation.h>
 
 CF_EXTERN_C_BEGIN
 CF_ASSUME_NONNULL_BEGIN
@@ -6123,25 +6264,25 @@ CF_ASSUME_NONNULL_BEGIN
     @abstract   Dictionary key to access the symbolic traits value.
     @discussion Use this key to access the symbolic traits value from the font traits dictionary. The value is returned as a CFNumberRef.
 */
-extern const CFStringRef kCTFontSymbolicTrait CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontSymbolicTrait CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontWeightTrait
     @abstract   Dictionary key to access the weight trait value.
     @discussion Use this key to access the normalized weight trait from the font traits dictionary. The value returned is a CFNumberRef representing a float value between -1.0 and 1.0 for normalized weight. The value of 0.0 corresponds to the regular or medium font weight.
 */
-extern const CFStringRef kCTFontWeightTrait CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontWeightTrait CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontWidthTrait
     @abstract   Dictionary key to access the width (condense/expand) trait value.
     @discussion Use this key to access the normalized proportion trait from the font traits dictionary. This value corresponds to the relative inter-glyph spacing for a given font. The value returned is a CFNumberRef representing a float between -1.0 and 1.0. The value of 0.0 corresponds to regular glyph spacing while negative values represent condensed glyph spacing.
 */
-extern const CFStringRef kCTFontWidthTrait CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontWidthTrait CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontSlantTrait
     @abstract   Dictionary key to access the slant trait value.
     @discussion Use this key to access the normalized slant angle from the font traits dictionary. The value returned is a CFNumberRef representing a float value between -1.0 and 1.0 for normalized slant angle. The value or 0.0 corresponds to 0 degree clockwise rotation from the vertical and 1.0 corresponds to 30 degrees clockwise rotation.
 */
-extern const CFStringRef kCTFontSlantTrait CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontSlantTrait CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @const      kCTFontClassMaskShift
@@ -6165,7 +6306,7 @@ typedef CF_OPTIONS(uint32_t, CTFontSymbolicTraits) {
     kCTFontTraitMonoSpace           = (1 << 10),    // Use fixed-pitch glyphs if available. May have multiple glyph advances (most CJK glyphs may contain two spaces)
     kCTFontTraitVertical            = (1 << 11),    // Use vertical glyph variants and metrics
     kCTFontTraitUIOptimized         = (1 << 12),    // Synthesize appropriate attributes for UI rendering such as control titles if necessary
-    kCTFontTraitColorGlyphs         = (1 << 13),    // Color bitmap glyphs are available. 
+    kCTFontTraitColorGlyphs         = (1 << 13),    // Color glyphs ('sbix', 'COLR', or 'SVG ') are available. 
     kCTFontTraitComposite           = (1 << 14),    // The font is a CFR (Composite font reference), a cascade list is expected per font. 
 
     kCTFontTraitClassMask           = (15U << kCTFontClassMaskShift),
@@ -6186,7 +6327,7 @@ typedef CF_OPTIONS(uint32_t, CTFontSymbolicTraits) {
 /*!
     @enum       CTFontStylisticClass
     @abstract   Stylistic class values.
-    @discussion CTFontStylisticClass classifies certain stylistic qualities of the font. These values correspond closely to the font class values in the OpenType 'OS/2' table. The class values are bundled in the upper four bits of the CTFontSymbolicTraits and can be obtained via the kCTFontClassMaskTrait.
+    @discussion CTFontStylisticClass classifies certain stylistic qualities of the font. These values correspond closely to the font class values in the OpenType 'OS/2' table. The class values are bundled in the upper four bits of the CTFontSymbolicTraits and can be obtained via the kCTFontTraitClassMask.
 */
 typedef CF_OPTIONS(uint32_t, CTFontStylisticClass) {
     kCTFontClassUnknown             = (0 << kCTFontClassMaskShift),
@@ -6220,10 +6361,10 @@ CF_EXTERN_C_END
 #endif
 // ==========  CoreText.framework/Headers/CTTypesetter.h
 /*
- *	CTTypesetter.h
- *	CoreText
+ *  CTTypesetter.h
+ *  CoreText
  *
- *	Copyright (c) 2003-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2003-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -6238,7 +6379,6 @@ CF_EXTERN_C_END
 #ifndef __CTTYPESETTER__
 #define __CTTYPESETTER__
 
-#include <CoreText/CTDefines.h>
 #include <CoreText/CTLine.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -6253,11 +6393,11 @@ typedef const struct CF_BRIDGED_TYPE(id) __CTTypesetter * CTTypesetterRef;
 
 
 /*!
-	@function	CTTypesetterGetTypeID
-	@abstract	Returns the CFType of the typesetter object
+    @function   CTTypesetterGetTypeID
+    @abstract   Returns the CFType of the typesetter object
 */
 
-CFTypeID CTTypesetterGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTTypesetterGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -6265,27 +6405,39 @@ CFTypeID CTTypesetterGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@const		kCTTypesetterOptionDisableBidiProcessing
-	@abstract	Disables bidi processing.
-	@discussion	Value must be a CFBooleanRef. Default is false.
-				Normally, typesetting applies the Unicode Bidirectional
-				Algorithm as described in UAX #9. If a typesetter is created
-				with this option set to true, no directional reordering is
-				performed and any directional control characters are ignored.
+    @const      kCTTypesetterOptionAllowUnboundedLayout
+    @abstract   Allows layout requiring a potentially unbounded amount of work.
+    @discussion Value must be a CFBooleanRef. Default is false for clients linked on or after macOS 10.14 or iOS 12.
+                Proper Unicode layout of some text requires unreasonable effort;
+                unless this option is set to kCFBooleanTrue such inputs will
+                result in CTTypesetterCreateWithAttributedStringAndOptions
+                returning NULL.
 */
 
-extern const CFStringRef kCTTypesetterOptionDisableBidiProcessing CT_DEPRECATED(10_5, 10_8, 3_2, 6_0);
+CT_EXPORT const CFStringRef kCTTypesetterOptionAllowUnboundedLayout CT_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
 
 /*!
-	@const		kCTTypesetterOptionForcedEmbeddingLevel
-	@abstract	Specifies the embedding level.
-	@discussion	Value must be a CFNumberRef. Default is unset. Normally,
-				typesetting applies the Unicode Bidirectional Algorithm as
-				described in UAX #9. If present, this specifies the embedding
-				level and any directional control characters are ignored.
+    @const      kCTTypesetterOptionDisableBidiProcessing
+    @abstract   Disables bidi processing.
+    @discussion Value must be a CFBooleanRef. Default is false.
+                Normally, typesetting applies the Unicode Bidirectional
+                Algorithm as described in UAX #9. If a typesetter is created
+                with this option set to true, no directional reordering is
+                performed and any directional control characters are ignored.
 */
 
-extern const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTTypesetterOptionDisableBidiProcessing CT_DEPRECATED("Deprecated", macos(10.5, 10.8), ios(3.2, 6.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+
+/*!
+    @const      kCTTypesetterOptionForcedEmbeddingLevel
+    @abstract   Specifies the embedding level.
+    @discussion Value must be a CFNumberRef. Default is unset. Normally,
+                typesetting applies the Unicode Bidirectional Algorithm as
+                described in UAX #9. If present, this specifies the embedding
+                level and any directional control characters are ignored.
+*/
+
+CT_EXPORT const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -6293,47 +6445,51 @@ extern const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel CT_AVAILABLE(10
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTTypesetterCreateWithAttributedString
-	@abstract	Creates an immutable typesetter object using an attributed
-				string.
+    @function   CTTypesetterCreateWithAttributedString
+    @abstract   Creates an immutable typesetter object using an attributed
+                string.
 
-	@discussion The resultant typesetter can be used to create lines, perform
-				line breaking, and do other contextual analysis based on the
-				characters in the string.
+    @discussion The resultant typesetter can be used to create lines, perform
+                line breaking, and do other contextual analysis based on the
+                characters in the string.
 
-	@param		string
-				The CFAttributedStringRef that you want to typeset. This
-				parameter must be filled in with a valid CFAttributedString.
+    @param      string
+                The CFAttributedStringRef that you want to typeset. This
+                parameter must be filled in with a valid CFAttributedString.
 
-	@result		This function will return a reference to a CTTypesetter.
+    @result     This function will return a reference to a CTTypesetter.
 */
 
 CTTypesetterRef CTTypesetterCreateWithAttributedString(
-	CFAttributedStringRef string ) CT_AVAILABLE(10_5, 3_2);
+    CFAttributedStringRef string ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTTypesetterCreateWithAttributedStringAndOptions
-	@abstract	Creates an immutable typesetter object using an attributed
-				string and a dictionary of options.
+    @function   CTTypesetterCreateWithAttributedStringAndOptions
+    @abstract   Creates an immutable typesetter object using an attributed
+                string and a dictionary of options.
 
-	@discussion The resultant typesetter can be used to create lines, perform
-				line breaking, and do other contextual analysis based on the
-				characters in the string.
+    @discussion The resultant typesetter can be used to create lines, perform
+                line breaking, and do other contextual analysis based on the
+                characters in the string.
 
-	@param		string
-				The CFAttributedStringRef that you want to typeset. This
-				parameter must be filled in with a valid CFAttributedString.
+    @param      string
+                The CFAttributedStringRef that you want to typeset. This
+                parameter must be filled in with a valid CFAttributedString.
 
-	@param		options
-				A CFDictionary of typesetter options, or NULL if there are none.
+    @param      options
+                A CFDictionary of typesetter options, or NULL if there are none.
 
-	@result		This function will return a reference to a CTTypesetter.
+    @result     This function will return either a reference to a CTTypesetter
+                or NULL if layout cannot be performed due to an attributed
+                string that would require unreasonable effort.
+
+    @seealso    kCTTypesetterOptionAllowUnboundedLayout
 */
 
-CTTypesetterRef CTTypesetterCreateWithAttributedStringAndOptions(
-	CFAttributedStringRef string,
-	CFDictionaryRef __nullable options ) CT_AVAILABLE(10_5, 3_2);
+CTTypesetterRef _Nullable CTTypesetterCreateWithAttributedStringAndOptions(
+    CFAttributedStringRef string,
+    CFDictionaryRef _Nullable options ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -6341,41 +6497,42 @@ CTTypesetterRef CTTypesetterCreateWithAttributedStringAndOptions(
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTTypesetterCreateLineWithOffset
-	@abstract	Creates an immutable line from the typesetter.
+    @function   CTTypesetterCreateLineWithOffset
+    @abstract   Creates an immutable line from the typesetter.
 
-	@discussion The resultant line will consist of glyphs in the correct visual
-				order, ready to draw.
+    @discussion The resultant line will consist of glyphs in the correct visual
+                order, ready to draw.
 
-	@param		typesetter
-				The typesetter which the line will come from.
+    @param      typesetter
+                The typesetter which the line will come from.
 
-	@param		stringRange
-				The string range which the line will be based on. If the length
-				portion of range is set to 0, then the typesetter will continue
-				to add glyphs to the line until it runs out of characters in the
-				string. The location and length of the range must be within the
-				bounds of the string, otherwise the call will fail.
+    @param      stringRange
+                The string range which the line will be based on. If the length
+                portion of range is set to 0, then the typesetter will continue
+                to add glyphs to the line until it runs out of characters in the
+                string. The location and length of the range must be within the
+                bounds of the string, otherwise the call will fail.
 
-	@param		offset
-				The line position offset.
+    @param      offset
+                The line position offset.
 
-	@result		This function will return a reference to a CTLine.
+    @result     This function will return a reference to a CTLine.
 */
 
 CTLineRef CTTypesetterCreateLineWithOffset(
-	CTTypesetterRef typesetter,
-	CFRange stringRange,
-	double offset ) CT_AVAILABLE(10_6, 3_2);
+    CTTypesetterRef typesetter,
+    CFRange stringRange,
+    double offset ) CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
+
 
 /*!
-	@function	CTTypesetterCreateLine
-	@abstract	Equivalent to CTTypesetterCreateLineWithOffset with offset = 0.0.
+    @function   CTTypesetterCreateLine
+    @abstract   Equivalent to CTTypesetterCreateLineWithOffset with offset = 0.0.
 */
 
 CTLineRef CTTypesetterCreateLine(
-	CTTypesetterRef typesetter,
-	CFRange stringRange ) CT_AVAILABLE(10_5, 3_2);
+    CTTypesetterRef typesetter,
+    CFRange stringRange ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -6383,95 +6540,96 @@ CTLineRef CTTypesetterCreateLine(
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTTypesetterSuggestLineBreakWithOffset
-	@abstract	Suggests a contextual line break point based on the width
-				provided.
+    @function   CTTypesetterSuggestLineBreakWithOffset
+    @abstract   Suggests a contextual line break point based on the width
+                provided.
 
-	@discussion The line break can be triggered either by a hard break character
-				in the stream or by filling the specified width with characters.
+    @discussion The line break can be triggered either by a hard break character
+                in the stream or by filling the specified width with characters.
 
-	@param		typesetter
-				The typesetter which the line will come from.
+    @param      typesetter
+                The typesetter which the line will come from.
 
-	@param		startIndex
-				The starting point for the line break calculations. The break
-				calculations will include the character starting at startIndex.
+    @param      startIndex
+                The starting point for the line break calculations. The break
+                calculations will include the character starting at startIndex.
 
-	@param		width
-				The requested line break width.
+    @param      width
+                The requested line break width.
 
-	@param		offset
-				The line position offset.
+    @param      offset
+                The line position offset.
 
-	@result		The value returned is a count of the characters from startIndex
-				that would cause the line break. This value returned can be used
-				to construct a character range for CTTypesetterCreateLine.
+    @result     The value returned is a count of the characters from startIndex
+                that would cause the line break. This value returned can be used
+                to construct a character range for CTTypesetterCreateLine.
 */
 
 CFIndex CTTypesetterSuggestLineBreakWithOffset(
-	CTTypesetterRef typesetter,
-	CFIndex startIndex,
-	double width,
-	double offset ) CT_AVAILABLE(10_6, 3_2);
+    CTTypesetterRef typesetter,
+    CFIndex startIndex,
+    double width,
+    double offset ) CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
+
 
 /*!
-	@function	CTTypesetterSuggestLineBreak
-	@abstract	Equivalent to CTTypesetterSuggestLineBreakWithOffset with offset = 0.0.
+    @function   CTTypesetterSuggestLineBreak
+    @abstract   Equivalent to CTTypesetterSuggestLineBreakWithOffset with offset = 0.0.
 */
 
 CFIndex CTTypesetterSuggestLineBreak(
-	CTTypesetterRef typesetter,
-	CFIndex startIndex,
-	double width ) CT_AVAILABLE(10_5, 3_2);
+    CTTypesetterRef typesetter,
+    CFIndex startIndex,
+    double width ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTTypesetterSuggestClusterBreakWithOffset
-	@abstract	Suggests a cluster line break point based on the width provided.
+    @function   CTTypesetterSuggestClusterBreakWithOffset
+    @abstract   Suggests a cluster line break point based on the width provided.
 
-	@discussion Suggests a typographic cluster line break point based on the width
-				provided. This cluster break is similar to a character break,
-				except that it will not break apart linguistic clusters. No other
-				contextual analysis will be done. This can be used by the caller
-				to implement a different line breaking scheme, such as
-				hyphenation. Note that a typographic cluster break can also be
-				triggered by a hard break character in the stream.
+    @discussion Suggests a typographic cluster line break point based on the width
+                provided. This cluster break is similar to a character break,
+                except that it will not break apart linguistic clusters. No other
+                contextual analysis will be done. This can be used by the caller
+                to implement a different line breaking scheme, such as
+                hyphenation. Note that a typographic cluster break can also be
+                triggered by a hard break character in the stream.
 
-	@param		typesetter
-				The typesetter which the line will come from.
+    @param      typesetter
+                The typesetter which the line will come from.
 
-	@param		startIndex
-				The starting point for the typographic cluster break
-				calculations. The break calculations will include the character
-				starting at startIndex.
+    @param      startIndex
+                The starting point for the typographic cluster break
+                calculations. The break calculations will include the character
+                starting at startIndex.
 
-	@param		width
-				The requested typographic cluster break width.
+    @param      width
+                The requested typographic cluster break width.
 
-	@param		offset
-				The line position offset.
+    @param      offset
+                The line position offset.
 
-	@result		The value returned is a count of the characters from startIndex
-				that would cause the cluster break. This value returned can be
-				used to construct a character range for CTTypesetterCreateLine.
+    @result     The value returned is a count of the characters from startIndex
+                that would cause the cluster break. This value returned can be
+                used to construct a character range for CTTypesetterCreateLine.
 */
 
 CFIndex CTTypesetterSuggestClusterBreakWithOffset(
-	CTTypesetterRef typesetter,
-	CFIndex startIndex,
-	double width,
-	double offset ) CT_AVAILABLE(10_6, 3_2);
+    CTTypesetterRef typesetter,
+    CFIndex startIndex,
+    double width,
+    double offset ) CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTTypesetterSuggestClusterBreak
-	@abstract	Equivalent to CTTypesetterSuggestClusterBreakWithOffset with offset = 0.0.
+    @function   CTTypesetterSuggestClusterBreak
+    @abstract   Equivalent to CTTypesetterSuggestClusterBreakWithOffset with offset = 0.0.
 */
 
 CFIndex CTTypesetterSuggestClusterBreak(
-	CTTypesetterRef typesetter,
-	CFIndex startIndex,
-	double width ) CT_AVAILABLE(10_5, 3_2);
+    CTTypesetterRef typesetter,
+    CFIndex startIndex,
+    double width ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 CF_ASSUME_NONNULL_END
@@ -6481,10 +6639,10 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif
 // ==========  CoreText.framework/Headers/CTFrame.h
 /*
- *	CTFrame.h
- *	CoreText
+ *  CTFrame.h
+ *  CoreText
  *
- *	Copyright (c) 2003-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2003-2018 Apple Inc. All rights reserved.
  *
  */
  
@@ -6500,11 +6658,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define __CTFRAME__
 
 #include <CoreText/CTDefines.h>
-#include <CoreFoundation/CFArray.h>
-#include <CoreFoundation/CFDictionary.h>
-#include <CoreFoundation/CFNumber.h>
-#include <CoreFoundation/CFString.h>
-#include <CoreGraphics/CGContext.h>
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
@@ -6518,11 +6674,11 @@ typedef const struct CF_BRIDGED_TYPE(id) __CTFrame * CTFrameRef;
 
 
 /*!
-	@function	CTFrameGetTypeID
-	@abstract	Returns the CFType of the frame object
+    @function   CTFrameGetTypeID
+    @abstract   Returns the CFType of the frame object
 */
 
-CFTypeID CTFrameGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTFrameGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -6530,8 +6686,8 @@ CFTypeID CTFrameGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
 /* --------------------------------------------------------------------------- */
 
 /*!
-    @enum		CTFrameProgression
-    @abstract	These constants specify frame progression types.
+    @enum       CTFrameProgression
+    @abstract   These constants specify frame progression types.
 
     @discussion The lines of text within a frame may be stacked for either
                 horizontal or vertical text. Values are enumerated for each
@@ -6539,13 +6695,13 @@ CFTypeID CTFrameGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
                 progression type specifying vertical text will rotate lines
                 90 degrees counterclockwise when drawing.
 
-    @constant	kCTFrameProgressionTopToBottom
+    @constant   kCTFrameProgressionTopToBottom
                 Lines are stacked top to bottom for horizontal text.
 
-    @constant	kCTFrameProgressionRightToLeft
+    @constant   kCTFrameProgressionRightToLeft
                 Lines are stacked right to left for vertical text.
 
-    @constant	kCTFrameProgressionLeftToRight
+    @constant   kCTFrameProgressionLeftToRight
                 Lines are stacked left to right for vertical text.
 */
 
@@ -6557,252 +6713,252 @@ typedef CF_ENUM(uint32_t, CTFrameProgression) {
 
 
 /*!
-	@const		kCTFrameProgressionAttributeName
-	@abstract	Specifies progression for a frame.
-	
-	@discussion Value must be a CFNumberRef containing a CTFrameProgression.
-				Default is kCTFrameProgressionTopToBottom. This value determines
-				the line stacking behavior for a frame and does not affect the
-				appearance of the glyphs within that frame.
+    @const      kCTFrameProgressionAttributeName
+    @abstract   Specifies progression for a frame.
+    
+    @discussion Value must be a CFNumberRef containing a CTFrameProgression.
+                Default is kCTFrameProgressionTopToBottom. This value determines
+                the line stacking behavior for a frame and does not affect the
+                appearance of the glyphs within that frame.
 
-	@seealso	CTFramesetterCreateFrame
+    @seealso    CTFramesetterCreateFrame
 */
 
-extern const CFStringRef kCTFrameProgressionAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFrameProgressionAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
-	@enum		CTFramePathFillRule
-	@abstract	These constants specify fill rule used by the frame.
+    @enum       CTFramePathFillRule
+    @abstract   These constants specify fill rule used by the frame.
  
-	@discussion When a path intersects with itself, the client should specify which rule to use for deciding the 
-				area of the path.
+    @discussion When a path intersects with itself, the client should specify which rule to use for deciding the 
+                area of the path.
  
-	@constant	kCTFramePathFillEvenOdd
-				Text is filled in the area that would be painted if the path were given to CGContextEOFillPath.
+    @constant   kCTFramePathFillEvenOdd
+                Text is filled in the area that would be painted if the path were given to CGContextEOFillPath.
 
-	@constant	kCTFramePathFillWindingNumber
-				Text is fill in the area that would be painted if the path were given to CGContextFillPath.
+    @constant   kCTFramePathFillWindingNumber
+                Text is fill in the area that would be painted if the path were given to CGContextFillPath.
  
  
  */
 
 typedef CF_ENUM(uint32_t, CTFramePathFillRule) {
-	kCTFramePathFillEvenOdd         = 0,
-	kCTFramePathFillWindingNumber   = 1
+    kCTFramePathFillEvenOdd         = 0,
+    kCTFramePathFillWindingNumber   = 1
 };
 
 
 /*!
-	@const		kCTFramePathFillRuleAttributeName
-	@abstract	Specifies fill rule for a frame if this attribute is used at top level of frameAttributes dictionary, or specify
-				fill rule for a clipping path if used in a dictionary contained in an array specified by kCTFrameClippingPathsAttributeName.
-				
-	@discussion Value must be a CFNumberRef containing kCTFramePathFillEvenOdd or kCTFramePathFillWindingNumber.
-				Default is kCTFramePathFillEvenOdd.
+    @const      kCTFramePathFillRuleAttributeName
+    @abstract   Specifies fill rule for a frame if this attribute is used at top level of frameAttributes dictionary, or specify
+                fill rule for a clipping path if used in a dictionary contained in an array specified by kCTFrameClippingPathsAttributeName.
+                
+    @discussion Value must be a CFNumberRef containing kCTFramePathFillEvenOdd or kCTFramePathFillWindingNumber.
+                Default is kCTFramePathFillEvenOdd.
 
-	@seealso	CTFramesetterCreateFrame
+    @seealso    CTFramesetterCreateFrame
  */
 
-extern const CFStringRef kCTFramePathFillRuleAttributeName CT_AVAILABLE(10_7, 4_2);
+CT_EXPORT const CFStringRef kCTFramePathFillRuleAttributeName CT_AVAILABLE(macos(10.7), ios(4.2), watchos(2.0), tvos(9.0));
 
 /*!
-	@const		kCTFramePathWidthAttributeName
-	@abstract	Specifies frame width if this attribute is used at top level of frameAttributes dictionary, or specify
-				clipping path width if used in a dictionary contained in an array specified by kCTFrameClippingPathsAttributeName.
+    @const      kCTFramePathWidthAttributeName
+    @abstract   Specifies frame width if this attribute is used at top level of frameAttributes dictionary, or specify
+                clipping path width if used in a dictionary contained in an array specified by kCTFrameClippingPathsAttributeName.
 
-	@discussion Value must be a CFNumberRef specifying frame width.
-				Default is zero.
+    @discussion Value must be a CFNumberRef specifying frame width.
+                Default is zero.
 
-	@seealso	CTFramesetterCreateFrame
+    @seealso    CTFramesetterCreateFrame
  */
 
-extern const CFStringRef kCTFramePathWidthAttributeName CT_AVAILABLE(10_7, 4_2);
+CT_EXPORT const CFStringRef kCTFramePathWidthAttributeName CT_AVAILABLE(macos(10.7), ios(4.2), watchos(2.0), tvos(9.0));
 
-	
+    
 /*!
-	@const		kCTFrameClippingPathsAttributeName
-	@abstract	Specifies array of paths to clip frame.
-	
-	@discussion Value must be a CFArrayRef containing CFDictionaryRefs or CGPathRef.  (CGPathRef is allowed on 10.8 or later.)
-				Each dictionary should have a kCTFramePathClippingPathAttributeName key-value pair, and can have a kCTFramePathFillRuleAttributeName key-value pair 
-				and kCTFramePathFillRuleAttributeName key-value pair as optional parameters.  In case of CGPathRef, default fill rule (kCTFramePathFillEvenOdd) and width (0.0) are used.
+    @const      kCTFrameClippingPathsAttributeName
+    @abstract   Specifies array of paths to clip frame.
+    
+    @discussion Value must be a CFArrayRef containing CFDictionaryRefs or CGPathRef.  (CGPathRef is allowed on 10.8 or later.)
+                Each dictionary should have a kCTFramePathClippingPathAttributeName key-value pair, and can have a kCTFramePathFillRuleAttributeName key-value pair 
+                and kCTFramePathFillRuleAttributeName key-value pair as optional parameters.  In case of CGPathRef, default fill rule (kCTFramePathFillEvenOdd) and width (0.0) are used.
 
-	@seealso	CTFramesetterCreateFrame
+    @seealso    CTFramesetterCreateFrame
 */
 
-extern const CFStringRef kCTFrameClippingPathsAttributeName CT_AVAILABLE(10_7, 4_3);
+CT_EXPORT const CFStringRef kCTFrameClippingPathsAttributeName CT_AVAILABLE(macos(10.7), ios(4.3), watchos(2.0), tvos(9.0));
 
 /*!
-	@const		kCTFramePathClippingPathAttributeName
-	@abstract	Specifies clipping path.  This attribute is valid in a dictionary contained in an array specified by kCTFrameClippingPathsAttributeName.
-				On 10.8 or later, This attribute is also valid in frameAttributes dictionary passed to CTFramesetterCreateFrame.
+    @const      kCTFramePathClippingPathAttributeName
+    @abstract   Specifies clipping path.  This attribute is valid in a dictionary contained in an array specified by kCTFrameClippingPathsAttributeName.
+                On 10.8 or later, This attribute is also valid in frameAttributes dictionary passed to CTFramesetterCreateFrame.
 
-	@discussion Value must be a CGPathRef specifying a clipping path.
+    @discussion Value must be a CGPathRef specifying a clipping path.
 
-	@seealso	kCTFrameClippingPathsAttributeName
+    @seealso    kCTFrameClippingPathsAttributeName
  */
 
-extern const CFStringRef kCTFramePathClippingPathAttributeName CT_AVAILABLE(10_7, 4_3);
+CT_EXPORT const CFStringRef kCTFramePathClippingPathAttributeName CT_AVAILABLE(macos(10.7), ios(4.3), watchos(2.0), tvos(9.0));
 
 /* --------------------------------------------------------------------------- */
 /* Frame Accessors */
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTFrameGetStringRange
-	@abstract	Returns the range of characters that were originally requested
-				to fill the frame.
+    @function   CTFrameGetStringRange
+    @abstract   Returns the range of characters that were originally requested
+                to fill the frame.
 
-	@param		frame
-				The frame that you want to get the character range from.
+    @param      frame
+                The frame that you want to get the character range from.
 
-	@result		This function will return a CFRange containing the backing
-				store range of characters that were originally requested
-				to fill the frame. If the function call is not successful,
-				then an empty range will be returned.
+    @result     This function will return a CFRange containing the backing
+                store range of characters that were originally requested
+                to fill the frame. If the function call is not successful,
+                then an empty range will be returned.
 */
 
 CFRange CTFrameGetStringRange(
-	CTFrameRef frame ) CT_AVAILABLE(10_5, 3_2);
+    CTFrameRef frame ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTFrameGetVisibleStringRange
-	@abstract	Returns the range of characters that actually fit in the
-				frame.
+    @function   CTFrameGetVisibleStringRange
+    @abstract   Returns the range of characters that actually fit in the
+                frame.
 
-	@discussion This can be used to chain frames, as it returns the range of
-				characters that can be seen in the frame. The next frame would
-				start where this frame ends.
+    @discussion This can be used to chain frames, as it returns the range of
+                characters that can be seen in the frame. The next frame would
+                start where this frame ends.
 
-	@param		frame
-				The frame that you want to get the visible character range
-				from.
+    @param      frame
+                The frame that you want to get the visible character range
+                from.
 
-	@result		This function will return a CFRange containing the backing
-				store range of characters that fit into the frame. If the
-				function call is not successful, or if no characters fit
-				in the frame, then an empty range will be returned.
+    @result     This function will return a CFRange containing the backing
+                store range of characters that fit into the frame. If the
+                function call is not successful, or if no characters fit
+                in the frame, then an empty range will be returned.
 */
 
 CFRange CTFrameGetVisibleStringRange(
-	CTFrameRef frame ) CT_AVAILABLE(10_5, 3_2);
+    CTFrameRef frame ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTFrameGetPath
-	@abstract	Returns the path used to create the frame.
+    @function   CTFrameGetPath
+    @abstract   Returns the path used to create the frame.
 
-	@param		frame
-				The frame that you want to obtain the path from.
+    @param      frame
+                The frame that you want to obtain the path from.
 */
 
 CGPathRef CTFrameGetPath(
-	CTFrameRef frame ) CT_AVAILABLE(10_5, 3_2);
+    CTFrameRef frame ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTFrameGetFrameAttributes
-	@abstract	Returns the frame attributes used to create the frame.
+    @function   CTFrameGetFrameAttributes
+    @abstract   Returns the frame attributes used to create the frame.
 
-	@discussion It is possible to create a frame with an attributes dictionary
-				in order to control various aspects of the framing process.
-				These attributes are different from the ones that are used to
-				create an attributed string.
+    @discussion It is possible to create a frame with an attributes dictionary
+                in order to control various aspects of the framing process.
+                These attributes are different from the ones that are used to
+                create an attributed string.
 
-	@param		frame
-				The frame that you want to obtain the frame attributes from.
+    @param      frame
+                The frame that you want to obtain the frame attributes from.
 
-	@result		This function will return a CFDictionary containing the
-				frame attributes that were used to create the frame. If the
-				frame was created without any frame attributes, this function
-				will return NULL.
+    @result     This function will return a CFDictionary containing the
+                frame attributes that were used to create the frame. If the
+                frame was created without any frame attributes, this function
+                will return NULL.
 */
 
-CFDictionaryRef __nullable CTFrameGetFrameAttributes(
-	CTFrameRef frame ) CT_AVAILABLE(10_5, 3_2);
+CFDictionaryRef _Nullable CTFrameGetFrameAttributes(
+    CTFrameRef frame ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTFrameGetLines
-	@abstract	Returns an array of lines that make up the frame.
+    @function   CTFrameGetLines
+    @abstract   Returns an array of lines that make up the frame.
 
-	@discussion This function will return an array of CTLine objects that are
-				stored in the frame. These line objects can be accessed and
-				manipulated in any way that normal line objects can be. It is
-				possible that an empty frame exists. That is, a frame in which
-				no lines exist. In this case, the returned array will have 0
-				entries.
+    @discussion This function will return an array of CTLine objects that are
+                stored in the frame. These line objects can be accessed and
+                manipulated in any way that normal line objects can be. It is
+                possible that an empty frame exists. That is, a frame in which
+                no lines exist. In this case, the returned array will have 0
+                entries.
 
-	@param		frame
-				The frame that you want to obtain the line array from.
+    @param      frame
+                The frame that you want to obtain the line array from.
 
-	@result		This function will return a CFArray object containing the
-				CTLine objects that make up the frame.
+    @result     This function will return a CFArray object containing the
+                CTLine objects that make up the frame.
 */
 
 CFArrayRef CTFrameGetLines(
-	CTFrameRef frame ) CT_AVAILABLE(10_5, 3_2);
+    CTFrameRef frame ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTFrameGetLineOrigins
-	@abstract	Copies a range of line origins for a frame.
+    @function   CTFrameGetLineOrigins
+    @abstract   Copies a range of line origins for a frame.
 
-	@discussion	This function will copy a range of CGPoint structures. Each
-				CGPoint is the origin of the corresponding line in the array of
-				lines returned by CTFrameGetLines, relative to the origin of the
-				frame's path. The maximum number of line origins returned by
-				this function is the count of the array of lines.
+    @discussion This function will copy a range of CGPoint structures. Each
+                CGPoint is the origin of the corresponding line in the array of
+                lines returned by CTFrameGetLines, relative to the origin of the
+                frame's path. The maximum number of line origins returned by
+                this function is the count of the array of lines.
 
-	@param		frame
-				The frame that you want to obtain the line origin array from.
+    @param      frame
+                The frame that you want to obtain the line origin array from.
 
-	@param		range
-				The range of line origins you wish to copy. If the length of the
-				range is set to 0, then the copy operation will continue from
-				the range's start index to the last line origin.
+    @param      range
+                The range of line origins you wish to copy. If the length of the
+                range is set to 0, then the copy operation will continue from
+                the range's start index to the last line origin.
 
-	@param		origins
-				The buffer to which the origins will be copied. The buffer must
-				have at least as many elements as specified by range's length.
-				When using the origins to calculate measurements for a frame's
-				contents, remember that line origins do not always correspond to
-				line metrics; paragraph style settings can affect line origins,
-				for one. The overall typographic bounds of a frame may generally
-				be calculated as the difference between the top of the frame and
-				the descent of the last line. This will obviously exclude any
-				spacing following the last line, but such spacing has no effect
-				on framesetting in the first place.
+    @param      origins
+                The buffer to which the origins will be copied. The buffer must
+                have at least as many elements as specified by range's length.
+                When using the origins to calculate measurements for a frame's
+                contents, remember that line origins do not always correspond to
+                line metrics; paragraph style settings can affect line origins,
+                for one. The overall typographic bounds of a frame may generally
+                be calculated as the difference between the top of the frame and
+                the descent of the last line. This will obviously exclude any
+                spacing following the last line, but such spacing has no effect
+                on framesetting in the first place.
 */
 
 void CTFrameGetLineOrigins(
-	CTFrameRef frame,
-	CFRange range,
-	CGPoint origins[] ) CT_AVAILABLE(10_5, 3_2);
+    CTFrameRef frame,
+    CFRange range,
+    CGPoint origins[_Nonnull] ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTFrameDraw
-	@abstract	Draws an entire frame to a context.
+    @function   CTFrameDraw
+    @abstract   Draws an entire frame to a context.
 
-	@discussion This function will draw an entire frame to the context. Note
-				that this call may leave the context in any state and does not
-				flush it after the draw operation.
+    @discussion This function will draw an entire frame to the context. Note
+                that this call may leave the context in any state and does not
+                flush it after the draw operation.
 
-	@param		frame
-				The frame that you want to draw.
+    @param      frame
+                The frame that you want to draw.
 
-	@param		context
-				The context to draw the frame to.
+    @param      context
+                The context to draw the frame to.
 
-	@result		If both the frame and the context are valid, the frame will be
-				drawn in the context.
+    @discussion If both the frame and the context are valid, the frame will be
+                drawn in the context.
 */
 
 void CTFrameDraw(
-	CTFrameRef frame,
-	CGContextRef context ) CT_AVAILABLE(10_5, 3_2);
+    CTFrameRef frame,
+    CGContextRef context ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 CF_ASSUME_NONNULL_END
@@ -6815,7 +6971,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CTRun.h
  *  CoreText
  *
- *  Copyright (c) 2004-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2004-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -6831,8 +6987,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define __CTRUN__
 
 #include <CoreText/CTDefines.h>
-#include <CoreFoundation/CFDictionary.h>
-#include <CoreGraphics/CGContext.h>
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
@@ -6881,7 +7038,7 @@ typedef CF_OPTIONS(uint32_t, CTRunStatus)
     @abstract   Returns the CFType of the run object
 */
 
-CFTypeID CTRunGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTRunGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -6901,7 +7058,7 @@ CFTypeID CTRunGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
 */
 
 CFIndex CTRunGetGlyphCount(
-    CTRunRef run ) CT_AVAILABLE(10_5, 3_2);
+    CTRunRef run ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -6922,7 +7079,7 @@ CFIndex CTRunGetGlyphCount(
 */
 
 CFDictionaryRef CTRunGetAttributes(
-    CTRunRef run ) CT_AVAILABLE(10_5, 3_2);
+    CTRunRef run ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -6944,7 +7101,7 @@ CFDictionaryRef CTRunGetAttributes(
 */
 
 CTRunStatus CTRunGetStatus(
-    CTRunRef run ) CT_AVAILABLE(10_5, 3_2);
+    CTRunRef run ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -6964,8 +7121,8 @@ CTRunStatus CTRunGetStatus(
     @result     A valid pointer to an array of CGGlyph structures or NULL.
 */
 
-const CGGlyph * __nullable CTRunGetGlyphsPtr(
-    CTRunRef run ) CT_AVAILABLE(10_5, 3_2);
+const CGGlyph * _Nullable CTRunGetGlyphsPtr(
+    CTRunRef run ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -6989,7 +7146,7 @@ const CGGlyph * __nullable CTRunGetGlyphsPtr(
 void CTRunGetGlyphs(
     CTRunRef run,
     CFRange range,
-    CGGlyph buffer[] ) CT_AVAILABLE(10_5, 3_2);
+    CGGlyph buffer[_Nonnull] ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7011,8 +7168,8 @@ void CTRunGetGlyphs(
     @result     A valid pointer to an array of CGPoint structures or NULL.
 */
 
-const CGPoint * __nullable CTRunGetPositionsPtr(
-    CTRunRef run ) CT_AVAILABLE(10_5, 3_2);
+const CGPoint * _Nullable CTRunGetPositionsPtr(
+    CTRunRef run ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7040,7 +7197,7 @@ const CGPoint * __nullable CTRunGetPositionsPtr(
 void CTRunGetPositions(
     CTRunRef run,
     CFRange range,
-    CGPoint buffer[] ) CT_AVAILABLE(10_5, 3_2);
+    CGPoint buffer[_Nonnull] ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7064,8 +7221,8 @@ void CTRunGetPositions(
     @result     A valid pointer to an array of CGSize structures or NULL.
 */
 
-const CGSize * __nullable CTRunGetAdvancesPtr(
-    CTRunRef run ) CT_AVAILABLE(10_5, 3_2);
+const CGSize * _Nullable CTRunGetAdvancesPtr(
+    CTRunRef run ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7090,7 +7247,7 @@ const CGSize * __nullable CTRunGetAdvancesPtr(
 void CTRunGetAdvances(
     CTRunRef run,
     CFRange range,
-    CGSize buffer[] ) CT_AVAILABLE(10_5, 3_2);
+    CGSize buffer[_Nonnull] ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7113,8 +7270,8 @@ void CTRunGetAdvances(
     @result     A valid pointer to an array of CFIndex structures or NULL.
 */
 
-const CFIndex * __nullable CTRunGetStringIndicesPtr(
-    CTRunRef run ) CT_AVAILABLE(10_5, 3_2);
+const CFIndex * _Nullable CTRunGetStringIndicesPtr(
+    CTRunRef run ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7143,7 +7300,7 @@ const CFIndex * __nullable CTRunGetStringIndicesPtr(
 void CTRunGetStringIndices(
     CTRunRef run,
     CFRange range,
-    CFIndex buffer[] ) CT_AVAILABLE(10_5, 3_2);
+    CFIndex buffer[_Nonnull] ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7159,7 +7316,7 @@ void CTRunGetStringIndices(
 */
 
 CFRange CTRunGetStringRange(
-    CTRunRef run ) CT_AVAILABLE(10_5, 3_2);
+    CTRunRef run ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7194,9 +7351,9 @@ CFRange CTRunGetStringRange(
 double CTRunGetTypographicBounds(
     CTRunRef run,
     CFRange range,
-    CGFloat * __nullable ascent,
-    CGFloat * __nullable descent,
-    CGFloat * __nullable leading ) CT_AVAILABLE(10_5, 3_2);
+    CGFloat * _Nullable ascent,
+    CGFloat * _Nullable descent,
+    CGFloat * _Nullable leading ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7205,7 +7362,9 @@ double CTRunGetTypographicBounds(
 
     @discussion The image bounds for a run is the union of all non-empty glyph
                 bounding rects, each positioned as it would be if drawn using
-                CTRunDraw using the current context. Note that the result is
+                CTRunDraw using the current context (for clients linked against
+                macOS High Sierra or iOS 11 and later) or the text position of
+                the supplied context (for all others). Note that the result is
                 ideal and does not account for raster coverage due to rendering.
                 This function is purely a convenience for using glyphs as an
                 image and should not be used for typographic purposes.
@@ -7234,8 +7393,8 @@ double CTRunGetTypographicBounds(
 
 CGRect CTRunGetImageBounds(
     CTRunRef run,
-    CGContextRef __nullable context,
-    CFRange range ) CT_AVAILABLE(10_5, 3_2);
+    CGContextRef _Nullable context,
+    CFRange range ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7253,7 +7412,7 @@ CGRect CTRunGetImageBounds(
 */
 
 CGAffineTransform CTRunGetTextMatrix(
-    CTRunRef run ) CT_AVAILABLE(10_5, 3_2);
+    CTRunRef run ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7264,9 +7423,11 @@ CGAffineTransform CTRunGetTextMatrix(
                 accessing its glyphs, positions, and text matrix. Unlike when
                 drawing the entire line containing the run with CTLineDraw, the
                 run's underline (if any) will not be drawn, since the underline's
-                appearance may depend on other runs in the line. Note that this
-                call may leave the graphics context in any state and does not
-                flush the context after the draw operation.
+                appearance may depend on other runs in the line. This call may
+                leave the graphics context in any state and does not flush the
+                context after drawing. This call also expects a text matrix with
+                `y` values increasing from bottom to top; a flipped text matrix
+                may result in misplaced diacritics.
 
     @param      run
                 The run that you want to draw.
@@ -7284,7 +7445,7 @@ CGAffineTransform CTRunGetTextMatrix(
 void CTRunDraw(
     CTRunRef run,
     CGContextRef context,
-    CFRange range ) CT_AVAILABLE(10_5, 3_2);
+    CFRange range ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 CF_ASSUME_NONNULL_END
@@ -7297,7 +7458,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CTParagraphStyle.h
  *  CoreText
  *
- *  Copyright (c) 2004-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2004-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -7313,8 +7474,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define __CTPARAGRAPHSTYLE__
 
 #include <CoreText/CTDefines.h>
-#include <CoreFoundation/CFArray.h>
-#include <CoreGraphics/CGBase.h>
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
@@ -7332,7 +7494,7 @@ typedef const struct CF_RELATED_TYPE(NSParagraphStyle,,) __CTParagraphStyle * CT
     @abstract   Returns the CFType of the paragraph style object
 */
 
-CFTypeID CTParagraphStyleGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTParagraphStyleGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -7361,17 +7523,22 @@ CFTypeID CTParagraphStyleGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
 */
 
 typedef CF_ENUM(uint8_t, CTTextAlignment) {
-    kCTTextAlignmentLeft      CT_ENUM_AVAILABLE(10_8, 6_0) = 0,
-    kCTTextAlignmentRight     CT_ENUM_AVAILABLE(10_8, 6_0) = 1,
-    kCTTextAlignmentCenter    CT_ENUM_AVAILABLE(10_8, 6_0) = 2,
-    kCTTextAlignmentJustified CT_ENUM_AVAILABLE(10_8, 6_0) = 3,
-    kCTTextAlignmentNatural   CT_ENUM_AVAILABLE(10_8, 6_0) = 4,
+    kCTTextAlignmentLeft      = 0,
+    kCTTextAlignmentRight     = 1,
+    kCTTextAlignmentCenter    = 2,
+    kCTTextAlignmentJustified = 3,
+    kCTTextAlignmentNatural   = 4,
 
-    kCTLeftTextAlignment CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTTextAlignmentLeft,
-    kCTRightTextAlignment CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTTextAlignmentRight,
-    kCTCenterTextAlignment CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTTextAlignmentCenter,
-    kCTJustifiedTextAlignment CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTTextAlignmentJustified,
-    kCTNaturalTextAlignment CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTTextAlignmentNatural
+    kCTLeftTextAlignment CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTTextAlignmentLeft,
+    kCTRightTextAlignment CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+    = kCTTextAlignmentRight,
+    kCTCenterTextAlignment CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTTextAlignmentCenter,
+    kCTJustifiedTextAlignment CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTTextAlignmentJustified,
+    kCTNaturalTextAlignment CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTTextAlignmentNatural
 };
 
 
@@ -7455,7 +7622,7 @@ typedef CF_ENUM(int8_t, CTWritingDirection) {
                 of the first script contained in the paragraph.
 
                 Type: CTTextAlignment
-                Default: kCTNaturalTextAlignment
+                Default: kCTTextAlignmentNatural
                 Application: CTFramesetter
 
 
@@ -7634,7 +7801,7 @@ typedef CF_ENUM(uint32_t, CTParagraphStyleSpecifier) {
     kCTParagraphStyleSpecifierLineHeightMultiple = 7,
     kCTParagraphStyleSpecifierMaximumLineHeight = 8,
     kCTParagraphStyleSpecifierMinimumLineHeight = 9,
-    kCTParagraphStyleSpecifierLineSpacing = 10,			/* deprecated */
+    kCTParagraphStyleSpecifierLineSpacing CT_ENUM_DEPRECATED("See documentation for replacements", macos(10.5, 10.8), ios(3.2, 6.0)) CT_ENUM_UNAVAILABLE(watchos, tvos) = 10,
     kCTParagraphStyleSpecifierParagraphSpacing = 11,
     kCTParagraphStyleSpecifierParagraphSpacingBefore = 12,
     kCTParagraphStyleSpecifierBaseWritingDirection = 13,
@@ -7707,8 +7874,8 @@ typedef struct CTParagraphStyleSetting
 */
 
 CTParagraphStyleRef CTParagraphStyleCreate(
-    const CTParagraphStyleSetting * __nullable settings,
-    size_t settingCount ) CT_AVAILABLE(10_5, 3_2);
+    const CTParagraphStyleSetting * _Nullable settings,
+    size_t settingCount ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7725,7 +7892,7 @@ CTParagraphStyleRef CTParagraphStyleCreate(
 */
 
 CTParagraphStyleRef CTParagraphStyleCreateCopy(
-    CTParagraphStyleRef paragraphStyle ) CT_AVAILABLE(10_5, 3_2);
+    CTParagraphStyleRef paragraphStyle ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -7771,7 +7938,7 @@ bool CTParagraphStyleGetValueForSpecifier(
     CTParagraphStyleRef paragraphStyle,
     CTParagraphStyleSpecifier spec,
     size_t valueBufferSize,
-    void * valueBuffer ) CT_AVAILABLE(10_5, 3_2);
+    void * valueBuffer ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 CF_ASSUME_NONNULL_END
@@ -7784,7 +7951,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CTStringAttributes.h
  *  CoreText
  *
- *  Copyright (c) 2004-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2004-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -7792,9 +7959,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define __CTSTRINGATTRIBUTES__
 
 #include <CoreText/CTDefines.h>
-#include <CoreFoundation/CFNumber.h>
-#include <CoreFoundation/CFString.h>
-#include <CoreGraphics/CGColor.h>
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 CF_EXTERN_C_BEGIN
 CF_ASSUME_NONNULL_BEGIN
@@ -7816,7 +7983,7 @@ CF_ASSUME_NONNULL_BEGIN
     @discussion Value must be a CTFontRef. Default is Helvetica 12.
 */
 
-extern const CFStringRef kCTFontAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7834,7 +8001,7 @@ extern const CFStringRef kCTFontAttributeName CT_AVAILABLE(10_5, 3_2);
                 overrides the foreground color.
 */
 
-extern const CFStringRef kCTForegroundColorFromContextAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTForegroundColorFromContextAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7851,7 +8018,7 @@ extern const CFStringRef kCTForegroundColorFromContextAttributeName CT_AVAILABLE
                 set to 0.0, no kerning will be done at all.
 */
 
-extern const CFStringRef kCTKernAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTKernAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7877,7 +8044,7 @@ extern const CFStringRef kCTKernAttributeName CT_AVAILABLE(10_5, 3_2);
                 shaping tables (or the lack thereof) are treated as definitive.
 */
 
-extern const CFStringRef kCTLigatureAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTLigatureAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7887,7 +8054,16 @@ extern const CFStringRef kCTLigatureAttributeName CT_AVAILABLE(10_5, 3_2);
     @discussion Value must be a CGColorRef. Default value is black.
 */
 
-extern const CFStringRef kCTForegroundColorAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTForegroundColorAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
+
+/*!
+    @const      kCTBackgroundColorAttributeName
+    @abstract   The background color.
+
+    @discussion Value must be a CGColorRef. Default is no background color.
+*/
+
+CT_EXPORT const CFStringRef kCTBackgroundColorAttributeName CT_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 
 /*!
@@ -7896,11 +8072,14 @@ extern const CFStringRef kCTForegroundColorAttributeName CT_AVAILABLE(10_5, 3_2)
                 line alignment, tab rulers, writing direction, etc.
 
     @discussion Value must be a CTParagraphStyleRef. Default is an empty
-                CTParagraphStyle object. See CTParagraphStyle.h for more
-                information.
+                CTParagraphStyle object: see CTParagraphStyle.h for more
+                information. The value of this attribute must be uniform over
+                the range of any paragraphs to which it is applied.
+
+    @seealso    CFStringGetParagraphBounds
 */
 
-extern const CFStringRef kCTParagraphStyleAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTParagraphStyleAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7914,7 +8093,7 @@ extern const CFStringRef kCTParagraphStyleAttributeName CT_AVAILABLE(10_5, 3_2);
                 typical value for outlined text is 3.0.
 */
 
-extern const CFStringRef kCTStrokeWidthAttributeName CT_AVAILABLE(10_6, 3_2);
+CT_EXPORT const CFStringRef kCTStrokeWidthAttributeName CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7924,7 +8103,7 @@ extern const CFStringRef kCTStrokeWidthAttributeName CT_AVAILABLE(10_6, 3_2);
     @discussion Value must be a CGColorRef. Default is the foreground color.
 */
 
-extern const CFStringRef kCTStrokeColorAttributeName CT_AVAILABLE(10_6, 3_2);
+CT_EXPORT const CFStringRef kCTStrokeColorAttributeName CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7939,7 +8118,7 @@ extern const CFStringRef kCTStrokeColorAttributeName CT_AVAILABLE(10_6, 3_2);
                 will be determined by the text's foreground color.
 */
 
-extern const CFStringRef kCTUnderlineStyleAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTUnderlineStyleAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7951,7 +8130,7 @@ extern const CFStringRef kCTUnderlineStyleAttributeName CT_AVAILABLE(10_5, 3_2);
                 value of -1 enables subscripting.
 */
 
-extern const CFStringRef kCTSuperscriptAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTSuperscriptAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7961,7 +8140,7 @@ extern const CFStringRef kCTSuperscriptAttributeName CT_AVAILABLE(10_5, 3_2);
     @discussion Value must be a CGColorRef. Default is the foreground color.
 */
 
-extern const CFStringRef kCTUnderlineColorAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTUnderlineColorAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -7973,7 +8152,21 @@ extern const CFStringRef kCTUnderlineColorAttributeName CT_AVAILABLE(10_5, 3_2);
                 indicates that vertical glyph forms are to be used.
 */
 
-extern const CFStringRef kCTVerticalFormsAttributeName CT_AVAILABLE(10_5, 4_3);
+CT_EXPORT const CFStringRef kCTVerticalFormsAttributeName CT_AVAILABLE(macos(10.5), ios(4.3), watchos(2.0), tvos(9.0));
+
+
+/*!
+    @const      kCTHorizontalInVerticalFormsAttributeName
+    @abstract   Setting text in tate-chu-yoko form (horizontal numerals in vertical text).
+
+    @discussion Value must be a CFNumberRef. Default is int value 0. A value of 1
+                to 4 indicates the number of digits or letters to set in horizontal
+                form. This is to apply the correct feature settings for the text.
+                This attribute only works when kCTVerticalFormsAttributeName is set
+                to true.
+*/
+
+CT_EXPORT const CFStringRef kCTHorizontalInVerticalFormsAttributeName CT_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 
 /*!
@@ -7987,7 +8180,7 @@ extern const CFStringRef kCTVerticalFormsAttributeName CT_AVAILABLE(10_5, 4_3);
                 kCTFontAttributeName. See CTGlyphInfo.h for more information.
 */
 
-extern const CFStringRef kCTGlyphInfoAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTGlyphInfoAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -8000,7 +8193,7 @@ extern const CFStringRef kCTGlyphInfoAttributeName CT_AVAILABLE(10_5, 3_2);
                 an attribute value of 1 corresponds to kTraditionalCharactersSelector.
 */
 
-extern const CFStringRef kCTCharacterShapeAttributeName CT_DEPRECATED(10_5, 10_11, 3_2, 9_0);
+CT_EXPORT const CFStringRef kCTCharacterShapeAttributeName CT_DEPRECATED("Use feature type kCharacterShapeType with the appropriate selector", macos(10.5, 10.11), ios(3.2, 9.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 
 /*!
@@ -8013,7 +8206,7 @@ extern const CFStringRef kCTCharacterShapeAttributeName CT_DEPRECATED(10_5, 10_1
                 locale-specific line breaking rules.
 */
 
-extern const CFStringRef kCTLanguageAttributeName CT_AVAILABLE(10_9, 7_0);
+CT_EXPORT const CFStringRef kCTLanguageAttributeName CT_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -8032,7 +8225,7 @@ extern const CFStringRef kCTLanguageAttributeName CT_AVAILABLE(10_9, 7_0);
                 CTRunDelegate.h for more information.
 */
 
-extern const CFStringRef kCTRunDelegateAttributeName CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTRunDelegateAttributeName CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -8087,7 +8280,7 @@ typedef CF_OPTIONS(int32_t, CTUnderlineStyleModifiers) {
     @seealso    kCTBaselineClassMath
 */
 
-extern const CFStringRef kCTBaselineClassAttributeName CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineClassAttributeName CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -8109,7 +8302,7 @@ extern const CFStringRef kCTBaselineClassAttributeName CT_AVAILABLE(10_8, 6_0);
     @seealso    kCTBaselineClassMath
 */
 
-extern const CFStringRef kCTBaselineInfoAttributeName CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineInfoAttributeName CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -8133,7 +8326,25 @@ extern const CFStringRef kCTBaselineInfoAttributeName CT_AVAILABLE(10_8, 6_0);
     @seealso    kCTBaselineReferenceFont
 */
 
-extern const CFStringRef kCTBaselineReferenceInfoAttributeName CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTBaselineReferenceInfoAttributeName CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
+
+
+/*!
+    @const      kCTBaselineOffsetAttributeName
+    @abstract   Controls vertical text positioning.
+
+    @discussion Value must be a CFNumberRef float. Default is standard positioning.
+                The baseline attribute indicates how many points the characters
+                should be shifted perpendicular to their baseline. A positive
+                baseline value indicates a shift above (or to the right for vertical
+                text) the text baseline and a negative baseline value indicates a
+                shift below (or to the left for vertical text) the text baseline.
+                If this value is set to 0.0, no baseline shift will be performed.
+
+    @seealso    NSBaselineOffsetAttributeName
+*/
+
+CT_EXPORT const CFStringRef kCTBaselineOffsetAttributeName CT_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
 
 
 /*!
@@ -8153,9 +8364,9 @@ extern const CFStringRef kCTBaselineReferenceInfoAttributeName CT_AVAILABLE(10_8
                 pair in plain text or a <span dir="rtl"></span> in HTML,
                 (kCTWritingDirectionLeftToRight | kCTWritingDirectionOverride)
                 corresponding to a LRO/PDF pair in plain text or
-                <bdo dir="ltr"></span> in HTML, and (kCTWritingDirectionRightToLeft
+                <bdo dir="ltr"></bdo> in HTML, and (kCTWritingDirectionRightToLeft
                 | kCTWritingDirectionOverride) corresponding to a RLO/PDF
-                pair in plain text or <bdo dir="rtl"></span> in HTML.
+                pair in plain text or <bdo dir="rtl"></bdo> in HTML.
 
     @seealso    kCTWritingDirectionLeftToRight
     @seealso    kCTWritingDirectionRightToLeft
@@ -8163,7 +8374,7 @@ extern const CFStringRef kCTBaselineReferenceInfoAttributeName CT_AVAILABLE(10_8
     @seealso    kCTWritingDirectionOverride
 */
 
-extern const CFStringRef kCTWritingDirectionAttributeName CT_AVAILABLE(10_8, 6_0);
+CT_EXPORT const CFStringRef kCTWritingDirectionAttributeName CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 
 /*!
@@ -8190,7 +8401,7 @@ enum {
                 more information.
  */
 
-extern const CFStringRef kCTRubyAnnotationAttributeName CT_AVAILABLE(10_10, 8_0);
+CT_EXPORT const CFStringRef kCTRubyAnnotationAttributeName CT_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 
 CF_ASSUME_NONNULL_END
@@ -8202,7 +8413,7 @@ CF_EXTERN_C_END
  *  CTDefines.h
  *  CoreText
  *
- *  Copyright (c) 2010-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2010-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -8219,36 +8430,22 @@ CF_EXTERN_C_END
 # define __has_attribute(x) 0
 #endif
 
-#if defined(CT_BUILDING_CoreText)
-# define CT_AVAILABLE(_mac, _ios)
-# define CT_AVAILABLE_MAC(_mac)
-# define CT_AVAILABLE_IOS(_ios)
-# define CT_DEPRECATED(_macIntro, _macDep, _iosIntro, _iosDep)
-# define CT_DEPRECATED_MAC(_macIntro, _macDep)
-# define CT_DEPRECATED_IOS(_iosIntro, _iosDep)
-#else /* defined(CT_BUILDING_CoreText) */
-# define CT_AVAILABLE(_mac, _ios) __OSX_AVAILABLE_STARTING(__MAC_##_mac, __IPHONE_##_ios)
-# define CT_AVAILABLE_MAC(_mac) __OSX_AVAILABLE_STARTING(__MAC_##_mac, __IPHONE_NA)
-# define CT_AVAILABLE_IOS(_ios) __OSX_AVAILABLE_STARTING(__MAC_NA, __IPHONE_##_ios)
-# define CT_DEPRECATED(_macIntro, _macDep, _iosIntro, _iosDep) __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_##_macIntro, __MAC_##_macDep, __IPHONE_##_iosIntro, __IPHONE_##_iosDep)
-# define CT_DEPRECATED_MAC(_macIntro, _macDep) __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_##_macIntro, __MAC_##_macDep, __IPHONE_NA, __IPHONE_NA)
-# define CT_DEPRECATED_IOS(_iosIntro, _iosDep) __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_NA, __MAC_NA, __IPHONE_##_iosIntro, __IPHONE_##_iosDep)
-#endif /* defined(CT_BUILDING_CoreText) */
+#if defined(CT_BUILDING_CoreText) || TARGET_OS_WIN32
+# define CT_AVAILABLE(...)
+# define CT_UNAVAILABLE(...)
+# define CT_DEPRECATED(...)
+#else /* defined(CT_BUILDING_CoreText) || TARGET_OS_WIN32 */
+# define CT_AVAILABLE(...) API_AVAILABLE(__VA_ARGS__)
+# define CT_UNAVAILABLE(...) API_UNAVAILABLE(__VA_ARGS__)
+# define CT_DEPRECATED(...) API_DEPRECATED(__VA_ARGS__)
+#endif /* defined(CT_BUILDING_CoreText) || TARGET_OS_WIN32 */
 
 #if __has_feature(enumerator_attributes) && __has_attribute(availability)
-# define CT_ENUM_AVAILABLE(_mac, _ios) CT_AVAILABLE(_mac, _ios)
-# define CT_ENUM_AVAILABLE_MAC(_mac) CT_AVAILABLE_MAC(_mac)
-# define CT_ENUM_AVAILABLE_IOS(_ios) CT_AVAILABLE_IOS(_ios)
-# define CT_ENUM_DEPRECATED(_macIntro, _macDep, _iosIntro, _iosDep) CT_DEPRECATED(_macIntro, _macDep, _iosIntro, _iosDep)
-# define CT_ENUM_DEPRECATED_MAC(_macIntro, _macDep) CT_DEPRECATED_MAC(_macIntro, _macDep)
-# define CT_ENUM_DEPRECATED_IOS(_iosIntro, _iosDep) CT_DEPRECATED_IOS(_iosIntro, _iosDep)
+# define CT_ENUM_DEPRECATED(...) CT_DEPRECATED(__VA_ARGS__)
+# define CT_ENUM_UNAVAILABLE(...) CT_UNAVAILABLE(__VA_ARGS__)
 #else
-# define CT_ENUM_AVAILABLE(_mac, _ios)
-# define CT_ENUM_AVAILABLE_MAC(_mac)
-# define CT_ENUM_AVAILABLE_IOS(_ios)
-# define CT_ENUM_DEPRECATED(_macIntro, _macDep, _iosIntro, _iosDep)
-# define CT_ENUM_DEPRECATED_MAC(_macIntro, _macDep)
-# define CT_ENUM_DEPRECATED_IOS(_iosIntro, _iosDep)
+# define CT_ENUM_DEPRECATED(...)
+# define CT_ENUM_UNAVAILABLE(...)
 #endif /* __has_feature(enumerator_attributes) && __has_attribute(availability) */
 
 #if __has_attribute(objc_bridge)
@@ -8268,13 +8465,37 @@ CF_EXTERN_C_END
 # endif /* defined(__OBJC__) */
 #endif /*  __has_attribute(objc_bridge) */
 
+#if TARGET_OS_WIN32
+#define _Nullable
+#define _Nonnull
+
+#define CF_BRIDGED_TYPE(T)
+#define CF_BRIDGED_MUTABLE_TYPE(T)
+#define CF_RELATED_TYPE(T,C,I)
+
+#define CF_ASSUME_NONNULL_BEGIN
+#define CF_ASSUME_NONNULL_END
+
+# if defined(CT_BUILDING_CoreText) && defined(__cplusplus)
+#  define CT_EXPORT extern "C" __declspec(dllexport)
+# elif defined(CT_BUILDING_CoreText) && !defined(__cplusplus)
+#  define CT_EXPORT extern __declspec(dllexport)
+# elif defined(__cplusplus)
+#  define CT_EXPORT extern "C" __declspec(dllimport)
+# else
+#  define CT_EXPORT extern __declspec(dllimport)
+# endif
+#else
+# define CT_EXPORT extern
+#endif
+
 #endif
 // ==========  CoreText.framework/Headers/CTFontCollection.h
 /*
  *  CTFontCollection.h
  *  CoreText
  *
- *  Copyright (c) 2006-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -8289,7 +8510,6 @@ CF_EXTERN_C_END
 #ifndef __CTFONTCOLLECTION__
 #define __CTFONTCOLLECTION__
 
-#include <CoreText/CTDefines.h>
 #include <CoreText/CTFontDescriptor.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -8327,7 +8547,7 @@ typedef struct CF_BRIDGED_MUTABLE_TYPE(NSMutableFontCollection) __CTFontCollecti
     @abstract   Returns the type identifier for Core Text font collection references.
     @result     The identifier for the opaque types CTFontCollectionRef or CTMutableFontCollectionRef.
 */
-CFTypeID CTFontCollectionGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTFontCollectionGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @typedef    CTFontCollectionSortDescriptorsCallback
@@ -8348,21 +8568,21 @@ typedef CFComparisonResult (*CTFontCollectionSortDescriptorsCallback)(
     @abstract   Option key to specify filtering of duplicates.
     @discussion Specify this option key in the options dictionary with a non- zero value to enable automatic filtering of duplicate font descriptors.
 */
-extern const CFStringRef kCTFontCollectionRemoveDuplicatesOption CT_AVAILABLE(10_5, 3_2);
+CT_EXPORT const CFStringRef kCTFontCollectionRemoveDuplicatesOption CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @defined    kCTFontCollectionIncludeDisabledFontsOption
     @abstract   Option key to include disabled fonts in the matching results.
     @discussion Specify this option key in the options dictionary with a non-zero value to enable matching of disabled fonts. You can pass font descriptors specifying disabled fonts to CTFontManagerEnableFontDescriptors, but you cannot use such a font descriptor to query font attributes from the system database or create a CTFontRef.
 */
-extern const CFStringRef kCTFontCollectionIncludeDisabledFontsOption CT_AVAILABLE_MAC(10_7);
+CT_EXPORT const CFStringRef kCTFontCollectionIncludeDisabledFontsOption CT_AVAILABLE(macos(10.7)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @defined    kCTFontCollectionDisallowAutoActivationOption
     @abstract   Option key to avoid auto-activating fonts.
     @discussion Specify this option key in the options dictionary with a non-zero value to disallow searches for missing fonts (font descriptors returning no results).
 */
-extern const CFStringRef kCTFontCollectionDisallowAutoActivationOption CT_AVAILABLE_MAC(10_7);
+CT_EXPORT const CFStringRef kCTFontCollectionDisallowAutoActivationOption CT_AVAILABLE(macos(10.7)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*! --------------------------------------------------------------------------
     @group Collection Creation
@@ -8378,7 +8598,7 @@ extern const CFStringRef kCTFontCollectionDisallowAutoActivationOption CT_AVAILA
     @result     This function creates a new collection containing all fonts available to the current application.
 */
 CTFontCollectionRef CTFontCollectionCreateFromAvailableFonts(
-    CFDictionaryRef __nullable options ) CT_AVAILABLE(10_5, 3_2);
+    CFDictionaryRef _Nullable options ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCollectionCreateWithFontDescriptors
@@ -8393,8 +8613,8 @@ CTFontCollectionRef CTFontCollectionCreateFromAvailableFonts(
     @result     This function creates a new collection based on the provided font descriptors. The contents of this collection is defined by matching the provided descriptors against all available font descriptors.
 */
 CTFontCollectionRef CTFontCollectionCreateWithFontDescriptors(
-    CFArrayRef __nullable queryDescriptors,
-    CFDictionaryRef __nullable options ) CT_AVAILABLE(10_5, 3_2);
+    CFArrayRef _Nullable queryDescriptors,
+    CFDictionaryRef _Nullable options ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCollectionCreateCopyWithFontDescriptors
@@ -8413,8 +8633,8 @@ CTFontCollectionRef CTFontCollectionCreateWithFontDescriptors(
 */
 CTFontCollectionRef CTFontCollectionCreateCopyWithFontDescriptors(
     CTFontCollectionRef original,
-    CFArrayRef __nullable queryDescriptors,
-    CFDictionaryRef __nullable options ) CT_AVAILABLE(10_5, 3_2);
+    CFArrayRef _Nullable queryDescriptors,
+    CFDictionaryRef _Nullable options ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCollectionCreateMutableCopy
@@ -8426,7 +8646,7 @@ CTFontCollectionRef CTFontCollectionCreateCopyWithFontDescriptors(
     @result     This function creates a mutable copy of the original font collection.
 */
 CTMutableFontCollectionRef CTFontCollectionCreateMutableCopy(
-    CTFontCollectionRef original ) CT_AVAILABLE_MAC(10_7);
+    CTFontCollectionRef original ) CT_AVAILABLE(macos(10.7)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*! --------------------------------------------------------------------------
     @group Editing the query descriptors
@@ -8441,8 +8661,8 @@ CTMutableFontCollectionRef CTFontCollectionCreateMutableCopy(
 
     @result     This function returns a retained reference to the array of descriptors to be used to query (match) the system font database. The return value is undefined if CTFontCollectionCreateFromAvailableFonts was used to create the collection.
 */
-CFArrayRef __nullable CTFontCollectionCopyQueryDescriptors(
-    CTFontCollectionRef collection ) CT_AVAILABLE_MAC(10_7);
+CFArrayRef _Nullable CTFontCollectionCopyQueryDescriptors(
+    CTFontCollectionRef collection ) CT_AVAILABLE(macos(10.7)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontCollectionSetQueryDescriptors
@@ -8456,7 +8676,7 @@ CFArrayRef __nullable CTFontCollectionCopyQueryDescriptors(
 */
 void CTFontCollectionSetQueryDescriptors(
     CTMutableFontCollectionRef  collection,
-    CFArrayRef __nullable       descriptors ) CT_AVAILABLE_MAC(10_7);
+    CFArrayRef _Nullable        descriptors ) CT_AVAILABLE(macos(10.7)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontCollectionCopyExclusionDescriptors
@@ -8467,7 +8687,7 @@ void CTFontCollectionSetQueryDescriptors(
 
     @result     This function returns a retained reference to the array of descriptors to be used to query (match) the system font database.
 */
-CFArrayRef __nullable CTFontCollectionCopyExclusionDescriptors( CTFontCollectionRef collection ) CT_AVAILABLE_MAC(10_7);
+CFArrayRef _Nullable CTFontCollectionCopyExclusionDescriptors( CTFontCollectionRef collection ) CT_AVAILABLE(macos(10.7)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontCollectionSetExclusionDescriptors
@@ -8481,7 +8701,7 @@ CFArrayRef __nullable CTFontCollectionCopyExclusionDescriptors( CTFontCollection
 */
 void CTFontCollectionSetExclusionDescriptors(
     CTMutableFontCollectionRef  collection,
-    CFArrayRef __nullable       descriptors ) CT_AVAILABLE_MAC(10_7);
+    CFArrayRef _Nullable        descriptors ) CT_AVAILABLE(macos(10.7)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*! --------------------------------------------------------------------------
     @group Retrieving Matching Descriptors
@@ -8496,8 +8716,8 @@ void CTFontCollectionSetExclusionDescriptors(
 
     @result     An array of CTFontDescriptors matching the collection definition or NULL if there are none.
 */
-CFArrayRef __nullable CTFontCollectionCreateMatchingFontDescriptors(
-    CTFontCollectionRef collection ) CT_AVAILABLE(10_5, 3_2);
+CFArrayRef _Nullable CTFontCollectionCreateMatchingFontDescriptors(
+    CTFontCollectionRef collection ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCollectionCreateMatchingFontDescriptorsSortedWithCallback
@@ -8514,10 +8734,10 @@ CFArrayRef __nullable CTFontCollectionCreateMatchingFontDescriptors(
 
     @result     An array of CTFontDescriptors matching the criteria of the collection, sorted by the results of the sorting callback function, or NULL if there are none.
 */
-CFArrayRef __nullable CTFontCollectionCreateMatchingFontDescriptorsSortedWithCallback(
+CFArrayRef _Nullable CTFontCollectionCreateMatchingFontDescriptorsSortedWithCallback(
     CTFontCollectionRef                     collection,
-    CTFontCollectionSortDescriptorsCallback __nullable sortCallback,
-    void * __nullable                       refCon ) CT_AVAILABLE(10_5, 3_2);
+    CTFontCollectionSortDescriptorsCallback _Nullable sortCallback,
+    void * _Nullable                        refCon ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
     @function   CTFontCollectionCreateMatchingFontDescriptorsWithOptions
@@ -8531,9 +8751,9 @@ CFArrayRef __nullable CTFontCollectionCreateMatchingFontDescriptorsSortedWithCal
 
     @result     An array of CTFontDescriptors matching the collection definition or NULL if there are none.
 */
-CFArrayRef __nullable CTFontCollectionCreateMatchingFontDescriptorsWithOptions(
+CFArrayRef _Nullable CTFontCollectionCreateMatchingFontDescriptorsWithOptions(
     CTFontCollectionRef collection,
-    CFDictionaryRef __nullable options ) CT_AVAILABLE_MAC(10_7);
+    CFDictionaryRef _Nullable options ) CT_AVAILABLE(macos(10.7), ios(12.0), watchos(5.0), tvos(12.0));
 
 /*!
     @function   CTFontCollectionCreateMatchingFontDescriptorsForFamily
@@ -8547,10 +8767,10 @@ CFArrayRef __nullable CTFontCollectionCreateMatchingFontDescriptorsWithOptions(
 
     @result     An array of CTFontDescriptors matching the specified family in the collection or NULL if there are none.
 */
-CFArrayRef __nullable CTFontCollectionCreateMatchingFontDescriptorsForFamily(
+CFArrayRef _Nullable CTFontCollectionCreateMatchingFontDescriptorsForFamily(
     CTFontCollectionRef collection,
     CFStringRef         familyName,
-    CFDictionaryRef __nullable options ) CT_AVAILABLE_MAC(10_7);
+    CFDictionaryRef _Nullable options ) CT_AVAILABLE(macos(10.7)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*! --------------------------------------------------------------------------
     @group Bulk attribute access
@@ -8569,7 +8789,7 @@ typedef CF_OPTIONS(uint32_t, CTFontCollectionCopyOptions) {
     kCTFontCollectionCopyDefaultOptions = 0,
     kCTFontCollectionCopyUnique = (1 << 0),
     kCTFontCollectionCopyStandardSort = (1 << 1)
-} CT_AVAILABLE_MAC(10_7);
+} CT_AVAILABLE(macos(10.7));
 
 /*!
     @function   CTFontCollectionCopyFontAttribute
@@ -8589,7 +8809,7 @@ typedef CF_OPTIONS(uint32_t, CTFontCollectionCopyOptions) {
 CFArrayRef CTFontCollectionCopyFontAttribute(
     CTFontCollectionRef         collection,
     CFStringRef                 attributeName,
-    CTFontCollectionCopyOptions options ) CT_AVAILABLE_MAC(10_7);
+    CTFontCollectionCopyOptions options ) CT_AVAILABLE(macos(10.7)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
     @function   CTFontCollectionCopyFontAttributes
@@ -8609,7 +8829,7 @@ CFArrayRef CTFontCollectionCopyFontAttribute(
 CFArrayRef CTFontCollectionCopyFontAttributes(
     CTFontCollectionRef         collection,
     CFSetRef                    attributeNames,
-    CTFontCollectionCopyOptions options ) CT_AVAILABLE_MAC(10_7);
+    CTFontCollectionCopyOptions options ) CT_AVAILABLE(macos(10.7)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 CF_ASSUME_NONNULL_END
 CF_EXTERN_C_END
@@ -8618,10 +8838,10 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif
 // ==========  CoreText.framework/Headers/CTGlyphInfo.h
 /*
- *	CTGlyphInfo.h
- *	CoreText
+ *  CTGlyphInfo.h
+ *  CoreText
  *
- *	Copyright (c) 2006-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -8636,7 +8856,6 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #ifndef __CTGLYPHINFO__
 #define __CTGLYPHINFO__
 
-#include <CoreText/CTDefines.h>
 #include <CoreText/CTFont.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -8654,11 +8873,11 @@ typedef const struct CF_BRIDGED_TYPE(NSGlyphInfo) __CTGlyphInfo * CTGlyphInfoRef
 #endif
 
 /*!
-	@function	CTGlyphInfoGetTypeID
-	@abstract	Returns the CFType of the glyph info object
+    @function   CTGlyphInfoGetTypeID
+    @abstract   Returns the CFType of the glyph info object
 */
 
-CFTypeID CTGlyphInfoGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
+CFTypeID CTGlyphInfoGetTypeID( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -8666,43 +8885,49 @@ CFTypeID CTGlyphInfoGetTypeID( void ) CT_AVAILABLE(10_5, 3_2);
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@enum		CTCharacterCollection
-	@abstract	These constants specify character collections.
+    @enum       CTCharacterCollection
+    @abstract   These constants specify character collections.
 
-	@constant	kCTCharacterCollectionIdentityMapping
-				Indicates that the character identifier is equal to the CGGlyph
-				glyph index.
+    @constant   kCTCharacterCollectionIdentityMapping
+                Indicates that the character identifier is equal to the CGGlyph
+                glyph index.
 
-	@constant	kCTCharacterCollectionAdobeCNS1
-				Indicates the Adobe-CNS1 mapping.
+    @constant   kCTCharacterCollectionAdobeCNS1
+                Indicates the Adobe-CNS1 mapping.
 
-	@constant	kCTCharacterCollectionAdobeGB1
-				Indicates the Adobe-GB1 mapping.
+    @constant   kCTCharacterCollectionAdobeGB1
+                Indicates the Adobe-GB1 mapping.
 
-	@constant	kCTCharacterCollectionAdobeJapan1
-				Indicates the Adobe-Japan1 mapping.
+    @constant   kCTCharacterCollectionAdobeJapan1
+                Indicates the Adobe-Japan1 mapping.
 
-	@constant	kCTCharacterCollectionAdobeJapan2
-				Indicates the Adobe-Japan2 mapping.
+    @constant   kCTCharacterCollectionAdobeJapan2
+                Indicates the Adobe-Japan2 mapping.
 
-	@constant	kCTCharacterCollectionAdobeKorea1
-				Indicates the Adobe-Korea1 mapping.
+    @constant   kCTCharacterCollectionAdobeKorea1
+                Indicates the Adobe-Korea1 mapping.
 */
 
 typedef CF_ENUM(uint16_t, CTCharacterCollection) {
-	kCTCharacterCollectionIdentityMapping CT_ENUM_AVAILABLE(10_8, 6_0) = 0,
-	kCTCharacterCollectionAdobeCNS1       CT_ENUM_AVAILABLE(10_8, 6_0) = 1,
-	kCTCharacterCollectionAdobeGB1        CT_ENUM_AVAILABLE(10_8, 6_0) = 2,
-	kCTCharacterCollectionAdobeJapan1     CT_ENUM_AVAILABLE(10_8, 6_0) = 3,
-	kCTCharacterCollectionAdobeJapan2     CT_ENUM_AVAILABLE(10_8, 6_0) = 4,
-	kCTCharacterCollectionAdobeKorea1     CT_ENUM_AVAILABLE(10_8, 6_0) = 5,
+    kCTCharacterCollectionIdentityMapping = 0,
+    kCTCharacterCollectionAdobeCNS1       = 1,
+    kCTCharacterCollectionAdobeGB1        = 2,
+    kCTCharacterCollectionAdobeJapan1     = 3,
+    kCTCharacterCollectionAdobeJapan2     = 4,
+    kCTCharacterCollectionAdobeKorea1     = 5,
 
-	kCTIdentityMappingCharacterCollection CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTCharacterCollectionIdentityMapping,
-	kCTAdobeCNS1CharacterCollection CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTCharacterCollectionAdobeCNS1,
-	kCTAdobeGB1CharacterCollection CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTCharacterCollectionAdobeGB1,
-	kCTAdobeJapan1CharacterCollection CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTCharacterCollectionAdobeJapan1,
-	kCTAdobeJapan2CharacterCollection CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTCharacterCollectionAdobeJapan2,
-	kCTAdobeKorea1CharacterCollection CT_ENUM_DEPRECATED(10_5, 10_11, 3_2, 9_0) = kCTCharacterCollectionAdobeKorea1
+    kCTIdentityMappingCharacterCollection CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTCharacterCollectionIdentityMapping,
+    kCTAdobeCNS1CharacterCollection CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTCharacterCollectionAdobeCNS1,
+    kCTAdobeGB1CharacterCollection CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTCharacterCollectionAdobeGB1,
+    kCTAdobeJapan1CharacterCollection CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTCharacterCollectionAdobeJapan1,
+    kCTAdobeJapan2CharacterCollection CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTCharacterCollectionAdobeJapan2,
+    kCTAdobeKorea1CharacterCollection CT_ENUM_DEPRECATED("Deprecated", macos(10.5, 10.11), ios(3.2, 9.0)) CT_ENUM_UNAVAILABLE(watchos, tvos)
+        = kCTCharacterCollectionAdobeKorea1
 };
 
 
@@ -8711,81 +8936,81 @@ typedef CF_ENUM(uint16_t, CTCharacterCollection) {
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTGlyphInfoCreateWithGlyphName
-	@abstract	Creates an immutable glyph info object.
+    @function   CTGlyphInfoCreateWithGlyphName
+    @abstract   Creates an immutable glyph info object.
 
-	@discussion This function creates an immutable glyph info object for a glyph
-				name such as "copyright" and a specified font.
+    @discussion This function creates an immutable glyph info object for a glyph
+                name such as "copyright" and a specified font.
 
-	@param		glyphName
-				The name of the glyph.
+    @param      glyphName
+                The name of the glyph.
 
-	@param		font
-				The font to be associated with the returned CTGlyphInfo object.
+    @param      font
+                The font to be associated with the returned CTGlyphInfo object.
 
-	@param		baseString
-				The part of the string the returned object is intended
-				to override.
+    @param      baseString
+                The part of the string the returned object is intended
+                to override.
 
-	@result		This function will return a reference to a CTGlyphInfo object.
+    @result     This function will return a reference to a CTGlyphInfo object.
 */
 
 CTGlyphInfoRef CTGlyphInfoCreateWithGlyphName(
-	CFStringRef glyphName,
-	CTFontRef font,
-	CFStringRef baseString ) CT_AVAILABLE(10_5, 3_2);
+    CFStringRef glyphName,
+    CTFontRef font,
+    CFStringRef baseString ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTGlyphInfoCreateWithGlyph
-	@abstract	Creates an immutable glyph info object.
+    @function   CTGlyphInfoCreateWithGlyph
+    @abstract   Creates an immutable glyph info object.
 
-	@discussion This function creates an immutable glyph info object for a glyph
-				index and a specified font.
+    @discussion This function creates an immutable glyph info object for a glyph
+                index and a specified font.
 
-	@param		glyph
-				The glyph identifier.
+    @param      glyph
+                The glyph identifier.
 
-	@param		font
-				The font to be associated with the returned CTGlyphInfo object.
+    @param      font
+                The font to be associated with the returned CTGlyphInfo object.
 
-	@param		baseString
-				The part of the string the returned object is intended
-				to override.
+    @param      baseString
+                The part of the string the returned object is intended
+                to override.
 
-	@result		This function will return a reference to a CTGlyphInfo object.
+    @result     This function will return a reference to a CTGlyphInfo object.
 */
 
 CTGlyphInfoRef CTGlyphInfoCreateWithGlyph(
-	CGGlyph glyph,
-	CTFontRef font,
-	CFStringRef baseString ) CT_AVAILABLE(10_5, 3_2);
+    CGGlyph glyph,
+    CTFontRef font,
+    CFStringRef baseString ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTGlyphInfoCreateWithCharacterIdentifier
-	@abstract	Creates an immutable glyph info object.
+    @function   CTGlyphInfoCreateWithCharacterIdentifier
+    @abstract   Creates an immutable glyph info object.
 
-	@discussion This function creates an immutable glyph info object for a
-				character identifier and a character collection.
+    @discussion This function creates an immutable glyph info object for a
+                character identifier and a character collection.
 
-	@param		cid
-				A character identifier.
+    @param      cid
+                A character identifier.
 
-	@param		collection
-				A character collection identifier.
+    @param      collection
+                A character collection identifier.
 
-	@param		baseString
-				The part of the string the returned object is intended
-				to override.
+    @param      baseString
+                The part of the string the returned object is intended
+                to override.
 
-	@result		This function will return a reference to a CTGlyphInfo object.
+    @result     This function will return a reference to a CTGlyphInfo object.
 */
 
 CTGlyphInfoRef CTGlyphInfoCreateWithCharacterIdentifier(
-	CGFontIndex cid,
-	CTCharacterCollection collection,
-	CFStringRef baseString ) CT_AVAILABLE(10_5, 3_2);
+    CGFontIndex cid,
+    CTCharacterCollection collection,
+    CFStringRef baseString ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /* --------------------------------------------------------------------------- */
@@ -8793,57 +9018,57 @@ CTGlyphInfoRef CTGlyphInfoCreateWithCharacterIdentifier(
 /* --------------------------------------------------------------------------- */
 
 /*!
-	@function	CTGlyphInfoGetGlyphName
-	@abstract	Gets the glyph name for a glyph info, if applicable.
+    @function   CTGlyphInfoGetGlyphName
+    @abstract   Gets the glyph name for a glyph info, if applicable.
 
-	@discussion This function will return the glyph name.
+    @discussion This function will return the glyph name.
 
-	@param		glyphInfo
-				The glyph info for which you would like the glyph name.
+    @param      glyphInfo
+                The glyph info for which you would like the glyph name.
 
-	@result		If the glyph info object was created with a glyph name, it will
-				be returned. Otherwise, this function will return NULL.
+    @result     If the glyph info object was created with a glyph name, it will
+                be returned. Otherwise, this function will return NULL.
 */
 
-CFStringRef __nullable CTGlyphInfoGetGlyphName(
-	CTGlyphInfoRef glyphInfo ) CT_AVAILABLE(10_5, 3_2);
+CFStringRef _Nullable CTGlyphInfoGetGlyphName(
+    CTGlyphInfoRef glyphInfo ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTGlyphInfoGetCharacterIdentifier
-	@abstract	Gets the character identifier for a glyph info.
+    @function   CTGlyphInfoGetCharacterIdentifier
+    @abstract   Gets the character identifier for a glyph info.
 
-	@discussion This function will return the character identifier.
+    @discussion This function will return the character identifier.
 
-	@param		glyphInfo
-				The glyph info for which you would like the character identifier.
+    @param      glyphInfo
+                The glyph info for which you would like the character identifier.
 
-	@result		If the glyph info object was created with a character identifier,
-				it will be returned. Otherwise, this function will return 0.
+    @result     If the glyph info object was created with a character identifier,
+                it will be returned. Otherwise, this function will return 0.
 */
 
 CGFontIndex CTGlyphInfoGetCharacterIdentifier(
-	CTGlyphInfoRef glyphInfo ) CT_AVAILABLE(10_5, 3_2);
+    CTGlyphInfoRef glyphInfo ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 /*!
-	@function	CTGlyphInfoGetCharacterCollection
-	@abstract	Gets the character collection for a glyph info.
+    @function   CTGlyphInfoGetCharacterCollection
+    @abstract   Gets the character collection for a glyph info.
 
-	@discussion This function will return the character collection. If the glyph
-				info object was created with a glyph name or a glyph index, its
-				character collection will be
-				kCTIdentityMappingCharacterCollection.
+    @discussion This function will return the character collection. If the glyph
+                info object was created with a glyph name or a glyph index, its
+                character collection will be
+                kCTIdentityMappingCharacterCollection.
 
-	@param		glyphInfo
-				The glyph info for which you would like the character collection.
+    @param      glyphInfo
+                The glyph info for which you would like the character collection.
 
-	@result		This function will return the character collection of the given
-				glyph info.
+    @result     This function will return the character collection of the given
+                glyph info.
 */
 
 CTCharacterCollection CTGlyphInfoGetCharacterCollection(
-	CTGlyphInfoRef glyphInfo ) CT_AVAILABLE(10_5, 3_2);
+    CTGlyphInfoRef glyphInfo ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 
 CF_ASSUME_NONNULL_END
@@ -8856,7 +9081,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CoreText.h
  *  CoreText
  *
- *  Copyright (c) 2006-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -8871,7 +9096,6 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #ifndef __CORETEXT__
 #define __CORETEXT__
 
-#include <CoreText/CTDefines.h>
 #include <CoreText/CTFont.h>
 #include <CoreText/CTFontCollection.h>
 #include <CoreText/CTFontDescriptor.h>
@@ -8912,7 +9136,7 @@ CF_EXTERN_C_BEGIN
                 constants beginning with kCTVersionNumber.
 */
 
-uint32_t CTGetCoreTextVersion( void ) CT_AVAILABLE(10_5, 3_2);
+uint32_t CTGetCoreTextVersion( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 #define kCTVersionNumber10_5 0x00020000
 #define kCTVersionNumber10_5_2 0x00020001
@@ -8924,6 +9148,9 @@ uint32_t CTGetCoreTextVersion( void ) CT_AVAILABLE(10_5, 3_2);
 #define kCTVersionNumber10_9 0x00060000
 #define kCTVersionNumber10_10 0x00070000
 #define kCTVersionNumber10_11 0x00080000
+#define kCTVersionNumber10_12 0x00090000
+#define kCTVersionNumber10_13 0x000A0000
+#define kCTVersionNumber10_14 0x000B0000
 
 CF_EXTERN_C_END
 

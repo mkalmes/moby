@@ -1,3 +1,53 @@
+// ==========  CoreBluetooth.framework/Headers/CBManager.h
+/*
+ *	@file CBManager.h
+ *	@framework CoreBluetooth
+ *
+ *  @discussion Entry point to the central role.
+ *
+ *	@copyright 2016 Apple, Inc. All rights reserved.
+ */
+
+#import <CoreBluetooth/CBDefines.h>
+#import <Foundation/Foundation.h>
+
+NS_CLASS_AVAILABLE(10_13, 10_0)
+CB_EXTERN_CLASS @interface CBManager : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/*!
+ *  @enum CBManagerState
+ *
+ *  @discussion Represents the current state of a CBManager.
+ *
+ *  @constant CBManagerStateUnknown       State unknown, update imminent.
+ *  @constant CBManagerStateResetting     The connection with the system service was momentarily lost, update imminent.
+ *  @constant CBManagerStateUnsupported   The platform doesn't support the Bluetooth Low Energy Central/Client role.
+ *  @constant CBManagerStateUnauthorized  The application is not authorized to use the Bluetooth Low Energy role.
+ *  @constant CBManagerStatePoweredOff    Bluetooth is currently powered off.
+ *  @constant CBManagerStatePoweredOn     Bluetooth is currently powered on and available to use.
+ *
+ */
+typedef NS_ENUM(NSInteger, CBManagerState) {
+	CBManagerStateUnknown = 0,
+	CBManagerStateResetting,
+	CBManagerStateUnsupported,
+	CBManagerStateUnauthorized,
+	CBManagerStatePoweredOff,
+	CBManagerStatePoweredOn,
+} NS_ENUM_AVAILABLE(10_13, 10_0);
+
+/*!
+ *  @property state
+ *
+ *  @discussion The current state of the manager, initially set to <code>CBManagerStateUnknown</code>.
+ *				Updates are provided by required delegate method {@link managerDidUpdateState:}.
+ *
+ */
+@property(nonatomic, assign, readonly) CBManagerState state;
+
+@end
 // ==========  CoreBluetooth.framework/Headers/CBPeer.h
 /*
  *	@file CBPeer.h
@@ -12,7 +62,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(N_A, 8_0)
+NS_CLASS_AVAILABLE(10_13, 8_0)
 CB_EXTERN_CLASS @interface CBPeer : NSObject <NSCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -22,7 +72,7 @@ CB_EXTERN_CLASS @interface CBPeer : NSObject <NSCopying>
  *
  *  @discussion The unique, persistent identifier associated with the peer.
  */
-@property(readonly, nonatomic) NSUUID *identifier NS_AVAILABLE(NA, 7_0);
+@property(readonly, nonatomic) NSUUID *identifier NS_AVAILABLE(10_13, 7_0);
 
 @end
 
@@ -129,8 +179,19 @@ CB_EXTERN NSString * const CBUUIDCharacteristicFormatString;
  *  @discussion The string representation of the UUID for the aggregate descriptor.
  */
 CB_EXTERN NSString * const CBUUIDCharacteristicAggregateFormatString;
+/*!
+ *  @const CBUUIDCharacteristicValidRangeString
+ *  @discussion Data representing the valid min/max values accepted for a characteristic.
+ */
+CB_EXTERN NSString * const CBUUIDCharacteristicValidRangeString;
 
-
+/*!
+ *  @const CBUUIDL2CAPPSMCharacteristicString
+ *  @discussion The PSM (a little endian uint16_t) of an L2CAP Channel associated with the GATT service
+ *				containing this characteristic.  Servers can publish this characteristic with the UUID
+ *				ABDD3056-28FA-441D-A470-55A75A52553A
+ */
+CB_EXTERN NSString * const CBUUIDL2CAPPSMCharacteristicString NS_AVAILABLE(10_13, 11_0);
 
 /*!
  * @class CBUUID
@@ -159,7 +220,7 @@ CB_EXTERN_CLASS @interface CBUUID : NSObject <NSCopying>
  *      The UUID as NSString.
  *
  */
-@property(nonatomic, readonly) NSString *UUIDString NS_AVAILABLE(NA, 7_1);
+@property(nonatomic, readonly) NSString *UUIDString NS_AVAILABLE(10_10, 7_1);
 
 /*!
  * @method UUIDWithString:
@@ -187,16 +248,16 @@ CB_EXTERN_CLASS @interface CBUUID : NSObject <NSCopying>
  *      Creates a CBUUID with a CFUUIDRef.
  *
  */
-+ (CBUUID *)UUIDWithCFUUID:(CFUUIDRef)theUUID NS_DEPRECATED(NA, NA, 5_0, 9_0);
++ (CBUUID *)UUIDWithCFUUID:(CFUUIDRef)theUUID NS_DEPRECATED(10_7, 10_13, 5_0, 9_0);
 
 /*!
  * @method UUIDWithNSUUID:
  *
  *  @discussion
- *      Creates a CBUUID with a NSUUID.
+ *      Creates a CBUUID with an NSUUID.
  *
  */
-+ (CBUUID *)UUIDWithNSUUID:(NSUUID *)theUUID NS_AVAILABLE(NA, 7_0);
++ (CBUUID *)UUIDWithNSUUID:(NSUUID *)theUUID NS_AVAILABLE(10_9, 7_0);
 
 @end
 
@@ -217,18 +278,18 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  *  @const  CBCentralManagerOptionShowPowerAlertKey
  *
- *  @discussion A NSNumber (Boolean) indicating that the system should, if Bluetooth is powered off when <code>CBCentralManager</code> is instantiated, display
+ *  @discussion An NSNumber (Boolean) indicating that the system should, if Bluetooth is powered off when <code>CBCentralManager</code> is instantiated, display
  *				a warning dialog to the user.
  *
  *  @see		initWithDelegate:queue:options:
  *
  */
-CB_EXTERN NSString * const CBCentralManagerOptionShowPowerAlertKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBCentralManagerOptionShowPowerAlertKey NS_AVAILABLE(10_9, 7_0);
 
 /*!
  *  @const  CBCentralManagerOptionRestoreIdentifierKey
  *
- *  @discussion A NSString containing a unique identifier (UID) for the <code>CBCentralManager</code> that is being instantiated. This UID is used 
+ *  @discussion An NSString containing a unique identifier (UID) for the <code>CBCentralManager</code> that is being instantiated. This UID is used
  *				by the system to identify a specific <code>CBCentralManager</code> instance for restoration and, therefore, must remain the same for
  *				subsequent application executions in order for the manager to be restored.
  *
@@ -236,12 +297,12 @@ CB_EXTERN NSString * const CBCentralManagerOptionShowPowerAlertKey NS_AVAILABLE(
  *  @seealso	centralManager:willRestoreState:
  *
  */
-CB_EXTERN NSString * const CBCentralManagerOptionRestoreIdentifierKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBCentralManagerOptionRestoreIdentifierKey NS_AVAILABLE(10_13, 7_0);
 
 /*!
  *  @const CBCentralManagerScanOptionAllowDuplicatesKey
  *
- *  @discussion A NSNumber (Boolean) indicating that the scan should run without duplicate filtering. By default, multiple discoveries of the
+ *  @discussion An NSNumber (Boolean) indicating that the scan should run without duplicate filtering. By default, multiple discoveries of the
  *              same peripheral are coalesced into a single discovery event. Specifying this option will cause a discovery event to be generated
  *				every time the peripheral is seen, which may be many times per second. This can be useful in specific situations, such as making
  *				a connection based on a peripheral's RSSI, but may have an adverse affect on battery-life and application performance.
@@ -260,12 +321,12 @@ CB_EXTERN NSString * const CBCentralManagerScanOptionAllowDuplicatesKey;
  *  @see        scanForPeripheralsWithServices:options:
  *
  */
-CB_EXTERN NSString * const CBCentralManagerScanOptionSolicitedServiceUUIDsKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBCentralManagerScanOptionSolicitedServiceUUIDsKey NS_AVAILABLE(10_9, 7_0);
 
 /*!
  *  @const CBConnectPeripheralOptionNotifyOnConnectionKey
  *
- *  @discussion A NSNumber (Boolean) indicating that the system should display a connection alert for a given peripheral, if the application is suspended
+ *  @discussion An NSNumber (Boolean) indicating that the system should display a connection alert for a given peripheral, if the application is suspended
  *              when a successful connection is made.
  *              This is useful for applications that have not specified the <code>bluetooth-central</code> background mode and cannot display their
  *              own alert. If more than one application has requested notification for a given peripheral, the one that was most recently in the foreground
@@ -274,12 +335,12 @@ CB_EXTERN NSString * const CBCentralManagerScanOptionSolicitedServiceUUIDsKey NS
  *  @see        connectPeripheral:
  *
  */
-CB_EXTERN NSString * const CBConnectPeripheralOptionNotifyOnConnectionKey NS_AVAILABLE(NA, 6_0);
+CB_EXTERN NSString * const CBConnectPeripheralOptionNotifyOnConnectionKey NS_AVAILABLE(10_13, 6_0);
 
 /*!
  *  @const CBConnectPeripheralOptionNotifyOnDisconnectionKey
  *
- *  @discussion A NSNumber (Boolean) indicating that the system should display a disconnection alert for a given peripheral, if the application
+ *  @discussion An NSNumber (Boolean) indicating that the system should display a disconnection alert for a given peripheral, if the application
  *              is suspended at the time of the disconnection.
  *              This is useful for applications that have not specified the <code>bluetooth-central</code> background mode and cannot display their
  *              own alert. If more than one application has requested notification for a given peripheral, the one that was most recently in the foreground
@@ -293,7 +354,7 @@ CB_EXTERN NSString * const CBConnectPeripheralOptionNotifyOnDisconnectionKey;
 /*!
  *  @const CBConnectPeripheralOptionNotifyOnNotificationKey
  *
- *  @discussion A NSNumber (Boolean) indicating that the system should display an alert for all notifications received from a given peripheral, if
+ *  @discussion An NSNumber (Boolean) indicating that the system should display an alert for all notifications received from a given peripheral, if
  *              the application is suspended at the time.
  *              This is useful for applications that have not specified the <code>bluetooth-central</code> background mode and cannot display their
  *              own alert. If more than one application has requested notification for a given peripheral, the one that was most recently in the foreground
@@ -302,7 +363,18 @@ CB_EXTERN NSString * const CBConnectPeripheralOptionNotifyOnDisconnectionKey;
  *  @see        connectPeripheral:
  *
  */
-CB_EXTERN NSString * const CBConnectPeripheralOptionNotifyOnNotificationKey NS_AVAILABLE(NA, 6_0);
+CB_EXTERN NSString * const CBConnectPeripheralOptionNotifyOnNotificationKey NS_AVAILABLE(10_13, 6_0);
+
+
+/*!
+ *  @const CBConnectPeripheralOptionStartDelayKey
+ *
+ *  @discussion An NSNumber indicating the number of seconds for the system to wait before starting a connection.
+ *
+ *  @see        connectPeripheral:
+ *
+ */
+CB_EXTERN NSString * const CBConnectPeripheralOptionStartDelayKey NS_AVAILABLE(10_13, 6_0);
 
 /*!
  *  @const  CBCentralManagerRestoredStatePeripheralsKey
@@ -315,7 +387,7 @@ CB_EXTERN NSString * const CBConnectPeripheralOptionNotifyOnNotificationKey NS_A
  *	@seealso	connectPeripheral:options:
  *
  */
-CB_EXTERN NSString * const CBCentralManagerRestoredStatePeripheralsKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBCentralManagerRestoredStatePeripheralsKey NS_AVAILABLE(10_13, 7_0);
 
 /*!
  *  @const  CBCentralManagerRestoredStateScanServicesKey
@@ -326,18 +398,18 @@ CB_EXTERN NSString * const CBCentralManagerRestoredStatePeripheralsKey NS_AVAILA
  *	@seealso	scanForPeripheralsWithServices:options:
  *
  */
-CB_EXTERN NSString * const CBCentralManagerRestoredStateScanServicesKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBCentralManagerRestoredStateScanServicesKey NS_AVAILABLE(10_13, 7_0);
 
 /*!
  *  @const  CBCentralManagerRestoredStateScanOptionsKey
  *
- *  @discussion A NSDictionary containing the scan options at the time the application was terminated by the system.
+ *  @discussion An NSDictionary containing the scan options at the time the application was terminated by the system.
  *
  *  @see		centralManager:willRestoreState:
  *	@seealso	scanForPeripheralsWithServices:options:
  *
  */
-CB_EXTERN NSString * const CBCentralManagerRestoredStateScanOptionsKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBCentralManagerRestoredStateScanOptionsKey NS_AVAILABLE(10_13, 7_0);
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreBluetooth.framework/Headers/CBCentral.h
@@ -367,7 +439,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @discussion Represents a remote central.
  *
  */
-NS_CLASS_AVAILABLE(NA, 6_0)
+NS_CLASS_AVAILABLE(10_9, 6_0)
 CB_EXTERN_CLASS @interface CBCentral : CBPeer
 
 /*!
@@ -439,7 +511,7 @@ CB_EXTERN_CLASS @interface CBDescriptor : CBAttribute
  *		Format</code> descriptors are currently supported. The <code>Characteristic Extended Properties</code> and <code>Client Characteristic 
  *		Configuration</code> descriptors will be created automatically upon publication of the parent service, depending on the properties of the characteristic itself.
  */
-NS_CLASS_AVAILABLE(NA, 6_0)
+NS_CLASS_AVAILABLE(10_9, 6_0)
 CB_EXTERN_CLASS @interface CBMutableDescriptor : CBDescriptor
 
 /*!
@@ -452,7 +524,7 @@ CB_EXTERN_CLASS @interface CBMutableDescriptor : CBDescriptor
  *					once the parent service has been published.
  *
  */
-- (instancetype)initWithType:(CBUUID *)UUID value:(nullable id)value NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithType:(CBUUID *)UUID value:(nullable id)value NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
 @end
 
@@ -534,7 +606,7 @@ CB_EXTERN_CLASS @interface CBService : CBAttribute
  *		@link CBService @/link class.
  *
  */
-NS_CLASS_AVAILABLE(NA, 6_0)
+NS_CLASS_AVAILABLE(10_9, 6_0)
 CB_EXTERN_CLASS @interface CBMutableService : CBService
 
 @property(retain, readwrite, nullable) NSArray<CBService *> *includedServices;
@@ -549,7 +621,7 @@ CB_EXTERN_CLASS @interface CBMutableService : CBService
  *  @discussion			Returns a service, initialized with a service type and UUID.
  *
  */
-- (instancetype)initWithType:(CBUUID *)UUID primary:(BOOL)isPrimary NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithType:(CBUUID *)UUID primary:(BOOL)isPrimary NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
 @end
 
@@ -570,18 +642,18 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  *  @const  CBPeripheralManagerOptionShowPowerAlertKey
  *
- *  @discussion A NSNumber (Boolean) indicating that the system should, if Bluetooth is powered off when <code>CBPeripheralManager</code> is instantiated, display
+ *  @discussion An NSNumber (Boolean) indicating that the system should, if Bluetooth is powered off when <code>CBPeripheralManager</code> is instantiated, display
  *				a warning dialog to the user.
  *
  *  @see		initWithDelegate:queue:options:
  *
  */
-CB_EXTERN NSString * const CBPeripheralManagerOptionShowPowerAlertKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBPeripheralManagerOptionShowPowerAlertKey NS_AVAILABLE(10_9, 7_0);
 
 /*!
  *  @const  CBPeripheralManagerOptionRestoreIdentifierKey
  *
- *  @discussion A NSString containing a unique identifier (UID) for the <code>CBPeripheralManager</code> that is being instantiated. This UID is used
+ *  @discussion An NSString containing a unique identifier (UID) for the <code>CBPeripheralManager</code> that is being instantiated. This UID is used
  *				by the system to identify a specific <code>CBPeripheralManager</code> instance for restoration and, therefore, must remain the same for
  *				subsequent application executions in order for the manager to be restored.
  *
@@ -589,7 +661,7 @@ CB_EXTERN NSString * const CBPeripheralManagerOptionShowPowerAlertKey NS_AVAILAB
  *  @seealso	centralManager:willRestoreState:
  *
  */
-CB_EXTERN NSString * const CBPeripheralManagerOptionRestoreIdentifierKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBPeripheralManagerOptionRestoreIdentifierKey NS_AVAILABLE(10_9, 7_0);
 
 /*!
  *  @const  CBPeripheralManagerRestoredStateServicesKey
@@ -602,18 +674,18 @@ CB_EXTERN NSString * const CBPeripheralManagerOptionRestoreIdentifierKey NS_AVAI
  *  @seealso	addService:
  *
  */
-CB_EXTERN NSString * const CBPeripheralManagerRestoredStateServicesKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBPeripheralManagerRestoredStateServicesKey NS_AVAILABLE(10_9, 7_0);
 
 /*!
  *  @const  CBPeripheralManagerRestoredStateAdvertisementDataKey
  *
- *  @discussion A NSDictionary containing the data being advertised at the time the application was terminated by the system.
+ *  @discussion An NSDictionary containing the data being advertised at the time the application was terminated by the system.
  *
  *  @see		peripheralManager:willRestoreState:
  *  @seealso	startAdvertising:
  *
  */
-CB_EXTERN NSString * const CBPeripheralManagerRestoredStateAdvertisementDataKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBPeripheralManagerRestoredStateAdvertisementDataKey NS_AVAILABLE(10_9, 7_0);
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreBluetooth.framework/Headers/CBAdvertisementData.h
@@ -689,17 +761,17 @@ CB_EXTERN NSString * const CBAdvertisementDataManufacturerDataKey;
  *  @see        startAdvertising:
  *
  */
-CB_EXTERN NSString * const CBAdvertisementDataOverflowServiceUUIDsKey NS_AVAILABLE(NA, 6_0);
+CB_EXTERN NSString * const CBAdvertisementDataOverflowServiceUUIDsKey NS_AVAILABLE(10_9, 6_0);
 
 
 /*!
  *  @constant CBAdvertisementDataIsConnectable
  *
- *  @discussion A NSNumber (Boolean) indicating whether or not the advertising event type was connectable. This can be used to determine
+ *  @discussion An NSNumber (Boolean) indicating whether or not the advertising event type was connectable. This can be used to determine
  *				whether or not a peripheral is connectable in that instant.
  *
  */
-CB_EXTERN NSString * const CBAdvertisementDataIsConnectable NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBAdvertisementDataIsConnectable NS_AVAILABLE(10_9, 7_0);
 
 
 /*!
@@ -708,7 +780,7 @@ CB_EXTERN NSString * const CBAdvertisementDataIsConnectable NS_AVAILABLE(NA, 7_0
  *  @discussion A list of one or more <code>CBUUID</code> objects, representing <code>CBService</code> UUIDs.
  *
  */
-CB_EXTERN NSString * const CBAdvertisementDataSolicitedServiceUUIDsKey NS_AVAILABLE(NA, 7_0);
+CB_EXTERN NSString * const CBAdvertisementDataSolicitedServiceUUIDsKey NS_AVAILABLE(10_9, 7_0);
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreBluetooth.framework/Headers/CBCentralManager.h
@@ -725,9 +797,10 @@ NS_ASSUME_NONNULL_END
 #warning Please do not import this header file directly. Use <CoreBluetooth/CoreBluetooth.h> instead.
 #endif
 
-#import <CoreBluetooth/CBDefines.h>
 #import <CoreBluetooth/CBAdvertisementData.h>
 #import <CoreBluetooth/CBCentralManagerConstants.h>
+#import <CoreBluetooth/CBDefines.h>
+#import <CoreBluetooth/CBManager.h>
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -746,13 +819,13 @@ NS_ASSUME_NONNULL_BEGIN
  *
  */
 typedef NS_ENUM(NSInteger, CBCentralManagerState) {
-	CBCentralManagerStateUnknown = 0,
-	CBCentralManagerStateResetting,
-	CBCentralManagerStateUnsupported,
-	CBCentralManagerStateUnauthorized,
-	CBCentralManagerStatePoweredOff,
-	CBCentralManagerStatePoweredOn,
-};
+	CBCentralManagerStateUnknown = CBManagerStateUnknown,
+	CBCentralManagerStateResetting = CBManagerStateResetting,
+	CBCentralManagerStateUnsupported = CBManagerStateUnsupported,
+	CBCentralManagerStateUnauthorized = CBManagerStateUnauthorized,
+	CBCentralManagerStatePoweredOff = CBManagerStatePoweredOff,
+	CBCentralManagerStatePoweredOn = CBManagerStatePoweredOn,
+} NS_DEPRECATED(10_7, 10_13, 5_0, 10_0, "Use CBManagerState instead");
 
 @protocol CBCentralManagerDelegate;
 @class CBUUID, CBPeripheral;
@@ -764,7 +837,7 @@ typedef NS_ENUM(NSInteger, CBCentralManagerState) {
  *
  */
 NS_CLASS_AVAILABLE(10_7, 5_0)
-CB_EXTERN_CLASS @interface CBCentralManager : NSObject
+CB_EXTERN_CLASS @interface CBCentralManager : CBManager
 
 /*!
  *  @property delegate
@@ -772,24 +845,17 @@ CB_EXTERN_CLASS @interface CBCentralManager : NSObject
  *  @discussion The delegate object that will receive central events.
  *
  */
-@property(assign, nonatomic, nullable) id<CBCentralManagerDelegate> delegate;
+@property(nonatomic, weak, nullable) id<CBCentralManagerDelegate> delegate;
 
 /*!
- *  @property state
- *
- *  @discussion The current state of the central, initially set to <code>CBCentralManagerStateUnknown</code>. Updates are provided by required
- *              delegate method {@link centralManagerDidUpdateState:}.
- *
- */
-@property(readonly) CBCentralManagerState state;
-
-/*!
- *  @property isAdvertising
+ *  @property isScanning
  *
  *  @discussion Whether or not the central is currently scanning.
  *
  */
-@property(readonly) BOOL isScanning NS_AVAILABLE(NA, 9_0);
+@property(nonatomic, assign, readonly) BOOL isScanning NS_AVAILABLE(10_13, 9_0);
+
+- (instancetype)init;
 
 /*!
  *  @method initWithDelegate:queue:
@@ -820,7 +886,7 @@ CB_EXTERN_CLASS @interface CBCentralManager : NSObject
  */
 - (instancetype)initWithDelegate:(nullable id<CBCentralManagerDelegate>)delegate
 						   queue:(nullable dispatch_queue_t)queue
-						 options:(nullable NSDictionary<NSString *, id> *)options NS_AVAILABLE(NA, 7_0) NS_DESIGNATED_INITIALIZER;
+						 options:(nullable NSDictionary<NSString *, id> *)options NS_AVAILABLE(10_9, 7_0) NS_DESIGNATED_INITIALIZER;
 
 /*!
  *  @method retrievePeripheralsWithIdentifiers:
@@ -832,7 +898,7 @@ CB_EXTERN_CLASS @interface CBCentralManager : NSObject
  *	@return				A list of <code>CBPeripheral</code> objects.
  *
  */
-- (NSArray<CBPeripheral *> *)retrievePeripheralsWithIdentifiers:(NSArray<NSUUID *> *)identifiers NS_AVAILABLE(NA, 7_0);
+- (NSArray<CBPeripheral *> *)retrievePeripheralsWithIdentifiers:(NSArray<NSUUID *> *)identifiers NS_AVAILABLE(10_9, 7_0);
 
 /*!
  *  @method retrieveConnectedPeripheralsWithServices
@@ -844,7 +910,7 @@ CB_EXTERN_CLASS @interface CBCentralManager : NSObject
  *	@return		A list of <code>CBPeripheral</code> objects.
  *
  */
-- (NSArray<CBPeripheral *> *)retrieveConnectedPeripheralsWithServices:(NSArray<CBUUID *> *)serviceUUIDs NS_AVAILABLE(NA, 7_0);
+- (NSArray<CBPeripheral *> *)retrieveConnectedPeripheralsWithServices:(NSArray<CBUUID *> *)serviceUUIDs NS_AVAILABLE(10_9, 7_0);
 
 /*!
  *  @method scanForPeripheralsWithServices:options:
@@ -905,6 +971,7 @@ CB_EXTERN_CLASS @interface CBCentralManager : NSObject
  *
  */
 - (void)cancelPeripheralConnection:(CBPeripheral *)peripheral;
+
 
 @end
 
@@ -1043,7 +1110,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @discussion Represents a read or write request from a central.
  *
  */
-NS_CLASS_AVAILABLE(NA, 6_0)
+NS_CLASS_AVAILABLE(10_9, 6_0)
 CB_EXTERN_CLASS @interface CBATTRequest : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -1099,10 +1166,13 @@ NS_ASSUME_NONNULL_END
 #warning Please do not import this header file directly. Use <CoreBluetooth/CoreBluetooth.h> instead.
 #endif
 
+#import <Foundation/Foundation.h>
 #import <CoreBluetooth/CBDefines.h>
 #import <CoreBluetooth/CBError.h>
+#import <CoreBluetooth/CBManager.h>
+#import <CoreBluetooth/CBL2CAPChannel.h>
+
 #import <CoreBluetooth/CBPeripheralManagerConstants.h>
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1122,7 +1192,7 @@ typedef NS_ENUM(NSInteger, CBPeripheralManagerAuthorizationStatus) {
 	CBPeripheralManagerAuthorizationStatusRestricted,
 	CBPeripheralManagerAuthorizationStatusDenied,
 	CBPeripheralManagerAuthorizationStatusAuthorized,		
-} NS_ENUM_AVAILABLE(NA, 7_0);
+} NS_ENUM_AVAILABLE(10_9, 7_0);
 
 /*!
  *  @enum CBPeripheralManagerState
@@ -1138,13 +1208,13 @@ typedef NS_ENUM(NSInteger, CBPeripheralManagerAuthorizationStatus) {
  *
  */
 typedef NS_ENUM(NSInteger, CBPeripheralManagerState) {
-	CBPeripheralManagerStateUnknown = 0,
-	CBPeripheralManagerStateResetting,
-	CBPeripheralManagerStateUnsupported,
-	CBPeripheralManagerStateUnauthorized,
-	CBPeripheralManagerStatePoweredOff,
-	CBPeripheralManagerStatePoweredOn,
-} NS_ENUM_AVAILABLE(NA, 6_0);
+	CBPeripheralManagerStateUnknown = CBManagerStateUnknown,
+	CBPeripheralManagerStateResetting = CBManagerStateResetting,
+	CBPeripheralManagerStateUnsupported = CBManagerStateUnsupported,
+	CBPeripheralManagerStateUnauthorized = CBManagerStateUnauthorized,
+	CBPeripheralManagerStatePoweredOff = CBManagerStatePoweredOff,
+	CBPeripheralManagerStatePoweredOn = CBManagerStatePoweredOn,
+} NS_DEPRECATED(10_9, 10_13, 6_0, 10_0, "Use CBManagerState instead");
 
 /*!
  *  @enum CBPeripheralManagerConnectionLatency
@@ -1160,8 +1230,7 @@ typedef NS_ENUM(NSInteger, CBPeripheralManagerConnectionLatency) {
 	CBPeripheralManagerConnectionLatencyLow = 0,
 	CBPeripheralManagerConnectionLatencyMedium,
 	CBPeripheralManagerConnectionLatencyHigh
-} NS_ENUM_AVAILABLE(NA, 6_0);
-
+} NS_ENUM_AVAILABLE(10_9, 6_0);
 
 @class CBCentral, CBService, CBMutableService, CBCharacteristic, CBMutableCharacteristic, CBATTRequest;
 @protocol CBPeripheralManagerDelegate;
@@ -1182,8 +1251,8 @@ typedef NS_ENUM(NSInteger, CBPeripheralManagerConnectionLatency) {
  *              applications. This means that even if you aren't advertising at the moment, someone else might be!
  *
  */
-NS_CLASS_AVAILABLE(NA, 6_0)
-CB_EXTERN_CLASS @interface CBPeripheralManager : NSObject
+NS_CLASS_AVAILABLE(10_9, 6_0)
+CB_EXTERN_CLASS @interface CBPeripheralManager : CBManager
 
 /*!
  *  @property delegate
@@ -1191,16 +1260,7 @@ CB_EXTERN_CLASS @interface CBPeripheralManager : NSObject
  *  @discussion The delegate object that will receive peripheral events.
  *
  */
-@property(assign, nonatomic, nullable) id<CBPeripheralManagerDelegate> delegate;
-
-/*!
- *  @property state
- *
- *  @discussion The current state of the peripheral, initially set to <code>CBPeripheralManagerStateUnknown</code>. Updates are provided by required
- *              delegate method @link peripheralManagerDidUpdateState: @/link.
- *
- */
-@property(readonly) CBPeripheralManagerState state;
+@property(nonatomic, weak, nullable) id<CBPeripheralManagerDelegate> delegate;
 
 /*!
  *  @property isAdvertising
@@ -1208,7 +1268,7 @@ CB_EXTERN_CLASS @interface CBPeripheralManager : NSObject
  *  @discussion Whether or not the peripheral is currently advertising data.
  *
  */
-@property(readonly) BOOL isAdvertising;
+@property(nonatomic, assign, readonly) BOOL isAdvertising;
 
 /*!
  *  @method authorizationStatus
@@ -1220,7 +1280,9 @@ CB_EXTERN_CLASS @interface CBPeripheralManager : NSObject
  *
  *  @see		CBPeripheralManagerAuthorizationStatus
  */
-+ (CBPeripheralManagerAuthorizationStatus)authorizationStatus NS_AVAILABLE(NA, 7_0);
++ (CBPeripheralManagerAuthorizationStatus)authorizationStatus NS_AVAILABLE(10_9, 7_0);
+
+- (instancetype)init;
 
 /*!
  *  @method initWithDelegate:queue:
@@ -1233,7 +1295,7 @@ CB_EXTERN_CLASS @interface CBPeripheralManager : NSObject
  *
  */
 - (instancetype)initWithDelegate:(nullable id<CBPeripheralManagerDelegate>)delegate
-						   queue:(nullable dispatch_queue_t)queue;
+						   queue:(nullable dispatch_queue_t)queue __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
 /*!
  *  @method initWithDelegate:queue:options:
@@ -1251,7 +1313,7 @@ CB_EXTERN_CLASS @interface CBPeripheralManager : NSObject
  */
 - (instancetype)initWithDelegate:(nullable id<CBPeripheralManagerDelegate>)delegate
 						   queue:(nullable dispatch_queue_t)queue
-						 options:(nullable NSDictionary<NSString *, id> *)options NS_AVAILABLE(NA, 7_0) NS_DESIGNATED_INITIALIZER;
+						 options:(nullable NSDictionary<NSString *, id> *)options NS_AVAILABLE(10_9, 7_0) NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
 /*!
  *  @method startAdvertising:
@@ -1365,6 +1427,30 @@ CB_EXTERN_CLASS @interface CBPeripheralManager : NSObject
  *	@seealso				maximumUpdateValueLength
  */
 - (BOOL)updateValue:(NSData *)value forCharacteristic:(CBMutableCharacteristic *)characteristic onSubscribedCentrals:(nullable NSArray<CBCentral *> *)centrals;
+
+/*!
+ *  @method publishL2CAPChannelWithEncryption:
+ *
+ *  @param encryptionRequired		YES if the service requires the link to be encrypted before a stream can be established.  NO if the service can be used over
+ *									an unsecured link.
+ *
+ *  @discussion     Create a listener for incoming L2CAP Channel connections.  The system will determine an unused PSM at the time of publishing, which will be returned
+ *					with @link peripheralManager:didPublishL2CAPChannel:error: @/link.  L2CAP Channels are not discoverable by themselves, so it is the application's
+ *					responsibility to handle PSM discovery on the client.
+ *
+ */
+- (void)publishL2CAPChannelWithEncryption:(BOOL)encryptionRequired NS_AVAILABLE(10_14, 11_0);
+
+/*!
+ *  @method unpublishL2CAPChannel:
+ *
+ *  @param PSM		The service PSM to be removed from the system.
+ *
+ *  @discussion     Removes a published service from the local system.  No new connections for this PSM will be accepted, and any existing L2CAP channels
+ *					using this PSM will be closed.
+ *
+ */
+- (void)unpublishL2CAPChannel:(CBL2CAPPSM)PSM NS_AVAILABLE(10_14, 11_0);
 
 @end
 
@@ -1506,6 +1592,46 @@ CB_EXTERN_CLASS @interface CBPeripheralManager : NSObject
  */
 - (void)peripheralManagerIsReadyToUpdateSubscribers:(CBPeripheralManager *)peripheral;
 
+/*!
+ *  @method peripheralManager:didPublishL2CAPChannel:error:
+ *
+ *  @param peripheral   The peripheral manager requesting this information.
+ *  @param PSM			The PSM of the channel that was published.
+ *  @param error		If an error occurred, the cause of the failure.
+ *
+ *  @discussion         This method is the response to a  @link publishL2CAPChannel: @/link call.  The PSM will contain the PSM that was assigned for the published
+ *						channel
+ *
+ */
+- (void)peripheralManager:(CBPeripheralManager *)peripheral didPublishL2CAPChannel:(CBL2CAPPSM)PSM error:(nullable NSError *)error;
+
+/*!
+ *  @method peripheralManager:didUnublishL2CAPChannel:error:
+ *
+ *  @param peripheral   The peripheral manager requesting this information.
+ *  @param PSM			The PSM of the channel that was published.
+ *  @param error		If an error occurred, the cause of the failure.
+ *
+ *  @discussion         This method is the response to a  @link unpublishL2CAPChannel: @/link call.
+ *
+ */
+- (void)peripheralManager:(CBPeripheralManager *)peripheral didUnpublishL2CAPChannel:(CBL2CAPPSM)PSM error:(nullable NSError *)error;
+
+/*!
+ *  @method peripheralManager:didOpenL2CAPChannel:error:
+ *
+ *  @param peripheral   The peripheral manager requesting this information.
+ *  @param requests     A list of one or more <code>CBATTRequest</code> objects.
+ *
+ *  @discussion         This method is invoked when <i>peripheral</i> receives an ATT request or command for one or more characteristics with a dynamic value.
+ *                      For every invocation of this method, @link respondToRequest:withResult: @/link should be called exactly once. If <i>requests</i> contains
+ *                      multiple requests, they must be treated as an atomic unit. If the execution of one of the requests would cause a failure, the request
+ *                      and error reason should be provided to <code>respondToRequest:withResult:</code> and none of the requests should be executed.
+ *
+ *  @see                CBATTRequest
+ *
+ */
+- (void)peripheralManager:(CBPeripheralManager *)peripheral didOpenL2CAPChannel:(nullable CBL2CAPChannel *)channel error:(nullable NSError *)error;
 @end
 
 NS_ASSUME_NONNULL_END
@@ -1527,7 +1653,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class CBPeripheral, CBCentral;
 @class CBService, CBCharacteristic, CBDescriptor;
 
-NS_CLASS_AVAILABLE(N_A, 8_0)
+NS_CLASS_AVAILABLE(10_13, 8_0)
 CB_EXTERN_CLASS @interface CBAttribute : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -1573,23 +1699,27 @@ CB_EXTERN NSString * const CBErrorDomain;
  */
 typedef NS_ENUM(NSInteger, CBError) {
 	CBErrorUnknown												= 0,
-	CBErrorInvalidParameters NS_ENUM_AVAILABLE(NA, 6_0)			= 1,
-	CBErrorInvalidHandle NS_ENUM_AVAILABLE(NA, 6_0)				= 2,
-	CBErrorNotConnected NS_ENUM_AVAILABLE(NA, 6_0)				= 3,
-	CBErrorOutOfSpace NS_ENUM_AVAILABLE(NA, 6_0)				= 4,
-	CBErrorOperationCancelled NS_ENUM_AVAILABLE(NA, 6_0)		= 5,
-	CBErrorConnectionTimeout NS_ENUM_AVAILABLE(NA, 6_0)			= 6,
-	CBErrorPeripheralDisconnected NS_ENUM_AVAILABLE(NA, 6_0)	= 7,
-	CBErrorUUIDNotAllowed NS_ENUM_AVAILABLE(NA, 6_0)			= 8,
-	CBErrorAlreadyAdvertising NS_ENUM_AVAILABLE(NA, 6_0)		= 9,
-	CBErrorConnectionFailed NS_ENUM_AVAILABLE(NA, 7_1)			= 10,
-	CBErrorConnectionLimitReached NS_ENUM_AVAILABLE(NA, 9_0)	= 11
+	CBErrorInvalidParameters NS_ENUM_AVAILABLE(10_9, 6_0)		= 1,
+	CBErrorInvalidHandle NS_ENUM_AVAILABLE(10_9, 6_0)			= 2,
+	CBErrorNotConnected NS_ENUM_AVAILABLE(10_9, 6_0)			= 3,
+	CBErrorOutOfSpace NS_ENUM_AVAILABLE(10_9, 6_0)				= 4,
+	CBErrorOperationCancelled NS_ENUM_AVAILABLE(10_9, 6_0)		= 5,
+	CBErrorConnectionTimeout NS_ENUM_AVAILABLE(10_9, 6_0)		= 6,
+	CBErrorPeripheralDisconnected NS_ENUM_AVAILABLE(10_9, 6_0)	= 7,
+	CBErrorUUIDNotAllowed NS_ENUM_AVAILABLE(10_9, 6_0)			= 8,
+	CBErrorAlreadyAdvertising NS_ENUM_AVAILABLE(10_9, 6_0)		= 9,
+	CBErrorConnectionFailed NS_ENUM_AVAILABLE(10_13, 7_1)		= 10,
+	CBErrorConnectionLimitReached NS_ENUM_AVAILABLE(10_13, 9_0)	= 11,
+	CBErrorUnkownDevice NS_ENUM_DEPRECATED(10_13, 10_15, 9_0, 13_0, "Use CBErrorUnknownDevice instead") = 12,
+	CBErrorUnknownDevice NS_ENUM_AVAILABLE(10_14, 12_0)			= 12,
+	CBErrorOperationNotSupported NS_ENUM_AVAILABLE(10_14, 12_0)	= 13,
+
 };
 
 CB_EXTERN NSString * const CBATTErrorDomain;
 
 typedef NS_ENUM(NSInteger, CBATTError) {
-	CBATTErrorSuccess NS_ENUM_AVAILABLE(NA, 6_0)	= 0x00,
+	CBATTErrorSuccess NS_ENUM_AVAILABLE(10_9, 6_0)	= 0x00,
 	CBATTErrorInvalidHandle							= 0x01,
 	CBATTErrorReadNotPermitted						= 0x02,
 	CBATTErrorWriteNotPermitted						= 0x03,
@@ -1610,6 +1740,57 @@ typedef NS_ENUM(NSInteger, CBATTError) {
 };
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreBluetooth.framework/Headers/CBL2CAPChannel.h
+/*
+ *	@file CBL2CAPChannel.h
+ *	@framework CoreBluetooth
+ *
+ *  @discussion
+ *
+ *	@copyright 2017 Apple, Inc. All rights reserved.
+ */
+
+#import <CoreBluetooth/CBPeer.h>
+#import <Foundation/Foundation.h>
+
+typedef uint16_t CBL2CAPPSM;
+
+/*!
+ *  @class CBL2CAPChannel
+ *
+ *  @discussion A CBL2CAPChannel represents a live L2CAP connection to a remote device
+ */
+NS_CLASS_AVAILABLE(10_13, 11_0)
+CB_EXTERN_CLASS @interface CBL2CAPChannel : NSObject
+
+/*!
+ *  @property peer
+ *
+ *  @discussion The peer connected to the channel
+ */
+@property(readonly, nonatomic) CBPeer *peer;
+
+/*!
+ *  @property inputStream
+ *
+ *  @discussion An NSStream used for reading data from the remote peer
+ */
+@property(readonly, nonatomic) NSInputStream *inputStream;
+
+/*!
+ *  @property outputStream
+ *
+ *  @discussion An NSStream used for writing data to the peer
+ */
+@property(readonly, nonatomic) NSOutputStream *outputStream;
+
+/*!
+ *  @property PSM
+ *
+ *  @discussion The PSM (Protocol/Service Multiplexer) of the channel
+ */
+@property(readonly, nonatomic) CBL2CAPPSM PSM;
+@end
 // ==========  CoreBluetooth.framework/Headers/CBCharacteristic.h
 /*
  *	@file CBCharacteristic.h
@@ -1653,8 +1834,8 @@ typedef NS_OPTIONS(NSUInteger, CBCharacteristicProperties) {
 	CBCharacteristicPropertyIndicate												= 0x20,
 	CBCharacteristicPropertyAuthenticatedSignedWrites								= 0x40,
 	CBCharacteristicPropertyExtendedProperties										= 0x80,
-	CBCharacteristicPropertyNotifyEncryptionRequired NS_ENUM_AVAILABLE(NA, 6_0)		= 0x100,
-	CBCharacteristicPropertyIndicateEncryptionRequired NS_ENUM_AVAILABLE(NA, 6_0)	= 0x200
+	CBCharacteristicPropertyNotifyEncryptionRequired NS_ENUM_AVAILABLE(10_9, 6_0)	= 0x100,
+	CBCharacteristicPropertyIndicateEncryptionRequired NS_ENUM_AVAILABLE(10_9, 6_0)	= 0x200
 };
 
 
@@ -1712,7 +1893,7 @@ CB_EXTERN_CLASS @interface CBCharacteristic : CBAttribute
  *      Whether the characteristic is currently broadcasted or not.
  *
  */
-@property(readonly) BOOL isBroadcasted NS_DEPRECATED(NA, NA, 5_0, 8_0);
+@property(readonly) BOOL isBroadcasted NS_DEPRECATED(10_9, 10_13, 5_0, 8_0);
 
 /*!
  * @property isNotifying
@@ -1741,7 +1922,7 @@ typedef NS_OPTIONS(NSUInteger, CBAttributePermissions) {
 	CBAttributePermissionsWriteable					= 0x02,
 	CBAttributePermissionsReadEncryptionRequired	= 0x04,
 	CBAttributePermissionsWriteEncryptionRequired	= 0x08
-} NS_ENUM_AVAILABLE(NA, 6_0);
+} NS_ENUM_AVAILABLE(10_9, 6_0);
 
 
 /*!
@@ -1755,7 +1936,7 @@ typedef NS_OPTIONS(NSUInteger, CBAttributePermissions) {
  *				<i>value</i> of <i>nil</i>.
  *
  */
-NS_CLASS_AVAILABLE(NA, 6_0)
+NS_CLASS_AVAILABLE(10_9, 6_0)
 CB_EXTERN_CLASS @interface CBMutableCharacteristic : CBCharacteristic
 
 /*!
@@ -1772,7 +1953,7 @@ CB_EXTERN_CLASS @interface CBMutableCharacteristic : CBCharacteristic
  *
  *  @discussion For notifying characteristics, the set of currently subscribed centrals.
  */
-@property(retain, readonly, nullable) NSArray<CBCentral *> *subscribedCentrals NS_AVAILABLE(NA, 7_0);
+@property(retain, readonly, nullable) NSArray<CBCentral *> *subscribedCentrals NS_AVAILABLE(10_9, 7_0);
 
 @property(assign, readwrite, nonatomic) CBCharacteristicProperties properties;
 @property(retain, readwrite, nullable) NSData *value;
@@ -1789,7 +1970,7 @@ CB_EXTERN_CLASS @interface CBMutableCharacteristic : CBCharacteristic
  *  @discussion			Returns an initialized characteristic.
  *
  */
-- (instancetype)initWithType:(CBUUID *)UUID properties:(CBCharacteristicProperties)properties value:(nullable NSData *)value permissions:(CBAttributePermissions)permissions NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithType:(CBUUID *)UUID properties:(CBCharacteristicProperties)properties value:(nullable NSData *)value permissions:(CBAttributePermissions)permissions NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
 @end
 
@@ -1810,6 +1991,7 @@ NS_ASSUME_NONNULL_END
 
 #import <CoreBluetooth/CBDefines.h>
 #import <CoreBluetooth/CBPeer.h>
+#import <CoreBluetooth/CBL2CAPChannel.h>
 
 #import <Foundation/Foundation.h>
 
@@ -1825,8 +2007,8 @@ typedef NS_ENUM(NSInteger, CBPeripheralState) {
 	CBPeripheralStateDisconnected = 0,
 	CBPeripheralStateConnecting,
 	CBPeripheralStateConnected,
-	CBPeripheralStateDisconnecting NS_AVAILABLE(NA, 9_0),
-} NS_AVAILABLE(NA, 7_0);
+	CBPeripheralStateDisconnecting NS_AVAILABLE(10_13, 9_0),
+} NS_AVAILABLE(10_9, 7_0);
 
 /*!
  *  @enum CBCharacteristicWriteType
@@ -1855,7 +2037,7 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *
  *  @discussion The delegate object that will receive peripheral events.
  */
-@property(assign, nonatomic, nullable) id<CBPeripheralDelegate> delegate;
+@property(weak, nonatomic, nullable) id<CBPeripheralDelegate> delegate;
 
 /*!
  *  @property name
@@ -1871,7 +2053,7 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *
  *  @deprecated Use {@link peripheral:didReadRSSI:error:} instead.
  */
-@property(retain, readonly, nullable) NSNumber *RSSI NS_DEPRECATED(NA, NA, 5_0, 8_0);
+@property(retain, readonly, nullable) NSNumber *RSSI NS_DEPRECATED(10_7, 10_13, 5_0, 8_0);
 
 /*!
  *  @property state
@@ -1888,6 +2070,15 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
 @property(retain, readonly, nullable) NSArray<CBService *> *services;
 
 /*!
+ *  @property canSendWriteWithoutResponse
+ *
+ *  @discussion YES if the remote device has space to send a write without response.  If this value is NO,
+ *				the value will be set to YES after the current writes have been flushed, and
+ *				<link>peripheralIsReadyToSendWriteWithoutResponse:</link> will be called.
+ */
+@property(readonly) BOOL canSendWriteWithoutResponse;
+
+/*!
  *  @method readRSSI
  *
  *  @discussion While connected, retrieves the current RSSI of the link.
@@ -1900,7 +2091,7 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *  @method discoverServices:
  *
  *  @param serviceUUIDs A list of <code>CBUUID</code> objects representing the service types to be discovered. If <i>nil</i>,
- *						all services will be discovered, which is considerably slower and not recommended.
+ *						all services will be discovered.
  *
  *  @discussion			Discovers available service(s) on the peripheral.
  *
@@ -1925,7 +2116,7 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *  @method discoverCharacteristics:forService:
  *
  *  @param characteristicUUIDs	A list of <code>CBUUID</code> objects representing the characteristic types to be discovered. If <i>nil</i>,
- *								all characteristics of <i>service</i> will be discovered, which is considerably slower and not recommended.
+ *								all characteristics of <i>service</i> will be discovered.
  *  @param service				A GATT service.
  *
  *  @discussion					Discovers the specified characteristic(s) of <i>service</i>.
@@ -1952,7 +2143,7 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *
  *  @see		writeValue:forCharacteristic:type:
  */
-- (NSUInteger)maximumWriteValueLengthForType:(CBCharacteristicWriteType)type NS_AVAILABLE(NA, 9_0);
+- (NSUInteger)maximumWriteValueLengthForType:(CBCharacteristicWriteType)type NS_AVAILABLE(10_12, 9_0);
 
 /*!
  *  @method writeValue:forCharacteristic:type:
@@ -1964,10 +2155,12 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *  @discussion				Writes <i>value</i> to <i>characteristic</i>'s characteristic value.
  *							If the <code>CBCharacteristicWriteWithResponse</code> type is specified, {@link peripheral:didWriteValueForCharacteristic:error:}
  *							is called with the result of the write request.
- *							If the <code>CBCharacteristicWriteWithoutResponse</code> type is specified, the delivery of the data is best-effort and not
- *							guaranteed.
+ *							If the <code>CBCharacteristicWriteWithoutResponse</code> type is specified, and canSendWriteWithoutResponse is false, the delivery
+ * 							of the data is best-effort and may not be guaranteed.
  *
  *  @see					peripheral:didWriteValueForCharacteristic:error:
+ *  @see					peripheralIsReadyToSendWriteWithoutResponse:
+ *	@see					canSendWriteWithoutResponse
  *	@see					CBCharacteristicWriteType
  */
 - (void)writeValue:(NSData *)data forCharacteristic:(CBCharacteristic *)characteristic type:(CBCharacteristicWriteType)type;
@@ -2024,6 +2217,16 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  */
 - (void)writeValue:(NSData *)data forDescriptor:(CBDescriptor *)descriptor;
 
+/*!
+ *  @method openL2CAPChannel:
+ *
+ *  @param PSM			The PSM of the channel to open
+ *
+ *  @discussion			Attempt to open an L2CAP channel to the peripheral using the supplied PSM.  
+ *
+ *  @see				peripheral:didWriteValueForCharacteristic:error:
+ */
+- (void)openL2CAPChannel:(CBL2CAPPSM)PSM NS_AVAILABLE(10_14, 11_0);
 @end
 
 
@@ -2045,7 +2248,7 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *
  *  @discussion			This method is invoked when the @link name @/link of <i>peripheral</i> changes.
  */
-- (void)peripheralDidUpdateName:(CBPeripheral *)peripheral NS_AVAILABLE(NA, 6_0);
+- (void)peripheralDidUpdateName:(CBPeripheral *)peripheral NS_AVAILABLE(10_9, 6_0);
 
 /*!
  *  @method peripheral:didModifyServices:
@@ -2057,7 +2260,7 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *						At this point, the designated <code>CBService</code> objects have been invalidated.
  *						Services can be re-discovered via @link discoverServices: @/link.
  */
-- (void)peripheral:(CBPeripheral *)peripheral didModifyServices:(NSArray<CBService *> *)invalidatedServices NS_AVAILABLE(NA, 7_0);
+- (void)peripheral:(CBPeripheral *)peripheral didModifyServices:(NSArray<CBService *> *)invalidatedServices NS_AVAILABLE(10_9, 7_0);
 
 /*!
  *  @method peripheralDidUpdateRSSI:error:
@@ -2069,7 +2272,7 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *
  *  @deprecated			Use {@link peripheral:didReadRSSI:error:} instead.
  */
-- (void)peripheralDidUpdateRSSI:(CBPeripheral *)peripheral error:(nullable NSError *)error NS_DEPRECATED(NA, NA, 5_0, 8_0);
+- (void)peripheralDidUpdateRSSI:(CBPeripheral *)peripheral error:(nullable NSError *)error NS_DEPRECATED(10_7, 10_13, 5_0, 8_0);
 
 /*!
  *  @method peripheral:didReadRSSI:error:
@@ -2080,7 +2283,7 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *
  *  @discussion			This method returns the result of a @link readRSSI: @/link call.
  */
-- (void)peripheral:(CBPeripheral *)peripheral didReadRSSI:(NSNumber *)RSSI error:(nullable NSError *)error NS_AVAILABLE(NA, 8_0);
+- (void)peripheral:(CBPeripheral *)peripheral didReadRSSI:(NSNumber *)RSSI error:(nullable NSError *)error NS_AVAILABLE(10_13, 8_0);
 
 /*!
  *  @method peripheral:didDiscoverServices:
@@ -2184,6 +2387,29 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
  *  @discussion				This method returns the result of a @link writeValue:forDescriptor: @/link call.
  */
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForDescriptor:(CBDescriptor *)descriptor error:(nullable NSError *)error;
+
+/*!
+ *  @method peripheralIsReadyToSendWriteWithoutResponse:
+ *
+ *  @param peripheral   The peripheral providing this update.
+ *
+ *  @discussion         This method is invoked after a failed call to @link writeValue:forCharacteristic:type: @/link, when <i>peripheral</i> is again
+ *                      ready to send characteristic value updates.
+ *
+ */
+- (void)peripheralIsReadyToSendWriteWithoutResponse:(CBPeripheral *)peripheral;
+
+/*!
+ *  @method peripheral:didOpenL2CAPChannel:error:
+ *
+ *  @param peripheral		The peripheral providing this information.
+ *  @param channel			A <code>CBL2CAPChannel</code> object.
+ *	@param error			If an error occurred, the cause of the failure.
+ *
+ *  @discussion				This method returns the result of a @link openL2CAPChannel: @link call.
+ */
+- (void)peripheral:(CBPeripheral *)peripheral didOpenL2CAPChannel:(nullable CBL2CAPChannel *)channel error:(nullable NSError *)error;
+
 
 @end
 

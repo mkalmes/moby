@@ -1,16 +1,16 @@
 // ==========  SystemConfiguration.framework/Headers/SCPreferences.h
 /*
- * Copyright (c) 2000, 2001, 2004, 2005, 2007-2010, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2000, 2001, 2004, 2005, 2007-2010, 2015, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -18,17 +18,14 @@
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCPREFERENCES_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_SCPreferences.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define _SCPREFERENCES_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <TargetConditionals.h>
 #include <sys/cdefs.h>
 #include <dispatch/dispatch.h>
@@ -87,8 +84,12 @@ typedef const struct CF_BRIDGED_TYPE(id) __SCPreferences *	SCPreferencesRef;
 		preferences to the active system configuration.
  */
 typedef CF_OPTIONS(uint32_t, SCPreferencesNotification) {
-	kSCPreferencesNotificationCommit	= 1<<0,	// __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA)
-	kSCPreferencesNotificationApply		= 1<<1	// __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA)
+	kSCPreferencesNotificationCommit
+		API_AVAILABLE(macos(4.0))
+		API_UNAVAILABLE(ios, tvos, watchos)	= 1<<0,
+	kSCPreferencesNotificationApply
+		API_AVAILABLE(macos(4.0))
+		API_UNAVAILABLE(ios, tvos, watchos)	= 1<<1
 };
 
 /*!
@@ -141,7 +142,7 @@ __BEGIN_DECLS
 	@discussion Returns the type identifier of all SCPreferences instances.
  */
 CFTypeID
-SCPreferencesGetTypeID			(void)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+SCPreferencesGetTypeID			(void)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesCreate
@@ -165,7 +166,7 @@ SCPreferencesCreate			(
 					CFAllocatorRef		__nullable	allocator,
 					CFStringRef				name,
 					CFStringRef		__nullable	prefsID
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -194,7 +195,7 @@ SCPreferencesCreateWithAuthorization	(
 					CFStringRef				name,
 					CFStringRef		__nullable	prefsID,
 					AuthorizationRef	__nullable	authorization
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesLock
@@ -215,7 +216,7 @@ Boolean
 SCPreferencesLock			(
 					SCPreferencesRef	prefs,
 					Boolean			wait
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesCommitChanges
@@ -237,7 +238,7 @@ SCPreferencesLock			(
 Boolean
 SCPreferencesCommitChanges		(
 					SCPreferencesRef	prefs
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesApplyChanges
@@ -250,7 +251,7 @@ SCPreferencesCommitChanges		(
 Boolean
 SCPreferencesApplyChanges		(
 					SCPreferencesRef	prefs
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesUnlock
@@ -266,7 +267,7 @@ SCPreferencesApplyChanges		(
 Boolean
 SCPreferencesUnlock			(
 					SCPreferencesRef	prefs
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesGetSignature
@@ -279,7 +280,7 @@ SCPreferencesUnlock			(
 CFDataRef __nullable
 SCPreferencesGetSignature		(
 					SCPreferencesRef	prefs
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesCopyKeyList
@@ -291,7 +292,7 @@ SCPreferencesGetSignature		(
 CFArrayRef __nullable
 SCPreferencesCopyKeyList		(
 					SCPreferencesRef	prefs
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesGetValue
@@ -311,7 +312,7 @@ CFPropertyListRef __nullable
 SCPreferencesGetValue			(
 					SCPreferencesRef	prefs,
 					CFStringRef		key
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesAddValue
@@ -333,7 +334,7 @@ SCPreferencesAddValue			(
 					SCPreferencesRef	prefs,
 					CFStringRef		key,
 					CFPropertyListRef	value
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesSetValue
@@ -354,7 +355,7 @@ SCPreferencesSetValue			(
 					SCPreferencesRef	prefs,
 					CFStringRef		key,
 					CFPropertyListRef	value
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesRemoveValue
@@ -372,7 +373,7 @@ Boolean
 SCPreferencesRemoveValue		(
 					SCPreferencesRef	prefs,
 					CFStringRef		key
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesSetCallback
@@ -392,7 +393,7 @@ SCPreferencesSetCallback		(
 					SCPreferencesRef			prefs,
 					SCPreferencesCallBack	__nullable	callout,
 					SCPreferencesContext	* __nullable	context
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesScheduleWithRunLoop
@@ -412,7 +413,7 @@ SCPreferencesScheduleWithRunLoop	(
 					SCPreferencesRef	prefs,
 					CFRunLoopRef		runLoop,
 					CFStringRef		runLoopMode
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesUnscheduleFromRunLoop
@@ -432,7 +433,7 @@ SCPreferencesUnscheduleFromRunLoop	(
 					SCPreferencesRef	prefs,
 					CFRunLoopRef		runLoop,
 					CFStringRef		runLoopMode
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesSetDispatchQueue
@@ -447,7 +448,7 @@ Boolean
 SCPreferencesSetDispatchQueue		(
 					 SCPreferencesRef			prefs,
 					 dispatch_queue_t	__nullable	queue
-					 )			__OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+					 )			API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesSynchronize
@@ -463,28 +464,27 @@ SCPreferencesSetDispatchQueue		(
 void
 SCPreferencesSynchronize		(
 					SCPreferencesRef	prefs
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
-#endif /* _SCPREFERENCES_H */
+#endif	/* _SCPREFERENCES_H */
 // ==========  SystemConfiguration.framework/Headers/SCDynamicStoreCopyDHCPInfo.h
 /*
- * Copyright (c) 2001, 2002, 2004, 2005, 2008, 2012, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2001, 2002, 2004, 2005, 2008, 2012, 2015, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -492,17 +492,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCDYNAMICSTORECOPYDHCPINFO_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_SCDynamicStoreCopyDHCPInfo.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define _SCDYNAMICSTORECOPYDHCPINFO_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <sys/cdefs.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SCDynamicStore.h>
@@ -538,7 +535,7 @@ __BEGIN_DECLS
  */
 CFDictionaryRef __nullable
 SCDynamicStoreCopyDHCPInfo	(SCDynamicStoreRef	__nullable	store,
-				 CFStringRef		__nullable	serviceID)	__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+				 CFStringRef		__nullable	serviceID)	API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function DHCPInfoGetOptionData
@@ -555,7 +552,7 @@ SCDynamicStoreCopyDHCPInfo	(SCDynamicStoreRef	__nullable	store,
  */
 CFDataRef __nullable
 DHCPInfoGetOptionData		(CFDictionaryRef	info,
-				 UInt8			code)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+				 UInt8			code)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function DHCPInfoGetLeaseStartTime
@@ -570,7 +567,7 @@ DHCPInfoGetOptionData		(CFDictionaryRef	info,
 		The return value must NOT be released.
  */
 CFDateRef __nullable
-DHCPInfoGetLeaseStartTime	(CFDictionaryRef	info)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+DHCPInfoGetLeaseStartTime	(CFDictionaryRef	info)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -587,28 +584,27 @@ DHCPInfoGetLeaseStartTime	(CFDictionaryRef	info)		__OSX_AVAILABLE_STARTING(__MAC
 		The return value must NOT be released.
 */
 CFDateRef __nullable
-DHCPInfoGetLeaseExpirationTime	(CFDictionaryRef	info)		__OSX_AVAILABLE_STARTING(__MAC_10_8,__IPHONE_NA);
+DHCPInfoGetLeaseExpirationTime	(CFDictionaryRef	info)		API_AVAILABLE(macos(10.8)) API_UNAVAILABLE(ios, tvos, watchos);
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #endif	/* _SCDYNAMICSTORECOPYDHCPINFO_H */
 // ==========  SystemConfiguration.framework/Headers/SCPreferencesPath.h
 /*
- * Copyright (c) 2000, 2001, 2004, 2005, 2008, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2000, 2001, 2004, 2005, 2008, 2015, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -616,17 +612,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCPREFERENCESPATH_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_SCPreferencesPath.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define _SCPREFERENCESPATH_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <sys/cdefs.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SCPreferences.h>
@@ -695,7 +688,7 @@ CFStringRef __nullable
 SCPreferencesPathCreateUniqueChild	(
 					SCPreferencesRef	prefs,
 					CFStringRef		prefix
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesPathGetValue
@@ -710,7 +703,7 @@ CFDictionaryRef __nullable
 SCPreferencesPathGetValue		(
 					SCPreferencesRef	prefs,
 					CFStringRef		path
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesPathGetLink
@@ -725,7 +718,7 @@ CFStringRef __nullable
 SCPreferencesPathGetLink		(
 					SCPreferencesRef	prefs,
 					CFStringRef		path
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesPathSetValue
@@ -741,7 +734,7 @@ SCPreferencesPathSetValue		(
 					SCPreferencesRef	prefs,
 					CFStringRef		path,
 					CFDictionaryRef		value
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesPathSetLink
@@ -758,7 +751,7 @@ SCPreferencesPathSetLink		(
 					SCPreferencesRef	prefs,
 					CFStringRef		path,
 					CFStringRef		link
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesPathRemoveValue
@@ -771,28 +764,27 @@ Boolean
 SCPreferencesPathRemoveValue		(
 					SCPreferencesRef	prefs,
 					CFStringRef		path
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
-#endif /* _SCPREFERENCESPATH_H */
+#endif	/* _SCPREFERENCESPATH_H */
 // ==========  SystemConfiguration.framework/Headers/SCNetwork.h
 /*
- * Copyright (c) 2000, 2001, 2003-2009, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2000, 2001, 2003-2009, 2015, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -800,14 +792,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCNETWORK_H
 #define _SCNETWORK_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <sys/cdefs.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -908,8 +900,8 @@ __BEGIN_DECLS
 		Note: this API has been deprecated but you can
 		      get equivalent results with :
 <pre>
-	SCNetworkReachabiltyRef   target;
-	SCNetworkReachabiltyFlags flags = 0;
+	SCNetworkReachabilityRef   target;
+	SCNetworkReachabilityFlags flags = 0;
 	Boolean                   ok;
 
 	target = SCNetworkReachabilityCreateWithAddress(NULL, address);
@@ -929,7 +921,7 @@ SCNetworkCheckReachabilityByAddress	(
 					const struct sockaddr		*address,
 					socklen_t			addrlen,
 					SCNetworkConnectionFlags	*flags
-					)				__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
+					)				API_DEPRECATED("No longer supported", macos(10.1,10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkCheckReachabilityByName
@@ -960,7 +952,7 @@ Boolean
 SCNetworkCheckReachabilityByName	(
 					const char			*nodename,
 					SCNetworkConnectionFlags	*flags
-					)				__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
+					)				API_DEPRECATED("No longer supported", macos(10.1,10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceRefreshConfiguration
@@ -977,27 +969,27 @@ SCNetworkCheckReachabilityByName	(
 Boolean
 SCNetworkInterfaceRefreshConfiguration	(
 					CFStringRef			ifName
-					)				__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_5,__IPHONE_NA,__IPHONE_NA);
+					)				API_DEPRECATED("No longer supported", macos(10.1,10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif /* _SCNETWORK_H */
+#endif	/* _SCNETWORK_H */
 // ==========  SystemConfiguration.framework/Headers/SCNetworkConfiguration.h
 /*
- * Copyright (c) 2004-2011, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2004-2011, 2015, 2016, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -1005,17 +997,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCNETWORKCONFIGURATION_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_SCNetworkConfiguration.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define _SCNETWORKCONFIGURATION_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <TargetConditionals.h>
 #include <sys/cdefs.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -1056,84 +1045,101 @@ typedef const struct CF_BRIDGED_TYPE(id) __SCNetworkInterface * SCNetworkInterfa
 /*!
 	@const kSCNetworkInterfaceType6to4
  */
-extern const CFStringRef kSCNetworkInterfaceType6to4						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceType6to4						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypeBluetooth
  */
-extern const CFStringRef kSCNetworkInterfaceTypeBluetooth					__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeBluetooth					API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypeBond
  */
-extern const CFStringRef kSCNetworkInterfaceTypeBond						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeBond						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypeEthernet
  */
-extern const CFStringRef kSCNetworkInterfaceTypeEthernet					__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeEthernet					API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypeFireWire
  */
-extern const CFStringRef kSCNetworkInterfaceTypeFireWire					__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeFireWire					API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypeIEEE80211
  */
-extern const CFStringRef kSCNetworkInterfaceTypeIEEE80211					__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);	// IEEE 802.11, AirPort
+extern const CFStringRef kSCNetworkInterfaceTypeIEEE80211					API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);	// IEEE 802.11, AirPort
 
 /*!
 	@const kSCNetworkInterfaceTypeIPSec
  */
-extern const CFStringRef kSCNetworkInterfaceTypeIPSec						__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeIPSec						API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypeIrDA
  */
-extern const CFStringRef kSCNetworkInterfaceTypeIrDA						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeIrDA						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypeL2TP
  */
-extern const CFStringRef kSCNetworkInterfaceTypeL2TP						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeL2TP						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypeModem
  */
-extern const CFStringRef kSCNetworkInterfaceTypeModem						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeModem						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypePPP
  */
-extern const CFStringRef kSCNetworkInterfaceTypePPP						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypePPP						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypePPTP
  */
-extern const CFStringRef kSCNetworkInterfaceTypePPTP						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypePPTP						API_DEPRECATED("No longer supported", macos(10.4,10.12))
+												API_UNAVAILABLE(ios, tvos, watchos);
+
 
 /*!
 	@const kSCNetworkInterfaceTypeSerial
  */
-extern const CFStringRef kSCNetworkInterfaceTypeSerial						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeSerial						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypeVLAN
  */
-extern const CFStringRef kSCNetworkInterfaceTypeVLAN						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeVLAN						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceTypeWWAN
  */
-extern const CFStringRef kSCNetworkInterfaceTypeWWAN						__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeWWAN						API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /* special network interfaces (and types) */
 
 /*!
 	@const kSCNetworkInterfaceTypeIPv4
  */
-extern const CFStringRef kSCNetworkInterfaceTypeIPv4						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkInterfaceTypeIPv4						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkInterfaceIPv4
@@ -1141,7 +1147,8 @@ extern const CFStringRef kSCNetworkInterfaceTypeIPv4						__OSX_AVAILABLE_STARTI
 		interfaces (e.g. 6to4, IPSec, PPTP, L2TP) over an existing
 		IPv4 network.
  */
-extern const SCNetworkInterfaceRef kSCNetworkInterfaceIPv4					__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const SCNetworkInterfaceRef kSCNetworkInterfaceIPv4					API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@group Interface configuration (Bond)
@@ -1183,17 +1190,17 @@ enum {
 /*!
 	@const kSCBondStatusDeviceAggregationStatus
  */
-extern const CFStringRef kSCBondStatusDeviceAggregationStatus	/* CFNumber */			__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCBondStatusDeviceAggregationStatus	/* CFNumber */			API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCBondStatusDeviceCollecting
  */
-extern const CFStringRef kSCBondStatusDeviceCollecting		/* CFNumber (0 or 1) */		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCBondStatusDeviceCollecting		/* CFNumber (0 or 1) */		API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCBondStatusDeviceDistributing
  */
-extern const CFStringRef kSCBondStatusDeviceDistributing	/* CFNumber (0 or 1) */		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCBondStatusDeviceDistributing	/* CFNumber (0 or 1) */		API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@group Interface configuration (VLAN)
@@ -1226,34 +1233,33 @@ typedef const struct CF_BRIDGED_TYPE(id) __SCNetworkProtocol * SCNetworkProtocol
 /* network "protocol" types */
 
 /*!
-	@const kSCNetworkProtocolTypeAppleTalk
- */
-extern const CFStringRef kSCNetworkProtocolTypeAppleTalk					__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_4,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-
-/*!
 	@const kSCNetworkProtocolTypeDNS
  */
-extern const CFStringRef kSCNetworkProtocolTypeDNS						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkProtocolTypeDNS						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkProtocolTypeIPv4
  */
-extern const CFStringRef kSCNetworkProtocolTypeIPv4						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkProtocolTypeIPv4						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkProtocolTypeIPv6
  */
-extern const CFStringRef kSCNetworkProtocolTypeIPv6						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkProtocolTypeIPv6						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkProtocolTypeProxies
  */
-extern const CFStringRef kSCNetworkProtocolTypeProxies						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCNetworkProtocolTypeProxies						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@const kSCNetworkProtocolTypeSMB
  */
-extern const CFStringRef kSCNetworkProtocolTypeSMB						__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCNetworkProtocolTypeSMB						API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@group Service configuration
@@ -1304,7 +1310,8 @@ __BEGIN_DECLS
 	@discussion Returns the type identifier of all SCNetworkInterface instances.
  */
 CFTypeID
-SCNetworkInterfaceGetTypeID			(void)						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkInterfaceGetTypeID			(void)						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceCopyAll
@@ -1313,7 +1320,8 @@ SCNetworkInterfaceGetTypeID			(void)						__OSX_AVAILABLE_STARTING(__MAC_10_4,__
 		You must release the returned value.
  */
 CFArrayRef /* of SCNetworkInterfaceRef's */
-SCNetworkInterfaceCopyAll			(void)						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkInterfaceCopyAll			(void)						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceGetSupportedInterfaceTypes
@@ -1324,7 +1332,8 @@ SCNetworkInterfaceCopyAll			(void)						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IP
 		NULL if no interface types are supported.
  */
 CFArrayRef /* of kSCNetworkInterfaceTypeXXX CFStringRef's */ __nullable
-SCNetworkInterfaceGetSupportedInterfaceTypes	(SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkInterfaceGetSupportedInterfaceTypes	(SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceGetSupportedProtocolTypes
@@ -1335,7 +1344,8 @@ SCNetworkInterfaceGetSupportedInterfaceTypes	(SCNetworkInterfaceRef		interface)	
 		NULL if no protocol types are supported.
  */
 CFArrayRef /* of kSCNetworkProtocolTypeXXX CFStringRef's */ __nullable
-SCNetworkInterfaceGetSupportedProtocolTypes	(SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkInterfaceGetSupportedProtocolTypes	(SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceCreateWithInterface
@@ -1350,7 +1360,8 @@ SCNetworkInterfaceGetSupportedProtocolTypes	(SCNetworkInterfaceRef		interface)	_
  */
 SCNetworkInterfaceRef __nullable
 SCNetworkInterfaceCreateWithInterface		(SCNetworkInterfaceRef		interface,
-						 CFStringRef			interfaceType)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 CFStringRef			interfaceType)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceGetBSDName
@@ -1361,7 +1372,8 @@ SCNetworkInterfaceCreateWithInterface		(SCNetworkInterfaceRef		interface,
 		NULL if no BSD name is available.
  */
 CFStringRef __nullable
-SCNetworkInterfaceGetBSDName			(SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkInterfaceGetBSDName			(SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceGetConfiguration
@@ -1372,7 +1384,8 @@ SCNetworkInterfaceGetBSDName			(SCNetworkInterfaceRef		interface)	__OSX_AVAILABL
 		or an error was encountered.
  */
 CFDictionaryRef __nullable
-SCNetworkInterfaceGetConfiguration		(SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkInterfaceGetConfiguration		(SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceGetExtendedConfiguration
@@ -1385,7 +1398,8 @@ SCNetworkInterfaceGetConfiguration		(SCNetworkInterfaceRef		interface)	__OSX_AVA
  */
 CFDictionaryRef __nullable
 SCNetworkInterfaceGetExtendedConfiguration	(SCNetworkInterfaceRef		interface,
-						 CFStringRef			extendedType)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 CFStringRef			extendedType)	API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceGetHardwareAddressString
@@ -1394,7 +1408,8 @@ SCNetworkInterfaceGetExtendedConfiguration	(SCNetworkInterfaceRef		interface,
 	@result A string representing the hardware (MAC) address for the interface.
  */
 CFStringRef __nullable
-SCNetworkInterfaceGetHardwareAddressString	(SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkInterfaceGetHardwareAddressString	(SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceGetInterface
@@ -1404,7 +1419,8 @@ SCNetworkInterfaceGetHardwareAddressString	(SCNetworkInterfaceRef		interface)	__
 		NULL if this is a leaf interface.
  */
 SCNetworkInterfaceRef __nullable
-SCNetworkInterfaceGetInterface			(SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkInterfaceGetInterface			(SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceGetInterfaceType
@@ -1413,7 +1429,8 @@ SCNetworkInterfaceGetInterface			(SCNetworkInterfaceRef		interface)	__OSX_AVAILA
 	@result The interface type.
  */
 CFStringRef __nullable
-SCNetworkInterfaceGetInterfaceType		(SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkInterfaceGetInterfaceType		(SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceGetLocalizedDisplayName
@@ -1424,7 +1441,8 @@ SCNetworkInterfaceGetInterfaceType		(SCNetworkInterfaceRef		interface)	__OSX_AVA
 		NULL if no name is available.
  */
 CFStringRef __nullable
-SCNetworkInterfaceGetLocalizedDisplayName	(SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkInterfaceGetLocalizedDisplayName	(SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceSetConfiguration
@@ -1435,7 +1453,8 @@ SCNetworkInterfaceGetLocalizedDisplayName	(SCNetworkInterfaceRef		interface)	__O
  */
 Boolean
 SCNetworkInterfaceSetConfiguration		(SCNetworkInterfaceRef		interface,
-						 CFDictionaryRef		config)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 CFDictionaryRef __nullable	config)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceSetExtendedConfiguration
@@ -1447,7 +1466,8 @@ SCNetworkInterfaceSetConfiguration		(SCNetworkInterfaceRef		interface,
 Boolean
 SCNetworkInterfaceSetExtendedConfiguration	(SCNetworkInterfaceRef		interface,
 						 CFStringRef			extendedType,
-						 CFDictionaryRef		config)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 CFDictionaryRef __nullable	config)		API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 #pragma mark -
 
@@ -1476,7 +1496,8 @@ SCNetworkInterfaceCopyMediaOptions		(SCNetworkInterfaceRef						interface,
 						 CFDictionaryRef		__nullable	* __nullable	current,
 						 CFDictionaryRef		__nullable	* __nullable	active,
 						 CFArrayRef			__nullable	* __nullable	available,
-						 Boolean					filter)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 Boolean					filter)		API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceCopyMediaSubTypes
@@ -1488,7 +1509,8 @@ SCNetworkInterfaceCopyMediaOptions		(SCNetworkInterfaceRef						interface,
 		100baseTX, etc).  NULL if no subtypes are available.
  */
 CFArrayRef __nullable
-SCNetworkInterfaceCopyMediaSubTypes		(CFArrayRef			available)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCNetworkInterfaceCopyMediaSubTypes		(CFArrayRef			available)	API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceCopyMediaSubTypeOptions
@@ -1503,7 +1525,8 @@ SCNetworkInterfaceCopyMediaSubTypes		(CFArrayRef			available)	__OSX_AVAILABLE_ST
  */
 CFArrayRef __nullable
 SCNetworkInterfaceCopyMediaSubTypeOptions	(CFArrayRef			available,
-						 CFStringRef			subType)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 CFStringRef			subType)	API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceCopyMTU
@@ -1522,10 +1545,11 @@ SCNetworkInterfaceCopyMediaSubTypeOptions	(CFArrayRef			available,
 	@result TRUE if requested information has been returned.
  */
 Boolean
-SCNetworkInterfaceCopyMTU			(SCNetworkInterfaceRef				interface,
-						 int				* __nullable	mtu_cur,
-						 int				* __nullable	mtu_min,
-						 int				* __nullable	mtu_max)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCNetworkInterfaceCopyMTU			(SCNetworkInterfaceRef			interface,
+						 int			* __nullable	mtu_cur,
+						 int			* __nullable	mtu_min,
+						 int			* __nullable	mtu_max)	API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceSetMediaOptions
@@ -1539,7 +1563,8 @@ SCNetworkInterfaceCopyMTU			(SCNetworkInterfaceRef				interface,
 Boolean
 SCNetworkInterfaceSetMediaOptions		(SCNetworkInterfaceRef		interface,
 						 CFStringRef			subtype,
-						 CFArrayRef			options)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 CFArrayRef			options)	API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceSetMTU
@@ -1551,7 +1576,8 @@ SCNetworkInterfaceSetMediaOptions		(SCNetworkInterfaceRef		interface,
  */
 Boolean
 SCNetworkInterfaceSetMTU			(SCNetworkInterfaceRef		interface,
-						 int				mtu)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 int				mtu)		API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkInterfaceForceConfigurationRefresh
@@ -1574,7 +1600,8 @@ SCNetworkInterfaceSetMTU			(SCNetworkInterfaceRef		interface,
 	@result Returns TRUE if the notification was sent; FALSE otherwise.
  */
 Boolean
-SCNetworkInterfaceForceConfigurationRefresh	(SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCNetworkInterfaceForceConfigurationRefresh	(SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@group Interface configuration (Bond)
@@ -1591,7 +1618,7 @@ SCNetworkInterfaceForceConfigurationRefresh	(SCNetworkInterfaceRef		interface)	_
 		You must release the returned value.
  */
 CFArrayRef /* of SCBondInterfaceRef's */
-SCBondInterfaceCopyAll				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCBondInterfaceCopyAll				(SCPreferencesRef		prefs)		API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondInterfaceCopyAvailableMemberInterfaces
@@ -1602,7 +1629,7 @@ SCBondInterfaceCopyAll				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__
 		You must release the returned value.
  */
 CFArrayRef /* of SCNetworkInterfaceRef's */
-SCBondInterfaceCopyAvailableMemberInterfaces	(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCBondInterfaceCopyAvailableMemberInterfaces	(SCPreferencesRef		prefs)		API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondInterfaceCreate
@@ -1612,7 +1639,7 @@ SCBondInterfaceCopyAvailableMemberInterfaces	(SCPreferencesRef		prefs)		__OSX_AV
 		You must release the returned value.
  */
 SCBondInterfaceRef __nullable
-SCBondInterfaceCreate				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCBondInterfaceCreate				(SCPreferencesRef		prefs)		API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondInterfaceRemove
@@ -1621,7 +1648,7 @@ SCBondInterfaceCreate				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__M
 	@result TRUE if the interface was removed; FALSE if an error was encountered.
  */
 Boolean
-SCBondInterfaceRemove				(SCBondInterfaceRef		bond)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCBondInterfaceRemove				(SCBondInterfaceRef		bond)		API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondInterfaceGetMemberInterfaces
@@ -1630,7 +1657,7 @@ SCBondInterfaceRemove				(SCBondInterfaceRef		bond)		__OSX_AVAILABLE_STARTING(__
 	@result The list of interfaces.
  */
 CFArrayRef /* of SCNetworkInterfaceRef's */ __nullable
-SCBondInterfaceGetMemberInterfaces		(SCBondInterfaceRef		bond)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCBondInterfaceGetMemberInterfaces		(SCBondInterfaceRef		bond)		API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondInterfaceGetOptions
@@ -1640,7 +1667,7 @@ SCBondInterfaceGetMemberInterfaces		(SCBondInterfaceRef		bond)		__OSX_AVAILABLE_
 		NULL if no changes to the default configuration have been saved.
  */
 CFDictionaryRef __nullable
-SCBondInterfaceGetOptions			(SCBondInterfaceRef		bond)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCBondInterfaceGetOptions			(SCBondInterfaceRef		bond)		API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondInterfaceSetMemberInterfaces
@@ -1652,7 +1679,7 @@ SCBondInterfaceGetOptions			(SCBondInterfaceRef		bond)		__OSX_AVAILABLE_STARTING
 Boolean
 SCBondInterfaceSetMemberInterfaces		(SCBondInterfaceRef		bond,
 						 CFArrayRef			members) /* of SCNetworkInterfaceRef's */
-												__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+												API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondInterfaceSetLocalizedDisplayName
@@ -1663,7 +1690,7 @@ SCBondInterfaceSetMemberInterfaces		(SCBondInterfaceRef		bond,
  */
 Boolean
 SCBondInterfaceSetLocalizedDisplayName		(SCBondInterfaceRef		bond,
-						 CFStringRef			newName)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 CFStringRef			newName)	API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondInterfaceSetOptions
@@ -1674,7 +1701,7 @@ SCBondInterfaceSetLocalizedDisplayName		(SCBondInterfaceRef		bond,
  */
 Boolean
 SCBondInterfaceSetOptions			(SCBondInterfaceRef		bond,
-						 CFDictionaryRef		newOptions)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 CFDictionaryRef		newOptions)	API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 #pragma mark -
 
@@ -1686,14 +1713,14 @@ SCBondInterfaceSetOptions			(SCBondInterfaceRef		bond,
 		You must release the returned value.
  */
 SCBondStatusRef __nullable
-SCBondInterfaceCopyStatus			(SCBondInterfaceRef	bond)			__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCBondInterfaceCopyStatus			(SCBondInterfaceRef	bond)			API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondStatusGetTypeID
 	@discussion Returns the type identifier of all SCBondStatus instances.
  */
 CFTypeID
-SCBondStatusGetTypeID				(void)						__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCBondStatusGetTypeID				(void)						API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondStatusGetMemberInterfaces
@@ -1703,7 +1730,7 @@ SCBondStatusGetTypeID				(void)						__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHON
 	@result The list of interfaces.
  */
 CFArrayRef __nullable /* of SCNetworkInterfaceRef's */
-SCBondStatusGetMemberInterfaces			(SCBondStatusRef	bondStatus)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCBondStatusGetMemberInterfaces			(SCBondStatusRef	bondStatus)		API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCBondStatusGetInterfaceStatus
@@ -1720,7 +1747,7 @@ SCBondStatusGetMemberInterfaces			(SCBondStatusRef	bondStatus)		__OSX_AVAILABLE_
  */
 CFDictionaryRef __nullable
 SCBondStatusGetInterfaceStatus			(SCBondStatusRef			bondStatus,
-						 SCNetworkInterfaceRef	__nullable	interface)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 SCNetworkInterfaceRef	__nullable	interface)	API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@group Interface configuration (VLAN)
@@ -1736,7 +1763,8 @@ SCBondStatusGetInterfaceStatus			(SCBondStatusRef			bondStatus,
 		You must release the returned value.
  */
 CFArrayRef /* of SCVLANInterfaceRef's */
-SCVLANInterfaceCopyAll				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCVLANInterfaceCopyAll				(SCPreferencesRef		prefs)		API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCVLANInterfaceCopyAvailablePhysicalInterfaces
@@ -1746,7 +1774,8 @@ SCVLANInterfaceCopyAll				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__
 		You must release the returned value.
  */
 CFArrayRef /* of SCNetworkInterfaceRef's */
-SCVLANInterfaceCopyAvailablePhysicalInterfaces	(void)						__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCVLANInterfaceCopyAvailablePhysicalInterfaces	(void)						API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCVLANInterfaceCreate
@@ -1762,7 +1791,8 @@ SCVLANInterfaceCopyAvailablePhysicalInterfaces	(void)						__OSX_AVAILABLE_START
 SCVLANInterfaceRef __nullable
 SCVLANInterfaceCreate				(SCPreferencesRef		prefs,
 						 SCNetworkInterfaceRef		physical,
-						 CFNumberRef			tag)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 CFNumberRef			tag)		API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCVLANInterfaceRemove
@@ -1771,7 +1801,8 @@ SCVLANInterfaceCreate				(SCPreferencesRef		prefs,
 	@result TRUE if the interface was removed; FALSE if an error was encountered.
  */
 Boolean
-SCVLANInterfaceRemove				(SCVLANInterfaceRef		vlan)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCVLANInterfaceRemove				(SCVLANInterfaceRef		vlan)		API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCVLANInterfaceGetPhysicalInterface
@@ -1780,7 +1811,8 @@ SCVLANInterfaceRemove				(SCVLANInterfaceRef		vlan)		__OSX_AVAILABLE_STARTING(__
 	@result The list of interfaces.
  */
 SCNetworkInterfaceRef __nullable
-SCVLANInterfaceGetPhysicalInterface		(SCVLANInterfaceRef		vlan)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCVLANInterfaceGetPhysicalInterface		(SCVLANInterfaceRef		vlan)		API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCVLANInterfaceGetTag
@@ -1789,7 +1821,8 @@ SCVLANInterfaceGetPhysicalInterface		(SCVLANInterfaceRef		vlan)		__OSX_AVAILABLE
 	@result The tag.
  */
 CFNumberRef __nullable
-SCVLANInterfaceGetTag				(SCVLANInterfaceRef		vlan)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCVLANInterfaceGetTag				(SCVLANInterfaceRef		vlan)		API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCVLANInterfaceGetOptions
@@ -1799,7 +1832,8 @@ SCVLANInterfaceGetTag				(SCVLANInterfaceRef		vlan)		__OSX_AVAILABLE_STARTING(__
 		NULL if no changes to the default configuration have been saved.
  */
 CFDictionaryRef __nullable
-SCVLANInterfaceGetOptions			(SCVLANInterfaceRef		vlan)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCVLANInterfaceGetOptions			(SCVLANInterfaceRef		vlan)		API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCVLANInterfaceSetPhysicalInterfaceAndTag
@@ -1814,7 +1848,8 @@ SCVLANInterfaceGetOptions			(SCVLANInterfaceRef		vlan)		__OSX_AVAILABLE_STARTING
 Boolean
 SCVLANInterfaceSetPhysicalInterfaceAndTag	(SCVLANInterfaceRef		vlan,
 						 SCNetworkInterfaceRef		physical,
-						 CFNumberRef			tag)		__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 CFNumberRef			tag)		API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCVLANInterfaceSetLocalizedDisplayName
@@ -1825,7 +1860,8 @@ SCVLANInterfaceSetPhysicalInterfaceAndTag	(SCVLANInterfaceRef		vlan,
  */
 Boolean
 SCVLANInterfaceSetLocalizedDisplayName		(SCVLANInterfaceRef		vlan,
-						 CFStringRef			newName)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 CFStringRef			newName)	API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCVLANInterfaceSetOptions
@@ -1836,7 +1872,8 @@ SCVLANInterfaceSetLocalizedDisplayName		(SCVLANInterfaceRef		vlan,
  */
 Boolean
 SCVLANInterfaceSetOptions			(SCVLANInterfaceRef		vlan,
-						 CFDictionaryRef		newOptions)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 CFDictionaryRef		newOptions)	API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /* --------------------------------------------------------------------------------
@@ -1855,7 +1892,8 @@ SCVLANInterfaceSetOptions			(SCVLANInterfaceRef		vlan,
 	@discussion Returns the type identifier of all SCNetworkProtocol instances.
  */
 CFTypeID
-SCNetworkProtocolGetTypeID			(void)						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkProtocolGetTypeID			(void)						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkProtocolGetConfiguration
@@ -1866,7 +1904,8 @@ SCNetworkProtocolGetTypeID			(void)						__OSX_AVAILABLE_STARTING(__MAC_10_4,__I
 		or an error was encountered.
  */
 CFDictionaryRef __nullable
-SCNetworkProtocolGetConfiguration		(SCNetworkProtocolRef		protocol)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkProtocolGetConfiguration		(SCNetworkProtocolRef		protocol)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkProtocolGetEnabled
@@ -1875,7 +1914,8 @@ SCNetworkProtocolGetConfiguration		(SCNetworkProtocolRef		protocol)	__OSX_AVAILA
 	@result TRUE if the protocol is enabled.
  */
 Boolean
-SCNetworkProtocolGetEnabled			(SCNetworkProtocolRef		protocol)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkProtocolGetEnabled			(SCNetworkProtocolRef		protocol)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkProtocolGetProtocolType
@@ -1884,7 +1924,8 @@ SCNetworkProtocolGetEnabled			(SCNetworkProtocolRef		protocol)	__OSX_AVAILABLE_S
 	@result The protocol type.
  */
 CFStringRef __nullable
-SCNetworkProtocolGetProtocolType		(SCNetworkProtocolRef		protocol)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkProtocolGetProtocolType		(SCNetworkProtocolRef		protocol)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkProtocolSetConfiguration
@@ -1895,7 +1936,8 @@ SCNetworkProtocolGetProtocolType		(SCNetworkProtocolRef		protocol)	__OSX_AVAILAB
  */
 Boolean
 SCNetworkProtocolSetConfiguration		(SCNetworkProtocolRef		protocol,
-						 CFDictionaryRef		config)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 CFDictionaryRef __nullable	config)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkProtocolSetEnabled
@@ -1906,7 +1948,8 @@ SCNetworkProtocolSetConfiguration		(SCNetworkProtocolRef		protocol,
  */
 Boolean
 SCNetworkProtocolSetEnabled			(SCNetworkProtocolRef		protocol,
-						 Boolean			enabled)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 Boolean			enabled)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /* --------------------------------------------------------------------------------
  * SERVICES
@@ -1924,7 +1967,8 @@ SCNetworkProtocolSetEnabled			(SCNetworkProtocolRef		protocol,
 	@discussion Returns the type identifier of all SCNetworkService instances.
  */
 CFTypeID
-SCNetworkServiceGetTypeID			(void)						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkServiceGetTypeID			(void)						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceAddProtocolType
@@ -1939,7 +1983,8 @@ SCNetworkServiceGetTypeID			(void)						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IP
  */
 Boolean
 SCNetworkServiceAddProtocolType			(SCNetworkServiceRef		service,
-						 CFStringRef			protocolType)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 CFStringRef			protocolType)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceCopyAll
@@ -1949,7 +1994,8 @@ SCNetworkServiceAddProtocolType			(SCNetworkServiceRef		service,
 		You must release the returned value.
  */
 CFArrayRef /* of SCNetworkServiceRef's */ __nullable
-SCNetworkServiceCopyAll				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkServiceCopyAll				(SCPreferencesRef		prefs)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceCopyProtocols
@@ -1959,7 +2005,8 @@ SCNetworkServiceCopyAll				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(_
 		You must release the returned value.
  */
 CFArrayRef /* of SCNetworkProtocolRef's */ __nullable
-SCNetworkServiceCopyProtocols			(SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkServiceCopyProtocols			(SCNetworkServiceRef		service)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceCreate
@@ -1971,7 +2018,8 @@ SCNetworkServiceCopyProtocols			(SCNetworkServiceRef		service)	__OSX_AVAILABLE_S
  */
 SCNetworkServiceRef __nullable
 SCNetworkServiceCreate				(SCPreferencesRef		prefs,
-						 SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceCopy
@@ -1985,7 +2033,8 @@ SCNetworkServiceCreate				(SCPreferencesRef		prefs,
  */
 SCNetworkServiceRef __nullable
 SCNetworkServiceCopy				(SCPreferencesRef		prefs,
-						 CFStringRef			serviceID)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 CFStringRef			serviceID)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceEstablishDefaultConfiguration
@@ -1997,7 +2046,8 @@ SCNetworkServiceCopy				(SCPreferencesRef		prefs,
 	@result TRUE if the configuration was updated; FALSE if an error was encountered.
 */
 Boolean
-SCNetworkServiceEstablishDefaultConfiguration	(SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+SCNetworkServiceEstablishDefaultConfiguration	(SCNetworkServiceRef		service)	API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceGetEnabled
@@ -2006,7 +2056,8 @@ SCNetworkServiceEstablishDefaultConfiguration	(SCNetworkServiceRef		service)	__O
 	@result TRUE if the service is enabled.
  */
 Boolean
-SCNetworkServiceGetEnabled			(SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkServiceGetEnabled			(SCNetworkServiceRef		service)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceGetInterface
@@ -2016,7 +2067,8 @@ SCNetworkServiceGetEnabled			(SCNetworkServiceRef		service)	__OSX_AVAILABLE_STAR
 		NULL if an error was encountered.
  */
 SCNetworkInterfaceRef __nullable
-SCNetworkServiceGetInterface			(SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkServiceGetInterface			(SCNetworkServiceRef		service)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceGetName
@@ -2025,7 +2077,8 @@ SCNetworkServiceGetInterface			(SCNetworkServiceRef		service)	__OSX_AVAILABLE_ST
 	@result The [user specified] name.
  */
 CFStringRef __nullable
-SCNetworkServiceGetName				(SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkServiceGetName				(SCNetworkServiceRef		service)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceCopyProtocol
@@ -2038,7 +2091,8 @@ SCNetworkServiceGetName				(SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTI
  */
 SCNetworkProtocolRef __nullable
 SCNetworkServiceCopyProtocol			(SCNetworkServiceRef		service,
-						 CFStringRef			protocolType)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 CFStringRef			protocolType)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceGetServiceID
@@ -2047,7 +2101,8 @@ SCNetworkServiceCopyProtocol			(SCNetworkServiceRef		service,
 	@result The service identifier.
  */
 CFStringRef __nullable
-SCNetworkServiceGetServiceID			(SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkServiceGetServiceID			(SCNetworkServiceRef		service)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceRemove
@@ -2056,7 +2111,8 @@ SCNetworkServiceGetServiceID			(SCNetworkServiceRef		service)	__OSX_AVAILABLE_ST
 	@result TRUE if the service was removed; FALSE if an error was encountered.
  */
 Boolean
-SCNetworkServiceRemove				(SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkServiceRemove				(SCNetworkServiceRef		service)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceRemoveProtocolType
@@ -2068,7 +2124,8 @@ SCNetworkServiceRemove				(SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTIN
  */
 Boolean
 SCNetworkServiceRemoveProtocolType		(SCNetworkServiceRef		service,
-						 CFStringRef			protocolType)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 CFStringRef			protocolType)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceSetEnabled
@@ -2079,7 +2136,8 @@ SCNetworkServiceRemoveProtocolType		(SCNetworkServiceRef		service,
  */
 Boolean
 SCNetworkServiceSetEnabled			(SCNetworkServiceRef		service,
-						 Boolean			enabled)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 Boolean			enabled)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkServiceSetName
@@ -2095,7 +2153,8 @@ SCNetworkServiceSetEnabled			(SCNetworkServiceRef		service,
  */
 Boolean
 SCNetworkServiceSetName				(SCNetworkServiceRef		service,
-						 CFStringRef			name)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 CFStringRef __nullable		name)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /* --------------------------------------------------------------------------------
@@ -2114,7 +2173,8 @@ SCNetworkServiceSetName				(SCNetworkServiceRef		service,
 	@discussion Returns the type identifier of all SCNetworkSet instances.
  */
 CFTypeID
-SCNetworkSetGetTypeID				(void)						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkSetGetTypeID				(void)						API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetAddService
@@ -2131,7 +2191,8 @@ SCNetworkSetGetTypeID				(void)						__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHON
  */
 Boolean
 SCNetworkSetAddService				(SCNetworkSetRef		set,
-						 SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 SCNetworkServiceRef		service)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetContainsInterface
@@ -2143,7 +2204,8 @@ SCNetworkSetAddService				(SCNetworkSetRef		set,
  */
 Boolean
 SCNetworkSetContainsInterface			(SCNetworkSetRef		set,
-						 SCNetworkInterfaceRef		interface)	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+						 SCNetworkInterfaceRef		interface)	API_AVAILABLE(macos(10.5))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetCopyAll
@@ -2153,7 +2215,8 @@ SCNetworkSetContainsInterface			(SCNetworkSetRef		set,
 		You must release the returned value.
  */
 CFArrayRef /* of SCNetworkSetRef's */ __nullable
-SCNetworkSetCopyAll				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkSetCopyAll				(SCPreferencesRef		prefs)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetCopyCurrent
@@ -2162,7 +2225,8 @@ SCNetworkSetCopyAll				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__MAC
 	@result The current set; NULL if no current set has been defined.
  */
 SCNetworkSetRef __nullable
-SCNetworkSetCopyCurrent				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkSetCopyCurrent				(SCPreferencesRef		prefs)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetCopyServices
@@ -2172,7 +2236,8 @@ SCNetworkSetCopyCurrent				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(_
 		You must release the returned value.
  */
 CFArrayRef /* of SCNetworkServiceRef's */ __nullable
-SCNetworkSetCopyServices			(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkSetCopyServices			(SCNetworkSetRef		set)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetCreate
@@ -2182,7 +2247,8 @@ SCNetworkSetCopyServices			(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MA
 		You must release the returned value.
  */
 SCNetworkSetRef __nullable
-SCNetworkSetCreate				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkSetCreate				(SCPreferencesRef		prefs)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetCopy
@@ -2196,7 +2262,8 @@ SCNetworkSetCreate				(SCPreferencesRef		prefs)		__OSX_AVAILABLE_STARTING(__MAC_
  */
 SCNetworkSetRef __nullable
 SCNetworkSetCopy				(SCPreferencesRef		prefs,
-						 CFStringRef			setID)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 CFStringRef			setID)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetGetName
@@ -2205,7 +2272,8 @@ SCNetworkSetCopy				(SCPreferencesRef		prefs,
 	@result The [user specified] name.
  */
 CFStringRef __nullable
-SCNetworkSetGetName				(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkSetGetName				(SCNetworkSetRef		set)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetGetSetID
@@ -2214,7 +2282,8 @@ SCNetworkSetGetName				(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MAC_10
 	@result The set identifier.
  */
 CFStringRef __nullable
-SCNetworkSetGetSetID				(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkSetGetSetID				(SCNetworkSetRef		set)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetGetServiceOrder
@@ -2227,7 +2296,8 @@ SCNetworkSetGetSetID				(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MAC_1
 		was encountered.
  */
 CFArrayRef /* of serviceID CFStringRef's */ __nullable
-SCNetworkSetGetServiceOrder			(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkSetGetServiceOrder			(SCNetworkSetRef		set)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetRemove
@@ -2236,7 +2306,8 @@ SCNetworkSetGetServiceOrder			(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(_
 	@result TRUE if the set was removed; FALSE if an error was encountered.
  */
 Boolean
-SCNetworkSetRemove				(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkSetRemove				(SCNetworkSetRef		set)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetRemoveService
@@ -2248,7 +2319,8 @@ SCNetworkSetRemove				(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MAC_10_
  */
 Boolean
 SCNetworkSetRemoveService			(SCNetworkSetRef		set,
-						 SCNetworkServiceRef		service)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 SCNetworkServiceRef		service)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetSetCurrent
@@ -2258,7 +2330,8 @@ SCNetworkSetRemoveService			(SCNetworkSetRef		set,
 		FALSE if an error was encountered.
  */
 Boolean
-SCNetworkSetSetCurrent				(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+SCNetworkSetSetCurrent				(SCNetworkSetRef		set)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetSetName
@@ -2273,7 +2346,8 @@ SCNetworkSetSetCurrent				(SCNetworkSetRef		set)		__OSX_AVAILABLE_STARTING(__MAC
  */
 Boolean
 SCNetworkSetSetName				(SCNetworkSetRef		set,
-						 CFStringRef			name)		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+						 CFStringRef __nullable		name)		API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCNetworkSetSetServiceOrder
@@ -2284,7 +2358,8 @@ SCNetworkSetSetName				(SCNetworkSetRef		set,
  */
 Boolean
 SCNetworkSetSetServiceOrder			(SCNetworkSetRef		set,
-						 CFArrayRef			newOrder)	__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);	/* serviceID CFStringRef's */
+						 CFArrayRef			newOrder)	API_AVAILABLE(macos(10.4))
+												API_UNAVAILABLE(ios, tvos, watchos);	/* serviceID CFStringRef's */
 
 
 __END_DECLS
@@ -2292,21 +2367,20 @@ __END_DECLS
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #endif	/* _SCNETWORKCONFIGURATION_H */
 // ==========  SystemConfiguration.framework/Headers/SCDynamicStore.h
 /*
- * Copyright (c) 2000, 2001, 2003-2005, 2008-2010, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2000, 2001, 2003-2005, 2008-2010, 2015, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -2314,17 +2388,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCDYNAMICSTORE_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_SCDynamicStore.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define _SCDYNAMICSTORE_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <TargetConditionals.h>
 #include <sys/cdefs.h>
 #include <dispatch/dispatch.h>
@@ -2419,7 +2490,7 @@ __BEGIN_DECLS
 	@discussion Returns the type identifier of all SCDynamicStore instances.
  */
 CFTypeID
-SCDynamicStoreGetTypeID			(void)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+SCDynamicStoreGetTypeID			(void)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -2447,7 +2518,7 @@ SCDynamicStoreCreate			(
 					CFStringRef					name,
 					SCDynamicStoreCallBack		__nullable	callout,
 					SCDynamicStoreContext		* __nullable	context
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreCreateWithOptions
@@ -2493,9 +2564,9 @@ SCDynamicStoreCreateWithOptions		(
 					CFDictionaryRef			__nullable	storeOptions,
 					SCDynamicStoreCallBack		__nullable	callout,
 					SCDynamicStoreContext		* __nullable	context
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 
-extern const CFStringRef	kSCDynamicStoreUseSessionKeys		__OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);	/* CFBoolean */
+extern const CFStringRef	kSCDynamicStoreUseSessionKeys		API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);	/* CFBoolean */
 
 /*!
 	@function SCDynamicStoreCreateRunLoopSource
@@ -2525,7 +2596,7 @@ SCDynamicStoreCreateRunLoopSource	(
 					CFAllocatorRef			__nullable	allocator,
 					SCDynamicStoreRef				store,
 					CFIndex						order
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreSetDispatchQueue
@@ -2541,7 +2612,7 @@ Boolean
 SCDynamicStoreSetDispatchQueue		(
 					SCDynamicStoreRef				store,
 					dispatch_queue_t		__nullable	queue
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreCopyKeyList
@@ -2558,7 +2629,7 @@ CFArrayRef __nullable
 SCDynamicStoreCopyKeyList		(
 					SCDynamicStoreRef		__nullable	store,
 					CFStringRef					pattern
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreAddValue
@@ -2575,7 +2646,7 @@ SCDynamicStoreAddValue			(
 					SCDynamicStoreRef		__nullable	store,
 					CFStringRef					key,
 					CFPropertyListRef				value
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreAddTemporaryValue
@@ -2594,7 +2665,7 @@ SCDynamicStoreAddTemporaryValue		(
 					SCDynamicStoreRef		store,
 					CFStringRef			key,
 					CFPropertyListRef		value
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreCopyValue
@@ -2609,7 +2680,7 @@ CFPropertyListRef __nullable
 SCDynamicStoreCopyValue			(
 					SCDynamicStoreRef		__nullable	store,
 					CFStringRef					key
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreCopyMultiple
@@ -2629,7 +2700,7 @@ SCDynamicStoreCopyMultiple		(
 					SCDynamicStoreRef		__nullable	store,
 					CFArrayRef			__nullable	keys,
 					CFArrayRef			__nullable	patterns
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreSetValue
@@ -2645,7 +2716,7 @@ SCDynamicStoreSetValue			(
 					SCDynamicStoreRef		__nullable	store,
 					CFStringRef					key,
 					CFPropertyListRef				value
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreSetMultiple
@@ -2662,7 +2733,7 @@ SCDynamicStoreSetMultiple		(
 					CFDictionaryRef			__nullable	keysToSet,
 					CFArrayRef			__nullable	keysToRemove,
 					CFArrayRef			__nullable	keysToNotify
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreRemoveValue
@@ -2677,7 +2748,7 @@ Boolean
 SCDynamicStoreRemoveValue		(
 					SCDynamicStoreRef		__nullable	store,
 					CFStringRef					key
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreNotifyValue
@@ -2693,7 +2764,7 @@ Boolean
 SCDynamicStoreNotifyValue		(
 					SCDynamicStoreRef		__nullable	store,
 					CFStringRef					key
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreSetNotificationKeys
@@ -2712,7 +2783,7 @@ SCDynamicStoreSetNotificationKeys	(
 					SCDynamicStoreRef				store,
 					CFArrayRef			__nullable	keys,
 					CFArrayRef			__nullable	patterns
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreCopyNotifiedKeys
@@ -2729,28 +2800,27 @@ SCDynamicStoreSetNotificationKeys	(
 CFArrayRef __nullable
 SCDynamicStoreCopyNotifiedKeys		(
 					SCDynamicStoreRef		store
-					)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)				API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #endif	/* _SCDYNAMICSTORE_H */
 // ==========  SystemConfiguration.framework/Headers/SystemConfiguration.h
 /*
- * Copyright (c) 2000-2004, 2006, 2008-2010, 2012, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2000-2004, 2006, 2008-2010, 2012, 2015, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -2758,14 +2828,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SYSTEMCONFIGURATION_H
 #define _SYSTEMCONFIGURATION_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <sys/cdefs.h>
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -2847,12 +2917,14 @@ enum {
 	/*
 	 * SCNetworkConnection error codes
 	 */
-	kSCStatusConnectionNoService		= 5001,	/* Network service for connection not available
-							   __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_2_0)
-							 */
-	kSCStatusConnectionIgnore               = 5002, /* Network connection information not available at this time
-							   __OSX_AVAILABLE_STARTING(__MAC_10_9,__IPHONE_6_0)
-							 */
+	kSCStatusConnectionNoService
+		API_AVAILABLE(macos(6.0))
+		API_UNAVAILABLE(ios, tvos, watchos)
+						= 5001,	/* Network service for connection not available */
+	kSCStatusConnectionIgnore
+		API_AVAILABLE(macos(9.0))
+		API_UNAVAILABLE(ios, tvos, watchos)
+						= 5002, /* Network connection information not available at this time */
 };
 
 
@@ -2885,7 +2957,7 @@ CF_ASSUME_NONNULL_BEGIN
 	@discussion CFError domain associated with errors reported by
 		the SystemConfiguration.framework.
  */
-extern const CFStringRef	kCFErrorDomainSystemConfiguration	__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_2_0);
+extern const CFStringRef	kCFErrorDomainSystemConfiguration	API_AVAILABLE(macos(10.5), ios(2.0));
 
 __BEGIN_DECLS
 
@@ -2895,7 +2967,7 @@ __BEGIN_DECLS
 		as the result of calling a System Configuration framework API.
 	@result Returns the last error encountered.
  */
-CFErrorRef	SCCopyLastError		(void)				__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_2_0);
+CFErrorRef	SCCopyLastError		(void)				API_AVAILABLE(macos(10.5), ios(2.0));
 
 /*!
 	@function SCError
@@ -2903,7 +2975,7 @@ CFErrorRef	SCCopyLastError		(void)				__OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHO
 		as the result of calling a System Configuration framework API.
 	@result Returns the last error encountered.
  */
-int		SCError			(void)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_2_0);
+int		SCError			(void)				API_AVAILABLE(macos(10.1), ios(2.0));
 
 /*!
 	@function SCErrorString
@@ -2912,27 +2984,27 @@ int		SCError			(void)				__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_2_0);
 	@param status The SCDynamicStoreStatus to be returned.
 	@result Returns a pointer to the error message string.
  */
-const char *	SCErrorString		(int	status)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_2_0);
+const char *	SCErrorString		(int	status)			API_AVAILABLE(macos(10.1), ios(2.0));
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif /* _SYSTEMCONFIGURATION_H */
+#endif	/* _SYSTEMCONFIGURATION_H */
 // ==========  SystemConfiguration.framework/Headers/SCNetworkReachability.h
 /*
- * Copyright (c) 2003-2005, 2008-2010, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2003-2005, 2008-2010, 2015-2016, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -2940,14 +3012,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCNETWORKREACHABILITY_H
 #define _SCNETWORKREACHABILITY_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <TargetConditionals.h>
 #include <sys/cdefs.h>
 #include <sys/types.h>
@@ -2972,6 +3044,22 @@ CF_ASSUME_NONNULL_BEGIN
 		computer.
 		Note that reachability does <i>not</i> guarantee that the data
 		packet will actually be received by the host.
+
+		When reachability is used without scheduling updates on a runloop
+		or dispatch queue, the system will not generate DNS traffic and
+		will be optimistic about its reply - it will assume that the target
+		is reachable if there is a default route but a DNS query is
+		needed to learn the address. When scheduled, the first callback
+		will behave like an unscheduled call but subsequent calls will
+		leverage DNS results.
+
+		When used on IPv6-only (NAT64+DNS64) networks, reachability checks
+		for IPv4 address literals (either a struct sockaddr_in * or textual
+		representations such as "192.0.2.1") will automatically give the
+		result for the corresponding synthesized IPv6 address.
+		On those networks, creating a CFSocketStream or NSURLSession
+		to that address will send packets but trying to connect using
+		BSD socket APIs will fail.
  */
 
 /*!
@@ -3064,24 +3152,22 @@ typedef struct {
 		This flag indicates that network traffic to the specified
 		nodename or address will not go through a gateway, but is
 		routed directly to one of the interfaces in the system.
-#if	TARGET_OS_IPHONE
 	@constant kSCNetworkReachabilityFlagsIsWWAN
 		This flag indicates that the specified nodename or address can
 		be reached via an EDGE, GPRS, or other "cell" connection.
-#endif	// TARGET_OS_IPHONE
  */
 typedef CF_OPTIONS(uint32_t, SCNetworkReachabilityFlags) {
-	kSCNetworkReachabilityFlagsTransientConnection	= 1<<0,
-	kSCNetworkReachabilityFlagsReachable		= 1<<1,
-	kSCNetworkReachabilityFlagsConnectionRequired	= 1<<2,
-	kSCNetworkReachabilityFlagsConnectionOnTraffic	= 1<<3,
-	kSCNetworkReachabilityFlagsInterventionRequired	= 1<<4,
-	kSCNetworkReachabilityFlagsConnectionOnDemand	= 1<<5,	// __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_3_0)
-	kSCNetworkReachabilityFlagsIsLocalAddress	= 1<<16,
-	kSCNetworkReachabilityFlagsIsDirect		= 1<<17,
-#if	TARGET_OS_IPHONE
-	kSCNetworkReachabilityFlagsIsWWAN		= 1<<18,
-#endif	// TARGET_OS_IPHONE
+	kSCNetworkReachabilityFlagsTransientConnection		= 1<<0,
+	kSCNetworkReachabilityFlagsReachable			= 1<<1,
+	kSCNetworkReachabilityFlagsConnectionRequired		= 1<<2,
+	kSCNetworkReachabilityFlagsConnectionOnTraffic		= 1<<3,
+	kSCNetworkReachabilityFlagsInterventionRequired		= 1<<4,
+	kSCNetworkReachabilityFlagsConnectionOnDemand
+		API_AVAILABLE(macos(6.0),ios(3.0))		= 1<<5,
+	kSCNetworkReachabilityFlagsIsLocalAddress		= 1<<16,
+	kSCNetworkReachabilityFlagsIsDirect			= 1<<17,
+	kSCNetworkReachabilityFlagsIsWWAN
+		API_UNAVAILABLE(macos) API_AVAILABLE(ios(2.0))	= 1<<18,
 
 	kSCNetworkReachabilityFlagsConnectionAutomatic	= kSCNetworkReachabilityFlagsConnectionOnTraffic
 };
@@ -3118,7 +3204,7 @@ SCNetworkReachabilityRef __nullable
 SCNetworkReachabilityCreateWithAddress		(
 						CFAllocatorRef			__nullable	allocator,
 						const struct sockaddr				*address
-						)				__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_2_0);
+						)				API_AVAILABLE(macos(10.3), ios(2.0));
 
 /*!
 	@function SCNetworkReachabilityCreateWithAddressPair
@@ -3138,7 +3224,7 @@ SCNetworkReachabilityCreateWithAddressPair	(
 						CFAllocatorRef			__nullable	allocator,
 						const struct sockaddr		* __nullable	localAddress,
 						const struct sockaddr		* __nullable	remoteAddress
-						)				__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_2_0);
+						)				API_AVAILABLE(macos(10.3), ios(2.0));
 
 /*!
 	@function SCNetworkReachabilityCreateWithName
@@ -3156,7 +3242,7 @@ SCNetworkReachabilityRef __nullable
 SCNetworkReachabilityCreateWithName		(
 						CFAllocatorRef			__nullable	allocator,
 						const char					*nodename
-						)				__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_2_0);
+						)				API_AVAILABLE(macos(10.3), ios(2.0));
 
 /*!
 	@function SCNetworkReachabilityGetTypeID
@@ -3164,7 +3250,7 @@ SCNetworkReachabilityCreateWithName		(
 		instances.
  */
 CFTypeID
-SCNetworkReachabilityGetTypeID			(void)				__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_2_0);
+SCNetworkReachabilityGetTypeID			(void)				API_AVAILABLE(macos(10.3), ios(2.0));
 
 
 /*!
@@ -3183,7 +3269,7 @@ Boolean
 SCNetworkReachabilityGetFlags			(
 						SCNetworkReachabilityRef	target,
 						SCNetworkReachabilityFlags	*flags
-						)				__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_2_0);
+						)				API_AVAILABLE(macos(10.3), ios(2.0));
 
 /*!
 	@function SCNetworkReachabilitySetCallback
@@ -3203,7 +3289,7 @@ SCNetworkReachabilitySetCallback		(
 						SCNetworkReachabilityRef			target,
 						SCNetworkReachabilityCallBack	__nullable	callout,
 						SCNetworkReachabilityContext	* __nullable	context
-						)				__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_2_0);
+						)				API_AVAILABLE(macos(10.3), ios(2.0));
 
 /*!
 	@function SCNetworkReachabilityScheduleWithRunLoop
@@ -3222,7 +3308,7 @@ SCNetworkReachabilityScheduleWithRunLoop	(
 						SCNetworkReachabilityRef	target,
 						CFRunLoopRef			runLoop,
 						CFStringRef			runLoopMode
-						)				__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_2_0);
+						)				API_AVAILABLE(macos(10.3), ios(2.0));
 
 /*!
 	@function SCNetworkReachabilityUnscheduleFromRunLoop
@@ -3242,43 +3328,44 @@ SCNetworkReachabilityUnscheduleFromRunLoop	(
 						SCNetworkReachabilityRef	target,
 						CFRunLoopRef			runLoop,
 						CFStringRef			runLoopMode
-						)				__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_2_0);
+						)				API_AVAILABLE(macos(10.3), ios(2.0));
 
 /*!
 	@function SCNetworkReachabilitySetDispatchQueue
-	@discussion Schedules callbacks for the given target on the given
+	@discussion Schedule or unschedule callbacks for the given target on the given
 		dispatch queue.
 	@param target The address or name that is set up for asynchronous
 		notifications.  Must be non-NULL.
-	@param queue A libdispatch queue to run the callback on. Pass NULL to disable notifications, and release queue.
-	@result Returns TRUE if the target is unscheduled successfully;
+	@param queue A libdispatch queue to run the callback on.
+		Pass NULL to unschedule callbacks.
+	@result Returns TRUE if the target is scheduled or unscheduled successfully;
 		FALSE otherwise.
  */
 Boolean
 SCNetworkReachabilitySetDispatchQueue		(
 						SCNetworkReachabilityRef			target,
 						dispatch_queue_t		__nullable	queue
-						)				__OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_4_0);
+						)				API_AVAILABLE(macos(10.6), ios(4.0));
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif /* _SCNETWORKREACHABILITY_H */
+#endif	/* _SCNETWORKREACHABILITY_H */
 // ==========  SystemConfiguration.framework/Headers/DHCPClientPreferences.h
 /*
- * Copyright (c) 2001, 2004, 2005, 2008, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2001, 2004, 2005, 2008, 2015, 2017, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -3286,17 +3373,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _DHCPCLIENTPREFERENCES_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_DHCPClientPreferences.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define _DHCPCLIENTPREFERENCES_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <sys/cdefs.h>
 #include <CoreFoundation/CFString.h>
 
@@ -3327,8 +3411,8 @@ __BEGIN_DECLS
 
 Boolean
 DHCPClientPreferencesSetApplicationOptions	(CFStringRef			applicationID,
-						 UInt8		* __nullable	options,
-						 CFIndex			count)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+						 const UInt8	* __nullable	options,
+						 CFIndex			count)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function DHCPClientPreferencesCopyApplicationOptions
@@ -3345,28 +3429,27 @@ DHCPClientPreferencesSetApplicationOptions	(CFStringRef			applicationID,
 
 UInt8 * __nullable
 DHCPClientPreferencesCopyApplicationOptions	(CFStringRef	applicationID,
-						 CFIndex	*count)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+						 CFIndex	*count)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #endif	/* _DHCPCLIENTPREFERENCES_H */
 // ==========  SystemConfiguration.framework/Headers/SCNetworkConnection.h
 /*
- * Copyright (c) 2003-2006, 2008-2010, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2003-2006, 2008-2010, 2015, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -3374,17 +3457,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCNETWORKCONNECTION_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_SCNetworkConnection.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define _SCNETWORKCONNECTION_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <TargetConditionals.h>
 #include <sys/cdefs.h>
 #include <dispatch/dispatch.h>
@@ -3573,7 +3653,8 @@ typedef void (*SCNetworkConnectionCallBack)	(
 		"best" SCNetworkConnection.
  */
 #define kSCNetworkConnectionSelectionOptionOnDemandHostName	CFSTR("OnDemandHostName")	// CFString
-												// __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA)
+												// API_AVAILABLE(macos(4.0))
+												
 
 /*!
 	@define kSCNetworkConnectionSelectionOptionOnDemandRetry
@@ -3581,7 +3662,8 @@ typedef void (*SCNetworkConnectionCallBack)	(
 		already been issued for the specified OnDemand host name.
  */
 #define kSCNetworkConnectionSelectionOptionOnDemandRetry	CFSTR("OnDemandRetry")		// CFBoolean
-												// __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA)
+												// API_AVAILABLE(macos(4.0))
+												
 
 __BEGIN_DECLS
 
@@ -3591,7 +3673,7 @@ __BEGIN_DECLS
 		instances.
  */
 CFTypeID
-SCNetworkConnectionGetTypeID			(void)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+SCNetworkConnectionGetTypeID			(void)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3614,7 +3696,7 @@ SCNetworkConnectionCopyUserPreferences		(
 						CFDictionaryRef				  __nullable	selectionOptions,
 						CFStringRef		__nonnull	* __nullable	serviceID,
 						CFDictionaryRef		__nonnull	* __nullable	userOptions
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3644,7 +3726,7 @@ SCNetworkConnectionCreateWithServiceID		(
 						CFStringRef					serviceID,
 						SCNetworkConnectionCallBack	__nullable	callout,
 						SCNetworkConnectionContext	* __nullable	context
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3656,7 +3738,7 @@ SCNetworkConnectionCreateWithServiceID		(
 CFStringRef __nullable
 SCNetworkConnectionCopyServiceID		(
 						SCNetworkConnectionRef		connection
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3679,7 +3761,7 @@ SCNetworkConnectionCopyServiceID		(
 SCNetworkConnectionStatus
 SCNetworkConnectionGetStatus			(
 						SCNetworkConnectionRef		connection
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3727,7 +3809,7 @@ SCNetworkConnectionGetStatus			(
 CFDictionaryRef __nullable
 SCNetworkConnectionCopyExtendedStatus		(
 						SCNetworkConnectionRef		connection
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3769,7 +3851,7 @@ SCNetworkConnectionCopyExtendedStatus		(
 CFDictionaryRef __nullable
 SCNetworkConnectionCopyStatistics		(
 						SCNetworkConnectionRef		connection
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3821,7 +3903,7 @@ SCNetworkConnectionStart			(
 						SCNetworkConnectionRef				connection,
 						CFDictionaryRef			__nullable	userOptions,
 						Boolean						linger
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3847,7 +3929,7 @@ Boolean
 SCNetworkConnectionStop				(
 						SCNetworkConnectionRef		connection,
 						Boolean				forceDisconnect
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3863,7 +3945,7 @@ SCNetworkConnectionStop				(
 CFDictionaryRef __nullable
 SCNetworkConnectionCopyUserOptions		(
 						SCNetworkConnectionRef		connection
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3881,7 +3963,7 @@ SCNetworkConnectionScheduleWithRunLoop		(
 						SCNetworkConnectionRef		connection,
 						CFRunLoopRef			runLoop,
 						CFStringRef			runLoopMode
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3899,7 +3981,7 @@ SCNetworkConnectionUnscheduleFromRunLoop	(
 						SCNetworkConnectionRef		connection,
 						CFRunLoopRef			runLoop,
 						CFStringRef			runLoopMode
-						)			__OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+						)			API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 
 
 /*!
@@ -3916,18 +3998,17 @@ Boolean
 SCNetworkConnectionSetDispatchQueue		(
 						 SCNetworkConnectionRef				connection,
 						 dispatch_queue_t		__nullable	queue
-						 )			__OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+						 )			API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
-#endif /* _SCNETWORKCONNECTION_H */
+#endif	/* _SCNETWORKCONNECTION_H */
 // ==========  SystemConfiguration.framework/Headers/SCSchemaDefinitions.h
 /*
- * Copyright (c) 2000-2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2000-2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
  *
@@ -4052,7 +4133,6 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *   kSCPropNetInterfaceHardware                        "Hardware"                     CFString
  *   kSCPropNetInterfaceType                            "Type"                         CFString
  *   kSCPropNetInterfaceSubType                         "SubType"                      CFString
- *   kSCPropNetInterfaceSupportsModemOnHold             "SupportsModemOnHold"          CFNumber (0 or 1)
  *
  *   --- kSCPropNetInterfaceType values ---
  *   kSCValNetInterfaceTypeEthernet                     "Ethernet"
@@ -4254,10 +4334,6 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *
  *   * RESERVED FOR FUTURE USE *
  *
- * kSCEntNetPPTP Entity Keys
- *
- *   * RESERVED FOR FUTURE USE *
- *
  * kSCEntNetL2TP Entity Keys
  *
  *   kSCPropNetL2TPIPSecSharedSecret                    "IPSecSharedSecret"            CFString
@@ -4345,12 +4421,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 
 #ifndef	_SCSCHEMADEFINITIONS_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_SCSchemaDefinitions.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define	_SCSCHEMADEFINITIONS_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <TargetConditionals.h>
 #include <CoreFoundation/CFString.h>
 
@@ -4365,41 +4438,41 @@ CF_ASSUME_NONNULL_BEGIN
   @const kSCResvLink
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCResvLink                                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCResvLink                                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCResvLink kSCResvLink
 
 /*!
   @const kSCResvInactive
  */
-extern const CFStringRef kSCResvInactive                                    __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCResvInactive                                    API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCResvInactive kSCResvInactive
 
 /*!
   @const kSCPropInterfaceName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropInterfaceName                               __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropInterfaceName                               API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropInterfaceName kSCPropInterfaceName
 
 /*!
   @const kSCPropMACAddress
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropMACAddress                                  __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropMACAddress                                  API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropMACAddress kSCPropMACAddress
 
 /*!
   @const kSCPropUserDefinedName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropUserDefinedName                             __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropUserDefinedName                             API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropUserDefinedName kSCPropUserDefinedName
 
 /*!
   @const kSCPropVersion
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropVersion                                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropVersion                                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropVersion kSCPropVersion
 
 /*!
@@ -4410,28 +4483,28 @@ extern const CFStringRef kSCPropVersion                                     __OS
   @const kSCPrefCurrentSet
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPrefCurrentSet                                  __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPrefCurrentSet                                  API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPrefCurrentSet kSCPrefCurrentSet
 
 /*!
   @const kSCPrefNetworkServices
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCPrefNetworkServices                             __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPrefNetworkServices                             API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPrefNetworkServices kSCPrefNetworkServices
 
 /*!
   @const kSCPrefSets
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCPrefSets                                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPrefSets                                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPrefSets kSCPrefSets
 
 /*!
   @const kSCPrefSystem
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCPrefSystem                                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPrefSystem                                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPrefSystem kSCPrefSystem
 
 /*!
@@ -4441,49 +4514,49 @@ extern const CFStringRef kSCPrefSystem                                      __OS
 /*!
   @const kSCCompNetwork
  */
-extern const CFStringRef kSCCompNetwork                                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCCompNetwork                                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCCompNetwork kSCCompNetwork
 
 /*!
   @const kSCCompService
  */
-extern const CFStringRef kSCCompService                                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCCompService                                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCCompService kSCCompService
 
 /*!
   @const kSCCompGlobal
  */
-extern const CFStringRef kSCCompGlobal                                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCCompGlobal                                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCCompGlobal kSCCompGlobal
 
 /*!
   @const kSCCompHostNames
  */
-extern const CFStringRef kSCCompHostNames                                   __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCCompHostNames                                   API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCCompHostNames kSCCompHostNames
 
 /*!
   @const kSCCompInterface
  */
-extern const CFStringRef kSCCompInterface                                   __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCCompInterface                                   API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCCompInterface kSCCompInterface
 
 /*!
   @const kSCCompSystem
  */
-extern const CFStringRef kSCCompSystem                                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCCompSystem                                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCCompSystem kSCCompSystem
 
 /*!
   @const kSCCompUsers
  */
-extern const CFStringRef kSCCompUsers                                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCCompUsers                                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCCompUsers kSCCompUsers
 
 /*!
   @const kSCCompAnyRegex
  */
-extern const CFStringRef kSCCompAnyRegex                                    __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCCompAnyRegex                                    API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCCompAnyRegex kSCCompAnyRegex
 
 /*!
@@ -4494,147 +4567,133 @@ extern const CFStringRef kSCCompAnyRegex                                    __OS
   @const kSCEntNetAirPort
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetAirPort                                   __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetAirPort                                   API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetAirPort kSCEntNetAirPort
-
-/*!
-  @const kSCEntNetAppleTalk
-  @discussion Value is a CFDictionary
- */
-extern const CFStringRef kSCEntNetAppleTalk                                 __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCEntNetAppleTalk kSCEntNetAppleTalk
 
 /*!
   @const kSCEntNetDHCP
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetDHCP                                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetDHCP                                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetDHCP kSCEntNetDHCP
 
 /*!
   @const kSCEntNetDNS
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetDNS                                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetDNS                                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetDNS kSCEntNetDNS
 
 /*!
   @const kSCEntNetEthernet
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetEthernet                                  __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetEthernet                                  API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetEthernet kSCEntNetEthernet
 
 /*!
   @const kSCEntNetFireWire
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetFireWire                                  __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCEntNetFireWire                                  API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetFireWire kSCEntNetFireWire
 
 /*!
   @const kSCEntNetInterface
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetInterface                                 __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetInterface                                 API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetInterface kSCEntNetInterface
 
 /*!
   @const kSCEntNetIPSec
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetIPSec                                     __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCEntNetIPSec                                     API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetIPSec kSCEntNetIPSec
 
 /*!
   @const kSCEntNetIPv4
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetIPv4                                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetIPv4                                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetIPv4 kSCEntNetIPv4
 
 /*!
   @const kSCEntNetIPv6
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetIPv6                                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetIPv6                                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetIPv6 kSCEntNetIPv6
 
 /*!
   @const kSCEntNetL2TP
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetL2TP                                      __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCEntNetL2TP                                      API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetL2TP kSCEntNetL2TP
 
 /*!
   @const kSCEntNetLink
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetLink                                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetLink                                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetLink kSCEntNetLink
 
 /*!
   @const kSCEntNetModem
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetModem                                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetModem                                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetModem kSCEntNetModem
-
-/*!
-  @const kSCEntNetNetInfo
-  @discussion Value is a CFDictionary
- */
-extern const CFStringRef kSCEntNetNetInfo                                   __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_5,__IPHONE_NA,__IPHONE_NA);
-#define kSCEntNetNetInfo kSCEntNetNetInfo
 
 /*!
   @const kSCEntNetPPP
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetPPP                                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetPPP                                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetPPP kSCEntNetPPP
 
 /*!
   @const kSCEntNetPPPoE
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetPPPoE                                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetPPPoE                                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetPPPoE kSCEntNetPPPoE
 
 /*!
   @const kSCEntNetPPPSerial
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetPPPSerial                                 __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCEntNetPPPSerial                                 API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetPPPSerial kSCEntNetPPPSerial
 
 /*!
   @const kSCEntNetPPTP
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetPPTP                                      __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCEntNetPPTP                                      API_DEPRECATED("No longer supported", macos(10.3,10.12)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetPPTP kSCEntNetPPTP
 
 /*!
   @const kSCEntNetProxies
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetProxies                                   __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntNetProxies                                   API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetProxies kSCEntNetProxies
 
 /*!
   @const kSCEntNetSMB
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNetSMB                                       __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCEntNetSMB                                       API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNetSMB kSCEntNetSMB
 
 /*!
   @const kSCEntNet6to4
   @discussion Value is a CFDictionary
  */
-extern const CFStringRef kSCEntNet6to4                                      __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCEntNet6to4                                      API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntNet6to4 kSCEntNet6to4
 
 /*!
@@ -4645,21 +4704,21 @@ extern const CFStringRef kSCEntNet6to4                                      __OS
   @const kSCPropNetOverridePrimary
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetOverridePrimary                          __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetOverridePrimary                          API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetOverridePrimary kSCPropNetOverridePrimary
 
 /*!
   @const kSCPropNetServiceOrder
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetServiceOrder                             __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetServiceOrder                             API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetServiceOrder kSCPropNetServiceOrder
 
 /*!
   @const kSCPropNetPPPOverridePrimary
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPOverridePrimary                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPOverridePrimary                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPOverridePrimary kSCPropNetPPPOverridePrimary
 
 /*!
@@ -4670,7 +4729,7 @@ extern const CFStringRef kSCPropNetPPPOverridePrimary                       __OS
   @const kSCPropNetInterfaces
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetInterfaces                               __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetInterfaces                               API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetInterfaces kSCPropNetInterfaces
 
 /*!
@@ -4681,7 +4740,7 @@ extern const CFStringRef kSCPropNetInterfaces                               __OS
   @const kSCPropNetLocalHostName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetLocalHostName                            __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetLocalHostName                            API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetLocalHostName kSCPropNetLocalHostName
 
 /*!
@@ -4692,171 +4751,86 @@ extern const CFStringRef kSCPropNetLocalHostName                            __OS
   @const kSCPropNetAirPortAllowNetCreation
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetAirPortAllowNetCreation                  __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropNetAirPortAllowNetCreation                  API_DEPRECATED("No longer supported", macos(10.2,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetAirPortAllowNetCreation kSCPropNetAirPortAllowNetCreation
 
 /*!
   @const kSCPropNetAirPortAuthPassword
   @discussion Value is a CFData
  */
-extern const CFStringRef kSCPropNetAirPortAuthPassword                      __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropNetAirPortAuthPassword                      API_DEPRECATED("No longer supported", macos(10.1,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetAirPortAuthPassword kSCPropNetAirPortAuthPassword
 
 /*!
   @const kSCPropNetAirPortAuthPasswordEncryption
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetAirPortAuthPasswordEncryption            __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropNetAirPortAuthPasswordEncryption            API_DEPRECATED("No longer supported", macos(10.1,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetAirPortAuthPasswordEncryption kSCPropNetAirPortAuthPasswordEncryption
 
 /*!
   @const kSCPropNetAirPortJoinMode
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetAirPortJoinMode                          __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropNetAirPortJoinMode                          API_DEPRECATED("No longer supported", macos(10.2,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetAirPortJoinMode kSCPropNetAirPortJoinMode
 
 /*!
   @const kSCPropNetAirPortPowerEnabled
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetAirPortPowerEnabled                      __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropNetAirPortPowerEnabled                      API_DEPRECATED("No longer supported", macos(10.1,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetAirPortPowerEnabled kSCPropNetAirPortPowerEnabled
 
 /*!
   @const kSCPropNetAirPortPreferredNetwork
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetAirPortPreferredNetwork                  __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropNetAirPortPreferredNetwork                  API_DEPRECATED("No longer supported", macos(10.1,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetAirPortPreferredNetwork kSCPropNetAirPortPreferredNetwork
 
 /*!
   @const kSCPropNetAirPortSavePasswords
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetAirPortSavePasswords                     __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropNetAirPortSavePasswords                     API_DEPRECATED("No longer supported", macos(10.2,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetAirPortSavePasswords kSCPropNetAirPortSavePasswords
 
 /*!
   @const kSCValNetAirPortJoinModeAutomatic
  */
-extern const CFStringRef kSCValNetAirPortJoinModeAutomatic                  __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_3,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCValNetAirPortJoinModeAutomatic                  API_DEPRECATED("No longer supported", macos(10.3,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetAirPortJoinModeAutomatic kSCValNetAirPortJoinModeAutomatic
 
 /*!
   @const kSCValNetAirPortJoinModePreferred
  */
-extern const CFStringRef kSCValNetAirPortJoinModePreferred                  __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCValNetAirPortJoinModePreferred                  API_DEPRECATED("No longer supported", macos(10.2,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetAirPortJoinModePreferred kSCValNetAirPortJoinModePreferred
 
 /*!
   @const kSCValNetAirPortJoinModeRanked
  */
-extern const CFStringRef kSCValNetAirPortJoinModeRanked                     __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_4,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCValNetAirPortJoinModeRanked                     API_DEPRECATED("No longer supported", macos(10.4,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetAirPortJoinModeRanked kSCValNetAirPortJoinModeRanked
 
 /*!
   @const kSCValNetAirPortJoinModeRecent
  */
-extern const CFStringRef kSCValNetAirPortJoinModeRecent                     __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCValNetAirPortJoinModeRecent                     API_DEPRECATED("No longer supported", macos(10.2,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetAirPortJoinModeRecent kSCValNetAirPortJoinModeRecent
 
 /*!
   @const kSCValNetAirPortJoinModeStrongest
  */
-extern const CFStringRef kSCValNetAirPortJoinModeStrongest                  __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCValNetAirPortJoinModeStrongest                  API_DEPRECATED("No longer supported", macos(10.2,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetAirPortJoinModeStrongest kSCValNetAirPortJoinModeStrongest
 
 /*!
   @const kSCValNetAirPortAuthPasswordEncryptionKeychain
  */
-extern const CFStringRef kSCValNetAirPortAuthPasswordEncryptionKeychain     __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_3,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCValNetAirPortAuthPasswordEncryptionKeychain     API_DEPRECATED("No longer supported", macos(10.3,10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetAirPortAuthPasswordEncryptionKeychain kSCValNetAirPortAuthPasswordEncryptionKeychain
-
-/*!
-  @group kSCEntNetAppleTalk Entity Keys
- */
-
-/*!
-  @const kSCPropNetAppleTalkComputerName
-  @discussion Value is a CFString
- */
-extern const CFStringRef kSCPropNetAppleTalkComputerName                    __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetAppleTalkComputerName kSCPropNetAppleTalkComputerName
-
-/*!
-  @const kSCPropNetAppleTalkComputerNameEncoding
-  @discussion Value is a CFNumber
- */
-extern const CFStringRef kSCPropNetAppleTalkComputerNameEncoding            __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetAppleTalkComputerNameEncoding kSCPropNetAppleTalkComputerNameEncoding
-
-/*!
-  @const kSCPropNetAppleTalkConfigMethod
-  @discussion Value is a CFString
- */
-extern const CFStringRef kSCPropNetAppleTalkConfigMethod                    __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetAppleTalkConfigMethod kSCPropNetAppleTalkConfigMethod
-
-/*!
-  @const kSCPropNetAppleTalkDefaultZone
-  @discussion Value is a CFString
- */
-extern const CFStringRef kSCPropNetAppleTalkDefaultZone                     __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetAppleTalkDefaultZone kSCPropNetAppleTalkDefaultZone
-
-/*!
-  @const kSCPropNetAppleTalkNetworkID
-  @discussion Value is a CFNumber
- */
-extern const CFStringRef kSCPropNetAppleTalkNetworkID                       __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetAppleTalkNetworkID kSCPropNetAppleTalkNetworkID
-
-/*!
-  @const kSCPropNetAppleTalkNetworkRange
-  @discussion Value is a CFArray[CFNumber]
- */
-extern const CFStringRef kSCPropNetAppleTalkNetworkRange                    __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetAppleTalkNetworkRange kSCPropNetAppleTalkNetworkRange
-
-/*!
-  @const kSCPropNetAppleTalkNodeID
-  @discussion Value is a CFNumber
- */
-extern const CFStringRef kSCPropNetAppleTalkNodeID                          __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetAppleTalkNodeID kSCPropNetAppleTalkNodeID
-
-/*!
-  @const kSCPropNetAppleTalkSeedNetworkRange
-  @discussion Value is a CFArray[CFNumber]
- */
-extern const CFStringRef kSCPropNetAppleTalkSeedNetworkRange                __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetAppleTalkSeedNetworkRange kSCPropNetAppleTalkSeedNetworkRange
-
-/*!
-  @const kSCPropNetAppleTalkSeedZones
-  @discussion Value is a CFArray[CFString]
- */
-extern const CFStringRef kSCPropNetAppleTalkSeedZones                       __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetAppleTalkSeedZones kSCPropNetAppleTalkSeedZones
-
-/*!
-  @const kSCValNetAppleTalkConfigMethodNode
- */
-extern const CFStringRef kSCValNetAppleTalkConfigMethodNode                 __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCValNetAppleTalkConfigMethodNode kSCValNetAppleTalkConfigMethodNode
-
-/*!
-  @const kSCValNetAppleTalkConfigMethodRouter
- */
-extern const CFStringRef kSCValNetAppleTalkConfigMethodRouter               __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCValNetAppleTalkConfigMethodRouter kSCValNetAppleTalkConfigMethodRouter
-
-/*!
-  @const kSCValNetAppleTalkConfigMethodSeedRouter
- */
-extern const CFStringRef kSCValNetAppleTalkConfigMethodSeedRouter           __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);
-#define kSCValNetAppleTalkConfigMethodSeedRouter kSCValNetAppleTalkConfigMethodSeedRouter
 
 /*!
   @group kSCEntNetDNS Entity Keys
@@ -4866,70 +4840,70 @@ extern const CFStringRef kSCValNetAppleTalkConfigMethodSeedRouter           __OS
   @const kSCPropNetDNSDomainName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetDNSDomainName                            __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetDNSDomainName                            API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetDNSDomainName kSCPropNetDNSDomainName
 
 /*!
   @const kSCPropNetDNSOptions
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetDNSOptions                               __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetDNSOptions                               API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetDNSOptions kSCPropNetDNSOptions
 
 /*!
   @const kSCPropNetDNSSearchDomains
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetDNSSearchDomains                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetDNSSearchDomains                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetDNSSearchDomains kSCPropNetDNSSearchDomains
 
 /*!
   @const kSCPropNetDNSSearchOrder
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetDNSSearchOrder                           __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetDNSSearchOrder                           API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetDNSSearchOrder kSCPropNetDNSSearchOrder
 
 /*!
   @const kSCPropNetDNSServerAddresses
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetDNSServerAddresses                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetDNSServerAddresses                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetDNSServerAddresses kSCPropNetDNSServerAddresses
 
 /*!
   @const kSCPropNetDNSServerPort
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetDNSServerPort                            __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetDNSServerPort                            API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetDNSServerPort kSCPropNetDNSServerPort
 
 /*!
   @const kSCPropNetDNSServerTimeout
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetDNSServerTimeout                         __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetDNSServerTimeout                         API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetDNSServerTimeout kSCPropNetDNSServerTimeout
 
 /*!
   @const kSCPropNetDNSSortList
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetDNSSortList                              __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetDNSSortList                              API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetDNSSortList kSCPropNetDNSSortList
 
 /*!
   @const kSCPropNetDNSSupplementalMatchDomains
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetDNSSupplementalMatchDomains              __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetDNSSupplementalMatchDomains              API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetDNSSupplementalMatchDomains kSCPropNetDNSSupplementalMatchDomains
 
 /*!
   @const kSCPropNetDNSSupplementalMatchOrders
   @discussion Value is a CFArray[CFNumber]
  */
-extern const CFStringRef kSCPropNetDNSSupplementalMatchOrders               __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetDNSSupplementalMatchOrders               API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetDNSSupplementalMatchOrders kSCPropNetDNSSupplementalMatchOrders
 
 /*!
@@ -4940,21 +4914,21 @@ extern const CFStringRef kSCPropNetDNSSupplementalMatchOrders               __OS
   @const kSCPropNetEthernetMediaSubType
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetEthernetMediaSubType                     __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetEthernetMediaSubType                     API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetEthernetMediaSubType kSCPropNetEthernetMediaSubType
 
 /*!
   @const kSCPropNetEthernetMediaOptions
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetEthernetMediaOptions                     __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetEthernetMediaOptions                     API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetEthernetMediaOptions kSCPropNetEthernetMediaOptions
 
 /*!
   @const kSCPropNetEthernetMTU
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetEthernetMTU                              __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetEthernetMTU                              API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetEthernetMTU kSCPropNetEthernetMTU
 
 /*!
@@ -4969,89 +4943,89 @@ extern const CFStringRef kSCPropNetEthernetMTU                              __OS
   @const kSCPropNetInterfaceDeviceName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetInterfaceDeviceName                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetInterfaceDeviceName                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetInterfaceDeviceName kSCPropNetInterfaceDeviceName
 
 /*!
   @const kSCPropNetInterfaceHardware
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetInterfaceHardware                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetInterfaceHardware                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetInterfaceHardware kSCPropNetInterfaceHardware
 
 /*!
   @const kSCPropNetInterfaceType
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetInterfaceType                            __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetInterfaceType                            API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetInterfaceType kSCPropNetInterfaceType
 
 /*!
   @const kSCPropNetInterfaceSubType
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetInterfaceSubType                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetInterfaceSubType                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetInterfaceSubType kSCPropNetInterfaceSubType
 
 /*!
   @const kSCPropNetInterfaceSupportsModemOnHold
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetInterfaceSupportsModemOnHold             __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetInterfaceSupportsModemOnHold             API_DEPRECATED("No longer supported", macos(10.2,10.13)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetInterfaceSupportsModemOnHold kSCPropNetInterfaceSupportsModemOnHold
 
 /*!
   @const kSCValNetInterfaceTypeEthernet
  */
-extern const CFStringRef kSCValNetInterfaceTypeEthernet                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetInterfaceTypeEthernet                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetInterfaceTypeEthernet kSCValNetInterfaceTypeEthernet
 
 /*!
   @const kSCValNetInterfaceTypeFireWire
  */
-extern const CFStringRef kSCValNetInterfaceTypeFireWire                     __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetInterfaceTypeFireWire                     API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetInterfaceTypeFireWire kSCValNetInterfaceTypeFireWire
 
 /*!
   @const kSCValNetInterfaceTypePPP
  */
-extern const CFStringRef kSCValNetInterfaceTypePPP                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetInterfaceTypePPP                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetInterfaceTypePPP kSCValNetInterfaceTypePPP
 
 /*!
   @const kSCValNetInterfaceType6to4
  */
-extern const CFStringRef kSCValNetInterfaceType6to4                         __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetInterfaceType6to4                         API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetInterfaceType6to4 kSCValNetInterfaceType6to4
 
 /*!
   @const kSCValNetInterfaceTypeIPSec
  */
-extern const CFStringRef kSCValNetInterfaceTypeIPSec                        __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCValNetInterfaceTypeIPSec                        API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetInterfaceTypeIPSec kSCValNetInterfaceTypeIPSec
 
 /*!
   @const kSCValNetInterfaceSubTypePPPoE
  */
-extern const CFStringRef kSCValNetInterfaceSubTypePPPoE                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetInterfaceSubTypePPPoE                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetInterfaceSubTypePPPoE kSCValNetInterfaceSubTypePPPoE
 
 /*!
   @const kSCValNetInterfaceSubTypePPPSerial
  */
-extern const CFStringRef kSCValNetInterfaceSubTypePPPSerial                 __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetInterfaceSubTypePPPSerial                 API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetInterfaceSubTypePPPSerial kSCValNetInterfaceSubTypePPPSerial
 
 /*!
   @const kSCValNetInterfaceSubTypePPTP
  */
-extern const CFStringRef kSCValNetInterfaceSubTypePPTP                      __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCValNetInterfaceSubTypePPTP                      API_DEPRECATED("No longer supported", macos(10.2,10.12)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetInterfaceSubTypePPTP kSCValNetInterfaceSubTypePPTP
 
 /*!
   @const kSCValNetInterfaceSubTypeL2TP
  */
-extern const CFStringRef kSCValNetInterfaceSubTypeL2TP                      __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetInterfaceSubTypeL2TP                      API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetInterfaceSubTypeL2TP kSCValNetInterfaceSubTypeL2TP
 
 /*!
@@ -5062,133 +5036,133 @@ extern const CFStringRef kSCValNetInterfaceSubTypeL2TP                      __OS
   @const kSCPropNetIPSecAuthenticationMethod
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPSecAuthenticationMethod                __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecAuthenticationMethod                API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecAuthenticationMethod kSCPropNetIPSecAuthenticationMethod
 
 /*!
   @const kSCPropNetIPSecLocalCertificate
   @discussion Value is a CFData
  */
-extern const CFStringRef kSCPropNetIPSecLocalCertificate                    __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecLocalCertificate                    API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecLocalCertificate kSCPropNetIPSecLocalCertificate
 
 /*!
   @const kSCPropNetIPSecLocalIdentifier
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPSecLocalIdentifier                     __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecLocalIdentifier                     API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecLocalIdentifier kSCPropNetIPSecLocalIdentifier
 
 /*!
   @const kSCPropNetIPSecLocalIdentifierType
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPSecLocalIdentifierType                 __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecLocalIdentifierType                 API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecLocalIdentifierType kSCPropNetIPSecLocalIdentifierType
 
 /*!
   @const kSCPropNetIPSecSharedSecret
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPSecSharedSecret                        __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecSharedSecret                        API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecSharedSecret kSCPropNetIPSecSharedSecret
 
 /*!
   @const kSCPropNetIPSecSharedSecretEncryption
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPSecSharedSecretEncryption              __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecSharedSecretEncryption              API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecSharedSecretEncryption kSCPropNetIPSecSharedSecretEncryption
 
 /*!
   @const kSCPropNetIPSecConnectTime
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetIPSecConnectTime                         __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecConnectTime                         API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecConnectTime kSCPropNetIPSecConnectTime
 
 /*!
   @const kSCPropNetIPSecRemoteAddress
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPSecRemoteAddress                       __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecRemoteAddress                       API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecRemoteAddress kSCPropNetIPSecRemoteAddress
 
 /*!
   @const kSCPropNetIPSecStatus
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetIPSecStatus                              __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecStatus                              API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecStatus kSCPropNetIPSecStatus
 
 /*!
   @const kSCPropNetIPSecXAuthEnabled
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetIPSecXAuthEnabled                        __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecXAuthEnabled                        API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecXAuthEnabled kSCPropNetIPSecXAuthEnabled
 
 /*!
   @const kSCPropNetIPSecXAuthName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPSecXAuthName                           __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecXAuthName                           API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecXAuthName kSCPropNetIPSecXAuthName
 
 /*!
   @const kSCPropNetIPSecXAuthPassword
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPSecXAuthPassword                       __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecXAuthPassword                       API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecXAuthPassword kSCPropNetIPSecXAuthPassword
 
 /*!
   @const kSCPropNetIPSecXAuthPasswordEncryption
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPSecXAuthPasswordEncryption             __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPSecXAuthPasswordEncryption             API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPSecXAuthPasswordEncryption kSCPropNetIPSecXAuthPasswordEncryption
 
 /*!
   @const kSCValNetIPSecAuthenticationMethodSharedSecret
  */
-extern const CFStringRef kSCValNetIPSecAuthenticationMethodSharedSecret     __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPSecAuthenticationMethodSharedSecret     API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPSecAuthenticationMethodSharedSecret kSCValNetIPSecAuthenticationMethodSharedSecret
 
 /*!
   @const kSCValNetIPSecAuthenticationMethodCertificate
  */
-extern const CFStringRef kSCValNetIPSecAuthenticationMethodCertificate      __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPSecAuthenticationMethodCertificate      API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPSecAuthenticationMethodCertificate kSCValNetIPSecAuthenticationMethodCertificate
 
 /*!
   @const kSCValNetIPSecAuthenticationMethodHybrid
  */
-extern const CFStringRef kSCValNetIPSecAuthenticationMethodHybrid           __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPSecAuthenticationMethodHybrid           API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPSecAuthenticationMethodHybrid kSCValNetIPSecAuthenticationMethodHybrid
 
 /*!
   @const kSCValNetIPSecLocalIdentifierTypeKeyID
  */
-extern const CFStringRef kSCValNetIPSecLocalIdentifierTypeKeyID             __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPSecLocalIdentifierTypeKeyID             API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPSecLocalIdentifierTypeKeyID kSCValNetIPSecLocalIdentifierTypeKeyID
 
 /*!
   @const kSCValNetIPSecSharedSecretEncryptionKeychain
  */
-extern const CFStringRef kSCValNetIPSecSharedSecretEncryptionKeychain       __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPSecSharedSecretEncryptionKeychain       API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPSecSharedSecretEncryptionKeychain kSCValNetIPSecSharedSecretEncryptionKeychain
 
 /*!
   @const kSCValNetIPSecXAuthPasswordEncryptionKeychain
  */
-extern const CFStringRef kSCValNetIPSecXAuthPasswordEncryptionKeychain      __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPSecXAuthPasswordEncryptionKeychain      API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPSecXAuthPasswordEncryptionKeychain kSCValNetIPSecXAuthPasswordEncryptionKeychain
 
 /*!
   @const kSCValNetIPSecXAuthPasswordEncryptionPrompt
  */
-extern const CFStringRef kSCValNetIPSecXAuthPasswordEncryptionPrompt        __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPSecXAuthPasswordEncryptionPrompt        API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPSecXAuthPasswordEncryptionPrompt kSCValNetIPSecXAuthPasswordEncryptionPrompt
 
 /*!
@@ -5199,91 +5173,91 @@ extern const CFStringRef kSCValNetIPSecXAuthPasswordEncryptionPrompt        __OS
   @const kSCPropNetIPv4Addresses
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetIPv4Addresses                            __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv4Addresses                            API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv4Addresses kSCPropNetIPv4Addresses
 
 /*!
   @const kSCPropNetIPv4ConfigMethod
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPv4ConfigMethod                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv4ConfigMethod                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv4ConfigMethod kSCPropNetIPv4ConfigMethod
 
 /*!
   @const kSCPropNetIPv4DHCPClientID
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPv4DHCPClientID                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv4DHCPClientID                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv4DHCPClientID kSCPropNetIPv4DHCPClientID
 
 /*!
   @const kSCPropNetIPv4Router
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPv4Router                               __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv4Router                               API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv4Router kSCPropNetIPv4Router
 
 /*!
   @const kSCPropNetIPv4SubnetMasks
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetIPv4SubnetMasks                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv4SubnetMasks                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv4SubnetMasks kSCPropNetIPv4SubnetMasks
 
 /*!
   @const kSCPropNetIPv4DestAddresses
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetIPv4DestAddresses                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv4DestAddresses                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv4DestAddresses kSCPropNetIPv4DestAddresses
 
 /*!
   @const kSCPropNetIPv4BroadcastAddresses
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetIPv4BroadcastAddresses                   __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv4BroadcastAddresses                   API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv4BroadcastAddresses kSCPropNetIPv4BroadcastAddresses
 
 /*!
   @const kSCValNetIPv4ConfigMethodAutomatic
  */
-extern const CFStringRef kSCValNetIPv4ConfigMethodAutomatic                 __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv4ConfigMethodAutomatic                 API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv4ConfigMethodAutomatic kSCValNetIPv4ConfigMethodAutomatic
 
 /*!
   @const kSCValNetIPv4ConfigMethodBOOTP
  */
-extern const CFStringRef kSCValNetIPv4ConfigMethodBOOTP                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv4ConfigMethodBOOTP                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv4ConfigMethodBOOTP kSCValNetIPv4ConfigMethodBOOTP
 
 /*!
   @const kSCValNetIPv4ConfigMethodDHCP
  */
-extern const CFStringRef kSCValNetIPv4ConfigMethodDHCP                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv4ConfigMethodDHCP                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv4ConfigMethodDHCP kSCValNetIPv4ConfigMethodDHCP
 
 /*!
   @const kSCValNetIPv4ConfigMethodINFORM
  */
-extern const CFStringRef kSCValNetIPv4ConfigMethodINFORM                    __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv4ConfigMethodINFORM                    API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv4ConfigMethodINFORM kSCValNetIPv4ConfigMethodINFORM
 
 /*!
   @const kSCValNetIPv4ConfigMethodLinkLocal
  */
-extern const CFStringRef kSCValNetIPv4ConfigMethodLinkLocal                 __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv4ConfigMethodLinkLocal                 API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv4ConfigMethodLinkLocal kSCValNetIPv4ConfigMethodLinkLocal
 
 /*!
   @const kSCValNetIPv4ConfigMethodManual
  */
-extern const CFStringRef kSCValNetIPv4ConfigMethodManual                    __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv4ConfigMethodManual                    API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv4ConfigMethodManual kSCValNetIPv4ConfigMethodManual
 
 /*!
   @const kSCValNetIPv4ConfigMethodPPP
  */
-extern const CFStringRef kSCValNetIPv4ConfigMethodPPP                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv4ConfigMethodPPP                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv4ConfigMethodPPP kSCValNetIPv4ConfigMethodPPP
 
 /*!
@@ -5294,72 +5268,72 @@ extern const CFStringRef kSCValNetIPv4ConfigMethodPPP                       __OS
   @const kSCPropNetIPv6Addresses
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetIPv6Addresses                            __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv6Addresses                            API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv6Addresses kSCPropNetIPv6Addresses
 
 /*!
   @const kSCPropNetIPv6ConfigMethod
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPv6ConfigMethod                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv6ConfigMethod                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv6ConfigMethod kSCPropNetIPv6ConfigMethod
 
 /*!
   @const kSCPropNetIPv6DestAddresses
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetIPv6DestAddresses                        __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv6DestAddresses                        API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv6DestAddresses kSCPropNetIPv6DestAddresses
 
 /*!
   @const kSCPropNetIPv6Flags
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetIPv6Flags                                __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv6Flags                                API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv6Flags kSCPropNetIPv6Flags
 
 /*!
   @const kSCPropNetIPv6PrefixLength
   @discussion Value is a CFArray[CFNumber]
  */
-extern const CFStringRef kSCPropNetIPv6PrefixLength                         __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv6PrefixLength                         API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv6PrefixLength kSCPropNetIPv6PrefixLength
 
 /*!
   @const kSCPropNetIPv6Router
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetIPv6Router                               __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetIPv6Router                               API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetIPv6Router kSCPropNetIPv6Router
 
 /*!
   @const kSCValNetIPv6ConfigMethodAutomatic
  */
-extern const CFStringRef kSCValNetIPv6ConfigMethodAutomatic                 __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv6ConfigMethodAutomatic                 API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv6ConfigMethodAutomatic kSCValNetIPv6ConfigMethodAutomatic
 
 /*!
   @const kSCValNetIPv6ConfigMethodLinkLocal
  */
-extern const CFStringRef kSCValNetIPv6ConfigMethodLinkLocal                 __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv6ConfigMethodLinkLocal                 API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv6ConfigMethodLinkLocal kSCValNetIPv6ConfigMethodLinkLocal
 
 /*!
   @const kSCValNetIPv6ConfigMethodManual
  */
-extern const CFStringRef kSCValNetIPv6ConfigMethodManual                    __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv6ConfigMethodManual                    API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv6ConfigMethodManual kSCValNetIPv6ConfigMethodManual
 
 /*!
   @const kSCValNetIPv6ConfigMethodRouterAdvertisement
  */
-extern const CFStringRef kSCValNetIPv6ConfigMethodRouterAdvertisement       __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv6ConfigMethodRouterAdvertisement       API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv6ConfigMethodRouterAdvertisement kSCValNetIPv6ConfigMethodRouterAdvertisement
 
 /*!
   @const kSCValNetIPv6ConfigMethod6to4
  */
-extern const CFStringRef kSCValNetIPv6ConfigMethod6to4                      __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetIPv6ConfigMethod6to4                      API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetIPv6ConfigMethod6to4 kSCValNetIPv6ConfigMethod6to4
 
 /*!
@@ -5370,7 +5344,7 @@ extern const CFStringRef kSCValNetIPv6ConfigMethod6to4                      __OS
   @const kSCPropNet6to4Relay
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNet6to4Relay                                __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNet6to4Relay                                API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNet6to4Relay kSCPropNet6to4Relay
 
 /*!
@@ -5381,14 +5355,14 @@ extern const CFStringRef kSCPropNet6to4Relay                                __OS
   @const kSCPropNetLinkActive
   @discussion Value is a CFBoolean
  */
-extern const CFStringRef kSCPropNetLinkActive                               __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetLinkActive                               API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetLinkActive kSCPropNetLinkActive
 
 /*!
   @const kSCPropNetLinkDetaching
   @discussion Value is a CFBoolean
  */
-extern const CFStringRef kSCPropNetLinkDetaching                            __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetLinkDetaching                            API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetLinkDetaching kSCPropNetLinkDetaching
 
 /*!
@@ -5399,208 +5373,152 @@ extern const CFStringRef kSCPropNetLinkDetaching                            __OS
   @const kSCPropNetModemAccessPointName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetModemAccessPointName                     __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemAccessPointName                     API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemAccessPointName kSCPropNetModemAccessPointName
 
 /*!
   @const kSCPropNetModemConnectionPersonality
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetModemConnectionPersonality               __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemConnectionPersonality               API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemConnectionPersonality kSCPropNetModemConnectionPersonality
 
 /*!
   @const kSCPropNetModemConnectionScript
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetModemConnectionScript                    __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemConnectionScript                    API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemConnectionScript kSCPropNetModemConnectionScript
 
 /*!
   @const kSCPropNetModemConnectSpeed
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetModemConnectSpeed                        __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemConnectSpeed                        API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemConnectSpeed kSCPropNetModemConnectSpeed
 
 /*!
   @const kSCPropNetModemDataCompression
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetModemDataCompression                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemDataCompression                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemDataCompression kSCPropNetModemDataCompression
 
 /*!
   @const kSCPropNetModemDeviceContextID
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetModemDeviceContextID                     __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemDeviceContextID                     API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemDeviceContextID kSCPropNetModemDeviceContextID
 
 /*!
   @const kSCPropNetModemDeviceModel
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetModemDeviceModel                         __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemDeviceModel                         API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemDeviceModel kSCPropNetModemDeviceModel
 
 /*!
   @const kSCPropNetModemDeviceVendor
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetModemDeviceVendor                        __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemDeviceVendor                        API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemDeviceVendor kSCPropNetModemDeviceVendor
 
 /*!
   @const kSCPropNetModemDialMode
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetModemDialMode                            __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemDialMode                            API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemDialMode kSCPropNetModemDialMode
 
 /*!
   @const kSCPropNetModemErrorCorrection
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetModemErrorCorrection                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemErrorCorrection                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemErrorCorrection kSCPropNetModemErrorCorrection
 
 /*!
   @const kSCPropNetModemHoldCallWaitingAudibleAlert
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetModemHoldCallWaitingAudibleAlert         __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemHoldCallWaitingAudibleAlert         API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemHoldCallWaitingAudibleAlert kSCPropNetModemHoldCallWaitingAudibleAlert
 
 /*!
   @const kSCPropNetModemHoldDisconnectOnAnswer
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetModemHoldDisconnectOnAnswer              __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemHoldDisconnectOnAnswer              API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemHoldDisconnectOnAnswer kSCPropNetModemHoldDisconnectOnAnswer
 
 /*!
   @const kSCPropNetModemHoldEnabled
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetModemHoldEnabled                         __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemHoldEnabled                         API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemHoldEnabled kSCPropNetModemHoldEnabled
 
 /*!
   @const kSCPropNetModemHoldReminder
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetModemHoldReminder                        __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemHoldReminder                        API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemHoldReminder kSCPropNetModemHoldReminder
 
 /*!
   @const kSCPropNetModemHoldReminderTime
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetModemHoldReminderTime                    __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemHoldReminderTime                    API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemHoldReminderTime kSCPropNetModemHoldReminderTime
 
 /*!
   @const kSCPropNetModemNote
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetModemNote                                __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemNote                                API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemNote kSCPropNetModemNote
 
 /*!
   @const kSCPropNetModemPulseDial
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetModemPulseDial                           __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemPulseDial                           API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemPulseDial kSCPropNetModemPulseDial
 
 /*!
   @const kSCPropNetModemSpeaker
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetModemSpeaker                             __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemSpeaker                             API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemSpeaker kSCPropNetModemSpeaker
 
 /*!
   @const kSCPropNetModemSpeed
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetModemSpeed                               __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetModemSpeed                               API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetModemSpeed kSCPropNetModemSpeed
 
 /*!
   @const kSCValNetModemDialModeIgnoreDialTone
  */
-extern const CFStringRef kSCValNetModemDialModeIgnoreDialTone               __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetModemDialModeIgnoreDialTone               API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetModemDialModeIgnoreDialTone kSCValNetModemDialModeIgnoreDialTone
 
 /*!
   @const kSCValNetModemDialModeManual
  */
-extern const CFStringRef kSCValNetModemDialModeManual                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetModemDialModeManual                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetModemDialModeManual kSCValNetModemDialModeManual
 
 /*!
   @const kSCValNetModemDialModeWaitForDialTone
  */
-extern const CFStringRef kSCValNetModemDialModeWaitForDialTone              __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetModemDialModeWaitForDialTone              API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetModemDialModeWaitForDialTone kSCValNetModemDialModeWaitForDialTone
-
-/*!
-  @group kSCEntNetNetInfo Entity Keys
- */
-
-/*!
-  @const kSCPropNetNetInfoBindingMethods
-  @discussion Value is a CFString
- */
-extern const CFStringRef kSCPropNetNetInfoBindingMethods                    __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_5,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetNetInfoBindingMethods kSCPropNetNetInfoBindingMethods
-
-/*!
-  @const kSCPropNetNetInfoServerAddresses
-  @discussion Value is a CFArray[CFString]
- */
-extern const CFStringRef kSCPropNetNetInfoServerAddresses                   __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_5,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetNetInfoServerAddresses kSCPropNetNetInfoServerAddresses
-
-/*!
-  @const kSCPropNetNetInfoServerTags
-  @discussion Value is a CFArray[CFString]
- */
-extern const CFStringRef kSCPropNetNetInfoServerTags                        __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_5,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetNetInfoServerTags kSCPropNetNetInfoServerTags
-
-/*!
-  @const kSCPropNetNetInfoBroadcastServerTag
-  @discussion Value is a CFString
- */
-extern const CFStringRef kSCPropNetNetInfoBroadcastServerTag                __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_5,__IPHONE_NA,__IPHONE_NA);
-#define kSCPropNetNetInfoBroadcastServerTag kSCPropNetNetInfoBroadcastServerTag
-
-/*!
-  @const kSCValNetNetInfoBindingMethodsBroadcast
- */
-extern const CFStringRef kSCValNetNetInfoBindingMethodsBroadcast            __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_5,__IPHONE_NA,__IPHONE_NA);
-#define kSCValNetNetInfoBindingMethodsBroadcast kSCValNetNetInfoBindingMethodsBroadcast
-
-/*!
-  @const kSCValNetNetInfoBindingMethodsDHCP
- */
-extern const CFStringRef kSCValNetNetInfoBindingMethodsDHCP                 __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_5,__IPHONE_NA,__IPHONE_NA);
-#define kSCValNetNetInfoBindingMethodsDHCP kSCValNetNetInfoBindingMethodsDHCP
-
-/*!
-  @const kSCValNetNetInfoBindingMethodsManual
- */
-extern const CFStringRef kSCValNetNetInfoBindingMethodsManual               __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_5,__IPHONE_NA,__IPHONE_NA);
-#define kSCValNetNetInfoBindingMethodsManual kSCValNetNetInfoBindingMethodsManual
-
-/*!
-  @const kSCValNetNetInfoDefaultServerTag
- */
-extern const CFStringRef kSCValNetNetInfoDefaultServerTag                   __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_5,__IPHONE_NA,__IPHONE_NA);
-#define kSCValNetNetInfoDefaultServerTag kSCValNetNetInfoDefaultServerTag
 
 /*!
   @group kSCEntNetPPP Entity Keys
@@ -5610,404 +5528,404 @@ extern const CFStringRef kSCValNetNetInfoDefaultServerTag                   __OS
   @const kSCPropNetPPPACSPEnabled
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPACSPEnabled                           __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPACSPEnabled                           API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPACSPEnabled kSCPropNetPPPACSPEnabled
 
 /*!
   @const kSCPropNetPPPConnectTime
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPConnectTime                           __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPConnectTime                           API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPConnectTime kSCPropNetPPPConnectTime
 
 /*!
   @const kSCPropNetPPPDeviceLastCause
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPDeviceLastCause                       __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPDeviceLastCause                       API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPDeviceLastCause kSCPropNetPPPDeviceLastCause
 
 /*!
   @const kSCPropNetPPPDialOnDemand
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPDialOnDemand                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPDialOnDemand                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPDialOnDemand kSCPropNetPPPDialOnDemand
 
 /*!
   @const kSCPropNetPPPDisconnectOnFastUserSwitch
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPDisconnectOnFastUserSwitch            __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPDisconnectOnFastUserSwitch            API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPDisconnectOnFastUserSwitch kSCPropNetPPPDisconnectOnFastUserSwitch
 
 /*!
   @const kSCPropNetPPPDisconnectOnIdle
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPDisconnectOnIdle                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPDisconnectOnIdle                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPDisconnectOnIdle kSCPropNetPPPDisconnectOnIdle
 
 /*!
   @const kSCPropNetPPPDisconnectOnIdleTimer
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPDisconnectOnIdleTimer                 __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPDisconnectOnIdleTimer                 API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPDisconnectOnIdleTimer kSCPropNetPPPDisconnectOnIdleTimer
 
 /*!
   @const kSCPropNetPPPDisconnectOnLogout
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPDisconnectOnLogout                    __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPDisconnectOnLogout                    API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPDisconnectOnLogout kSCPropNetPPPDisconnectOnLogout
 
 /*!
   @const kSCPropNetPPPDisconnectOnSleep
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPDisconnectOnSleep                     __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPDisconnectOnSleep                     API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPDisconnectOnSleep kSCPropNetPPPDisconnectOnSleep
 
 /*!
   @const kSCPropNetPPPDisconnectTime
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPDisconnectTime                        __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPDisconnectTime                        API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPDisconnectTime kSCPropNetPPPDisconnectTime
 
 /*!
   @const kSCPropNetPPPIdleReminderTimer
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPIdleReminderTimer                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPIdleReminderTimer                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPIdleReminderTimer kSCPropNetPPPIdleReminderTimer
 
 /*!
   @const kSCPropNetPPPIdleReminder
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPIdleReminder                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPIdleReminder                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPIdleReminder kSCPropNetPPPIdleReminder
 
 /*!
   @const kSCPropNetPPPLastCause
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPLastCause                             __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLastCause                             API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLastCause kSCPropNetPPPLastCause
 
 /*!
   @const kSCPropNetPPPLogfile
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetPPPLogfile                               __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLogfile                               API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLogfile kSCPropNetPPPLogfile
 
 /*!
   @const kSCPropNetPPPPlugins
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetPPPPlugins                               __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPPlugins                               API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPPlugins kSCPropNetPPPPlugins
 
 /*!
   @const kSCPropNetPPPRetryConnectTime
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPRetryConnectTime                      __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPRetryConnectTime                      API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPRetryConnectTime kSCPropNetPPPRetryConnectTime
 
 /*!
   @const kSCPropNetPPPSessionTimer
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPSessionTimer                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPSessionTimer                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPSessionTimer kSCPropNetPPPSessionTimer
 
 /*!
   @const kSCPropNetPPPStatus
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPStatus                                __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPStatus                                API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPStatus kSCPropNetPPPStatus
 
 /*!
   @const kSCPropNetPPPUseSessionTimer
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPUseSessionTimer                       __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPUseSessionTimer                       API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPUseSessionTimer kSCPropNetPPPUseSessionTimer
 
 /*!
   @const kSCPropNetPPPVerboseLogging
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPVerboseLogging                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPVerboseLogging                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPVerboseLogging kSCPropNetPPPVerboseLogging
 
 /*!
   @const kSCPropNetPPPAuthEAPPlugins
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetPPPAuthEAPPlugins                        __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPAuthEAPPlugins                        API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPAuthEAPPlugins kSCPropNetPPPAuthEAPPlugins
 
 /*!
   @const kSCPropNetPPPAuthName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetPPPAuthName                              __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPAuthName                              API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPAuthName kSCPropNetPPPAuthName
 
 /*!
   @const kSCPropNetPPPAuthPassword
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetPPPAuthPassword                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPAuthPassword                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPAuthPassword kSCPropNetPPPAuthPassword
 
 /*!
   @const kSCPropNetPPPAuthPasswordEncryption
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetPPPAuthPasswordEncryption                __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPAuthPasswordEncryption                API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPAuthPasswordEncryption kSCPropNetPPPAuthPasswordEncryption
 
 /*!
   @const kSCPropNetPPPAuthPrompt
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetPPPAuthPrompt                            __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPAuthPrompt                            API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPAuthPrompt kSCPropNetPPPAuthPrompt
 
 /*!
   @const kSCPropNetPPPAuthProtocol
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetPPPAuthProtocol                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPAuthProtocol                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPAuthProtocol kSCPropNetPPPAuthProtocol
 
 /*!
   @const kSCValNetPPPAuthPasswordEncryptionKeychain
  */
-extern const CFStringRef kSCValNetPPPAuthPasswordEncryptionKeychain         __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetPPPAuthPasswordEncryptionKeychain         API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetPPPAuthPasswordEncryptionKeychain kSCValNetPPPAuthPasswordEncryptionKeychain
 
 /*!
   @const kSCValNetPPPAuthPasswordEncryptionToken
  */
-extern const CFStringRef kSCValNetPPPAuthPasswordEncryptionToken            __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCValNetPPPAuthPasswordEncryptionToken            API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetPPPAuthPasswordEncryptionToken kSCValNetPPPAuthPasswordEncryptionToken
 
 /*!
   @const kSCValNetPPPAuthPromptBefore
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCValNetPPPAuthPromptBefore                       __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetPPPAuthPromptBefore                       API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetPPPAuthPromptBefore kSCValNetPPPAuthPromptBefore
 
 /*!
   @const kSCValNetPPPAuthPromptAfter
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCValNetPPPAuthPromptAfter                        __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetPPPAuthPromptAfter                        API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetPPPAuthPromptAfter kSCValNetPPPAuthPromptAfter
 
 /*!
   @const kSCValNetPPPAuthProtocolCHAP
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCValNetPPPAuthProtocolCHAP                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetPPPAuthProtocolCHAP                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetPPPAuthProtocolCHAP kSCValNetPPPAuthProtocolCHAP
 
 /*!
   @const kSCValNetPPPAuthProtocolEAP
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCValNetPPPAuthProtocolEAP                        __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetPPPAuthProtocolEAP                        API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetPPPAuthProtocolEAP kSCValNetPPPAuthProtocolEAP
 
 /*!
   @const kSCValNetPPPAuthProtocolMSCHAP1
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCValNetPPPAuthProtocolMSCHAP1                    __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetPPPAuthProtocolMSCHAP1                    API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetPPPAuthProtocolMSCHAP1 kSCValNetPPPAuthProtocolMSCHAP1
 
 /*!
   @const kSCValNetPPPAuthProtocolMSCHAP2
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCValNetPPPAuthProtocolMSCHAP2                    __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetPPPAuthProtocolMSCHAP2                    API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetPPPAuthProtocolMSCHAP2 kSCValNetPPPAuthProtocolMSCHAP2
 
 /*!
   @const kSCValNetPPPAuthProtocolPAP
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCValNetPPPAuthProtocolPAP                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCValNetPPPAuthProtocolPAP                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetPPPAuthProtocolPAP kSCValNetPPPAuthProtocolPAP
 
 /*!
   @const kSCPropNetPPPCommAlternateRemoteAddress
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetPPPCommAlternateRemoteAddress            __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCommAlternateRemoteAddress            API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCommAlternateRemoteAddress kSCPropNetPPPCommAlternateRemoteAddress
 
 /*!
   @const kSCPropNetPPPCommConnectDelay
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPCommConnectDelay                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCommConnectDelay                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCommConnectDelay kSCPropNetPPPCommConnectDelay
 
 /*!
   @const kSCPropNetPPPCommDisplayTerminalWindow
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPCommDisplayTerminalWindow             __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCommDisplayTerminalWindow             API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCommDisplayTerminalWindow kSCPropNetPPPCommDisplayTerminalWindow
 
 /*!
   @const kSCPropNetPPPCommRedialCount
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPCommRedialCount                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCommRedialCount                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCommRedialCount kSCPropNetPPPCommRedialCount
 
 /*!
   @const kSCPropNetPPPCommRedialEnabled
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPCommRedialEnabled                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCommRedialEnabled                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCommRedialEnabled kSCPropNetPPPCommRedialEnabled
 
 /*!
   @const kSCPropNetPPPCommRedialInterval
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPCommRedialInterval                    __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCommRedialInterval                    API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCommRedialInterval kSCPropNetPPPCommRedialInterval
 
 /*!
   @const kSCPropNetPPPCommRemoteAddress
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetPPPCommRemoteAddress                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCommRemoteAddress                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCommRemoteAddress kSCPropNetPPPCommRemoteAddress
 
 /*!
   @const kSCPropNetPPPCommTerminalScript
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetPPPCommTerminalScript                    __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCommTerminalScript                    API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCommTerminalScript kSCPropNetPPPCommTerminalScript
 
 /*!
   @const kSCPropNetPPPCommUseTerminalScript
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPCommUseTerminalScript                 __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCommUseTerminalScript                 API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCommUseTerminalScript kSCPropNetPPPCommUseTerminalScript
 
 /*!
   @const kSCPropNetPPPCCPEnabled
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPCCPEnabled                            __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCCPEnabled                            API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCCPEnabled kSCPropNetPPPCCPEnabled
 
 /*!
   @const kSCPropNetPPPCCPMPPE40Enabled
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPCCPMPPE40Enabled                      __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCCPMPPE40Enabled                      API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCCPMPPE40Enabled kSCPropNetPPPCCPMPPE40Enabled
 
 /*!
   @const kSCPropNetPPPCCPMPPE128Enabled
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPCCPMPPE128Enabled                     __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPCCPMPPE128Enabled                     API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPCCPMPPE128Enabled kSCPropNetPPPCCPMPPE128Enabled
 
 /*!
   @const kSCPropNetPPPIPCPCompressionVJ
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPIPCPCompressionVJ                     __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPIPCPCompressionVJ                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPIPCPCompressionVJ kSCPropNetPPPIPCPCompressionVJ
 
 /*!
   @const kSCPropNetPPPIPCPUsePeerDNS
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPIPCPUsePeerDNS                        __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPIPCPUsePeerDNS                        API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPIPCPUsePeerDNS kSCPropNetPPPIPCPUsePeerDNS
 
 /*!
   @const kSCPropNetPPPLCPEchoEnabled
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPLCPEchoEnabled                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLCPEchoEnabled                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLCPEchoEnabled kSCPropNetPPPLCPEchoEnabled
 
 /*!
   @const kSCPropNetPPPLCPEchoFailure
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPLCPEchoFailure                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLCPEchoFailure                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLCPEchoFailure kSCPropNetPPPLCPEchoFailure
 
 /*!
   @const kSCPropNetPPPLCPEchoInterval
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPLCPEchoInterval                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLCPEchoInterval                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLCPEchoInterval kSCPropNetPPPLCPEchoInterval
 
 /*!
   @const kSCPropNetPPPLCPCompressionACField
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPLCPCompressionACField                 __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLCPCompressionACField                 API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLCPCompressionACField kSCPropNetPPPLCPCompressionACField
 
 /*!
   @const kSCPropNetPPPLCPCompressionPField
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetPPPLCPCompressionPField                  __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLCPCompressionPField                  API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLCPCompressionPField kSCPropNetPPPLCPCompressionPField
 
 /*!
   @const kSCPropNetPPPLCPMRU
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPLCPMRU                                __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLCPMRU                                API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLCPMRU kSCPropNetPPPLCPMRU
 
 /*!
   @const kSCPropNetPPPLCPMTU
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPLCPMTU                                __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLCPMTU                                API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLCPMTU kSCPropNetPPPLCPMTU
 
 /*!
   @const kSCPropNetPPPLCPReceiveACCM
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPLCPReceiveACCM                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLCPReceiveACCM                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLCPReceiveACCM kSCPropNetPPPLCPReceiveACCM
 
 /*!
   @const kSCPropNetPPPLCPTransmitACCM
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetPPPLCPTransmitACCM                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetPPPLCPTransmitACCM                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPLCPTransmitACCM kSCPropNetPPPLCPTransmitACCM
 
 /*!
@@ -6019,10 +5937,6 @@ extern const CFStringRef kSCPropNetPPPLCPTransmitACCM                       __OS
  */
 
 /*!
-  @group kSCEntNetPPTP Entity Keys
- */
-
-/*!
   @group kSCEntNetL2TP Entity Keys
  */
 
@@ -6030,39 +5944,39 @@ extern const CFStringRef kSCPropNetPPPLCPTransmitACCM                       __OS
   @const kSCPropNetL2TPIPSecSharedSecret
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetL2TPIPSecSharedSecret                    __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetL2TPIPSecSharedSecret                    API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetL2TPIPSecSharedSecret kSCPropNetL2TPIPSecSharedSecret
 
 /*!
   @const kSCPropNetL2TPIPSecSharedSecretEncryption
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetL2TPIPSecSharedSecretEncryption          __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetL2TPIPSecSharedSecretEncryption          API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetL2TPIPSecSharedSecretEncryption kSCPropNetL2TPIPSecSharedSecretEncryption
 
 /*!
   @const kSCPropNetL2TPTransport
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetL2TPTransport                            __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCPropNetL2TPTransport                            API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetL2TPTransport kSCPropNetL2TPTransport
 
 /*!
   @const kSCValNetL2TPIPSecSharedSecretEncryptionKeychain
  */
-extern const CFStringRef kSCValNetL2TPIPSecSharedSecretEncryptionKeychain   __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetL2TPIPSecSharedSecretEncryptionKeychain   API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetL2TPIPSecSharedSecretEncryptionKeychain kSCValNetL2TPIPSecSharedSecretEncryptionKeychain
 
 /*!
   @const kSCValNetL2TPTransportIP
  */
-extern const CFStringRef kSCValNetL2TPTransportIP                           __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetL2TPTransportIP                           API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetL2TPTransportIP kSCValNetL2TPTransportIP
 
 /*!
   @const kSCValNetL2TPTransportIPSec
  */
-extern const CFStringRef kSCValNetL2TPTransportIPSec                        __OSX_AVAILABLE_STARTING(__MAC_10_3,__IPHONE_NA);
+extern const CFStringRef kSCValNetL2TPTransportIPSec                        API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetL2TPTransportIPSec kSCValNetL2TPTransportIPSec
 
 /*!
@@ -6073,175 +5987,175 @@ extern const CFStringRef kSCValNetL2TPTransportIPSec                        __OS
   @const kSCPropNetProxiesExceptionsList
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetProxiesExceptionsList                    __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesExceptionsList                    API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesExceptionsList kSCPropNetProxiesExceptionsList
 
 /*!
   @const kSCPropNetProxiesExcludeSimpleHostnames
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetProxiesExcludeSimpleHostnames            __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesExcludeSimpleHostnames            API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesExcludeSimpleHostnames kSCPropNetProxiesExcludeSimpleHostnames
 
 /*!
   @const kSCPropNetProxiesFTPEnable
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetProxiesFTPEnable                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesFTPEnable                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesFTPEnable kSCPropNetProxiesFTPEnable
 
 /*!
   @const kSCPropNetProxiesFTPPassive
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetProxiesFTPPassive                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesFTPPassive                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesFTPPassive kSCPropNetProxiesFTPPassive
 
 /*!
   @const kSCPropNetProxiesFTPPort
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetProxiesFTPPort                           __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesFTPPort                           API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesFTPPort kSCPropNetProxiesFTPPort
 
 /*!
   @const kSCPropNetProxiesFTPProxy
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetProxiesFTPProxy                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesFTPProxy                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesFTPProxy kSCPropNetProxiesFTPProxy
 
 /*!
   @const kSCPropNetProxiesGopherEnable
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetProxiesGopherEnable                      __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesGopherEnable                      API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesGopherEnable kSCPropNetProxiesGopherEnable
 
 /*!
   @const kSCPropNetProxiesGopherPort
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetProxiesGopherPort                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesGopherPort                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesGopherPort kSCPropNetProxiesGopherPort
 
 /*!
   @const kSCPropNetProxiesGopherProxy
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetProxiesGopherProxy                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesGopherProxy                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesGopherProxy kSCPropNetProxiesGopherProxy
 
 /*!
   @const kSCPropNetProxiesHTTPEnable
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetProxiesHTTPEnable                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesHTTPEnable                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesHTTPEnable kSCPropNetProxiesHTTPEnable
 
 /*!
   @const kSCPropNetProxiesHTTPPort
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetProxiesHTTPPort                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesHTTPPort                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesHTTPPort kSCPropNetProxiesHTTPPort
 
 /*!
   @const kSCPropNetProxiesHTTPProxy
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetProxiesHTTPProxy                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesHTTPProxy                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesHTTPProxy kSCPropNetProxiesHTTPProxy
 
 /*!
   @const kSCPropNetProxiesHTTPSEnable
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetProxiesHTTPSEnable                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesHTTPSEnable                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesHTTPSEnable kSCPropNetProxiesHTTPSEnable
 
 /*!
   @const kSCPropNetProxiesHTTPSPort
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetProxiesHTTPSPort                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesHTTPSPort                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesHTTPSPort kSCPropNetProxiesHTTPSPort
 
 /*!
   @const kSCPropNetProxiesHTTPSProxy
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetProxiesHTTPSProxy                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesHTTPSProxy                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesHTTPSProxy kSCPropNetProxiesHTTPSProxy
 
 /*!
   @const kSCPropNetProxiesRTSPEnable
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetProxiesRTSPEnable                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesRTSPEnable                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesRTSPEnable kSCPropNetProxiesRTSPEnable
 
 /*!
   @const kSCPropNetProxiesRTSPPort
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetProxiesRTSPPort                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesRTSPPort                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesRTSPPort kSCPropNetProxiesRTSPPort
 
 /*!
   @const kSCPropNetProxiesRTSPProxy
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetProxiesRTSPProxy                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesRTSPProxy                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesRTSPProxy kSCPropNetProxiesRTSPProxy
 
 /*!
   @const kSCPropNetProxiesSOCKSEnable
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetProxiesSOCKSEnable                       __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesSOCKSEnable                       API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesSOCKSEnable kSCPropNetProxiesSOCKSEnable
 
 /*!
   @const kSCPropNetProxiesSOCKSPort
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropNetProxiesSOCKSPort                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesSOCKSPort                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesSOCKSPort kSCPropNetProxiesSOCKSPort
 
 /*!
   @const kSCPropNetProxiesSOCKSProxy
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetProxiesSOCKSProxy                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesSOCKSProxy                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesSOCKSProxy kSCPropNetProxiesSOCKSProxy
 
 /*!
   @const kSCPropNetProxiesProxyAutoConfigEnable
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetProxiesProxyAutoConfigEnable             __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesProxyAutoConfigEnable             API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesProxyAutoConfigEnable kSCPropNetProxiesProxyAutoConfigEnable
 
 /*!
   @const kSCPropNetProxiesProxyAutoConfigJavaScript
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetProxiesProxyAutoConfigJavaScript         __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesProxyAutoConfigJavaScript         API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesProxyAutoConfigJavaScript kSCPropNetProxiesProxyAutoConfigJavaScript
 
 /*!
   @const kSCPropNetProxiesProxyAutoConfigURLString
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetProxiesProxyAutoConfigURLString          __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesProxyAutoConfigURLString          API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesProxyAutoConfigURLString kSCPropNetProxiesProxyAutoConfigURLString
 
 /*!
   @const kSCPropNetProxiesProxyAutoDiscoveryEnable
   @discussion Value is a CFNumber (0 or 1)
  */
-extern const CFStringRef kSCPropNetProxiesProxyAutoDiscoveryEnable          __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_NA);
+extern const CFStringRef kSCPropNetProxiesProxyAutoDiscoveryEnable          API_AVAILABLE(macos(10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetProxiesProxyAutoDiscoveryEnable kSCPropNetProxiesProxyAutoDiscoveryEnable
 
 /*!
@@ -6252,59 +6166,59 @@ extern const CFStringRef kSCPropNetProxiesProxyAutoDiscoveryEnable          __OS
   @const kSCPropNetSMBNetBIOSName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetSMBNetBIOSName                           __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetSMBNetBIOSName                           API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetSMBNetBIOSName kSCPropNetSMBNetBIOSName
 
 /*!
   @const kSCPropNetSMBNetBIOSNodeType
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetSMBNetBIOSNodeType                       __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetSMBNetBIOSNodeType                       API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetSMBNetBIOSNodeType kSCPropNetSMBNetBIOSNodeType
 
 /*!
   @const kSCPropNetSMBNetBIOSScope
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetSMBNetBIOSScope                          __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_5,__MAC_10_7,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropNetSMBNetBIOSScope                          API_DEPRECATED("No longer supported", macos(10.5,10.7)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetSMBNetBIOSScope kSCPropNetSMBNetBIOSScope
 
 /*!
   @const kSCPropNetSMBWINSAddresses
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetSMBWINSAddresses                         __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetSMBWINSAddresses                         API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetSMBWINSAddresses kSCPropNetSMBWINSAddresses
 
 /*!
   @const kSCPropNetSMBWorkgroup
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropNetSMBWorkgroup                             __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCPropNetSMBWorkgroup                             API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetSMBWorkgroup kSCPropNetSMBWorkgroup
 
 /*!
   @const kSCValNetSMBNetBIOSNodeTypeBroadcast
  */
-extern const CFStringRef kSCValNetSMBNetBIOSNodeTypeBroadcast               __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCValNetSMBNetBIOSNodeTypeBroadcast               API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetSMBNetBIOSNodeTypeBroadcast kSCValNetSMBNetBIOSNodeTypeBroadcast
 
 /*!
   @const kSCValNetSMBNetBIOSNodeTypePeer
  */
-extern const CFStringRef kSCValNetSMBNetBIOSNodeTypePeer                    __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCValNetSMBNetBIOSNodeTypePeer                    API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetSMBNetBIOSNodeTypePeer kSCValNetSMBNetBIOSNodeTypePeer
 
 /*!
   @const kSCValNetSMBNetBIOSNodeTypeMixed
  */
-extern const CFStringRef kSCValNetSMBNetBIOSNodeTypeMixed                   __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCValNetSMBNetBIOSNodeTypeMixed                   API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetSMBNetBIOSNodeTypeMixed kSCValNetSMBNetBIOSNodeTypeMixed
 
 /*!
   @const kSCValNetSMBNetBIOSNodeTypeHybrid
  */
-extern const CFStringRef kSCValNetSMBNetBIOSNodeTypeHybrid                  __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_NA);
+extern const CFStringRef kSCValNetSMBNetBIOSNodeTypeHybrid                  API_AVAILABLE(macos(10.5)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCValNetSMBNetBIOSNodeTypeHybrid kSCValNetSMBNetBIOSNodeTypeHybrid
 
 /*!
@@ -6314,7 +6228,7 @@ extern const CFStringRef kSCValNetSMBNetBIOSNodeTypeHybrid                  __OS
 /*!
   @const kSCEntUsersConsoleUser
  */
-extern const CFStringRef kSCEntUsersConsoleUser                             __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCEntUsersConsoleUser                             API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCEntUsersConsoleUser kSCEntUsersConsoleUser
 
 /*!
@@ -6325,14 +6239,14 @@ extern const CFStringRef kSCEntUsersConsoleUser                             __OS
   @const kSCPropSystemComputerName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropSystemComputerName                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropSystemComputerName                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropSystemComputerName kSCPropSystemComputerName
 
 /*!
   @const kSCPropSystemComputerNameEncoding
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropSystemComputerNameEncoding                  __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCPropSystemComputerNameEncoding                  API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropSystemComputerNameEncoding kSCPropSystemComputerNameEncoding
 
 /*!
@@ -6342,31 +6256,31 @@ extern const CFStringRef kSCPropSystemComputerNameEncoding                  __OS
 /*!
   @const kSCDynamicStoreDomainFile
  */
-extern const CFStringRef kSCDynamicStoreDomainFile                          __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStoreDomainFile                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStoreDomainFile kSCDynamicStoreDomainFile
 
 /*!
   @const kSCDynamicStoreDomainPlugin
  */
-extern const CFStringRef kSCDynamicStoreDomainPlugin                        __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStoreDomainPlugin                        API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStoreDomainPlugin kSCDynamicStoreDomainPlugin
 
 /*!
   @const kSCDynamicStoreDomainSetup
  */
-extern const CFStringRef kSCDynamicStoreDomainSetup                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStoreDomainSetup                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStoreDomainSetup kSCDynamicStoreDomainSetup
 
 /*!
   @const kSCDynamicStoreDomainState
  */
-extern const CFStringRef kSCDynamicStoreDomainState                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStoreDomainState                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStoreDomainState kSCDynamicStoreDomainState
 
 /*!
   @const kSCDynamicStoreDomainPrefs
  */
-extern const CFStringRef kSCDynamicStoreDomainPrefs                         __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStoreDomainPrefs                         API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStoreDomainPrefs kSCDynamicStoreDomainPrefs
 
 /*!
@@ -6377,13 +6291,13 @@ extern const CFStringRef kSCDynamicStoreDomainPrefs                         __OS
   @const kSCDynamicStorePropSetupCurrentSet
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCDynamicStorePropSetupCurrentSet                 __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStorePropSetupCurrentSet                 API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStorePropSetupCurrentSet kSCDynamicStorePropSetupCurrentSet
 
 /*!
   @const kSCDynamicStorePropSetupLastUpdated
  */
-extern const CFStringRef kSCDynamicStorePropSetupLastUpdated                __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStorePropSetupLastUpdated                API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStorePropSetupLastUpdated kSCDynamicStorePropSetupLastUpdated
 
 /*!
@@ -6394,68 +6308,67 @@ extern const CFStringRef kSCDynamicStorePropSetupLastUpdated                __OS
   @const kSCDynamicStorePropNetInterfaces
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCDynamicStorePropNetInterfaces                   __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStorePropNetInterfaces                   API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStorePropNetInterfaces kSCDynamicStorePropNetInterfaces
 
 /*!
   @const kSCDynamicStorePropNetPrimaryInterface
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCDynamicStorePropNetPrimaryInterface             __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStorePropNetPrimaryInterface             API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStorePropNetPrimaryInterface kSCDynamicStorePropNetPrimaryInterface
 
 /*!
   @const kSCDynamicStorePropNetPrimaryService
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCDynamicStorePropNetPrimaryService               __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStorePropNetPrimaryService               API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStorePropNetPrimaryService kSCDynamicStorePropNetPrimaryService
 
 /*!
   @const kSCDynamicStorePropNetServiceIDs
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCDynamicStorePropNetServiceIDs                   __OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+extern const CFStringRef kSCDynamicStorePropNetServiceIDs                   API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCDynamicStorePropNetServiceIDs kSCDynamicStorePropNetServiceIDs
 
 /*!
   @const kSCPropUsersConsoleUserName
   @discussion Value is a CFString
  */
-extern const CFStringRef kSCPropUsersConsoleUserName                        __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_4,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropUsersConsoleUserName                        API_DEPRECATED("No longer supported", macos(10.1,10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropUsersConsoleUserName kSCPropUsersConsoleUserName
 
 /*!
   @const kSCPropUsersConsoleUserUID
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropUsersConsoleUserUID                         __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_4,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropUsersConsoleUserUID                         API_DEPRECATED("No longer supported", macos(10.1,10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropUsersConsoleUserUID kSCPropUsersConsoleUserUID
 
 /*!
   @const kSCPropUsersConsoleUserGID
   @discussion Value is a CFNumber
  */
-extern const CFStringRef kSCPropUsersConsoleUserGID                         __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_1,__MAC_10_4,__IPHONE_NA,__IPHONE_NA);
+extern const CFStringRef kSCPropUsersConsoleUserGID                         API_DEPRECATED("No longer supported", macos(10.1,10.4)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropUsersConsoleUserGID kSCPropUsersConsoleUserGID
 
 CF_ASSUME_NONNULL_END
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #endif	/* _SCSCHEMADEFINITIONS_H */
 // ==========  SystemConfiguration.framework/Headers/SCDynamicStoreCopySpecific.h
 /*
- * Copyright (c) 2000-2005, 2008, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2000-2005, 2008, 2015, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -6463,17 +6376,14 @@ CF_ASSUME_NONNULL_END
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCDYNAMICSTORECOPYSPECIFIC_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_SCDynamicStoreCopySpecific.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define _SCDYNAMICSTORECOPYSPECIFIC_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <sys/cdefs.h>
 #include <sys/types.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -6510,7 +6420,7 @@ CFStringRef __nullable
 SCDynamicStoreCopyComputerName		(
 					SCDynamicStoreRef	__nullable	store,
 					CFStringEncoding	* __nullable	nameEncoding
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreCopyConsoleUser
@@ -6539,7 +6449,7 @@ SCDynamicStoreCopyConsoleUser		(
 					SCDynamicStoreRef	__nullable	store,
 					uid_t			* __nullable	uid,
 					gid_t			* __nullable	gid
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreCopyLocalHostName
@@ -6554,7 +6464,7 @@ SCDynamicStoreCopyConsoleUser		(
 CFStringRef __nullable
 SCDynamicStoreCopyLocalHostName		(
 					SCDynamicStoreRef	__nullable	store
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreCopyLocation
@@ -6570,7 +6480,7 @@ SCDynamicStoreCopyLocalHostName		(
 CFStringRef __nullable
 SCDynamicStoreCopyLocation		(
 					SCDynamicStoreRef	__nullable	store
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreCopyProxies
@@ -6655,28 +6565,27 @@ SCDynamicStoreCopyLocation		(
 CFDictionaryRef __nullable
 SCDynamicStoreCopyProxies		(
 					SCDynamicStoreRef	__nullable	store
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #endif	/* _SCDYNAMICSTORECOPYSPECIFIC_H */
 // ==========  SystemConfiguration.framework/Headers/SCDynamicStoreKey.h
 /*
- * Copyright (c) 2000-2002, 2004, 2005, 2008, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2000-2002, 2004, 2005, 2008, 2015, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -6684,17 +6593,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCDYNAMICSTOREKEY_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_SCDynamicStoreKey.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define _SCDYNAMICSTOREKEY_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <sys/cdefs.h>
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -6734,7 +6640,7 @@ SCDynamicStoreKeyCreate				(
 						CFAllocatorRef	__nullable	allocator,
 						CFStringRef			fmt,
 						...
-						)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+						)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreKeyCreateNetworkGlobalEntity
@@ -6759,7 +6665,7 @@ SCDynamicStoreKeyCreateNetworkGlobalEntity	(
 						CFAllocatorRef	__nullable	allocator,
 						CFStringRef			domain,
 						CFStringRef			entity
-						)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+						)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreKeyCreateNetworkInterface
@@ -6781,7 +6687,7 @@ CFStringRef
 SCDynamicStoreKeyCreateNetworkInterface		(
 						CFAllocatorRef	__nullable	allocator,
 						CFStringRef			domain
-						)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+						)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreKeyCreateNetworkInterfaceEntity
@@ -6809,7 +6715,7 @@ SCDynamicStoreKeyCreateNetworkInterfaceEntity	(
 						CFStringRef			domain,
 						CFStringRef			ifname,
 						CFStringRef	__nullable	entity
-						)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+						)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreKeyCreateNetworkServiceEntity
@@ -6838,7 +6744,7 @@ SCDynamicStoreKeyCreateNetworkServiceEntity	(
 						CFStringRef			domain,
 						CFStringRef			serviceID,
 						CFStringRef	__nullable	entity
-						)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+						)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreKeyCreateComputerName
@@ -6856,7 +6762,7 @@ SCDynamicStoreKeyCreateNetworkServiceEntity	(
 CFStringRef
 SCDynamicStoreKeyCreateComputerName		(
 						CFAllocatorRef	__nullable	allocator
-						)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+						)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreKeyCreateConsoleUser
@@ -6873,7 +6779,7 @@ SCDynamicStoreKeyCreateComputerName		(
 CFStringRef
 SCDynamicStoreKeyCreateConsoleUser		(
 						CFAllocatorRef	__nullable	allocator
-						)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+						)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreKeyCreateHostNames
@@ -6891,7 +6797,7 @@ SCDynamicStoreKeyCreateConsoleUser		(
 CFStringRef
 SCDynamicStoreKeyCreateHostNames		(
 						CFAllocatorRef	__nullable	allocator
-						)		__OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+						)		API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreKeyCreateLocation
@@ -6909,7 +6815,7 @@ SCDynamicStoreKeyCreateHostNames		(
 CFStringRef
 SCDynamicStoreKeyCreateLocation			(
 						CFAllocatorRef	__nullable	allocator
-						)		__OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+						)		API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCDynamicStoreKeyCreateProxies
@@ -6927,28 +6833,27 @@ SCDynamicStoreKeyCreateLocation			(
 CFStringRef
 SCDynamicStoreKeyCreateProxies			(
 						CFAllocatorRef	__nullable	allocator
-						)		__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+						)		API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #endif	/* _SCDYNAMICSTOREKEY_H */
 // ==========  SystemConfiguration.framework/Headers/SCPreferencesSetSpecific.h
 /*
- * Copyright (c) 2000-2002, 2004, 2005, 2008, 2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2000-2002, 2004, 2005, 2008, 2015, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -6956,17 +6861,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _SCPREFERENCESSETSPECIFIC_H
-#ifdef	USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS
-#include <SystemConfiguration/_SCPreferencesSetSpecific.h>
-#else	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
 #define _SCPREFERENCESSETSPECIFIC_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <sys/cdefs.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SCPreferences.h>
@@ -7004,9 +6906,9 @@ __BEGIN_DECLS
 Boolean
 SCPreferencesSetComputerName		(
 					SCPreferencesRef	prefs,
-					CFStringRef		name,
+					CFStringRef __nullable	name,
 					CFStringEncoding	nameEncoding
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_1,__IPHONE_NA);
+					)			API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@function SCPreferencesSetLocalHostName
@@ -7026,29 +6928,28 @@ SCPreferencesSetComputerName		(
 Boolean
 SCPreferencesSetLocalHostName		(
 					SCPreferencesRef	prefs,
-					CFStringRef		name
-					)			__OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_NA);
+					CFStringRef __nullable	name
+					)			API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
 
 __END_DECLS
 
 CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
-#endif	/* USE_SYSTEMCONFIGURATION_PRIVATE_HEADERS */
-#endif /* _SCPREFERENCESSETSPECIFIC_H */
+#endif	/* _SCPREFERENCESSETSPECIFIC_H */
 // ==========  SystemConfiguration.framework/Headers/CaptiveNetwork.h
 /*
- * Copyright (c) 2009-2015 Apple Inc. All rights reserved.
+ * Copyright (c) 2009-2016, 2018 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -7056,14 +6957,14 @@ CF_IMPLICIT_BRIDGING_DISABLED
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
 #ifndef _CAPTIVENETWORK_H
 #define _CAPTIVENETWORK_H
 
-#include <Availability.h>
+#include <os/availability.h>
 #include <sys/cdefs.h>
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -7090,21 +6991,7 @@ CF_ASSUME_NONNULL_BEGIN
 		These APIs are treated as advisory only.
 		There is no guarantee or contract that the operating system
 		will take the intended action.
-
-	@note IMPORTANT: This API is deprecated starting in iOS 9.
-		For captive network applications, this has been completely
-		replaced by <NetworkExtension/NEHotspotHelper.h>.
-		For other applications, there is no direct replacement.
-		Please file a bug describing your use of this API so that
-		we can consider your requirements as this situation evolves.
  */
-
-#define CN_DEPRECATION_NOTICE						\
-    "For captive network applications, this has been completely "	\
-    "replaced by <NetworkExtension/NEHotspotHelper.h>. "		\
-    "For other applications, there is no direct replacement. "		\
-    "Please file a bug describing your use of this API to that "	\
-    "we can consider your requirements as this situation evolves."
 
 __BEGIN_DECLS
 
@@ -7128,9 +7015,9 @@ __BEGIN_DECLS
  */
 Boolean
 CNSetSupportedSSIDs	(CFArrayRef	ssidArray)
-    __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_10_8, __MAC_NA,
-				       __IPHONE_4_0, __IPHONE_9_0,
-				       "Replaced by <NetworkExtension/NEHotspotHelper.h>");
+    API_AVAILABLE(macos(10.8))
+    API_DEPRECATED_WITH_REPLACEMENT("Replaced by <NetworkExtension/NEHotspotHelper.h>", ios(4.0,9.0))
+    API_UNAVAILABLE(tvos, watchos);
 
 /*!
 	@function CNMarkPortalOnline
@@ -7143,9 +7030,9 @@ CNSetSupportedSSIDs	(CFArrayRef	ssidArray)
  */
 Boolean
 CNMarkPortalOnline	(CFStringRef	interfaceName)
-    __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_10_8, __MAC_NA,
-				       __IPHONE_4_0, __IPHONE_9_0,
-				       "Replaced by <NetworkExtension/NEHotspotHelper.h>");
+    API_AVAILABLE(macos(10.8))
+    API_DEPRECATED_WITH_REPLACEMENT("Replaced by <NetworkExtension/NEHotspotHelper.h>", ios(4.0,9.0))
+    API_UNAVAILABLE(tvos, watchos);
 
 /*!
 	@function CNMarkPortalOffline
@@ -7156,9 +7043,9 @@ CNMarkPortalOnline	(CFStringRef	interfaceName)
  */
 Boolean
 CNMarkPortalOffline	(CFStringRef	interfaceName)
-    __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_10_8, __MAC_NA,
-				       __IPHONE_4_0, __IPHONE_9_0,
-				       "Replaced by <NetworkExtension/NEHotspotHelper.h>");
+    API_AVAILABLE(macos(10.8))
+    API_DEPRECATED_WITH_REPLACEMENT("Replaced by <NetworkExtension/NEHotspotHelper.h>", ios(4.0,9.0))
+    API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @function CNCopySupportedInterfaces
@@ -7169,36 +7056,32 @@ CNMarkPortalOffline	(CFStringRef	interfaceName)
  */
 CFArrayRef __nullable
 CNCopySupportedInterfaces	(void)
-    __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_10_8, __MAC_NA,
-				       __IPHONE_4_1, __IPHONE_9_0,
-				       CN_DEPRECATION_NOTICE);
+    API_AVAILABLE(macos(10.8), ios(4.1))
+    API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant kCNNetworkInfoKeySSIDData
  @discussion NetworkInfo Dictionary key for SSID in CFData format
  */
 extern const CFStringRef kCNNetworkInfoKeySSIDData
-    __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA,
-				       __IPHONE_4_1, __IPHONE_9_0,
-				       CN_DEPRECATION_NOTICE);
+    API_AVAILABLE(ios(4.1))
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 /*!
  @constant kCNNetworkInfoKeySSID
  @discussion NetworkInfo Dictionary key for SSID in CFString format
  */
 extern const CFStringRef kCNNetworkInfoKeySSID
-    __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA,
-				       __IPHONE_4_1, __IPHONE_9_0,
-				       CN_DEPRECATION_NOTICE);
+    API_AVAILABLE(ios(4.1))
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 /*!
  @constant kCNNetworkInfoKeyBSSID
  @discussion NetworkInfo Dictionary key for BSSID in CFString format
  */
 extern const CFStringRef kCNNetworkInfoKeyBSSID
-    __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA,
-				       __IPHONE_4_1, __IPHONE_9_0,
-				       CN_DEPRECATION_NOTICE);
+    API_AVAILABLE(ios(4.1))
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 /*!
  @function CNCopyCurrentNetworkInfo
@@ -7220,10 +7103,9 @@ extern const CFStringRef kCNNetworkInfoKeyBSSID
 	 You MUST release the returned value.
  */
 CFDictionaryRef __nullable
-CNCopyCurrentNetworkInfo	(CFStringRef interfaceName)
-    __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA,
-				       __IPHONE_4_1, __IPHONE_9_0,
-				       CN_DEPRECATION_NOTICE);
+CNCopyCurrentNetworkInfo	(CFStringRef	interfaceName)
+    API_AVAILABLE(ios(4.1))
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 __END_DECLS
 

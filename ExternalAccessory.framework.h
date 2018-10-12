@@ -307,7 +307,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return Instance object
  *
  */
-- (instancetype)initWithDelegate:(nullable id<EAWiFiUnconfiguredAccessoryBrowserDelegate>)delegate queue:(nullable dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER NS_AVAILABLE(NA, 8_0);
+- (instancetype)initWithDelegate:(nullable id<EAWiFiUnconfiguredAccessoryBrowserDelegate>)delegate queue:(nullable dispatch_queue_t)queue __IOS_AVAILABLE(8.0) __OSX_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE;
 
 /*!
  * @brief Start the search for unconfigured accessories
@@ -319,13 +319,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @param predicate The desired filter for unconfigured accessory results conforming to the EAWiFiUnconfiguredAccessory protocol.
  *
  */
-- (void)startSearchingForUnconfiguredAccessoriesMatchingPredicate:(nullable NSPredicate *)predicate NS_AVAILABLE(NA, 8_0);
+- (void)startSearchingForUnconfiguredAccessoriesMatchingPredicate:(nullable NSPredicate *)predicate __IOS_AVAILABLE(8.0) __OSX_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE;
 
 /*!
  * @brief Stop the search for unconfigured MFi Wireless Accessory Configuration accessories
  *
  */
-- (void)stopSearchingForUnconfiguredAccessories NS_AVAILABLE(NA, 8_0);
+- (void)stopSearchingForUnconfiguredAccessories __IOS_AVAILABLE(8.0) __OSX_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE;
 
 /*!
  * @brief Begin the configuration process for the chosen accessory
@@ -339,7 +339,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param viewController The UIViewController that will host the Apple guided setup UI in the host application.
  *
  */
-- (void)configureAccessory:(EAWiFiUnconfiguredAccessory *)accessory withConfigurationUIOnViewController:(UIViewController *)viewController NS_AVAILABLE(NA, 8_0);
+- (void)configureAccessory:(EAWiFiUnconfiguredAccessory *)accessory withConfigurationUIOnViewController:(UIViewController *)viewController __IOS_AVAILABLE(8.0) __OSX_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE;
 
 @end
 
@@ -365,7 +365,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param state   The current state of the EAWiFiUnconfiguredAccessoryBrowser.
  *
  */
-- (void)accessoryBrowser:(EAWiFiUnconfiguredAccessoryBrowser *)browser didUpdateState:(EAWiFiUnconfiguredAccessoryBrowserState)state NS_AVAILABLE(NA, 8_0);
+- (void)accessoryBrowser:(EAWiFiUnconfiguredAccessoryBrowser *)browser didUpdateState:(EAWiFiUnconfiguredAccessoryBrowserState)state __IOS_AVAILABLE(8.0) __OSX_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE;
 
 /*!
  *  @method accessoryBrowser:didFindUnconfiguredAccessories:
@@ -377,7 +377,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param accessories The set of EAWiFiUnconfiguredAccessory objects that have been found since the last update.
  *
  */
-- (void)accessoryBrowser:(EAWiFiUnconfiguredAccessoryBrowser *)browser didFindUnconfiguredAccessories:(NSSet<EAWiFiUnconfiguredAccessory *> *)accessories NS_AVAILABLE(NA, 8_0);
+- (void)accessoryBrowser:(EAWiFiUnconfiguredAccessoryBrowser *)browser didFindUnconfiguredAccessories:(NSSet<EAWiFiUnconfiguredAccessory *> *)accessories __IOS_AVAILABLE(8.0) __OSX_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE;
 
 /*!
  *  @method accessoryBrowser:didRemoveUnconfiguredAccessories:
@@ -389,10 +389,10 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param accessories The set of EAWiFiUnconfiguredAccessory objects that have been removed from the scan results since the last update.
  *
  */
-- (void)accessoryBrowser:(EAWiFiUnconfiguredAccessoryBrowser *)browser didRemoveUnconfiguredAccessories:(NSSet<EAWiFiUnconfiguredAccessory *> *)accessories NS_AVAILABLE(NA, 8_0);
+- (void)accessoryBrowser:(EAWiFiUnconfiguredAccessoryBrowser *)browser didRemoveUnconfiguredAccessories:(NSSet<EAWiFiUnconfiguredAccessory *> *)accessories __IOS_AVAILABLE(8.0) __OSX_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE;
 
 /*!
- *  @method accessoryBrowser:didFinishConfiguringAccessory:withError:
+ *  @method accessoryBrowser:didFinishConfiguringAccessory:withStatus:
  *
  *  @discussion Invoked whenever the EAWiFiUnconfiguredAccessoryBrowser has completed configuring the selected EAWiFiUnconfiguredAccessory.
  *
@@ -401,7 +401,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param status    The status of the configuration process that has completed.
  *
  */
-- (void)accessoryBrowser:(EAWiFiUnconfiguredAccessoryBrowser *)browser didFinishConfiguringAccessory:(EAWiFiUnconfiguredAccessory *)accessory withStatus:(EAWiFiUnconfiguredAccessoryConfigurationStatus)status NS_AVAILABLE(NA, 8_0);
+- (void)accessoryBrowser:(EAWiFiUnconfiguredAccessoryBrowser *)browser didFinishConfiguringAccessory:(EAWiFiUnconfiguredAccessory *)accessory withStatus:(EAWiFiUnconfiguredAccessoryConfigurationStatus)status __IOS_AVAILABLE(8.0) __OSX_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE;
 
 @end
 

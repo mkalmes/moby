@@ -13,9 +13,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+@class MDLSubmesh;
+
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLSubmeshTopology : NSObject
+
+/*! 
+ @method initWithSubmesh:
+ @abstract create a topology object corresponding to the topology in the submesh
+ */
+- (instancetype) initWithSubmesh:(MDLSubmesh*)submesh;
 
 /*!
  @property faceTopologyBuffer
@@ -102,7 +110,7 @@ MDL_EXPORT
  @class MDLSubmesh
  @abstract A drawable subset of an MDLMesh, with its own material
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLSubmesh : NSObject<MDLNamed>
 
@@ -161,6 +169,8 @@ MDL_EXPORT
  */
 @property (nonatomic, readonly, retain) id<MDLMeshBuffer> indexBuffer;
 
+- (id<MDLMeshBuffer>)indexBufferAsIndexType:(MDLIndexBitDepth)indexType;
+
 /*!
  @property indexCount
  @abstract Number of indices in the indexBuffer
@@ -195,7 +205,7 @@ MDL_EXPORT
              A submesh of type MDLGeometryTypeVariableTopology with no topology
              data is an empty submesh.
 */
-@property (nonatomic, readonly, retain, nullable) MDLSubmeshTopology *topology;
+@property (nonatomic, retain, nullable) MDLSubmeshTopology *topology;
 
 /*!
  @property name
@@ -231,7 +241,7 @@ NS_ASSUME_NONNULL_BEGIN
     for a particular MDLObject are provided.
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @protocol MDLTransformComponent <MDLComponent>
 @required
@@ -239,10 +249,16 @@ MDL_EXPORT
 /** The matrix, at minimumTime */
 @property (nonatomic, assign) matrix_float4x4 matrix;
 
-/** If no animation data is present, minimumTime and maximumTime will be zero
- */
+/** if YES, this transform is intended to be in global space, not parent space */
+@property (nonatomic, assign) BOOL resetsTransform;
+
+/** If no animation data is present, minimumTime and maximumTime will be zero */
 @property (nonatomic, readonly) NSTimeInterval minimumTime;
 @property (nonatomic, readonly) NSTimeInterval maximumTime;
+
+/** An array of sample times for which a key has been stored
+    If no animation data is present, the array will contain a single value of zero */
+@property (nonatomic, readonly, copy) NSArray<NSNumber*> *keyTimes;
 
 @optional
 - (void)setLocalTransform:(matrix_float4x4)transform forTime:(NSTimeInterval)time;
@@ -266,7 +282,6 @@ MDL_EXPORT
 
 @end
 
-
 /**
  Concrete implementation of <MDLTransformComponent>.
  For more complex transform components create a class that conforms to 
@@ -276,13 +291,18 @@ MDL_EXPORT
  set the matrix property, and clear any timing information.
  
  */
-
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
-@interface MDLTransform : NSObject <MDLTransformComponent>
-
-- (instancetype)initWithIdentity NS_DESIGNATED_INITIALIZER;
+@interface MDLTransform : NSObject <NSCopying, MDLTransformComponent>
+/*!
+ @method init
+ @discussion Initialize an MDLTransform's matrices with identity
+ */
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithIdentity API_DEPRECATED_WITH_REPLACEMENT("init", macos(10.11, 10.13), ios(9.0, 11.0), tvos(9.0, 11.0));
 - (instancetype)initWithTransformComponent:(id<MDLTransformComponent>)component;
+- (instancetype)initWithTransformComponent:(id<MDLTransformComponent>)component
+                           resetsTransform:(BOOL)resetsTransform;
 
 /**
  Initialization with a matrix assumes the matrix is an invertible, homogeneous 
@@ -290,6 +310,7 @@ MDL_EXPORT
  with a non-affine matrix will yield those of the identity transform.
  */
 - (instancetype)initWithMatrix:(matrix_float4x4)matrix;
+- (instancetype)initWithMatrix:(matrix_float4x4)matrix resetsTransform:(BOOL)resetsTransform;
 
 /**
  Set all transform components to identity
@@ -300,6 +321,8 @@ MDL_EXPORT
 - (vector_float3)rotationAtTime:(NSTimeInterval)time;
 - (vector_float3)shearAtTime:(NSTimeInterval)time;
 - (vector_float3)scaleAtTime:(NSTimeInterval)time;
+
+- (void)setMatrix:(matrix_float4x4)matrix forTime:(NSTimeInterval)time API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 - (void)setTranslation:(vector_float3)translation forTime:(NSTimeInterval)time;
 - (void)setRotation:(vector_float3)rotation forTime:(NSTimeInterval)time;
 - (void)setShear:(vector_float3)shear forTime:(NSTimeInterval)time;
@@ -319,6 +342,288 @@ MDL_EXPORT
 @property (nonatomic, readwrite) vector_float3 rotation;     // Euler XYZ radians
 @property (nonatomic, readwrite) vector_float3 shear;
 @property (nonatomic, readwrite) vector_float3 scale;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ModelIO.framework/Headers/MDLAnimatedValueTypes.h
+/*!
+ @header MDLAnimatedValueTypes.h
+ @framework ModelIO
+ @abstract Time sampled animated value types
+ @copyright Copyright © 2015 Apple, Inc. All rights reserved.
+ */
+
+
+#import <Foundation/Foundation.h>
+#import <ModelIO/MDLTypes.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSUInteger, MDLAnimatedValueInterpolation) {
+    MDLAnimatedValueInterpolationConstant,
+    MDLAnimatedValueInterpolationLinear
+};
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLAnimatedValue : NSObject<NSCopying>
+-(BOOL)isAnimated;
+@property (nonatomic, readonly) MDLDataPrecision precision;
+@property (nonatomic, readonly) NSUInteger timeSampleCount;
+@property (nonatomic, readonly) NSTimeInterval minimumTime;
+@property (nonatomic, readonly) NSTimeInterval maximumTime;
+@property (nonatomic) MDLAnimatedValueInterpolation interpolation;
+
+@property (nonatomic, readonly) NSArray<NSNumber *> *keyTimes;
+
+-(void)clear;
+-(NSUInteger)getTimes:(NSTimeInterval *)timesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+@end
+
+
+/// AUTO-GENERATED FROM CodeGenArray.h
+
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLAnimatedScalarArray : MDLAnimatedValue
+
+@property (nonatomic, readonly) NSUInteger elementCount;
+
+-(id)initWithElementCount:(NSUInteger)arrayElementCount;
+
+-(void)setFloatArray:(const float *)array count:(NSUInteger)count atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+-(void)setDoubleArray:(const double *)array count:(NSUInteger)count atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloatArray:(float *)array maxCount:(NSUInteger)maxCount atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDoubleArray:(double *)array maxCount:(NSUInteger)maxCount atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+
+-(void)resetWithFloatArray:(const float *)valuesArray count:(NSUInteger)valuesCount atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)timesCount NS_REFINED_FOR_SWIFT;
+-(void)resetWithDoubleArray:(const double *)valuesArray count:(NSUInteger)valuesCount atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)timesCount NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloatArray:(float *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDoubleArray:(double *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+
+@end
+
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLAnimatedVector3Array : MDLAnimatedValue
+
+@property (nonatomic, readonly) NSUInteger elementCount;
+
+-(id)initWithElementCount:(NSUInteger)arrayElementCount;
+
+-(void)setFloat3Array:(const vector_float3 *)array count:(NSUInteger)count atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+-(void)setDouble3Array:(const vector_double3 *)array count:(NSUInteger)count atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloat3Array:(vector_float3 *)array maxCount:(NSUInteger)maxCount atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDouble3Array:(vector_double3 *)array maxCount:(NSUInteger)maxCount atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+
+-(void)resetWithFloat3Array:(const vector_float3 *)valuesArray count:(NSUInteger)valuesCount atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)timesCount NS_REFINED_FOR_SWIFT;
+-(void)resetWithDouble3Array:(const vector_double3 *)valuesArray count:(NSUInteger)valuesCount atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)timesCount NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloat3Array:(vector_float3 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDouble3Array:(vector_double3 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+
+@end
+
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLAnimatedQuaternionArray : MDLAnimatedValue
+
+@property (nonatomic, readonly) NSUInteger elementCount;
+
+-(id)initWithElementCount:(NSUInteger)arrayElementCount;
+
+-(void)setFloatQuaternionArray:(const simd_quatf *)array count:(NSUInteger)count atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+-(void)setDoubleQuaternionArray:(const simd_quatd *)array count:(NSUInteger)count atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloatQuaternionArray:(simd_quatf *)array maxCount:(NSUInteger)maxCount atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDoubleQuaternionArray:(simd_quatd *)array maxCount:(NSUInteger)maxCount atTime:(NSTimeInterval)time NS_REFINED_FOR_SWIFT;
+
+-(void)resetWithFloatQuaternionArray:(const simd_quatf *)valuesArray count:(NSUInteger)valuesCount atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)timesCount NS_REFINED_FOR_SWIFT;
+-(void)resetWithDoubleQuaternionArray:(const simd_quatd *)valuesArray count:(NSUInteger)valuesCount atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)timesCount NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloatQuaternionArray:(simd_quatf *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDoubleQuaternionArray:(simd_quatd *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+
+@end
+
+
+/// AUTO-GENERATED FROM CodeGen.h
+
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLAnimatedScalar : MDLAnimatedValue
+
+-(void)setFloat:(float)value atTime:(NSTimeInterval)time;
+-(void)setDouble:(double)value atTime:(NSTimeInterval)time;
+
+-(float)floatAtTime:(NSTimeInterval)time;
+-(double)doubleAtTime:(NSTimeInterval)time;
+
+-(void)resetWithFloatArray:(const float *)valuesArray atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+-(void)resetWithDoubleArray:(const double *)valuesArray atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloatArray:(float *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDoubleArray:(double *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+
+@end
+
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLAnimatedVector2 : MDLAnimatedValue
+
+-(void)setFloat2:(vector_float2)value atTime:(NSTimeInterval)time;
+-(void)setDouble2:(vector_double2)value atTime:(NSTimeInterval)time;
+
+-(vector_float2)float2AtTime:(NSTimeInterval)time;
+-(vector_double2)double2AtTime:(NSTimeInterval)time;
+
+-(void)resetWithFloat2Array:(const vector_float2 *)valuesArray atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+-(void)resetWithDouble2Array:(const vector_double2 *)valuesArray atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloat2Array:(vector_float2 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDouble2Array:(vector_double2 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+
+@end
+
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLAnimatedVector3 : MDLAnimatedValue
+
+-(void)setFloat3:(vector_float3)value atTime:(NSTimeInterval)time;
+-(void)setDouble3:(vector_double3)value atTime:(NSTimeInterval)time;
+
+-(vector_float3)float3AtTime:(NSTimeInterval)time;
+-(vector_double3)double3AtTime:(NSTimeInterval)time;
+
+-(void)resetWithFloat3Array:(const vector_float3 *)valuesArray atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+-(void)resetWithDouble3Array:(const vector_double3 *)valuesArray atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloat3Array:(vector_float3 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDouble3Array:(vector_double3 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+
+@end
+
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLAnimatedVector4 : MDLAnimatedValue
+
+-(void)setFloat4:(vector_float4)value atTime:(NSTimeInterval)time;
+-(void)setDouble4:(vector_double4)value atTime:(NSTimeInterval)time;
+
+-(vector_float4)float4AtTime:(NSTimeInterval)time;
+-(vector_double4)double4AtTime:(NSTimeInterval)time;
+
+-(void)resetWithFloat4Array:(const vector_float4 *)valuesArray atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+-(void)resetWithDouble4Array:(const vector_double4 *)valuesArray atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloat4Array:(vector_float4 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDouble4Array:(vector_double4 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+
+@end
+
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLAnimatedMatrix4x4 : MDLAnimatedValue
+
+-(void)setFloat4x4:(matrix_float4x4)value atTime:(NSTimeInterval)time;
+-(void)setDouble4x4:(matrix_double4x4)value atTime:(NSTimeInterval)time;
+
+-(matrix_float4x4)float4x4AtTime:(NSTimeInterval)time;
+-(matrix_double4x4)double4x4AtTime:(NSTimeInterval)time;
+
+-(void)resetWithFloat4x4Array:(const matrix_float4x4 *)valuesArray atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+-(void)resetWithDouble4x4Array:(const matrix_double4x4 *)valuesArray atTimes:(const NSTimeInterval *)timesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloat4x4Array:(matrix_float4x4 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDouble4x4Array:(matrix_double4x4 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ModelIO.framework/Headers/MDLAssetResolver.h
+/*!
+ @header MDLAssetResolver.h
+ @framework ModelIO
+ @abstract Structures for representing contents of 3d model files
+ @copyright Copyright © 2017 Apple, Inc. All rights reserved.
+ */
+
+#import <ModelIO/ModelIOExports.h>
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+@protocol MDLAssetResolver <NSObject>
+
+- (BOOL)canResolveAssetNamed:(NSString*)name;
+- (NSURL*)resolveAssetNamed:(NSString*)name;
+
+@end
+
+@class MDLAsset;
+
+/*!
+ @class MDLRelativeAssetResolver
+ 
+ @abstract The relative asset resolver searches for referenced files
+ by checking the location of the asset for sibling files
+ satisfying the requested name.
+ */
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLRelativeAssetResolver : NSObject <MDLAssetResolver>
+
+- (instancetype)initWithAsset:(MDLAsset*)asset;
+
+@property (nonatomic, readwrite, weak) MDLAsset *asset;
+
+@end
+
+/*!
+ @class MDLPathAssetResolver
+ 
+ @abstract The path asset resolver searches for referenced files
+ by prepending path.
+ 
+ @discussion Path should resolve to a well formed URI. A file system
+ path might take the form @"file:///path/to/all/assets/
+ 
+ A trailing slash is automatically appended to path if
+ not provided.
+ */
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLPathAssetResolver : NSObject <MDLAssetResolver>
+
+- (instancetype)initWithPath:(NSString*)path;
+
+@property (nonatomic, readwrite, copy) NSString *path;
+
+@end
+
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLBundleAssetResolver : NSObject <MDLAssetResolver>
+
+- (instancetype)initWithBundle:(NSString*)path;
+
+@property (nonatomic, readwrite, copy) NSString *path;
 
 @end
 
@@ -356,7 +661,7 @@ typedef NS_ENUM(NSUInteger, MDLMeshBufferType) {
  @class MDLMeshBufferMap
  @abstract Represents a reference to memory of a mapped MeshBuffer
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLMeshBufferMap : NSObject
 
@@ -366,7 +671,7 @@ MDL_EXPORT
            and arrange for unmapping on deallocation.
  */
 -(instancetype) initWithBytes:(void*)bytes
-                  deallocator:(nullable void (^)())deallocator;
+                  deallocator:(nullable void (^)(void))deallocator;
 
 /*!
  @property bytes
@@ -382,7 +687,7 @@ MDL_EXPORT
            index data
  @discussion Supports deep copy of data by conforming to the NSCopying protocol
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 @protocol MDLMeshBuffer <NSObject, NSCopying>
 
 /*!
@@ -444,7 +749,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  @abstract A CPU memory backed mesh buffer
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLMeshBufferData : NSObject <MDLMeshBuffer>
 
@@ -476,7 +781,7 @@ MDL_EXPORT
  @abstract A reference to a logical pool of memory from which mesh buffers would 
            be allocated
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 @protocol MDLMeshBufferZone <NSObject>
 
 /*!
@@ -502,7 +807,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
              implementing MDLMeshBuffer with memory to be filled with vertex and 
              index data during 3d file loading and parsing.
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 @protocol MDLMeshBufferAllocator <NSObject>
 
 /*!
@@ -551,7 +856,6 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  @return An object conforming to the MDLMeshBuffer protocol.  Returns nil the 
          buffer could not be allocated in the zone given.
  @param zone Zone from which to allocate the memory
- @param data Values with which to fill the buffer
  @param type Type of data to be stored in this buffer
  @discussion An implementing MDLMeshBufferAllocator object may increase the size 
              of the zone if the buffer could not be allocated with the current 
@@ -588,6 +892,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 /*!
  An allocator to use when backing with an NSData is appropriate.
  */
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLMeshBufferDataAllocator: NSObject <MDLMeshBufferAllocator>
 
@@ -596,6 +901,8 @@ MDL_EXPORT
 /*!
  A default zone that can be use for convenience 
  */
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
 @interface MDLMeshBufferZoneDefault : NSObject <MDLMeshBufferZone>
 
 @property (nonatomic, readonly) NSUInteger capacity;
@@ -625,9 +932,11 @@ NS_ASSUME_NONNULL_BEGIN
  @class MDLVertexAttributeData
  @abstract convenience object to quickly access vertex attribute data
  @discussion created by MDLMesh's vertexAttributeData selector
+             Setting values on this object has no effect on the
+             underlying objects.
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLVertexAttributeData : NSObject
 
@@ -635,6 +944,7 @@ MDL_EXPORT
 @property (nonatomic) void *dataStart;
 @property (nonatomic) NSUInteger stride;
 @property (nonatomic) MDLVertexFormat format;
+@property (nonatomic) NSUInteger bufferSize API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
 @end
 
@@ -645,19 +955,27 @@ MDL_EXPORT
  @discussion Includes a collection of submeshs which have indexbuffer and
              material information
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLMesh : MDLObject
 
 /*!
+ @method initWithAllocator:
+ @abstract Initialize a mesh with an allocator
+ @return An empty mesh
+*/
+
+- (instancetype)initWithBufferAllocator:(nullable id<MDLMeshBufferAllocator>)bufferAllocator;
+
+/*!
  @method initWithVertexBuffer:vertexCount:descriptor:submeshes:
  @abstract Initialize object with a vertex buffer and a collection of submeshes
- @return Initialized mesh or nil if descriptor's layout array does not describe 
+ @return Initialized mesh or nil if descriptor's layout array does not describe
          a single buffer
  @param vertexBuffer MDLMeshBuffer object containing all vertex data for the mesh
  @param vertexCount Number of vertices in the vertexBuffer
  @param descriptor VertexDescriptor specifying how to interpret vertex data
- @param submeshes Array of submeshes with index buffers referencing vertex data 
+ @param submeshes Array of submeshes with index buffers referencing vertex data
         and/or materials to be applied to mesh
  */
 - (instancetype)initWithVertexBuffer:(id<MDLMeshBuffer>)vertexBuffer
@@ -667,24 +985,21 @@ MDL_EXPORT
 
 /*!
  @method initWithVertexBuffer:vertexCount:descriptor:submeshes:
- @abstract Initialize object with an array of vertex buffers (Structure of 
+ @abstract Initialize object with an array of vertex buffers (Structure of
            Arrays) and a collection of submeshes
- @return Initialized mesh or nil if descriptor's layout array is incompatible 
+ @return Initialized mesh or nil if descriptor's layout array is incompatible
          with vertexBuffers array
  @param vertexCount Number of vertices in vertexBuffers
- @param vertexBuffer An array of MDLMeshBuffer objects containing vertex data 
-         for the mesh
  @param descriptor VertexDescriptor specifying how to interpret vertex data
- @param submeshes Array of submeshes with index buffers referencing vertex data 
+ @param submeshes Array of submeshes with index buffers referencing vertex data
         and/or materials to be applied to mesh
- @discussion Allows initialization with the layout of the vertexBuffers in a 
+ @discussion Allows initialization with the layout of the vertexBuffers in a
         structure-of-arrays form, in other words, non-interleaved vertex attributes
  */
 - (instancetype)initWithVertexBuffers:(NSArray<id<MDLMeshBuffer>> *)vertexBuffers
                           vertexCount:(NSUInteger)vertexCount
                            descriptor:(MDLVertexDescriptor *)descriptor
                             submeshes:(NSArray<MDLSubmesh*> *)submeshes;
-
 
 /*!
  @method vertexAttributeDataForAttributeNamed:
@@ -693,6 +1008,20 @@ MDL_EXPORT
              is freed.
  */
 - (nullable MDLVertexAttributeData*)vertexAttributeDataForAttributeNamed:(NSString*)name;
+
+/*!
+ @method vertexAttributeDataForAttributeNamed:asFormat
+ @abstract convenience selector to get quick access to vertex attribute data
+           reformatted to the requested format if necessary.
+ @discussion If the desired format has less elements than the source attribute
+             elements, excess elements will be discarded. If the desired format
+             has more elements than the source attribute, then the destination
+             elements will be set to zero.
+             The vertex buffer will remain mapped until the MDLVertexAttributeData
+             is freed.
+ */
+- (nullable MDLVertexAttributeData*)vertexAttributeDataForAttributeNamed:(NSString*)name
+                                                                asFormat:(MDLVertexFormat)format;
 
 /*!
  @property boundingBox
@@ -706,15 +1035,15 @@ MDL_EXPORT
 /*!
  @property vertexDescriptor
  @abstract Immutable vertex descriptor for interpreting data in vertexBuffers
- @discussion Setting this applies the new layout in 'vertexBuffers' thus is a 
-             heavyweight operation as structured copies of almost all vertex 
-             buffer data could be made.  Additionally, if the new vertexDescriptor 
-             does not have an attribute in the original vertexDescriptor, that 
-             attribute will be deleted.  If the original vertexDescriptor does 
-             not have an attribute in the new vertexDescriptor, the data for the 
-             added attribute set as the added attribute's initializationValue 
+ @discussion Setting this applies the new layout in 'vertexBuffers' thus is a
+             heavyweight operation as structured copies of almost all vertex
+             buffer data could be made.  Additionally, if the new vertexDescriptor
+             does not have an attribute in the original vertexDescriptor, that
+             attribute will be deleted.  If the original vertexDescriptor does
+             not have an attribute in the new vertexDescriptor, the data for the
+             added attribute set as the added attribute's initializationValue
              property.
- 
+
              The allocator associated with each original meshbuffer is used to
              reallocate the corresponding resultant meshbuffer.
  */
@@ -723,25 +1052,31 @@ MDL_EXPORT
 /*!
  @property vertexCount
  @abstract Number of vertices in the vertexBuffers
- @discussion The size of vertex data in each buffer can be compute by multiplying 
-             this value with the stride of the buffer in the vertexDescriptor's 
+ @discussion The size of vertex data in each buffer can be computed by multiplying
+             this value with the stride of the buffer in the vertexDescriptor's
              layout
  */
-@property (nonatomic, readonly) NSUInteger vertexCount;
+@property (nonatomic, readwrite) NSUInteger vertexCount;
 
 /*!
  @property vertexBuffers
  @abstract Array of buffers containing vertex data
  @discussion The vertex buffers in this array are indexed by the vertex descriptor.
  */
-@property (nonatomic, readonly, retain) NSArray<id<MDLMeshBuffer>> *vertexBuffers;
+@property (nonatomic, readwrite, retain) NSArray<id<MDLMeshBuffer>> *vertexBuffers;
 
 /*!
  @property submeshes
- @abstract Array of submeshes containing an indexbuffer referencing the vertex 
+ @abstract Array of submeshes containing an indexbuffer referencing the vertex
            data and material to be applied when the mesh is rendered
  */
-@property (nonatomic, readonly, retain) NSMutableArray<MDLSubmesh*> *submeshes;
+@property (nonatomic, copy, nullable) NSMutableArray<MDLSubmesh*> *submeshes;
+
+/*!
+ @property allocator
+ @abstract allocator used to allocate contained mesh buffers
+ */
+@property (nonatomic, readonly, retain) id<MDLMeshBufferAllocator> allocator;
 
 @end
 
@@ -758,17 +1093,57 @@ MDL_EXPORT
                       format:(MDLVertexFormat)format;
 
 /*!
- @method addNormalsWithAttributeNamed:bufferIndex:
+ @method addAttributeWithName:format:type:data:stride
+ @abstract Create a new vertex attribute including an associated buffer with
+           a copy of the supplied data, and update the vertex descriptor accordingly
+ @param name The name the attribute can be found by
+ @param format Format of the data, such as MDLVertexFormatFloat3
+ @param type The usage of the attribute, such as MDLVertexAttributePosition
+ @param data Object containing the data to be used in the new vertex buffer
+ @param stride The increment in bytes from the start of one data entry to
+        the next.
+ */
+-(void)addAttributeWithName:(NSString *)name
+                     format:(MDLVertexFormat)format
+                       type:(NSString *)type
+                       data:(NSData *)data
+                     stride:(NSInteger)stride;
+
+/*!
+ @method addAttributeWithName:format:type:data:stride:time
+ @abstract Create a new vertex attribute including an associated buffer with
+           a copy of the supplied data, and update the vertex descriptor accordingly
+ @param name The name the attribute can be found by
+ @param format Format of the data, such as MDLVertexFormatFloat3
+ @param type The usage of the attribute, such as MDLVertexAttributePosition
+ @param data Object containing the data to be used in the new vertex buffer
+ @param stride The increment in bytes from the start of one data entry to
+        the next.
+ @param time The time the attribute is to be invoked at.
+ @discussion Adding an attribute, such as position data, at multiple times will
+             result in attributes being created for each of those times.
+             Attributes corresponding to multiple times can be retrieved from
+             the vertex descriptor.
+ */
+-(void)addAttributeWithName:(NSString *)name
+                     format:(MDLVertexFormat)format
+                       type:(NSString *)type
+                       data:(NSData *)data
+                     stride:(NSInteger)stride
+                       time:(NSTimeInterval)time;
+
+/*!
+ @method addNormalsWithAttributeNamed:creaseThreshold:
  @abstract Calculate and add vertex normal data
- @param attributeName Name of vertex normal attribute.  If nil, vertex normals 
+ @param attributeName Name is the attribute name of vertex normal attribute.  If nil, vertex normals
         will be added with the MDLVertexAttributeNormal name string
- @param creaseThreshold Threshold of the dot product between the 2 triangles after which 
+ @param creaseThreshold Threshold of the dot product between the 2 triangles after which
                         their face normal will be smoothed out. Therefore, a threshold of 0 will
                         smooth everything and a threshold of 1 won't smooth anything.
  @discussion Uses the attribute named MDLVertexAttributePosition to calculate
-             vertex normals. If the mesh does not have an attribute with 
-             'attributeName', it will be added, otherwise the attribute name will 
-             be overwritten with vertex normal data. 'vertexDescriptor' will be 
+             vertex normals. If the mesh does not have an attribute with
+             'attributeName', it will be added, otherwise the attribute name will
+             be overwritten with vertex normal data. 'vertexDescriptor' will be
              updated to reflect the new attribute.
  */
 - (void)addNormalsWithAttributeNamed:(nullable NSString *)attributeName
@@ -777,14 +1152,15 @@ MDL_EXPORT
 
 /*!
  @method addTangentBasisForTextureCoordinateAttributeNamed:tangentAttributeNamed:bitangentAttributeNamed
- @abstract Create tangent basis data
- @param textureCoordinateAttributeName texture coordinates to use in calculations
+ @abstract Create a shader basis where the tangent and bitangent span the uv -> object space transform
+ @param textureCoordinateAttributeName Name of texture coordinates to use in calculations
  @param tangentAttributeName Name of vertex tangent attribute.
- @param bitangentAttributeNamed Name of vertex bitangent attribute.
+ @param bitangentAttributeName Name of vertex bitangent attribute.
  @discussion Uses the attribute named MDLVertexAttributePosition and
              textureCoordinateAttributeName to calculate tangent and bitangent
-             attributes. The mesh's vertexDescriptor will be updated to reflect 
-             the new attributes if necessary.
+             attributes. The mesh's vertexDescriptor will be updated to reflect
+             the new attributes if necessary. The basis may not be orthogonal; to gaurantee an orthogonal
+              tangent basis please use addOrthTanBasisForTextureCoordinateAttibuteNamed selector.
  */
 - (void)addTangentBasisForTextureCoordinateAttributeNamed:(NSString*)textureCoordinateAttributeName
                                     tangentAttributeNamed:(NSString *)tangentAttributeName
@@ -792,29 +1168,106 @@ MDL_EXPORT
 
 /*!
  @method addTangentBasisForTextureCoordinateAttributeNamed:normalAttributeNamed:tangentAttributeNamed
- @abstract Create tangent basis data
+ @abstract Create tangents which are orthogonal to the normal
  @param textureCoordinateAttributeName texture coordinates to use in calculations
- @param normalAttributeNamed normals to use in calculations
+ @param normalAttributeName normals to use in calculations
  @param tangentAttributeName Name of a four component vertex tangent attribute.
  @discussion Uses the attribute named MDLVertexAttributePosition and
-             textureCoordinateAttributeName and the specified normals to calculate 
-             tangent information. The mesh's vertexDescriptor will be updated to 
+             textureCoordinateAttributeName and the specified normals to calculate
+             tangent information. The mesh's vertexDescriptor will be updated to
              reflect the new attribute if necessary.
-             Note that the bitangent can be calculated from the normal and 
-             tangent by B = (N x T) * T.w
+             Note that this method does NOT produce a T.w component which is used in B = (N x T) * T.w
+             Please use addOrthTanBasisForTextureCoordinateAttributeNamed.
  */
 - (void)addTangentBasisForTextureCoordinateAttributeNamed:(NSString*)textureCoordinateAttributeName
                                      normalAttributeNamed:(NSString*)normalAttributeName
                                     tangentAttributeNamed:(NSString *)tangentAttributeName;
 
+/*
+@method addOrthTanBasisForTextureCoordinateAttributeNamed:normalAttributeNamed:tangentAttributeNamed
+@abstract Create an orthonormal tangent basis with tangent specified
+@param textureCoordinateAttributeName texture coordinates to use in calculations
+@param normalAttributeName normals to use in calculations
+@param tangentAttributeName Name of a three/four component vertex tangent attribute.
+@discussion Uses the attribute named MDLVertexAttributePosition and
+            textureCoordinateAttributeName and the specified normals to calculate
+            tangent information. The mesh's vertexDescriptor will be updated to
+            reflect the new attribute if necessary.
+            Note that the bitangent can be calculated from the normal and
+            tangent by B = (N x T) * T.w
+*/
+- (void)addOrthTanBasisForTextureCoordinateAttributeNamed:(NSString *)textureCoordinateAttributeName
+                                     normalAttributeNamed:(NSString *)normalAttributeName
+                                    tangentAttributeNamed:(NSString *)tangentAttributeName API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+/*!
+ @method addTextureCoordinatesForAttributeNamed:textureCoordinateAttributeName
+ @abstract Creates texture coordinates by unwrapping the mesh
+ @param textureCoordinateAttributeName texture coordinates to modify or create
+ @discussion Uses the attribute named MDLVertexAttributePosition and if available,
+             the attribute named MDLVertexAttributeNormal to calculate texture coordinates
+ */
+- (void)addUnwrappedTextureCoordinatesForAttributeNamed:(NSString*)textureCoordinateAttributeName;
+
+
+/*!
+ @method flipTextureCoordinatesInAttributeNamed:
+ @abstract Flips texture coordinates by performing the operation (u,v) = (u, 1-v)
+ @param textureCoordinateAttributeName texture coordinates to modify
+ @discussion Many application generate model files with texture coordinate mapping
+             assuming a bottom left bitmap origin. It can be more convenient to
+             have texture coordinates corresponding to an upper left bitmap origin.
+             This selector will perform the flip operation if the requested texture
+             coordinate attribute exists on the mesh. An exception will be raised if
+             the attribute cannot be found
+ */
+- (void)flipTextureCoordinatesInAttributeNamed:(NSString*)textureCoordinateAttributeName API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
 /*!
  @method makeVerticesUnique:
  @abstract Deindexes the vertex array
- @discussion If any vertices are shared on multiple faces, duplicate those 
-             vertices so faces do not share vertices. The vertex buffer and index 
+ @discussion If any vertices are shared on multiple faces, duplicate those
+             vertices so faces do not share vertices. The vertex buffer and index
              buffers on submeshes may grow to accomadate any vertices added.
  */
-- (void)makeVerticesUnique;
+- (void)makeVerticesUnique NS_DEPRECATED(10.11,10.13,9.0,11.0);
+
+
+/*!
+ @method makeVerticesUniqueAndReturnError:
+ @abstract Deindexes the vertex array
+ @discussion If any vertices are shared on multiple faces, duplicate those
+ vertices so faces do not share vertices. The vertex buffer and index
+ buffers on submeshes may grow to accomadate any vertices added.
+ */
+- (BOOL)makeVerticesUniqueAndReturnError:(NSError **)error API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+/*!
+ @method replaceAttributeNamed:withData
+ @abstract replace existing attribute data with new attribute data retaining
+ the format of the replacement data.
+ @discussion If the specified attribute does not already exist, it will be
+ created.
+ */
+- (void)replaceAttributeNamed:(NSString*)name
+                     withData:(nonnull MDLVertexAttributeData*)newData;
+
+/*!
+ @method updateAttributeNamed:withData
+ @abstract update existing attribute data with new attribute data retaining
+ the format of the existing data.
+ @discussion If the specified attribute does not already exist, it will be
+ created with the same format as the newData.
+ */
+- (void)updateAttributeNamed:(NSString*)name
+                    withData:(nonnull MDLVertexAttributeData*)newData;
+
+/*! 
+ @method removeAttributeNamed:
+ @abstract remove an attribute
+ @discussion if the named attribute does not exist, nothing happens.
+ */
+- (void)removeAttributeNamed:(NSString*)name;
 
 
 @end
@@ -824,40 +1277,36 @@ MDL_EXPORT
 @interface MDLMesh (Generators)
 
 /*!
- @method newBoxWithDimensions:segments:inwardNormals:geometryType:allocator:
+ @method initBoxMeshWithExtent:segments:inwardNormals:geometryType:allocator:
  @abstract Factory method for generating a mesh with a cube shape
  @return MDLMesh box with desired attributes
- @param dimensions Width, height, and depth of the box
+ @param extent size of the box in each dimension
  @param segments Number of slices in each dimension
  @param inwardNormals Generated Normal point inward
  @param geometryType Can be MDLGeometryTypeLines, MDLGeometryTypeQuads, or MDLGeometryTypeTriangles
- @param allocator A mesh buffer allocator used to allocate memory to back buffers 
+ @param allocator A mesh buffer allocator used to allocate memory to back buffers
         for the returned mesh.  If nil, a default allocator will be used
- @discussion Assembled with triangle or quad primitives.  Specifying inward 
-             normals is useful for generating a skybox. The center of the box 
+ @discussion Assembled with triangle or quad primitives.  Specifying inward
+             normals is useful for generating a skybox. The center of the box
              is at(0, 0, 0).
              Will raise an exception if an unsupported geometry type is passed in.
  */
-+ (instancetype)newBoxWithDimensions:(vector_float3)dimensions
-                            segments:(vector_uint3)segments
-                        geometryType:(MDLGeometryType)geometryType
-                       inwardNormals:(BOOL)inwardNormals
-                           allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+- (instancetype)initBoxWithExtent:(vector_float3)extent
+                             segments:(vector_uint3)segments
+                        inwardNormals:(BOOL)inwardNormals
+                         geometryType:(MDLGeometryType)geometryType
+                            allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+
 
 /*!
- @method newEllipsoidWithRadii:radialSegments:verticalSegments:inwardNormals:hemisphere:allocator:
+ @method initSphereWithExtent:segments:inwardNormals:geometryType:allocator
  @abstract Factory method for generating a mesh with an ellipsoid shape
  @return MDLMesh epllipsoid with desired attributes
- @param radii Width, height, and depth of ellipsoid.
- @param radialSegments Number of pie slices :)
- @param verticalSegments Number of slices in the vertical direction
- @param geometryType Must be MDLGeometryTypeTriangles
- @param inwardNormals If true, generated normals will face inwards. Useful for 
+ @param geometryType Must be MDLGeometryTypeTriangles or MDLGeometryTypeLines
+ @param inwardNormals If true, generated normals will face inwards. Useful for
         generating a skydome.
- @param geometryType Must be  Must be MDLGeometryTypeTriangles
- @param hemisphere If true, only top half of elipsoid will be generated. The 
         actual nubmer of vertical slices will be half of 'vertical' segments
- @param allocator A mesh buffer allocator used to allocate memory to back buffers 
+ @param allocator A mesh buffer allocator used to allocate memory to back buffers
         for the returned mesh.  If nil, a default allocator will be used
  @discussion Specifying inward normals and hemisphere is useful for generating a skydome.
              Specifying equal X, Y, and Z radii will generate a sphere.
@@ -865,31 +1314,31 @@ MDL_EXPORT
              Will raise an exception if radialSegments is < 3, verticalSegments is < 2,
              or an unsupported geometry type is passed in.
  */
-+ (instancetype)newEllipsoidWithRadii:(vector_float3)radii
-                       radialSegments:(NSUInteger)radialSegments
-                     verticalSegments:(NSUInteger)verticalSegments
-                         geometryType:(MDLGeometryType)geometryType
-                        inwardNormals:(BOOL)inwardNormals
-                           hemisphere:(BOOL)hemisphere
-                            allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+- (instancetype)initSphereWithExtent:(vector_float3)extent
+                            segments:(vector_uint2)segments
+                       inwardNormals:(BOOL)inwardNormals
+                        geometryType:(MDLGeometryType)geometryType
+                           allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+- (instancetype)initHemisphereWithExtent:(vector_float3)extent
+                                segments:(vector_uint2)segments
+                           inwardNormals:(BOOL)inwardNormals
+                                     cap:(BOOL)cap
+                            geometryType:(MDLGeometryType)geometryType
+                               allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
 
 /*!
- @method newCylinderWithHeight:
+ @method initCylinderWithExtent:segments:inwardNormals:topCap:bottomCap:geometryType:allocator
  @abstract Factory method for generating a mesh with a cylindrical shape
  @return MDLMesh cylinder with desired attributes
- @param height Height of cylindoid.
- @param radii Radii of cylinder in X and Z directions.
- @param radialSegments Number of pie slices :)
- @param verticalSegments Number of slices along Y axis
- @param geometryType Must be MDLGeometryTypeTriangles
+ @param geometryType Must be MDLGeometryTypeTriangles or MDLGeometryTypeLines
  @param inwardNormals Normals point toward center of cylinder
- @param allocator A mesh buffer allocator used to allocate memory to back buffers 
+ @param allocator A mesh buffer allocator used to allocate memory to back buffers
         for the returned mesh.  If nil, a default allocator will be used
  @discussion Center of cylinder at (0, 0, 0) with a top at +Y and bottom at -Y.
              Specifying equal X and Z radia will generate a true cylinder.
              Specifying a height of 0.0 and verticalSegments of 0 will generate
              a disc.
-             Will raise and exceiption radialSegments is < 3 or an unsupported
+             Will raise an exception if radialSegments is < 3 or if an unsupported
              geometry type is passed in.
              Generated texture coordinates are laid out as follows:
                                                       ___
@@ -904,30 +1353,63 @@ MDL_EXPORT
                  Texture for base of cylinder  ---> [     ]
                                                      \___/   <- T texcoord = 1.0
  */
-+ (instancetype)newCylinderWithHeight:(float)height
-                                radii:(vector_float2)radii
-                       radialSegments:(NSUInteger)radialSegments
-                     verticalSegments:(NSUInteger)verticalSegments
-                         geometryType:(MDLGeometryType)geometryType
+- (instancetype)initCylinderWithExtent:(vector_float3)extent
+                              segments:(vector_uint2)segments
+                         inwardNormals:(BOOL)inwardNormals
+                                topCap:(BOOL)topCap
+                             bottomCap:(BOOL)bottomCap
+                          geometryType:(MDLGeometryType)geometryType
+                             allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+
+/*!
+ @method initCapsuleWithExtent:cylinderSegments:hemisphereSegments:inwardNormals:geometryType:allocator
+ @abstract Factory method for generating a mesh with a capsule shape; a cylinder
+           with hemispheres for caps.
+ @return MDLMesh capsule with desired attributes
+ @param extent Dimension of bounding box for capsule.
+ @param hemisphereSegments Number of slices through hemisphere caps along Y axis
+ @param geometryType Must be MDLGeometryTypeTriangles or MDLGeometryTypeLines
+ @param inwardNormals Normals point toward center of cylinder
+ @param allocator A mesh buffer allocator used to allocate memory to back buffers
+        for the returned mesh.  If nil, a default allocator will be used
+ @discussion Center of capsule at (0, 0, 0) with a top at +Y and bottom at -Y.
+             The height of hemisphere cap is specified by the minimum of X and Z
+             Specifying equal X and Z radii will generate a true capsule.
+             Specifying a height that is less than the twice of min of the X and Z 
+             radii or verticalSegments of 0 will generate a sphere. The full height
+             of the capsule will also incorporate the hemisphere caps.
+             Will raise an exception if radialSegments is < 3 or if hemisphereSegments < 1
+             or if an unsupported geometry type is specified.
+             Generated texture coordinates for top and bottom caps are wrapped 
+             in a similar manner as for asphere, laid out as follows:
+                                      ___
+                                     /   \   <- T texcoord = 0.0
+ Texture for top of cylinder   ---> [-----]
+                                    [     ]  <- T texcoord = extent.x/extent.y
+                                    [     ]
+ Texture for sides of cylinder ---> [     ]
+                                    [_____]  <- T texcoord = 1.0 - extent.x/extent.y
+ Texture for base of cylinder  ---> [     ]
+                                     \___/   <- T texcoord = 1.0
+*/
+- (instancetype)initCapsuleWithExtent:(vector_float3)extent
+                     cylinderSegments:(vector_uint2)segments
+                   hemisphereSegments:(int)hemisphereSegments
                         inwardNormals:(BOOL)inwardNormals
+                         geometryType:(MDLGeometryType)geometryType
                             allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
 
 /*!
- @method newEllipticalConeWithHeight:radii:radialSegments:verticalSegments:inwardNormals:allocator:
- @abstract Factory method for generating a mesh with an elipticalCone shape.
+ @method initConeWithExtent:segments:inwardNormals:cap:geometryType:allocator
+ @abstract Factory method for generating a mesh with an ellipticalCone shape.
  @return MDLMesh cone with desired attributes
- @param height Height of elipticalCone from point to base.
- @param radii Radii of base in X and Z directions.  Values of vector should be 
-        equal to create a true cone.
- @param radialSegments Number of pie slices :)
- @param verticalSegments Number of slices along Y axis
- @param geometryType Must be MDLGeometryTypeTriangles
- @param inwardNormals Normals point toward center of elipticalCone
- @param allocator A mesh buffer allocator used to allocate memory to back buffers 
+ @param geometryType Must be MDLGeometryTypeTriangles or MDLGeometryTypeLines
+ @param inwardNormals Normals point toward center of ellipticalCone
+ @param allocator A mesh buffer allocator used to allocate memory to back buffers
         for the returned mesh.  If nil, a default allocator will be used
- @discussion Point of cone at (0, 0, 0) while base of cone is -Y. 
-             Will raise an exception if radialSegments is < 3, verticalSegments is < 1,
-             or an unsupported geometry type is passed in.
+ @discussion Point of cone at (0, 0, 0) while base of cone is -Y.
+             Will raise an exception if radialSegments is < 3, or verticalSegments is < 1,
+             or if an unsupported geometry type is passed in.
              Generated texture coordinates are laid out as follows:
                                                  _____
                                                 [     ]  <- T texcoord = 0.0
@@ -939,6 +1421,91 @@ MDL_EXPORT
                  Texture for base of cone  ---> [     ]
                                                  \___/   <- T texcoord = 1.0
  */
+- (instancetype)initConeWithExtent:(vector_float3)extent
+                          segments:(vector_uint2)segments
+                     inwardNormals:(BOOL)inwardNormals
+                               cap:(BOOL)cap
+                      geometryType:(MDLGeometryType)geometryType
+                         allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+
+/*!
+ @method initPlaneWithExtent:segments:geometryType:allocator
+ @abstract Factory method for generating a mesh with an planar shape
+ @return MDLMesh plane with desired attributes
+ @param extent extent of the plane
+ @param segments Number of segements in the X and Y dimensions
+ @param geometryType Can be MDLGeometryTypeLines, MDLGeometryTypeQuads, or MDLGeometryTypeTriangles
+ @param allocator A mesh buffer allocator used to allocate memory to back buffers
+        for the returned mesh.  If nil, a default allocator will be used
+ @discussion Creates a plane spanning the greatest dimensions of extent.
+             Will raise an exception if an unsupported geometry type is passed in.
+ */
+- (instancetype)initPlaneWithExtent:(vector_float3)extent
+                           segments:(vector_uint2)segments
+                       geometryType:(MDLGeometryType)geometryType
+                          allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+
+/*!
+ @method initIcosahedronWithExtent:inwardNormals:geometryType:allocator
+ @abstract Factory method for generating a mesh icosahedron
+ @return MDLMesh icosahedron with desired attributes
+ @param inwardNormals Generated normals will face towards the center of the mesh
+ @param allocator A mesh buffer allocator used to allocate memory to back buffers
+        for the returned mesh.  If nil, a default allocator will be used
+ @discussion  Creates an icosahedron with center at (0, 0, 0).
+ */
+- (instancetype)initIcosahedronWithExtent:(vector_float3)extent
+                            inwardNormals:(BOOL)inwardNormals
+                             geometryType:(MDLGeometryType)geometryType
+                                allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+
+/*!
+ @method initMeshBySubdividingMesh:submeshIndex:subdivisionLevels:allocator
+ @abstract Factory method that generates a subdivided mesh from a source mesh
+ @param mesh Mesh from which to generate a subdivided mesh
+ @param submeshIndex Index of submesh in Mesh's submesh array from which to
+        generate a subdivided mesh
+ @param subdivisionLevels The number of levels to subdivide mesh
+ @discussion Subdivision levels over four are likely to generate more triangles
+             than can be reasonably displayed. Index and vertex data will use
+             the same allocator used for the source mesh. Loading an asset
+             using the topology preservation flag set to YES will result in the
+             best subdivision results.
+ @return Returns a mesh subdivided to index level, unless subdivision is
+         impossible.
+ */
+- (instancetype)initMeshBySubdividingMesh:(MDLMesh*)mesh
+                             submeshIndex:(int)submeshIndex
+                        subdivisionLevels:(unsigned int)subdivisionLevels
+                                allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+
++ (instancetype)newBoxWithDimensions:(vector_float3)dimensions
+                            segments:(vector_uint3)segments
+                        geometryType:(MDLGeometryType)geometryType
+                       inwardNormals:(BOOL)inwardNormals
+                           allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
++ (instancetype)newEllipsoidWithRadii:(vector_float3)radii
+                       radialSegments:(NSUInteger)radialSegments
+                     verticalSegments:(NSUInteger)verticalSegments
+                         geometryType:(MDLGeometryType)geometryType
+                        inwardNormals:(BOOL)inwardNormals
+                           hemisphere:(BOOL)hemisphere
+                            allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
++ (instancetype)newCylinderWithHeight:(float)height
+                                radii:(vector_float2)radii
+                       radialSegments:(NSUInteger)radialSegments
+                     verticalSegments:(NSUInteger)verticalSegments
+                         geometryType:(MDLGeometryType)geometryType
+                        inwardNormals:(BOOL)inwardNormals
+                            allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
++ (instancetype)newCapsuleWithHeight:(float)height
+                               radii:(vector_float2)radii
+                      radialSegments:(NSUInteger)radialSegments
+                    verticalSegments:(NSUInteger)verticalSegments
+                  hemisphereSegments:(NSUInteger)hemisphereSegments
+                        geometryType:(MDLGeometryType)geometryType
+                       inwardNormals:(BOOL)inwardNormals
+                           allocator:(nullable id<MDLMeshBufferAllocator>)allocator API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 + (instancetype)newEllipticalConeWithHeight:(float)height
                                       radii:(vector_float2)radii
                              radialSegments:(NSUInteger)radialSegments
@@ -946,56 +1513,17 @@ MDL_EXPORT
                                geometryType:(MDLGeometryType)geometryType
                               inwardNormals:(BOOL)inwardNormals
                                   allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
-
-/*!
- @method newPlaneWithDimensions:segments:geometryType:allocator:
- @abstract Factory method for generating a mesh with an planar shape
- @return MDLMesh plane with desired attributes
- @param dimensions Dimensions of  of elipticalCone in X and Z directions.
- @param segments Number of segements in the X and Y dimensions
- @param geometryType Can be MDLGeometryTypeLines, MDLGeometryTypeQuads, or MDLGeometryTypeTriangles
- @param allocator A mesh buffer allocator used to allocate memory to back buffers 
-        for the returned mesh.  If nil, a default allocator will be used
- @discussion Assembled with triangle or quad primitives. Creates a plane along 
-             the X/Z axis. Center of plane at (0, 0, 0). All normals point up,
-             towards positive Y
-             Will raise an exception if an unsupported geometry type is passed in.
- */
 + (instancetype)newPlaneWithDimensions:(vector_float2)dimensions
                               segments:(vector_uint2)segments
                           geometryType:(MDLGeometryType)geometryType
                              allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
-
-/*!
- @method newIcosahedronWithRadius:inwardNormals:allocator:
- @abstract Factory method for generating a mesh icosahedron
- @return MDLMesh icosahedron with desired attributes
- @param radius Distance from the center to the outermost point of the mesh
- @param inwardNormals Generated normals will face towards the center of the mesh
- @param allocator A mesh buffer allocator used to allocate memory to back buffers 
-        for the returned mesh.  If nil, a default allocator will be used
- @discussion  Creates an icosahedron with center at (0, 0, 0).
- */
++ (instancetype)newIcosahedronWithRadius:(float)radius
+                           inwardNormals:(BOOL)inwardNormals
+                            geometryType:(MDLGeometryType)geometryType
+                               allocator:(nullable id<MDLMeshBufferAllocator>)allocator API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 + (instancetype)newIcosahedronWithRadius:(float)radius
                            inwardNormals:(BOOL)inwardNormals
                                allocator:(nullable id<MDLMeshBufferAllocator>)allocator;
-
-
-/*!
- @method newSubdividedMesh:subdivisionLevels:allocator:
- @abstract Factory method that generates a subdivided mesh from a source mesh
- @param mesh Mesh from which to generate a subdivided mesh
- @param submeshIndex Index of submesh in Mesh's submesh array from which to
-        generate a subdivided mesh
- @param subdivisionLevels The number of levels to subdivide mesh
- @discussion Subdivision levels over four are likely to generate more triangles 
-             than can be reasonably displayed. Index and vertex data will use 
-             the same allocator used for the source mesh. Loading an asset 
-             using the topology preservation flag set to YES will result in the
-             best subdivision results.
- @return Returns a mesh subdividied to index level, unless subdivision is 
-         impossible.  Only triangle and quadrilateral meshes can be subdivided.
- */
 + (nullable instancetype)newSubdividedMesh:(MDLMesh*)mesh
                               submeshIndex:(NSUInteger)submeshIndex
                          subdivisionLevels:(NSUInteger)subdivisionLevels;
@@ -1003,24 +1531,23 @@ MDL_EXPORT
 @end
 
 
-
 @interface MDLMesh (MDLLightBaking)
 
 /*!
  @method generateAmbientOcclusionTextureWithSize:
- @abstract Creates an Ambient Occlusion texture, returns true upon success, false 
+ @abstract Creates an Ambient Occlusion texture, returns true upon success, false
            upon failure
- @param size  Texture Size in which to bake the ambient occlusion
+ @param textureSize Texture Size in which to bake the ambient occlusion
  @param raysPerSample Number of rays to be sent out of every texture texel against
         the object for potential occlusion.
- @param attenuationFactor Float between 0 to 1 that defines how to attenuate the 
-        AO value. 0 doesn't change it, and at 1, all AO values are white except 
+ @param attenuationFactor Float between 0 to 1 that defines how to attenuate the
+        AO value. 0 doesn't change it, and at 1, all AO values are white except
         if they are originally completely black. Quadratic attenuation in between.
  @param objectsToConsider NSArray of MDLMeshes containing the objects to raytrace against
- @param vertexAttributeName NSString of the MDLVertexAttribute where the vertex 
-        texture UVs will be stored. Creates it if it doesn't exist, otherwise 
+ @param vertexAttributeName NSString of the MDLVertexAttribute where the vertex
+        texture UVs will be stored. Creates it if it doesn't exist, otherwise
         overwrites current values.
- @param materialPropertyName NSString of the MDLMaterialProperty that will store 
+ @param materialPropertyName NSString of the MDLMaterialProperty that will store
         the texture in the Mesh.
  @result Success or failure of the baking process.
  */
@@ -1035,18 +1562,18 @@ MDL_EXPORT
  @method generateAmbientOcclusionTextureWithQuality:
  @abstract Creates an Ambient Occlusion texture, returns true upon success, false
            upon failure
- @param quality Float between 0 and 1 that defines quality of the bake process.
-        0 is of lower quality but bakes faster and uses less memory, where 1 is 
+ @param bakeQuality Float between 0 and 1 that defines quality of the bake process.
+        0 is of lower quality but bakes faster and uses less memory, where 1 is
         of higher quality.
- @param attenuationFactor Float between 0 to 1 that defines how to attenuate the 
-        AO value. 0 doesn't change it, and at 1, all AO values are white except 
+ @param attenuationFactor Float between 0 to 1 that defines how to attenuate the
+        AO value. 0 doesn't change it, and at 1, all AO values are white except
         if they are originally completely black. Quadratic attenuation in between.
- @param objectsToConsider NSArray of MDLMeshes containing the objects to raytrace 
+ @param objectsToConsider NSArray of MDLMeshes containing the objects to raytrace
         against
- @param vertexAttributeName NSString of the MDLVertexAttribute where the vertex 
-        texture UVs will be stored. Creates it if it doesn't exist, otherwise 
+ @param vertexAttributeName NSString of the MDLVertexAttribute where the vertex
+        texture UVs will be stored. Creates it if it doesn't exist, otherwise
         overwrites current values.
- @param materialPropertyName NSString of the MDLMaterialProperty that will store 
+ @param materialPropertyName NSString of the MDLMaterialProperty that will store
         the texture in the Mesh.
  @result Success or failure of the baking process.
   */
@@ -1090,26 +1617,31 @@ NS_ASSUME_NONNULL_END
  @header MDLAsset.h
  @framework ModelIO
  @abstract Structures for representing contents of 3d model files
- @copyright Copyright © 2015 Apple, Inc. All rights reserved.
+ @copyright Copyright © 2016 Apple, Inc. All rights reserved.
  */
 
 #import <ModelIO/ModelIOExports.h>
+#import <ModelIO/MDLAssetResolver.h>
 #import <ModelIO/MDLObject.h>
 #import <ModelIO/MDLVertexDescriptor.h>
 #import <ModelIO/MDLMeshBuffer.h>
+#import <ModelIO/MDLAnimation.h>
 #import <Foundation/NSURL.h>
 #import <simd/simd.h>
+
+@class MDLLightProbe;
+@class MDLTexture;
+
+NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @class MDLAsset
  
  @abstract An MDLAsset represents the contents of a model file.
  
-@discussion
-
- Each asset contains a collection of hierarchies of objects, where each object 
- in the asset is the top level of a hierarchy. Objects include transforms, 
- lights, cameras, and meshes.
+ @discussion Each asset contains a collection of hierarchies of objects, where 
+             each object in the asset is the top level of a hierarchy. Objects
+             include transforms, lights, cameras, and meshes.
  
  MDLAssets are typically instantiated from NSURLs that refer to a model resource.
 
@@ -1130,9 +1662,8 @@ NS_ASSUME_NONNULL_END
  */
 
 
-NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLAsset : NSObject <NSCopying, NSFastEnumeration>
 
@@ -1147,7 +1678,6 @@ MDL_EXPORT
              Submeshes will be converted to triangle topology.
  */
 - (instancetype)initWithURL:(NSURL *)URL;
-
 /*!
  @method initWithURL:vertexDescriptor:bufferAllocator:
  @abstract Initialize an MDLAsset using the contents of the resource located at 
@@ -1165,12 +1695,19 @@ MDL_EXPORT
  
              Submeshes will be converted to triangle topology.
   */
-- (instancetype)initWithURL:(NSURL *)URL
+- (instancetype)initWithURL:(nullable NSURL *)URL
            vertexDescriptor:(nullable MDLVertexDescriptor*)vertexDescriptor
             bufferAllocator:(nullable id<MDLMeshBufferAllocator>)bufferAllocator;
 
+/*!
+ @method initWithBufferAllocator:
+ @abstract Initialize an empty MDLAsset with a buffer allocator to be used during
+           other operations.
+ */
+- (instancetype)initWithBufferAllocator:(nullable id<MDLMeshBufferAllocator>)bufferAllocator;
+
 /*! 
- @method initWithURL:vertexDescriptor:bufferAllocator:preserveTopology
+ @method initWithURL:vertexDescriptor:bufferAllocator:preserveTopology:error:
  @abstract Same as initWithURL:vertexDescriptor:bufferAllocator: except that
            if preserveTopology is YES, a topology buffer might be created on the
            submeshes.
@@ -1183,21 +1720,30 @@ MDL_EXPORT
              MDLGeometryTypeVariableTopology, and a faceTopologyBuffer will be
              created.
  */
-
 - (instancetype)initWithURL:(NSURL *)URL
            vertexDescriptor:(nullable MDLVertexDescriptor*)vertexDescriptor
             bufferAllocator:(nullable id<MDLMeshBufferAllocator>)bufferAllocator
            preserveTopology:(BOOL)preserveTopology
                       error:(NSError * __nullable * __nullable)error;
 
-
 /*!
  @method exportAssetToURL:
  @abstract Export an asset to the specified URL.
  @return YES is returned if exporting proceeded successfully,
  */
-- (BOOL)exportAssetToURL:(NSURL *)URL;
+- (BOOL)exportAssetToURL:(NSURL *)URL NS_SWIFT_UNAVAILABLE("Use exportAssetToURL:error");
+
+/*!
+ @method exportAssetToURL:error:
+ @abstract Export an asset to the specified URL.
+ @return YES is returned if exporting proceeded successfully,
+ */
 - (BOOL)exportAssetToURL:(NSURL *)URL error:(NSError * __nullable * __nullable)error;
+
+/*!
+ @abstract Return the object at the specified path, or nil if none exists there
+ */
+- (MDLObject*)objectAtPath:(NSString*)path API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
 /*!
  @method canImportFileExtension:
@@ -1218,13 +1764,31 @@ MDL_EXPORT
 + (BOOL)canExportFileExtension:(NSString *)extension;
 
 /*!
+ @method childObjectsOfClass:
+ @abstract Inspects an asset's hierarchy for objects of the specified class type
+ @return returns an NSArray of all objects in the asset matching the requested class
+ @discussion This can be used to get references to all MDLMesh objects, MDLLights,
+             etc. if objectClass is not a subclass of MDLObject, an exception will be
+             raised.
+ */
+- (NSArray<MDLObject*>*)childObjectsOfClass:(Class)objectClass;
+
+/*!
+ @method loadTextures
+ @abstract Iterates over all material properties on all materials. If they are string
+           values or NSURL values, and can be resolved as textures, then the string 
+           and NSURL values will be replaced by MDLTextureSampler values.
+ */
+- (void)loadTextures API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+/*!
  @method boundingBoxAtTime:
  @abstract The bounds of the MDLAsset at the specified time
  */
 - (MDLAxisAlignedBoundingBox)boundingBoxAtTime:(NSTimeInterval)time;
 
 /*!
- @property bounds
+ @property boundingBox
  @abstract The bounds of the MDLAsset at the earliest time sample
  */
 @property (nonatomic, readonly) MDLAxisAlignedBoundingBox boundingBox;
@@ -1241,7 +1805,9 @@ MDL_EXPORT
  @property startTime
  @abstract Start time bracket of animation data
  @discussion If no animation data was specified by resource or resource incapable 
-             of specifying animation data, this value defaults to 0
+             of specifying animation data, this value defaults to 0. If startTime
+             was set explicitly, then the value of startTime will be the lesser
+             of the set value and the animated values.
  */
 @property (nonatomic, readwrite) NSTimeInterval startTime;
 
@@ -1249,17 +1815,34 @@ MDL_EXPORT
  @property endTime
  @abstract End time bracket of animation data
  @discussion If no animation data was specified by resource or resource incapable
-             of specifying animation data, this value defaults to 0
+             of specifying animation data, this value defaults to 0. If the
+             endTime was set explicitly, then the value of endTime will be the
+             greater of the set value and the animated values.
  */
 @property (nonatomic, readwrite) NSTimeInterval endTime;
 
 /*!
+ @property upAxis
+ @abstract Scene up axis
+ @discussion Some imported formats specify a scene up axis. By default Y-axis (0, 1, 0) is used
+ but other values are supported.
+ */
+@property (nonatomic, readwrite) vector_float3 upAxis API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+/*!
  @property URL
- @abstract  URL used to create the asset
- @discussion If no animation data was specified by resource or resource incapable 
-             of specifying animation data, this value defaults to 0
+ @abstract URL used to create the asset
+ @discussion If the asset was not created with a URL, nil will be returned.
  */
 @property (nonatomic, readonly, retain, nullable) NSURL *URL;
+
+/*!
+ @property AssetResolver
+ @abstract Resolver asset that helps find associated files
+ @discussion The default asset resolver is the RelativeAssetResolver
+ */
+@property (nonatomic, retain, nullable) id<MDLAssetResolver> resolver API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
 
 /*!
  @property bufferAllocator
@@ -1269,7 +1852,7 @@ MDL_EXPORT
 
 /*!
  @property vertexDescriptor
- @abstract  Vertex descriptor set upon asset initialization
+ @abstract Vertex descriptor set upon asset initialization
  @discussion Will be nil if there was no descriptor set
  */
 @property (nonatomic, readonly, retain, nullable) MDLVertexDescriptor *vertexDescriptor;
@@ -1289,7 +1872,8 @@ MDL_EXPORT
 - (void)removeObject:(MDLObject *)object;
 
 /*!
- The number of top level objects
+ @property count
+ @abstract The number of top level objects
  */
 @property (nonatomic, readonly) NSUInteger count;
 
@@ -1305,6 +1889,57 @@ MDL_EXPORT
  */
 - (MDLObject *)objectAtIndex:(NSUInteger)index;
 
+/*!
+ @property masters
+ @abstract Master objects that can be instanced into the asset's object hierarchy
+ @see MDLObjectContainerComponent
+ */
+@property (nonatomic, retain) id<MDLObjectContainerComponent> masters;
+
+/*!
+ @property animations
+ @abstract Animations that can be bound to MDLObjects (@see MDLAnimationBindComponent)
+ @see MDLObjectContainerComponent
+ */
+@property (nonatomic, retain) id<MDLObjectContainerComponent> animations API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+@end
+
+@protocol MDLLightProbeIrradianceDataSource <NSObject>
+/**
+ Bounding box of the source scene for which you are adding light probes.
+ */
+@property MDLAxisAlignedBoundingBox boundingBox;
+
+@optional
+/**
+ Spherical harmonics level used to calculate the spherical harmonics coefficients.
+ */
+@property NSUInteger sphericalHarmonicsLevel;
+
+/**
+ Given a position in the source scene, returns the spherical harmonics coefficients
+ at that point.
+ 
+ The data returned is an array of 32-bit floating-point values, containing three non-interleaved 
+ data sets corresponding to the red, green, and blue sets of coefficients. The array’s length is 
+ determined by the sphericalHarmonicsLevel property.
+ */
+-(NSData *)sphericalHarmonicsCoefficientsAtPosition:(vector_float3)position;
+@end
+
+/**
+ Given a light probe density, method places light probes in the scene according to the
+ passed in placement heuristic type. The higher the density, the greater the number of 
+ light probes placed in the scene.
+ 
+ Using the placement heuristic MDLProbePlacementUniformGrid places the light probes in the
+ scene as a uniform grid. The placement heuristic MDLProbePlacementIrradianceDistribution 
+ places the light probes in areas of greatest irradiance change. 
+ */
+@interface MDLAsset (MDLLightBaking)
++ (NSArray<MDLLightProbe *> *)placeLightProbesWithDensity:(float)value heuristic:(MDLProbePlacement)type
+                                usingIrradianceDataSource:(id<MDLLightProbeIrradianceDataSource>)dataSource;
 @end
 
 NS_ASSUME_NONNULL_END
@@ -1323,16 +1958,21 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol MDLTransformComponent;
-
 /*!
  @class MDLObject
  @abstract Base class for object in a ModelIO asset hierarchy
  @discussion Includes transformation and bounds info, links to parent and
              children in the hierachy
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLObject : NSObject<MDLNamed>
+
+/*!
+ @property components
+ @abstract Allows applications to introspect the components on the objects.
+ */
+@property (nonatomic, readonly, copy) NSArray<id<MDLComponent>> *components;
 
 /*!
  @method setComponent:forProtocol:
@@ -1349,6 +1989,22 @@ MDL_EXPORT
 - (nullable id<MDLComponent>)componentConformingToProtocol:(Protocol *)protocol;
 
 /*!
+ @method objectForKeyedSubscript:
+ @abstract Allows shorthand [key] syntax for componentConformingToProtocol:.
+ @param key The protocol that the component conforms to.
+ @see componentConformingToProtocol:
+ */
+- (nullable id<MDLComponent>)objectForKeyedSubscript:(Protocol *)key;
+
+/*!
+ @method setObject:forKeyedSubscript:
+ @abstract Allows shorthand [key] syntax for setComponent:forProtocol:.
+ @param key The protocol that the component conforms to.
+ @see setComponent:forProtocol:
+ */
+- (void)setObject:(nullable id<MDLComponent>)obj forKeyedSubscript:(Protocol *)key;
+
+/*!
  @property parent
  @abstract Parent object. Nil if no parent.
  @discussion Set to nil when you remove this from an object container inside the 
@@ -1357,31 +2013,69 @@ MDL_EXPORT
 @property (nonatomic, weak, nullable) MDLObject* parent;
 
 /*!
+ @property instance
+ @abstract Instance object
+ @discussion nil, unless this object refers to master data to be instanced. The
+             master data object can be any MDLObject that does not have a parent.
+             If an MDLAsset has been created from a data file, any master objects
+             parsed from that file will be found in the masters property.
+             A typical use of a master and instance might be to have one master
+             chair MDLObject, and instance six chairs around a table. The
+             transform of each chair would be found on the parent MDLObject, but
+             the various items making up the chair would be found in the master
+             object.
+ */
+@property (nonatomic, nullable, retain) MDLObject* instance;
+
+/*!
+ @property path
+ @abstract a string representing a path to the object
+ @discussion a path is of the form /path/to/object where the path is formed by
+             concatenating the names of the objects up the parent chain.
+             Requesting a path will force any unnamed objects to became uniquely
+             named. Any characters outside of [A-Z][a-z][0-9][:-_.] will be
+             forced to underscore.
+ */
+@property (nonatomic, readonly) NSString* path;
+
+/*!
+ @abstract Return the object at the specified path, or nil if none exists there
+ */
+- (MDLObject*)objectAtPath:(NSString*)path;
+
+
+- (void)enumerateChildObjectsOfClass:(Class)objectClass
+                                root:(MDLObject*)root
+                          usingBlock:( void(^)(MDLObject* object, BOOL *stop))block
+                         stopPointer:(BOOL *)stopPointer API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+
+/*!
  @property transform
  @abstract Short hand property for the MDLTransformComponent.
- @discussion 
- 
- The default value is nil
-
- Getter is equivalent to "-[componentConformingToProtocol:@protocol(MDLTransformComponent)]"
- Setter is equivalent to "-[setComponent:forProtocol:@protocol(MDLTransformComponent)]"
+ @discussion The default value is nil
  
  @see MDLTransformComponent
  */
 @property (nonatomic, nullable, retain) id<MDLTransformComponent> transform;
 
+
 /*!
  @property children
  @abstract Short hand property for the MDLObjectContainerComponent.
- @discussion
-  The default value is nil
- 
- Getter is equivalent to "-[componentConformingToProtocol:@protocol(MDLObjectContainerComponent)]"
- Setter is equivalent to "-[setComponent:forProtocol:@protocol(MDLObjectContainerComponent)]"
+ @discussion The default value is nil
  
  @see MDLObjectContainerComponent
  */
 @property (nonatomic, retain) id<MDLObjectContainerComponent> children;
+
+/*!
+ @property hidden
+ @abstract Visibility of the node
+ @discussion default is NO
+ */
+
+@property (nonatomic) BOOL hidden;
 
 /*!
  @method addChild:
@@ -1410,7 +2104,7 @@ MDL_EXPORT
              custom containers might reference in memory representations, offline 
              databases, and so on.
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLObjectContainer : NSObject<MDLObjectContainerComponent>
 
@@ -1437,18 +2131,15 @@ NS_ASSUME_NONNULL_BEGIN
  
  @summary MDLCamera models a physically plausible camera.
  
- @discussion
-
- Note that values are represented as float in MDLCamera as it offers sufficient 
- precision, and because calculations will be identical on any processor 
+ @discussion Values are represented as float in MDLCamera as it offers sufficient 
+ precision, and because calculations will be identical on any processor
  architecture. This consistency is a requirement of the model.
 
  MDLCamera provides the a model of the parameters governing the physical process 
  of transforming a scene into an image.
 
- This process is modeled as a series of steps, each governed by physically 
- plausible properties.
- 
+ This process is modeled as a series of steps, each governed by the physical
+ properties of real world cameras.
  
  1. The position and orientation of the camera
     @see MDLObject transform property
@@ -1517,6 +2208,8 @@ NS_ASSUME_NONNULL_BEGIN
  
  4. Geometry of the lens
  
+    This is a thin lens model.
+ 
     @property focalLength
  
     The default focal length is 50mm, corresponding to a field of view of 54 
@@ -1529,7 +2222,7 @@ NS_ASSUME_NONNULL_BEGIN
  
     @property fieldOfView
  
-    The field of view is calcualted from the focal length and sensor aperture.
+    The field of view is calculated from the focal length and sensor aperture.
     Changing the field of view will update the focalLength property with respect 
     to the sensor aperture. The default is 54 degrees, corresponding to a focal 
     length of 50mm, and a vertical sensor aperture of 24mm.
@@ -1613,7 +2306,7 @@ NS_ASSUME_NONNULL_BEGIN
     lens. This is useful in certain calculations, such as shadow or reflection
     projections, as well as to provide vergence in a parallel stereoscopic camera.
 
- 5. Exposure
+ 7. Exposure
  
     Finally, the sensor values need to be converted for display.
  
@@ -1646,7 +2339,14 @@ NS_ASSUME_NONNULL_BEGIN
 
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+typedef NS_ENUM(NSUInteger, MDLCameraProjection)
+{
+    MDLCameraProjectionPerspective = 0,
+    MDLCameraProjectionOrthographic = 1,
+};
+
+
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLCamera : MDLObject
 
@@ -1656,6 +2356,10 @@ MDL_EXPORT
  @see nearVisibilityDistance, nearVisibilityDistance
  */
 @property (nonatomic, readonly) matrix_float4x4 projectionMatrix;
+
+/**
+ */
+@property (nonatomic, assign) MDLCameraProjection projection;
 
 /**
  Move the camera back and orient the camera so that a bounding box is framed 
@@ -1798,7 +2502,7 @@ MDL_EXPORT
 @end
 
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLStereoscopicCamera : MDLCamera
 
@@ -1882,17 +2586,20 @@ typedef NS_ENUM(NSUInteger, MDLLightType) {
 @class MDLColorSpec;
 @class MDLTexture;
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLLight : MDLObject
 
 /** A utility function that returns the irradiance from the light at a given point.
     @discussion point is world space
+    @property colorSpace name, as defined in CGColorSpace.h. Default is 
+              kCGColorSpaceSRGB
   */
 - (CGColorRef)irradianceAtPoint:(vector_float3)point;
 - (CGColorRef)irradianceAtPoint:(vector_float3)point colorSpace:(CGColorSpaceRef)colorSpace;
 
 @property (nonatomic, readwrite) MDLLightType lightType;
+@property (nonatomic, copy, readwrite) NSString *colorSpace;
 
 @end
 
@@ -1908,16 +2615,9 @@ MDL_EXPORT
  @property attenuationStartDistance. Within the attenuation start distance, the
            light is maximally bright.
  @property attenuationEndDistance. Beyond this distance, there is no light.
-
- @discussion A good formula to calculate falloff is
- 
-   falloff = clamp((1 - (distance/attenuationStartDistance)^4) ^2), 0, 1) / (distance^2 + 1)
- 
-   Note that adding one to distance in the denominator prevents numerical issues 
-   very close to the light's origin.
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLPhysicallyPlausibleLight : MDLLight
 
@@ -1942,7 +2642,7 @@ MDL_EXPORT
 
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLAreaLight : MDLPhysicallyPlausibleLight
 
@@ -1964,7 +2664,7 @@ MDL_EXPORT
            calculated by generateSphericalHarmonicsFromLight:
 */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLPhotometricLight : MDLPhysicallyPlausibleLight
 
@@ -1975,6 +2675,18 @@ MDL_EXPORT
 
 -(void)generateCubemapFromLight:(NSUInteger)textureSize;
 
+/*!
+ @method generateTexture
+ @abstract
+ Generate an IES compliant MDLTexture
+ 1D when the number of horizontal angles is one and the innerConeAngle is < 180
+ 2D when the previous statement fails and innerConeAngle < 89
+ 3D in all other cases
+ the parameter textureSize is the size in pixels of the texture image. For a size of N,
+ 1D generates an Nx1 image, 2D generates an NxN image, 3D generates an Nx(N*6) image (i.e. cubemap).
+ */
+-(MDLTexture*)generateTexture:(NSUInteger)textureSize API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
 @property (nonatomic, retain, nullable, readonly) MDLTexture *lightCubeMap;
 
 @property (nonatomic, readonly) NSUInteger sphericalHarmonicsLevel;
@@ -1983,7 +2695,7 @@ MDL_EXPORT
 
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLLightProbe : MDLLight
 
@@ -2030,16 +2742,19 @@ NS_ASSUME_NONNULL_END
 #include <math.h>
 
 /* Alembic file format, file extension ABC, UTI public.alembic */
-MDL_EXPORT NSString * __nonnull const kUTTypeAlembic NS_AVAILABLE(10_11, 9_0);
+MDL_EXPORT NSString * __nonnull const kUTTypeAlembic API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0));
 
 /* 3d Object file format, file extension OBJ, UTI public.geometry-definition-format */
-MDL_EXPORT NSString * __nonnull const kUTType3dObject NS_AVAILABLE(10_11, 9_0);
+MDL_EXPORT NSString * __nonnull const kUTType3dObject API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0));
 
 /* Polygon file format, file extension PLY, UTI public.polygon-file-format */
-MDL_EXPORT NSString * __nonnull const kUTTypePolygon NS_AVAILABLE(10_11, 9_0);
+MDL_EXPORT NSString * __nonnull const kUTTypePolygon API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0));
 
 /* Stereolithography file format, file extension STL, UTI public.standard-tesselated-geometry-format */
-MDL_EXPORT NSString * __nonnull const kUTTypeStereolithography NS_AVAILABLE(10_11, 9_0);
+MDL_EXPORT NSString * __nonnull const kUTTypeStereolithography API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0));
+
+/* Universal Scene Description file format, file extension USDA or USDB, UTI com.pixar.universal-scene-description */
+MDL_EXPORT NSString * __nonnull const kUTTypeUniversalSceneDescription API_AVAILABLE(macos(10.12), ios(10.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSUInteger, MDLIndexBitDepth)
@@ -2059,41 +2774,50 @@ typedef NS_ENUM(NSInteger, MDLGeometryType) {
     MDLGeometryTypeTriangles,
     MDLGeometryTypeTriangleStrips,
     MDLGeometryTypeQuads,
-    MDLGeometryTypeVariableTopology,
-    MDLGeometryKindPoints = 0,        // Legacy enumerations
-    MDLGeometryKindLines,
-    MDLGeometryKindTriangles,
-    MDLGeometryKindTriangleStrips,
-    MDLGeometryKindQuads
+    MDLGeometryTypeVariableTopology
 };
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+typedef NS_ENUM(NSInteger, MDLProbePlacement) {
+    MDLProbePlacementUniformGrid = 0,
+    MDLProbePlacementIrradianceDistribution
+};
+
+typedef NS_ENUM(NSUInteger, MDLDataPrecision) {
+    MDLDataPrecisionUndefined,
+    MDLDataPrecisionFloat,
+    MDLDataPrecisionDouble
+} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @protocol MDLNamed
 @required
 @property (nonatomic, copy) NSString *name;
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @protocol MDLComponent <NSObject>
 @end
 
 @class MDLObject;
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @protocol MDLObjectContainerComponent <MDLComponent, NSFastEnumeration>
 
 - (void)addObject:(MDLObject*)object;
 - (void)removeObject:(MDLObject*)object;
+- (MDLObject *)objectAtIndexedSubscript:(NSUInteger)index API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+@property (readonly) NSUInteger count API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
 // returns an array of this object's contained objects, aka children
 @property (nonatomic, readonly, retain) NSArray<MDLObject*> *objects;
 
 @end
 
-typedef struct MDL_EXPORT_CPPCLASS {
+typedef struct MDL_CLASS_EXPORT {
     vector_float3 maxBounds;
     vector_float3 minBounds;
 } MDLAxisAlignedBoundingBox;
@@ -2116,6 +2840,7 @@ NS_ASSUME_NONNULL_END
 #import <ModelIO/ModelIOExports.h>
 #import <ModelIO/MDLTypes.h>
 #import <ModelIO/MDLTransform.h>
+#import <ModelIO/MDLAssetResolver.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -2291,7 +3016,7 @@ typedef NS_ENUM(NSUInteger, MDLMaterialMipMapFilterMode) {
     MDLMaterialMipMapFilterModeLinear,
 };
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLTextureFilter : NSObject
 @property (nonatomic, assign) MDLMaterialTextureWrapMode sWrapMode;
@@ -2302,7 +3027,7 @@ MDL_EXPORT
 @property (nonatomic, assign) MDLMaterialMipMapFilterMode mipFilter;
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLTextureSampler : NSObject
 
@@ -2318,9 +3043,9 @@ MDL_EXPORT
  a Rec 709 color.
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
-@interface MDLMaterialProperty : NSObject<MDLNamed>
+@interface MDLMaterialProperty : NSObject<MDLNamed, NSCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -2338,7 +3063,7 @@ MDL_EXPORT
 - (void)setProperties:(MDLMaterialProperty *)property;
 
 @property (nonatomic, assign) MDLMaterialSemantic semantic;
-@property (nonatomic, readonly) MDLMaterialPropertyType type;
+@property (nonatomic, assign) MDLMaterialPropertyType type;
 
 /** @see MDLNamed */
 @property (nonatomic, copy) NSString *name;
@@ -2352,6 +3077,60 @@ MDL_EXPORT
 @property (nonatomic, assign) vector_float3 float3Value;
 @property (nonatomic, assign) vector_float4 float4Value;
 @property (nonatomic, assign) matrix_float4x4 matrix4x4;
+@property (nonatomic, assign) float luminance;
+
+@end
+
+API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0))
+MDL_EXPORT
+@interface MDLMaterialPropertyConnection : NSObject<MDLNamed>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/** Connects the output to the input */
+- (instancetype)initWithOutput:(MDLMaterialProperty*)output
+                         input:(MDLMaterialProperty*)input;
+
+@property (nonatomic, weak, readonly) MDLMaterialProperty *output;
+@property (nonatomic, weak, readonly) MDLMaterialProperty *input;
+
+@end
+
+API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0))
+MDL_EXPORT
+@interface MDLMaterialPropertyNode : NSObject<MDLNamed>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithInputs:(NSArray<MDLMaterialProperty*>*)inputs
+                       outputs:(NSArray<MDLMaterialProperty*>*)outputs
+            evaluationFunction:(void(^)(MDLMaterialPropertyNode*))function;
+
+@property (nonatomic, copy) void(^evaluationFunction)(MDLMaterialPropertyNode*);
+
+@property (nonatomic, readonly) NSArray<MDLMaterialProperty*> *inputs;
+@property (nonatomic, readonly) NSArray<MDLMaterialProperty*> *outputs;
+
+@end
+
+/**
+ @discussion inputs and outputs will contain all of the inputs and outputs
+             external to the graph, which are all the inputs and outputs not
+             internally connected to something
+ */
+API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0))
+MDL_EXPORT
+@interface MDLMaterialPropertyGraph : MDLMaterialPropertyNode
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithNodes:(NSArray<MDLMaterialPropertyNode*>*)nodes
+                  connections:(NSArray<MDLMaterialPropertyConnection*>*)connections;
+
+- (void)evaluate;
+
+@property (nonatomic, readonly) NSArray<MDLMaterialPropertyNode*> *nodes;
+@property (nonatomic, readonly) NSArray<MDLMaterialPropertyConnection*> *connections;
 
 @end
 
@@ -2361,7 +3140,7 @@ MDL_EXPORT
  an approximation.
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLScatteringFunction : NSObject<MDLNamed>
 
@@ -2379,7 +3158,7 @@ MDL_EXPORT
 
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLPhysicallyPlausibleScatteringFunction : MDLScatteringFunction
 
@@ -2399,7 +3178,13 @@ MDL_EXPORT
 
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+typedef NS_ENUM(NSUInteger, MDLMaterialFace) {
+    MDLMaterialFaceFront = 0,
+    MDLMaterialFaceBack,
+    MDLMaterialFaceDoubleSided
+};
+
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLMaterial : NSObject<MDLNamed, NSFastEnumeration>
 
@@ -2407,9 +3192,30 @@ MDL_EXPORT
 
 - (void)setProperty:(MDLMaterialProperty*)property;
 - (void)removeProperty:(MDLMaterialProperty*)property;
+
 - (nullable MDLMaterialProperty*)propertyNamed:(NSString*)name;
+
+// Returns the first occurence of the property that matches the semantic.
+// Not recommended to use when there are multiple properties with same semantic.
 - (nullable MDLMaterialProperty*)propertyWithSemantic:(MDLMaterialSemantic)semantic;
+
+// Returns the complete list of properties that match the semantic (e.g. Kd & Kd_map)
+- (NSArray<MDLMaterialProperty *> *)propertiesWithSemantic:(MDLMaterialSemantic)semantic API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 - (void)removeAllProperties;
+
+// Iterates all material properties. If they are string values, they are resolved into
+// valid paths as NSURL values.
+// @param resolver If non-nil, the resolver can be invoked to convert stringValues
+//                 to NSURLs for loading.
+- (void)resolveTexturesWithResolver:(id<MDLAssetResolver>)resolver API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+// Iterates all material properties. If they are string values or NSURL values, and
+// can be resolved as textures, then the string and NSURL values will be replaced by
+// MDLTextureSampler values. The transforms on the samplers will be identity, the
+// wrap modes will be clamp, and the filter modes will be linear.
+// @param resolver If non-nil, the resolver can be invoked to convert stringValues
+//                 to NSURLs for loading.
+- (void)loadTexturesUsingResolver:(id<MDLAssetResolver>)resolver API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
 @property (nonatomic, readonly, retain) MDLScatteringFunction *scatteringFunction;
 
@@ -2425,10 +3231,12 @@ MDL_EXPORT
 - (nullable MDLMaterialProperty *)objectForKeyedSubscript:(NSString*)name;
 @property (nonatomic, readonly) NSUInteger count;
 
+// Default is MDLMaterialFaceFront
+@property (nonatomic) MDLMaterialFace materialFace;
+
 @end
 
 NS_ASSUME_NONNULL_END
-
 // ==========  ModelIO.framework/Headers/ModelIO.h
 //
 //  @header    ModelIO.h
@@ -2440,6 +3248,7 @@ NS_ASSUME_NONNULL_END
 #import <ModelIO/ModelIOExports.h>
 
 #import <ModelIO/MDLAsset.h>
+#import <ModelIO/MDLAssetResolver.h>
 #import <ModelIO/MDLCamera.h>
 #import <ModelIO/MDLLight.h>
 #import <ModelIO/MDLMaterial.h>
@@ -2449,9 +3258,108 @@ NS_ASSUME_NONNULL_END
 #import <ModelIO/MDLSubmesh.h>
 #import <ModelIO/MDLTexture.h>
 #import <ModelIO/MDLTransform.h>
+#import <ModelIO/MDLTransformStack.h>
 #import <ModelIO/MDLTypes.h>
 #import <ModelIO/MDLVertexDescriptor.h>
 #import <ModelIO/MDLVoxelArray.h>
+#import <ModelIO/MDLAnimation.h>
+// ==========  ModelIO.framework/Headers/MDLValueTypes.h
+/*!
+ @header MDLValueTypes.h
+ @framework ModelIO
+ @abstract SIMD array value types
+ @copyright Copyright © 2015 Apple, Inc. All rights reserved.
+ */
+
+
+#import <Foundation/Foundation.h>
+#import <ModelIO/MDLTypes.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLMatrix4x4Array : NSObject<NSCopying>
+
+@property (nonatomic, readonly) NSUInteger elementCount;
+
+@property (nonatomic, readonly) MDLDataPrecision precision;
+
+-(void)clear;
+-(instancetype)initWithElementCount:(NSUInteger)arrayElementCount;
+
+-(void)setFloat4x4Array:(const matrix_float4x4 *)valuesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+-(void)setDouble4x4Array:(const matrix_double4x4 *)valuesArray count:(NSUInteger)count NS_REFINED_FOR_SWIFT;
+
+-(NSUInteger)getFloat4x4Array:(matrix_float4x4 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+-(NSUInteger)getDouble4x4Array:(matrix_double4x4 *)valuesArray maxCount:(NSUInteger)maxCount NS_REFINED_FOR_SWIFT;
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ModelIO.framework/Headers/MDLAnimation.h
+/*!
+ @header MDLAnimation.h
+ @framework ModelIO
+ @abstract Support for time sampled animation of skeletal meshes
+ @copyright Copyright © 2016 Apple, Inc. All rights reserved.
+ */
+
+#import <Foundation/Foundation.h>
+#import <ModelIO/MDLValueTypes.h>
+#import <ModelIO/MDLAnimatedValueTypes.h>
+#import <ModelIO/MDLObject.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLSkeleton : MDLObject<NSCopying>
+
+@property (nonatomic, readonly) NSArray<NSString *> *jointPaths;
+
+ // world space bind transforms
+@property (nonatomic, readonly) MDLMatrix4x4Array *jointBindTransforms;
+
+ // local space default transforms, used for joints not animated in a MDLPackedJointAnimation
+@property (nonatomic, readonly) MDLMatrix4x4Array *jointRestTransforms;
+
+-(instancetype) initWithName:(NSString *)name
+                  jointPaths:(NSArray<NSString *> *)jointPaths;
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@protocol MDLJointAnimation
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLPackedJointAnimation : MDLObject<NSCopying, MDLJointAnimation>
+@property (nonatomic, readonly) NSArray<NSString *> *jointPaths;
+
+@property (nonatomic, readonly) MDLAnimatedVector3Array *translations;
+@property (nonatomic, readonly) MDLAnimatedQuaternionArray *rotations;
+@property (nonatomic, readonly) MDLAnimatedVector3Array *scales;
+
+-(instancetype) initWithName:(NSString *)name
+                  jointPaths:(NSArray<NSString *> *)jointPaths;
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLAnimationBindComponent : NSObject<NSCopying, MDLComponent>
+
+@property (nonatomic, nullable, retain) MDLSkeleton* skeleton;
+@property (nonatomic, nullable, retain) id<MDLJointAnimation> jointAnimation;
+
+ // optional. If set, jointIndices vertex buffers index into this list of joints.
+@property (nonatomic, nullable, retain) NSArray<NSString *> *jointPaths;
+
+@property (nonatomic) matrix_double4x4 geometryBindTransform;
+@end
+
+
+NS_ASSUME_NONNULL_END
 // ==========  ModelIO.framework/Headers/MDLVoxelArray.h
 //
 //  MDLVoxelArray.h
@@ -2469,7 +3377,7 @@ NS_ASSUME_NONNULL_END
 
 #import <ModelIO/MDLTypes.h>
 #import <ModelIO/MDLMeshBuffer.h>
-#import <Foundation/Foundation.h>
+#import <ModelIO/MDLObject.h>
 #import <simd/simd.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -2504,18 +3412,36 @@ typedef struct {
           series of shells on the outside and inside of the surface.
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
-@interface MDLVoxelArray : NSObject
+@interface MDLVoxelArray : MDLObject
+
+/**
+ Initialize a voxel grid from an MDLAsset. Attempts to create a closed volume
+ model by applying "patches" of radius patchRadius to any holes found in the
+ orginal mesh. Choose a patch radius that will be large enough to fill in the largest
+ hole in the model.
+ */
+- (instancetype)initWithAsset:(MDLAsset*)asset divisions:(int)divisions patchRadius:(float)patchRadius;
+
+/**
+ Initialize a voxel grid from an NSData containing an array of MDLVoxelIndex values.
+ 
+ @param boundingBox The bounds defining the extent of the volume model in Cartesian space
+ @param voxelExtent The extent of a single voxel
+ */
+- (instancetype)initWithData:(NSData*)voxelData
+                 boundingBox:(MDLAxisAlignedBoundingBox)boundingBox
+                 voxelExtent:(float)voxelExtent;
 
 /**
  Initialize a voxel grid from an MDLAsset and dilate the resulting voxels by
- a number of interior and exterior shells. 
+ a number of interior and exterior shells.
  Routine will attempt to create a closed volume model by applying patches of
  a given radius to any holes it may find in the asset.
  
- @param divisions The number of divisions to divide the vertical extent of the 
-        model by.
+ @param divisions The number of divisions to divide the vertical extent of the
+ model by.
  @param interiorShells The number of shells to compute inside the surface shell
  @param exteriorShells The number of shells to compute outside the surface shell
  @param patchRadius The radius of the largest model mending patch in world space units
@@ -2524,7 +3450,7 @@ MDL_EXPORT
                     divisions:(int)divisions
                interiorShells:(int)interiorShells
                exteriorShells:(int)exteriorShells
-                  patchRadius:(float)patchRadius;
+                  patchRadius:(float)patchRadius NS_DEPRECATED(10_11, 10_12, NA, NA);
 
 /**
  Initialize a voxel grid from an MDLAsset and dilate the resulting voxels by
@@ -2542,40 +3468,51 @@ MDL_EXPORT
                     divisions:(int)divisions
               interiorNBWidth:(float)interiorNBWidth
               exteriorNBWidth:(float)exteriorNBWidth
-                  patchRadius:(float)patchRadius;
-
-
-/**
- Initialize a voxel grid from an NSData containing an array of MDLVoxelIndex values.
- 
- @param boundingBox The bounds defining the extent of the volume model in Cartesian space
- @param voxelExtent The extent of a single voxel
- */
-- (instancetype)initWithData:(NSData*)voxelData
-                 boundingBox:(MDLAxisAlignedBoundingBox)boundingBox
-                 voxelExtent:(float)voxelExtent;
+                  patchRadius:(float)patchRadius NS_DEPRECATED(10_11, 10_12, NA, NA);
 
 /**
- Create a mesh from the voxel grid
+ The number of voxels in the grid
  */
-- (nullable MDLMesh*)meshUsingAllocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+@property (nonatomic, readonly) NSUInteger count;
+
+/**
+ The extent of the voxel grid in index space
+ */
+@property (nonatomic, readonly) MDLVoxelIndexExtent voxelIndexExtent;
 
 /**
  Determine if a sample exists at the specified index
- @discussion the allowAny parameters can be used to wildcard any dimensions. This 
-             is useful to perform queries such as determining if any voxel 
-             exists on the XY plane at a certain Z, or if any voxel exists at 
-             any X, Y, Z, but a particular shell, and so on.
+ @discussion the allowAny parameters can be used to wildcard any dimensions. This
+ is useful to perform queries such as determining if any voxel
+ exists on the XY plane at a certain Z, or if any voxel exists at
+ any X, Y, Z, or a particular shell, and so on.
  */
 - (BOOL)voxelExistsAtIndex:(MDLVoxelIndex)index
                  allowAnyX:(BOOL)allowAnyX allowAnyY:(BOOL)allowAnyY allowAnyZ:(BOOL)allowAnyZ
              allowAnyShell:(BOOL)allowAnyShell;
 
 /**
+ Returns an NSData containing the indices of all voxels found in the extent
+ */
+- (nullable NSData *)voxelsWithinExtent:(MDLVoxelIndexExtent)extent;
+
+/**
+ Returns an NSData containing the indices of all voxels in the voxel grid
+ */
+- (nullable NSData *)voxelIndices;
+
+/**
  Set a sample at the specified index
  @discussion the extent, bounds, and shell properties may be modified
  */
 - (void)setVoxelAtIndex:(MDLVoxelIndex)index;
+
+/**
+ Set voxels corresponding to a mesh.
+ Routine will attempt to create a closed volume model by applying "patches" of
+ a given radius to any holes it may find in the mesh.
+ */
+- (void)setVoxelsForMesh:(nonnull MDLMesh*)mesh divisions:(int)divisions patchRadius:(float)patchRadius;
 
 /**
  Set voxels corresponding to a mesh
@@ -2592,7 +3529,7 @@ MDL_EXPORT
                divisions:(int)divisions
           interiorShells:(int)interiorShells
           exteriorShells:(int)exteriorShells
-             patchRadius:(float)patchRadius;
+             patchRadius:(float)patchRadius NS_DEPRECATED(10_11, 10_12, NA, NA);
 
 
 /**
@@ -2610,18 +3547,7 @@ MDL_EXPORT
                divisions:(int)divisions
          interiorNBWidth:(float)interiorNBWidth
          exteriorNBWidth:(float)exteriorNBWidth
-             patchRadius:(float)patchRadius;
-
-
-/**
- Returns an NSData containing the indices of all voxels found in the extent
- */
-- (nullable NSData *)voxelsWithinExtent:(MDLVoxelIndexExtent)extent;
-
-/**
- Returns an NSData containing the indices of all voxels in the voxel grid
- */
-- (nullable NSData *)voxelIndices;
+             patchRadius:(float)patchRadius NS_DEPRECATED(10_11, 10_12, NA, NA);
 
 /**
  Union modifies the voxel grid to be the merger with the supplied voxel grid.
@@ -2631,6 +3557,13 @@ MDL_EXPORT
 - (void)unionWithVoxels:(MDLVoxelArray*)voxels;
 
 /**
+ Intersection modifies the voxel grid so that only voxels that are also in the supplied voxel grid are retained.
+ It is assumed that the spatial voxel extent of one voxel in the supplied grid is the same as that of the voxel grid.
+ Note that the shell level data will be cleared.
+ */
+- (void)intersectWithVoxels:(MDLVoxelArray*)voxels;
+
+/**
  Difference modifies the voxel grid so that voxels also in the supplied voxel grid are removed.
  It is assumed that the spatial voxel extent of one voxel in the supplied grid is the same as that of the voxel grid.
  Note that the shell level data will be cleared.
@@ -2638,11 +3571,9 @@ MDL_EXPORT
 - (void)differenceWithVoxels:(MDLVoxelArray*)voxels;
 
 /**
- Intersection modifies the voxel grid so that only voxels that are also in the supplied voxel grid are retained.
- It is assumed that the spatial voxel extent of one voxel in the supplied grid is the same as that of the voxel grid.
- Note that the shell level data will be cleared.
+ The extent of the voxel grid in Cartesian space
  */
-- (void)intersectWithVoxels:(MDLVoxelArray*)voxels;
+@property (nonatomic, readonly) MDLAxisAlignedBoundingBox boundingBox;
 
 /**
  Return the voxel index corresponding to a point in space
@@ -2660,21 +3591,176 @@ MDL_EXPORT
 - (MDLAxisAlignedBoundingBox)voxelBoundingBoxAtIndex:(MDLVoxelIndex)index;
 
 /**
- The number of voxels in the grid
+ Converts volume grid into a signed shell field by surrounding the surface voxels, which have shell 
+ level values of zero, by an inner layer of voxels with shell level values of negative one and an 
+ outer layer of voxels with shell level values of positive one.
+ 
+ The volume model must be closed in order to generate a signed shell field.
  */
-@property (nonatomic, readonly) NSUInteger count;
+- (void)convertToSignedShellField;
 
 /**
- The extent of the voxel grid in index space
+ Returns whether or not the volume grid is in a valid signed shell field form.
+ 
+ This property will be set to YES after calling generateSignedShellField. All other 
+ methods that modify the voxel grid will cause this property to be set to NO. Setting
+ shellFieldInteriorThickness and shellFieldExteriorThickness will not affect the value
+ of this property.
  */
-@property (nonatomic, readonly) MDLVoxelIndexExtent voxelIndexExtent;
+@property (nonatomic, readonly) BOOL isValidSignedShellField;
 
 /**
- The extent of the voxel grid in Cartesian space
+ If voxel grid is in a valid signed shell field form, sets the interior thickness to the desired width,
+ as measured from the model surface. If the voxel grid is not in a valid signed shell field form, the
+ value of this property is zero.
  */
-@property (nonatomic, readonly) MDLAxisAlignedBoundingBox boundingBox;
+@property (nonatomic) float shellFieldInteriorThickness;
+
+/**
+ If voxel grid is in a valid signed shell field form, sets the exterior thickness to the desired width,
+ as measured from the model surface. If the voxel grid is not in a valid signed shell field form, the
+ value of this property is zero.
+ */
+@property (nonatomic) float shellFieldExteriorThickness;
+
+/**
+ Creates a coarse mesh from the voxel grid
+ */
+- (nullable MDLMesh*)coarseMesh;
+- (nullable MDLMesh*)coarseMeshUsingAllocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+
+/**
+ Creates a smooth mesh from the voxel grid
+ */
+- (nullable MDLMesh*)meshUsingAllocator:(nullable id<MDLMeshBufferAllocator>)allocator;
+
 
 @end
+
+NS_ASSUME_NONNULL_END
+// ==========  ModelIO.framework/Headers/MDLTransformStack.h
+/*!
+ @header MDLTransformStack.h
+ @framework ModelIO
+ @abstract Time sampled transformation of elements in 3d assets
+ @copyright Copyright © 2017 Apple, Inc. All rights reserved.
+ */
+
+
+#import <Foundation/Foundation.h>
+#import <simd/simd.h>
+#import <ModelIO/MDLTypes.h>
+#import <ModelIO/MDLTransform.h>
+#import <ModelIO/MDLAnimatedValueTypes.h>
+
+NS_ASSUME_NONNULL_BEGIN
+typedef NS_ENUM(NSUInteger, MDLTransformOpRotationOrder) {
+    MDLTransformOpRotationOrderXYZ = 1,
+    MDLTransformOpRotationOrderXZY,
+    MDLTransformOpRotationOrderYXZ,
+    MDLTransformOpRotationOrderYZX,
+    MDLTransformOpRotationOrderZXY,
+    MDLTransformOpRotationOrderZYX,
+};
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+@protocol MDLTransformOp
+@property (nonatomic, readonly) NSString* name;
+-(matrix_float4x4)float4x4AtTime:(NSTimeInterval)time;
+-(matrix_double4x4)double4x4AtTime:(NSTimeInterval)time;
+-(bool)IsInverseOp;
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLTransformRotateXOp : NSObject<MDLTransformOp>
+@property (nonatomic, readonly) NSString* name;
+@property (nonatomic, readonly) MDLAnimatedScalar* animatedValue;
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLTransformRotateYOp : NSObject<MDLTransformOp>
+@property (nonatomic, readonly) NSString* name;
+@property (nonatomic, readonly) MDLAnimatedScalar* animatedValue;
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLTransformRotateZOp : NSObject<MDLTransformOp>
+@property (nonatomic, readonly) NSString* name;
+@property (nonatomic, readonly) MDLAnimatedScalar* animatedValue;
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLTransformRotateOp : NSObject<MDLTransformOp>
+@property (nonatomic, readonly) NSString* name;
+@property (nonatomic, readonly) MDLAnimatedVector3* animatedValue;
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLTransformTranslateOp : NSObject<MDLTransformOp>
+@property (nonatomic, readonly) NSString* name;
+@property (nonatomic, readonly) MDLAnimatedVector3* animatedValue;
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLTransformScaleOp : NSObject<MDLTransformOp>
+@property (nonatomic, readonly) NSString* name;
+@property (nonatomic, readonly) MDLAnimatedVector3* animatedValue;
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLTransformMatrixOp : NSObject<MDLTransformOp>
+@property (nonatomic, readonly) NSString* name;
+@property (nonatomic, readonly) MDLAnimatedMatrix4x4* animatedValue;
+@end
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
+MDL_EXPORT
+@interface MDLTransformStack : NSObject<NSCopying, MDLTransformComponent>
+
+- (id)init;
+
+-(MDLTransformTranslateOp*) addTranslateOp:(NSString*)animatedValueName
+                                   inverse:(bool)inverse;
+
+-(MDLTransformRotateXOp*) addRotateXOp:(NSString*)animatedValueName
+                               inverse:(bool)inverse;
+
+-(MDLTransformRotateYOp*) addRotateYOp:(NSString*)animatedValueName
+                               inverse:(bool)inverse;
+
+-(MDLTransformRotateZOp*) addRotateZOp:(NSString*)animatedValueName
+                               inverse:(bool)inverse;
+
+-(MDLTransformRotateOp*) addRotateOp:(NSString*)animatedValueName
+                               order:(MDLTransformOpRotationOrder)order
+                             inverse:(bool)inverse;
+
+-(MDLTransformScaleOp*) addScaleOp:(NSString*)animatedValueName
+                           inverse:(bool)inverse;
+
+-(MDLTransformMatrixOp*) addMatrixOp:(NSString*)animatedValueName
+                             inverse:(bool)inverse;
+
+-(MDLAnimatedValue*) animatedValueWithName:(NSString*) name;
+
+-(matrix_float4x4)float4x4AtTime:(NSTimeInterval)time;
+-(matrix_double4x4)double4x4AtTime:(NSTimeInterval)time;
+
+-(NSUInteger)count;
+
+@property (nonatomic, readonly, copy) NSArray<NSNumber*> *keyTimes;
+@property (nonatomic, readonly, copy) NSArray<id<MDLTransformOp>> *transformOps;
+
+
+@end
+
 
 NS_ASSUME_NONNULL_END
 // ==========  ModelIO.framework/Headers/ModelIOExports.h
@@ -2692,6 +3778,10 @@ NS_ASSUME_NONNULL_END
 #else
 #   define MDL_EXPORT extern __attribute__((visibility ("default")))
 #endif
+
+// export struct or class
+#define MDL_CLASS_EXPORT __attribute__((visibility ("default")))
+
 // ==========  ModelIO.framework/Headers/MDLVertexDescriptor.h
 /*!
  @header MDLVertexDescriptor.h
@@ -2862,13 +3952,20 @@ typedef NS_ENUM(NSUInteger, MDLVertexFormat)
  @class MDLVertexBufferLayout
  @abstract Describes a vertex buffer's layout
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLVertexBufferLayout : NSObject <NSCopying>
 
+- (instancetype) initWithStride:(NSUInteger) stride;
+
 /*!
  @property stride
- @abstract stride in bytes of each vertex element of in the buffer
+ @abstract stride in bytes of each vertex element in the buffer. 
+ @discussion - If you store multiple attributes interleaved in the vertex
+               buffer, the stride will be the sum of sizes of each attribute (and any padding).
+             - If you store multiple attributes non-interleaved (back to back),
+               the stride will be the size of an attribute (and all attributes are
+               required to have the same size).
  */
 @property (nonatomic, readwrite) NSUInteger stride;
 @end
@@ -2881,7 +3978,7 @@ MDL_EXPORT
  @class MDLVertexAttribute
  @abstract Structure with properties of a vertex attribute
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLVertexAttribute : NSObject <NSCopying>
 
@@ -2890,9 +3987,9 @@ MDL_EXPORT
  @abstract Initialize attribute object with all properties
  */
 - (instancetype) initWithName:(NSString *)name
-                               format:(MDLVertexFormat)format
-                               offset:(NSUInteger)offset
-                          bufferIndex:(NSUInteger)bufferIndex;
+                       format:(MDLVertexFormat)format
+                       offset:(NSUInteger)offset
+                  bufferIndex:(NSUInteger)bufferIndex;
 /*!
  @property name
  @abstract Identifying name of the attribute derived from model file, or one of 
@@ -2923,6 +4020,13 @@ MDL_EXPORT
 @property (nonatomic, readwrite) NSUInteger bufferIndex;
 
 /*!
+ @property time
+ @abstract the time the attribute is intended for.
+ @discussion morph targets would store their times here
+ */
+@property (nonatomic, readwrite) NSTimeInterval time;
+
+/*!
  @property initializationValue
  @abstract Value to initialize the attribute to in the vertex buffer if no values
  @discussion This values of this vector will be set in attribute in the vertex
@@ -2941,9 +4045,7 @@ MDL_EXPORT
 /*!
  @class MDLVertexDescriptor
  @abstract Describes the layout of vertex buffers in MDLMesh objects
- @discussion 
- 
- This object is a property of MDLMesh describing the current state of
+ @discussion This object is a property of MDLMesh describing the current state of
  attributes and buffer layouts of the vertex buffers in the mesh. This must be 
  immutable otherwise even small changes could cause the buffers to be out of sync 
  with the layout described here.
@@ -2951,7 +4053,7 @@ MDL_EXPORT
  Designed to be very similar to MTLVertexDescriptor to ease creation of one from 
  the other
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLVertexDescriptor : NSObject <NSCopying>
 
@@ -2972,15 +4074,21 @@ MDL_EXPORT
 
 /*!
  @method addOrReplaceAttribute:
- @abstract Replace any attribute with the same name, or add it if it does not
+ @abstract Replace any attribute with the same name and time, or add it if it does not
            already exist.
  */
 - (void)addOrReplaceAttribute:(nonnull MDLVertexAttribute*)attribute;
 
+/*!
+ @method removeAttributeNamed:
+ @abstract Remove the named attribute if it exists
+ */
+- (void)removeAttributeNamed:(NSString*)name;
+
 /*! 
  @property attributes
  @abstract An array of MDLVertexAttribute objects
- @discussion An array describing the current attribute state of vertex buffers in an
+ @discussion ay describing the current attribute state of vertex buffers in an
              MDLMesh mesh
  */
 @property (nonatomic, retain) NSMutableArray<MDLVertexAttribute*> *attributes;
@@ -3032,6 +4140,7 @@ NS_ASSUME_NONNULL_END
 #import <ModelIO/ModelIOExports.h>
 #import <ModelIO/MDLTypes.h>
 #import <ModelIO/MDLObject.h>
+#import <ModelIO/MDLAssetResolver.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreGraphics/CGImage.h>
 #import <simd/simd.h>
@@ -3056,6 +4165,7 @@ typedef NS_ENUM(NSInteger, MDLTextureChannelEncoding) {
     MDLTextureChannelEncodingUInt32 = 4,
     MDLTextureChannelEncodingUint32 = 4,
     MDLTextureChannelEncodingFloat16 = 0x102,
+    MDLTextureChannelEncodingFloat16SR = 0x302,
     MDLTextureChannelEncodingFloat32 = 0x104,
 };
 
@@ -3089,9 +4199,11 @@ typedef NS_ENUM(NSInteger, MDLTextureChannelEncoding) {
            dimension.x. Other layouts are possible in the future.
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLTexture : NSObject<MDLNamed>
+
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
 
 /**
  Creates a texture from a source in the main bundle named in a manner matching
@@ -3099,6 +4211,7 @@ MDL_EXPORT
  */
 + (nullable instancetype)textureNamed:(NSString *)name;
 + (nullable instancetype)textureNamed:(NSString *)name bundle:(nullable NSBundle*)bundleOrNil;
++ (nullable instancetype)textureNamed:(NSString *)name assetResolver:(id<MDLAssetResolver>)resolver API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
 
 /**
   Creates a cube texture map image using 6 faces of the same dimensions, 
@@ -3117,7 +4230,8 @@ MDL_EXPORT
     orientation and demosaiced in all other instances.
  */
 + (nullable instancetype)textureCubeWithImagesNamed:(NSArray<NSString *> *)names;
-+ (nullable instancetype)textureCubeWithImagesNamed:(NSArray<NSString *> *)names bundle:(nullable NSBundle*)bundleOrNil;
++ (nullable instancetype)textureCubeWithImagesNamed:(NSArray<NSString *> *)names
+                                             bundle:(nullable NSBundle*)bundleOrNil;
 
 + (instancetype)irradianceTextureCubeWithTexture:(MDLTexture*)texture
                                             name:(nullable NSString*)name
@@ -3137,13 +4251,20 @@ MDL_EXPORT
              channelEncoding:(MDLTextureChannelEncoding)channelEncoding
                       isCube:(BOOL)isCube NS_DESIGNATED_INITIALIZER;
 
-/** writeToURL, deducing type from path extension */
+/** write a texture to URL, deducing type from path extension */
 - (BOOL)writeToURL:(NSURL *)URL;
 
-/** writeToURL using a specific UT type */
+/** write a particular level of a mipped texture to URL, deducing type from path extension */
+- (BOOL)writeToURL:(NSURL *)URL level:(NSUInteger)level API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+/** write a texture to URL, using a specific UT type */
 - (BOOL)writeToURL:(NSURL *)nsurl type:(CFStringRef)type;
 
+/** write a particular level of a mipped texture to URL, using a specific UT type */
+- (BOOL)writeToURL:(NSURL *)nsurl type:(CFStringRef)type level:(NSUInteger)level API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
 - (nullable CGImageRef)imageFromTexture;
+- (nullable CGImageRef)imageFromTextureAtLevel:(NSUInteger)level API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
 - (nullable NSData *)texelDataWithTopLeftOrigin;
 - (nullable NSData *)texelDataWithBottomLeftOrigin;
@@ -3158,6 +4279,15 @@ MDL_EXPORT
 @property (nonatomic, readonly) MDLTextureChannelEncoding channelEncoding;
 @property (nonatomic) BOOL isCube;
 
+/**
+ hasAlphaValues
+ @summary
+ Can be overridden. If not overridden, hasAlpha will be NO if the texture does not
+ have an alpha channel. It wil be YES if the texture has an alpha channel and
+ there is at least one non-opaque texel in it.
+ */
+@property (nonatomic) BOOL hasAlphaValues;
+
 @end
 
 /** 
@@ -3168,7 +4298,7 @@ MDL_EXPORT
              a lightweight reference to something that could be loaded
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLURLTexture : MDLTexture
 
@@ -3186,7 +4316,7 @@ MDLCheckerboardTexture
              object is merely a description
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLCheckerboardTexture : MDLTexture
 
@@ -3226,7 +4356,17 @@ MDLSkyCubeTexture
            replacement should occur. Negative values are below the horizon.
 
  @property groundColor If this value is set, the environment will be replaced with
-           the color below the horizonElevation value.
+           the color below the horizonElevation value blended with the w factor up to
+           Pi/2.0 past the horizon.
+           (e.g. w = 0.0 groundColor is applied immediatly on the horizon with no blend
+                 w = Pi/2 groundColor is linearly applied all the way to the south pole)
+           NOTE: To maintain default behavior a simple length(groundColor) != 0 is used to determine
+                 if we want to set the ground color (e.g. black and blended immediatly
+                 on the horizon use (0.0, 0.0, 0.0, 0.0000001))
+           4 component treats the first 3 components as color and w as blend factor
+           3 component treats the first 3 components as color and 0 as blend factor
+           2 component treats the first component as greyscale color and y as blend factor
+           1 component treats the scalar component as greyscale color and 0 as blend factor
  
  @property gamma Modifies the amount of gamma correction applied during
            tone mapping.
@@ -3243,7 +4383,7 @@ MDLSkyCubeTexture
  object is merely a description. All parameters have legal values between zero and one.
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLSkyCubeTexture : MDLTexture
 
@@ -3255,6 +4395,16 @@ MDL_EXPORT
    upperAtmosphereScattering:(float)upperAtmosphereScattering // how intense the sun looks, 0 to 1
                 groundAlbedo:(float)groundAlbedo;             // how much sky color is reflected from the Earth
 
+- (instancetype)initWithName:(nullable NSString*)name
+             channelEncoding:(MDLTextureChannelEncoding)channelEncoding
+           textureDimensions:(vector_int2)textureDimensions   // the size of one cube face
+                   turbidity:(float)turbidity                 // the clearness of the sky
+                sunElevation:(float)sunElevation              // from 0 to 1 zenith to nadir
+                  sunAzimuth:(float)sunAzimuth                // from 0 to 2Pi
+   upperAtmosphereScattering:(float)upperAtmosphereScattering // how intense the sun looks, 0 to 1
+                groundAlbedo:(float)groundAlbedo              // how much sky color is reflected from the Earth
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
 /**
  Call updateTexture if parameters have been changed and a new sky is required.
  */
@@ -3262,6 +4412,7 @@ MDL_EXPORT
 
 @property (nonatomic, assign) float turbidity;
 @property (nonatomic, assign) float sunElevation;
+@property (nonatomic, assign) float sunAzimuth API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 @property (nonatomic, assign) float upperAtmosphereScattering;
 @property (nonatomic, assign) float groundAlbedo;
 
@@ -3277,7 +4428,7 @@ MDL_EXPORT
 
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLColorSwatchTexture : MDLTexture
 
@@ -3311,7 +4462,7 @@ MDL_EXPORT
  object is merely a description
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLNoiseTexture : MDLTexture
 
@@ -3346,10 +4497,19 @@ MDL_EXPORT
                               channelEncoding:(MDLTextureChannelEncoding)channelEncoding
                                     grayscale:(BOOL)grayscale;
 
+/**
+ Create a texture containing cellular noise. 
+ 
+ @param frequency How large the cells will be
+ */
+- (instancetype)initCellularNoiseWithFrequency:(float)frequency
+                                          name:(nullable NSString*)name
+                             textureDimensions:(vector_int2)textureDimensions
+                               channelEncoding:(MDLTextureChannelEncoding)channelEncoding API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 MDL_EXPORT
 @interface MDLNormalMapTexture : MDLTexture
 

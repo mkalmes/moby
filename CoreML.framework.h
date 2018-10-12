@@ -733,6 +733,10 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, MLComputeUnits) {
     MLComputeUnitsCPUOnly = 0,
     MLComputeUnitsCPUAndGPU = 1
+
+    ,
+    MLComputeUnitsAll = 2
+
 } API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
 
 /*!

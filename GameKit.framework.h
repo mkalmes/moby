@@ -3,7 +3,7 @@
 //  GKChallenge.h
 //  Game Center
 //
-//  Copyright 2012-2015 Apple Inc. All rights reserved.
+//  Copyright 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -31,7 +31,7 @@ typedef NS_ENUM(NSInteger, GKChallengeState) {
 };
 
 
-NS_CLASS_AVAILABLE(10_8, 6_0)
+NS_CLASS_AVAILABLE(10_8, 6_0) __WATCHOS_PROHIBITED
 @interface GKChallenge : NSObject <NSCoding, NSSecureCoding>
 
 // Query challenges for the current game issued to the local player -- equivalent GKChallenge objects are not guaranteed to be pointer equivalent across calls, but equal GKChallenge objects will have equal hashes
@@ -52,13 +52,13 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 
 @end
 
-NS_CLASS_AVAILABLE(10_8, 6_0)
+NS_CLASS_AVAILABLE(10_8, 6_0) __WATCHOS_PROHIBITED
 @interface GKScoreChallenge : GKChallenge
 
 @property (nonatomic, readonly, nullable, retain) GKScore *score; // The score to meet to satisfy this challenge
 @end
 
-NS_CLASS_AVAILABLE(10_8, 6_0)
+NS_CLASS_AVAILABLE(10_8, 6_0) __WATCHOS_PROHIBITED
 @interface GKAchievementChallenge : GKChallenge
 
 @property (nonatomic, readonly, nullable, retain) GKAchievement *achievement; // The achievement to achieve to satisfy this challenge
@@ -66,7 +66,7 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 
 
 // Use the following category methods to issue GKScoreChallenges and GKAchievementChallenges to an array of playerIDs. Players may not issue challenges to themselves nor to non-friends. Please see the GameKit reference documentation for further details on these methods.
-
+#if !TARGET_OS_WATCH
 @interface GKScore (GKChallenge)
 
 // Return a challenge compose view controller with pre-selected GKPlayers and a preformatted, player-editable message. Once this view controller is displayed, and the player sends or cancels sending the challenge, the completion handler will be called. This block contains the view controller, the reason why the handler was called, as well as which (if any) GKPlayers the challenge was sent to. Present modally from the top view controller. The completion handler should dismiss the view controller.
@@ -128,12 +128,64 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 #endif
 
 @end
-NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKAchievementViewController.h
+#endif
+NS_ASSUME_NONNULL_END
+// ==========  GameKit.framework/Headers/GKBasePlayer.h
+//
+//  GKBasePlayer.h
+//  Game Center
+//
+//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <GameKit/GKDefines.h>
+
+NS_CLASS_AVAILABLE(10_12, 10_0) __WATCHOS_AVAILABLE(3_0)
+@interface GKBasePlayer : NSObject
+
+@property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY) NSString *playerID;
+
+// This player's full name as displayed in the Game Center in-game UI. Use this when you need to display the player's name. The display name may be very long, so be sure to use appropriate string truncation API when drawing.
+@property(readonly, nullable, NS_NONATOMIC_IOSONLY) NSString *displayName;
+
+@end
+// ==========  GameKit.framework/Headers/GKGameSessionError.h
+//
+//  GKGameSessionError.h
+//  Game Center
+//
+//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+extern NSString * __nonnull GKGameSessionErrorDomain API_DEPRECATED("GKGameSession is deprecated, use real-time and turn-based matchmaking APIs instead.", ios(10.0, 12.0), tvos(10.0, 12.0), macosx(10.12, 10.14)) API_UNAVAILABLE(watchos);
+
+typedef  NS_ENUM(NSInteger, GKGameSessionErrorCode) {
+    GKGameSessionErrorUnknown = 1,
+    GKGameSessionErrorNotAuthenticated = 2,
+    GKGameSessionErrorSessionConflict = 3,
+    GKGameSessionErrorSessionNotShared = 4,
+    GKGameSessionErrorConnectionCancelledByUser = 5,
+    GKGameSessionErrorConnectionFailed = 6,
+    GKGameSessionErrorSessionHasMaxConnectedPlayers = 7,
+    GKGameSessionErrorSendDataNotConnected = 8,
+    GKGameSessionErrorSendDataNoRecipients = 9,
+    GKGameSessionErrorSendDataNotReachable = 10,
+    GKGameSessionErrorSendRateLimitReached = 11,
+    GKGameSessionErrorBadContainer = 12,
+    GKGameSessionErrorCloudQuotaExceeded = 13,
+    GKGameSessionErrorNetworkFailure = 14,
+    GKGameSessionErrorCloudDriveDisabled = 15,
+    GKGameSessionErrorInvalidSession = 16,
+} API_DEPRECATED("GKGameSession is deprecated, use real-time and turn-based matchmaking APIs instead.", ios(10.0, 12.0), tvos(10.0, 12.0), macosx(10.12, 10.14)) API_UNAVAILABLE(watchos);
+// ==========  GameKit.framework/Headers/GKAchievementViewController.h
 //
 //  GKAchievementViewController.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #if TARGET_OS_IPHONE
@@ -173,7 +225,7 @@ NS_DEPRECATED(10_8, 10_10, 4_1, 7_0, "Use GKGameCenterViewController instead")
 //  GKGameCenterViewController.h
 //  Game Center
 //
-//  Copyright 2012-2015 Apple Inc. All rights reserved.
+//  Copyright 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <GameKit/GKLeaderboard.h>
@@ -235,24 +287,119 @@ NS_CLASS_AVAILABLE(10_9, 6_0)
 
 @end
 NS_ASSUME_NONNULL_END
+// ==========  GameKit.framework/Headers/GKGameSession.h
+//
+//  GKGameSession.h
+//  Game Center
+//
+//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <GameKit/GKDefines.h>
+
+@class GKCloudPlayer;
+
+typedef NS_ENUM(NSInteger, GKConnectionState) {
+    GKConnectionStateNotConnected,
+    GKConnectionStateConnected
+};
+
+typedef NS_ENUM(NSInteger, GKTransportType) {
+    GKTransportTypeUnreliable,
+    GKTransportTypeReliable
+};
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_DEPRECATED("For real-time matches, use GKMatchmakerViewController. For turn-based matches, use GKTurnBasedMatchmakerViewController.", ios(10.0, 12.0), tvos(10.0, 12.0), macosx(10.12, 10.14)) API_UNAVAILABLE(watchos)
+@interface GKGameSession : NSObject
+#if !__OBJC2__
+{
+    NSString *_identifier;
+    NSString *_title;
+    GKCloudPlayer *_owner;
+    NSArray<GKCloudPlayer *> *_players;
+    NSDate *_lastModifiedDate;
+    GKCloudPlayer *_lastModifiedPlayer;
+    NSString *_serverChangeTag;
+    NSInteger _maxNumberOfConnectedPlayers;
+    NSMutableDictionary<NSString*, NSArray<NSNumber*> *> *_playerStates;
+}
+#endif
+
+@property (nonatomic, readonly) NSString *identifier;
+@property (nonatomic, readonly) NSString *title;
+@property (nonatomic, readonly) GKCloudPlayer *owner;
+@property (nonatomic, readonly) NSArray<GKCloudPlayer *> *players;
+@property (nonatomic, readonly) NSDate *lastModifiedDate;
+@property (nonatomic, readonly) GKCloudPlayer *lastModifiedPlayer;
+@property (nonatomic, readonly) NSInteger maxNumberOfConnectedPlayers;
+@property (nonatomic, readonly) NSArray<GKCloudPlayer *> *badgedPlayers;
+
+// Create a new session with the given title and maximum number of connected players. (You may pass 0 to use the system limit of 16 players.)
++ (void)createSessionInContainer:(NSString * __nullable)containerName withTitle:(NSString *)title maxConnectedPlayers:(NSInteger)maxPlayers completionHandler:(void(^)(GKGameSession * __nullable session, NSError * __nullable error))completionHandler;
+
+// Load all sessions involving the current user.
++ (void)loadSessionsInContainer:(NSString * __nullable)containerName completionHandler:(void(^)(NSArray<GKGameSession *> * __nullable sessions, NSError * __nullable error))completionHandler;
+
+// Load a specific session.
++ (void)loadSessionWithIdentifier:(NSString *)identifier completionHandler:(void(^)(GKGameSession * __nullable session, NSError * __nullable error))completionHandler;
+
+// Remove a session. If called by the owner this deletes the session from the server.
++ (void)removeSessionWithIdentifier:(NSString *)identifier completionHandler:(void(^)(NSError * __nullable error))completionHandler;
+
+
+// Get the URL needed to share this session.
+- (void)getShareURLWithCompletionHandler:(void(^)(NSURL * __nullable url, NSError * __nullable error))completionHandler;
+
+// Load associated persistent data.
+- (void)loadDataWithCompletionHandler:(void(^)(NSData * __nullable data, NSError * __nullable error))completionHandler;
+
+// Save new/updated persistent data. Data size is limited to 512K. The session's lastModifiedDate and lastModifiedPlayer will be updated upon completion.
+// If a version conflict is detected the handler will include the version currently on the server and an error. In this case the data has not been saved. To resolve the conflict a client would call this method again, presumably after merging data or giving the user a choice on how to resolve the conflict. (Note that when calling again it is possible to get a new conflict, if another device has since written a new version.)
+- (void)saveData:(NSData *)data completionHandler:(void(^)(NSData * __nullable conflictingData, NSError * __nullable error))completionHandler;
+
+
+// Set your connection state. May fail if you attempt to connect but the connected player limit has already been reached or there are network problems. The session's lastModifiedDate and lastModifiedPlayer will be updated upon completion.
+- (void)setConnectionState:(GKConnectionState)state completionHandler:(void(^)(NSError * __nullable error))completionHandler;
+
+// Get the players with the given connection state.
+- (NSArray<GKCloudPlayer *> *)playersWithConnectionState:(GKConnectionState)state;
+
+// Send data to all connected players.
+- (void)sendData:(NSData *)data withTransportType:(GKTransportType)transport completionHandler:(void(^)(NSError * __nullable error))completionHandler;
+
+
+// Send a message to any players in the session. This uses an unreliable push mechanism. Message/data delivery is not guaranteed and may take some time to arrive. Receiving players may optionally have their application badged for this session.
+- (void)sendMessageWithLocalizedFormatKey:(NSString *)key arguments:(NSArray<NSString *> *)arguments data:(NSData * __nullable)data toPlayers:(NSArray<GKCloudPlayer *> *)players badgePlayers:(BOOL)badgePlayers completionHandler:(void(^)(NSError * __nullable error))completionHandler;
+
+// Clear application badge state for players for this session.
+- (void)clearBadgeForPlayers:(NSArray<GKCloudPlayer *> *)players completionHandler:(void(^)(NSError * __nullable error))completionHandler;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  GameKit.framework/Headers/GKPlayer.h
 //
 //  GKPlayer.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <GameKit/GKBasePlayer.h>
 #import <GameKit/GKDefines.h>
 #import <GameKit/GKError.h>
 
 @class GKPlayerInternal;
 @class GKGame;
 @class GKLocalPlayer;
+@class UIImage;
 
-NS_CLASS_AVAILABLE(10_8, 4_1)
-@interface GKPlayer : NSObject
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
+@interface GKPlayer : GKBasePlayer
 
 // Load the Game Center players for the playerIDs provided. Error will be nil on success.
 // Possible reasons for error:
@@ -264,13 +411,13 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 @property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY)  NSString    *playerID;
 
 // This player's full name as displayed in the Game Center in-game UI. Use this when you need to display the player's name. The display name may be very long, so be sure to use appropriate string truncation API when drawing.
-@property(readonly, nullable, NS_NONATOMIC_IOSONLY)          NSString    *displayName NS_AVAILABLE(10_8, 6_0);
+@property(readonly, nullable, NS_NONATOMIC_IOSONLY)          NSString    *displayName NS_AVAILABLE(10_8, 6_0) __WATCHOS_AVAILABLE(3_0);
 
 // The alias property contains the player's nickname. When you need to display the name to the user, consider using displayName instead. The nickname is unique but not invariant: the player may change their nickname. The nickname may be very long, so be sure to use appropriate string truncation API when drawing.
 @property(readonly, copy, nullable, NS_NONATOMIC_IOSONLY)    NSString    *alias;
 
-+ (nonnull instancetype)anonymousGuestPlayerWithIdentifier:(nonnull NSString *)guestIdentifier NS_AVAILABLE(10_11, 9_0);
-@property(readonly, nullable, NS_NONATOMIC_IOSONLY) NSString *guestIdentifier NS_AVAILABLE(10_11, 9_0);
++ (nonnull instancetype)anonymousGuestPlayerWithIdentifier:(nonnull NSString *)guestIdentifier NS_AVAILABLE(10_11, 9_0) __WATCHOS_PROHIBITED;
+@property(readonly, nullable, NS_NONATOMIC_IOSONLY) NSString *guestIdentifier NS_AVAILABLE(10_11, 9_0) __WATCHOS_PROHIBITED;
 
 @end
 
@@ -278,11 +425,10 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 @interface GKPlayer (UI)
 
 // Available photo sizes.  Actual pixel dimensions will vary on different devices.
-enum {
+typedef NS_ENUM(NSInteger, GKPhotoSize) {
     GKPhotoSizeSmall = 0,
     GKPhotoSizeNormal,
 };
-typedef NSInteger GKPhotoSize;
 
 // Asynchronously load the player's photo. Error will be nil on success.
 // Possible reasons for error:
@@ -297,7 +443,7 @@ typedef NSInteger GKPhotoSize;
 
 
 // Notification will be posted whenever the player details changes. The object of the notification will be the player.
-GK_EXTERN_WEAK NSString * __nonnull GKPlayerDidChangeNotificationName;
+GK_EXTERN_WEAK NSNotificationName __nonnull GKPlayerDidChangeNotificationName;
 
 @interface GKPlayer (Deprecated)
 
@@ -309,7 +455,7 @@ GK_EXTERN_WEAK NSString * __nonnull GKPlayerDidChangeNotificationName;
 //  GKDefines.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #ifndef GK_EXTERN
@@ -325,24 +471,72 @@ GK_EXTERN_WEAK NSString * __nonnull GKPlayerDidChangeNotificationName;
 #endif
 
 
+// ==========  GameKit.framework/Headers/GKCloudPlayer.h
+//
+//  GKCloudPlayer.h
+//  Game Center
+//
+//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <GameKit/GKBasePlayer.h>
+NS_ASSUME_NONNULL_BEGIN
+
+API_DEPRECATED("GKGameSession is deprecated. Use GKPlayer for both real-time and turn-based matchmaking APIs.", ios(10.0, 12.0), tvos(10.0, 12.0), macosx(10.12, 10.14)) API_UNAVAILABLE(watchos)
+@interface GKCloudPlayer : GKBasePlayer
+#if !__OBJC2__
+{
+    NSString *_identifier;
+    NSString *_name;
+}
+#endif
+
+// Retrieve a player instance representing the active iCloud account for a given iCloud container. Returns nil and an error if the user is not signed in to iCloud or the container is invalid.
++ (void)getCurrentSignedInPlayerForContainer:(NSString * __nullable)containerName completionHandler:(void(^)(GKCloudPlayer *__nullable player, NSError * __nullable error))handler;
+
+@end
+NS_ASSUME_NONNULL_END
 // ==========  GameKit.framework/Headers/GameKit.h
 //
 //  GameKit.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
+
+#import <TargetConditionals.h>
+#import <simd/simd.h>
+
+#import <UIKit/UIKit.h>
+
+#if !TARGET_OS_SIMULATOR
+#import <Metal/Metal.h>
+#import <MetalKit/MetalKit.h>
+#endif
+
+#import <SpriteKit/SpriteKit.h>
+#import <SceneKit/SceneKit.h>
+#import <GameplayKit/GameplayKit.h>
+#import <GameController/GameController.h>
+#import <ModelIO/ModelIO.h>
+#import <ReplayKit/ReplayKit.h>
 
 #import <GameKit/GKDefines.h>
 #import <GameKit/GKAchievement.h>
 #import <GameKit/GKAchievementDescription.h>
 #import <GameKit/GKAchievementViewController.h>
+#import <GameKit/GKBasePlayer.h>
 #import <GameKit/GKChallenge.h>
 #import <GameKit/GKChallengeEventHandler.h>
+#import <GameKit/GKCloudPlayer.h>
 #import <GameKit/GKError.h>
 #import <GameKit/GKEventListener.h>
 #import <GameKit/GKFriendRequestComposeViewController.h>
 #import <GameKit/GKGameCenterViewController.h>
+#import <GameKit/GKGameSession.h>
+#import <GameKit/GKGameSessionError.h>
+#import <GameKit/GKGameSessionEventListener.h>
+#import <GameKit/GKGameSessionSharingViewController.h>
 #import <GameKit/GKLeaderboard.h>
 #import <GameKit/GKLeaderboardSet.h>
 #import <GameKit/GKLeaderboardViewController.h>
@@ -364,35 +558,12 @@ GK_EXTERN_WEAK NSString * __nonnull GKPlayerDidChangeNotificationName;
 #import <GameKit/GKTurnBasedMatchmakerViewController.h>
 #import <GameKit/GKVoiceChat.h>
 #import <GameKit/GKVoiceChatService.h>
-//
-//  GameKit.h
-//  Game Center
-//
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
-//
-
-#import <TargetConditionals.h>
-#import <simd/simd.h>
-
-#import <UIKit/UIKit.h>
-
-#if !TARGET_OS_SIMULATOR
-#import <Metal/Metal.h>
-#import <MetalKit/MetalKit.h>
-#endif
-
-#import <SpriteKit/SpriteKit.h>
-#import <SceneKit/SceneKit.h>
-#import <GameplayKit/GameplayKit.h>
-#import <GameController/GameController.h>
-#import <ModelIO/ModelIO.h>
-#import <ReplayKit/ReplayKit.h>
 // ==========  GameKit.framework/Headers/GKMatch.h
 //
 //  GKMatch.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -418,7 +589,7 @@ typedef NS_ENUM(NSInteger, GKPlayerConnectionState) {
 
 NS_ASSUME_NONNULL_BEGIN
 // GKMatch represents an active networking sessions between players. It handles network communications and can report player connection status. All matches are created by a GKMatchmaker.
-NS_CLASS_AVAILABLE(10_8, 4_1)
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_PROHIBITED
 @interface GKMatch : NSObject
 
 @property(nonatomic, readonly) NSArray<GKPlayer *> *players NS_AVAILABLE(10_10, 8_0);    // GKPlayers in the match
@@ -449,6 +620,7 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 
 @end
 
+__WATCHOS_PROHIBITED
 @protocol GKMatchDelegate <NSObject>
 @optional
 
@@ -477,12 +649,13 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 @property(nonatomic, readonly) NSArray<NSString *> *playerIDs NS_DEPRECATED(10_8, 10_10, 4_1, 8_0, "use players") ;   // NSStrings of player identifiers in the match
 
 @end
-NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKTurnBasedMatch.h
+NS_ASSUME_NONNULL_END
+// ==========  GameKit.framework/Headers/GKTurnBasedMatch.h
 //
 //  GKTurnBasedMatch.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <GameKit/GKPlayer.h>
@@ -532,14 +705,14 @@ typedef NS_ENUM(NSInteger, GKTurnBasedMatchOutcome) {
 // By default turn based events will badge your app.  To opt out of this add GKGameCenterBadgingDisabled  with a boolean value of YES to your info plist
 
 
-NS_CLASS_AVAILABLE(10_8, 5_0)
+NS_CLASS_AVAILABLE(10_8, 5_0) __WATCHOS_AVAILABLE(3_0)
 @interface GKTurnBasedParticipant : NSObject
 
-@property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY) GKPlayer            *player NS_AVAILABLE(10_10, 8_0);
+@property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY) GKPlayer            *player NS_AVAILABLE(10_10, 8_0) __WATCHOS_AVAILABLE(3_0);
 @property(readonly, nullable, copy, NS_NONATOMIC_IOSONLY) NSDate                *lastTurnDate;
 @property(readonly, NS_NONATOMIC_IOSONLY)       GKTurnBasedParticipantStatus    status;
 @property(assign, NS_NONATOMIC_IOSONLY)         GKTurnBasedMatchOutcome         matchOutcome;
-@property(readonly, nullable, copy, NS_NONATOMIC_IOSONLY) NSDate                *timeoutDate NS_AVAILABLE(10_8, 6_0);
+@property(readonly, nullable, copy, NS_NONATOMIC_IOSONLY) NSDate                *timeoutDate NS_AVAILABLE(10_8, 6_0) __WATCHOS_AVAILABLE(3_0);
 
 // Deprecated
 @property(readonly, nullable, copy, NS_NONATOMIC_IOSONLY) NSString              *playerID NS_DEPRECATED(10_8, 10_10, 5_0, 8_0, "use player") ;
@@ -551,7 +724,7 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 
 // If Game Center initiates a match the developer should create a GKTurnBasedMatch from playersToInvite and present a GKTurnbasedMatchmakerViewController.
-- (void)player:(GKPlayer *)player didRequestMatchWithOtherPlayers:(NSArray<GKPlayer *> *)playersToInvite NS_AVAILABLE(10_10, 8_0);
+- (void)player:(GKPlayer *)player didRequestMatchWithOtherPlayers:(NSArray<GKPlayer *> *)playersToInvite NS_AVAILABLE(10_10, 8_0) API_UNAVAILABLE(watchos);
 
 // called when it becomes this player's turn.  It also gets called under the following conditions:
 //      the player's turn has a timeout and it is about to expire.
@@ -560,22 +733,22 @@ NS_ASSUME_NONNULL_BEGIN
 //      turn was passed to another player
 //      another player saved the match data
 // Because of this the app needs to be prepared to handle this even while the player is taking a turn in an existing match.  The boolean indicates whether this event launched or brought to forground the app.
-- (void)player:(GKPlayer *)player receivedTurnEventForMatch:(GKTurnBasedMatch *)match didBecomeActive:(BOOL)didBecomeActive NS_AVAILABLE(10_10, 7_0);
+- (void)player:(GKPlayer *)player receivedTurnEventForMatch:(GKTurnBasedMatch *)match didBecomeActive:(BOOL)didBecomeActive NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // called when the match has ended.
 - (void)player:(GKPlayer *)player matchEnded:(GKTurnBasedMatch *)match;
 
 // this is called when a player receives an exchange request from another player.
-- (void)player:(GKPlayer *)player receivedExchangeRequest:(GKTurnBasedExchange *)exchange forMatch:(GKTurnBasedMatch *)match NS_AVAILABLE(10_10, 7_0);
+- (void)player:(GKPlayer *)player receivedExchangeRequest:(GKTurnBasedExchange *)exchange forMatch:(GKTurnBasedMatch *)match NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // this is called when an exchange is canceled by the sender.
-- (void)player:(GKPlayer *)player receivedExchangeCancellation:(GKTurnBasedExchange *)exchange forMatch:(GKTurnBasedMatch *)match NS_AVAILABLE(10_10, 7_0);
+- (void)player:(GKPlayer *)player receivedExchangeCancellation:(GKTurnBasedExchange *)exchange forMatch:(GKTurnBasedMatch *)match NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // called when all players either respond or timeout responding to this request.  This is sent to both the turn holder and the initiator of the exchange
-- (void)player:(GKPlayer *)player receivedExchangeReplies:(NSArray<GKTurnBasedExchangeReply *> *)replies forCompletedExchange:(GKTurnBasedExchange *)exchange forMatch:(GKTurnBasedMatch *)match NS_AVAILABLE(10_10, 7_0);
+- (void)player:(GKPlayer *)player receivedExchangeReplies:(NSArray<GKTurnBasedExchangeReply *> *)replies forCompletedExchange:(GKTurnBasedExchange *)exchange forMatch:(GKTurnBasedMatch *)match NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // Called when a player chooses to quit a match and that player has the current turn.  The developer should call participantQuitInTurnWithOutcome:nextParticipants:turnTimeout:matchData:completionHandler: on the match passing in appropriate values.  They can also update matchOutcome for other players as appropriate.
-- (void)player:(GKPlayer *)player wantsToQuitMatch:(GKTurnBasedMatch *)match NS_AVAILABLE(10_11, 9_0);
+- (void)player:(GKPlayer *)player wantsToQuitMatch:(GKTurnBasedMatch *)match NS_AVAILABLE(10_11, 9_0) __WATCHOS_AVAILABLE(3_0);
 
 // Deprecated
 - (void)player:(GKPlayer *)player didRequestMatchWithPlayers:(NSArray<NSString *> *)playerIDsToInvite NS_DEPRECATED_IOS(7_0, 8_0, "use didRequestMatchWithOtherPlayers") ;
@@ -584,11 +757,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Turn timeout constants
 
-extern NSTimeInterval        GKTurnTimeoutDefault NS_AVAILABLE(10_9, 6_0);    // use a default timeout of one week
-extern NSTimeInterval        GKTurnTimeoutNone NS_AVAILABLE(10_9, 6_0);
+extern NSTimeInterval        GKTurnTimeoutDefault NS_AVAILABLE(10_9, 6_0) __WATCHOS_AVAILABLE(3_0);    // use a default timeout of one week
+extern NSTimeInterval        GKTurnTimeoutNone NS_AVAILABLE(10_9, 6_0) __WATCHOS_AVAILABLE(3_0);
 
 
-NS_CLASS_AVAILABLE(10_8, 5_0)
+NS_CLASS_AVAILABLE(10_8, 5_0) __WATCHOS_AVAILABLE(3_0)
 @interface GKTurnBasedMatch : NSObject
 
 @property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY)  NSString                           *matchID;
@@ -611,29 +784,29 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 // Notes: The localized message will be evaluated locally from these keys and sent across as well so that devices that do not have the game installed will see the message in the sender's localization
 //        The developer can access resulting string using the message property
 //        This is a similar concept to the way we handle localization for Push Notifications. See the "Local and Push Notification Programming Guide" for more details.
-- (void)setLocalizableMessageWithKey:(NSString*)key arguments:(nullable NSArray<NSString *> *)arguments NS_AVAILABLE(10_10, 7_0);
+- (void)setLocalizableMessageWithKey:(NSString*)key arguments:(nullable NSArray<NSString *> *)arguments NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // returns the localizable message in the current locale. Setting this is equivalent to calling [self setLocalizableMessageWithKey:message arguments:nil]
 @property(readwrite, nullable, copy, NS_NONATOMIC_IOSONLY)   NSString                *message;
 
 
 // Returns the maximum size for the match data.
-@property(readonly, NS_NONATOMIC_IOSONLY)          NSUInteger              matchDataMaximumSize NS_AVAILABLE(10_8, 6_0);
+@property(readonly, NS_NONATOMIC_IOSONLY)          NSUInteger              matchDataMaximumSize NS_AVAILABLE(10_8, 6_0) __WATCHOS_AVAILABLE(3_0);
 
 // exchanges that are in progress on this match.  Once an exchange has completed and has been resolved by merging it into the match data by the current turn holder then it will be removed from this list
-@property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY)  NSArray<GKTurnBasedExchange *>                 *exchanges NS_AVAILABLE(10_10, 7_0);
+@property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY)  NSArray<GKTurnBasedExchange *>                 *exchanges NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // returns the exchanges that currently await a reply from the local player
-@property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY)  NSArray<GKTurnBasedExchange *>                 *activeExchanges NS_AVAILABLE(10_10, 7_0);
+@property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY)  NSArray<GKTurnBasedExchange *>                 *activeExchanges NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // returns the exchanges that have been completed and need to be merged by the local participant.  This will be nil unless the local participant is the current turn holder for this match
-@property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY)  NSArray<GKTurnBasedExchange *>                 *completedExchanges NS_AVAILABLE(10_10, 7_0);
+@property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY)  NSArray<GKTurnBasedExchange *>                 *completedExchanges NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // maximum data allowed for exchange data
-@property(readonly, NS_NONATOMIC_IOSONLY)          NSUInteger              exchangeDataMaximumSize NS_AVAILABLE(10_10, 7_0);
+@property(readonly, NS_NONATOMIC_IOSONLY)          NSUInteger              exchangeDataMaximumSize NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // limit of the number of exchanges that this player can have initiated at a given time
-@property(readonly, NS_NONATOMIC_IOSONLY)          NSUInteger              exchangeMaxInitiatedExchangesPerPlayer NS_AVAILABLE(10_10, 7_0);
+@property(readonly, NS_NONATOMIC_IOSONLY)          NSUInteger              exchangeMaxInitiatedExchangesPerPlayer NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // Attempt to find a turn-based match for the specified request. Error will be nil on success.
 // Possible reasons for error:
@@ -645,19 +818,19 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 + (void)loadMatchesWithCompletionHandler:(void(^__nullable)(NSArray<GKTurnBasedMatch *> * __nullable matches, NSError * __nullable error))completionHandler;
 
 // load a match based on a previously known match ID
-+ (void)loadMatchWithID:(NSString *)matchID withCompletionHandler:(void(^__nullable)(GKTurnBasedMatch * __nullable match, NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 5_0);
++ (void)loadMatchWithID:(NSString *)matchID withCompletionHandler:(void(^__nullable)(GKTurnBasedMatch * __nullable match, NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 5_0) __WATCHOS_AVAILABLE(3_0);
 
 // Recreate a previously existing turn based match that ended. A new match with the same set of players will be returned by the completion handler. If multiple players do this then multiple new matches will be created. Error will be nil on success.
 // Possible reasons for error:
 // 1. Communications failure
 // 2. Unauthenticated player
-- (void)rematchWithCompletionHandler:(void(^__nullable)(GKTurnBasedMatch * __nullable match, NSError * __nullable error))completionHandler NS_AVAILABLE(10_9, 6_0);
+- (void)rematchWithCompletionHandler:(void(^__nullable)(GKTurnBasedMatch * __nullable match, NSError * __nullable error))completionHandler NS_AVAILABLE(10_9, 6_0) __WATCHOS_AVAILABLE(3_0);
 
 // If the local participant has status invited then accept the invite, otherwise returns an error
-- (void)acceptInviteWithCompletionHandler:(void(^__nullable)(GKTurnBasedMatch * __nullable match, NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 5_0);
+- (void)acceptInviteWithCompletionHandler:(void(^__nullable)(GKTurnBasedMatch * __nullable match, NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 5_0) __WATCHOS_AVAILABLE(3_0);
 
 // If the local participant has status invited then decline the invite, otherwise returns an error
-- (void)declineInviteWithCompletionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 5_0);
+- (void)declineInviteWithCompletionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 5_0) __WATCHOS_AVAILABLE(3_0);
 
 // Remove a declined or completed match (one with a matchOutcome set) from the player's list of matches. If using the GKTurnBasedMatchmakerViewController UI, this will remove it from the finished sessions.  The developer should not do this without user input.
 - (void)removeWithCompletionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler;
@@ -674,7 +847,7 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 - (void)endTurnWithNextParticipants:(NSArray<GKTurnBasedParticipant *> *)nextParticipants
                         turnTimeout:(NSTimeInterval)timeout
                           matchData:(NSData*)matchData
-                 completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_9, 6_0);
+                 completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_9, 6_0) __WATCHOS_AVAILABLE(3_0);
 
 
 // Ends the current player's turn by quitting the match.  The caller must indicate the next player and pass in updated matchData (if used).  All completed exchanges must be resolved or canceled before calling this.
@@ -682,7 +855,7 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
                         nextParticipants:(NSArray<GKTurnBasedParticipant *> *)nextParticipants
                              turnTimeout:(NSTimeInterval)timeout
                                matchData:(NSData*)matchData
-                       completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_9, 6_0);
+                       completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_9, 6_0) __WATCHOS_AVAILABLE(3_0);
 
 // Abandon the match when it is not the current participant's turn.  In this there is no update to matchData and no need to set nextParticipant.
 - (void)participantQuitOutOfTurnWithOutcome:(GKTurnBasedMatchOutcome)matchOutcome withCompletionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler;
@@ -691,15 +864,15 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 - (void)endMatchInTurnWithMatchData:(NSData*)matchData completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler;
 
 // This will end the match and submit scores and achievements for all participants. Scores should be submitted for all involved players, and multiple scores may be submitted for each to different leaderboards. Earned achievements may also be submitted for any participants. You must set each participant’s matchOutcome before calling this method. All completed exchanges must be resolved or canceled before calling this.
-- (void)endMatchInTurnWithMatchData:(NSData*)matchData scores:(nullable NSArray<GKScore *> *)scores achievements:(nullable NSArray<GKAchievement *> *)achievements completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0);
+- (void)endMatchInTurnWithMatchData:(NSData*)matchData scores:(nullable NSArray<GKScore *> *)scores achievements:(nullable NSArray<GKAchievement *> *)achievements completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // saves the matchData for the current turn without ending the turn.  If other players have the game running they will receive a handleTurnEventForMatch to indicate that the matchData has changed.  This is useful to initialize the game state for the first player when they take their turn or for updating the turn data due to the user taking an irreversible action within their turn.  All completed exchanges must be resolved or canceled before calling this. If you are using exchanges use saveMergedMatchData instead.  
-- (void)saveCurrentTurnWithMatchData:(NSData *)matchData completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 6_0);
+- (void)saveCurrentTurnWithMatchData:(NSData *)matchData completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 6_0) __WATCHOS_AVAILABLE(3_0);
 
 // saves the merged matchData for the current turn without ending the turn and mark the supplied exchanges as resolved meaning that the data has been merged into the match data. If other players have the game running they will receive a handleTurnEventForMatch to indicate that the matchData has changed.  It is required that all completed exchanges are resolved before ending a turn.  Otherwise calling endTurn, participantQuitInTurnWithOutCome or endMatchInTurn will return an error
 - (void)saveMergedMatchData:(NSData *)matchData
       withResolvedExchanges:(NSArray<GKTurnBasedExchange *> *)exchanges
-          completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0);
+          completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // Send an exchange request to one or more participants.  Each recipient will receive a push notification using supplied localizable message.  If any of the participants have an inactive status (GKTurnBasedParticipantStatusDone) then this will return an error.  completionHandler gets passed the updated exchange with identifier, sender and recipients set
 - (void)sendExchangeToParticipants:(NSArray<GKTurnBasedParticipant *> *)participants
@@ -707,13 +880,13 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
              localizableMessageKey:(NSString *)key
                          arguments:(NSArray<NSString *> *)arguments
                            timeout:(NSTimeInterval)timeout
-                 completionHandler:(void(^__nullable)(GKTurnBasedExchange *exchange, NSError *error))completionHandler NS_AVAILABLE(10_10, 7_0);
+                 completionHandler:(void(^__nullable)(GKTurnBasedExchange * __nullable exchange, NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0)  __WATCHOS_AVAILABLE(3_0);
 
 // Send a reminder to one or more participants.  Each recipient will receive a push notification using supplied localizable message.  This allows a game to send reminders that a turn or exchange request needs action.  On the receiver side this will generate a turn event for the match.
 - (void)sendReminderToParticipants:(NSArray<GKTurnBasedParticipant *> *)participants
              localizableMessageKey:(NSString *)key
                          arguments:(NSArray<NSString *> *)arguments
-                 completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0);
+                 completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
                  
 // deprecated methods
 - (void)endTurnWithNextParticipant:(GKTurnBasedParticipant *)nextParticipant matchData:(NSData*)matchData completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_DEPRECATED(10_8, 10_9, 5_0, 6_0, "Use endTurnWithNextParticipants:... instead") ;
@@ -731,15 +904,15 @@ typedef NS_ENUM(int8_t, GKTurnBasedExchangeStatus) {
     GKTurnBasedExchangeStatusComplete = 2,
     GKTurnBasedExchangeStatusResolved = 3,
     GKTurnBasedExchangeStatusCanceled = 4
-}  NS_ENUM_AVAILABLE(10_10, 7_0);
+}  NS_ENUM_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // Exchange timeout constants
 
-extern NSTimeInterval        GKExchangeTimeoutDefault NS_AVAILABLE(10_10, 7_0);    // use a default timeout of one day
-extern NSTimeInterval        GKExchangeTimeoutNone NS_AVAILABLE(10_10, 7_0);
+extern NSTimeInterval        GKExchangeTimeoutDefault NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);    // use a default timeout of one day
+extern NSTimeInterval        GKExchangeTimeoutNone NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 
-NS_CLASS_AVAILABLE(10_10,7_0)
+NS_CLASS_AVAILABLE(10_10,7_0) __WATCHOS_AVAILABLE(3_0)
 @interface  GKTurnBasedExchange : NSObject
 
 @property (readonly, nullable, NS_NONATOMIC_IOSONLY)     NSString                            *exchangeID;         // persistent identifier used to refer to this exchange.
@@ -755,21 +928,21 @@ NS_CLASS_AVAILABLE(10_10,7_0)
 @property (readonly, nullable, NS_NONATOMIC_IOSONLY)     NSArray<GKTurnBasedExchangeReply *> *replies;            // Array of GKTurnBasedExchangeReply.
 
 // cancel an exchange. It is possible to cancel an exchange that is active or complete. Each recipient will receive a push notification using supplied localizable message. Returns an error if the exchange has already been canceled.
-- (void)cancelWithLocalizableMessageKey:(NSString *)key arguments:(NSArray<NSString *> *)arguments completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0);
+- (void)cancelWithLocalizableMessageKey:(NSString *)key arguments:(NSArray<NSString *> *)arguments completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // reply to an exchange. The sender will receive a push notification using supplied localizable message. Returns an error if the exchange has already been canceled.
-- (void)replyWithLocalizableMessageKey:(NSString *)key arguments:(NSArray<NSString *> *)arguments data:(NSData *)data completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0);
+- (void)replyWithLocalizableMessageKey:(NSString *)key arguments:(NSArray<NSString *> *)arguments data:(NSData *)data completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 @end
 
     
-NS_CLASS_AVAILABLE(10_10,7_0)
+NS_CLASS_AVAILABLE(10_10,7_0) __WATCHOS_AVAILABLE(3_0)
 @interface GKTurnBasedExchangeReply  : NSObject
 
 @property (readonly, nullable, NS_NONATOMIC_IOSONLY)          GKTurnBasedParticipant         *recipient;          // the recipient who this reply is from
 @property (readonly, nullable, NS_NONATOMIC_IOSONLY)          NSString                       *message;            // localized message for the push notification generated by the reply of this exchange
 @property (readonly, nullable, NS_NONATOMIC_IOSONLY)          NSData                         *data;               // data sent by the replying recipient
-@property (readonly, nullable, NS_NONATOMIC_IOSONLY)          NSDate                         *replyDate NS_AVAILABLE(10_10, 8_0); // send date for the exchange.
+@property (readonly, nullable, NS_NONATOMIC_IOSONLY)          NSDate                         *replyDate NS_AVAILABLE(10_10, 8_0) __WATCHOS_AVAILABLE(3_0); // send date for the exchange.
 @end
 
 // deprecated
@@ -778,7 +951,7 @@ NS_CLASS_AVAILABLE(10_10,7_0)
 NS_DEPRECATED(10_8, 10_10, 5_0, 7_0, "Use registerListener on GKLocalPlayer with an object that implements the GKTurnBasedEventListener protocol") 
 @protocol  GKTurnBasedEventHandlerDelegate
 
-- (void)handleInviteFromGameCenter:(NSArray<GKPlayer *> *)playersToInvite NS_DEPRECATED(10_8, 10_10, 5_0, 7_0);
+- (void)handleInviteFromGameCenter:(NSArray<NSString *> *)playersToInvite NS_DEPRECATED(10_8, 10_10, 5_0, 7_0);
 - (void)handleTurnEventForMatch:(GKTurnBasedMatch *)match didBecomeActive:(BOOL)didBecomeActive NS_DEPRECATED(10_9, 10_10, 6_0, 7_0);
 
 @optional
@@ -802,10 +975,11 @@ NS_ASSUME_NONNULL_END
 //  GKLeaderboard.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <os/lock.h>
 
 typedef NS_ENUM(NSInteger, GKLeaderboardTimeScope) {
     GKLeaderboardTimeScopeToday = 0,
@@ -820,11 +994,12 @@ typedef NS_ENUM(NSInteger, GKLeaderboardPlayerScope) {
 
 @class GKPlayer;
 @class GKScore;
+@class UIImage;
 
 NS_ASSUME_NONNULL_BEGIN
 
 // GKLeaderboard represents the set of high scores for the current game, always including the local player's best score.
-NS_CLASS_AVAILABLE(10_8, 4_1)
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 @interface GKLeaderboard : NSObject
 
 @property(assign, NS_NONATOMIC_IOSONLY)            GKLeaderboardTimeScope      timeScope;
@@ -883,7 +1058,7 @@ NS_ASSUME_NONNULL_END
  
  // Asynchronously load the image. Error will be nil on success.
 #if TARGET_OS_IPHONE
-- (void)loadImageWithCompletionHandler:(void(^__nullable)(UIImage * __nullable image, NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 7_0);
+- (void)loadImageWithCompletionHandler:(void(^__nullable)(UIImage * __nullable image, NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 7_0) __TVOS_UNAVAILABLE;
 #else
 - (void)loadImageWithCompletionHandler:(void(^__nullable)(NSImage * __nullable image, NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 7_0);
 #endif
@@ -896,7 +1071,7 @@ NS_ASSUME_NONNULL_END
 //  GKLeaderboardSet.h
 //  Game Center
 //
-//  Copyright 2012-2015 Apple Inc. All rights reserved.
+//  Copyright 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -904,10 +1079,11 @@ NS_ASSUME_NONNULL_END
 
 
 @class GKLeaderboard;
+@class UIImage;
 
 NS_ASSUME_NONNULL_BEGIN
 // GKLeaderboardSet represents the sets that leaderboards can be broken out into. 
-NS_CLASS_AVAILABLE(10_10, 7_0)
+NS_CLASS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0)
 @interface GKLeaderboardSet : NSObject <NSCoding, NSSecureCoding>
 
 @property(readonly, copy, NS_NONATOMIC_IOSONLY)    NSString                    *title;               // Localized set title.
@@ -936,7 +1112,7 @@ NS_ASSUME_NONNULL_END
 
 // Asynchronously load the image. Error will be nil on success.
 #if TARGET_OS_IPHONE
-- (void)loadImageWithCompletionHandler:(void(^__nullable)(UIImage * __nullable image, NSError * __nullable error))completionHandler;
+- (void)loadImageWithCompletionHandler:(void(^__nullable)(UIImage * __nullable image, NSError * __nullable error))completionHandler __TVOS_UNAVAILABLE;
 #else
 - (void)loadImageWithCompletionHandler:(void(^__nullable)(NSImage * __nullable image, NSError * __nullable error))completionHandler;
 #endif
@@ -950,7 +1126,7 @@ NS_ASSUME_NONNULL_END
 //  GKNotificationBanner.h
 //  Game Center
 //
-//  Copyright 2012-2015 Apple Inc. All rights reserved.
+//  Copyright 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1008,14 +1184,14 @@ typedef NS_ENUM(int, GKSessionError)
 //  GKChallengeEventHandler.h
 //  Game Center
 //
-//  Copyright 2012-2015 Apple Inc. All rights reserved.
+//  Copyright 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <GameKit/GKChallenge.h>
 
 // GKChallengeEventHandler's delegate must implement the following protocol to be notified of challenge-related events. All of these methods are called on the main thread.
-NS_DEPRECATED(10_8, 10_10, 6_0, 7_0, "You should instead implement the GKChallengeListener protocol and register a listener with GKLocalPlayer.") 
+NS_DEPRECATED(10_8, 10_10, 6_0, 7_0, "You should instead implement the GKChallengeListener protocol and register a listener with GKLocalPlayer.") __WATCHOS_PROHIBITED 
 @protocol GKChallengeEventHandlerDelegate <NSObject>
 
 @optional
@@ -1043,6 +1219,7 @@ NS_DEPRECATED(10_8, 10_10, 6_0, 7_0, "You should instead implement the GKChallen
 
 @end
 
+#if !TARGET_OS_WATCH
 
 NS_CLASS_DEPRECATED(10_8, 10_10, 6_0, 7_0, "You should instead implement the GKChallengeListener protocol and register a listener with GKLocalPlayer.") 
 // A singleton object responsible for dispatching challenge-related events to its delegate
@@ -1052,6 +1229,7 @@ NS_CLASS_DEPRECATED(10_8, 10_10, 6_0, 7_0, "You should instead implement the GKC
 
 @property (nonatomic, assign) id<GKChallengeEventHandlerDelegate> delegate NS_DEPRECATED(10_8, 10_10, 6_0, 7_0); // It is not safe to read or write this property on anything other than the main thread
 @end
+#endif
 // ==========  GameKit.framework/Headers/GKPublicProtocols.h
 /*
  GKPublicProtocols.h
@@ -1070,6 +1248,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* Callbacks to the GKSession delegate.
 */
+NS_DEPRECATED(10_8, 10_10, 3_0, 7_0, "Use MCSession in association with MCSessionDelegate from the MultipeerConnectivity framework instead") 
 @protocol GKSessionDelegate <NSObject>
 
 @optional
@@ -1102,6 +1281,7 @@ Deny by calling -denyConnectionFromPeer:
 @class GKVoiceChatService;
 
 //All clients will need to implement this protocol
+NS_DEPRECATED_IOS(3_0, 7_0, "Use GKVoiceChat instead") 
 @protocol GKVoiceChatClient <NSObject>
 
 @required
@@ -1133,7 +1313,7 @@ NS_ASSUME_NONNULL_END
 //  GKEventListener.h
 //  Game Center
 //
-//  Copyright 2012-2015 Apple Inc. All rights reserved.
+//  Copyright 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1147,32 +1327,33 @@ NS_ASSUME_NONNULL_BEGIN
 // Called when a player starts the game with the intent of playing a challenge, or intends to play a challenge after selecting it within the in-game Game Center UI.
 // player: The player who selected the challenge
 // challenge: The challenge which was selected
-- (void)player:(GKPlayer *)player wantsToPlayChallenge:(GKChallenge *)challenge NS_AVAILABLE(10_10, 7_0);
+- (void)player:(GKPlayer *)player wantsToPlayChallenge:(GKChallenge *)challenge NS_AVAILABLE(10_10, 7_0) __WATCHOS_PROHIBITED;
 
 // Called when a player has received a challenge, triggered by a push notification from the server. Received only while the game is running.
 // player: The player who received the challenge
 // challenge: The challenge which was received
-- (void)player:(GKPlayer *)player didReceiveChallenge:(GKChallenge *)challenge NS_AVAILABLE(10_10, 7_0);
+- (void)player:(GKPlayer *)player didReceiveChallenge:(GKChallenge *)challenge NS_AVAILABLE(10_10, 7_0) __WATCHOS_PROHIBITED;
 
 // Called when a player has completed a challenge, triggered while the game is running, or when the user has tapped a challenge notification banner while outside of the game.
 // player: The player who completed the challenge
 // challenge: The challenge which the player completed
 // friendPlayer: The friend who sent the challenge originally
-- (void)player:(GKPlayer *)player didCompleteChallenge:(GKChallenge *)challenge issuedByFriend:(GKPlayer *)friendPlayer NS_AVAILABLE(10_10, 7_0);
+- (void)player:(GKPlayer *)player didCompleteChallenge:(GKChallenge *)challenge issuedByFriend:(GKPlayer *)friendPlayer NS_AVAILABLE(10_10, 7_0) __WATCHOS_PROHIBITED;
 
 // Called when a player's friend has completed a challenge which the player sent to that friend. Triggered while the game is running, or when the user has tapped a challenge notification banner while outside of the game.
 // player: The player who sent the challenge originally
 // challenge: The challenge which the player created and sent
 // friendPlayer: The friend who completed the challenge
-- (void)player:(GKPlayer *)player issuedChallengeWasCompleted:(GKChallenge *)challenge byFriend:(GKPlayer *)friendPlayer NS_AVAILABLE(10_10, 7_0);
+- (void)player:(GKPlayer *)player issuedChallengeWasCompleted:(GKChallenge *)challenge byFriend:(GKPlayer *)friendPlayer NS_AVAILABLE(10_10, 7_0) __WATCHOS_PROHIBITED;
 
 @end
-NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKFriendRequestComposeViewController.h
+NS_ASSUME_NONNULL_END
+// ==========  GameKit.framework/Headers/GKFriendRequestComposeViewController.h
 //
 //  GKFriendRequestComposeViewController.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #if TARGET_OS_IPHONE
@@ -1188,13 +1369,13 @@ NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKFriendRequestCom
 // Standard view controller for sending friend requests to other players. Present modally from the top view controller.
 #if TARGET_OS_IPHONE
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_8, 4_2) 
+NS_CLASS_DEPRECATED(10_8, 10_12, 4_2, 10_0) 
 @interface GKFriendRequestComposeViewController : UINavigationController
 @end
 #else
 #import <GameKit/GKDialogController.h>
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_8, 4_2)
+NS_CLASS_DEPRECATED(10_8, 10_12, 4_2, 10_0)
 @interface GKFriendRequestComposeViewController : NSViewController <GKViewController> {
     id _remoteViewController;
     id<GKFriendRequestComposeViewControllerDelegate> _composeViewDelegateWeak;
@@ -1218,15 +1399,17 @@ NS_CLASS_AVAILABLE(10_8, 4_2)
 - (void)addRecipientsWithPlayerIDs:(NSArray<NSString *> *)playerIDs NS_DEPRECATED(10_8, 10_10, 4_2, 8_0, "use addRecipientPlayers:") ;
 - (void)addRecipientsWithEmailAddresses:(NSArray<NSString *> *)emailAddresses;
 
-@property (nonatomic, assign, nullable) id<GKFriendRequestComposeViewControllerDelegate> composeViewDelegate;
+@property (nonatomic, assign, nullable) id<GKFriendRequestComposeViewControllerDelegate> composeViewDelegate NS_DEPRECATED(10_8, 10_12, 4_2, 10_0) ;
 @end
 
 // Optional delegate
+NS_DEPRECATED(10_8, 10_12, 4_2, 10_0) 
 @protocol GKFriendRequestComposeViewControllerDelegate
 // The compose view has finished
-- (void)friendRequestComposeViewControllerDidFinish:(GKFriendRequestComposeViewController *)viewController NS_AVAILABLE(10_8, 4_2) ;
+- (void)friendRequestComposeViewControllerDidFinish:(GKFriendRequestComposeViewController *)viewController NS_DEPRECATED(10_8, 10_12, 4_2, 10_0) ;
 @end
-NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKPeerPickerController.h
+NS_ASSUME_NONNULL_END
+// ==========  GameKit.framework/Headers/GKPeerPickerController.h
 /*
  GKPeerPickerController.h
  Game Kit
@@ -1255,10 +1438,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* callbacks to the GKPeerPickerController delegate
  */
+NS_DEPRECATED_IOS(3_0, 7_0, "Use MCBrowserViewController along with MCBrowserViewControllerDelegate from the MultipeerConnectivity framework") 
 @protocol GKPeerPickerControllerDelegate <NSObject>
 
 @optional
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 /* Notifies delegate that a connection type was chosen by the user.
  */
 - (void)peerPickerController:(GKPeerPickerController *)picker didSelectConnectionType:(GKPeerPickerConnectionType)type ;
@@ -1267,8 +1453,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  You should return a valid GKSession object for use by the picker. If this method is not implemented or returns 'nil', a default GKSession is created on the delegate's behalf.
  */
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 - (GKSession *)peerPickerController:(GKPeerPickerController *)picker sessionForConnectionType:(GKPeerPickerConnectionType)type ;
 
 /* Notifies delegate that the peer was connected to a GKSession.
@@ -1303,7 +1488,7 @@ NS_CLASS_DEPRECATED_IOS(3_0, 7_0, "Use MCBrowserViewController from the Multipee
 
 /* The delegate receives notifications when the user interacts with the picker interface. If this property is nil, the picker is dismissed immediately if you try to show it.
  */
-@property(nonatomic, nullable, assign) id<GKPeerPickerControllerDelegate> delegate;
+@property(nonatomic, nullable, assign) id<GKPeerPickerControllerDelegate> delegate NS_DEPRECATED_IOS(3_0, 7_0) ;
 
 /* Show the picker.
  */
@@ -1322,14 +1507,14 @@ NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKSavedGame.h
 //  GKSavedGame.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <GameKit/GKLocalPlayer.h>
 #import <GameKit/GKSavedGameListener.h>
 
 // Class representing a saved game for the local player, or a version of a saved game when in conflict
-NS_CLASS_AVAILABLE(10_10, 8_0) 
+NS_CLASS_AVAILABLE(10_10, 8_0) __WATCHOS_PROHIBITED 
 @interface GKSavedGame : NSObject <NSCopying>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -1343,7 +1528,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-
+#if !TARGET_OS_WATCH
 @interface GKLocalPlayer (GKSavedGame) <GKSavedGameListener>
 
 // Asynchronously fetch saved games. The handler is called with an array of GKSavedGame objects or an error.
@@ -1361,9 +1546,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)resolveConflictingSavedGames:(NSArray<GKSavedGame *> *)conflictingSavedGames withData:(NSData *)data completionHandler:(void(^__nullable)(NSArray<GKSavedGame *> * __nullable savedGames, NSError * __nullable error))handler NS_AVAILABLE(10_10, 8_0) ;
 
 @end
+#endif
 
-
-NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKVoiceChatService.h
+NS_ASSUME_NONNULL_END
+// ==========  GameKit.framework/Headers/GKVoiceChatService.h
 /*
   GKVoiceChatService.h
 
@@ -1476,7 +1662,7 @@ NS_CLASS_DEPRECATED_IOS(3_0, 7_0, "Use GKVoiceChat instead")
 
 + (BOOL)isVoIPAllowed;
 
-@property(assign) id<GKVoiceChatClient> client;
+@property(assign) id<GKVoiceChatClient> client NS_DEPRECATED_IOS(3_0, 7_0) ;
 
 // May fail if you already in a chat, or if there is no peer-to-peer channel that can be made to the participant.
 - (BOOL)startVoiceChatWithParticipantID:(NSString *)participantID error:(NSError **)error;
@@ -1521,7 +1707,7 @@ GK_EXTERN_WEAK    NSString *  const GKVoiceChatServiceErrorDomain;
 //  GKAchievement.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1532,7 +1718,7 @@ GK_EXTERN_WEAK    NSString *  const GKVoiceChatServiceErrorDomain;
 
 NS_ASSUME_NONNULL_BEGIN
 // GKAchievement represents a game achievement that the player has started or completely achieved.
-NS_CLASS_AVAILABLE(10_8, 4_1)
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 
 @interface GKAchievement : NSObject <NSCoding, NSSecureCoding>
 
@@ -1568,7 +1754,7 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 @property(assign, NS_NONATOMIC_IOSONLY) BOOL showsCompletionBanner NS_AVAILABLE(10_8, 5_0);             // A banner will be momentarily displayed after reporting a completed achievement
 
 // The identifier of the player that earned the achievement.
-@property(readonly, retain, NS_NONATOMIC_IOSONLY) GKPlayer *player NS_AVAILABLE(10_10, 8_0);
+@property(readonly, retain, nullable, NS_NONATOMIC_IOSONLY) GKPlayer *player NS_AVAILABLE(10_10, 8_0);
 
 @end
 
@@ -1580,12 +1766,13 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 @property(readonly, copy, NS_NONATOMIC_IOSONLY) NSString *playerID NS_DEPRECATED_IOS(7_0, 8_0, "use player") ;
 
 @end
-NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKTurnBasedMatchmakerViewController.h
+NS_ASSUME_NONNULL_END
+// ==========  GameKit.framework/Headers/GKTurnBasedMatchmakerViewController.h
 //
 //  GKTurnBasedMatchmakerViewController.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 @protocol GKTurnBasedMatchmakerViewControllerDelegate;
@@ -1596,6 +1783,10 @@ NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKTurnBasedMatchma
 
 // View controller to manage turn-based matches, invite friends and perform auto-matching. Present modally from the top view controller.
 #if TARGET_OS_IPHONE
+
+#import <Foundation/Foundation.h> // NS_ASSUME_NONNULL_BEGIN
+#import <UIKit/UINavigationController.h> // UINavigationController
+
 NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_AVAILABLE(10_8, 5_0)
 @interface GKTurnBasedMatchmakerViewController : UINavigationController
@@ -1649,7 +1840,7 @@ NS_ASSUME_NONNULL_END
 //  GKVoiceChat.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1667,7 +1858,7 @@ typedef NS_ENUM(NSInteger, GKVoiceChatPlayerState) {
 
 NS_ASSUME_NONNULL_BEGIN
 // GKVoiceChat represents an instance of a named voice communications channel
-NS_CLASS_AVAILABLE(10_8, 4_1)
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_PROHIBITED
 @interface GKVoiceChat : NSObject
 
 - (void)start;  // start receiving audio from the chat
@@ -1695,7 +1886,8 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 - (void)setMute:(BOOL)isMuted forPlayer:(NSString *)playerID NS_DEPRECATED(10_8, 10_10, 5_0, 8_0, "use setPlayer:muted:") ;
 
 @end
-NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKSession.h
+NS_ASSUME_NONNULL_END
+// ==========  GameKit.framework/Headers/GKSession.h
 /*
  GKSession.h
  GameKit
@@ -1736,7 +1928,7 @@ If name = nil then GKSession will use the device name.
 - (id)initWithSessionID:(NSString *)sessionID displayName:(NSString *)name sessionMode:(GKSessionMode)mode NS_DEPRECATED(10_8, 10_10, 3_0, 7_0);
 #pragma clang diagnostic pop
 
-@property(assign) id<GKSessionDelegate> delegate;
+@property(assign) id<GKSessionDelegate> delegate NS_DEPRECATED(10_8, 10_10, 3_0, 7_0) ;
 
 @property(readonly) NSString *sessionID;
 @property(readonly) NSString *displayName;
@@ -1792,19 +1984,53 @@ Failure results in a call to delegate -session:connectionWithPeerFailed:withErro
 */ 
 - (NSArray *)peersWithConnectionState:(GKPeerConnectionState)state NS_DEPRECATED(10_8, 10_10, 3_0, 7_0);
 @end
+// ==========  GameKit.framework/Headers/GKGameSessionEventListener.h
+//
+//  GKGameSessionEventListener.h
+//  Game Center
+//
+//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import "GKGameSession.h"
+NS_ASSUME_NONNULL_BEGIN
+
+API_DEPRECATED("Use GKLocalPlayerListener for multiplayer event notifications.", ios(10.0, 12.0), tvos(10.0, 12.0), macosx(10.12, 10.14)) API_UNAVAILABLE(watchos)
+@protocol GKGameSessionEventListener <NSObject>
+@optional
+- (void)session:(GKGameSession *)session didAddPlayer:(GKCloudPlayer *)player;
+- (void)session:(GKGameSession *)session didRemovePlayer:(GKCloudPlayer *)player;
+- (void)session:(GKGameSession *)session player:(GKCloudPlayer *)player didChangeConnectionState:(GKConnectionState)newState;
+- (void)session:(GKGameSession *)session player:(GKCloudPlayer *)player didSaveData:(NSData *)data;
+- (void)session:(GKGameSession *)session didReceiveData:(NSData *)data fromPlayer:(GKCloudPlayer *)player;
+- (void)session:(GKGameSession *)session didReceiveMessage:(NSString *)message withData:(NSData *)data fromPlayer:(GKCloudPlayer *)player;
+
+@end
+
+@interface GKGameSession (GKGameSessionEventListener)
++ (void)addEventListener:(NSObject<GKGameSessionEventListener> *)listener NS_SWIFT_NAME(add(listener:)) API_DEPRECATED("Use GKLocalPlayer's registerListener: to register for GKLocalPlayerListener event notifications.", ios(10.0, 12.0), tvos(10.0, 12.0), macosx(10.12, 10.14)) API_UNAVAILABLE(watchos);
++ (void)removeEventListener:(NSObject<GKGameSessionEventListener> *)listener NS_SWIFT_NAME(remove(listener:)) API_DEPRECATED("Use GKLocalPlayer's unregisterListener: or unregisterAllListeners to unregister from GKLocalPlayerListener event notifications.", ios(10.0, 12.0), tvos(10.0, 12.0), macosx(10.12, 10.14)) API_UNAVAILABLE(watchos);
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  GameKit.framework/Headers/GKSavedGameListener.h
 //
 //  GKSavedGameListener.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
+#import <Foundation/NSObjCRuntime.h> // NS_ASSUME_NONNULL_BEGIN
+#import <objc/NSObject.h> // NSObject
+
+@class NSArray;
 @class GKPlayer;
 @class GKSavedGame;
 
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_10, 8_0)
+NS_CLASS_AVAILABLE(10_10, 8_0) __WATCHOS_PROHIBITED
 @protocol GKSavedGameListener <NSObject>
 @optional
 
@@ -1815,12 +2041,13 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 - (void)player:(GKPlayer *)player hasConflictingSavedGames:(NSArray<GKSavedGame *> *)savedGames NS_AVAILABLE(10_10, 8_0) ;
 
 @end
-NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKAchievementDescription.h
+NS_ASSUME_NONNULL_END
+// ==========  GameKit.framework/Headers/GKAchievementDescription.h
 //
 //  GKAchievementDescription.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1829,7 +2056,7 @@ NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKAchievementDescr
 
 NS_ASSUME_NONNULL_BEGIN
 // GKAchievementDescription is a full description of the achievement as defined before app submission in iTunes Connect.
-NS_CLASS_AVAILABLE(10_8, 4_1)
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 @interface GKAchievementDescription : NSObject <NSCoding, NSSecureCoding>
 
 // Asynchronously load all achievement descriptions
@@ -1896,7 +2123,7 @@ NS_ASSUME_NONNULL_END
 //  GKLocalPlayer.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1913,15 +2140,21 @@ NS_ASSUME_NONNULL_END
 @class NSViewController;
 #endif
 
+typedef NS_ENUM(NSUInteger, GKAuthenticationType) {
+    GKAuthenticatingWithoutUI                = 0,
+    GKAuthenticatingWithGreenBuddyUI         = 1,    // need to accept T&C
+    GKAuthenticatingWithAuthKitInvocation    = 2,    // no account
+};
+
 
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_8, 4_1)
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 @interface GKLocalPlayer : GKPlayer
 
 // Obtain the primary GKLocalPlayer object.
 // The player is only available for offline play until logged in.
 // A temporary player is created if no account is set up.
-+ (GKLocalPlayer *)localPlayer NS_SWIFT_NAME(localPlayer());
+@property (class, readonly, nonnull) GKLocalPlayer *localPlayer;
 
 @property(readonly, getter=isAuthenticated, NS_NONATOMIC_IOSONLY)  BOOL authenticated; // Authentication state
 @property(readonly, getter=isUnderage, NS_NONATOMIC_IOSONLY)       BOOL underage;      // Underage state
@@ -1932,24 +2165,26 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 // 1. Communications problem
 // 2. User credentials invalid
 // 3. User cancelled
-#if TARGET_OS_IPHONE
+#if TARGET_OS_WATCH
+@property(atomic, nullable, copy) void(^authenticateHandler)(NSError * __nullable error) __WATCHOS_AVAILABLE(3_0);
+#elif TARGET_OS_IPHONE
 @property(nonatomic, nullable, copy) void(^authenticateHandler)(UIViewController * __nullable viewController, NSError * __nullable error) NS_AVAILABLE_IOS(6_0);
 #else
 @property(atomic, nullable, copy) void(^authenticateHandler)(NSViewController * __nullable viewController, NSError * __nullable error) NS_AVAILABLE_MAC(10_9);
 #endif
 
-// Asynchronously load the friends list as an array of GKPlayer. Calls completionHandler when finished. Error will be nil on success.
+// Asynchronously load the recent players list as an array of GKPlayer.  A recent player is someone that you have played a game with or is a legacy game center friend.  Calls completionHandler when finished. Error will be nil on success.
 // Possible reasons for error:
 // 1. Communications problem
 // 2. Unauthenticated player
-- (void)loadFriendPlayersWithCompletionHandler:(void(^__nullable)(NSArray<GKPlayer *> * __nullable friendPlayers, NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 8_0);
+- (void)loadRecentPlayersWithCompletionHandler:(void(^__nullable)(NSArray<GKPlayer *> * __nullable recentPlayers, NSError * __nullable error))completionHandler NS_AVAILABLE(10_11, 10_0) __WATCHOS_AVAILABLE(3_0);
 ;
 // Set the default leaderboard for the current game
 // Possible reasons for error:
 // 1. Communications problem
 // 2. Unauthenticated player
 // 3. Leaderboard not present
-- (void)setDefaultLeaderboardIdentifier:(NSString *)leaderboardIdentifier completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0);
+- (void)setDefaultLeaderboardIdentifier:(NSString *)leaderboardIdentifier completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 
 // Load the default leaderboard identifier for the local player
@@ -1957,42 +2192,49 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 // 1. Communications problem
 // 2. Unauthenticated player
 // 3. Leaderboard not present
-- (void)loadDefaultLeaderboardIdentifierWithCompletionHandler:(void(^__nullable)(NSString * __nullable leaderboardIdentifier, NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0);
+- (void)loadDefaultLeaderboardIdentifierWithCompletionHandler:(void(^__nullable)(NSString * __nullable leaderboardIdentifier, NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 
 // Generates a signature allowing 3rd party server to authenticate the GKLocalPlayer
 //Possible reasons for error:
 // 1. Communications problem
 // 2. Unauthenticated player
-- (void)generateIdentityVerificationSignatureWithCompletionHandler:(void (^__nullable)(NSURL * __nullable publicKeyUrl, NSData * __nullable signature, NSData * __nullable salt, uint64_t timestamp, NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0);
+- (void)generateIdentityVerificationSignatureWithCompletionHandler:(void (^__nullable)(NSURL * __nullable publicKeyUrl, NSData * __nullable signature, NSData * __nullable salt, uint64_t timestamp, NSError * __nullable error))completionHandler NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 @end
 
+#if TARGET_OS_WATCH
+@protocol GKLocalPlayerListener <GKChallengeListener, GKInviteEventListener, GKTurnBasedEventListener>
+@end
+#else
 @protocol GKLocalPlayerListener <GKChallengeListener, GKInviteEventListener, GKTurnBasedEventListener, GKSavedGameListener>
 @end
+#endif
 
 @interface GKLocalPlayer (GKLocalPlayerEvents)
 
 // A single listener may be registered once. Registering multiple times results in undefined behavior. The registered listener will receive callbacks for any selector it responds to.
-- (void)registerListener:(id<GKLocalPlayerListener>)listener NS_AVAILABLE(10_10, 7_0);
+- (void)registerListener:(id<GKLocalPlayerListener>)listener NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
-- (void)unregisterListener:(id<GKLocalPlayerListener>)listener NS_AVAILABLE(10_10, 7_0);
+- (void)unregisterListener:(id<GKLocalPlayerListener>)listener NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
-- (void)unregisterAllListeners NS_AVAILABLE(10_10, 7_0);
+- (void)unregisterAllListeners NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 @end
 
 // Notification will be posted whenever authentication status changes.
-GK_EXTERN NSString *GKPlayerAuthenticationDidChangeNotificationName NS_AVAILABLE(10_8, 4_1);
+GK_EXTERN NSNotificationName GKPlayerAuthenticationDidChangeNotificationName NS_AVAILABLE(10_8, 4_1);
 
 @interface GKLocalPlayer (Deprecated)
 
 - (void)setDefaultLeaderboardCategoryID:(nullable NSString *)categoryID completionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_DEPRECATED(10_8, 10_10, 6_0, 7_0,"Use setDefaultLeaderboardIdentifier:completionHandler: instead") ;
 - (void)loadDefaultLeaderboardCategoryIDWithCompletionHandler:(void(^__nullable)(NSString * __nullable categoryID, NSError * __nullable error))completionHandler NS_DEPRECATED(10_8, 10_10, 6_0, 7_0,"Use loadDefaultLeaderboardIdentifierWithCompletionHandler: instead") ;
-- (void)loadFriendsWithCompletionHandler:(void(^__nullable)(NSArray<NSString *> * __nullable friendIDs, NSError * __nullable error))completionHandler NS_DEPRECATED(10_8, 10_10, 4_1, 8_0, "use loadFriendPlayersWithCompletionHandler: instead") ;
+- (void)loadFriendsWithCompletionHandler:(void(^__nullable)(NSArray<NSString *> * __nullable friendIDs, NSError * __nullable error))completionHandler NS_DEPRECATED(10_8, 10_10, 4_1, 8_0, "use loadRecentPlayersWithCompletionHandler: instead") ;
 - (void)authenticateWithCompletionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_DEPRECATED(10_8, 10_8, 4_1, 6_0, "Set the authenticateHandler instead") ;
 
 @property(nonatomic, readonly, nullable, retain) NSArray<NSString *> *friends NS_DEPRECATED(10_8, 10_10, 4_1, 8_0, "use loadFriendPlayersWithCompletionHandler: instead") ; // Array of player identifiers of friends for the local player. Not valid until loadFriendsWithCompletionHandler: has completed.
+
+- (void)loadFriendPlayersWithCompletionHandler:(void(^__nullable)(NSArray<GKPlayer *> * __nullable friendPlayers, NSError * __nullable error))completionHandler NS_DEPRECATED(10_10, 10_11, 8_0, 10_0);
 
 @end
 NS_ASSUME_NONNULL_END
@@ -2001,7 +2243,7 @@ NS_ASSUME_NONNULL_END
 //  GKError.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2036,7 +2278,9 @@ typedef NS_ENUM(NSInteger, GKErrorCode) {
     GKErrorTurnBasedInvalidState                = 24,
     GKErrorInvitationsDisabled                  = 25,
     GKErrorPlayerPhotoFailure                   = 26,
-    GKErrorUbiquityContainerUnavailable         = 27
+    GKErrorUbiquityContainerUnavailable         = 27,
+    GKErrorMatchNotConnected                    = 28,
+    GKErrorGameSessionRequestInvalid            = 29
 };
 
 // ==========  GameKit.framework/Headers/GKMatchmakerViewController.h
@@ -2044,7 +2288,7 @@ typedef NS_ENUM(NSInteger, GKErrorCode) {
 //  GKMatchmakerViewController.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 @class GKMatchRequest, GKInvite, GKMatch, GKPlayer;
@@ -2053,6 +2297,10 @@ typedef NS_ENUM(NSInteger, GKErrorCode) {
 
 // View controller to invite friends, respond to invites, and perform auto-matching. Present modally from the top view controller.
 #if TARGET_OS_IPHONE
+
+#import <Foundation/Foundation.h> // NS_ASSUME_NONNULL_BEGIN
+#import <UIKit/UINavigationController.h> // UINavigationController
+
 NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_AVAILABLE(10_8, 4_1)
 @interface GKMatchmakerViewController : UINavigationController
@@ -2123,12 +2371,50 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 - (void)matchmakerViewController:(GKMatchmakerViewController *)viewController didReceiveAcceptFromHostedPlayer:(NSString *)playerID NS_DEPRECATED(10_8, 10_10, 5_0, 8_0, "use matchmakerViewController:hostedPlayerDidAccept:") ;
 @end
 NS_ASSUME_NONNULL_END
+// ==========  GameKit.framework/Headers/GKGameSessionSharingViewController.h
+//
+//  GKGameSessionSharingViewController.h
+//  Game Center
+//
+//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#if TARGET_OS_TV
+
+#import <UIKit/UIViewController.h> // UIViewController
+
+@class GKGameSession;
+@protocol GKGameSessionSharingViewControllerDelegate;
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_DEPRECATED("For real-time matches, use GKMatchmakerViewController. For turn-based matches, use GKTurnBasedMatchmakerViewController.", tvos(10.0, 12.0))
+@interface GKGameSessionSharingViewController : UIViewController
+@property (nonatomic, readonly, strong) GKGameSession *session;
+@property (nonatomic, weak, nullable) id<GKGameSessionSharingViewControllerDelegate> delegate;
+
+- (instancetype)initWithSession:(GKGameSession *)session;
+
+@end
+
+API_DEPRECATED("For real-time matches, use GKMatchmakerViewControllerDelegate to receive notifications from the GKMatchmakerViewController. For turn-based matches, use GKTurnBasedMatchmakerViewControllerDelegate and GKLocalPlayerListener to receive notifications from the GKTurnBasedMatchmakerViewController.", tvos(10.0, 12.0))
+@protocol GKGameSessionSharingViewControllerDelegate <NSObject>
+- (void)sharingViewController:(GKGameSessionSharingViewController *)viewController didFinishWithError:(NSError * __nullable)error;
+@end
+
+NS_ASSUME_NONNULL_END
+
+
+#endif
 // ==========  GameKit.framework/Headers/GKLeaderboardViewController.h
 //
 //  GKLeaderboardViewController.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <GameKit/GKLeaderboard.h>
@@ -2166,7 +2452,7 @@ NS_DEPRECATED(10_8, 10_10, 4_1, 7_0, "Use GKGameCenterViewController instead")
 //  GKScore.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2179,38 +2465,38 @@ NS_DEPRECATED(10_8, 10_10, 4_1, 7_0, "Use GKGameCenterViewController instead")
 NS_ASSUME_NONNULL_BEGIN
 
 // GKScore represents a score in the leaderboards.
-NS_CLASS_AVAILABLE(10_8, 4_1)
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 @interface GKScore : NSObject <NSCoding, NSSecureCoding>
 
 // Initialize the score with the local player and current date.
 - (instancetype)initWithLeaderboardIdentifier:(NSString *)identifier;
 
 // Initialize the achievement for a specific player. Use to submit participant scores when ending a turn-based match.
-- (instancetype)initWithLeaderboardIdentifier:(NSString *)identifier player:(GKPlayer *)player NS_AVAILABLE(10_10, 8_0);
+- (instancetype)initWithLeaderboardIdentifier:(NSString *)identifier player:(GKPlayer *)player NS_AVAILABLE(10_10, 8_0) __WATCHOS_AVAILABLE(3_0);
 
 @property(assign, NS_NONATOMIC_IOSONLY)                     int64_t     value;              // The score value as a 64bit integer.
 @property(readonly, copy, nullable, NS_NONATOMIC_IOSONLY)   NSString    *formattedValue;    // The score formatted as a string, localized with a label
 
 // leaderboard identifier (required)
-@property(copy, NS_NONATOMIC_IOSONLY)               NSString    *leaderboardIdentifier NS_AVAILABLE(10_10, 7_0);
+@property(copy, NS_NONATOMIC_IOSONLY)               NSString    *leaderboardIdentifier NS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0);
 
 // optional additional context that allows a game to store and retrieve additional data associated with the store.  Default value of zero is returned if no value is set.
-@property(assign, NS_NONATOMIC_IOSONLY)                        uint64_t    context NS_AVAILABLE(10_8, 5_0);
+@property(assign, NS_NONATOMIC_IOSONLY)                        uint64_t    context NS_AVAILABLE(10_8, 5_0) __WATCHOS_AVAILABLE(3_0);
 
 @property(readonly, retain, NS_NONATOMIC_IOSONLY)   NSDate      *date;              // The date this score was recorded. A newly initialized, unsubmitted GKScore records the current date at init time.
-@property(readonly, retain, NS_NONATOMIC_IOSONLY)   GKPlayer    *player NS_AVAILABLE(10_10, 8_0);          // The player that recorded the score.
+@property(readonly, retain, nullable, NS_NONATOMIC_IOSONLY)   GKPlayer    *player NS_AVAILABLE(10_10, 8_0) __WATCHOS_AVAILABLE(3_0);          // The player that recorded the score.
 @property(readonly, assign, NS_NONATOMIC_IOSONLY)   NSInteger   rank;               // The rank of the player within the leaderboard, only valid when returned from GKLeaderboard
 
 // Convenience property to make the leaderboard associated with this GKScore, the default leaderboard for this player. Default value is false.
 // If true, reporting that score will make the category this score belongs to, the default leaderboard for this user
-@property(nonatomic, assign)                        BOOL        shouldSetDefaultLeaderboard     NS_AVAILABLE(10_8, 5_0);
+@property(nonatomic, assign)                        BOOL        shouldSetDefaultLeaderboard     NS_AVAILABLE(10_8, 5_0) __WATCHOS_AVAILABLE(3_0);
 
 // Report scores to the server. The value must be set, and date may be changed.
 // Possible reasons for error:
 // 1. Value not set
 // 2. Local player not authenticated
 // 3. Communications problem
-+ (void)reportScores:(NSArray<GKScore *> *)scores withCompletionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 6_0);
++ (void)reportScores:(NSArray<GKScore *> *)scores withCompletionHandler:(void(^__nullable)(NSError * __nullable error))completionHandler NS_AVAILABLE(10_8, 6_0) __WATCHOS_AVAILABLE(3_0);
 
 @end
 
@@ -2231,7 +2517,7 @@ NS_ASSUME_NONNULL_END
 //  GKMatchmaker.h
 //  Game Center
 //
-//  Copyright 2010-2015 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #include <Foundation/Foundation.h>
@@ -2262,7 +2548,7 @@ typedef GKInviteRecipientResponse GKInviteeResponse;
 
 NS_ASSUME_NONNULL_BEGIN
 // GKMatchRequest represents the parameters needed to create the match.
-NS_CLASS_AVAILABLE(10_8, 4_1)
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 @interface GKMatchRequest : NSObject
 
 @property(assign) NSUInteger minPlayers;     // Minimum number of players for the match
@@ -2295,7 +2581,7 @@ typedef NS_ENUM(NSUInteger, GKMatchType) {
 
 
 // GKInvite represents an accepted game invite, it is used to create a GKMatchmakerViewController
-NS_CLASS_AVAILABLE(10_8, 4_1)
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_PROHIBITED
 @interface GKInvite : NSObject
 
 @property(readonly, retain, NS_NONATOMIC_IOSONLY) GKPlayer *sender NS_AVAILABLE(10_10, 8_0);
@@ -2312,17 +2598,17 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 @optional
 
 // player:didAcceptInvite: gets called when another player accepts the invite from the local player
-- (void)player:(GKPlayer *)player didAcceptInvite:(GKInvite *)invite NS_AVAILABLE(10_10, 7_0);
+- (void)player:(GKPlayer *)player didAcceptInvite:(GKInvite *)invite NS_AVAILABLE(10_10, 7_0) __WATCHOS_PROHIBITED;
 
 // didRequestMatchWithRecipients: gets called when the player chooses to play with another player from Game Center and it launches the game to start matchmaking
-- (void)player:(GKPlayer *)player didRequestMatchWithRecipients:(NSArray<GKPlayer *> *)recipientPlayers NS_AVAILABLE(10_10, 8_0);
+- (void)player:(GKPlayer *)player didRequestMatchWithRecipients:(NSArray<GKPlayer *> *)recipientPlayers NS_AVAILABLE(10_10, 8_0) __WATCHOS_PROHIBITED;
 - (void)player:(GKPlayer *)player didRequestMatchWithPlayers:(NSArray<NSString *> *)playerIDsToInvite NS_DEPRECATED_IOS(7_0, 8_0, "use player:didRequestMatchWithRecipients:") ;
 
 @end
 
 
 // GKMatchmaker is a singleton object to manage match creation from invites and auto-matching.
-NS_CLASS_AVAILABLE(10_8, 4_1)
+NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_PROHIBITED
 @interface GKMatchmaker : NSObject
 
 // The shared matchmaker
@@ -2389,7 +2675,7 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 
 @property(nonatomic, nullable, copy) void(^inviteHandler)(GKInvite *acceptedInvite, NSArray * __nullable playerIDsToInvite) NS_DEPRECATED(10_8, 10_10, 4_1, 7_0, "Use registerListener on GKLocalPlayer to register an object that implements the GKInviteEventListenerProtocol instead") ;
 
-- (void)startBrowsingForNearbyPlayersWithReachableHandler:(void(^__nullable)(NSString *playerID, BOOL reachable))reachableHandler NS_DEPRECATED(10_9, 10_10, 6_0, 8_0) ;
+- (void)startBrowsingForNearbyPlayersWithReachableHandler:(void(^__nullable)(NSString *playerID, BOOL reachable))reachableHandler NS_DEPRECATED(10_9, 10_10, 6_0, 8_0, "Use startBrowsingForNearbyPlayersWithHandler: instead") ;
 - (void)cancelInviteToPlayer:(NSString *)playerID NS_DEPRECATED(10_9, 10_10, 6_0, 8_0, "use cancelPendingInviteToPlayer:") ;
 - (void)findPlayersForHostedMatchRequest:(GKMatchRequest *)request withCompletionHandler:(void(^__nullable)(NSArray<NSString *> * __nullable playerIDs, NSError * __nullable error))completionHandler NS_DEPRECATED(10_8, 10_10, 4_1, 8_0, "use findPlayersForHostedRequest:") ;
 

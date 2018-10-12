@@ -1,3 +1,51 @@
+// ==========  WebKit.framework/Headers/WKContentRuleListStore.h
+/*
+ * Copyright (C) 2017 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED
+
+#import <Foundation/Foundation.h>
+
+@class WKContentRuleList;
+
+WK_EXTERN API_AVAILABLE(macosx(10.13), ios(11.0))
+@interface WKContentRuleListStore : NSObject
+
++ (instancetype)defaultStore;
++ (instancetype)storeWithURL:(NSURL *)url;
+
+- (void)compileContentRuleListForIdentifier:(NSString *)identifier encodedContentRuleList:(NSString *) encodedContentRuleList completionHandler:(void (^)(WKContentRuleList *, NSError *))completionHandler;
+- (void)lookUpContentRuleListForIdentifier:(NSString *)identifier completionHandler:(void (^)(WKContentRuleList *, NSError *))completionHandler;
+- (void)removeContentRuleListForIdentifier:(NSString *)identifier completionHandler:(void (^)(NSError *))completionHandler;
+- (void)getAvailableContentRuleListIdentifiers:(void (^)(NSArray<NSString *>*))completionHandler;
+
+@end
+
+#endif // WK_API_ENABLED
 // ==========  WebKit.framework/Headers/WKError.h
 /*
  * Copyright (C) 2014 Apple Inc. All rights reserved.
@@ -33,23 +81,31 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /*! @constant WKErrorDomain Indicates a WebKit error. */
-WK_EXTERN NSString * const WKErrorDomain NS_AVAILABLE(10_10, 8_0);
+WK_EXTERN NSString * const WKErrorDomain API_AVAILABLE(macosx(10.10), ios(8.0));
 
 /*! @enum WKErrorCode
  @abstract Constants used by NSError to indicate errors in the WebKit domain.
- @constant WKErrorUnknown                           Indicates that an unknown error occurred.
- @constant WKErrorWebContentProcessTerminated       Indicates that the Web Content process was terminated.
- @constant WKErrorWebViewInvalidated                Indicates that the WKWebView was invalidated.
- @constant WKErrorJavaScriptExceptionOccurred       Indicates that a JavaScript exception occurred.
- @constant WKErrorJavaScriptResultTypeIsUnsupported Indicates that the result of JavaScript execution could not be returned.
+ @constant WKErrorUnknown                              Indicates that an unknown error occurred.
+ @constant WKErrorWebContentProcessTerminated          Indicates that the Web Content process was terminated.
+ @constant WKErrorWebViewInvalidated                   Indicates that the WKWebView was invalidated.
+ @constant WKErrorJavaScriptExceptionOccurred          Indicates that a JavaScript exception occurred.
+ @constant WKErrorJavaScriptResultTypeIsUnsupported    Indicates that the result of JavaScript execution could not be returned.
+ @constant WKErrorContentRuleListStoreCompileFailed    Indicates that compiling a WKUserContentRuleList failed.
+ @constant WKErrorContentRuleListStoreLookUpFailed     Indicates that looking up a WKUserContentRuleList failed.
+ @constant WKErrorContentRuleListStoreRemoveFailed     Indicates that removing a WKUserContentRuleList failed.
+ @constant WKErrorContentRuleListStoreVersionMismatch  Indicates that the WKUserContentRuleList version did not match the latest.
  */
 typedef NS_ENUM(NSInteger, WKErrorCode) {
     WKErrorUnknown = 1,
     WKErrorWebContentProcessTerminated,
     WKErrorWebViewInvalidated,
     WKErrorJavaScriptExceptionOccurred,
-    WKErrorJavaScriptResultTypeIsUnsupported NS_ENUM_AVAILABLE(10_11, 9_0),
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+    WKErrorJavaScriptResultTypeIsUnsupported API_AVAILABLE(macosx(10.11), ios(9.0)),
+    WKErrorContentRuleListStoreCompileFailed API_AVAILABLE(macosx(10.13), ios(11.0)),
+    WKErrorContentRuleListStoreLookUpFailed API_AVAILABLE(macosx(10.13), ios(11.0)),
+    WKErrorContentRuleListStoreRemoveFailed API_AVAILABLE(macosx(10.13), ios(11.0)),
+    WKErrorContentRuleListStoreVersionMismatch API_AVAILABLE(macosx(10.13), ios(11.0)),
+} API_AVAILABLE(macosx(10.10), ios(8.0));
 
 NS_ASSUME_NONNULL_END
 
@@ -84,10 +140,10 @@ NS_ASSUME_NONNULL_END
 #import <TargetConditionals.h>
 
 #if !defined(WK_API_ENABLED)
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || (defined(__clang__) && defined(__APPLE__) && !defined(__i386__))
 #define WK_API_ENABLED 1
 #else
-#define WK_API_ENABLED (defined(__clang__) && defined(__APPLE__) && !defined(__i386__))
+#define WK_API_ENABLED 0
 #endif
 #endif
 
@@ -153,12 +209,12 @@ typedef NS_ENUM(NSInteger, WKNavigationType) {
     WKNavigationTypeReload,
     WKNavigationTypeFormResubmitted,
     WKNavigationTypeOther = -1,
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macosx(10.10), ios(8.0));
 
 /*! 
 A WKNavigationAction object contains information about an action that may cause a navigation, used for making policy decisions.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKNavigationAction : NSObject
 
 /*! @abstract The frame requesting the navigation.
@@ -236,6 +292,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class WKBackForwardList;
 @class WKBackForwardListItem;
 @class WKNavigation;
+@class WKSnapshotConfiguration;
 @class WKWebViewConfiguration;
 
 @protocol WKNavigationDelegate;
@@ -247,10 +304,10 @@ NS_ASSUME_NONNULL_BEGIN
  Used to configure @link WKWebView @/link instances.
  */
 #if TARGET_OS_IPHONE
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKWebView : UIView
 #else
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKWebView : NSView
 #endif
 
@@ -281,7 +338,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  */
 - (instancetype)initWithFrame:(CGRect)frame configuration:(WKWebViewConfiguration *)configuration NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithCoder:(NSCoder *)coder NS_UNAVAILABLE;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 /*! @abstract Navigates to a requested URL.
  @param request The request specifying the URL to which to navigate.
@@ -296,7 +353,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  If readAccessURL references a directory, files inside that file may be loaded by WebKit.
  @result A new navigation for the given file URL.
  */
-- (nullable WKNavigation *)loadFileURL:(NSURL *)URL allowingReadAccessToURL:(NSURL *)readAccessURL NS_AVAILABLE(10_11, 9_0);
+- (nullable WKNavigation *)loadFileURL:(NSURL *)URL allowingReadAccessToURL:(NSURL *)readAccessURL API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @abstract Sets the webpage contents and base URL.
  @param string The string to use as the contents of the webpage.
@@ -308,11 +365,11 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 /*! @abstract Sets the webpage contents and base URL.
  @param data The data to use as the contents of the webpage.
  @param MIMEType The MIME type of the data.
- @param encodingName The data's character encoding name.
+ @param characterEncodingName The data's character encoding name.
  @param baseURL A URL that is used to resolve relative URLs within the document.
  @result A new navigation.
  */
-- (nullable WKNavigation *)loadData:(NSData *)data MIMEType:(NSString *)MIMEType characterEncodingName:(NSString *)characterEncodingName baseURL:(NSURL *)baseURL NS_AVAILABLE(10_11, 9_0);
+- (nullable WKNavigation *)loadData:(NSData *)data MIMEType:(NSString *)MIMEType characterEncodingName:(NSString *)characterEncodingName baseURL:(NSURL *)baseURL API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @abstract Navigates to an item from the back-forward list and sets it
  as the current item.
@@ -362,12 +419,11 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  */
 @property (nonatomic, readonly) BOOL hasOnlySecureContent;
 
-/*! @abstract An array of SecCertificateRef objects forming the certificate
- chain for the currently committed navigation.
- @discussion The certificates are ordered from leaf (at index 0) to anchor.
- @link WKWebView @/link is key-value observing (KVO) compliant for this property.
+/*! @abstract A SecTrustRef for the currently committed navigation.
+ @discussion @link WKWebView @/link is key-value observing (KVO) compliant 
+ for this property.
  */
-@property (nonatomic, readonly, copy) NSArray *certificateChain NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readonly, nullable) SecTrustRef serverTrust API_AVAILABLE(macosx(10.12), ios(10.0));
 
 /*! @abstract A Boolean value indicating whether there is a back item in
  the back-forward list that can be navigated to.
@@ -417,7 +473,20 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @param completionHandler A block to invoke when script evaluation completes or fails.
  @discussion The completionHandler is passed the result of the script evaluation or an error.
 */
-- (void)evaluateJavaScript:(NSString *)javaScriptString completionHandler:(void (^ __nullable)(__nullable id, NSError * __nullable error))completionHandler;
+- (void)evaluateJavaScript:(NSString *)javaScriptString completionHandler:(void (^ _Nullable)(_Nullable id, NSError * _Nullable error))completionHandler;
+
+/*! @abstract Get a snapshot for the visible viewport of WKWebView.
+ @param snapshotConfiguration An object that specifies how the snapshot is configured.
+ @param completionHandler A block to invoke when the snapshot is ready.
+ @discussion If the WKSnapshotConfiguration is nil, the method will snapshot the bounds of the 
+ WKWebView and create an image that is the width of the bounds of the WKWebView and scaled to the 
+ device scale. The completionHandler is passed the image of the viewport contents or an error.
+ */
+#if TARGET_OS_IPHONE
+- (void)takeSnapshotWithConfiguration:(nullable WKSnapshotConfiguration *)snapshotConfiguration completionHandler:(void (^)(UIImage * _Nullable snapshotImage, NSError * _Nullable error))completionHandler API_AVAILABLE(ios(11.0));
+#else
+- (void)takeSnapshotWithConfiguration:(nullable WKSnapshotConfiguration *)snapshotConfiguration completionHandler:(void (^)(NSImage * _Nullable snapshotImage, NSError * _Nullable error))completionHandler API_AVAILABLE(macosx(10.13));
+#endif
 
 /*! @abstract A Boolean value indicating whether horizontal swipe gestures
  will trigger back-forward list navigations.
@@ -427,13 +496,13 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 /*! @abstract The custom user agent string or nil if no custom user agent string has been set.
 */
-@property (nullable, nonatomic, copy) NSString *customUserAgent NS_AVAILABLE(10_11, 9_0);
+@property (nullable, nonatomic, copy) NSString *customUserAgent API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @abstract A Boolean value indicating whether link preview is allowed for any
  links inside this WKWebView.
- @discussion The default value is NO on iOS and YES on Mac.
+ @discussion The default value is YES on Mac and iOS.
  */
-@property (nonatomic) BOOL allowsLinkPreview NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic) BOOL allowsLinkPreview API_AVAILABLE(macosx(10.11), ios(9.0));
 
 #if TARGET_OS_IPHONE
 /*! @abstract The scroll view associated with the web view.
@@ -463,6 +532,11 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 - (void)setMagnification:(CGFloat)magnification centeredAtPoint:(CGPoint)point;
 
 #endif
+
+/* @abstract Checks whether or not WKWebViews handle the given URL scheme by default.
+ @param scheme The URL scheme to check.
+ */
++ (BOOL)handlesURLScheme:(NSString *)urlScheme API_AVAILABLE(macosx(10.13), ios(11.0));
 
 @end
 
@@ -503,12 +577,58 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 #endif
 
+@interface WKWebView (WKDeprecated)
+
+@property (nonatomic, readonly, copy) NSArray *certificateChain API_DEPRECATED_WITH_REPLACEMENT("serverTrust", macosx(10.11, 10.12), ios(9.0, 10.0));
+
+@end
+
 NS_ASSUME_NONNULL_END
 
 #endif
-// ==========  WebKit.framework/Headers/WKUserContentController.h
+// ==========  WebKit.framework/Headers/WKPreviewActionItem.h
 /*
- * Copyright (C) 2014 Apple Inc. All rights reserved.
+ * Copyright (C) 2016 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED && TARGET_OS_IPHONE
+
+#import <UIKit/UIViewController.h>
+
+API_AVAILABLE(ios(10.0))
+@protocol WKPreviewActionItem <UIPreviewActionItem>
+
+@property (nonatomic, copy, readonly) NSString *identifier;
+
+@end
+
+#endif
+// ==========  WebKit.framework/Headers/WKHTTPCookieStore.h
+/*
+ * Copyright (C) 2017 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -540,6 +660,90 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class WKHTTPCookieStore;
+
+API_AVAILABLE(macosx(10.13), ios(11.0))
+@protocol WKHTTPCookieStoreObserver <NSObject>
+@optional
+- (void)cookiesDidChangeInCookieStore:(WKHTTPCookieStore *)cookieStore;
+@end
+
+/*!
+ A WKHTTPCookieStore object allows managing the HTTP cookies associated with a particular WKWebsiteDataStore.
+ */
+WK_EXTERN API_AVAILABLE(macosx(10.13), ios(11.0))
+@interface WKHTTPCookieStore : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/*! @abstract Fetches all stored cookies.
+ @param completionHandler A block to invoke with the fetched cookies.
+ */
+- (void)getAllCookies:(void (^)(NSArray<NSHTTPCookie *> *))completionHandler;
+
+/*! @abstract Set a cookie.
+ @param cookie The cookie to set.
+ @param completionHandler A block to invoke once the cookie has been stored.
+ */
+- (void)setCookie:(NSHTTPCookie *)cookie completionHandler:(nullable void (^)(void))completionHandler;
+
+/*! @abstract Delete the specified cookie.
+ @param completionHandler A block to invoke once the cookie has been deleted.
+ */
+- (void)deleteCookie:(NSHTTPCookie *)cookie completionHandler:(nullable void (^)(void))completionHandler;
+
+/*! @abstract Adds a WKHTTPCookieStoreObserver object with the cookie store.
+ @param observer The observer object to add.
+ @discussion The observer is not retained by the receiver. It is your responsibility
+ to unregister the observer before it becomes invalid.
+ */
+- (void)addObserver:(id<WKHTTPCookieStoreObserver>)observer;
+
+/*! @abstract Removes a WKHTTPCookieStoreObserver object from the cookie store.
+ @param observer The observer to remove.
+ */
+- (void)removeObserver:(id<WKHTTPCookieStoreObserver>)observer;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+// ==========  WebKit.framework/Headers/WKUserContentController.h
+/*
+ * Copyright (C) 2014-2017 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class WKContentRuleList;
 @class WKUserScript;
 @protocol WKScriptMessageHandler;
 
@@ -548,8 +752,8 @@ NS_ASSUME_NONNULL_BEGIN
  The user content controller associated with a web view is specified by its
  web view configuration.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
-@interface WKUserContentController : NSObject
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
+@interface WKUserContentController : NSObject <NSSecureCoding>
 
 /*! @abstract The user scripts associated with this user content
  controller.
@@ -578,6 +782,20 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @param name The name of the message handler to remove.
  */
 - (void)removeScriptMessageHandlerForName:(NSString *)name;
+
+/*! @abstract Adds a content rule list.
+ @param contentRuleList The content rule list to add.
+ */
+- (void)addContentRuleList:(WKContentRuleList *)contentRuleList API_AVAILABLE(macosx(10.13), ios(11.0));
+
+/*! @abstract Removes a content rule list.
+ @param contentRuleList The content rule list to remove.
+ */
+- (void)removeContentRuleList:(WKContentRuleList *)contentRuleList API_AVAILABLE(macosx(10.13), ios(11.0));
+
+/*! @abstract Removes all associated content rule lists.
+ */
+- (void)removeAllContentRuleLists API_AVAILABLE(macosx(10.13), ios(11.0));
 
 @end
 
@@ -624,7 +842,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*! A WKScriptMessage object contains information about a message sent from
  a webpage.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKScriptMessage : NSObject
 
 /*! @abstract The body of the message.
@@ -685,7 +903,7 @@ NS_ASSUME_NONNULL_END
  also passed to the navigation delegate methods, to uniquely identify a webpage
  load from start to finish.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKNavigation : NSObject
 
 @end
@@ -730,7 +948,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  */
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+WK_EXTERN API_AVAILABLE(macosx(10.11), ios(9.0))
 @interface WKSecurityOrigin : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -789,7 +1007,7 @@ NS_ASSUME_NONNULL_END
  */
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKBackForwardList : NSObject
 
 /*! @abstract The current item.
@@ -833,6 +1051,47 @@ if there isn't one.
 NS_ASSUME_NONNULL_END
 
 #endif
+// ==========  WebKit.framework/Headers/WKContentRuleList.h
+/*
+ * Copyright (C) 2017 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED
+
+#import <Foundation/Foundation.h>
+
+WK_EXTERN API_AVAILABLE(macosx(10.13), ios(11.0))
+@interface WKContentRuleList : NSObject
+
+/*! @abstract A copy of the identifier of the content extension. */
+@property (nonatomic, readonly, copy) NSString *identifier;
+
+@end
+
+#endif // WK_API_ENABLED
 // ==========  WebKit.framework/Headers/WKWindowFeatures.h
 /*
  * Copyright (C) 2014 Apple Inc. All rights reserved.
@@ -869,7 +1128,7 @@ NS_ASSUME_NONNULL_END
  */
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKWindowFeatures : NSObject
 
 /*! @abstract BOOL. Whether the menu bar should be visible. nil if menu bar visibility was not specified.
@@ -911,7 +1170,7 @@ NS_ASSUME_NONNULL_END
 #endif
 // ==========  WebKit.framework/Headers/WKFrameInfo.h
 /*
- * Copyright (C) 2014, 2015 Apple Inc. All rights reserved.
+ * Copyright (C) 2014-2017 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -941,6 +1200,7 @@ NS_ASSUME_NONNULL_END
 
 #import <Foundation/Foundation.h>
 #import <WebKit/WKSecurityOrigin.h>
+#import <WebKit/WKWebView.h>
 
 /*! A WKFrameInfo object contains information about a frame on a webpage.
  @discussion An instance of this class is a transient, data-only object;
@@ -949,7 +1209,7 @@ NS_ASSUME_NONNULL_END
  */
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKFrameInfo : NSObject <NSCopying>
 
 /*! @abstract A Boolean value indicating whether the frame is the main frame
@@ -963,7 +1223,11 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 /*! @abstract The frame's current security origin.
  */
-@property (nonatomic, readonly) WKSecurityOrigin *securityOrigin NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readonly) WKSecurityOrigin *securityOrigin API_AVAILABLE(macosx(10.11), ios(9.0));
+
+/*! @abstract The web view of the webpage that contains this frame.
+ */
+@property (nonatomic, readonly, weak) WKWebView *webView API_AVAILABLE(macosx(10.13), ios(11.0));
 
 @end
 
@@ -1001,11 +1265,15 @@ NS_ASSUME_NONNULL_END
 #if WK_API_ENABLED
 
 #import <Foundation/Foundation.h>
+#import <WebKit/WKPreviewActionItem.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class WKFrameInfo;
 @class WKNavigationAction;
+@class WKOpenPanelParameters;
+@class WKPreviewElementInfo;
+@class WKWebView;
 @class WKWebViewConfiguration;
 @class WKWindowFeatures;
 
@@ -1035,7 +1303,7 @@ NS_ASSUME_NONNULL_BEGIN
   @discussion Your app should remove the web view from the view hierarchy and update
   the UI as needed, such as by closing the containing browser tab or window.
   */
-- (void)webViewDidClose:(WKWebView *)webView NS_AVAILABLE(10_11, 9_0);
+- (void)webViewDidClose:(WKWebView *)webView API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @abstract Displays a JavaScript alert panel.
  @param webView The web view invoking the delegate method.
@@ -1071,7 +1339,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*! @abstract Displays a JavaScript text input panel.
  @param webView The web view invoking the delegate method.
- @param message The message to display.
+ @param prompt The prompt to display.
  @param defaultText The initial text to display in the text entry field.
  @param frame Information about the frame whose JavaScript initiated this call.
  @param completionHandler The completion handler to call after the text
@@ -1085,7 +1353,58 @@ NS_ASSUME_NONNULL_BEGIN
 
  If you do not implement this method, the web view will behave as if the user selected the Cancel button.
  */
-- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(nullable NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * __nullable result))completionHandler;
+- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(nullable NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable result))completionHandler;
+
+#if TARGET_OS_IPHONE
+
+/*! @abstract Allows your app to determine whether or not the given element should show a preview.
+ @param webView The web view invoking the delegate method.
+ @param elementInfo The elementInfo for the element the user has started touching.
+ @discussion To disable previews entirely for the given element, return NO. Returning NO will prevent 
+ webView:previewingViewControllerForElement:defaultActions: and webView:commitPreviewingViewController:
+ from being invoked.
+ 
+ This method will only be invoked for elements that have default preview in WebKit, which is
+ limited to links. In the future, it could be invoked for additional elements.
+ */
+- (BOOL)webView:(WKWebView *)webView shouldPreviewElement:(WKPreviewElementInfo *)elementInfo API_AVAILABLE(ios(10.0));
+
+/*! @abstract Allows your app to provide a custom view controller to show when the given element is peeked.
+ @param webView The web view invoking the delegate method.
+ @param elementInfo The elementInfo for the element the user is peeking.
+ @param defaultActions An array of the actions that WebKit would use as previewActionItems for this element by 
+ default. These actions would be used if allowsLinkPreview is YES but these delegate methods have not been 
+ implemented, or if this delegate method returns nil.
+ @discussion Returning a view controller will result in that view controller being displayed as a peek preview.
+ To use the defaultActions, your app is responsible for returning whichever of those actions it wants in your 
+ view controller's implementation of -previewActionItems.
+ 
+ Returning nil will result in WebKit's default preview behavior. webView:commitPreviewingViewController: will only be invoked
+ if a non-nil view controller was returned.
+ */
+- (nullable UIViewController *)webView:(WKWebView *)webView previewingViewControllerForElement:(WKPreviewElementInfo *)elementInfo defaultActions:(NSArray<id <WKPreviewActionItem>> *)previewActions API_AVAILABLE(ios(10.0));
+
+/*! @abstract Allows your app to pop to the view controller it created.
+ @param webView The web view invoking the delegate method.
+ @param previewingViewController The view controller that is being popped.
+ */
+- (void)webView:(WKWebView *)webView commitPreviewingViewController:(UIViewController *)previewingViewController API_AVAILABLE(ios(10.0));
+
+#endif // TARGET_OS_IPHONE
+
+#if !TARGET_OS_IPHONE
+
+/*! @abstract Displays a file upload panel.
+ @param webView The web view invoking the delegate method.
+ @param parameters Parameters describing the file upload control.
+ @param frame Information about the frame whose file upload control initiated this call.
+ @param completionHandler The completion handler to call after open panel has been dismissed. Pass the selected URLs if the user chose OK, otherwise nil.
+
+ If you do not implement this method, the web view will behave as if the user selected the Cancel button.
+ */
+- (void)webView:(WKWebView *)webView runOpenPanelWithParameters:(WKOpenPanelParameters *)parameters initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSArray<NSURL *> * _Nullable URLs))completionHandler API_AVAILABLE(macosx(10.12));
+
+#endif
 
 @end
 
@@ -1134,7 +1453,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*! Contains information about a navigation response, used for making policy decisions.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKNavigationResponse : NSObject
 
 /*! @abstract A Boolean value indicating whether the frame being navigated is the main frame.
@@ -1157,7 +1476,7 @@ NS_ASSUME_NONNULL_END
 #endif
 // ==========  WebKit.framework/Headers/WKPreferences.h
 /*
- * Copyright (C) 2014 Apple Inc. All rights reserved.
+ * Copyright (C) 2014-2017 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1192,8 +1511,8 @@ NS_ASSUME_NONNULL_END
  view. The preferences object associated with a web view is specified by
  its web view configuration.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
-@interface WKPreferences : NSObject
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
+@interface WKPreferences : NSObject <NSSecureCoding>
 
 /*! @abstract The minimum font size in points.
  @discussion The default value is 0.
@@ -1221,6 +1540,13 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @discussion The default value is NO.
  */
 @property (nonatomic) BOOL plugInsEnabled;
+
+/*!
+ @property tabFocusesLinks
+ @abstract If tabFocusesLinks is YES, the tab key will focus links and form controls.
+ The Option key temporarily reverses this preference.
+ */
+@property (nonatomic) BOOL tabFocusesLinks API_AVAILABLE(macosx(10.12.3));
 #endif
 
 @end
@@ -1260,32 +1586,38 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 NS_ASSUME_NONNULL_BEGIN
 
+/*! @constant WKWebsiteDataTypeFetchCache On-disk Fetch caches. */
+WK_EXTERN NSString * const WKWebsiteDataTypeFetchCache API_AVAILABLE(macosx(10.13.4), ios(11.3));
+
 /*! @constant WKWebsiteDataTypeDiskCache On-disk caches. */
-WK_EXTERN NSString * const WKWebsiteDataTypeDiskCache NS_AVAILABLE(10_11, 9_0);
+WK_EXTERN NSString * const WKWebsiteDataTypeDiskCache API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @constant WKWebsiteDataTypeMemoryCache In-memory caches. */
-WK_EXTERN NSString * const WKWebsiteDataTypeMemoryCache NS_AVAILABLE(10_11, 9_0);
+WK_EXTERN NSString * const WKWebsiteDataTypeMemoryCache API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @constant WKWebsiteDataTypeOfflineWebApplicationCache HTML offline web application caches. */
-WK_EXTERN NSString * const WKWebsiteDataTypeOfflineWebApplicationCache NS_AVAILABLE(10_11, 9_0);
+WK_EXTERN NSString * const WKWebsiteDataTypeOfflineWebApplicationCache API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @constant WKWebsiteDataTypeCookies Cookies. */
-WK_EXTERN NSString * const WKWebsiteDataTypeCookies NS_AVAILABLE(10_11, 9_0);
+WK_EXTERN NSString * const WKWebsiteDataTypeCookies API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @constant WKWebsiteDataTypeSessionStorage HTML session storage. */
-WK_EXTERN NSString * const WKWebsiteDataTypeSessionStorage NS_AVAILABLE(10_11, 9_0);
+WK_EXTERN NSString * const WKWebsiteDataTypeSessionStorage API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @constant WKWebsiteDataTypeLocalStorage HTML local storage. */
-WK_EXTERN NSString * const WKWebsiteDataTypeLocalStorage NS_AVAILABLE(10_11, 9_0);
+WK_EXTERN NSString * const WKWebsiteDataTypeLocalStorage API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @constant WKWebsiteDataTypeWebSQLDatabases WebSQL databases. */
-WK_EXTERN NSString * const WKWebsiteDataTypeWebSQLDatabases NS_AVAILABLE(10_11, 9_0);
+WK_EXTERN NSString * const WKWebsiteDataTypeWebSQLDatabases API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @constant WKWebsiteDataTypeIndexedDBDatabases IndexedDB databases. */
-WK_EXTERN NSString * const WKWebsiteDataTypeIndexedDBDatabases NS_AVAILABLE(10_11, 9_0);
+WK_EXTERN NSString * const WKWebsiteDataTypeIndexedDBDatabases API_AVAILABLE(macosx(10.11), ios(9.0));
+
+/*! @constant WKWebsiteDataTypeServiceWorkerRegistrations Service worker registrations. */
+WK_EXTERN NSString * const WKWebsiteDataTypeServiceWorkerRegistrations API_AVAILABLE(macosx(10.13.4), ios(11.3));
 
 /*! A WKWebsiteDataRecord represents website data, grouped by domain name using the public suffix list. */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+WK_EXTERN API_AVAILABLE(macosx(10.11), ios(9.0))
 @interface WKWebsiteDataRecord : NSObject
 
 /*! @abstract The display name for the data record. This is usually the domain name. */
@@ -1347,7 +1679,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, WKNavigationActionPolicy) {
     WKNavigationActionPolicyCancel,
     WKNavigationActionPolicyAllow,
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macosx(10.10), ios(8.0));
 
 /*! @enum WKNavigationResponsePolicy
  @abstract The policy to pass back to the decision handler from the webView:decidePolicyForNavigationResponse:decisionHandler: method.
@@ -1357,7 +1689,7 @@ typedef NS_ENUM(NSInteger, WKNavigationActionPolicy) {
 typedef NS_ENUM(NSInteger, WKNavigationResponsePolicy) {
     WKNavigationResponsePolicyCancel,
     WKNavigationResponsePolicyAllow,
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macosx(10.10), ios(8.0));
 
 /*! A class conforming to the WKNavigationDelegate protocol can provide
  methods for tracking progress for main frame navigations and for deciding
@@ -1439,12 +1771,64 @@ typedef NS_ENUM(NSInteger, WKNavigationResponsePolicy) {
  credential.
  @discussion If you do not implement this method, the web view will respond to the authentication challenge with the NSURLSessionAuthChallengeRejectProtectionSpace disposition.
  */
-- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *__nullable credential))completionHandler;
+- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential))completionHandler;
 
 /*! @abstract Invoked when the web view's web content process is terminated.
  @param webView The web view whose underlying web content process was terminated.
  */
-- (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView NS_AVAILABLE(10_11, 9_0);
+- (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView API_AVAILABLE(macosx(10.11), ios(9.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+// ==========  WebKit.framework/Headers/WKOpenPanelParameters.h
+/*
+ * Copyright (C) 2016 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED && !TARGET_OS_IPHONE
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*! WKOpenPanelParameters contains parameters that a file upload control has specified.
+ */
+WK_EXTERN API_AVAILABLE(macosx(10.12))
+@interface WKOpenPanelParameters : NSObject
+
+/*! @abstract Whether the file upload control supports multiple files.
+ */
+@property (nonatomic, readonly) BOOL allowsMultipleSelection;
+
+/*! @abstract Whether the file upload control supports selecting directories.
+ */
+@property (nonatomic, readonly) BOOL allowsDirectories API_AVAILABLE(macosx(10.13.4));
 
 @end
 
@@ -1453,7 +1837,7 @@ NS_ASSUME_NONNULL_END
 #endif
 // ==========  WebKit.framework/Headers/WKProcessPool.h
 /*
- * Copyright (C) 2014 Apple Inc. All rights reserved.
+ * Copyright (C) 2014-2017 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1489,14 +1873,14 @@ NS_ASSUME_NONNULL_END
  implementation-defined process limit is reached; after that, web views
  with the same process pool end up sharing web content processes.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
-@interface WKProcessPool : NSObject
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
+@interface WKProcessPool : NSObject <NSSecureCoding>
 @end
 
 #endif
-// ==========  WebKit.framework/Headers/WKWebViewConfiguration.h
+// ==========  WebKit.framework/Headers/WKURLSchemeTask.h
 /*
- * Copyright (C) 2014 Apple Inc. All rights reserved.
+ * Copyright (C) 2017 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1528,12 +1912,94 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(macosx(10.13), ios(11.0))
+@protocol WKURLSchemeTask <NSObject>
+
+/*! @abstract The request to load for this task.
+ */
+@property (nonatomic, readonly, copy) NSURLRequest *request;
+
+/*! @abstract Set the current response object for the task.
+ @param response The response to use.
+ @discussion This method must be called at least once for each URL scheme handler task.
+ An exception will be thrown if you try to send a new response object after the task has already been completed.
+ An exception will be thrown if your app has been told to stop loading this task via the registered WKURLSchemeHandler object.
+ */
+- (void)didReceiveResponse:(NSURLResponse *)response;
+
+/*! @abstract Add received data to the task.
+ @param data The data to add.
+ @discussion After a URL scheme handler task's final response object is received you should
+ start sending it data.
+ Each time this method is called the data you send will be appended to all previous data.
+ An exception will be thrown if you try to send the task any data before sending it a response.
+ An exception will be thrown if you try to send the task any data after the task has already been completed.
+ An exception will be thrown if your app has been told to stop loading this task via the registered WKURLSchemeHandler object.
+ */
+- (void)didReceiveData:(NSData *)data;
+
+/*! @abstract Mark the task as successfully completed.
+ @discussion An exception will be thrown if you try to finish the task before sending it a response.
+ An exception will be thrown if you try to mark a task completed after it has already been marked completed or failed.
+ An exception will be thrown if your app has been told to stop loading this task via the registered WKURLSchemeHandler object.
+ */
+- (void)didFinish;
+
+/*! @abstract Mark the task as failed.
+ @param error A description of the error that caused the task to fail.
+ @discussion  An exception will be thrown if you try to mark a task failed after it has already been marked completed or failed.
+ An exception will be thrown if your app has been told to stop loading this task via the registered WKURLSchemeHandler object.
+ */
+- (void)didFailWithError:(NSError *)error;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+// ==========  WebKit.framework/Headers/WKWebViewConfiguration.h
+/*
+ * Copyright (C) 2014-2017 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED
+
+#import <Foundation/Foundation.h>
+#import <WebKit/WKDataDetectorTypes.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
 @class WKPreferences;
 @class WKProcessPool;
 @class WKUserContentController;
 @class WKWebsiteDataStore;
+@protocol WKURLSchemeHandler;
 
 #if TARGET_OS_IPHONE
+
 /*! @enum WKSelectionGranularity
  @abstract The granularity with which a selection can be created and modified interactively.
  @constant WKSelectionGranularityDynamic    Selection granularity varies automatically based on the selection.
@@ -1545,15 +2011,48 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, WKSelectionGranularity) {
     WKSelectionGranularityDynamic,
     WKSelectionGranularityCharacter,
-} NS_ENUM_AVAILABLE_IOS(8_0);
+} API_AVAILABLE(ios(8.0));
+
+#else
+
+/*! @enum WKUserInterfaceDirectionPolicy
+ @abstract The policy used to determine the directionality of user interface elements inside a web view.
+ @constant WKUserInterfaceDirectionPolicyContent User interface directionality follows CSS / HTML / XHTML
+ specifications.
+ @constant WKUserInterfaceDirectionPolicySystem User interface directionality follows the view's
+ userInterfaceLayoutDirection property
+ @discussion When WKUserInterfaceDirectionPolicyContent is specified, the directionality of user interface
+ elements is affected by the "dir" attribute or the "direction" CSS property. When
+ WKUserInterfaceDirectionPolicySystem is specified, the directionality of user interface elements is
+ affected by the direction of the view.
+*/
+typedef NS_ENUM(NSInteger, WKUserInterfaceDirectionPolicy) {
+    WKUserInterfaceDirectionPolicyContent,
+    WKUserInterfaceDirectionPolicySystem,
+} API_AVAILABLE(macosx(10.12));
+
 #endif
+
+/*! @enum WKAudiovisualMediaTypes
+ @abstract The types of audiovisual media which will require a user gesture to begin playing.
+ @constant WKAudiovisualMediaTypeNone No audiovisual media will require a user gesture to begin playing.
+ @constant WKAudiovisualMediaTypeAudio Audiovisual media containing audio will require a user gesture to begin playing.
+ @constant WKAudiovisualMediaTypeVideo Audiovisual media containing video will require a user gesture to begin playing.
+ @constant WKAudiovisualMediaTypeAll All audiovisual media will require a user gesture to begin playing.
+*/
+typedef NS_OPTIONS(NSUInteger, WKAudiovisualMediaTypes) {
+    WKAudiovisualMediaTypeNone = 0,
+    WKAudiovisualMediaTypeAudio = 1 << 0,
+    WKAudiovisualMediaTypeVideo = 1 << 1,
+    WKAudiovisualMediaTypeAll = NSUIntegerMax
+} API_AVAILABLE(macosx(10.12), ios(10.0));
 
 /*! A WKWebViewConfiguration object is a collection of properties with
  which to initialize a web view.
  @helps Contains properties used to configure a @link WKWebView @/link.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
-@interface WKWebViewConfiguration : NSObject <NSCopying>
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
+@interface WKWebViewConfiguration : NSObject <NSSecureCoding, NSCopying>
 
 /*! @abstract The process pool from which to obtain the view's web content
  process.
@@ -1573,7 +2072,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 /*! @abstract The website data store to be used by the web view.
  */
-@property (nonatomic, strong) WKWebsiteDataStore *websiteDataStore NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, strong) WKWebsiteDataStore *websiteDataStore API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @abstract A Boolean value indicating whether the web view suppresses
  content rendering until it is fully loaded into memory.
@@ -1583,12 +2082,14 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 /*! @abstract The name of the application as used in the user agent string.
 */
-@property (nullable, nonatomic, copy) NSString *applicationNameForUserAgent NS_AVAILABLE(10_11, 9_0);
+@property (nullable, nonatomic, copy) NSString *applicationNameForUserAgent API_AVAILABLE(macosx(10.11), ios(9.0));
 
 /*! @abstract A Boolean value indicating whether AirPlay is allowed.
  @discussion The default value is YES.
  */
-@property (nonatomic) BOOL allowsAirPlayForMediaPlayback NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic) BOOL allowsAirPlayForMediaPlayback API_AVAILABLE(macosx(10.11), ios(9.0));
+
+@property (nonatomic) WKAudiovisualMediaTypes mediaTypesRequiringUserActionForPlayback API_AVAILABLE(macosx(10.12), ios(10.0));
 
 #if TARGET_OS_IPHONE
 /*! @abstract A Boolean value indicating whether HTML5 videos play inline
@@ -1596,12 +2097,6 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @discussion The default value is NO.
  */
 @property (nonatomic) BOOL allowsInlineMediaPlayback;
-
-/*! @abstract A Boolean value indicating whether HTML5 videos require the
- user to start playing them (YES) or can play automatically (NO).
- @discussion The default value is YES.
- */
-@property (nonatomic) BOOL requiresUserActionForMediaPlayback NS_AVAILABLE(NA, 9_0);
 
 /*! @abstract The level of granularity with which the user can interactively
  select content in the web view.
@@ -1614,18 +2109,126 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  picture-in-picture.
  @discussion The default value is YES.
  */
-@property (nonatomic) BOOL allowsPictureInPictureMediaPlayback NS_AVAILABLE(NA, 9_0);
+@property (nonatomic) BOOL allowsPictureInPictureMediaPlayback API_AVAILABLE(ios(9_0));
+
+/*! @abstract An enum value indicating the type of data detection desired.
+ @discussion The default value is WKDataDetectorTypeNone.
+ An example of how this property may affect the content loaded in the WKWebView is that content like
+ 'Visit apple.com on July 4th or call 1 800 555-5545' will be transformed to add links around 'apple.com', 'July 4th' and '1 800 555-5545'
+ if the dataDetectorTypes property is set to WKDataDetectorTypePhoneNumber | WKDataDetectorTypeLink | WKDataDetectorTypeCalendarEvent.
+
+ */
+@property (nonatomic) WKDataDetectorTypes dataDetectorTypes API_AVAILABLE(ios(10.0));
+
+/*! @abstract A Boolean value indicating whether the WKWebView should always allow scaling of the web page, regardless of author intent.
+ @discussion This will override the user-scalable property.
+ The default value is NO.
+ */
+@property (nonatomic) BOOL ignoresViewportScaleLimits API_AVAILABLE(ios(10.0));
+
+#else
+
+/*! @abstract The directionality of user interface elements.
+ @discussion Possible values are described in WKUserInterfaceDirectionPolicy.
+ The default value is WKUserInterfaceDirectionPolicyContent.
+ */
+@property (nonatomic) WKUserInterfaceDirectionPolicy userInterfaceDirectionPolicy API_AVAILABLE(macosx(10.12));
 
 #endif
+
+/* @abstract Sets the URL scheme handler object for the given URL scheme.
+ @param urlSchemeHandler The object to register.
+ @param scheme The URL scheme the object will handle.
+ @discussion Each URL scheme can only have one URL scheme handler object registered.
+ An exception will be thrown if you try to register an object for a particular URL scheme more than once.
+ URL schemes are case insensitive. e.g. "myprotocol" and "MyProtocol" are equivalent.
+ Valid URL schemes must start with an ASCII letter and can only contain ASCII letters, numbers, the '+' character,
+ the '-' character, and the '.' character.
+ An exception will be thrown if you try to register a URL scheme handler for an invalid URL scheme.
+ An exception will be thrown if you try to register a URL scheme handler for a URL scheme that WebKit handles internally.
+ You can use +[WKWebView handlesURLScheme:] to check the availability of a given URL scheme.
+ */
+- (void)setURLSchemeHandler:(nullable id <WKURLSchemeHandler>)urlSchemeHandler forURLScheme:(NSString *)urlScheme API_AVAILABLE(macosx(10.13), ios(11.0));
+
+/* @abstract Returns the currently registered URL scheme handler object for the given URL scheme.
+ @param scheme The URL scheme to lookup.
+ */
+- (nullable id <WKURLSchemeHandler>)urlSchemeHandlerForURLScheme:(NSString *)urlScheme API_AVAILABLE(macosx(10.13), ios(11.0));
 
 @end
 
 @interface WKWebViewConfiguration (WKDeprecated)
 
 #if TARGET_OS_IPHONE
-@property (nonatomic) BOOL mediaPlaybackRequiresUserAction NS_DEPRECATED(NA, NA, 8_0, 9_0, "Please use requiresUserActionForMediaPlayback");
-@property (nonatomic) BOOL mediaPlaybackAllowsAirPlay NS_DEPRECATED(NA, NA, 8_0, 9_0, "Please use allowsAirPlayForMediaPlayback");
+@property (nonatomic) BOOL mediaPlaybackRequiresUserAction API_DEPRECATED_WITH_REPLACEMENT("mediaTypesRequiringUserActionForPlayback", ios(8.0, 9.0));
+@property (nonatomic) BOOL mediaPlaybackAllowsAirPlay API_DEPRECATED_WITH_REPLACEMENT("allowsAirPlayForMediaPlayback", ios(8.0, 9.0));
+@property (nonatomic) BOOL requiresUserActionForMediaPlayback API_DEPRECATED_WITH_REPLACEMENT("mediaTypesRequiringUserActionForPlayback", ios(9.0, 10.0));
 #endif
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+// ==========  WebKit.framework/Headers/WKURLSchemeHandler.h
+/*
+ * Copyright (C) 2017 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class WKWebView;
+@protocol WKURLSchemeTask;
+
+/*! A class conforming to the WKURLSchemeHandler protocol provides methods for
+ loading resources with URL schemes that WebKit doesn't know how to handle itself.
+ */
+API_AVAILABLE(macosx(10.13), ios(11.0))
+@protocol WKURLSchemeHandler <NSObject>
+
+/*! @abstract Notifies your app to start loading the data for a particular resource 
+ represented by the URL scheme handler task.
+ @param webView The web view invoking the method.
+ @param urlSchemeTask The task that your app should start loading data for.
+ */
+- (void)webView:(WKWebView *)webView startURLSchemeTask:(id <WKURLSchemeTask>)urlSchemeTask;
+
+/*! @abstract Notifies your app to stop handling a URL scheme handler task.
+ @param webView The web view invoking the method.
+ @param urlSchemeTask The task that your app should stop handling.
+ @discussion After your app is told to stop loading data for a URL scheme handler task
+ it must not perform any callbacks for that task.
+ An exception will be thrown if any callbacks are made on the URL scheme handler task
+ after your app has been told to stop loading for it.
+ */
+- (void)webView:(WKWebView *)webView stopURLSchemeTask:(id <WKURLSchemeTask>)urlSchemeTask;
 
 @end
 
@@ -1668,8 +2271,10 @@ NS_ASSUME_NONNULL_END
  */
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKBackForwardListItem : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
 
 /*! @abstract The URL of the webpage represented by this item.
  */
@@ -1690,7 +2295,7 @@ NS_ASSUME_NONNULL_END
 #endif
 // ==========  WebKit.framework/Headers/WKWebsiteDataStore.h
 /*
- * Copyright (C) 2014 Apple Inc. All rights reserved.
+ * Copyright (C) 2014-2017 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1722,12 +2327,14 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class WKHTTPCookieStore;
+
 /*! A WKWebsiteDataStore represents various types of data that a website might
  make use of. This includes cookies, disk and memory caches, and persistent data such as WebSQL,
  IndexedDB databases, and local storage.
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
-@interface WKWebsiteDataStore : NSObject
+WK_EXTERN API_AVAILABLE(macosx(10.11), ios(9.0))
+@interface WKWebsiteDataStore : NSObject <NSSecureCoding>
 
 /* @abstract Returns the default data store. */
 + (WKWebsiteDataStore *)defaultDataStore;
@@ -1764,7 +2371,10 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  @param date A date. All website data modified after this date will be removed.
  @param completionHandler A block to invoke when the website data has been removed.
 */
-- (void)removeDataOfTypes:(NSSet<NSString *> *)websiteDataTypes modifiedSince:(NSDate *)date completionHandler:(void (^)(void))completionHandler;
+- (void)removeDataOfTypes:(NSSet<NSString *> *)dataTypes modifiedSince:(NSDate *)date completionHandler:(void (^)(void))completionHandler;
+
+/*! @abstract Returns the cookie store representing HTTP cookies in this website data store. */
+@property (nonatomic, readonly) WKHTTPCookieStore *httpCookieStore API_AVAILABLE(macosx(10.13), ios(11.0));
 
 @end
 
@@ -1813,11 +2423,11 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, WKUserScriptInjectionTime) {
     WKUserScriptInjectionTimeAtDocumentStart,
     WKUserScriptInjectionTimeAtDocumentEnd
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macosx(10.10), ios(8.0));
 
 /*! A @link WKUserScript @/link object represents a script that can be injected into webpages.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+WK_EXTERN API_AVAILABLE(macosx(10.10), ios(8.0))
 @interface WKUserScript : NSObject <NSCopying>
 
 /* @abstract The script source code. */
@@ -1837,6 +2447,127 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 - (instancetype)initWithSource:(NSString *)source injectionTime:(WKUserScriptInjectionTime)injectionTime forMainFrameOnly:(BOOL)forMainFrameOnly;
 
 @end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+// ==========  WebKit.framework/Headers/WKSnapshotConfiguration.h
+/*
+ * Copyright (C) 2017 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED
+
+#import <CoreGraphics/CGGeometry.h>
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+WK_EXTERN API_AVAILABLE(macosx(10.13), ios(11.0))
+@interface WKSnapshotConfiguration : NSObject <NSCopying>
+
+/*! @abstract The rect to snapshot in view coordinates.
+ @discussion This rect should be contained within WKWebView's bounds. If the rect is set to the 
+ null rect, the view's bounds will be used. The initial value is the null rect.
+ */
+@property (nonatomic) CGRect rect;
+
+/*! @abstract Specify a custom width to control the size of image you get back. The height will be 
+ computed to maintain the aspect ratio established by rect.
+ @discussion snapshotWidth represents the width in points. If the snapshotWidth is nil, rect's
+ width will be used.
+ */
+@property (nullable, nonatomic, copy) NSNumber *snapshotWidth;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+// ==========  WebKit.framework/Headers/WKDataDetectorTypes.h
+/*
+ * Copyright (C) 2017 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+#if TARGET_OS_IPHONE
+
+/*! @enum WKDataDetectorTypes
+ @abstract The type of data detected.
+ @constant WKDataDetectorTypeNone No detection is performed.
+ @constant WKDataDetectorTypePhoneNumber Phone numbers are detected and turned into links.
+ @constant WKDataDetectorTypeLink URLs in text are detected and turned into links.
+ @constant WKDataDetectorTypeAddress Addresses are detected and turned into links.
+ @constant WKDataDetectorTypeCalendarEvent Dates and times that are in the future are detected and turned into links.
+ @constant WKDataDetectorTypeAll All of the above data types are turned into links when detected. Choosing this value will
+ automatically include any new detection type that is added.
+ */
+typedef NS_OPTIONS(NSUInteger, WKDataDetectorTypes) {
+    WKDataDetectorTypeNone = 0,
+    WKDataDetectorTypePhoneNumber = 1 << 0,
+    WKDataDetectorTypeLink = 1 << 1,
+    WKDataDetectorTypeAddress = 1 << 2,
+    WKDataDetectorTypeCalendarEvent = 1 << 3,
+    WKDataDetectorTypeTrackingNumber = 1 << 4,
+    WKDataDetectorTypeFlightNumber = 1 << 5,
+    WKDataDetectorTypeLookupSuggestion = 1 << 6,
+    WKDataDetectorTypeAll = NSUIntegerMax,
+
+    WKDataDetectorTypeSpotlightSuggestion API_DEPRECATED_WITH_REPLACEMENT("WKDataDetectorTypeLookupSuggestion", ios(10.0, 10.0)) = WKDataDetectorTypeLookupSuggestion,
+} API_AVAILABLE(ios(10.0));
+
+#endif
 
 NS_ASSUME_NONNULL_END
 
@@ -1869,19 +2600,29 @@ NS_ASSUME_NONNULL_END
 
 #import <WebKit/WKBackForwardList.h>
 #import <WebKit/WKBackForwardListItem.h>
+#import <WebKit/WKContentRuleList.h>
+#import <WebKit/WKContentRuleListStore.h>
 #import <WebKit/WKError.h>
 #import <WebKit/WKFoundation.h>
 #import <WebKit/WKFrameInfo.h>
+#import <WebKit/WKHTTPCookieStore.h>
 #import <WebKit/WKNavigation.h>
 #import <WebKit/WKNavigationAction.h>
 #import <WebKit/WKNavigationDelegate.h>
 #import <WebKit/WKNavigationResponse.h>
+#import <WebKit/WKOpenPanelParameters.h>
 #import <WebKit/WKPreferences.h>
+#import <WebKit/WKPreviewActionItem.h>
+#import <WebKit/WKPreviewActionItemIdentifiers.h>
+#import <WebKit/WKPreviewElementInfo.h>
 #import <WebKit/WKProcessPool.h>
 #import <WebKit/WKScriptMessage.h>
 #import <WebKit/WKScriptMessageHandler.h>
 #import <WebKit/WKSecurityOrigin.h>
+#import <WebKit/WKSnapshotConfiguration.h>
 #import <WebKit/WKUIDelegate.h>
+#import <WebKit/WKURLSchemeHandler.h>
+#import <WebKit/WKURLSchemeTask.h>
 #import <WebKit/WKUserContentController.h>
 #import <WebKit/WKUserScript.h>
 #import <WebKit/WKWebView.h>
@@ -1890,6 +2631,89 @@ NS_ASSUME_NONNULL_END
 #import <WebKit/WKWebsiteDataStore.h>
 #import <WebKit/WKWindowFeatures.h>
 #import <WebKit/WebKitLegacy.h>
+// ==========  WebKit.framework/Headers/WKPreviewElementInfo.h
+/*
+ * Copyright (C) 2015 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED && TARGET_OS_IPHONE
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+WK_EXTERN API_AVAILABLE(ios(10.0))
+@interface WKPreviewElementInfo : NSObject <NSCopying>
+
+@property (nonatomic, readonly, nullable) NSURL *linkURL;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+// ==========  WebKit.framework/Headers/WKPreviewActionItemIdentifiers.h
+/*
+ * Copyright (C) 2016 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+#import <WebKit/WKFoundation.h>
+
+#if WK_API_ENABLED && TARGET_OS_IPHONE
+
+#import <Foundation/Foundation.h>
+
+WK_EXTERN NSString * const WKPreviewActionItemIdentifierOpen API_AVAILABLE(ios(10.0));
+WK_EXTERN NSString * const WKPreviewActionItemIdentifierAddToReadingList API_AVAILABLE(ios(10.0));
+WK_EXTERN NSString * const WKPreviewActionItemIdentifierCopy API_AVAILABLE(ios(10.0));
+WK_EXTERN NSString * const WKPreviewActionItemIdentifierShare API_AVAILABLE(ios(10.0));
+
+#endif
 // ==========  WebKit.framework/Headers/WKScriptMessageHandler.h
 /*
  * Copyright (C) 2014 Apple Inc. All rights reserved.

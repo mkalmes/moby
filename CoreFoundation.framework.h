@@ -1,6 +1,11 @@
 // ==========  CoreFoundation.framework/Headers/CFUUID.h
 /*	CFUUID.h
-	Copyright (c) 1999-2015, Apple Inc.  All rights reserved.
+	Copyright (c) 1999-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFUUID__)
@@ -74,7 +79,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFBundle.h
 /*	CFBundle.h
-	Copyright (c) 1999-2015, Apple Inc.  All rights reserved.
+	Copyright (c) 1999-2018, Apple Inc.  All rights reserved.
 */
 
 #if !defined(__COREFOUNDATION_CFBUNDLE__)
@@ -289,19 +294,17 @@ CF_EXPORT
 CFDictionaryRef CFBundleCopyInfoDictionaryForURL(CFURLRef url);
     /* For a directory URL, this is equivalent to CFBundleCopyInfoDictionaryInDirectory(). */
     /* For a plain file URL representing an unbundled executable, this will attempt to read */
-    /* an info dictionary from the (__TEXT, __info_plist) section, if it is a Mach-o file, */
-    /* or from a 'plst' resource.  */
+    /* an info dictionary from the (__TEXT, __info_plist) section, if it is a Mach-o file. */
 
 CF_EXPORT
 CFArrayRef CFBundleCopyLocalizationsForURL(CFURLRef url);
     /* For a directory URL, this is equivalent to calling CFBundleCopyBundleLocalizations() */
     /* on the corresponding bundle.  For a plain file URL representing an unbundled executable, */
     /* this will attempt to determine its localizations using the CFBundleLocalizations and */
-    /* CFBundleDevelopmentRegion keys in the dictionary returned by CFBundleCopyInfoDictionaryForURL,*/
-    /* or from a 'vers' resource if those are not present.  */
+    /* CFBundleDevelopmentRegion keys in the dictionary returned by CFBundleCopyInfoDictionaryForURL. */
 
 CF_EXPORT
-CFArrayRef CFBundleCopyExecutableArchitecturesForURL(CFURLRef url) CF_AVAILABLE(10_5, 2_0);
+CFArrayRef CFBundleCopyExecutableArchitecturesForURL(CFURLRef url) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
     /* For a directory URL, this is equivalent to calling CFBundleCopyExecutableArchitectures() */
     /* on the corresponding bundle.  For a plain file URL representing an unbundled executable, */
     /* this will return the architectures it provides, if it is a Mach-o file, or NULL otherwise. */
@@ -319,17 +322,17 @@ enum {
     kCFBundleExecutableArchitecturePPC      = 0x00000012,
     kCFBundleExecutableArchitectureX86_64   = 0x01000007,
     kCFBundleExecutableArchitecturePPC64    = 0x01000012
-} CF_ENUM_AVAILABLE(10_5, 2_0);
+} API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
-CFArrayRef CFBundleCopyExecutableArchitectures(CFBundleRef bundle) CF_AVAILABLE(10_5, 2_0);
+CFArrayRef CFBundleCopyExecutableArchitectures(CFBundleRef bundle) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
     /* If the bundle's executable exists and is a Mach-o file, this function will return an array */
     /* of CFNumbers whose values are integers representing the architectures the file provides. */
     /* The values currently in use are those listed in the enum above, but others may be added */
     /* in the future.  If the executable is not a Mach-o file, this function returns NULL. */
 
 CF_EXPORT
-Boolean CFBundlePreflightExecutable(CFBundleRef bundle, CFErrorRef *error) CF_AVAILABLE(10_5, 2_0);
+Boolean CFBundlePreflightExecutable(CFBundleRef bundle, CFErrorRef *error) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
     /* This function will return true if the bundle is loaded, or if the bundle appears to be */
     /* loadable upon inspection.  This does not mean that the bundle is definitively loadable, */
     /* since it may fail to load due to link errors or other problems not readily detectable. */
@@ -337,7 +340,7 @@ Boolean CFBundlePreflightExecutable(CFBundleRef bundle, CFErrorRef *error) CF_AV
     /* It is the responsibility of the caller to release the CFError. */
 
 CF_EXPORT
-Boolean CFBundleLoadExecutableAndReturnError(CFBundleRef bundle, CFErrorRef *error) CF_AVAILABLE(10_5, 2_0);
+Boolean CFBundleLoadExecutableAndReturnError(CFBundleRef bundle, CFErrorRef *error) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
     /* If the bundle is already loaded, this function will return true.  Otherwise, it will attempt */
     /* to load the bundle, and it will return true if that attempt succeeds.  If the bundle fails */
     /* to load, this function will return false, and it will return a CFError by reference.  */
@@ -410,7 +413,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFBag.h
 /*	CFBag.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFBAG__)
@@ -479,7 +487,7 @@ CF_EXPORT
 void CFBagGetValues(CFBagRef theBag, const void **values);
 
 CF_EXPORT
-void CFBagApplyFunction(CFBagRef theBag, CFBagApplierFunction applier, void *context);
+void CFBagApplyFunction(CFBagRef theBag, CFBagApplierFunction CF_NOESCAPE applier, void *context);
 
 CF_EXPORT
 void CFBagAddValue(CFMutableBagRef theBag, const void *value);
@@ -503,7 +511,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFPreferences.h
 /*	CFPreferences.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFPREFERENCES__)
@@ -514,6 +527,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <CoreFoundation/CFString.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
+CF_ASSUME_NONNULL_BEGIN
 CF_EXTERN_C_BEGIN
 
 CF_EXPORT
@@ -544,25 +558,25 @@ value for the given key. key must not be NULL.  If a value is found,
 it returns it; otherwise returns NULL.  Caller must release the
 returned value */
 CF_EXPORT
-CFPropertyListRef CFPreferencesCopyAppValue(CFStringRef key, CFStringRef applicationID);
+_Nullable CFPropertyListRef CFPreferencesCopyAppValue(CFStringRef key, CFStringRef applicationID);
 
 /* Convenience to interpret a preferences value as a boolean directly.
 Returns false if the key doesn't exist, or has an improper format; under
 those conditions, keyExistsAndHasValidFormat (if non-NULL) is set to false */
 CF_EXPORT
-Boolean CFPreferencesGetAppBooleanValue(CFStringRef key, CFStringRef applicationID, Boolean *keyExistsAndHasValidFormat);
+Boolean CFPreferencesGetAppBooleanValue(CFStringRef key, CFStringRef applicationID,  Boolean * _Nullable keyExistsAndHasValidFormat);
 
 /* Convenience to interpret a preferences value as an integer directly.
 Returns 0 if the key doesn't exist, or has an improper format; under
 those conditions, keyExistsAndHasValidFormat (if non-NULL) is set to false */
 CF_EXPORT
-CFIndex CFPreferencesGetAppIntegerValue(CFStringRef key, CFStringRef applicationID, Boolean *keyExistsAndHasValidFormat);
+CFIndex CFPreferencesGetAppIntegerValue(CFStringRef key, CFStringRef applicationID, Boolean * _Nullable keyExistsAndHasValidFormat);
 
 /* Sets the given value for the given key in the "normal" place for
 application preferences.  key must not be NULL.  If value is NULL,
 key is removed instead. */
 CF_EXPORT
-void CFPreferencesSetAppValue(CFStringRef key, CFPropertyListRef value, CFStringRef applicationID);
+void CFPreferencesSetAppValue(CFStringRef key, _Nullable CFPropertyListRef value, CFStringRef applicationID);
 
 /* Adds the preferences for the given suite to the app preferences for
    the specified application.  To write to the suite domain, use
@@ -584,40 +598,40 @@ Boolean CFPreferencesAppSynchronize(CFStringRef applicationID);
 location specified by app-user-host is searched.  The returned
 CFType must be released by the caller when it is finished with it. */
 CF_EXPORT
-CFPropertyListRef CFPreferencesCopyValue(CFStringRef key, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
+_Nullable CFPropertyListRef CFPreferencesCopyValue(CFStringRef key, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
 
 /* Convenience to fetch multiple keys at once.  Keys in 
 keysToFetch that are not present in the returned dictionary
 are not present in the domain.  If keysToFetch is NULL, all
 keys are fetched. */
 CF_EXPORT
-CFDictionaryRef CFPreferencesCopyMultiple(CFArrayRef keysToFetch, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
+CFDictionaryRef CFPreferencesCopyMultiple(_Nullable CFArrayRef keysToFetch, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
 
 /* The primitive set function; all arguments except value must be
 non-NULL.  If value is NULL, the given key is removed */
 CF_EXPORT
-void CFPreferencesSetValue(CFStringRef key, CFPropertyListRef value, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
+void CFPreferencesSetValue(CFStringRef key, _Nullable CFPropertyListRef value, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
 
 /* Convenience to set multiple values at once.  Behavior is undefined
 if a key is in both keysToSet and keysToRemove */
 CF_EXPORT
-void CFPreferencesSetMultiple(CFDictionaryRef keysToSet, CFArrayRef keysToRemove, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
+void CFPreferencesSetMultiple(_Nullable CFDictionaryRef keysToSet, _Nullable CFArrayRef keysToRemove, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
 
 CF_EXPORT
 Boolean CFPreferencesSynchronize(CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
 
 /* Constructs and returns the list of the name of all applications
-which have preferences in the scope of the given user and host.
+which have preferences in the scope of the given user and host, or NULL if no applications are there.
 The returned value must be released by the caller; neither argument
-may be NULL. */
+may be NULL. Does not supported sandboxed applications. */
 CF_EXPORT
-CFArrayRef CFPreferencesCopyApplicationList(CFStringRef userName, CFStringRef hostName) CF_DEPRECATED(10_0, 10_9, 2_0, 7_0);
+_Nullable CFArrayRef CFPreferencesCopyApplicationList(CFStringRef userName, CFStringRef hostName) API_DEPRECATED("Unsupported API", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 /* Constructs and returns the list of all keys set in the given
-location.  The returned value must be released by the caller;
+location, or NULL if no keys are set.  The returned value must be released by the caller;
 all arguments must be non-NULL */
 CF_EXPORT
-CFArrayRef CFPreferencesCopyKeyList(CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
+_Nullable CFArrayRef CFPreferencesCopyKeyList(CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
 
 #ifndef CF_OPEN_SOURCE
 
@@ -631,25 +645,41 @@ Boolean CFPreferencesAppValueIsForced(CFStringRef key, CFStringRef applicationID
 #endif
 
 CF_EXTERN_C_END
+CF_ASSUME_NONNULL_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
 #endif /* ! __COREFOUNDATION_CFPREFERENCES__ */
 
 // ==========  CoreFoundation.framework/Headers/CFAvailability.h
 /*	CFAvailability.h
-	Copyright (c) 2013-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2013-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFAVAILABILITY__)
 #define __COREFOUNDATION_CFAVAILABILITY__ 1
 
+#if DEPLOYMENT_RUNTIME_SWIFT
+#include <CoreFoundation/TargetConditionals.h>
+#else
 #include <TargetConditionals.h>
+#endif
 
+#if DEPLOYMENT_RUNTIME_SWIFT
+#define API_AVAILABLE(...)
+#define API_DEPRECATED(...)
+#else
 #if (TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE || TARGET_OS_WIN32)
 #include <Availability.h>
+#include <os/availability.h>
 
 // Even if unused, these must remain here for compatibility, because projects rely on them being included.
 #include <AvailabilityMacros.h>
+#endif
 #endif
 
 #ifndef __has_feature
@@ -735,18 +765,30 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif
 
 // Enums and Options
+#if __has_attribute(enum_extensibility)
+#define __CF_ENUM_ATTRIBUTES __attribute__((enum_extensibility(open)))
+#define __CF_CLOSED_ENUM_ATTRIBUTES __attribute__((enum_extensibility(closed)))
+#define __CF_OPTIONS_ATTRIBUTES __attribute__((flag_enum,enum_extensibility(open)))
+#else
+#define __CF_ENUM_ATTRIBUTES
+#define __CF_CLOSED_ENUM_ATTRIBUTES
+#define __CF_OPTIONS_ATTRIBUTES
+#endif
+
 #define __CF_ENUM_GET_MACRO(_1, _2, NAME, ...) NAME
 #if (__cplusplus && __cplusplus >= 201103L && (__has_extension(cxx_strong_enums) || __has_feature(objc_fixed_enum))) || (!__cplusplus && __has_feature(objc_fixed_enum))
-#define __CF_NAMED_ENUM(_type, _name)     enum _name : _type _name; enum _name : _type
-#define __CF_ANON_ENUM(_type)             enum : _type
+#define __CF_NAMED_ENUM(_type, _name)     enum __CF_ENUM_ATTRIBUTES _name : _type _name; enum _name : _type
+#define __CF_ANON_ENUM(_type)             enum __CF_ENUM_ATTRIBUTES : _type
+#define CF_CLOSED_ENUM(_type, _name)      enum __CF_CLOSED_ENUM_ATTRIBUTES _name : _type _name; enum _name : _type
 #if (__cplusplus)
-#define CF_OPTIONS(_type, _name) _type _name; enum : _type
+#define CF_OPTIONS(_type, _name) _type _name; enum __CF_OPTIONS_ATTRIBUTES : _type
 #else
-#define CF_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type
+#define CF_OPTIONS(_type, _name) enum __CF_OPTIONS_ATTRIBUTES _name : _type _name; enum _name : _type
 #endif
 #else
 #define __CF_NAMED_ENUM(_type, _name) _type _name; enum
 #define __CF_ANON_ENUM(_type) enum
+#define CF_CLOSED_ENUM(_type, _name) _type _name; enum
 #define CF_OPTIONS(_type, _name) _type _name; enum
 #endif
 
@@ -762,7 +804,64 @@ CF_ENUM(CFIndex) {
     ...
 };
 */
-#define CF_ENUM(...) __CF_ENUM_GET_MACRO(__VA_ARGS__, __CF_NAMED_ENUM, __CF_ANON_ENUM)(__VA_ARGS__)
+#define CF_ENUM(...) __CF_ENUM_GET_MACRO(__VA_ARGS__, __CF_NAMED_ENUM, __CF_ANON_ENUM, )(__VA_ARGS__)
+
+#if __has_attribute(swift_wrapper)
+#define _CF_TYPED_ENUM __attribute__((swift_wrapper(enum)))
+#else
+#define _CF_TYPED_ENUM
+#endif
+
+#if __has_attribute(swift_wrapper)
+#define _CF_TYPED_EXTENSIBLE_ENUM __attribute__((swift_wrapper(struct)))
+#else
+#define _CF_TYPED_EXTENSIBLE_ENUM
+#endif
+
+#if DEPLOYMENT_RUNTIME_SWIFT
+#define CF_STRING_ENUM
+#define CF_EXTENSIBLE_STRING_ENUM
+
+#define CF_TYPED_ENUM
+#define CF_TYPED_EXTENSIBLE_ENUM
+#else
+#define CF_STRING_ENUM _CF_TYPED_ENUM
+#define CF_EXTENSIBLE_STRING_ENUM _CF_TYPED_EXTENSIBLE_ENUM
+
+#define CF_TYPED_ENUM _CF_TYPED_ENUM
+#define CF_TYPED_EXTENSIBLE_ENUM _CF_TYPED_EXTENSIBLE_ENUM
+#endif
+
+#define __CF_ERROR_ENUM_GET_MACRO(_1, _2, NAME, ...) NAME
+#if ((__cplusplus && __cplusplus >= 201103L && (__has_extension(cxx_strong_enums) || __has_feature(objc_fixed_enum))) || (!__cplusplus && __has_feature(objc_fixed_enum))) && __has_attribute(ns_error_domain)
+#define __CF_NAMED_ERROR_ENUM(_domain, _name)     enum __attribute__((ns_error_domain(_domain))) _name : CFIndex _name; enum _name : CFIndex
+#define __CF_ANON_ERROR_ENUM(_domain)             enum __attribute__((ns_error_domain(_domain))) : CFIndex
+#else
+#define __CF_NAMED_ERROR_ENUM(_domain, _name) __CF_NAMED_ENUM(CFIndex, _name)
+#define __CF_ANON_ERROR_ENUM(_domain) __CF_ANON_ENUM(CFIndex)
+#endif
+
+/* CF_ERROR_ENUM supports the use of one or two arguments. The first argument is always the domain specifier for the enum. The second argument is an optional name of the typedef for the macro. When specifying a name for of the typedef, you must precede the macro with 'typedef' like so:
+ 
+ typedef CF_ERROR_ENUM(kCFSomeErrorDomain, SomeErrorCodes) {
+ ...
+ };
+ 
+ If you do not specify a typedef name, do not use 'typedef', like so:
+ 
+ CF_ERROR_ENUM(kCFSomeErrorDomain) {
+ ...
+ };
+ */
+#define CF_ERROR_ENUM(...) __CF_ERROR_ENUM_GET_MACRO(__VA_ARGS__, __CF_NAMED_ERROR_ENUM, __CF_ANON_ERROR_ENUM)(__VA_ARGS__)
+
+#ifndef CF_SWIFT_BRIDGED_TYPEDEF
+#if __has_attribute(swift_bridged_typedef)
+#define CF_SWIFT_BRIDGED_TYPEDEF __attribute__((swift_bridged_typedef))
+#else
+#define CF_SWIFT_BRIDGED_TYPEDEF
+#endif
+#endif
 
 // Extension availability macros
 #define CF_EXTENSION_UNAVAILABLE(_msg)      __OS_EXTENSION_UNAVAILABLE(_msg)
@@ -779,7 +878,12 @@ CF_ENUM(CFIndex) {
 #endif // __COREFOUNDATION_CFAVAILABILITY__
 // ==========  CoreFoundation.framework/Headers/CFNotificationCenter.h
 /*	CFNotificationCenter.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFNOTIFICATIONCENTER__)
@@ -791,9 +895,11 @@ CF_ENUM(CFIndex) {
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
 
+typedef CFStringRef CFNotificationName CF_EXTENSIBLE_STRING_ENUM;
+
 typedef struct CF_BRIDGED_MUTABLE_TYPE(id) __CFNotificationCenter * CFNotificationCenterRef;
 
-typedef void (*CFNotificationCallback)(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo);
+typedef void (*CFNotificationCallback)(CFNotificationCenterRef center, void *observer, CFNotificationName name, const void *object, CFDictionaryRef userInfo);
 
 typedef CF_ENUM(CFIndex, CFNotificationSuspensionBehavior) {
     CFNotificationSuspensionBehaviorDrop = 1,
@@ -810,7 +916,7 @@ CF_EXPORT CFTypeID CFNotificationCenterGetTypeID(void);
 
 CF_EXPORT CFNotificationCenterRef CFNotificationCenterGetLocalCenter(void);
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || TARGET_OS_WIN32
+#if TARGET_OS_OSX || TARGET_OS_WIN32
 CF_EXPORT CFNotificationCenterRef CFNotificationCenterGetDistributedCenter(void);
 #endif
 
@@ -834,17 +940,17 @@ CF_EXPORT CFNotificationCenterRef CFNotificationCenterGetDarwinNotifyCenter(void
 
 CF_EXPORT void CFNotificationCenterAddObserver(CFNotificationCenterRef center, const void *observer, CFNotificationCallback callBack, CFStringRef name, const void *object, CFNotificationSuspensionBehavior suspensionBehavior);
 
-CF_EXPORT void CFNotificationCenterRemoveObserver(CFNotificationCenterRef center, const void *observer, CFStringRef name, const void *object);
+CF_EXPORT void CFNotificationCenterRemoveObserver(CFNotificationCenterRef center, const void *observer, CFNotificationName name, const void *object);
 CF_EXPORT void CFNotificationCenterRemoveEveryObserver(CFNotificationCenterRef center, const void *observer);
 
-CF_EXPORT void CFNotificationCenterPostNotification(CFNotificationCenterRef center, CFStringRef name, const void *object, CFDictionaryRef userInfo, Boolean deliverImmediately);
+CF_EXPORT void CFNotificationCenterPostNotification(CFNotificationCenterRef center, CFNotificationName name, const void *object, CFDictionaryRef userInfo, Boolean deliverImmediately);
 
 CF_ENUM(CFOptionFlags) {
     kCFNotificationDeliverImmediately = (1UL << 0),
     kCFNotificationPostToAllSessions = (1UL << 1)
 };
 
-CF_EXPORT void CFNotificationCenterPostNotificationWithOptions(CFNotificationCenterRef center, CFStringRef name, const void *object, CFDictionaryRef userInfo, CFOptionFlags options);
+CF_EXPORT void CFNotificationCenterPostNotificationWithOptions(CFNotificationCenterRef center, CFNotificationName name, const void *object, CFDictionaryRef userInfo, CFOptionFlags options);
 
 
 CF_EXTERN_C_END
@@ -854,7 +960,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFArray.h
 /*	CFArray.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. All rights reserved.
 */
 
 /*!
@@ -1239,7 +1345,7 @@ void CFArrayGetValues(CFArrayRef theArray, CFRange range, const void **values);
 		undefined.
 */
 CF_EXPORT
-void CFArrayApplyFunction(CFArrayRef theArray, CFRange range, CFArrayApplierFunction applier, void *context);
+void CFArrayApplyFunction(CFArrayRef theArray, CFRange range, CFArrayApplierFunction CF_NOESCAPE applier, void *context);
 
 /*!
 	@function CFArrayGetFirstIndexOfValue
@@ -1528,7 +1634,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFStream.h
 /*	CFStream.h
-	Copyright (c) 2000-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2000-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFSTREAM__)
@@ -1545,6 +1656,13 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
+
+typedef struct {
+    CFIndex domain;
+    SInt32 error;
+} CFStreamError;
+
+typedef CFStringRef CFStreamPropertyKey CF_EXTENSIBLE_STRING_ENUM;
 
 typedef CF_ENUM(CFIndex, CFStreamStatus) {
     kCFStreamStatusNotOpen = 0,
@@ -1568,17 +1686,17 @@ typedef CF_OPTIONS(CFOptionFlags, CFStreamEventType) {
 
 typedef struct {
     CFIndex version;
-    void *info;
-    void *(*retain)(void *info);
-    void (*release)(void *info);
-    CFStringRef (*copyDescription)(void *info);
+    void * _Null_unspecified info;
+    void *_Null_unspecified(* _Null_unspecified retain)(void * _Null_unspecified info);
+    void (* _Null_unspecified release)(void * _Null_unspecified info);
+    CFStringRef _Null_unspecified (* _Null_unspecified copyDescription)(void * _Null_unspecified info);
 } CFStreamClientContext;
 
 typedef struct CF_BRIDGED_MUTABLE_TYPE(NSInputStream) __CFReadStream * CFReadStreamRef;
 typedef struct CF_BRIDGED_MUTABLE_TYPE(NSOutputStream) __CFWriteStream * CFWriteStreamRef;
 
-typedef void (*CFReadStreamClientCallBack)(CFReadStreamRef stream, CFStreamEventType type, void *clientCallBackInfo);
-typedef void (*CFWriteStreamClientCallBack)(CFWriteStreamRef stream, CFStreamEventType type, void *clientCallBackInfo);
+typedef void (*CFReadStreamClientCallBack)(CFReadStreamRef _Null_unspecified stream, CFStreamEventType type, void * _Null_unspecified clientCallBackInfo);
+typedef void (*CFWriteStreamClientCallBack)(CFWriteStreamRef _Null_unspecified stream, CFStreamEventType type, void * _Null_unspecified clientCallBackInfo);
 
 CF_EXPORT
 CFTypeID CFReadStreamGetTypeID(void);
@@ -1589,74 +1707,280 @@ CFTypeID CFWriteStreamGetTypeID(void);
 
 /* Value will be a CFData containing all bytes thusfar written; used to recover the data written to a memory write stream. */
 CF_EXPORT
-const CFStringRef kCFStreamPropertyDataWritten;
+const CFStreamPropertyKey _Null_unspecified kCFStreamPropertyDataWritten;
 
 /* Pass kCFAllocatorNull for bytesDeallocator to prevent CFReadStream from deallocating bytes; otherwise, CFReadStream will deallocate bytes when the stream is destroyed */
 CF_EXPORT
-CFReadStreamRef CFReadStreamCreateWithBytesNoCopy(CFAllocatorRef alloc, const UInt8 *bytes, CFIndex length, CFAllocatorRef bytesDeallocator);
+CFReadStreamRef _Null_unspecified CFReadStreamCreateWithBytesNoCopy(CFAllocatorRef _Null_unspecified alloc, const UInt8 * _Null_unspecified bytes, CFIndex length, CFAllocatorRef _Null_unspecified bytesDeallocator);
 
 /* The stream writes into the buffer given; when bufferCapacity is exhausted, the stream is exhausted (status becomes kCFStreamStatusAtEnd) */
 CF_EXPORT
-CFWriteStreamRef CFWriteStreamCreateWithBuffer(CFAllocatorRef alloc, UInt8 *buffer, CFIndex bufferCapacity);
+CFWriteStreamRef _Null_unspecified CFWriteStreamCreateWithBuffer(CFAllocatorRef _Null_unspecified alloc, UInt8 * _Null_unspecified buffer, CFIndex bufferCapacity);
 
 /* New buffers are allocated from bufferAllocator as bytes are written to the stream.  At any point, you can recover the bytes thusfar written by asking for the property kCFStreamPropertyDataWritten, above */
 CF_EXPORT
-CFWriteStreamRef CFWriteStreamCreateWithAllocatedBuffers(CFAllocatorRef alloc, CFAllocatorRef bufferAllocator);
+CFWriteStreamRef _Null_unspecified CFWriteStreamCreateWithAllocatedBuffers(CFAllocatorRef _Null_unspecified alloc, CFAllocatorRef _Null_unspecified bufferAllocator);
 
 /* File streams */
 CF_EXPORT
-CFReadStreamRef CFReadStreamCreateWithFile(CFAllocatorRef alloc, CFURLRef fileURL);
+CFReadStreamRef _Null_unspecified CFReadStreamCreateWithFile(CFAllocatorRef _Null_unspecified alloc, CFURLRef  _Null_unspecified fileURL);
 CF_EXPORT
-CFWriteStreamRef CFWriteStreamCreateWithFile(CFAllocatorRef alloc, CFURLRef fileURL);
+CFWriteStreamRef _Null_unspecified CFWriteStreamCreateWithFile(CFAllocatorRef _Null_unspecified alloc, CFURLRef _Null_unspecified fileURL);
 CF_IMPLICIT_BRIDGING_DISABLED
 CF_EXPORT
-void CFStreamCreateBoundPair(CFAllocatorRef alloc, CFReadStreamRef *readStream, CFWriteStreamRef *writeStream, CFIndex transferBufferSize);
+void CFStreamCreateBoundPair(CFAllocatorRef  _Null_unspecified alloc, CFReadStreamRef _Null_unspecified * _Null_unspecified readStream, CFWriteStreamRef _Null_unspecified * _Null_unspecified writeStream, CFIndex transferBufferSize);
 CF_IMPLICIT_BRIDGING_ENABLED
 
 /* Property for file write streams; value should be a CFBoolean.  Set to TRUE to append to a file, rather than to replace its contents */
 CF_EXPORT
-const CFStringRef kCFStreamPropertyAppendToFile;
+const CFStreamPropertyKey _Null_unspecified kCFStreamPropertyAppendToFile;
 
 CF_EXPORT
-const CFStringRef kCFStreamPropertyFileCurrentOffset;   // Value is a CFNumber
+const CFStreamPropertyKey _Null_unspecified kCFStreamPropertyFileCurrentOffset;   // Value is a CFNumber
 
 
 /* Socket stream properties */
 
 /* Value will be a CFData containing the native handle */
 CF_EXPORT
-const CFStringRef kCFStreamPropertySocketNativeHandle;
+const CFStreamPropertyKey _Null_unspecified kCFStreamPropertySocketNativeHandle;
 
 /* Value will be a CFString, or NULL if unknown */
 CF_EXPORT
-const CFStringRef kCFStreamPropertySocketRemoteHostName;
+const CFStreamPropertyKey _Null_unspecified kCFStreamPropertySocketRemoteHostName;
 
 /* Value will be a CFNumber, or NULL if unknown */
 CF_EXPORT
-const CFStringRef kCFStreamPropertySocketRemotePortNumber;
+const CFStreamPropertyKey _Null_unspecified kCFStreamPropertySocketRemotePortNumber;
+/*
+ *  kCFStreamErrorDomainSOCKS
+ *
+ *  Discussion:
+ *    SOCKS proxy error domain.  Errors formulated using inlines below.
+ *
+ */
+CF_EXPORT const int kCFStreamErrorDomainSOCKS CF_AVAILABLE(10_0, 2_0);
+
+/*
+ *  kCFStreamPropertySOCKSProxy
+ *
+ *  Discussion:
+ *    Stream property key, for both set and copy operations.  To set a
+ *    stream to use a SOCKS proxy, call CFReadStreamSetProperty or
+ *    CFWriteStreamSetProperty with the property name set to
+ *    kCFStreamPropertySOCKSProxy and the value being a dictionary with
+ *    at least the following two keys: kCFStreamPropertySOCKSProxyHost
+ *    and kCFStreamPropertySOCKSProxyPort.  The dictionary returned by
+ *    SystemConfiguration for SOCKS proxies will work without
+ *    alteration.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamPropertySOCKSProxy CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamPropertySOCKSProxyHost
+ *
+ *  Discussion:
+ *    CFDictionary key for SOCKS proxy information.  The key
+ *    kCFStreamPropertySOCKSProxyHost should contain a CFStringRef
+ *    value representing the SOCKS proxy host.  Defined to match
+ *    kSCPropNetProxiesSOCKSProxy
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamPropertySOCKSProxyHost CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamPropertySOCKSProxyPort
+ *
+ *  Discussion:
+ *    CFDictionary key for SOCKS proxy information.  The key
+ *    kCFStreamPropertySOCKSProxyPort should contain a CFNumberRef
+ *    which itself is of type kCFNumberSInt32Type.  This value should
+ *    represent the port on which the proxy is listening.  Defined to
+ *    match kSCPropNetProxiesSOCKSPort
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamPropertySOCKSProxyPort CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamPropertySOCKSVersion
+ *
+ *  Discussion:
+ *    CFDictionary key for SOCKS proxy information.  By default, SOCKS5
+ *    will be used unless there is a kCFStreamPropertySOCKSVersion key
+ *    in the dictionary.  Its value must be
+ *    kCFStreamSocketSOCKSVersion4 or kCFStreamSocketSOCKSVersion5 to
+ *    set SOCKS4 or SOCKS5, respectively.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamPropertySOCKSVersion CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamSocketSOCKSVersion4
+ *
+ *  Discussion:
+ *    CFDictionary value for SOCKS proxy information.  Indcates that
+ *    SOCKS will or is using version 4 of the SOCKS protocol.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamSocketSOCKSVersion4 CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamSocketSOCKSVersion5
+ *
+ *  Discussion:
+ *    CFDictionary value for SOCKS proxy information.  Indcates that
+ *    SOCKS will or is using version 5 of the SOCKS protocol.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamSocketSOCKSVersion5 CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamPropertySOCKSUser
+ *
+ *  Discussion:
+ *    CFDictionary key for SOCKS proxy information.  To set a user name
+ *    and/or password, if required, the dictionary must contain the
+ *    key(s) kCFStreamPropertySOCKSUser and/or
+ *    kCFStreamPropertySOCKSPassword with the value being the user's
+ *    name as a CFStringRef and/or the user's password as a
+ *    CFStringRef, respectively.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamPropertySOCKSUser CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamPropertySOCKSPassword
+ *
+ *  Discussion:
+ *    CFDictionary key for SOCKS proxy information.  To set a user name
+ *    and/or password, if required, the dictionary must contain the
+ *    key(s) kCFStreamPropertySOCKSUser and/or
+ *    kCFStreamPropertySOCKSPassword with the value being the user's
+ *    name as a CFStringRef and/or the user's password as a
+ *    CFStringRef, respectively.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamPropertySOCKSPassword CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamErrorDomainSSL
+ *
+ *  Discussion:
+ *    Errors located in Security/SecureTransport.h
+ *
+ */
+CF_EXPORT const int kCFStreamErrorDomainSSL CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamPropertySocketSecurityLevel
+ *
+ *  Discussion:
+ *    Stream property key, for both set and copy operations. To set a
+ *    stream to be secure, call CFReadStreamSetProperty or
+ *    CFWriteStreamSetPropertywith the property name set to
+ *    kCFStreamPropertySocketSecurityLevel and the value being one of
+ *    the following values.  Streams may set a security level after
+ *    open in order to allow on-the-fly securing of a stream.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamPropertySocketSecurityLevel CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamSocketSecurityLevelNone
+ *
+ *  Discussion:
+ *    Stream property value, for both set and copy operations.
+ *    Indicates to use no security (default setting).
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamSocketSecurityLevelNone CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamSocketSecurityLevelSSLv2
+ *
+ *  Note: SSLv2 is DEPRECATED starting in OS X 10.12 and iOS 10.0.
+ *
+ *  Discussion:
+ *    Stream property value, for both set and copy operations.
+ *    Indicates to use SSLv2 security.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamSocketSecurityLevelSSLv2 CF_DEPRECATED(10_2, 10_12, 2_0, 10_0);
+
+/*
+ *  kCFStreamSocketSecurityLevelSSLv3
+ *
+ *  Note: SSLv3 is DEPRECATED starting in OS X 10.12 and iOS 10.0.
+ *
+ *  Discussion:
+ *    Stream property value, for both set and copy operations.
+ *    Indicates to use SSLv3 security.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamSocketSecurityLevelSSLv3 CF_DEPRECATED(10_2, 10_12, 2_0, 10_0);
+
+/*
+ *  kCFStreamSocketSecurityLevelTLSv1
+ *
+ *  Discussion:
+ *    Stream property value, for both set and copy operations.
+ *    Indicates to use TLSv1 security.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamSocketSecurityLevelTLSv1 CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamSocketSecurityLevelNegotiatedSSL
+ *
+ *  Discussion:
+ *    Stream property value, for both set and copy operations.
+ *    Indicates to use TLS or SSL with fallback to lower versions. This
+ *    is what HTTPS does, for instance.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamSocketSecurityLevelNegotiatedSSL CF_AVAILABLE(10_2, 2_0);
+
+/*
+ *  kCFStreamPropertyShouldCloseNativeSocket
+ *
+ *  Discussion:
+ *    Set the value to kCFBooleanTrue if the stream should close and
+ *    release the underlying native socket when the stream is released.
+ *     Set the value to kCFBooleanFalse to keep the native socket from
+ *    closing and releasing when the stream is released. If the stream
+ *    was created with a native socket, the default property setting on
+ *    the stream is kCFBooleanFalse. The
+ *    kCFStreamPropertyShouldCloseNativeSocket can be set through
+ *    CFReadStreamSetProperty or CFWriteStreamSetProperty.  The
+ *    property can be copied through CFReadStreamCopyProperty or
+ *    CFWriteStreamCopyProperty.
+ *
+ */
+CF_EXPORT const CFStringRef _Nonnull kCFStreamPropertyShouldCloseNativeSocket CF_AVAILABLE(10_2, 2_0);
 
 CF_IMPLICIT_BRIDGING_DISABLED
 /* Socket streams; the returned streams are paired such that they use the same socket; pass NULL if you want only the read stream or the write stream */
 CF_EXPORT
-void CFStreamCreatePairWithSocket(CFAllocatorRef alloc, CFSocketNativeHandle sock, CFReadStreamRef *readStream, CFWriteStreamRef *writeStream);
+void CFStreamCreatePairWithSocket(CFAllocatorRef _Null_unspecified alloc, CFSocketNativeHandle sock, CFReadStreamRef _Null_unspecified *   _Null_unspecified readStream, CFWriteStreamRef _Null_unspecified * _Null_unspecified writeStream);
 CF_EXPORT
-void CFStreamCreatePairWithSocketToHost(CFAllocatorRef alloc, CFStringRef host, UInt32 port, CFReadStreamRef *readStream, CFWriteStreamRef *writeStream);
+void CFStreamCreatePairWithSocketToHost(CFAllocatorRef _Null_unspecified alloc, CFStringRef _Null_unspecified host, UInt32 port, CFReadStreamRef _Null_unspecified * _Null_unspecified readStream, CFWriteStreamRef _Null_unspecified * _Null_unspecified writeStream);
 CF_EXPORT
-void CFStreamCreatePairWithPeerSocketSignature(CFAllocatorRef alloc, const CFSocketSignature *signature, CFReadStreamRef *readStream, CFWriteStreamRef *writeStream);
+void CFStreamCreatePairWithPeerSocketSignature(CFAllocatorRef _Null_unspecified alloc, const CFSocketSignature * _Null_unspecified signature, CFReadStreamRef _Null_unspecified * _Null_unspecified readStream, CFWriteStreamRef _Null_unspecified * _Null_unspecified writeStream);
 CF_IMPLICIT_BRIDGING_ENABLED
 
 
 /* Returns the current state of the stream */
 CF_EXPORT
-CFStreamStatus CFReadStreamGetStatus(CFReadStreamRef stream);
+CFStreamStatus CFReadStreamGetStatus(CFReadStreamRef _Null_unspecified stream);
 CF_EXPORT
-CFStreamStatus CFWriteStreamGetStatus(CFWriteStreamRef stream);
+CFStreamStatus CFWriteStreamGetStatus(CFWriteStreamRef _Null_unspecified stream);
 
 /* Returns NULL if no error has occurred; otherwise returns the error. */
 CF_EXPORT
-CFErrorRef CFReadStreamCopyError(CFReadStreamRef stream) CF_AVAILABLE(10_5, 2_0);
+CFErrorRef _Null_unspecified CFReadStreamCopyError(CFReadStreamRef _Null_unspecified stream) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 CF_EXPORT
-CFErrorRef CFWriteStreamCopyError(CFWriteStreamRef stream) CF_AVAILABLE(10_5, 2_0);
+CFErrorRef _Null_unspecified CFWriteStreamCopyError(CFWriteStreamRef _Null_unspecified stream) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Returns success/failure.  Opening a stream causes it to reserve all the system
    resources it requires.  If the stream can open non-blocking, this will always 
@@ -1664,22 +1988,22 @@ CFErrorRef CFWriteStreamCopyError(CFWriteStreamRef stream) CF_AVAILABLE(10_5, 2_
    and whether it was successful, or poll using CFRead/WriteStreamGetStatus(), waiting 
    for a status of kCFStreamStatusOpen or kCFStreamStatusError.  */
 CF_EXPORT
-Boolean CFReadStreamOpen(CFReadStreamRef stream);
+Boolean CFReadStreamOpen(CFReadStreamRef _Null_unspecified stream);
 CF_EXPORT
-Boolean CFWriteStreamOpen(CFWriteStreamRef stream);
+Boolean CFWriteStreamOpen(CFWriteStreamRef _Null_unspecified stream);
 
 /* Terminates the flow of bytes; releases any system resources required by the 
    stream.  The stream may not fail to close.  You may call CFStreamClose() to 
    effectively abort a stream. */
 CF_EXPORT
-void CFReadStreamClose(CFReadStreamRef stream);
+void CFReadStreamClose(CFReadStreamRef _Null_unspecified stream);
 CF_EXPORT
-void CFWriteStreamClose(CFWriteStreamRef stream);
+void CFWriteStreamClose(CFWriteStreamRef _Null_unspecified stream);
 
 /* Whether there is data currently available for reading; returns TRUE if it's 
    impossible to tell without trying */
 CF_EXPORT
-Boolean CFReadStreamHasBytesAvailable(CFReadStreamRef stream);
+Boolean CFReadStreamHasBytesAvailable(CFReadStreamRef _Null_unspecified stream);
 
 /* Returns the number of bytes read, or -1 if an error occurs preventing any 
    bytes from being read, or 0 if the stream's end was encountered.  
@@ -1687,9 +2011,9 @@ Boolean CFReadStreamHasBytesAvailable(CFReadStreamRef stream);
    This call will block until at least one byte is available; it will NOT block
    until the entire buffer can be filled.  To avoid blocking, either poll using
    CFReadStreamHasBytesAvailable() or use the run loop and listen for the 
-   kCFStreamCanRead event for notification of data available. */
+   kCFStreamEventHasBytesAvailable event for notification of data available. */
 CF_EXPORT
-CFIndex CFReadStreamRead(CFReadStreamRef stream, UInt8 *buffer, CFIndex bufferLength);
+CFIndex CFReadStreamRead(CFReadStreamRef _Null_unspecified stream, UInt8 * _Null_unspecified buffer, CFIndex bufferLength);
 
 /* Returns a pointer to an internal buffer if possible (setting *numBytesRead
    to the length of the returned buffer), otherwise returns NULL; guaranteed
@@ -1701,20 +2025,20 @@ CFIndex CFReadStreamRead(CFReadStreamRef stream, UInt8 *buffer, CFIndex bufferLe
    change the contents of the returned buffer nor attempt to deallocate the buffer;
    it is still owned by the stream. */
 CF_EXPORT
-const UInt8 *CFReadStreamGetBuffer(CFReadStreamRef stream, CFIndex maxBytesToRead, CFIndex *numBytesRead);
+const UInt8 * _Null_unspecified CFReadStreamGetBuffer(CFReadStreamRef _Null_unspecified stream, CFIndex maxBytesToRead, CFIndex * _Null_unspecified numBytesRead);
 
 /* Whether the stream can currently be written to without blocking;
    returns TRUE if it's impossible to tell without trying */
 CF_EXPORT
-Boolean CFWriteStreamCanAcceptBytes(CFWriteStreamRef stream);
+Boolean CFWriteStreamCanAcceptBytes(CFWriteStreamRef _Null_unspecified stream);
 
 /* Returns the number of bytes successfully written, -1 if an error has
    occurred, or 0 if the stream has been filled to capacity (for fixed-length
    streams).  If the stream is not full, this call will block until at least
    one byte is written.  To avoid blocking, either poll via CFWriteStreamCanAcceptBytes
-   or use the run loop and listen for the kCFStreamCanWrite event. */
+   or use the run loop and listen for the kCFStreamEventCanAcceptBytes event. */
 CF_EXPORT
-CFIndex CFWriteStreamWrite(CFWriteStreamRef stream, const UInt8 *buffer, CFIndex bufferLength);
+CFIndex CFWriteStreamWrite(CFWriteStreamRef _Null_unspecified stream, const UInt8 * _Null_unspecified buffer, CFIndex bufferLength);
 
 /* Particular streams can name properties and assign meanings to them; you
    access these properties through the following calls.  A property is any interesting
@@ -1725,16 +2049,16 @@ CFIndex CFWriteStreamWrite(CFWriteStreamRef stream, const UInt8 *buffer, CFIndex
    (like before the stream has been opened).  See the documentation for particular 
    properties to determine their get- and set-ability. */
 CF_EXPORT
-CFTypeRef CFReadStreamCopyProperty(CFReadStreamRef stream, CFStringRef propertyName);
+CFTypeRef  _Null_unspecified CFReadStreamCopyProperty(CFReadStreamRef _Null_unspecified stream, CFStreamPropertyKey _Null_unspecified propertyName);
 CF_EXPORT
-CFTypeRef CFWriteStreamCopyProperty(CFWriteStreamRef stream, CFStringRef propertyName);
+CFTypeRef _Null_unspecified CFWriteStreamCopyProperty(CFWriteStreamRef _Null_unspecified stream, CFStreamPropertyKey _Null_unspecified propertyName);
 
 /* Returns TRUE if the stream recognizes and accepts the given property-value pair; 
    FALSE otherwise. */
 CF_EXPORT
-Boolean CFReadStreamSetProperty(CFReadStreamRef stream, CFStringRef propertyName, CFTypeRef propertyValue);
+Boolean CFReadStreamSetProperty(CFReadStreamRef _Null_unspecified stream, CFStreamPropertyKey _Null_unspecified propertyName, CFTypeRef _Null_unspecified propertyValue);
 CF_EXPORT
-Boolean CFWriteStreamSetProperty(CFWriteStreamRef stream, CFStringRef propertyName, CFTypeRef propertyValue);
+Boolean CFWriteStreamSetProperty(CFWriteStreamRef _Null_unspecified stream, CFStreamPropertyKey _Null_unspecified propertyName, CFTypeRef _Null_unspecified propertyValue);
 
 /* Asynchronous processing - If you wish to neither poll nor block, you may register 
    a client to hear about interesting events that occur on a stream.  Only one client
@@ -1753,19 +2077,20 @@ Boolean CFWriteStreamSetProperty(CFWriteStreamRef stream, CFStringRef propertyNa
 */
 
 CF_EXPORT
-Boolean CFReadStreamSetClient(CFReadStreamRef stream, CFOptionFlags streamEvents, CFReadStreamClientCallBack clientCB, CFStreamClientContext *clientContext);
+Boolean CFReadStreamSetClient(CFReadStreamRef _Null_unspecified stream, CFOptionFlags streamEvents, CFReadStreamClientCallBack _Null_unspecified clientCB, CFStreamClientContext * _Null_unspecified clientContext);
 CF_EXPORT
-Boolean CFWriteStreamSetClient(CFWriteStreamRef stream, CFOptionFlags streamEvents, CFWriteStreamClientCallBack clientCB, CFStreamClientContext *clientContext);
+Boolean CFWriteStreamSetClient(CFWriteStreamRef _Null_unspecified stream, CFOptionFlags streamEvents, CFWriteStreamClientCallBack _Null_unspecified clientCB, CFStreamClientContext * _Null_unspecified clientContext);
 
 CF_EXPORT
-void CFReadStreamScheduleWithRunLoop(CFReadStreamRef stream, CFRunLoopRef runLoop, CFStringRef runLoopMode);
+void CFReadStreamScheduleWithRunLoop(CFReadStreamRef _Null_unspecified stream, CFRunLoopRef _Null_unspecified runLoop, CFRunLoopMode _Null_unspecified runLoopMode);
 CF_EXPORT
-void CFWriteStreamScheduleWithRunLoop(CFWriteStreamRef stream, CFRunLoopRef runLoop, CFStringRef runLoopMode);
+void CFWriteStreamScheduleWithRunLoop(CFWriteStreamRef  _Null_unspecified stream, CFRunLoopRef _Null_unspecified runLoop, _Null_unspecified CFRunLoopMode runLoopMode);
 
 CF_EXPORT
-void CFReadStreamUnscheduleFromRunLoop(CFReadStreamRef stream, CFRunLoopRef runLoop, CFStringRef runLoopMode);
+void CFReadStreamUnscheduleFromRunLoop(CFReadStreamRef _Null_unspecified stream, CFRunLoopRef _Null_unspecified runLoop, CFRunLoopMode _Null_unspecified runLoopMode);
 CF_EXPORT
-void CFWriteStreamUnscheduleFromRunLoop(CFWriteStreamRef stream, CFRunLoopRef runLoop, CFStringRef runLoopMode);
+void CFWriteStreamUnscheduleFromRunLoop(CFWriteStreamRef _Null_unspecified stream, CFRunLoopRef _Null_unspecified runLoop, CFRunLoopMode _Null_unspecified runLoopMode);
+
 
 /*
  * Specify the dispatch queue upon which the client callbacks will be invoked.
@@ -1775,10 +2100,10 @@ void CFWriteStreamUnscheduleFromRunLoop(CFWriteStreamRef stream, CFRunLoopRef ru
  * with a runloop will disassociate the stream from any existing dispatch queue.
  */
 CF_EXPORT
-void CFReadStreamSetDispatchQueue(CFReadStreamRef stream, dispatch_queue_t q) CF_AVAILABLE(10_9, 7_0);
+void CFReadStreamSetDispatchQueue(CFReadStreamRef _Null_unspecified stream, dispatch_queue_t _Null_unspecified q) API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
-void CFWriteStreamSetDispatchQueue(CFWriteStreamRef stream, dispatch_queue_t q) CF_AVAILABLE(10_9, 7_0);
+void CFWriteStreamSetDispatchQueue(CFWriteStreamRef _Null_unspecified stream, dispatch_queue_t _Null_unspecified q) API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /*
  * Returns the previously set dispatch queue with an incremented retain count.  
@@ -1786,10 +2111,11 @@ void CFWriteStreamSetDispatchQueue(CFWriteStreamRef stream, dispatch_queue_t q) 
  * scheduled on a runloop subsequent to it having had a dispatch queue set.
  */
 CF_EXPORT
-dispatch_queue_t CFReadStreamCopyDispatchQueue(CFReadStreamRef stream) CF_AVAILABLE(10_9, 7_0);
+dispatch_queue_t _Null_unspecified CFReadStreamCopyDispatchQueue(CFReadStreamRef _Null_unspecified stream) API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
-dispatch_queue_t CFWriteStreamCopyDispatchQueue(CFWriteStreamRef stream) CF_AVAILABLE(10_9, 7_0);
+dispatch_queue_t _Null_unspecified CFWriteStreamCopyDispatchQueue(CFWriteStreamRef _Null_unspecified stream) API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
+
 
 /* The following API is deprecated starting in 10.5; please use CFRead/WriteStreamCopyError(), above, instead */
 typedef CF_ENUM(CFIndex, CFStreamErrorDomain) {
@@ -1798,14 +2124,10 @@ typedef CF_ENUM(CFIndex, CFStreamErrorDomain) {
     kCFStreamErrorDomainMacOSStatus      /* OSStatus type from Carbon APIs; interpret using <MacTypes.h> */
 };
 
-typedef struct {
-    CFIndex domain; 
-    SInt32 error;
-} CFStreamError;
 CF_EXPORT
-CFStreamError CFReadStreamGetError(CFReadStreamRef stream);
+CFStreamError CFReadStreamGetError(CFReadStreamRef _Null_unspecified stream);
 CF_EXPORT
-CFStreamError CFWriteStreamGetError(CFWriteStreamRef stream);
+CFStreamError CFWriteStreamGetError(CFWriteStreamRef _Null_unspecified stream);
 
 
 CF_EXTERN_C_END
@@ -1814,7 +2136,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif /* ! __COREFOUNDATION_CFSTREAM__ */
 // ==========  CoreFoundation.framework/Headers/CoreFoundation.h
 /*	CoreFoundation.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_COREFOUNDATION__)
@@ -1877,14 +2204,15 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <CoreFoundation/CFURLAccess.h>
 #include <CoreFoundation/CFUUID.h>
 #include <CoreFoundation/CFUtilities.h>
+#include <CoreFoundation/CFBundle.h>
 
 #if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE) || TARGET_OS_WIN32
-#include <CoreFoundation/CFBundle.h>
 #include <CoreFoundation/CFMessagePort.h>
 #include <CoreFoundation/CFPlugIn.h>
 #include <CoreFoundation/CFRunLoop.h>
 #include <CoreFoundation/CFStream.h>
 #include <CoreFoundation/CFSocket.h>
+#include <CoreFoundation/CFMachPort.h>
 
 #ifndef CF_OPEN_SOURCE
 #include <CoreFoundation/CFAttributedString.h>
@@ -1897,7 +2225,6 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
 #ifndef CF_OPEN_SOURCE
 #include <CoreFoundation/CFFileSecurity.h>
-#include <CoreFoundation/CFMachPort.h>
 #include <CoreFoundation/CFStringTokenizer.h>
 #include <CoreFoundation/CFFileDescriptor.h>
 #endif
@@ -1919,7 +2246,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFDictionary.h
 /*	CFDictionary.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 /*!
@@ -2494,7 +2826,7 @@ void CFDictionaryGetKeysAndValues(CFDictionaryRef theDict, const void **keys, co
 		undefined.
 */
 CF_EXPORT
-void CFDictionaryApplyFunction(CFDictionaryRef theDict, CFDictionaryApplierFunction applier, void *context);
+void CFDictionaryApplyFunction(CFDictionaryRef theDict, CFDictionaryApplierFunction CF_NOESCAPE applier, void *context);
 
 /*!
 	@function CFDictionaryAddValue
@@ -2592,8 +2924,10 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CFFileSecurity.h
  *  NSFileSecurity and CFFileSecurity are toll-free bridged.
  *
- *  Copyright (c) 2010-2015, Apple Inc. All rights reserved.
+ *  Copyright (c) 2010-2018, Apple Inc. All rights reserved.
  */
+
+#include <CoreFoundation/CFBase.h>
 
 #if (TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE) || CF_BUILDING_CF || NSBUILDINGFOUNDATION
 
@@ -2621,7 +2955,7 @@ typedef struct CF_BRIDGED_MUTABLE_TYPE(NSFileSecurity) __CFFileSecurity* CFFileS
  *		The type identifier for the CFFileSecurity opaque type.
  */
 CF_EXPORT
-CFTypeID CFFileSecurityGetTypeID(void) CF_AVAILABLE(10_7, 5_0);
+CFTypeID CFFileSecurityGetTypeID(void) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2636,7 +2970,7 @@ CFTypeID CFFileSecurityGetTypeID(void) CF_AVAILABLE(10_7, 5_0);
  *		object. Ownership follows the Create Rule.
  */
 CF_EXPORT
-CFFileSecurityRef CFFileSecurityCreate(CFAllocatorRef allocator) CF_AVAILABLE(10_7, 5_0);
+CFFileSecurityRef CFFileSecurityCreate(CFAllocatorRef allocator) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2653,7 +2987,7 @@ CFFileSecurityRef CFFileSecurityCreate(CFAllocatorRef allocator) CF_AVAILABLE(10
  *		Ownership follows the Create Rule.
  */
 CF_EXPORT
-CFFileSecurityRef CFFileSecurityCreateCopy(CFAllocatorRef allocator, CFFileSecurityRef fileSec) CF_AVAILABLE(10_7, 5_0);
+CFFileSecurityRef CFFileSecurityCreateCopy(CFAllocatorRef allocator, CFFileSecurityRef fileSec) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2669,7 +3003,7 @@ CFFileSecurityRef CFFileSecurityCreateCopy(CFAllocatorRef allocator, CFFileSecur
  *		UUID property associated with an CFFileSecurity object.
  */
 CF_EXPORT
-Boolean CFFileSecurityCopyOwnerUUID(CFFileSecurityRef fileSec, CFUUIDRef *ownerUUID) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecurityCopyOwnerUUID(CFFileSecurityRef fileSec, CFUUIDRef *ownerUUID) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 /*
  *	This routine sets the owner UUID associated with an CFFileSecurity object.
@@ -2683,7 +3017,7 @@ Boolean CFFileSecurityCopyOwnerUUID(CFFileSecurityRef fileSec, CFUUIDRef *ownerU
  *		true if the owner UUID was successfully set; otherwise, false.
  */
 CF_EXPORT
-Boolean CFFileSecuritySetOwnerUUID(CFFileSecurityRef fileSec, CFUUIDRef ownerUUID) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecuritySetOwnerUUID(CFFileSecurityRef fileSec, CFUUIDRef ownerUUID) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 /*
  *	This routine copies the group UUID associated with an CFFileSecurity object.
@@ -2698,7 +3032,7 @@ Boolean CFFileSecuritySetOwnerUUID(CFFileSecurityRef fileSec, CFUUIDRef ownerUUI
  *		UUID property associated with an CFFileSecurity object.
  */
 CF_EXPORT
-Boolean CFFileSecurityCopyGroupUUID(CFFileSecurityRef fileSec, CFUUIDRef *groupUUID) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecurityCopyGroupUUID(CFFileSecurityRef fileSec, CFUUIDRef *groupUUID) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2713,7 +3047,7 @@ Boolean CFFileSecurityCopyGroupUUID(CFFileSecurityRef fileSec, CFUUIDRef *groupU
  *		true if the group UUID was successfully set; otherwise, false.
  */
 CF_EXPORT
-Boolean CFFileSecuritySetGroupUUID(CFFileSecurityRef fileSec, CFUUIDRef groupUUID) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecuritySetGroupUUID(CFFileSecurityRef fileSec, CFUUIDRef groupUUID) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2733,7 +3067,7 @@ Boolean CFFileSecuritySetGroupUUID(CFFileSecurityRef fileSec, CFUUIDRef groupUUI
  *		no access control list property associated with the CFFileSecurity object.
  */
 CF_EXPORT
-Boolean CFFileSecurityCopyAccessControlList(CFFileSecurityRef fileSec, acl_t *accessControlList) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecurityCopyAccessControlList(CFFileSecurityRef fileSec, acl_t *accessControlList) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 #define kCFFileSecurityRemoveACL (acl_t) _FILESEC_REMOVE_ACL
 
@@ -2755,7 +3089,7 @@ Boolean CFFileSecurityCopyAccessControlList(CFFileSecurityRef fileSec, acl_t *ac
  *		true if the access control list is successfully set; otherwise, false.
  */
 CF_EXPORT
-Boolean CFFileSecuritySetAccessControlList(CFFileSecurityRef fileSec, acl_t accessControlList) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecuritySetAccessControlList(CFFileSecurityRef fileSec, acl_t accessControlList) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2771,7 +3105,7 @@ Boolean CFFileSecuritySetAccessControlList(CFFileSecurityRef fileSec, acl_t acce
  *		property associated with an CFFileSecurity object.
  */
 CF_EXPORT
-Boolean CFFileSecurityGetOwner(CFFileSecurityRef fileSec, uid_t *owner) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecurityGetOwner(CFFileSecurityRef fileSec, uid_t *owner) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2786,7 +3120,7 @@ Boolean CFFileSecurityGetOwner(CFFileSecurityRef fileSec, uid_t *owner) CF_AVAIL
  *		true if the owner uid_t was successfully set; otherwise, false.
  */
 CF_EXPORT
-Boolean CFFileSecuritySetOwner(CFFileSecurityRef fileSec, uid_t owner) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecuritySetOwner(CFFileSecurityRef fileSec, uid_t owner) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2802,7 +3136,7 @@ Boolean CFFileSecuritySetOwner(CFFileSecurityRef fileSec, uid_t owner) CF_AVAILA
  *		property associated with an CFFileSecurity object.
  */
 CF_EXPORT
-Boolean CFFileSecurityGetGroup(CFFileSecurityRef fileSec, gid_t *group) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecurityGetGroup(CFFileSecurityRef fileSec, gid_t *group) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2817,7 +3151,7 @@ Boolean CFFileSecurityGetGroup(CFFileSecurityRef fileSec, gid_t *group) CF_AVAIL
  *		true if the group gid_t was successfully set; otherwise, false.
  */
 CF_EXPORT
-Boolean CFFileSecuritySetGroup(CFFileSecurityRef fileSec, gid_t group) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecuritySetGroup(CFFileSecurityRef fileSec, gid_t group) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2833,7 +3167,7 @@ Boolean CFFileSecuritySetGroup(CFFileSecurityRef fileSec, gid_t group) CF_AVAILA
  *		property associated with an CFFileSecurity object.
  */
 CF_EXPORT
-Boolean CFFileSecurityGetMode(CFFileSecurityRef fileSec, mode_t *mode) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecurityGetMode(CFFileSecurityRef fileSec, mode_t *mode) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -2848,7 +3182,7 @@ Boolean CFFileSecurityGetMode(CFFileSecurityRef fileSec, mode_t *mode) CF_AVAILA
  *		true if the mode_t was successfully set; otherwise, false.
  */
 CF_EXPORT
-Boolean CFFileSecuritySetMode(CFFileSecurityRef fileSec, mode_t mode) CF_AVAILABLE(10_7, 5_0);
+Boolean CFFileSecuritySetMode(CFFileSecurityRef fileSec, mode_t mode) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 
 /* values to pass in the clearPropertyMask to CFFileSecurityClearProperties */
@@ -2859,7 +3193,7 @@ typedef CF_OPTIONS(CFOptionFlags, CFFileSecurityClearOptions) {
     kCFFileSecurityClearOwnerUUID           = 1UL << 3,
     kCFFileSecurityClearGroupUUID           = 1UL << 4,
     kCFFileSecurityClearAccessControlList   = 1UL << 5
-} CF_ENUM_AVAILABLE(10_8, 6_0);
+} API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /*
  *	This routine clears file security properties in the CFFileSecurity object.
@@ -2871,7 +3205,7 @@ typedef CF_OPTIONS(CFOptionFlags, CFFileSecurityClearOptions) {
  *		true if the file security properties were successfully cleared; otherwise, false.
  */
 CF_EXPORT
-Boolean CFFileSecurityClearProperties(CFFileSecurityRef fileSec, CFFileSecurityClearOptions clearPropertyMask) CF_AVAILABLE(10_8, 6_0);
+Boolean CFFileSecurityClearProperties(CFFileSecurityRef fileSec, CFFileSecurityClearOptions clearPropertyMask) API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 
 CF_EXTERN_C_END
@@ -2882,7 +3216,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFCharacterSet.h
 /*	CFCharacterSet.h
-	Copyright (c) 1999-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1999-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 /*!
@@ -2951,7 +3290,7 @@ typedef CF_ENUM(CFIndex, CFCharacterSetPredefinedSet) {
     kCFCharacterSetPunctuation, /* Punctuation character set (Unicode General Category P*) */
     kCFCharacterSetCapitalizedLetter = 13, /* Titlecase character set (Unicode General Category Lt) */
     kCFCharacterSetSymbol = 14, /* Symbol character set (Unicode General Category S*) */
-    kCFCharacterSetNewline CF_ENUM_AVAILABLE(10_5, 2_0) = 15, /* Newline character set (U000A ~ U000D, U0085, U2028, and U2029) */
+    kCFCharacterSetNewline API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) = 15, /* Newline character set (U000A ~ U000D, U0085, U2028, and U2029) */
     kCFCharacterSetIllegal = 12/* Illegal character set */
 };
 
@@ -3078,7 +3417,7 @@ CF_EXPORT Boolean CFCharacterSetHasMemberInPlane(CFCharacterSetRef theSet, CFInd
 /*!
 	@function CFCharacterSetCreateMutable
 	Creates a new empty mutable character set.
-	@param allocator The CFAllocator which should be used to allocate
+	@param alloc The CFAllocator which should be used to allocate
 		memory for the array and its storage for values. This
 		parameter may be NULL in which case the current default
 		CFAllocator is used. If this reference is not a valid
@@ -3091,7 +3430,7 @@ CFMutableCharacterSetRef CFCharacterSetCreateMutable(CFAllocatorRef alloc);
 /*!
 	@function CFCharacterSetCreateCopy
 	Creates a new character set with the values from the given character set.  This function tries to compact the backing store where applicable.
-	@param allocator The CFAllocator which should be used to allocate
+	@param alloc The CFAllocator which should be used to allocate
 		memory for the array and its storage for values. This
 		parameter may be NULL in which case the current default
 		CFAllocator is used. If this reference is not a valid
@@ -3107,7 +3446,7 @@ CFCharacterSetRef CFCharacterSetCreateCopy(CFAllocatorRef alloc, CFCharacterSetR
 /*!
 	@function CFCharacterSetCreateMutableCopy
 	Creates a new mutable character set with the values from the given character set.
-	@param allocator The CFAllocator which should be used to allocate
+	@param alloc The CFAllocator which should be used to allocate
 		memory for the array and its storage for values. This
 		parameter may be NULL in which case the current default
 		CFAllocator is used. If this reference is not a valid
@@ -3148,7 +3487,7 @@ CF_EXPORT Boolean CFCharacterSetIsLongCharacterMember(CFCharacterSetRef theSet, 
 /*!
 	@function CFCharacterSetCreateBitmapRepresentation
 	Creates a new immutable data with the bitmap representation from the given character set.
-	@param allocator The CFAllocator which should be used to allocate
+	@param alloc The CFAllocator which should be used to allocate
 		memory for the array and its storage for values. This
 		parameter may be NULL in which case the current default
 		CFAllocator is used. If this reference is not a valid
@@ -3265,7 +3604,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFDateFormatter.h
 /*	CFDateFormatter.h
-	Copyright (c) 2003-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2003-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFDATEFORMATTER__)
@@ -3278,24 +3622,18 @@ CF_IMPLICIT_BRIDGING_DISABLED
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
 
+typedef CFStringRef CFDateFormatterKey CF_STRING_ENUM;
+
 typedef struct CF_BRIDGED_MUTABLE_TYPE(id) __CFDateFormatter *CFDateFormatterRef;
 
 // CFDateFormatters are not thread-safe.  Do not use one from multiple threads!
 
 CF_EXPORT
-CFStringRef CFDateFormatterCreateDateFormatFromTemplate(CFAllocatorRef allocator, CFStringRef tmplate, CFOptionFlags options, CFLocaleRef locale) CF_AVAILABLE(10_6, 4_0);
+CFStringRef CFDateFormatterCreateDateFormatFromTemplate(CFAllocatorRef allocator, CFStringRef tmplate, CFOptionFlags options, CFLocaleRef locale) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 	// no options defined, pass 0 for now
 
 CF_EXPORT
 CFTypeID CFDateFormatterGetTypeID(void);
-
-typedef CF_ENUM(CFIndex, CFDateFormatterStyle) {	// date and time format styles
-	kCFDateFormatterNoStyle = 0,
-	kCFDateFormatterShortStyle = 1,
-	kCFDateFormatterMediumStyle = 2,
-	kCFDateFormatterLongStyle = 3,
-	kCFDateFormatterFullStyle = 4
-};
 
 // The exact formatted result for these date and time styles depends on the
 // locale, but generally:
@@ -3308,6 +3646,49 @@ typedef CF_ENUM(CFIndex, CFDateFormatterStyle) {	// date and time format styles
 // from one OS release to another.  To produce an exactly formatted date you
 // should not rely on styles and localization, but set the format string and
 // use nothing but numbers.
+
+typedef CF_ENUM(CFIndex, CFDateFormatterStyle) {	// date and time format styles
+    kCFDateFormatterNoStyle = 0,
+    kCFDateFormatterShortStyle = 1,
+    kCFDateFormatterMediumStyle = 2,
+    kCFDateFormatterLongStyle = 3,
+    kCFDateFormatterFullStyle = 4
+};
+
+typedef CF_OPTIONS(CFOptionFlags, CFISO8601DateFormatOptions) {
+    /* The format for year is inferred based on whether or not the week of year option is specified.
+     - if week of year is present, "YYYY" is used to display week dates.
+     - if week of year is not present, "yyyy" is used by default.
+     */
+    kCFISO8601DateFormatWithYear API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = (1UL << 0),
+    kCFISO8601DateFormatWithMonth API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = (1UL << 1),
+
+    kCFISO8601DateFormatWithWeekOfYear API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = (1UL << 2),  // This includes the "W" prefix (e.g. "W49")
+
+    /* The format for day is inferred based on provided options.
+     - if month is not present, day of year ("DDD") is used.
+     - if month is present, day of month ("dd") is used.
+     - if either weekOfMonth or weekOfYear is present, local day of week ("ee") is used.
+     */
+    kCFISO8601DateFormatWithDay API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = (1UL << 4),
+
+    kCFISO8601DateFormatWithTime API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = (1UL << 5),  // This uses the format "HHmmss"
+    kCFISO8601DateFormatWithTimeZone API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = (1UL << 6),
+
+    kCFISO8601DateFormatWithSpaceBetweenDateAndTime API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = (1UL << 7),  // Use space instead of "T"
+    kCFISO8601DateFormatWithDashSeparatorInDate API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = (1UL << 8),  // Add separator for date ("-")
+    kCFISO8601DateFormatWithColonSeparatorInTime API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = (1UL << 9),  // Add separator for time (":")
+    kCFISO8601DateFormatWithColonSeparatorInTimeZone API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = (1UL << 10),  // Add ":" separator in timezone (eg. +08:00)
+    kCFISO8601DateFormatWithFractionalSeconds API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0), tvos(11.0)) = (1UL << 11),  // Add 3 significant digits of fractional seconds (".SSS")
+
+    kCFISO8601DateFormatWithFullDate API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = kCFISO8601DateFormatWithYear | kCFISO8601DateFormatWithMonth | kCFISO8601DateFormatWithDay | kCFISO8601DateFormatWithDashSeparatorInDate,
+    kCFISO8601DateFormatWithFullTime API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = kCFISO8601DateFormatWithTime | kCFISO8601DateFormatWithColonSeparatorInTime | kCFISO8601DateFormatWithTimeZone | kCFISO8601DateFormatWithColonSeparatorInTimeZone,
+
+    kCFISO8601DateFormatWithInternetDateTime API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = kCFISO8601DateFormatWithFullDate | kCFISO8601DateFormatWithFullTime,  // RFC3339
+};
+
+CF_EXPORT
+CFDateFormatterRef CFDateFormatterCreateISO8601Formatter(CFAllocatorRef allocator, CFISO8601DateFormatOptions formatOptions) API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 CF_EXPORT
 CFDateFormatterRef CFDateFormatterCreate(CFAllocatorRef allocator, CFLocaleRef locale, CFDateFormatterStyle dateStyle, CFDateFormatterStyle timeStyle);
@@ -3363,39 +3744,39 @@ CF_EXPORT
 void CFDateFormatterSetProperty(CFDateFormatterRef formatter, CFStringRef key, CFTypeRef value);
 
 CF_EXPORT
-CFTypeRef CFDateFormatterCopyProperty(CFDateFormatterRef formatter, CFStringRef key);
+CFTypeRef CFDateFormatterCopyProperty(CFDateFormatterRef formatter, CFDateFormatterKey key);
 	// Set and get various properties of the date formatter, the set of
 	// which may be expanded in the future.
 
-CF_EXPORT const CFStringRef kCFDateFormatterIsLenient;	// CFBoolean
-CF_EXPORT const CFStringRef kCFDateFormatterTimeZone;		// CFTimeZone
-CF_EXPORT const CFStringRef kCFDateFormatterCalendarName;	// CFString
-CF_EXPORT const CFStringRef kCFDateFormatterDefaultFormat;	// CFString
-CF_EXPORT const CFStringRef kCFDateFormatterTwoDigitStartDate; // CFDate
-CF_EXPORT const CFStringRef kCFDateFormatterDefaultDate;	// CFDate
-CF_EXPORT const CFStringRef kCFDateFormatterCalendar;		// CFCalendar
-CF_EXPORT const CFStringRef kCFDateFormatterEraSymbols;	// CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterMonthSymbols;	// CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterShortMonthSymbols; // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterWeekdaySymbols;	// CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterShortWeekdaySymbols; // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterAMSymbol;		// CFString
-CF_EXPORT const CFStringRef kCFDateFormatterPMSymbol;		// CFString
-CF_EXPORT const CFStringRef kCFDateFormatterLongEraSymbols CF_AVAILABLE(10_5, 2_0);   // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterVeryShortMonthSymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterStandaloneMonthSymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterShortStandaloneMonthSymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterVeryShortStandaloneMonthSymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterVeryShortWeekdaySymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterStandaloneWeekdaySymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterShortStandaloneWeekdaySymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterVeryShortStandaloneWeekdaySymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterQuarterSymbols CF_AVAILABLE(10_5, 2_0); 	// CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterShortQuarterSymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterStandaloneQuarterSymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterShortStandaloneQuarterSymbols CF_AVAILABLE(10_5, 2_0); // CFArray of CFString
-CF_EXPORT const CFStringRef kCFDateFormatterGregorianStartDate CF_AVAILABLE(10_5, 2_0); // CFDate
-CF_EXPORT const CFStringRef kCFDateFormatterDoesRelativeDateFormattingKey CF_AVAILABLE(10_6, 4_0); // CFBoolean
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterIsLenient;	// CFBoolean
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterTimeZone;		// CFTimeZone
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterCalendarName;	// CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterDefaultFormat;	// CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterTwoDigitStartDate; // CFDate
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterDefaultDate;	// CFDate
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterCalendar;		// CFCalendar
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterEraSymbols;	// CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterMonthSymbols;	// CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterShortMonthSymbols; // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterWeekdaySymbols;	// CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterShortWeekdaySymbols; // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterAMSymbol;		// CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterPMSymbol;		// CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterLongEraSymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));   // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterVeryShortMonthSymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterStandaloneMonthSymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterShortStandaloneMonthSymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterVeryShortStandaloneMonthSymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterVeryShortWeekdaySymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterStandaloneWeekdaySymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterShortStandaloneWeekdaySymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterVeryShortStandaloneWeekdaySymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterQuarterSymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); 	// CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterShortQuarterSymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterStandaloneQuarterSymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterShortStandaloneQuarterSymbols API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFArray of CFString
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterGregorianStartDate API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFDate
+CF_EXPORT const CFDateFormatterKey kCFDateFormatterDoesRelativeDateFormattingKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)); // CFBoolean
 
 // See CFLocale.h for these calendar constants:
 //	const CFStringRef kCFGregorianCalendar;
@@ -3417,7 +3798,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFTree.h
 /*	CFTree.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 /*!
         @header CFTree
@@ -3605,7 +3991,6 @@ CFTreeRef CFTreeGetChildAtIndex(CFTreeRef tree, CFIndex idx);
 	@param children A C array of pointer-sized values to be filled with
 		children from the tree.  If this parameter is not a valid pointer to a 
                 C array of at least CFTreeGetChildCount() pointers, the behavior is undefined.
-        @result A reference to the specified child tree.
 */
 CF_EXPORT
 void CFTreeGetChildren(CFTreeRef tree, CFTreeRef *children);
@@ -3615,7 +4000,7 @@ void CFTreeGetChildren(CFTreeRef tree, CFTreeRef *children);
 	Calls a function once for each child of the tree.  Note that the applier
         only operates one level deep, and does not operate on descendents further
         removed than the immediate children of the tree.
-        @param heap The tree to be operated upon.  If this parameter is not a
+        @param tree The tree to be operated upon.  If this parameter is not a
 		valid CFTree, the behavior is undefined.
 	@param applier The callback function to call once for each child of
 		the given tree.  If this parameter is not a pointer to a 
@@ -3629,7 +4014,7 @@ void CFTreeGetChildren(CFTreeRef tree, CFTreeRef *children);
 		undefined.
 */
 CF_EXPORT
-void CFTreeApplyFunctionToChildren(CFTreeRef tree, CFTreeApplierFunction applier, void *context);
+void CFTreeApplyFunctionToChildren(CFTreeRef tree, CFTreeApplierFunction CF_NOESCAPE applier, void *context);
 
 /*!
         @function CFTreeFindRoot
@@ -3744,7 +4129,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFMessagePort.h
 /*	CFMessagePort.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFMESSAGEPORT__)
@@ -3800,7 +4190,7 @@ CF_EXPORT SInt32	CFMessagePortSendRequest(CFMessagePortRef remote, SInt32 msgid,
 
 CF_EXPORT CFRunLoopSourceRef	CFMessagePortCreateRunLoopSource(CFAllocatorRef allocator, CFMessagePortRef local, CFIndex order);
 
-CF_EXPORT void CFMessagePortSetDispatchQueue(CFMessagePortRef ms, dispatch_queue_t queue) CF_AVAILABLE(10_6, 4_0);
+CF_EXPORT void CFMessagePortSetDispatchQueue(CFMessagePortRef ms, dispatch_queue_t queue) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -3810,15 +4200,16 @@ CF_IMPLICIT_BRIDGING_DISABLED
 // ==========  CoreFoundation.framework/Headers/CFURLEnumerator.h
 /*
     CFURLEnumerator.h
-    Copyright (c) 2008-2015, Apple Inc. All rights reserved.
+    Copyright (c) 2008-2018, Apple Inc. All rights reserved.
  */
+
+#include <CoreFoundation/CFBase.h>
 
 #if (TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE) || CF_BUILDING_CF || NSBUILDINGFOUNDATION
 
 #if !defined(__COREFOUNDATION_CFURLENUMERATOR__)
 #define __COREFOUNDATION_CFURLENUMERATOR__ 1
 
-#include <CoreFoundation/CFBase.h>
 #include <CoreFoundation/CFArray.h>
 #include <CoreFoundation/CFError.h>
 #include <CoreFoundation/CFURL.h>
@@ -3831,7 +4222,7 @@ typedef const struct CF_BRIDGED_MUTABLE_TYPE(id) __CFURLEnumerator *CFURLEnumera
 
 /* CFURLEnumeratorGetTypeID - Returns the CFURLEnumerator CFTypeID. */
 CF_EXPORT
-CFTypeID CFURLEnumeratorGetTypeID( void ) CF_AVAILABLE(10_6, 4_0);
+CFTypeID CFURLEnumeratorGetTypeID( void ) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /* CFURLEnumeratorOptions - Options for controlling enumerator behavior. */
@@ -3853,7 +4244,7 @@ A directory enumerator generates URLs with the same type as the directory URL be
 The kCFURLEnumeratorGenerateFileReferenceURLs option is ignored by CFURLEnumeratorCreateForDirectoryURL.
 */
 CF_EXPORT
-CFURLEnumeratorRef CFURLEnumeratorCreateForDirectoryURL( CFAllocatorRef alloc, CFURLRef directoryURL, CFURLEnumeratorOptions option, CFArrayRef propertyKeys ) CF_AVAILABLE(10_6, 4_0);
+CFURLEnumeratorRef CFURLEnumeratorCreateForDirectoryURL( CFAllocatorRef alloc, CFURLRef directoryURL, CFURLEnumeratorOptions option, CFArrayRef propertyKeys ) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /* CFURLEnumeratorCreateForMountedVolumes - Creates an enumerator for mounted filesystem volumes. Client specifies an allocator, a bit array of options, and an optional array of property keys to pre-fetch for the volume URLs. Specifying pre-fetch properties allows the implementation to optimize device access by using bulk operations when available. Pre-fetching more properties than are actually needed may degrade performance.
@@ -3863,7 +4254,7 @@ A volume enumerator generates file path URLs. If you want a volume enumerator to
 The kCFURLEnumeratorDescendRecursively and kCFURLEnumeratorSkipPackageContents options are ignored by CFURLEnumeratorCreateForMountedVolumes.
 */
 CF_EXPORT
-CFURLEnumeratorRef CFURLEnumeratorCreateForMountedVolumes( CFAllocatorRef alloc, CFURLEnumeratorOptions option, CFArrayRef propertyKeys ) CF_AVAILABLE(10_6, 4_0);
+CFURLEnumeratorRef CFURLEnumeratorCreateForMountedVolumes( CFAllocatorRef alloc, CFURLEnumeratorOptions option, CFArrayRef propertyKeys ) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /* CFURLEnumeratorResult - Results for CFURLEnumeratorGetNextURL */
@@ -3879,7 +4270,7 @@ typedef CF_ENUM(CFIndex, CFURLEnumeratorResult) {
 The url output parameter, if returned, is not retained. The error output parameter, if returned, is retained and must be released.
 */
 CF_EXPORT
-CFURLEnumeratorResult CFURLEnumeratorGetNextURL( CFURLEnumeratorRef enumerator, CFURLRef *url, CFErrorRef *error ) CF_AVAILABLE(10_6, 4_0);
+CFURLEnumeratorResult CFURLEnumeratorGetNextURL( CFURLEnumeratorRef enumerator, CFURLRef *url, CFErrorRef *error ) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /* CFURLEnumeratorSkipDescendents - Tells a recursive CFURLEnumerator not to descend into the directory of the last CFURLRef returned by CFURLEnumeratorGetNextURL.
@@ -3890,13 +4281,13 @@ Calls to CFURLEnumeratorSkipDescendents are ignored if:
     * The CFURLEnumerator was not created with CFURLEnumeratorCreateForDirectoryURL using the kCFURLEnumeratorDescendRecursively option.
 */
 CF_EXPORT
-void CFURLEnumeratorSkipDescendents( CFURLEnumeratorRef enumerator ) CF_AVAILABLE(10_6, 4_0);
+void CFURLEnumeratorSkipDescendents( CFURLEnumeratorRef enumerator ) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /* CFURLEnumeratorGetDescendentLevel - Returns the number of levels a directory enumerator has descended down into the directory hierarchy from the starting directory. The children of the starting directory are at level 1. Each time a recursive enumerator descends into a subdirectory, it adds one to the descendent level. It then subtracts one from the level when it finishes a subdirectory and continues enumerating the parent directory.
 */
 CF_EXPORT
-CFIndex CFURLEnumeratorGetDescendentLevel( CFURLEnumeratorRef enumerator ) CF_AVAILABLE(10_6, 4_0);
+CFIndex CFURLEnumeratorGetDescendentLevel( CFURLEnumeratorRef enumerator ) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /* CFURLEnumeratorGetSourceDidChange is deprecated. If your program is interested in directory hierarchy changes during enumeration (and most programs are not interested), you should use the File System Events API.
@@ -3904,7 +4295,7 @@ CFIndex CFURLEnumeratorGetDescendentLevel( CFURLEnumeratorRef enumerator ) CF_AV
  CFURLEnumeratorGetSourceDidChange does nothing and always returns false.
  */
 CF_EXPORT
-Boolean CFURLEnumeratorGetSourceDidChange( CFURLEnumeratorRef enumerator ) CF_DEPRECATED(10_6, 10_7, 4_0, 5_0);
+Boolean CFURLEnumeratorGetSourceDidChange( CFURLEnumeratorRef enumerator ) API_DEPRECATED("Use File System Events API instead", macos(10.6,10.7), ios(4.0,5.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 
 CF_EXTERN_C_END
@@ -3916,13 +4307,19 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFMachPort.h
 /*	CFMachPort.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFMACHPORT__)
 #define __COREFOUNDATION_CFMACHPORT__ 1
 
 #include <CoreFoundation/CFRunLoop.h>
+#if TARGET_OS_MAC
 #include <mach/port.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -3958,11 +4355,18 @@ CF_EXPORT CFRunLoopSourceRef	CFMachPortCreateRunLoopSource(CFAllocatorRef alloca
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED
 
+#endif
+
 #endif /* ! __COREFOUNDATION_CFMACHPORT__ */
 
 // ==========  CoreFoundation.framework/Headers/CFPlugInCOM.h
 /*	CFPlugInCOM.h
-	Copyright (c) 1999-2015, Apple Inc.  All rights reserved.
+	Copyright (c) 1999-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFPLUGINCOM__)
@@ -4068,7 +4472,12 @@ class IUnknown
 
 // ==========  CoreFoundation.framework/Headers/CFPlugIn.h
 /*	CFPlugIn.h
-	Copyright (c) 1999-2015, Apple Inc.  All rights reserved.
+	Copyright (c) 1999-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFPLUGIN__)
@@ -4188,7 +4597,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFDate.h
 /*	CFDate.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFDATE__)
@@ -4302,7 +4716,7 @@ CF_EXTERN_C_END
 
 // ==========  CoreFoundation.framework/Headers/CFStringTokenizer.h
 /*	CFStringTokenizer.h
-	Copyright (c) 2006-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2006-2018, Apple Inc. All rights reserved.
 */
 
 /*!
@@ -4345,15 +4759,14 @@ CF_EXTERN_C_BEGIN
 	@param string The string whose language is to be guessed.
 	@param range The range of characters in string whose language to be
 		guessed. The specified range must not exceed the bounds of the string.
-		If the range is empty (length 0), the first few hundred characters in
-		the string are used.
-	@result A language represented in BCP 47 string, or NULL if the
-		language of the string cannot be guessed. 
+	@result A language represented in BCP 47 string. NULL is returned either if
+		string is NULL, the location of range is negative, the length of range
+		is 0, or the language of the string cannot be guessed.
 	@discussion The result is not guaranteed to be accurate. Typically 200-400
 		characters are required to reliably guess the language of a string.
 */
 CF_EXPORT
-CFStringRef CFStringTokenizerCopyBestStringLanguage(CFStringRef string, CFRange range) CF_AVAILABLE(10_5, 3_0);
+CFStringRef CFStringTokenizerCopyBestStringLanguage(CFStringRef string, CFRange range) API_AVAILABLE(macos(10.5), ios(3.0), watchos(2.0), tvos(9.0));
 
 /*
 ===================================================================
@@ -4434,7 +4847,7 @@ typedef CF_OPTIONS(CFOptionFlags, CFStringTokenizerTokenType) {
 	@result the type identifier of all CFStringTokenizer instances.
 */
 CF_EXPORT
-CFTypeID CFStringTokenizerGetTypeID(void) CF_AVAILABLE(10_5, 3_0);
+CFTypeID CFStringTokenizerGetTypeID(void) API_AVAILABLE(macos(10.5), ios(3.0), watchos(2.0), tvos(9.0));
 																				
 /*!
 	@function CFStringTokenizerCreate
@@ -4454,7 +4867,7 @@ CFTypeID CFStringTokenizerGetTypeID(void) CF_AVAILABLE(10_5, 3_0);
 	@result A reference to the new CFStringTokenizer.
 */
 CF_EXPORT
-CFStringTokenizerRef CFStringTokenizerCreate(CFAllocatorRef alloc, CFStringRef string, CFRange range, CFOptionFlags options, CFLocaleRef locale) CF_AVAILABLE(10_5, 3_0);
+CFStringTokenizerRef CFStringTokenizerCreate(CFAllocatorRef alloc, CFStringRef string, CFRange range, CFOptionFlags options, CFLocaleRef locale) API_AVAILABLE(macos(10.5), ios(3.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFStringTokenizerSetString
@@ -4466,7 +4879,7 @@ CFStringTokenizerRef CFStringTokenizerCreate(CFAllocatorRef alloc, CFStringRef s
 		specified range must not exceed the length of the string.
 */
 CF_EXPORT
-void CFStringTokenizerSetString(CFStringTokenizerRef tokenizer, CFStringRef string, CFRange range) CF_AVAILABLE(10_5, 3_0);
+void CFStringTokenizerSetString(CFStringTokenizerRef tokenizer, CFStringRef string, CFRange range) API_AVAILABLE(macos(10.5), ios(3.0), watchos(2.0), tvos(9.0));
 																		
 /*!
 	@function CFStringTokenizerGoToTokenAtIndex
@@ -4484,7 +4897,7 @@ void CFStringTokenizerSetString(CFStringTokenizerRef tokenizer, CFStringRef stri
 		(or) derived subtokens can be obtained by calling CFStringTokenizerGetCurrentSubTokens. 
 */
 CF_EXPORT
-CFStringTokenizerTokenType CFStringTokenizerGoToTokenAtIndex(CFStringTokenizerRef tokenizer, CFIndex index) CF_AVAILABLE(10_5, 3_0);
+CFStringTokenizerTokenType CFStringTokenizerGoToTokenAtIndex(CFStringTokenizerRef tokenizer, CFIndex index) API_AVAILABLE(macos(10.5), ios(3.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFStringTokenizerAdvanceToNextToken
@@ -4508,7 +4921,7 @@ CFStringTokenizerTokenType CFStringTokenizerGoToTokenAtIndex(CFStringTokenizerRe
 		(or) derived subtokens can be obtained by calling CFStringTokenizerGetCurrentSubTokens. 
 */
 CF_EXPORT
-CFStringTokenizerTokenType CFStringTokenizerAdvanceToNextToken(CFStringTokenizerRef tokenizer) CF_AVAILABLE(10_5, 3_0);
+CFStringTokenizerTokenType CFStringTokenizerAdvanceToNextToken(CFStringTokenizerRef tokenizer) API_AVAILABLE(macos(10.5), ios(3.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFStringTokenizerGetCurrentTokenRange
@@ -4518,7 +4931,7 @@ CFStringTokenizerTokenType CFStringTokenizerAdvanceToNextToken(CFStringTokenizer
 	@result Range of current token, or {kCFNotFound,0} if there is no current token.
 */
 CF_EXPORT 
-CFRange CFStringTokenizerGetCurrentTokenRange(CFStringTokenizerRef tokenizer) CF_AVAILABLE(10_5, 3_0);
+CFRange CFStringTokenizerGetCurrentTokenRange(CFStringTokenizerRef tokenizer) API_AVAILABLE(macos(10.5), ios(3.0), watchos(2.0), tvos(9.0));
 																				
 /*!
 	@function CFStringTokenizerCopyCurrentTokenAttribute
@@ -4532,7 +4945,7 @@ CFRange CFStringTokenizerGetCurrentTokenRange(CFStringTokenizerRef tokenizer) CF
 		attribute or if there is no current token.
 */
 CF_EXPORT
-CFTypeRef CFStringTokenizerCopyCurrentTokenAttribute(CFStringTokenizerRef tokenizer, CFOptionFlags attribute) CF_AVAILABLE(10_5, 3_0);
+CFTypeRef CFStringTokenizerCopyCurrentTokenAttribute(CFStringTokenizerRef tokenizer, CFOptionFlags attribute) API_AVAILABLE(macos(10.5), ios(3.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFStringTokenizerGetCurrentSubTokens
@@ -4559,7 +4972,7 @@ CFTypeRef CFStringTokenizerCopyCurrentTokenAttribute(CFStringTokenizerRef tokeni
 		the ordinary non-derived subtokens are added to the derivedSubTokens array. 
 */
 CF_EXPORT
-CFIndex CFStringTokenizerGetCurrentSubTokens(CFStringTokenizerRef tokenizer, CFRange *ranges, CFIndex maxRangeLength, CFMutableArrayRef derivedSubTokens) CF_AVAILABLE(10_5, 3_0);
+CFIndex CFStringTokenizerGetCurrentSubTokens(CFStringTokenizerRef tokenizer, CFRange *ranges, CFIndex maxRangeLength, CFMutableArrayRef derivedSubTokens) API_AVAILABLE(macos(10.5), ios(3.0), watchos(2.0), tvos(9.0));
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -4567,7 +4980,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif /* ! __COREFOUNDATION_CFSTRINGTOKENIZER__ */
 // ==========  CoreFoundation.framework/Headers/CFLocale.h
 /*	CFLocale.h
-	Copyright (c) 2002-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2002-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFLOCALE__)
@@ -4576,9 +4994,13 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <CoreFoundation/CFBase.h>
 #include <CoreFoundation/CFArray.h>
 #include <CoreFoundation/CFDictionary.h>
+#include <CoreFoundation/CFNotificationCenter.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
+
+typedef CFStringRef CFLocaleIdentifier CF_EXTENSIBLE_STRING_ENUM;
+typedef CFStringRef CFLocaleKey CF_STRING_ENUM;
 
 typedef const struct CF_BRIDGED_TYPE(NSLocale) __CFLocale *CFLocaleRef;
 
@@ -4624,34 +5046,34 @@ CFArrayRef CFLocaleCopyISOCurrencyCodes(void);
 	// represent other financial instruments.
 
 CF_EXPORT
-CFArrayRef CFLocaleCopyCommonISOCurrencyCodes(void) CF_AVAILABLE(10_5, 2_0);
+CFArrayRef CFLocaleCopyCommonISOCurrencyCodes(void) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 	// Returns an array of CFStrings that represents ISO currency codes for
 	// currencies in common use.
 
 CF_EXPORT
-CFArrayRef CFLocaleCopyPreferredLanguages(void) CF_AVAILABLE(10_5, 2_0);
+CFArrayRef CFLocaleCopyPreferredLanguages(void) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 	// Returns the array of canonicalized CFString locale IDs that the user prefers.
 
 CF_EXPORT
-CFStringRef CFLocaleCreateCanonicalLanguageIdentifierFromString(CFAllocatorRef allocator, CFStringRef localeIdentifier);
+CFLocaleIdentifier CFLocaleCreateCanonicalLanguageIdentifierFromString(CFAllocatorRef allocator, CFStringRef localeIdentifier);
 	// Map an arbitrary language identification string (something close at
 	// least) to a canonical language identifier.
 
 CF_EXPORT
-CFStringRef CFLocaleCreateCanonicalLocaleIdentifierFromString(CFAllocatorRef allocator, CFStringRef localeIdentifier);
+CFLocaleIdentifier CFLocaleCreateCanonicalLocaleIdentifierFromString(CFAllocatorRef allocator, CFStringRef localeIdentifier);
 	// Map an arbitrary locale identification string (something close at
 	// least) to the canonical identifier.
 
 CF_EXPORT
-CFStringRef CFLocaleCreateCanonicalLocaleIdentifierFromScriptManagerCodes(CFAllocatorRef allocator, LangCode lcode, RegionCode rcode);
+CFLocaleIdentifier CFLocaleCreateCanonicalLocaleIdentifierFromScriptManagerCodes(CFAllocatorRef allocator, LangCode lcode, RegionCode rcode);
 	// Map a Mac OS LangCode and RegionCode to the canonical locale identifier.
 
 CF_EXPORT
-CFStringRef CFLocaleCreateLocaleIdentifierFromWindowsLocaleCode(CFAllocatorRef allocator, uint32_t lcid) CF_AVAILABLE(10_6, 4_0);
+CFLocaleIdentifier CFLocaleCreateLocaleIdentifierFromWindowsLocaleCode(CFAllocatorRef allocator, uint32_t lcid) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 	// Map a Windows LCID to the canonical locale identifier.
 
 CF_EXPORT
-uint32_t CFLocaleGetWindowsLocaleCodeFromLocaleIdentifier(CFStringRef localeIdentifier) CF_AVAILABLE(10_6, 4_0);
+uint32_t CFLocaleGetWindowsLocaleCodeFromLocaleIdentifier(CFLocaleIdentifier localeIdentifier) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 	// Map a locale identifier to a Windows LCID.
 
 typedef CF_ENUM(CFIndex, CFLocaleLanguageDirection) {
@@ -4663,13 +5085,13 @@ typedef CF_ENUM(CFIndex, CFLocaleLanguageDirection) {
 };
 
 CF_EXPORT
-CFLocaleLanguageDirection CFLocaleGetLanguageCharacterDirection(CFStringRef isoLangCode) CF_AVAILABLE(10_6, 4_0);
+CFLocaleLanguageDirection CFLocaleGetLanguageCharacterDirection(CFStringRef isoLangCode) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
-CFLocaleLanguageDirection CFLocaleGetLanguageLineDirection(CFStringRef isoLangCode) CF_AVAILABLE(10_6, 4_0);
+CFLocaleLanguageDirection CFLocaleGetLanguageLineDirection(CFStringRef isoLangCode) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
-CFDictionaryRef CFLocaleCreateComponentsFromLocaleIdentifier(CFAllocatorRef allocator, CFStringRef localeID);
+CFDictionaryRef CFLocaleCreateComponentsFromLocaleIdentifier(CFAllocatorRef allocator, CFLocaleIdentifier localeID);
 	// Parses a locale ID consisting of language, script, country, variant,
 	// and keyword/value pairs into a dictionary. The keys are the constant
 	// CFStrings corresponding to the locale ID components, and the values
@@ -4679,7 +5101,7 @@ CFDictionaryRef CFLocaleCreateComponentsFromLocaleIdentifier(CFAllocatorRef allo
 	// kCFLocaleCalendarIdentifier=kCFJapaneseCalendar.
 
 CF_EXPORT
-CFStringRef CFLocaleCreateLocaleIdentifierFromComponents(CFAllocatorRef allocator, CFDictionaryRef dictionary);
+CFLocaleIdentifier CFLocaleCreateLocaleIdentifierFromComponents(CFAllocatorRef allocator, CFDictionaryRef dictionary);
 	// Reverses the actions of CFLocaleCreateDictionaryFromLocaleIdentifier,
 	// creating a single string from the data in the dictionary. The
 	// dictionary {kCFLocaleLanguageCode=en, kCFLocaleCountryCode=US,
@@ -4687,7 +5109,7 @@ CFStringRef CFLocaleCreateLocaleIdentifierFromComponents(CFAllocatorRef allocato
 	// "en_US@calendar=japanese".
 
 CF_EXPORT
-CFLocaleRef CFLocaleCreate(CFAllocatorRef allocator, CFStringRef localeIdentifier);
+CFLocaleRef CFLocaleCreate(CFAllocatorRef allocator, CFLocaleIdentifier localeIdentifier);
 	// Returns a CFLocaleRef for the locale named by the "arbitrary" locale identifier.
 
 CF_EXPORT
@@ -4697,62 +5119,64 @@ CFLocaleRef CFLocaleCreateCopy(CFAllocatorRef allocator, CFLocaleRef locale);
 	// or hold onto it.  In the future, there may be mutable locales.
 
 CF_EXPORT
-CFStringRef CFLocaleGetIdentifier(CFLocaleRef locale);
+CFLocaleIdentifier CFLocaleGetIdentifier(CFLocaleRef locale);
 	// Returns the locale's identifier.  This may not be the same string
 	// that the locale was created with (CFLocale may canonicalize it).
 
 CF_EXPORT
-CFTypeRef CFLocaleGetValue(CFLocaleRef locale, CFStringRef key);
+CFTypeRef CFLocaleGetValue(CFLocaleRef locale, CFLocaleKey key);
 	// Returns the value for the given key.  This is how settings and state
 	// are accessed via a CFLocale.  Values might be of any CF type.
 
 CF_EXPORT
-CFStringRef CFLocaleCopyDisplayNameForPropertyValue(CFLocaleRef displayLocale, CFStringRef key, CFStringRef value);
+CFStringRef CFLocaleCopyDisplayNameForPropertyValue(CFLocaleRef displayLocale, CFLocaleKey key, CFStringRef value);
 	// Returns the display name for the given value.  The key tells what
 	// the value is, and is one of the usual locale property keys, though
 	// not all locale property keys have values with display name values.
 
 
-CF_EXPORT const CFStringRef kCFLocaleCurrentLocaleDidChangeNotification CF_AVAILABLE(10_5, 2_0);
+CF_EXPORT const CFNotificationName kCFLocaleCurrentLocaleDidChangeNotification API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 
 // Locale Keys
-CF_EXPORT const CFStringRef kCFLocaleIdentifier;
-CF_EXPORT const CFStringRef kCFLocaleLanguageCode;
-CF_EXPORT const CFStringRef kCFLocaleCountryCode;
-CF_EXPORT const CFStringRef kCFLocaleScriptCode;
-CF_EXPORT const CFStringRef kCFLocaleVariantCode;
+CF_EXPORT const CFLocaleKey kCFLocaleIdentifier;
+CF_EXPORT const CFLocaleKey kCFLocaleLanguageCode;
+CF_EXPORT const CFLocaleKey kCFLocaleCountryCode;
+CF_EXPORT const CFLocaleKey kCFLocaleScriptCode;
+CF_EXPORT const CFLocaleKey kCFLocaleVariantCode;
 
-CF_EXPORT const CFStringRef kCFLocaleExemplarCharacterSet;
-CF_EXPORT const CFStringRef kCFLocaleCalendarIdentifier;
-CF_EXPORT const CFStringRef kCFLocaleCalendar;
-CF_EXPORT const CFStringRef kCFLocaleCollationIdentifier;
-CF_EXPORT const CFStringRef kCFLocaleUsesMetricSystem;
-CF_EXPORT const CFStringRef kCFLocaleMeasurementSystem; // "Metric" or "U.S."
-CF_EXPORT const CFStringRef kCFLocaleDecimalSeparator;
-CF_EXPORT const CFStringRef kCFLocaleGroupingSeparator;
-CF_EXPORT const CFStringRef kCFLocaleCurrencySymbol;
-CF_EXPORT const CFStringRef kCFLocaleCurrencyCode; // ISO 3-letter currency code
-CF_EXPORT const CFStringRef kCFLocaleCollatorIdentifier CF_AVAILABLE(10_6, 4_0);
-CF_EXPORT const CFStringRef kCFLocaleQuotationBeginDelimiterKey CF_AVAILABLE(10_6, 4_0);
-CF_EXPORT const CFStringRef kCFLocaleQuotationEndDelimiterKey CF_AVAILABLE(10_6, 4_0);
-CF_EXPORT const CFStringRef kCFLocaleAlternateQuotationBeginDelimiterKey CF_AVAILABLE(10_6, 4_0);
-CF_EXPORT const CFStringRef kCFLocaleAlternateQuotationEndDelimiterKey CF_AVAILABLE(10_6, 4_0);
+CF_EXPORT const CFLocaleKey kCFLocaleExemplarCharacterSet;
+CF_EXPORT const CFLocaleKey kCFLocaleCalendarIdentifier;
+CF_EXPORT const CFLocaleKey kCFLocaleCalendar;
+CF_EXPORT const CFLocaleKey kCFLocaleCollationIdentifier;
+CF_EXPORT const CFLocaleKey kCFLocaleUsesMetricSystem;
+CF_EXPORT const CFLocaleKey kCFLocaleMeasurementSystem; // "Metric", "U.S." or "U.K."
+CF_EXPORT const CFLocaleKey kCFLocaleDecimalSeparator;
+CF_EXPORT const CFLocaleKey kCFLocaleGroupingSeparator;
+CF_EXPORT const CFLocaleKey kCFLocaleCurrencySymbol;
+CF_EXPORT const CFLocaleKey kCFLocaleCurrencyCode; // ISO 3-letter currency code
+CF_EXPORT const CFLocaleKey kCFLocaleCollatorIdentifier API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFLocaleKey kCFLocaleQuotationBeginDelimiterKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFLocaleKey kCFLocaleQuotationEndDelimiterKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFLocaleKey kCFLocaleAlternateQuotationBeginDelimiterKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFLocaleKey kCFLocaleAlternateQuotationEndDelimiterKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 // Values for kCFLocaleCalendarIdentifier
-CF_EXPORT const CFStringRef kCFGregorianCalendar;
-CF_EXPORT const CFStringRef kCFBuddhistCalendar;
-CF_EXPORT const CFStringRef kCFChineseCalendar;
-CF_EXPORT const CFStringRef kCFHebrewCalendar;
-CF_EXPORT const CFStringRef kCFIslamicCalendar;
-CF_EXPORT const CFStringRef kCFIslamicCivilCalendar;
-CF_EXPORT const CFStringRef kCFJapaneseCalendar;
-CF_EXPORT const CFStringRef kCFRepublicOfChinaCalendar CF_AVAILABLE(10_6, 4_0);
-CF_EXPORT const CFStringRef kCFPersianCalendar CF_AVAILABLE(10_6, 4_0);
-CF_EXPORT const CFStringRef kCFIndianCalendar CF_AVAILABLE(10_6, 4_0);
-CF_EXPORT const CFStringRef kCFISO8601Calendar CF_AVAILABLE(10_6, 4_0);
-CF_EXPORT const CFStringRef kCFIslamicTabularCalendar CF_AVAILABLE(10_10, 8_0);
-CF_EXPORT const CFStringRef kCFIslamicUmmAlQuraCalendar CF_AVAILABLE(10_10, 8_0);
+typedef CFStringRef CFCalendarIdentifier CF_STRING_ENUM;
+
+CF_EXPORT const CFCalendarIdentifier kCFGregorianCalendar;
+CF_EXPORT const CFCalendarIdentifier kCFBuddhistCalendar;
+CF_EXPORT const CFCalendarIdentifier kCFChineseCalendar;
+CF_EXPORT const CFCalendarIdentifier kCFHebrewCalendar;
+CF_EXPORT const CFCalendarIdentifier kCFIslamicCalendar;
+CF_EXPORT const CFCalendarIdentifier kCFIslamicCivilCalendar;
+CF_EXPORT const CFCalendarIdentifier kCFJapaneseCalendar;
+CF_EXPORT const CFCalendarIdentifier kCFRepublicOfChinaCalendar API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFCalendarIdentifier kCFPersianCalendar API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFCalendarIdentifier kCFIndianCalendar API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFCalendarIdentifier kCFISO8601Calendar API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFCalendarIdentifier kCFIslamicTabularCalendar API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFCalendarIdentifier kCFIslamicUmmAlQuraCalendar API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -4761,7 +5185,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFData.h
 /*	CFData.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFDATA__)
@@ -4824,10 +5253,10 @@ void CFDataDeleteBytes(CFMutableDataRef theData, CFRange range);
 typedef CF_OPTIONS(CFOptionFlags, CFDataSearchFlags) {
     kCFDataSearchBackwards = 1UL << 0,
     kCFDataSearchAnchored = 1UL << 1
-} CF_ENUM_AVAILABLE(10_6, 4_0);
+} API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
-CFRange CFDataFind(CFDataRef theData, CFDataRef dataToFind, CFRange searchRange, CFDataSearchFlags compareOptions) CF_AVAILABLE(10_6, 4_0);
+CFRange CFDataFind(CFDataRef theData, CFDataRef dataToFind, CFRange searchRange, CFDataSearchFlags compareOptions) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -4836,7 +5265,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFNumberFormatter.h
 /*	CFNumberFormatter.h
-	Copyright (c) 2003-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2003-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFNUMBERFORMATTER__)
@@ -4848,6 +5282,8 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
+
+typedef CFStringRef CFNumberFormatterKey CF_STRING_ENUM;
 
 typedef struct CF_BRIDGED_MUTABLE_TYPE(id) __CFNumberFormatter *CFNumberFormatterRef;
 
@@ -4863,10 +5299,10 @@ typedef CF_ENUM(CFIndex, CFNumberFormatterStyle) {	// number format styles
 	kCFNumberFormatterPercentStyle = 3,
 	kCFNumberFormatterScientificStyle = 4,
 	kCFNumberFormatterSpellOutStyle = 5,
-	kCFNumberFormatterOrdinalStyle CF_ENUM_AVAILABLE(10_11, 9_0) = 6,
-	kCFNumberFormatterCurrencyISOCodeStyle CF_ENUM_AVAILABLE(10_11, 9_0) = 8,
-	kCFNumberFormatterCurrencyPluralStyle CF_ENUM_AVAILABLE(10_11, 9_0) = 9,
-	kCFNumberFormatterCurrencyAccountingStyle CF_ENUM_AVAILABLE(10_11, 9_0) = 10,
+	kCFNumberFormatterOrdinalStyle API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0)) = 6,
+	kCFNumberFormatterCurrencyISOCodeStyle API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0)) = 8,
+	kCFNumberFormatterCurrencyPluralStyle API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0)) = 9,
+	kCFNumberFormatterCurrencyAccountingStyle API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0)) = 10,
 };
 
 
@@ -4925,51 +5361,51 @@ Boolean CFNumberFormatterGetValueFromString(CFNumberFormatterRef formatter, CFSt
 
 
 CF_EXPORT
-void CFNumberFormatterSetProperty(CFNumberFormatterRef formatter, CFStringRef key, CFTypeRef value);
+void CFNumberFormatterSetProperty(CFNumberFormatterRef formatter, CFNumberFormatterKey key, CFTypeRef value);
 
 CF_EXPORT
-CFTypeRef CFNumberFormatterCopyProperty(CFNumberFormatterRef formatter, CFStringRef key);
+CFTypeRef CFNumberFormatterCopyProperty(CFNumberFormatterRef formatter, CFNumberFormatterKey key);
 	// Set and get various properties of the number formatter, the set of
 	// which may be expanded in the future.
 
-CF_EXPORT const CFStringRef kCFNumberFormatterCurrencyCode;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterDecimalSeparator;	// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterCurrencyDecimalSeparator; // CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterAlwaysShowDecimalSeparator; // CFBoolean
-CF_EXPORT const CFStringRef kCFNumberFormatterGroupingSeparator;	// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterUseGroupingSeparator;	// CFBoolean
-CF_EXPORT const CFStringRef kCFNumberFormatterPercentSymbol;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterZeroSymbol;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterNaNSymbol;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterInfinitySymbol;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterMinusSign;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterPlusSign;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterCurrencySymbol;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterExponentSymbol;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterMinIntegerDigits;	// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterMaxIntegerDigits;	// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterMinFractionDigits;	// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterMaxFractionDigits;	// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterGroupingSize;		// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterSecondaryGroupingSize;	// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterRoundingMode;		// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterRoundingIncrement;	// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterFormatWidth;		// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterPaddingPosition;	// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterPaddingCharacter;	// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterDefaultFormat;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterMultiplier;		// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterPositivePrefix;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterPositiveSuffix;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterNegativePrefix;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterNegativeSuffix;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterPerMillSymbol;		// CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterInternationalCurrencySymbol; // CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterCurrencyGroupingSeparator CF_AVAILABLE(10_5, 2_0); // CFString
-CF_EXPORT const CFStringRef kCFNumberFormatterIsLenient CF_AVAILABLE(10_5, 2_0);		// CFBoolean
-CF_EXPORT const CFStringRef kCFNumberFormatterUseSignificantDigits CF_AVAILABLE(10_5, 2_0);	// CFBoolean
-CF_EXPORT const CFStringRef kCFNumberFormatterMinSignificantDigits CF_AVAILABLE(10_5, 2_0);	// CFNumber
-CF_EXPORT const CFStringRef kCFNumberFormatterMaxSignificantDigits CF_AVAILABLE(10_5, 2_0);	// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterCurrencyCode;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterDecimalSeparator;	// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterCurrencyDecimalSeparator; // CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterAlwaysShowDecimalSeparator; // CFBoolean
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterGroupingSeparator;	// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterUseGroupingSeparator;	// CFBoolean
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterPercentSymbol;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterZeroSymbol;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterNaNSymbol;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterInfinitySymbol;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMinusSign;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterPlusSign;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterCurrencySymbol;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterExponentSymbol;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMinIntegerDigits;	// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMaxIntegerDigits;	// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMinFractionDigits;	// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMaxFractionDigits;	// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterGroupingSize;		// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterSecondaryGroupingSize;	// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterRoundingMode;		// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterRoundingIncrement;	// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterFormatWidth;		// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterPaddingPosition;	// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterPaddingCharacter;	// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterDefaultFormat;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMultiplier;		// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterPositivePrefix;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterPositiveSuffix;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterNegativePrefix;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterNegativeSuffix;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterPerMillSymbol;		// CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterInternationalCurrencySymbol; // CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterCurrencyGroupingSeparator API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)); // CFString
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterIsLenient API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));		// CFBoolean
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterUseSignificantDigits API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));	// CFBoolean
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMinSignificantDigits API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));	// CFNumber
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMaxSignificantDigits API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));	// CFNumber
 
 typedef CF_ENUM(CFIndex, CFNumberFormatterRoundingMode) {
     kCFNumberFormatterRoundCeiling = 0,
@@ -5004,7 +5440,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFURLAccess.h
 /*	CFURLAccess.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 
         CFURLAccess is deprecated as of Mac OS X 10.9 and iOS 7.0. The suggested replacement for URLs with network schemes (http, https, ftp, data) are the NSURLSession or NSURLConnection classes. The suggested replacement for URLs with the file scheme are the foundation classes NSFileManager, NSFileHandle and NSURL, or the CoreFoundation classes CFStream and CFURL.
 */
@@ -5049,7 +5490,7 @@ large files.
 */
 /* Deprecated -- see top of this file for suggested replacement classes */
 CF_EXPORT
-Boolean CFURLCreateDataAndPropertiesFromResource(CFAllocatorRef alloc, CFURLRef url, CFDataRef *resourceData, CFDictionaryRef *properties, CFArrayRef desiredProperties, SInt32 *errorCode) CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "For resource data, use the CFReadStream API. For file resource properties, use CFURLCopyResourcePropertiesForKeys.");
+Boolean CFURLCreateDataAndPropertiesFromResource(CFAllocatorRef alloc, CFURLRef url, CFDataRef *resourceData, CFDictionaryRef *properties, CFArrayRef desiredProperties, SInt32 *errorCode) API_DEPRECATED("For resource data, use the CFReadStream API. For file resource properties, use CFURLCopyResourcePropertiesForKeys.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 /* Attempts to write the given data and properties to the given URL.
 If dataToWrite is NULL, only properties are written out (use
@@ -5061,21 +5502,21 @@ CFURLCreateDataAndPropertiesFromResource(), above.
 */
 /* Deprecated -- see top of this file for suggested replacement classes */
 CF_EXPORT
-Boolean CFURLWriteDataAndPropertiesToResource(CFURLRef url, CFDataRef dataToWrite, CFDictionaryRef propertiesToWrite, SInt32 *errorCode) CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "For resource data, use the CFWriteStream API. For file resource properties, use CFURLSetResourcePropertiesForKeys.");
+Boolean CFURLWriteDataAndPropertiesToResource(CFURLRef url, CFDataRef dataToWrite, CFDictionaryRef propertiesToWrite, SInt32 *errorCode) API_DEPRECATED("For resource data, use the CFWriteStream API. For file resource properties, use CFURLSetResourcePropertiesForKeys.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 /* Destroys the resource indicated by url.
 Returns success or failure; errorCode set as above.
 */
 /* Deprecated -- see top of this file for suggested replacement classes */
 CF_EXPORT
-Boolean CFURLDestroyResource(CFURLRef url, SInt32 *errorCode) CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "Use CFURLGetFileSystemRepresentation and removefile(3) instead.");
+Boolean CFURLDestroyResource(CFURLRef url, SInt32 *errorCode) API_DEPRECATED("Use CFURLGetFileSystemRepresentation and removefile(3) instead.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 /* Convenience method which calls through to CFURLCreateDataAndPropertiesFromResource().
 Returns NULL on error and sets errorCode accordingly.
 */
 /* Deprecated -- see top of this file for suggested replacement classes */
 CF_EXPORT
-CFTypeRef CFURLCreatePropertyFromResource(CFAllocatorRef alloc, CFURLRef url, CFStringRef property, SInt32 *errorCode) CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "For file resource properties, use CFURLCopyResourcePropertyForKey.");
+CFTypeRef CFURLCreatePropertyFromResource(CFAllocatorRef alloc, CFURLRef url, CFStringRef property, SInt32 *errorCode) API_DEPRECATED("For file resource properties, use CFURLCopyResourcePropertyForKey.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 
 /* Common error codes (returned only by the older APIs that predate CFError) */
@@ -5089,26 +5530,26 @@ typedef CF_ENUM(CFIndex, CFURLError) {
     kCFURLUnknownPropertyKeyError = -16L,
     kCFURLPropertyKeyUnavailableError = -17L,
     kCFURLTimeoutError = -18L
-} CF_ENUM_DEPRECATED(10_0, 10_9, 2_0, 7_0);
+} API_DEPRECATED("Use CFError codes instead", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 /* Older property keys */
 
 CF_EXPORT
-const CFStringRef kCFURLFileExists CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "Use CFURLResourceIsReachable instead.");
+const CFStringRef kCFURLFileExists API_DEPRECATED("Use CFURLResourceIsReachable instead.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 CF_EXPORT
-const CFStringRef kCFURLFileDirectoryContents CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "Use the CFURLEnumerator API instead.");
+const CFStringRef kCFURLFileDirectoryContents API_DEPRECATED("Use the CFURLEnumerator API instead.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 CF_EXPORT
-const CFStringRef kCFURLFileLength CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "Use CFURLCopyResourcePropertyForKey with kCFURLFileSizeKey instead.");
+const CFStringRef kCFURLFileLength API_DEPRECATED("Use CFURLCopyResourcePropertyForKey with kCFURLFileSizeKey instead.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 CF_EXPORT 
-const CFStringRef kCFURLFileLastModificationTime CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "Use CFURLCopyResourcePropertyForKey with kCFURLContentModificationDateKey instead.");
+const CFStringRef kCFURLFileLastModificationTime API_DEPRECATED("Use CFURLCopyResourcePropertyForKey with kCFURLContentModificationDateKey instead.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 CF_EXPORT
-const CFStringRef kCFURLFilePOSIXMode CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "Use CFURLCopyResourcePropertyForKey with kCFURLFileSecurityKey and then the CFFileSecurity API instead.");
+const CFStringRef kCFURLFilePOSIXMode API_DEPRECATED("Use CFURLCopyResourcePropertyForKey with kCFURLFileSecurityKey and then the CFFileSecurity API instead.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 CF_EXPORT
-const CFStringRef kCFURLFileOwnerID CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "Use CFURLCopyResourcePropertyForKey with kCFURLFileSecurityKey and then the CFFileSecurity API instead.");
+const CFStringRef kCFURLFileOwnerID API_DEPRECATED("Use CFURLCopyResourcePropertyForKey with kCFURLFileSecurityKey and then the CFFileSecurity API instead.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 CF_EXPORT
-const CFStringRef kCFURLHTTPStatusCode CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "Use NSHTTPURLResponse methods instead.");
+const CFStringRef kCFURLHTTPStatusCode API_DEPRECATED("Use NSHTTPURLResponse methods instead.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 CF_EXPORT
-const CFStringRef kCFURLHTTPStatusLine CF_DEPRECATED(10_0, 10_9, 2_0, 7_0, "Use NSHTTPURLResponse methods instead.");
+const CFStringRef kCFURLHTTPStatusLine API_DEPRECATED("Use NSHTTPURLResponse methods instead.", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 /* The value of kCFURLFileExists is a CFBoolean */
 /* The value of kCFURLFileDirectoryContents is a CFArray containing CFURLs.  An empty array means the directory exists, but is empty */
@@ -5128,7 +5569,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFTimeZone.h
 /*	CFTimeZone.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFTIMEZONE__)
@@ -5140,6 +5586,8 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <CoreFoundation/CFDate.h>
 #include <CoreFoundation/CFDictionary.h>
 #include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFNotificationCenter.h>
+#include <CoreFoundation/CFLocale.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
@@ -5193,10 +5641,10 @@ CF_EXPORT
 Boolean CFTimeZoneIsDaylightSavingTime(CFTimeZoneRef tz, CFAbsoluteTime at);
 
 CF_EXPORT
-CFTimeInterval CFTimeZoneGetDaylightSavingTimeOffset(CFTimeZoneRef tz, CFAbsoluteTime at) CF_AVAILABLE(10_5, 2_0);
+CFTimeInterval CFTimeZoneGetDaylightSavingTimeOffset(CFTimeZoneRef tz, CFAbsoluteTime at) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
-CFAbsoluteTime CFTimeZoneGetNextDaylightSavingTimeTransition(CFTimeZoneRef tz, CFAbsoluteTime at) CF_AVAILABLE(10_5, 2_0);
+CFAbsoluteTime CFTimeZoneGetNextDaylightSavingTimeTransition(CFTimeZoneRef tz, CFAbsoluteTime at) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 typedef CF_ENUM(CFIndex, CFTimeZoneNameStyle) {
 	kCFTimeZoneNameStyleStandard,
@@ -5205,13 +5653,13 @@ typedef CF_ENUM(CFIndex, CFTimeZoneNameStyle) {
 	kCFTimeZoneNameStyleShortDaylightSaving,
 	kCFTimeZoneNameStyleGeneric,
 	kCFTimeZoneNameStyleShortGeneric
-} CF_ENUM_AVAILABLE(10_5, 2_0);
+} API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
-CFStringRef CFTimeZoneCopyLocalizedName(CFTimeZoneRef tz, CFTimeZoneNameStyle style, CFLocaleRef locale) CF_AVAILABLE(10_5, 2_0);
+CFStringRef CFTimeZoneCopyLocalizedName(CFTimeZoneRef tz, CFTimeZoneNameStyle style, CFLocaleRef locale) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
-const CFStringRef kCFTimeZoneSystemTimeZoneDidChangeNotification CF_AVAILABLE(10_5, 2_0);
+const CFNotificationName kCFTimeZoneSystemTimeZoneDidChangeNotification API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -5220,7 +5668,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFError.h
 /*	CFError.h
-	Copyright (c) 2006-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2006-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 /*!
@@ -5257,6 +5710,8 @@ CF_IMPLICIT_BRIDGING_DISABLED
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
 
+typedef CFStringRef CFErrorDomain CF_EXTENSIBLE_STRING_ENUM;
+
 /*!
 	@typedef CFErrorRef
 	    This is the type of a reference to CFErrors.  CFErrorRef is toll-free bridged with NSError.
@@ -5268,27 +5723,28 @@ typedef struct CF_BRIDGED_TYPE(NSError) __CFError * CFErrorRef;
 	    Returns the type identifier of all CFError instances.
 */
 CF_EXPORT
-CFTypeID CFErrorGetTypeID(void) CF_AVAILABLE(10_5, 2_0);
+CFTypeID CFErrorGetTypeID(void) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 
 // Predefined domains; value of "code" will correspond to preexisting values in these domains.
-CF_EXPORT const CFStringRef kCFErrorDomainPOSIX		    CF_AVAILABLE(10_5, 2_0);
-CF_EXPORT const CFStringRef kCFErrorDomainOSStatus	    CF_AVAILABLE(10_5, 2_0);
-CF_EXPORT const CFStringRef kCFErrorDomainMach		    CF_AVAILABLE(10_5, 2_0);
-CF_EXPORT const CFStringRef kCFErrorDomainCocoa		    CF_AVAILABLE(10_5, 2_0);
+CF_EXPORT const CFErrorDomain kCFErrorDomainPOSIX		    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFErrorDomain kCFErrorDomainOSStatus	    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFErrorDomain kCFErrorDomainMach		    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CF_EXPORT const CFErrorDomain kCFErrorDomainCocoa		    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
-// Keys in userInfo for localizable, end-user presentable error messages. At minimum provide one of first two; ideally provide all three.
-CF_EXPORT const CFStringRef kCFErrorLocalizedDescriptionKey         CF_AVAILABLE(10_5, 2_0);   // Key to identify the end user-presentable description in userInfo.
-CF_EXPORT const CFStringRef kCFErrorLocalizedFailureReasonKey       CF_AVAILABLE(10_5, 2_0);   // Key to identify the end user-presentable failure reason in userInfo.
-CF_EXPORT const CFStringRef kCFErrorLocalizedRecoverySuggestionKey  CF_AVAILABLE(10_5, 2_0);   // Key to identify the end user-presentable recovery suggestion in userInfo.
+// Keys in userInfo for localizable, end-user presentable error messages. At minimum provide kCFErrorLocalizedDescriptionKey, or add kCFErrorLocalizedFailureKey into errors generated by lower levels to have it combine with kCFErrorLocalizedFailureReasonKey.
+CF_EXPORT const CFStringRef kCFErrorLocalizedDescriptionKey         API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));    // Key to identify the end user-presentable description in userInfo. Should be one or more complete sentence(s) describing both what failed and why. For instance 'You can't save the file "To Do List" because the volume "Macintosh HD" is out of space.'
+CF_EXPORT const CFStringRef kCFErrorLocalizedFailureKey             API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0)); // Key to identify the end user-presentable failing operation ("what failed") description in userInfo.  Should be one or more complete sentence(s), for instance 'The file "To Do List" couldn't be saved.'
+CF_EXPORT const CFStringRef kCFErrorLocalizedFailureReasonKey       API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));    // Key to identify the end user-presentable failure reason ("why it failed") description in userInfo.  Should be one or more complete sentence(s), for instance 'The volume "Macintosh HD" is out of space.'
+CF_EXPORT const CFStringRef kCFErrorLocalizedRecoverySuggestionKey  API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));    // Key to identify the end user-presentable recovery suggestion in userInfo. Should be one or more complete sentence(s), for instance 'Remove some files from the volume, and then try again.'
 
 // If you do not have localizable error strings, you can provide a value for this key instead.
-CF_EXPORT const CFStringRef kCFErrorDescriptionKey                  CF_AVAILABLE(10_5, 2_0);   // Key to identify the description in the userInfo dictionary. Should be a complete sentence if possible. Should not contain domain name or error code.
+CF_EXPORT const CFStringRef kCFErrorDescriptionKey                  API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));    // Key to identify the description in the userInfo dictionary. Should be a complete sentence if possible. Should not contain domain name or error code.
 
 // Other keys in userInfo.
-CF_EXPORT const CFStringRef kCFErrorUnderlyingErrorKey              CF_AVAILABLE(10_5, 2_0);   // Key to identify the underlying error in userInfo.
-CF_EXPORT const CFStringRef kCFErrorURLKey                          CF_AVAILABLE(10_7, 5_0);    // Key to identify associated URL in userInfo.  Typically one of this or kCFErrorFilePathKey is provided.
-CF_EXPORT const CFStringRef kCFErrorFilePathKey                     CF_AVAILABLE(10_7, 5_0);    // Key to identify associated file path in userInfo.    Typically one of this or kCFErrorURLKey is provided.
+CF_EXPORT const CFStringRef kCFErrorUnderlyingErrorKey              API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));    // Key to identify the underlying error in userInfo.
+CF_EXPORT const CFStringRef kCFErrorURLKey                          API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));    // Key to identify associated URL in userInfo.  Typically one of this or kCFErrorFilePathKey is provided.
+CF_EXPORT const CFStringRef kCFErrorFilePathKey                     API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));    // Key to identify associated file path in userInfo.    Typically one of this or kCFErrorURLKey is provided.
 
 
 /*!
@@ -5303,7 +5759,7 @@ CF_EXPORT const CFStringRef kCFErrorFilePathKey                     CF_AVAILABLE
 	@result A reference to the new CFError.
 */
 CF_EXPORT
-CFErrorRef CFErrorCreate(CFAllocatorRef allocator, CFStringRef domain, CFIndex code, CFDictionaryRef userInfo) CF_AVAILABLE(10_5, 2_0);
+CFErrorRef CFErrorCreate(CFAllocatorRef allocator, CFErrorDomain domain, CFIndex code, CFDictionaryRef userInfo) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFErrorCreateWithUserInfoKeysAndValues
@@ -5318,7 +5774,7 @@ CFErrorRef CFErrorCreate(CFAllocatorRef allocator, CFStringRef domain, CFIndex c
 	@result A reference to the new CFError. numUserInfoValues CF types are gathered from each of userInfoKeys and userInfoValues to create the userInfo dictionary.
 */
 CF_EXPORT
-CFErrorRef CFErrorCreateWithUserInfoKeysAndValues(CFAllocatorRef allocator, CFStringRef domain, CFIndex code, const void *const *userInfoKeys, const void *const *userInfoValues, CFIndex numUserInfoValues) CF_AVAILABLE(10_5, 2_0);
+CFErrorRef CFErrorCreateWithUserInfoKeysAndValues(CFAllocatorRef allocator, CFErrorDomain domain, CFIndex code, const void *const *userInfoKeys, const void *const *userInfoValues, CFIndex numUserInfoValues) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFErrorGetDomain
@@ -5327,7 +5783,7 @@ CFErrorRef CFErrorCreateWithUserInfoKeysAndValues(CFAllocatorRef allocator, CFSt
 	@result The error domain of the CFError. Since this is a "Get" function, the caller shouldn't CFRelease the return value.
 */
 CF_EXPORT
-CFStringRef CFErrorGetDomain(CFErrorRef err) CF_AVAILABLE(10_5, 2_0);
+CFErrorDomain CFErrorGetDomain(CFErrorRef err) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFErrorGetCode
@@ -5336,7 +5792,7 @@ CFStringRef CFErrorGetDomain(CFErrorRef err) CF_AVAILABLE(10_5, 2_0);
 	@result The error code of the CFError (not an error return for the current call).
 */
 CF_EXPORT
-CFIndex CFErrorGetCode(CFErrorRef err) CF_AVAILABLE(10_5, 2_0);
+CFIndex CFErrorGetCode(CFErrorRef err) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFErrorCopyUserInfo
@@ -5346,21 +5802,22 @@ CFIndex CFErrorGetCode(CFErrorRef err) CF_AVAILABLE(10_5, 2_0);
 	@result The user info of the CFError.
 */
 CF_EXPORT
-CFDictionaryRef CFErrorCopyUserInfo(CFErrorRef err) CF_AVAILABLE(10_5, 2_0);
+CFDictionaryRef CFErrorCopyUserInfo(CFErrorRef err) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFErrorCopyDescription
 	@abstract Returns a human-presentable description for the error. CFError creators should strive to make sure the return value is human-presentable and localized by providing a value for kCFErrorLocalizedDescriptionKey at the time of CFError creation.
-        @discussion This is a complete sentence or two which says what failed and why it failed. Rules for computing the return value:
-            - Look for kCFErrorLocalizedDescriptionKey in the user info and if not NULL, returns that as-is.  
-            - Otherwise, if there is a kCFErrorLocalizedFailureReasonKey in the user info, generate an error from that. Something like: "Operation code not be completed. " + kCFErrorLocalizedFailureReasonKey
-            - Otherwise, generate a semi-user presentable string from kCFErrorDescriptionKey, the domain, and code. Something like: "Operation could not be completed. Error domain/code occurred. " or "Operation could not be completed. " + kCFErrorDescriptionKey + " (Error domain/code)"
+        @discussion This is a complete sentence or two which says what failed and why it failed. Please refer to header comments for -[NSError localizedDescription] for details on the steps used to compute this; but roughly:
+            - Use value of kCFErrorLocalizedDescriptionKey as-is if provided.
+            - Use value of kCFErrorLocalizedFailureKey if provided, optionally followed by kCFErrorLocalizedFailureReasonKey if available.
+            - Use value of kCFErrorLocalizedFailureReasonKey, combining with a generic failure message such as: "Operation code not be completed. " + kCFErrorLocalizedFailureReasonKey.
+            - If all of the above fail, generate a semi-user presentable string from kCFErrorDescriptionKey, the domain, and code. Something like: "Operation could not be completed. Error domain/code occurred. " or "Operation could not be completed. " + kCFErrorDescriptionKey + " (Error domain/code)"
             Toll-free bridged NSError instances might provide additional behaviors for manufacturing a description string.  Do not count on the exact contents or format of the returned string, it might change.
 	@param err The CFError whose description is to be returned. If this reference is not a valid CFError, the behavior is undefined.
 	@result A CFString with human-presentable description of the CFError. Never NULL.
 */
 CF_EXPORT
-CFStringRef CFErrorCopyDescription(CFErrorRef err) CF_AVAILABLE(10_5, 2_0);
+CFStringRef CFErrorCopyDescription(CFErrorRef err) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFErrorCopyFailureReason
@@ -5372,7 +5829,7 @@ CFStringRef CFErrorCopyDescription(CFErrorRef err) CF_AVAILABLE(10_5, 2_0);
 	@result A CFString with the localized, end-user presentable failure reason of the CFError, or NULL. 
 */
 CF_EXPORT
-CFStringRef CFErrorCopyFailureReason(CFErrorRef err) CF_AVAILABLE(10_5, 2_0);
+CFStringRef CFErrorCopyFailureReason(CFErrorRef err) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFErrorCopyRecoverySuggestion
@@ -5384,7 +5841,7 @@ CFStringRef CFErrorCopyFailureReason(CFErrorRef err) CF_AVAILABLE(10_5, 2_0);
 	@result A CFString with the localized, end-user presentable recovery suggestion of the CFError, or NULL. 
 */
 CF_EXPORT
-CFStringRef CFErrorCopyRecoverySuggestion(CFErrorRef err) CF_AVAILABLE(10_5, 2_0);
+CFStringRef CFErrorCopyRecoverySuggestion(CFErrorRef err) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 
 
@@ -5395,7 +5852,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFNumber.h
 /*	CFNumber.h
-	Copyright (c) 1999-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1999-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFNUMBER__)
@@ -5437,8 +5899,8 @@ typedef CF_ENUM(CFIndex, CFNumberType) {
     kCFNumberDoubleType = 13,
     /* Other */
     kCFNumberCFIndexType = 14,
-    kCFNumberNSIntegerType CF_ENUM_AVAILABLE(10_5, 2_0) = 15,
-    kCFNumberCGFloatType CF_ENUM_AVAILABLE(10_5, 2_0) = 16,
+    kCFNumberNSIntegerType API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) = 15,
+    kCFNumberCGFloatType API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) = 16,
     kCFNumberMaxType = 16
 };
 
@@ -5520,7 +5982,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFPropertyList.h
 /*	CFPropertyList.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFPROPERTYLIST__)
@@ -5530,17 +5997,15 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <CoreFoundation/CFData.h>
 #include <CoreFoundation/CFString.h>
 #include <CoreFoundation/CFError.h>
-#if TARGET_OS_MAC || TARGET_OS_WIN32 || TARGET_OS_EMBEDDED
 #include <CoreFoundation/CFStream.h>
-#endif
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
 
 typedef CF_OPTIONS(CFOptionFlags, CFPropertyListMutabilityOptions) {
     kCFPropertyListImmutable = 0,
-    kCFPropertyListMutableContainers,
-    kCFPropertyListMutableContainersAndLeaves
+    kCFPropertyListMutableContainers = 1 << 0,
+    kCFPropertyListMutableContainersAndLeaves = 1 << 1,
 };
 
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -5556,7 +6021,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
         This function is deprecated. See CFPropertyListCreateWithData() for a replacement.
 */
 CF_EXPORT
-CFPropertyListRef CFPropertyListCreateFromXMLData(CFAllocatorRef allocator, CFDataRef xmlData, CFOptionFlags mutabilityOption, CFStringRef *errorString) CF_DEPRECATED(10_0, 10_10, 2_0, 8_0, "Use CFPropertyListCreateWithData instead.");
+CFPropertyListRef CFPropertyListCreateFromXMLData(CFAllocatorRef allocator, CFDataRef xmlData, CFOptionFlags mutabilityOption, CFStringRef *errorString) API_DEPRECATED("Use CFPropertyListCreateWithData instead.", macos(10.0,10.10), ios(2.0,8.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 /*
 	Returns the XML description of the given object; propertyList must
@@ -5571,7 +6036,7 @@ CFPropertyListRef CFPropertyListCreateFromXMLData(CFAllocatorRef allocator, CFDa
         This function is deprecated. See CFPropertyListCreateData() for a replacement.
 */
 CF_EXPORT
-CFDataRef CFPropertyListCreateXMLData(CFAllocatorRef allocator, CFPropertyListRef propertyList) CF_DEPRECATED(10_0, 10_10, 2_0, 8_0, "Use CFPropertyListCreateData instead.");
+CFDataRef CFPropertyListCreateXMLData(CFAllocatorRef allocator, CFPropertyListRef propertyList) API_DEPRECATED("Use CFPropertyListCreateData instead.", macos(10.0,10.10), ios(2.0,8.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 CF_IMPLICIT_BRIDGING_ENABLED
 
@@ -5598,7 +6063,6 @@ typedef CF_ENUM(CFIndex, CFPropertyListFormat) {
 CF_EXPORT
 Boolean CFPropertyListIsValid(CFPropertyListRef plist, CFPropertyListFormat format);
 
-#if TARGET_OS_MAC || TARGET_OS_WIN32 || TARGET_OS_EMBEDDED
 CF_IMPLICIT_BRIDGING_DISABLED
 
 /* Writes the bytes of a plist serialization out to the stream.  The
@@ -5612,7 +6076,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *
  * This function is deprecated. See CFPropertyListWrite() for a replacement. */
 CF_EXPORT
-CFIndex CFPropertyListWriteToStream(CFPropertyListRef propertyList, CFWriteStreamRef stream, CFPropertyListFormat format, CFStringRef *errorString) CF_DEPRECATED(10_2, 10_10, 2_0, 8_0, "Use CFPropertyListWrite instead.");
+CFIndex CFPropertyListWriteToStream(CFPropertyListRef propertyList, CFWriteStreamRef stream, CFPropertyListFormat format, CFStringRef *errorString) API_DEPRECATED("Use CFPropertyListWrite instead.", macos(10.2,10.10), ios(2.0,8.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 
 /* Same as current function CFPropertyListCreateFromXMLData()
@@ -5627,10 +6091,9 @@ CFIndex CFPropertyListWriteToStream(CFPropertyListRef propertyList, CFWriteStrea
  *
  * This function is deprecated. See CFPropertyListCreateWithStream() for a replacement. */
 CF_EXPORT
-CFPropertyListRef CFPropertyListCreateFromStream(CFAllocatorRef allocator, CFReadStreamRef stream, CFIndex streamLength, CFOptionFlags mutabilityOption, CFPropertyListFormat *format, CFStringRef *errorString) CF_DEPRECATED(10_2, 10_10, 2_0, 8_0, "Use CFPropertyListCreateWithStream instead.");
+CFPropertyListRef CFPropertyListCreateFromStream(CFAllocatorRef allocator, CFReadStreamRef stream, CFIndex streamLength, CFOptionFlags mutabilityOption, CFPropertyListFormat *format, CFStringRef *errorString) API_DEPRECATED("Use CFPropertyListCreateWithStream instead.", macos(10.2,10.10), ios(2.0,8.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 CF_IMPLICIT_BRIDGING_ENABLED
-#endif
 
 CF_IMPLICIT_BRIDGING_DISABLED
 
@@ -5639,31 +6102,27 @@ CF_ENUM(CFIndex) {
     kCFPropertyListReadUnknownVersionError = 3841,       // The version number in the property list is unknown
     kCFPropertyListReadStreamError = 3842,               // Stream error reading a property list
     kCFPropertyListWriteStreamError = 3851,              // Stream error writing a property list
-} CF_ENUM_AVAILABLE(10_6, 4_0);
+} API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 /* Create a property list with a CFData input. If the format parameter is non-NULL, it will be set to the format of the data after parsing is complete. The options parameter is used to specify CFPropertyListMutabilityOptions. If an error occurs while parsing the data, the return value will be NULL. Additionally, if an error occurs and the error parameter is non-NULL, the error parameter will be set to a CFError describing the problem, which the caller must release. If the parse succeeds, the returned value is a reference to the new property list. It is the responsibility of the caller to release this value.
  */
 CF_EXPORT
-CFPropertyListRef CFPropertyListCreateWithData(CFAllocatorRef allocator, CFDataRef data, CFOptionFlags options, CFPropertyListFormat *format, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
-
-#if TARGET_OS_MAC || TARGET_OS_WIN32 || TARGET_OS_EMBEDDED
+CFPropertyListRef CFPropertyListCreateWithData(CFAllocatorRef allocator, CFDataRef data, CFOptionFlags options, CFPropertyListFormat *format, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 /* Create and return a property list with a CFReadStream input. If the format parameter is non-NULL, it will be set to the format of the data after parsing is complete. The options parameter is used to specify CFPropertyListMutabilityOptions. The streamLength parameter specifies the number of bytes to read from the stream. Set streamLength to 0 to read until the end of the stream is detected. If an error occurs while parsing the data, the return value will be NULL. Additionally, if an error occurs and the error parameter is non-NULL, the error parameter will be set to a CFError describing the problem, which the caller must release. If the parse succeeds, the returned value is a reference to the new property list. It is the responsibility of the caller to release this value.
  */
 CF_EXPORT
-CFPropertyListRef CFPropertyListCreateWithStream(CFAllocatorRef allocator, CFReadStreamRef stream, CFIndex streamLength, CFOptionFlags options, CFPropertyListFormat *format, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
+CFPropertyListRef CFPropertyListCreateWithStream(CFAllocatorRef allocator, CFReadStreamRef stream, CFIndex streamLength, CFOptionFlags options, CFPropertyListFormat *format, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 /* Write the bytes of a serialized property list out to a stream. The stream must be opened and configured. The format of the property list can be chosen with the format parameter. The options parameter is currently unused and should be set to 0. The return value is the number of bytes written or 0 in the case of an error. If an error occurs and the error parameter is non-NULL, the error parameter will be set to a CFError describing the problem, which the caller must release.
  */
 CF_EXPORT
-CFIndex CFPropertyListWrite(CFPropertyListRef propertyList, CFWriteStreamRef stream, CFPropertyListFormat format, CFOptionFlags options, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
-
-#endif
+CFIndex CFPropertyListWrite(CFPropertyListRef propertyList, CFWriteStreamRef stream, CFPropertyListFormat format, CFOptionFlags options, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 /* Create a CFData with the bytes of a serialized property list. The format of the property list can be chosen with the format parameter. The options parameter is currently unused and should be set to 0. If an error occurs while parsing the data, the return value will be NULL. Additionally, if an error occurs and the error parameter is non-NULL, the error parameter will be set to a CFError describing the problem, which the caller must release. If the conversion succeeds, the returned value is a reference to the created data. It is the responsibility of the caller to release this value.
  */
 CF_EXPORT
-CFDataRef CFPropertyListCreateData(CFAllocatorRef allocator, CFPropertyListRef propertyList, CFPropertyListFormat format, CFOptionFlags options, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
+CFDataRef CFPropertyListCreateData(CFAllocatorRef allocator, CFPropertyListRef propertyList, CFPropertyListFormat format, CFOptionFlags options, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 CF_IMPLICIT_BRIDGING_ENABLED
 
@@ -5674,7 +6133,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFByteOrder.h
 /*	CFByteOrder.h
-	Copyright (c) 1995-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1995-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFBYTEORDER__)
@@ -5975,7 +6439,12 @@ CF_EXTERN_C_END
 
 // ==========  CoreFoundation.framework/Headers/CFSocket.h
 /*	CFSocket.h
-	Copyright (c) 1999-2015, Apple Inc.  All rights reserved.
+	Copyright (c) 1999-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFSOCKET__)
@@ -6096,7 +6565,7 @@ CF_ENUM(CFOptionFlags) {
     kCFSocketAutomaticallyReenableAcceptCallBack = 2,
     kCFSocketAutomaticallyReenableDataCallBack = 3,
     kCFSocketAutomaticallyReenableWriteCallBack = 8,
-    kCFSocketLeaveErrors CF_ENUM_AVAILABLE(10_5, 2_0) = 64,
+    kCFSocketLeaveErrors API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) = 64,
     kCFSocketCloseOnInvalidate = 128
 };
 
@@ -6191,7 +6660,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFFileDescriptor.h
 /*	CFFileDescriptor.h
-	Copyright (c) 2006-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2006-2018, Apple Inc. All rights reserved.
 */
 
 #if !defined(__COREFOUNDATION_CFFILEDESCRIPTOR__)
@@ -6222,21 +6691,21 @@ typedef struct {
     CFStringRef	(*copyDescription)(void *info);
 } CFFileDescriptorContext;
 
-CF_EXPORT CFTypeID	CFFileDescriptorGetTypeID(void) CF_AVAILABLE(10_5, 2_0);
+CF_EXPORT CFTypeID	CFFileDescriptorGetTypeID(void) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
-CF_EXPORT CFFileDescriptorRef	CFFileDescriptorCreate(CFAllocatorRef allocator, CFFileDescriptorNativeDescriptor fd, Boolean closeOnInvalidate, CFFileDescriptorCallBack callout, const CFFileDescriptorContext *context) CF_AVAILABLE(10_5, 2_0);
+CF_EXPORT CFFileDescriptorRef	CFFileDescriptorCreate(CFAllocatorRef allocator, CFFileDescriptorNativeDescriptor fd, Boolean closeOnInvalidate, CFFileDescriptorCallBack callout, const CFFileDescriptorContext *context) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
-CF_EXPORT CFFileDescriptorNativeDescriptor	CFFileDescriptorGetNativeDescriptor(CFFileDescriptorRef f) CF_AVAILABLE(10_5, 2_0);
+CF_EXPORT CFFileDescriptorNativeDescriptor	CFFileDescriptorGetNativeDescriptor(CFFileDescriptorRef f) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
-CF_EXPORT void	 CFFileDescriptorGetContext(CFFileDescriptorRef f, CFFileDescriptorContext *context) CF_AVAILABLE(10_5, 2_0);
+CF_EXPORT void	 CFFileDescriptorGetContext(CFFileDescriptorRef f, CFFileDescriptorContext *context) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
-CF_EXPORT void	 CFFileDescriptorEnableCallBacks(CFFileDescriptorRef f, CFOptionFlags callBackTypes) CF_AVAILABLE(10_5, 2_0);
-CF_EXPORT void	 CFFileDescriptorDisableCallBacks(CFFileDescriptorRef f, CFOptionFlags callBackTypes) CF_AVAILABLE(10_5, 2_0);
+CF_EXPORT void	 CFFileDescriptorEnableCallBacks(CFFileDescriptorRef f, CFOptionFlags callBackTypes) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CF_EXPORT void	 CFFileDescriptorDisableCallBacks(CFFileDescriptorRef f, CFOptionFlags callBackTypes) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
-CF_EXPORT void	 CFFileDescriptorInvalidate(CFFileDescriptorRef f) CF_AVAILABLE(10_5, 2_0);
-CF_EXPORT Boolean	CFFileDescriptorIsValid(CFFileDescriptorRef f) CF_AVAILABLE(10_5, 2_0);
+CF_EXPORT void	 CFFileDescriptorInvalidate(CFFileDescriptorRef f) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CF_EXPORT Boolean	CFFileDescriptorIsValid(CFFileDescriptorRef f) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
-CF_EXPORT CFRunLoopSourceRef	CFFileDescriptorCreateRunLoopSource(CFAllocatorRef allocator, CFFileDescriptorRef f, CFIndex order) CF_AVAILABLE(10_5, 2_0);
+CF_EXPORT CFRunLoopSourceRef	CFFileDescriptorCreateRunLoopSource(CFAllocatorRef allocator, CFFileDescriptorRef f, CFIndex order) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 
 CF_EXTERN_C_END
@@ -6246,7 +6715,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFURL.h
 /*	CFURL.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFURL__)
@@ -6262,7 +6736,7 @@ CF_EXTERN_C_BEGIN
 
 typedef CF_ENUM(CFIndex, CFURLPathStyle) {
     kCFURLPOSIXPathStyle = 0,
-    kCFURLHFSPathStyle CF_ENUM_DEPRECATED(10_0, 10_9, 2_0, 7_0), /* The use of kCFURLHFSPathStyle is deprecated. The Carbon File Manager, which uses HFS style paths, is deprecated. HFS style paths are unreliable because they can arbitrarily refer to multiple volumes if those volumes have identical volume names. You should instead use kCFURLPOSIXPathStyle wherever possible. */
+    kCFURLHFSPathStyle API_DEPRECATED("Carbon File Manager is deprecated, use kCFURLPOSIXPathStyle where possible", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0)), /* The use of kCFURLHFSPathStyle is deprecated. The Carbon File Manager, which uses HFS style paths, is deprecated. HFS style paths are unreliable because they can arbitrarily refer to multiple volumes if those volumes have identical volume names. You should instead use kCFURLPOSIXPathStyle wherever possible. */
     kCFURLWindowsPathStyle
 };
     
@@ -6302,7 +6776,7 @@ CFURLRef CFURLCreateWithBytes(CFAllocatorRef allocator, const UInt8 *URLBytes, C
 CF_EXPORT
 CFDataRef CFURLCreateData(CFAllocatorRef allocator, CFURLRef url, CFStringEncoding encoding, Boolean escapeWhitespace);
 
-/* Any escape sequences in URLString will be interpreted via UTF-8. */
+/* Any percent-escape sequences in URLString will be interpreted via UTF-8. URLString must be a valid URL string. */
 CF_EXPORT
 CFURLRef CFURLCreateWithString(CFAllocatorRef allocator, CFStringRef URLString, CFURLRef baseURL);
 
@@ -6363,7 +6837,7 @@ Boolean CFURLGetFileSystemRepresentation(CFURLRef url, Boolean resolveAgainstBas
 CF_EXPORT
 CFURLRef CFURLCopyAbsoluteURL(CFURLRef relativeURL);
 
-/* Returns the URL's string. */
+/* Returns the URL's string. Percent-escape sequences are not removed. */
 CF_EXPORT
 CFStringRef CFURLGetString(CFURLRef anURL);
 
@@ -6395,38 +6869,38 @@ a relative URL against its base).  The full URL is therefore
 If a given CFURL can be decomposed (that is, conforms to RFC 1808), you
 can ask for each of the four basic pieces (scheme, net location, path,
 and resource specifer) separately, as well as for its base URL.  The
-basic pieces are returned with any percent escape sequences still in
+basic pieces are returned with any percent-escape sequences still in
 place (although note that the scheme may not legally include any
-percent escapes); this is to allow the caller to distinguish between
-percent sequences that may have syntactic meaning if replaced by the
+percent-escapes); this is to allow the caller to distinguish between
+percent-escape sequences that may have syntactic meaning if replaced by the
 character being escaped (for instance, a '/' in a path component).
 Since only the individual schemes know which characters are
-syntactically significant, CFURL cannot safely replace any percent
+syntactically significant, CFURL cannot safely replace any percent-
 escape sequences.  However, you can use
 CFURLCreateStringByReplacingPercentEscapes() to create a new string with
-the percent escapes removed; see below.
+the percent-escapes removed; see below.
 
 If a given CFURL can not be decomposed, you can ask for its scheme and its
 resource specifier; asking it for its net location or path will return NULL.
 
 To get more refined information about the components of a decomposable
 CFURL, you may ask for more specific pieces of the URL, expressed with
-the percent escapes removed.  The available functions are CFURLCopyHostName(),
+the percent-escapes removed.  The available functions are CFURLCopyHostName(),
 CFURLGetPortNumber() (returns an Int32), CFURLCopyUserName(),
 CFURLCopyPassword(), CFURLCopyQuery(), CFURLCopyParameters(), and
 CFURLCopyFragment().  Because the parameters, query, and fragment of an
 URL may contain scheme-specific syntaxes, these methods take a second
 argument, giving a list of characters which should NOT be replaced if
-percent escaped.  For instance, the ftp parameter syntax gives simple
+percent-escaped.  For instance, the ftp parameter syntax gives simple
 key-value pairs as "<key>=<value>;"  Clearly if a key or value includes
 either '=' or ';', it must be escaped to avoid corrupting the meaning of
 the parameters, so the caller may request the parameter string as
 
 CFStringRef myParams = CFURLCopyParameters(ftpURL, CFSTR("=;%"));
 
-requesting that all percent escape sequences be replaced by the represented
+requesting that all percent-escape sequences be replaced by the represented
 characters, except for escaped '=', '%' or ';' characters.  Pass the empty
-string (CFSTR("")) to request that all percent escapes be replaced, or NULL
+string (CFSTR("")) to request that all percent-escapes be replaced, or NULL
 to request that none be.
 */
 
@@ -6434,12 +6908,10 @@ to request that none be.
 CF_EXPORT
 Boolean CFURLCanBeDecomposed(CFURLRef anURL); 
 
-/* The next several methods leave any percent escape sequences intact */
-
 CF_EXPORT
 CFStringRef CFURLCopyScheme(CFURLRef anURL);
 
-/* NULL if CFURLCanBeDecomposed(anURL) is false */
+/* Percent-escape sequences are not removed. NULL if CFURLCanBeDecomposed(anURL) is false */
 CF_EXPORT
 CFStringRef CFURLCopyNetLocation(CFURLRef anURL); 
 
@@ -6451,15 +6923,17 @@ CFStringRef CFURLCopyNetLocation(CFURLRef anURL);
 /* the normal POSIX appearance); CFURLCopyStrictPath()'s return value omits any */
 /* leading slash, and uses isAbsolute to report whether the URL's path is absolute. */
 
-/* CFURLCopyFileSystemPath() returns the URL's path as a file system path for the */
-/* given path style.  All percent escape sequences are replaced.  The URL is not */
-/* resolved against its base before computing the path. */
+/* Percent-escape sequences are not removed. */
 CF_EXPORT
 CFStringRef CFURLCopyPath(CFURLRef anURL);
 
+/* Percent-escape sequences are not removed. */
 CF_EXPORT
 CFStringRef CFURLCopyStrictPath(CFURLRef anURL, Boolean *isAbsolute);
 
+/* CFURLCopyFileSystemPath() returns the URL's path as a file system path for the */
+/* given path style.  All percent-escape sequences are removed.  The URL is not */
+/* resolved against its base before computing the path. */
 CF_EXPORT
 CFStringRef CFURLCopyFileSystemPath(CFURLRef anURL, CFURLPathStyle pathStyle);
 
@@ -6470,24 +6944,29 @@ Boolean CFURLHasDirectoryPath(CFURLRef anURL);
 
 /* Any additional resource specifiers after the path.  For URLs */
 /* that cannot be decomposed, this is everything except the scheme itself. */
+/* Percent-escape sequences are not removed. */
 CF_EXPORT
 CFStringRef CFURLCopyResourceSpecifier(CFURLRef anURL); 
 
+/* Percent-escape sequences are removed. */
 CF_EXPORT
 CFStringRef CFURLCopyHostName(CFURLRef anURL);
 
 CF_EXPORT
 SInt32 CFURLGetPortNumber(CFURLRef anURL); /* Returns -1 if no port number is specified */
 
+/* Percent-escape sequences are removed. */
 CF_EXPORT
 CFStringRef CFURLCopyUserName(CFURLRef anURL);
 
+/* Percent-escape sequences are removed. */
 CF_EXPORT
 CFStringRef CFURLCopyPassword(CFURLRef anURL);
 
-/* These remove all percent escape sequences except those for */
+/* CFURLCopyParameterString, CFURLCopyQueryString, and CFURLCopyFragment */
+/* remove all percent-escape sequences except those for */
 /* characters in charactersToLeaveEscaped.  If charactersToLeaveEscaped */
-/* is empty (""), all percent escape sequences are replaced by their */
+/* is empty (""), all percent-escape sequences are replaced by their */
 /* corresponding characters.  If charactersToLeaveEscaped is NULL, */
 /* then no escape sequences are removed at all */
 CF_EXPORT
@@ -6499,15 +6978,13 @@ CFStringRef CFURLCopyQueryString(CFURLRef anURL, CFStringRef charactersToLeaveEs
 CF_EXPORT
 CFStringRef CFURLCopyFragment(CFURLRef anURL, CFStringRef charactersToLeaveEscaped);
 
+/* Percent-escape sequences are removed. */
 CF_EXPORT
 CFStringRef CFURLCopyLastPathComponent(CFURLRef url);
 
+/* Percent-escape sequences are removed. */
 CF_EXPORT
 CFStringRef CFURLCopyPathExtension(CFURLRef url);
-
-/* These functions all treat the base URL of the supplied url as */
-/* invariant.  In other words, the URL returned will always have */
-/* the same base as the URL supplied as an argument. */
 
 CF_EXPORT
 CFURLRef CFURLCreateCopyAppendingPathComponent(CFAllocatorRef allocator, CFURLRef url, CFStringRef pathComponent, Boolean isDirectory);
@@ -6612,23 +7089,23 @@ fragment            (60, 8)             (59, 9)
 CF_EXPORT
 CFRange CFURLGetByteRangeForComponent(CFURLRef url, CFURLComponentType component, CFRange *rangeIncludingSeparators);
 
-/* Returns a string with any percent escape sequences that do NOT */
+/* Returns a string with any percent-escape sequences that do NOT */
 /* correspond to characters in charactersToLeaveEscaped with their */
-/* equivalent.  Returns NULL on failure (if an invalid percent sequence */
+/* equivalent.  Returns NULL on failure (if an invalid percent-escape sequence */
 /* is encountered), or the original string (retained) if no characters */
-/* need to be replaced. Pass NULL to request that no percent escapes be */
-/* replaced, or the empty string (CFSTR("")) to request that all percent */
-/* escapes be replaced.  Uses UTF8 to interpret percent escapes. */
+/* need to be replaced. Pass NULL to request that no percent-escapes be */
+/* replaced, or the empty string (CFSTR("")) to request that all percent- */
+/* escapes be replaced.  Uses UTF8 to interpret percent-escapes. */
 CF_EXPORT
 CFStringRef CFURLCreateStringByReplacingPercentEscapes(CFAllocatorRef allocator, CFStringRef originalString, CFStringRef charactersToLeaveEscaped);
 
-/* As above, but allows you to specify the encoding to use when interpreting percent escapes */
+/* As above, but allows you to specify the encoding to use when interpreting percent-escapes */
 CF_EXPORT
-CFStringRef CFURLCreateStringByReplacingPercentEscapesUsingEncoding(CFAllocatorRef allocator, CFStringRef origString, CFStringRef charsToLeaveEscaped, CFStringEncoding encoding) CF_DEPRECATED(10_0, 10_11, 2_0, 9_0, "Use [NSString stringByRemovingPercentEncoding] or CFURLCreateStringByReplacingPercentEscapes() instead, which always uses the recommended UTF-8 encoding.");
+CFStringRef CFURLCreateStringByReplacingPercentEscapesUsingEncoding(CFAllocatorRef allocator, CFStringRef origString, CFStringRef charsToLeaveEscaped, CFStringEncoding encoding) API_DEPRECATED("Use [NSString stringByRemovingPercentEncoding] or CFURLCreateStringByReplacingPercentEscapes() instead, which always uses the recommended UTF-8 encoding.", macos(10.0,10.11), ios(2.0,9.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 /* Creates a copy or originalString, replacing certain characters with */
-/* the equivalent percent escape sequence based on the encoding specified. */
-/* If the originalString does not need to be modified (no percent escape */
+/* the equivalent percent-escape sequence based on the encoding specified. */
+/* If the originalString does not need to be modified (no percent-escape */
 /* sequences are missing), may retain and return originalString. */
 /* If you are uncertain of the correct encoding, you should use UTF-8, */
 /* which is the encoding designated by RFC 2396 as the correct encoding */
@@ -6639,7 +7116,7 @@ CFStringRef CFURLCreateStringByReplacingPercentEscapesUsingEncoding(CFAllocatorR
 /* in an otherwise correct URL string, do: */
 /*      newString = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, origString, NULL, NULL, kCFStringEncodingUTF8); */
 CF_EXPORT
-CFStringRef CFURLCreateStringByAddingPercentEscapes(CFAllocatorRef allocator, CFStringRef originalString, CFStringRef charactersToLeaveUnescaped, CFStringRef legalURLCharactersToBeEscaped, CFStringEncoding encoding) CF_DEPRECATED(10_0, 10_11, 2_0, 9_0, "Use [NSString stringByAddingPercentEncodingWithAllowedCharacters:] instead, which always uses the recommended UTF-8 encoding, and which encodes for a specific URL component or subcomponent (since each URL component or subcomponent has different rules for what characters are valid).");
+CFStringRef CFURLCreateStringByAddingPercentEscapes(CFAllocatorRef allocator, CFStringRef originalString, CFStringRef charactersToLeaveUnescaped, CFStringRef legalURLCharactersToBeEscaped, CFStringEncoding encoding) API_DEPRECATED("Use [NSString stringByAddingPercentEncodingWithAllowedCharacters:] instead, which always uses the recommended UTF-8 encoding, and which encodes for a specific URL component or subcomponent (since each URL component or subcomponent has different rules for what characters are valid).", macos(10.0,10.11), ios(2.0,9.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 
 #if (TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE) || CF_BUILDING_CF || NSBUILDINGFOUNDATION
@@ -6655,7 +7132,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
             The URL specifying the resource.
  */
 CF_EXPORT
-Boolean CFURLIsFileReferenceURL(CFURLRef url) CF_AVAILABLE(10_9, 7_0);
+Boolean CFURLIsFileReferenceURL(CFURLRef url) API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /*
     CFURLCreateFileReferenceURL
@@ -6678,7 +7155,7 @@ Boolean CFURLIsFileReferenceURL(CFURLRef url) CF_AVAILABLE(10_9, 7_0);
         Symbol is present in iOS 4, but performs no operation.
  */
 CF_EXPORT
-CFURLRef CFURLCreateFileReferenceURL(CFAllocatorRef allocator, CFURLRef url, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
+CFURLRef CFURLCreateFileReferenceURL(CFAllocatorRef allocator, CFURLRef url, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -6702,7 +7179,7 @@ CFURLRef CFURLCreateFileReferenceURL(CFAllocatorRef allocator, CFURLRef url, CFE
         Symbol is present in iOS 4, but performs no operation.
  */
 CF_EXPORT
-CFURLRef CFURLCreateFilePathURL(CFAllocatorRef allocator, CFURLRef url, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
+CFURLRef CFURLCreateFilePathURL(CFAllocatorRef allocator, CFURLRef url, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 CF_IMPLICIT_BRIDGING_ENABLED
 #endif
@@ -6715,10 +7192,10 @@ struct FSRef;
 // Note: CFURLCreateFromFSRef and CFURLGetFSRef have never been functional on iOS because the Carbon File Manager is not on iOS.
 
 CF_EXPORT
-CFURLRef CFURLCreateFromFSRef(CFAllocatorRef allocator, const struct FSRef *fsRef) CF_DEPRECATED(10_0, 10_9, 2_0, 7_0);
+CFURLRef CFURLCreateFromFSRef(CFAllocatorRef allocator, const struct FSRef *fsRef) API_DEPRECATED("Not supported", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 CF_EXPORT
-Boolean CFURLGetFSRef(CFURLRef url, struct FSRef *fsRef) CF_DEPRECATED(10_0, 10_9, 2_0, 7_0);
+Boolean CFURLGetFSRef(CFURLRef url, struct FSRef *fsRef) API_DEPRECATED("Not supported", macos(10.0,10.9), ios(2.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 #endif
 #endif
@@ -6760,7 +7237,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
         Symbol is present in iOS 4, but performs no operation.
  */
 CF_EXPORT
-Boolean CFURLCopyResourcePropertyForKey(CFURLRef url, CFStringRef key, void *propertyValueTypeRefPtr, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
+Boolean CFURLCopyResourcePropertyForKey(CFURLRef url, CFStringRef key, void *propertyValueTypeRefPtr, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -6784,7 +7261,7 @@ Boolean CFURLCopyResourcePropertyForKey(CFURLRef url, CFStringRef key, void *pro
         Symbol is present in iOS 4, but performs no operation.
  */
 CF_EXPORT
-CFDictionaryRef CFURLCopyResourcePropertiesForKeys(CFURLRef url, CFArrayRef keys, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
+CFDictionaryRef CFURLCopyResourcePropertiesForKeys(CFURLRef url, CFArrayRef keys, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -6810,7 +7287,7 @@ CFDictionaryRef CFURLCopyResourcePropertiesForKeys(CFURLRef url, CFArrayRef keys
         Symbol is present in iOS 4, but performs no operation.
  */
 CF_EXPORT
-Boolean CFURLSetResourcePropertyForKey(CFURLRef url, CFStringRef key, CFTypeRef propertyValue, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
+Boolean CFURLSetResourcePropertyForKey(CFURLRef url, CFStringRef key, CFTypeRef propertyValue, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -6834,11 +7311,11 @@ Boolean CFURLSetResourcePropertyForKey(CFURLRef url, CFStringRef key, CFTypeRef 
         Symbol is present in iOS 4, but performs no operation.
  */
 CF_EXPORT
-Boolean CFURLSetResourcePropertiesForKeys(CFURLRef url, CFDictionaryRef keyedPropertyValues, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
+Boolean CFURLSetResourcePropertiesForKeys(CFURLRef url, CFDictionaryRef keyedPropertyValues, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 CF_EXPORT
-const CFStringRef kCFURLKeysOfUnsetValuesKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLKeysOfUnsetValuesKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* Key for the resource properties that have not been set after the CFURLSetResourcePropertiesForKeys function returns an error, returned as an array of of CFString objects. */
 
 
@@ -6858,7 +7335,7 @@ const CFStringRef kCFURLKeysOfUnsetValuesKey CF_AVAILABLE(10_7, 5_0);
         Symbol is present in iOS 4, but performs no operation.
  */
 CF_EXPORT
-void CFURLClearResourcePropertyCacheForKey(CFURLRef url, CFStringRef key) CF_AVAILABLE(10_6, 4_0);
+void CFURLClearResourcePropertyCacheForKey(CFURLRef url, CFStringRef key) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -6875,7 +7352,7 @@ void CFURLClearResourcePropertyCacheForKey(CFURLRef url, CFStringRef key) CF_AVA
         Symbol is present in iOS 4, but performs no operation.
  */
 CF_EXPORT
-void CFURLClearResourcePropertyCache(CFURLRef url) CF_AVAILABLE(10_6, 4_0);
+void CFURLClearResourcePropertyCache(CFURLRef url) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -6896,7 +7373,7 @@ void CFURLClearResourcePropertyCache(CFURLRef url) CF_AVAILABLE(10_6, 4_0);
         Symbol is present in iOS 4, but performs no operation.
  */
 CF_EXPORT
-void CFURLSetTemporaryResourcePropertyForKey(CFURLRef url, CFStringRef key, CFTypeRef propertyValue) CF_AVAILABLE(10_6, 4_0);
+void CFURLSetTemporaryResourcePropertyForKey(CFURLRef url, CFStringRef key, CFTypeRef propertyValue) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 
 /*
@@ -6918,7 +7395,7 @@ void CFURLSetTemporaryResourcePropertyForKey(CFURLRef url, CFStringRef key, CFTy
         Symbol is present in iOS 4, but performs no operation.
  */
 CF_EXPORT
-Boolean CFURLResourceIsReachable(CFURLRef url, CFErrorRef *error) CF_AVAILABLE(10_6, 4_0);
+Boolean CFURLResourceIsReachable(CFURLRef url, CFErrorRef *error) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 CF_IMPLICIT_BRIDGING_ENABLED
 
@@ -6926,420 +7403,470 @@ CF_IMPLICIT_BRIDGING_ENABLED
 /* Properties of File System Resources */
 
 CF_EXPORT 
-const CFStringRef kCFURLNameKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLNameKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* The resource name provided by the file system (Read-write, value type CFString) */
 
 CF_EXPORT
-const CFStringRef kCFURLLocalizedNameKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLLocalizedNameKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* Localized or extension-hidden name as displayed to users (Read-only, value type CFString) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsRegularFileKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLIsRegularFileKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* True for regular files (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsDirectoryKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLIsDirectoryKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* True for directories (Read-only, CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsSymbolicLinkKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLIsSymbolicLinkKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* True for symlinks (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsVolumeKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLIsVolumeKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* True for the root directory of a volume (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsPackageKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLIsPackageKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* True for packaged directories (Read-only 10_6 and 10_7, read-write 10_8, value type CFBoolean). Note: You can only set or clear this property on directories; if you try to set this property on non-directory objects, the property is ignored. If the directory is a package for some other reason (extension type, etc), setting this property to false will have no effect. */
 
 CF_EXPORT
-const CFStringRef kCFURLIsApplicationKey CF_AVAILABLE(10_11, 9_0);
+const CFStringRef kCFURLIsApplicationKey API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
     /* True if resource is an application (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLApplicationIsScriptableKey CF_AVAILABLE(10_11, NA);
+const CFStringRef kCFURLApplicationIsScriptableKey API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios, watchos, tvos);
     /* True if the resource is scriptable. Only applies to applications. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsSystemImmutableKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLIsSystemImmutableKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* True for system-immutable resources (Read-write, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsUserImmutableKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLIsUserImmutableKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* True for user-immutable resources (Read-write, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsHiddenKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLIsHiddenKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* True for resources normally not displayed to users (Read-write, value type CFBoolean). Note: If the resource is a hidden because its name starts with a period, setting this property to false will not change the property. */
 
 CF_EXPORT
-const CFStringRef kCFURLHasHiddenExtensionKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLHasHiddenExtensionKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* True for resources whose filename extension is removed from the localized name property (Read-write, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLCreationDateKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLCreationDateKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* The date the resource was created (Read-write, value type CFDate) */
 
 CF_EXPORT
-const CFStringRef kCFURLContentAccessDateKey CF_AVAILABLE(10_6, 4_0);
-    /* The date the resource was last accessed (Read-only, value type CFDate) */
+const CFStringRef kCFURLContentAccessDateKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+    /* The date the resource was last accessed (Read-write, value type CFDate) */
 
 CF_EXPORT
-const CFStringRef kCFURLContentModificationDateKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLContentModificationDateKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* The time the resource content was last modified (Read-write, value type CFDate) */
 
 CF_EXPORT
-const CFStringRef kCFURLAttributeModificationDateKey CF_AVAILABLE(10_6, 4_0);
-    /* The time the resource's attributes were last modified (Read-write, value type CFDate) */
+const CFStringRef kCFURLAttributeModificationDateKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+    /* The time the resource's attributes were last modified (Read-only, value type CFDate) */
 
 CF_EXPORT
-const CFStringRef kCFURLLinkCountKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLLinkCountKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* Number of hard links to the resource (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLParentDirectoryURLKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLParentDirectoryURLKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* The resource's parent directory, if any (Read-only, value type CFURL) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeURLKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeURLKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* URL of the volume on which the resource is stored (Read-only, value type CFURL) */
 
 CF_EXPORT
-const CFStringRef kCFURLTypeIdentifierKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLTypeIdentifierKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* Uniform type identifier (UTI) for the resource (Read-only, value type CFString) */
 
 CF_EXPORT
-const CFStringRef kCFURLLocalizedTypeDescriptionKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLLocalizedTypeDescriptionKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* User-visible type or "kind" description (Read-only, value type CFString) */
 
 CF_EXPORT
-const CFStringRef kCFURLLabelNumberKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLLabelNumberKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* The label number assigned to the resource (Read-write, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLLabelColorKey CF_AVAILABLE(10_6, 4_0);
-    /* The color of the assigned label (Currently not implemented, value type CGColorRef, must link with Application Services) */
+const CFStringRef kCFURLLabelColorKey API_DEPRECATED("Use NSURLLabelColorKey", macosx(10.6, 10.12), ios(4.0,10.0), watchos(2.0,3.0), tvos(9.0,10.0));
+    /* not implemented */
 
 CF_EXPORT
-const CFStringRef kCFURLLocalizedLabelKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLLocalizedLabelKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* The user-visible label text (Read-only, value type CFString) */
 
 CF_EXPORT
-const CFStringRef kCFURLEffectiveIconKey CF_AVAILABLE(10_6, 4_0);
-    /* The icon normally displayed for the resource (Read-only, value type CGImageRef, must link with Application Services) */
+const CFStringRef kCFURLEffectiveIconKey API_DEPRECATED("Use NSURLEffectiveIconKey", macosx(10.6, 10.12), ios(4.0,10.0), watchos(2.0,3.0), tvos(9.0,10.0));
+    /* not implemented */
 
 CF_EXPORT
-const CFStringRef kCFURLCustomIconKey CF_AVAILABLE(10_6, 4_0);
-    /* The custom icon assigned to the resource, if any (Currently not implemented, value type CGImageRef, must link with Application Services) */
+const CFStringRef kCFURLCustomIconKey API_DEPRECATED("Use NSURLCustomIconKey", macosx(10.6, 10.12), ios(4.0,10.0), watchos(2.0,3.0), tvos(9.0,10.0));
+    /* not implemented */
 
 CF_EXPORT
-const CFStringRef kCFURLFileResourceIdentifierKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileResourceIdentifierKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* An identifier which can be used to compare two file system objects for equality using CFEqual (i.e, two object identifiers are equal if they have the same file system path or if the paths are linked to same inode on the same file system). This identifier is not persistent across system restarts. (Read-only, value type CFType) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeIdentifierKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeIdentifierKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* An identifier that can be used to identify the volume the file system object is on. Other objects on the same volume will have the same volume identifier and can be compared using for equality using CFEqual. This identifier is not persistent across system restarts. (Read-only, value type CFType) */
 
 CF_EXPORT
-const CFStringRef kCFURLPreferredIOBlockSizeKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLPreferredIOBlockSizeKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* The optimal block size when reading or writing this file's data, or NULL if not available. (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsReadableKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLIsReadableKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if this process (as determined by EUID) can read the resource. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsWritableKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLIsWritableKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if this process (as determined by EUID) can write to the resource. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsExecutableKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLIsExecutableKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if this process (as determined by EUID) can execute a file resource or search a directory resource. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLFileSecurityKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileSecurityKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* The file system object's security information encapsulated in a CFFileSecurity object. (Read-write, value type CFFileSecurity) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsExcludedFromBackupKey CF_AVAILABLE(10_8, 5_1);
+const CFStringRef kCFURLIsExcludedFromBackupKey API_AVAILABLE(macos(10.8), ios(5.1), watchos(2.0), tvos(9.0));
     /* true if resource should be excluded from backups, false otherwise (Read-write, value type CFBoolean). This property is only useful for excluding cache and other application support files which are not needed in a backup. Some operations commonly made to user documents will cause this property to be reset to false and so this property should not be used on user documents. */
 
 CF_EXPORT
-const CFStringRef kCFURLTagNamesKey CF_AVAILABLE(10_9, NA);
+const CFStringRef kCFURLTagNamesKey API_AVAILABLE(macos(10.9)) API_UNAVAILABLE(ios, watchos, tvos);
     /* The array of Tag names (Read-write, value type CFArray of CFString) */
     
 CF_EXPORT
-const CFStringRef kCFURLPathKey CF_AVAILABLE(10_8, 6_0);
+const CFStringRef kCFURLPathKey API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
     /* the URL's path as a file system path (Read-only, value type CFString) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsMountTriggerKey CF_AVAILABLE(10_7, 4_0);
+const CFStringRef kCFURLCanonicalPathKey API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+    /* the URL's path as a canonical absolute file system path (Read-only, value type CFString) */
+
+CF_EXPORT
+const CFStringRef kCFURLIsMountTriggerKey API_AVAILABLE(macos(10.7), ios(4.0), watchos(2.0), tvos(9.0));
     /* true if this URL is a file system trigger directory. Traversing or opening a file system trigger will cause an attempt to mount a file system on the trigger directory. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLGenerationIdentifierKey CF_AVAILABLE(10_10, 8_0);
+const CFStringRef kCFURLGenerationIdentifierKey API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
     /* An opaque generation identifier which can be compared using CFEqual() to determine if the data in a document has been modified. For URLs which refer to the same file inode, the generation identifier will change when the data in the file's data fork is changed (changes to extended attributes or other file system metadata do not change the generation identifier). For URLs which refer to the same directory inode, the generation identifier will change when direct children of that directory are added, removed or renamed (changes to the data of the direct children of that directory will not change the generation identifier). The generation identifier is persistent across system restarts. The generation identifier is tied to a specific document on a specific volume and is not transferred when the document is copied to another volume. This property is not supported by all volumes. (Read-only, value type CFType) */
 
 CF_EXPORT
-const CFStringRef kCFURLDocumentIdentifierKey CF_AVAILABLE(10_10, 8_0);
+const CFStringRef kCFURLDocumentIdentifierKey API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
     /* The document identifier -- a value assigned by the kernel to a document (which can be either a file or directory) and is used to identify the document regardless of where it gets moved on a volume. The document identifier survives "safe save” operations; i.e it is sticky to the path it was assigned to (-replaceItemAtURL:withItemAtURL:backupItemName:options:resultingItemURL:error: is the preferred safe-save API). The document identifier is persistent across system restarts. The document identifier is not transferred when the file is copied. Document identifiers are only unique within a single volume. This property is not supported by all volumes. (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLAddedToDirectoryDateKey CF_AVAILABLE(10_10, 8_0);
+const CFStringRef kCFURLAddedToDirectoryDateKey API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
     /* The date the resource was created, or renamed into or within its parent directory. Note that inconsistent behavior may be observed when this attribute is requested on hard-linked items. This property is not supported by all volumes. (Read-only, value type CFDate) */
 
 CF_EXPORT
-const CFStringRef kCFURLQuarantinePropertiesKey CF_AVAILABLE(10_10, NA);
+const CFStringRef kCFURLQuarantinePropertiesKey API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, watchos, tvos);
     /* The quarantine properties as defined in LSQuarantine.h. To remove quarantine information from a file, pass kCFNull as the value when setting this property. (Read-write, value type CFDictionary) */
 
 CF_EXPORT
-const CFStringRef kCFURLFileResourceTypeKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileResourceTypeKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* Returns the file system object type. (Read-only, value type CFString) */
 
 /* The file system object type values returned for the kCFURLFileResourceTypeKey */
 CF_EXPORT
-const CFStringRef kCFURLFileResourceTypeNamedPipe CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileResourceTypeNamedPipe API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 CF_EXPORT
-const CFStringRef kCFURLFileResourceTypeCharacterSpecial CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileResourceTypeCharacterSpecial API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 CF_EXPORT
-const CFStringRef kCFURLFileResourceTypeDirectory CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileResourceTypeDirectory API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 CF_EXPORT
-const CFStringRef kCFURLFileResourceTypeBlockSpecial CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileResourceTypeBlockSpecial API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 CF_EXPORT
-const CFStringRef kCFURLFileResourceTypeRegular CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileResourceTypeRegular API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 CF_EXPORT
-const CFStringRef kCFURLFileResourceTypeSymbolicLink CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileResourceTypeSymbolicLink API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 CF_EXPORT
-const CFStringRef kCFURLFileResourceTypeSocket CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileResourceTypeSocket API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 CF_EXPORT
-const CFStringRef kCFURLFileResourceTypeUnknown CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLFileResourceTypeUnknown API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 /* File Properties */
 
 CF_EXPORT
-const CFStringRef kCFURLFileSizeKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLFileSizeKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* Total file size in bytes (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLFileAllocatedSizeKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLFileAllocatedSizeKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* Total size allocated on disk for the file in bytes (number of blocks times block size) (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLTotalFileSizeKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLTotalFileSizeKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* Total displayable size of the file in bytes (this may include space used by metadata), or NULL if not available. (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLTotalFileAllocatedSizeKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLTotalFileAllocatedSizeKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* Total allocated size of the file in bytes (this may include space used by metadata), or NULL if not available. This can be less than the value returned by kCFURLTotalFileSizeKey if the resource is compressed. (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLIsAliasFileKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLIsAliasFileKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /*  true if the resource is a Finder alias file or a symlink, false otherwise ( Read-only, value type CFBooleanRef) */
 
 CF_EXPORT
-const CFStringRef kCFURLFileProtectionKey CF_AVAILABLE_IOS(9_0);
+const CFStringRef kCFURLFileProtectionKey API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos);
     /* The protection level for this file */
 
 /* The protection level values returned for the kCFURLFileProtectionKey */
 CF_EXPORT
-const CFStringRef kCFURLFileProtectionNone CF_AVAILABLE_IOS(9_0); // The file has no special protections associated with it. It can be read from or written to at any time.
+const CFStringRef kCFURLFileProtectionNone API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos); // The file has no special protections associated with it. It can be read from or written to at any time.
 
 CF_EXPORT
-const CFStringRef kCFURLFileProtectionComplete CF_AVAILABLE_IOS(9_0); // The file is stored in an encrypted format on disk and cannot be read from or written to while the device is locked or booting.
+const CFStringRef kCFURLFileProtectionComplete API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos); // The file is stored in an encrypted format on disk and cannot be read from or written to while the device is locked or booting.
 
 CF_EXPORT
-const CFStringRef kCFURLFileProtectionCompleteUnlessOpen CF_AVAILABLE_IOS(9_0); // The file is stored in an encrypted format on disk. Files can be created while the device is locked, but once closed, cannot be opened again until the device is unlocked. If the file is opened when unlocked, you may continue to access the file normally, even if the user locks the device. There is a small performance penalty when the file is created and opened, though not when being written to or read from. This can be mitigated by changing the file protection to kCFURLFileProtectionComplete when the device is unlocked.
+const CFStringRef kCFURLFileProtectionCompleteUnlessOpen API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos); // The file is stored in an encrypted format on disk. Files can be created while the device is locked, but once closed, cannot be opened again until the device is unlocked. If the file is opened when unlocked, you may continue to access the file normally, even if the user locks the device. There is a small performance penalty when the file is created and opened, though not when being written to or read from. This can be mitigated by changing the file protection to kCFURLFileProtectionComplete when the device is unlocked.
 
 CF_EXPORT
-const CFStringRef kCFURLFileProtectionCompleteUntilFirstUserAuthentication CF_AVAILABLE_IOS(9_0); // The file is stored in an encrypted format on disk and cannot be accessed until after the device has booted. After the user unlocks the device for the first time, your app can access the file and continue to access it even if the user subsequently locks the device.
+const CFStringRef kCFURLFileProtectionCompleteUntilFirstUserAuthentication API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos); // The file is stored in an encrypted format on disk and cannot be accessed until after the device has booted. After the user unlocks the device for the first time, your app can access the file and continue to access it even if the user subsequently locks the device.
 
 /* Volume Properties */
 
 /* As a convenience, volume properties can be requested from any file system URL. The value returned will reflect the property value for the volume on which the resource is located. */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeLocalizedFormatDescriptionKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeLocalizedFormatDescriptionKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* The user-visible volume format (Read-only, value type CFString) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeTotalCapacityKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeTotalCapacityKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* Total volume capacity in bytes (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeAvailableCapacityKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeAvailableCapacityKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* Total free space in bytes (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeResourceCountKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeAvailableCapacityForImportantUsageKey API_AVAILABLE(macos(10.13), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+    /* Total available capacity in bytes for "Important" resources, including space expected to be cleared by purging non-essential and cached resources. "Important" means something that the user or application clearly expects to be present on the local system, but is ultimately replaceable. This would include items that the user has explicitly requested via the UI, and resources that an application requires in order to provide functionality.
+ 
+     Examples: A video that the user has explicitly requested to watch but has not yet finished watching or an audio file that the user has requested to download.
+ 
+     This value should not be used in determining if there is room for an irreplaceable resource. In the case of irreplaceable resources, always attempt to save the resource regardless of available capacity and handle failure as gracefully as possible. (Read-only, value type CFNumber) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeAvailableCapacityForOpportunisticUsageKey API_AVAILABLE(macos(10.13), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+    /* Total available capacity in bytes for "Opportunistic" resources, including space expected to be cleared by purging non-essential and cached resources. "Opportunistic" means something that the user is likely to want but does not expect to be present on the local system, but is ultimately non-essential and replaceable. This would include items that will be created or downloaded without an explicit request from the user on the current device.
+ 
+     Examples: A background download of a newly available episode of a TV series that a user has been recently watching, a piece of content explicitly requested on another device, or a new document saved to a network server by the current user from another device. (Read-only, value type CFNumber) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeResourceCountKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* Total number of resources on the volume (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsPersistentIDsKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeSupportsPersistentIDsKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* true if the volume format supports persistent object identifiers and can look up file system objects by their IDs (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsSymbolicLinksKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeSupportsSymbolicLinksKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* true if the volume format supports symbolic links (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsHardLinksKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeSupportsHardLinksKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* true if the volume format supports hard links (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsJournalingKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeSupportsJournalingKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* true if the volume format supports a journal used to speed recovery in case of unplanned restart (such as a power outage or crash). This does not necessarily mean the volume is actively using a journal. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeIsJournalingKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeIsJournalingKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* true if the volume is currently using a journal for speedy recovery after an unplanned restart. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsSparseFilesKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeSupportsSparseFilesKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* true if the volume format supports sparse files, that is, files which can have 'holes' that have never been written to, and thus do not consume space on disk. A sparse file may have an allocated size on disk that is less than its logical length. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsZeroRunsKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeSupportsZeroRunsKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* For security reasons, parts of a file (runs) that have never been written to must appear to contain zeroes. true if the volume keeps track of allocated but unwritten runs of a file so that it can substitute zeroes without actually writing zeroes to the media. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsCaseSensitiveNamesKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeSupportsCaseSensitiveNamesKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* true if the volume format treats upper and lower case characters in file and directory names as different. Otherwise an upper case character is equivalent to a lower case character, and you can't have two names that differ solely in the case of the characters. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsCasePreservedNamesKey CF_AVAILABLE(10_6, 4_0);
+const CFStringRef kCFURLVolumeSupportsCasePreservedNamesKey API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
     /* true if the volume format preserves the case of file and directory names.  Otherwise the volume may change the case of some characters (typically making them all upper or all lower case). (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsRootDirectoryDatesKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeSupportsRootDirectoryDatesKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume supports reliable storage of times for the root directory. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsVolumeSizesKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeSupportsVolumeSizesKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume supports returning volume size values (kCFURLVolumeTotalCapacityKey and kCFURLVolumeAvailableCapacityKey). (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsRenamingKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeSupportsRenamingKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume can be renamed. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsAdvisoryFileLockingKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeSupportsAdvisoryFileLockingKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume implements whole-file flock(2) style advisory locks, and the O_EXLOCK and O_SHLOCK flags of the open(2) call. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeSupportsExtendedSecurityKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeSupportsExtendedSecurityKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume implements extended security (ACLs). (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeIsBrowsableKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeIsBrowsableKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume should be visible via the GUI (i.e., appear on the Desktop as a separate volume). (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeMaximumFileSizeKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeMaximumFileSizeKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* The largest file size (in bytes) supported by this file system, or NULL if this cannot be determined. (Read-only, value type CFNumber) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeIsEjectableKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeIsEjectableKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume's media is ejectable from the drive mechanism under software control. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeIsRemovableKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeIsRemovableKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume's media is removable from the drive mechanism. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeIsInternalKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeIsInternalKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume's device is connected to an internal bus, false if connected to an external bus, or NULL if not available. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeIsAutomountedKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeIsAutomountedKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume is automounted. Note: do not mistake this with the functionality provided by kCFURLVolumeSupportsBrowsingKey. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeIsLocalKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeIsLocalKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume is stored on a local device. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeIsReadOnlyKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeIsReadOnlyKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if the volume is read-only. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeCreationDateKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeCreationDateKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* The volume's creation date, or NULL if this cannot be determined. (Read-only, value type CFDate) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeURLForRemountingKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeURLForRemountingKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* The CFURL needed to remount a network volume, or NULL if not available. (Read-only, value type CFURL) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeUUIDStringKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeUUIDStringKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* The volume's persistent UUID as a string, or NULL if a persistent UUID is not available for the volume. (Read-only, value type CFString) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeNameKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeNameKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* The name of the volume (Read-write, settable if kCFURLVolumeSupportsRenamingKey is true and permissions allow, value type CFString) */
 
 CF_EXPORT
-const CFStringRef kCFURLVolumeLocalizedNameKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLVolumeLocalizedNameKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* The user-presentable name of the volume (Read-only, value type CFString) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeIsEncryptedKey API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+    /* true if the volume is encrypted. (Read-only, value type CFBoolean) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeIsRootFileSystemKey API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+    /* true if the volume is the root filesystem. (Read-only, value type CFBoolean) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeSupportsCompressionKey API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+    /* true if the volume supports transparent decompression of compressed files using decmpfs. (Read-only, value type CFBoolean) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeSupportsFileCloningKey API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+    /* true if the volume supports clonefile(2) (Read-only, value type CFBoolean) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeSupportsSwapRenamingKey API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+    /* true if the volume supports renamex_np(2)'s RENAME_SWAP option (Read-only, value type CFBoolean) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeSupportsExclusiveRenamingKey API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+    /* true if the volume supports renamex_np(2)'s RENAME_EXCL option (Read-only, value type CFBoolean) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeSupportsImmutableFilesKey API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0), tvos(11.0));
+    /* true if the volume supports making files immutable with the kCFURLIsUserImmutableKey or kCFURLIsSystemImmutableKey properties (Read-only, value type CFBoolean) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeSupportsAccessPermissionsKey API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0), tvos(11.0));
+    /* true if the volume supports setting POSIX access permissions with the kCFURLFileSecurityKey property (Read-only, value type CFBoolean) */
 
 /* UbiquitousItem Properties */
 
 CF_EXPORT
-const CFStringRef kCFURLIsUbiquitousItemKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLIsUbiquitousItemKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if this item is synced to the cloud, false if it is only a local file. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemHasUnresolvedConflictsKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLUbiquitousItemHasUnresolvedConflictsKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if this item has conflicts outstanding. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemIsDownloadedKey CF_DEPRECATED(10_7, 10_9, 5_0, 7_0, "Use kCFURLUbiquitousItemDownloadingStatusKey instead");
+const CFStringRef kCFURLUbiquitousItemIsDownloadedKey API_DEPRECATED("Use kCFURLUbiquitousItemDownloadingStatusKey instead", macos(10.7,10.9), ios(5.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0));
     /* Equivalent to NSURLUbiquitousItemDownloadingStatusKey == NSURLUbiquitousItemDownloadingStatusCurrent. Has never behaved as documented in earlier releases, hence deprecated. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemIsDownloadingKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLUbiquitousItemIsDownloadingKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if data is being downloaded for this item. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemIsUploadedKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLUbiquitousItemIsUploadedKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if there is data present in the cloud for this item. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemIsUploadingKey CF_AVAILABLE(10_7, 5_0);
+const CFStringRef kCFURLUbiquitousItemIsUploadingKey API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
     /* true if data is being uploaded for this item. (Read-only, value type CFBoolean) */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemPercentDownloadedKey CF_DEPRECATED(10_7, 10_8, 5_0, 6_0, "Use NSMetadataQuery and NSMetadataUbiquitousItemPercentDownloadedKey on NSMetadataItem instead");
+const CFStringRef kCFURLUbiquitousItemPercentDownloadedKey API_DEPRECATED("Use NSMetadataQuery and NSMetadataUbiquitousItemPercentDownloadedKey on NSMetadataItem instead", macos(10.7,10.8), ios(5.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
     /* Use NSMetadataQuery and NSMetadataUbiquitousItemPercentDownloadedKey on NSMetadataItem instead */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemPercentUploadedKey CF_DEPRECATED(10_7, 10_8, 5_0, 6_0, "Use NSMetadataQuery and NSMetadataUbiquitousItemPercentUploadedKey on NSMetadataItem instead");
+const CFStringRef kCFURLUbiquitousItemPercentUploadedKey API_DEPRECATED("Use NSMetadataQuery and NSMetadataUbiquitousItemPercentUploadedKey on NSMetadataItem instead", macos(10.7,10.8), ios(5.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
     /* Use NSMetadataQuery and NSMetadataUbiquitousItemPercentUploadedKey on NSMetadataItem instead */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemDownloadingStatusKey CF_AVAILABLE(10_9, 7_0);
+const CFStringRef kCFURLUbiquitousItemDownloadingStatusKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
     /* Returns the download status of this item. (Read-only, value type CFString). Possible values below. */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemDownloadingErrorKey CF_AVAILABLE(10_9, 7_0);
+const CFStringRef kCFURLUbiquitousItemDownloadingErrorKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
     /* returns the error when downloading the item from iCloud failed. See the NSUbiquitousFile section in FoundationErrors.h. (Read-only, value type CFError) */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemUploadingErrorKey CF_AVAILABLE(10_9, 7_0);
+const CFStringRef kCFURLUbiquitousItemUploadingErrorKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
     /* returns the error when uploading the item to iCloud failed. See the NSUbiquitousFile section in FoundationErrors.h. (Read-only, value type CFError) */
 
 /* The values returned for kCFURLUbiquitousItemDownloadingStatusKey
  */
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemDownloadingStatusNotDownloaded CF_AVAILABLE(10_9, 7_0);
+const CFStringRef kCFURLUbiquitousItemDownloadingStatusNotDownloaded API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
     /* this item has not been downloaded yet. Use NSFileManager's startDownloadingUbiquitousItemAtURL:error: to download it */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemDownloadingStatusDownloaded CF_AVAILABLE(10_9, 7_0);
+const CFStringRef kCFURLUbiquitousItemDownloadingStatusDownloaded API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
     /* there is a local version of this item available. The most current version will get downloaded as soon as possible. */
 
 CF_EXPORT
-const CFStringRef kCFURLUbiquitousItemDownloadingStatusCurrent CF_AVAILABLE(10_9, 7_0);
+const CFStringRef kCFURLUbiquitousItemDownloadingStatusCurrent API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
     /* there is a local version of this item and it is the most up-to-date version known to this device. */
 
 
@@ -7351,7 +7878,7 @@ typedef CF_OPTIONS(CFOptionFlags, CFURLBookmarkCreationOptions) {
     
     // deprecated
     kCFURLBookmarkCreationPreferFileIDResolutionMask CF_ENUM_DEPRECATED(10_6, 10_9, 4_0, 7_0, "kCFURLBookmarkCreationPreferFileIDResolutionMask does nothing and has no effect on bookmark resolution" ) = ( 1UL << 8 ),
-} CF_ENUM_AVAILABLE(10_6, 4_0);
+} API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 typedef CF_OPTIONS(CFOptionFlags, CFURLBookmarkResolutionOptions) {
     kCFURLBookmarkResolutionWithoutUIMask = ( 1UL << 8 ), // don't perform any user interaction during bookmark resolution
@@ -7360,7 +7887,7 @@ typedef CF_OPTIONS(CFOptionFlags, CFURLBookmarkResolutionOptions) {
     
     kCFBookmarkResolutionWithoutUIMask = kCFURLBookmarkResolutionWithoutUIMask,
     kCFBookmarkResolutionWithoutMountingMask = kCFURLBookmarkResolutionWithoutMountingMask,
-} CF_ENUM_AVAILABLE(10_6, 4_0);
+} API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 typedef CFOptionFlags CFURLBookmarkFileCreationOptions;
 
@@ -7369,49 +7896,49 @@ CF_IMPLICIT_BRIDGING_DISABLED
 /* Returns bookmark data for the URL, created with specified options and resource properties. If this function returns NULL, the optional error is populated.
  */
 CF_EXPORT
-CFDataRef CFURLCreateBookmarkData ( CFAllocatorRef allocator, CFURLRef url, CFURLBookmarkCreationOptions options, CFArrayRef resourcePropertiesToInclude, CFURLRef relativeToURL, CFErrorRef* error ) CF_AVAILABLE(10_6, 4_0);
+CFDataRef CFURLCreateBookmarkData ( CFAllocatorRef allocator, CFURLRef url, CFURLBookmarkCreationOptions options, CFArrayRef resourcePropertiesToInclude, CFURLRef relativeToURL, CFErrorRef* error ) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 /* Return a URL that refers to a location specified by resolving bookmark data. If this function returns NULL, the optional error is populated.
  */
 CF_EXPORT
-CFURLRef CFURLCreateByResolvingBookmarkData ( CFAllocatorRef allocator, CFDataRef bookmark, CFURLBookmarkResolutionOptions options, CFURLRef relativeToURL, CFArrayRef resourcePropertiesToInclude, Boolean* isStale, CFErrorRef* error ) CF_AVAILABLE(10_6, 4_0);
+CFURLRef CFURLCreateByResolvingBookmarkData ( CFAllocatorRef allocator, CFDataRef bookmark, CFURLBookmarkResolutionOptions options, CFURLRef relativeToURL, CFArrayRef resourcePropertiesToInclude, Boolean* isStale, CFErrorRef* error ) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 /* Returns the resource propertyies identified by a specified array of keys contained in specified bookmark data. If the result dictionary does not contain a resource value for one or more of the requested resource keys, it means those resource properties are not available in the bookmark data.
  */
 CF_EXPORT
-CFDictionaryRef CFURLCreateResourcePropertiesForKeysFromBookmarkData ( CFAllocatorRef allocator, CFArrayRef resourcePropertiesToReturn, CFDataRef bookmark ) CF_AVAILABLE(10_6, 4_0);
+CFDictionaryRef CFURLCreateResourcePropertiesForKeysFromBookmarkData ( CFAllocatorRef allocator, CFArrayRef resourcePropertiesToReturn, CFDataRef bookmark ) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 /*  Returns the resource property identified by a given resource key contained in specified bookmark data. If this function returns NULL, it means the resource property is not available in the bookmark data.
  */
 CF_EXPORT
-CFTypeRef  CFURLCreateResourcePropertyForKeyFromBookmarkData( CFAllocatorRef allocator, CFStringRef resourcePropertyKey, CFDataRef bookmark ) CF_AVAILABLE(10_6, 4_0);
+CFTypeRef  CFURLCreateResourcePropertyForKeyFromBookmarkData( CFAllocatorRef allocator, CFStringRef resourcePropertyKey, CFDataRef bookmark ) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 /* Returns bookmark data derived from an alias file referred to by fileURL. If fileURL refers to an alias file created prior to OS X v10.6 that contains Alias Manager information but no bookmark data, this method synthesizes bookmark data for the file. If this method returns NULL, the optional error is populated.
  */
 CF_EXPORT
-CFDataRef CFURLCreateBookmarkDataFromFile(CFAllocatorRef allocator, CFURLRef fileURL, CFErrorRef *errorRef ) CF_AVAILABLE(10_6, 5_0);
+CFDataRef CFURLCreateBookmarkDataFromFile(CFAllocatorRef allocator, CFURLRef fileURL, CFErrorRef *errorRef ) API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
 
 /* Creates an alias file on disk at a specified location with specified bookmark data. The bookmark data must have been created with the kCFURLBookmarkCreationSuitableForBookmarkFile option. fileURL must either refer to an existing file (which will be overwritten), or to location in an existing directory. If this method returns FALSE, the optional error is populated.
  */
 CF_EXPORT
-Boolean CFURLWriteBookmarkDataToFile( CFDataRef bookmarkRef, CFURLRef fileURL, CFURLBookmarkFileCreationOptions options, CFErrorRef *errorRef ) CF_AVAILABLE(10_6, 5_0);
+Boolean CFURLWriteBookmarkDataToFile( CFDataRef bookmarkRef, CFURLRef fileURL, CFURLBookmarkFileCreationOptions options, CFErrorRef *errorRef ) API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
 
 /* Returns bookmark data derived from an alias record.
  */
 CF_EXPORT
-CFDataRef CFURLCreateBookmarkDataFromAliasRecord ( CFAllocatorRef allocatorRef, CFDataRef aliasRecordDataRef ) CF_AVAILABLE_MAC(10_6);
+CFDataRef CFURLCreateBookmarkDataFromAliasRecord ( CFAllocatorRef allocatorRef, CFDataRef aliasRecordDataRef ) API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, watchos, tvos);
 
 CF_IMPLICIT_BRIDGING_ENABLED
 
 /* Given a CFURLRef created by resolving a bookmark data created with security scope, make the resource referenced by the url accessible to the process. When access to this resource is no longer needed the client must call CFURLStopAccessingSecurityScopedResource(). Each call to CFURLStartAccessingSecurityScopedResource() must be balanced with a call to CFURLStopAccessingSecurityScopedResource() (Note: this is not reference counted).
  */
 CF_EXPORT
-Boolean CFURLStartAccessingSecurityScopedResource(CFURLRef url) CF_AVAILABLE(10_7, 8_0); // On OSX, available in MacOS X 10.7.3 and later
+Boolean CFURLStartAccessingSecurityScopedResource(CFURLRef url) API_AVAILABLE(macos(10.7), ios(8.0), watchos(2.0), tvos(9.0)); // On OSX, available in MacOS X 10.7.3 and later
 
 /* Revokes the access granted to the url by a prior successful call to CFURLStartAccessingSecurityScopedResource().
  */
 CF_EXPORT
-void CFURLStopAccessingSecurityScopedResource(CFURLRef url) CF_AVAILABLE(10_7, 8_0); // On OSX, available in MacOS X 10.7.3 and later
+void CFURLStopAccessingSecurityScopedResource(CFURLRef url) API_AVAILABLE(macos(10.7), ios(8.0), watchos(2.0), tvos(9.0)); // On OSX, available in MacOS X 10.7.3 and later
 
 #endif /* TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE */
 
@@ -7422,7 +7949,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFBitVector.h
 /*	CFBitVector.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFBITVECTOR__)
@@ -7467,7 +7999,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFAttributedString.h
 /*	CFAttributedString.h
-	Copyright (c) 2004-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2004-2018, Apple Inc. All rights reserved.
 */
 
 /*! @header CFAttributedString
@@ -7616,7 +8148,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFRunLoop.h
 /*	CFRunLoop.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFRUNLOOP__)
@@ -7632,6 +8169,8 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
+
+typedef CFStringRef CFRunLoopMode CF_EXTENSIBLE_STRING_ENUM;
 
 typedef struct CF_BRIDGED_MUTABLE_TYPE(id) __CFRunLoop * CFRunLoopRef;
 
@@ -7660,43 +8199,43 @@ typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
     kCFRunLoopAllActivities = 0x0FFFFFFFU
 };
 
-CF_EXPORT const CFStringRef kCFRunLoopDefaultMode;
-CF_EXPORT const CFStringRef kCFRunLoopCommonModes;
+CF_EXPORT const CFRunLoopMode kCFRunLoopDefaultMode;
+CF_EXPORT const CFRunLoopMode kCFRunLoopCommonModes;
 
 CF_EXPORT CFTypeID CFRunLoopGetTypeID(void);
 
 CF_EXPORT CFRunLoopRef CFRunLoopGetCurrent(void);
 CF_EXPORT CFRunLoopRef CFRunLoopGetMain(void);
 
-CF_EXPORT CFStringRef CFRunLoopCopyCurrentMode(CFRunLoopRef rl);
+CF_EXPORT CFRunLoopMode CFRunLoopCopyCurrentMode(CFRunLoopRef rl);
 
 CF_EXPORT CFArrayRef CFRunLoopCopyAllModes(CFRunLoopRef rl);
 
-CF_EXPORT void CFRunLoopAddCommonMode(CFRunLoopRef rl, CFStringRef mode);
+CF_EXPORT void CFRunLoopAddCommonMode(CFRunLoopRef rl, CFRunLoopMode mode);
 
-CF_EXPORT CFAbsoluteTime CFRunLoopGetNextTimerFireDate(CFRunLoopRef rl, CFStringRef mode);
+CF_EXPORT CFAbsoluteTime CFRunLoopGetNextTimerFireDate(CFRunLoopRef rl, CFRunLoopMode mode);
 
 CF_EXPORT void CFRunLoopRun(void);
-CF_EXPORT CFRunLoopRunResult CFRunLoopRunInMode(CFStringRef mode, CFTimeInterval seconds, Boolean returnAfterSourceHandled);
+CF_EXPORT CFRunLoopRunResult CFRunLoopRunInMode(CFRunLoopMode mode, CFTimeInterval seconds, Boolean returnAfterSourceHandled);
 CF_EXPORT Boolean CFRunLoopIsWaiting(CFRunLoopRef rl);
 CF_EXPORT void CFRunLoopWakeUp(CFRunLoopRef rl);
 CF_EXPORT void CFRunLoopStop(CFRunLoopRef rl);
 
 #if __BLOCKS__
-CF_EXPORT void CFRunLoopPerformBlock(CFRunLoopRef rl, CFTypeRef mode, void (^block)(void)) CF_AVAILABLE(10_6, 4_0); 
+CF_EXPORT void CFRunLoopPerformBlock(CFRunLoopRef rl, CFTypeRef mode, void (^block)(void)) API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)); 
 #endif
 
-CF_EXPORT Boolean CFRunLoopContainsSource(CFRunLoopRef rl, CFRunLoopSourceRef source, CFStringRef mode);
-CF_EXPORT void CFRunLoopAddSource(CFRunLoopRef rl, CFRunLoopSourceRef source, CFStringRef mode);
-CF_EXPORT void CFRunLoopRemoveSource(CFRunLoopRef rl, CFRunLoopSourceRef source, CFStringRef mode);
+CF_EXPORT Boolean CFRunLoopContainsSource(CFRunLoopRef rl, CFRunLoopSourceRef source, CFRunLoopMode mode);
+CF_EXPORT void CFRunLoopAddSource(CFRunLoopRef rl, CFRunLoopSourceRef source, CFRunLoopMode mode);
+CF_EXPORT void CFRunLoopRemoveSource(CFRunLoopRef rl, CFRunLoopSourceRef source, CFRunLoopMode mode);
 
-CF_EXPORT Boolean CFRunLoopContainsObserver(CFRunLoopRef rl, CFRunLoopObserverRef observer, CFStringRef mode);
-CF_EXPORT void CFRunLoopAddObserver(CFRunLoopRef rl, CFRunLoopObserverRef observer, CFStringRef mode);
-CF_EXPORT void CFRunLoopRemoveObserver(CFRunLoopRef rl, CFRunLoopObserverRef observer, CFStringRef mode);
+CF_EXPORT Boolean CFRunLoopContainsObserver(CFRunLoopRef rl, CFRunLoopObserverRef observer, CFRunLoopMode mode);
+CF_EXPORT void CFRunLoopAddObserver(CFRunLoopRef rl, CFRunLoopObserverRef observer, CFRunLoopMode mode);
+CF_EXPORT void CFRunLoopRemoveObserver(CFRunLoopRef rl, CFRunLoopObserverRef observer, CFRunLoopMode mode);
 
-CF_EXPORT Boolean CFRunLoopContainsTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFStringRef mode);
-CF_EXPORT void CFRunLoopAddTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFStringRef mode);
-CF_EXPORT void CFRunLoopRemoveTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFStringRef mode);
+CF_EXPORT Boolean CFRunLoopContainsTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFRunLoopMode mode);
+CF_EXPORT void CFRunLoopAddTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFRunLoopMode mode);
+CF_EXPORT void CFRunLoopRemoveTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFRunLoopMode mode);
 
 typedef struct {
     CFIndex	version;
@@ -7706,8 +8245,8 @@ typedef struct {
     CFStringRef	(*copyDescription)(const void *info);
     Boolean	(*equal)(const void *info1, const void *info2);
     CFHashCode	(*hash)(const void *info);
-    void	(*schedule)(void *info, CFRunLoopRef rl, CFStringRef mode);
-    void	(*cancel)(void *info, CFRunLoopRef rl, CFStringRef mode);
+    void	(*schedule)(void *info, CFRunLoopRef rl, CFRunLoopMode mode);
+    void	(*cancel)(void *info, CFRunLoopRef rl, CFRunLoopMode mode);
     void	(*perform)(void *info);
 } CFRunLoopSourceContext;
 
@@ -7752,7 +8291,7 @@ CF_EXPORT CFTypeID CFRunLoopObserverGetTypeID(void);
 
 CF_EXPORT CFRunLoopObserverRef CFRunLoopObserverCreate(CFAllocatorRef allocator, CFOptionFlags activities, Boolean repeats, CFIndex order, CFRunLoopObserverCallBack callout, CFRunLoopObserverContext *context);
 #if __BLOCKS__
-CF_EXPORT CFRunLoopObserverRef CFRunLoopObserverCreateWithHandler(CFAllocatorRef allocator, CFOptionFlags activities, Boolean repeats, CFIndex order, void (^block) (CFRunLoopObserverRef observer, CFRunLoopActivity activity)) CF_AVAILABLE(10_7, 5_0);
+CF_EXPORT CFRunLoopObserverRef CFRunLoopObserverCreateWithHandler(CFAllocatorRef allocator, CFOptionFlags activities, Boolean repeats, CFIndex order, void (^block) (CFRunLoopObserverRef observer, CFRunLoopActivity activity)) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 #endif
 
 CF_EXPORT CFOptionFlags CFRunLoopObserverGetActivities(CFRunLoopObserverRef observer);
@@ -7776,7 +8315,7 @@ CF_EXPORT CFTypeID CFRunLoopTimerGetTypeID(void);
 
 CF_EXPORT CFRunLoopTimerRef CFRunLoopTimerCreate(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, CFRunLoopTimerCallBack callout, CFRunLoopTimerContext *context);
 #if __BLOCKS__
-CF_EXPORT CFRunLoopTimerRef CFRunLoopTimerCreateWithHandler(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, void (^block) (CFRunLoopTimerRef timer)) CF_AVAILABLE(10_7, 5_0);
+CF_EXPORT CFRunLoopTimerRef CFRunLoopTimerCreateWithHandler(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, void (^block) (CFRunLoopTimerRef timer)) API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 #endif
 
 CF_EXPORT CFAbsoluteTime CFRunLoopTimerGetNextFireDate(CFRunLoopTimerRef timer);
@@ -7790,8 +8329,8 @@ CF_EXPORT void CFRunLoopTimerGetContext(CFRunLoopTimerRef timer, CFRunLoopTimerC
 
 // Setting a tolerance for a timer allows it to fire later than the scheduled fire date, improving the ability of the system to optimize for increased power savings and responsiveness. The timer may fire at any time between its scheduled fire date and the scheduled fire date plus the tolerance. The timer will not fire before the scheduled fire date. For repeating timers, the next fire date is calculated from the original fire date regardless of tolerance applied at individual fire times, to avoid drift. The default value is zero, which means no additional tolerance is applied. The system reserves the right to apply a small amount of tolerance to certain timers regardless of the value of this property.
 // As the user of the timer, you will have the best idea of what an appropriate tolerance for a timer may be. A general rule of thumb, though, is to set the tolerance to at least 10% of the interval, for a repeating timer. Even a small amount of tolerance will have a significant positive impact on the power usage of your application. The system may put a maximum value of the tolerance.
-CF_EXPORT CFTimeInterval CFRunLoopTimerGetTolerance(CFRunLoopTimerRef timer) CF_AVAILABLE(10_9, 7_0);
-CF_EXPORT void CFRunLoopTimerSetTolerance(CFRunLoopTimerRef timer, CFTimeInterval tolerance) CF_AVAILABLE(10_9, 7_0);
+CF_EXPORT CFTimeInterval CFRunLoopTimerGetTolerance(CFRunLoopTimerRef timer) API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
+CF_EXPORT void CFRunLoopTimerSetTolerance(CFRunLoopTimerRef timer, CFTimeInterval tolerance) API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -7800,7 +8339,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFString.h
 /*	CFString.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFSTRING__)
@@ -7838,8 +8382,9 @@ pointer quickly, in constant time, or they return NULL. They might choose to ret
 for many reasons; for instance it's possible that for users running in different
 languages these sometimes return NULL; or in a future OS release the first two might
 switch to always returning NULL. Never observing NULL returns in your usages of these
-functions does not mean they won't ever return NULL. (But note the CFStringGetCharactersPtr()
-exception mentioned further below.)
+functions does not mean they won't ever return NULL. In fact, this happened with the 
+introduction of tagged pointer strings in OS X 10.10, and a year later iOS 9. 
+(But please note the CFStringGetCharactersPtr() exception mentioned further below.)
 
 In your usages of these functions, if you get a NULL return, use the non-Ptr version
 of the functions as shown in this example:
@@ -7942,14 +8487,53 @@ equivalents in the encoding the compiler will use to interpret them (for instanc
 O-umlaut is \303\226 in UTF-8). UTF-8 is the recommended encoding here, 
 since it is the default choice with Mac OS X developer tools.
 */
-#if TARGET_OS_WIN32 || TARGET_OS_LINUX
+#if TARGET_OS_WIN32
 #undef __CONSTANT_CFSTRINGS__
 #endif
+
+#if DEPLOYMENT_RUNTIME_SWIFT
+struct __CFConstStr {
+    struct {
+        uintptr_t _cfisa;
+        uint32_t _swift_strong_rc;
+        uint32_t _swift_weak_rc;
+        uint8_t _cfinfo[4];
+        uint8_t _pad[4];
+    } _base;
+    uint8_t *_ptr;
+#if defined(__LP64__) && defined(__BIG_ENDIAN__)
+    uint64_t _length;
+#else
+    uint32_t _length;
+#endif
+};
+
+#if DEPLOYMENT_TARGET_LINUX
+#define CONST_STRING_LITERAL_SECTION __attribute__((section(".cfstrlit.data")))
+#else
+#define CONST_STRING_LITERAL_SECTION
+#endif
+
+#if __BIG_ENDIAN__
+#define CFSTR(cStr)  ({ \
+static struct __CFConstStr str CONST_STRING_LITERAL_SECTION = {{(uintptr_t)&__CFConstantStringClassReference, _CF_CONSTANT_OBJECT_STRONG_RC, 0, {0x00, 0x00, 0x07, 0xc8}, {0x00, 0x00, 0x00, 0x00}}, (uint8_t *)(cStr), sizeof(cStr) - 1}; \
+(CFStringRef)&str; \
+})
+#else
+#define CFSTR(cStr)  ({ \
+static struct __CFConstStr str CONST_STRING_LITERAL_SECTION = {{(uintptr_t)&__CFConstantStringClassReference, _CF_CONSTANT_OBJECT_STRONG_RC, 0, {0xc8, 0x07, 0x00, 0x00}, {0x00, 0x00, 0x00, 0x00}}, (uint8_t *)(cStr), sizeof(cStr) - 1}; \
+(CFStringRef)&str; \
+})
+#endif
+
+#else
 
 #ifdef __CONSTANT_CFSTRINGS__
 #define CFSTR(cStr)  ((CFStringRef) __builtin___CFStringMakeConstantString ("" cStr ""))
 #else
 #define CFSTR(cStr)  __CFStringMakeConstantString("" cStr "")
+#endif
+
 #endif
 
 #if defined(__GNUC__) && (__GNUC__*10+__GNUC_MINOR__ >= 42) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1) && !defined(__INTEL_COMPILER) && (TARGET_OS_MAC || TARGET_OS_EMBEDDED)
@@ -8038,8 +8622,8 @@ CFMutableStringRef CFStringCreateMutableCopy(CFAllocatorRef alloc, CFIndex maxLe
 /* This function creates a mutable string that has a developer supplied and directly editable backing store.
 The string will be manipulated within the provided buffer (if any) until it outgrows capacity; then the
 externalCharactersAllocator will be consulted for more memory. When the CFString is deallocated, the
-buffer will be freed with the externalCharactersAllocator. Provide kCFAllocatorNull here to prevent the buffer
-from ever being reallocated or deallocated by CFString. See comments at top of this file for more info.
+buffer will be freed with the externalCharactersAllocator. If you provide kCFAllocatorNull here, and the buffer 
+needs to grow, then CFString will switch to using the default allocator. See comments at top of this file for more info.
 */
 CF_EXPORT
 CFMutableStringRef CFStringCreateMutableWithExternalCharactersNoCopy(CFAllocatorRef alloc, UniChar *chars, CFIndex numChars, CFIndex capacity, CFAllocatorRef externalCharactersAllocator);
@@ -8085,13 +8669,13 @@ this can't always be counted on. Please see note at the top of the file for more
 details.
 */
 CF_EXPORT
-ConstStringPtr CFStringGetPascalStringPtr(CFStringRef theString, CFStringEncoding encoding);	/* May return NULL at any time; be prepared for NULL */
+ConstStringPtr CFStringGetPascalStringPtr(CFStringRef theString, CFStringEncoding encoding);  /* May return NULL at any time; be prepared for NULL, if not now, in some other time or place. See discussion at top of this file. */
 
 CF_EXPORT
-const char *CFStringGetCStringPtr(CFStringRef theString, CFStringEncoding encoding);		/* May return NULL at any time; be prepared for NULL */
+const char *CFStringGetCStringPtr(CFStringRef theString, CFStringEncoding encoding);  /* May return NULL at any time; be prepared for NULL, if not now, in some other time or place. See discussion at top of this file. */
 
 CF_EXPORT
-const UniChar *CFStringGetCharactersPtr(CFStringRef theString);					/* May return NULL at any time; be prepared for NULL */
+const UniChar *CFStringGetCharactersPtr(CFStringRef theString);  /* May return NULL at any time; be prepared for NULL, if not now, in some other time or place. See discussion at top of this file. */
 
 /* The primitive conversion routine; allows you to convert a string piece at a time
        into a fixed size buffer. Returns number of characters converted. 
@@ -8170,9 +8754,9 @@ typedef CF_OPTIONS(CFOptionFlags, CFStringCompareFlags) {
     kCFCompareNonliteral = 16,		/* If specified, loose equivalence is performed (o-umlaut == o, umlaut) */
     kCFCompareLocalized = 32,		/* User's default locale is used for the comparisons */
     kCFCompareNumerically = 64,		/* Numeric comparison is used; that is, Foo2.txt < Foo7.txt < Foo25.txt */
-    kCFCompareDiacriticInsensitive CF_ENUM_AVAILABLE(10_5, 2_0) = 128, /* If specified, ignores diacritics (o-umlaut == o) */
-    kCFCompareWidthInsensitive CF_ENUM_AVAILABLE(10_5, 2_0) = 256, /* If specified, ignores width differences ('a' == UFF41) */
-    kCFCompareForcedOrdering CF_ENUM_AVAILABLE(10_5, 2_0) = 512 /* If specified, comparisons are forced to return either kCFCompareLessThan or kCFCompareGreaterThan if the strings are equivalent but not strictly equal, for stability when sorting (e.g. "aaa" > "AAA" with kCFCompareCaseInsensitive specified) */
+    kCFCompareDiacriticInsensitive API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) = 128, /* If specified, ignores diacritics (o-umlaut == o) */
+    kCFCompareWidthInsensitive API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) = 256, /* If specified, ignores width differences ('a' == UFF41) */
+    kCFCompareForcedOrdering API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) = 512 /* If specified, comparisons are forced to return either kCFCompareLessThan or kCFCompareGreaterThan if the strings are equivalent but not strictly equal, for stability when sorting (e.g. "aaa" > "AAA" with kCFCompareCaseInsensitive specified) */
 };
 
 /* The main comparison routine; compares specified range of the first string to (the full range of) the second string.
@@ -8182,7 +8766,7 @@ typedef CF_OPTIONS(CFOptionFlags, CFStringCompareFlags) {
    rangeToCompare applies to the first string; that is, only the substring of theString1 specified by rangeToCompare is compared against all of theString2.
 */
 CF_EXPORT
-CFComparisonResult CFStringCompareWithOptionsAndLocale(CFStringRef theString1, CFStringRef theString2, CFRange rangeToCompare, CFStringCompareFlags compareOptions, CFLocaleRef locale) CF_AVAILABLE(10_5, 2_0);
+CFComparisonResult CFStringCompareWithOptionsAndLocale(CFStringRef theString1, CFStringRef theString2, CFRange rangeToCompare, CFStringCompareFlags compareOptions, CFLocaleRef locale) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Comparison convenience. Uses the current user locale (the return value from CFLocaleCopyCurrent()) if kCFCompareLocalized. Refer to CFStringCompareWithOptionsAndLocale() for more info.
 */
@@ -8203,7 +8787,7 @@ CFComparisonResult CFStringCompare(CFStringRef theString1, CFStringRef theString
    Only the substring of theString specified by rangeToSearch is searched for stringToFind.
 */
 CF_EXPORT
-Boolean CFStringFindWithOptionsAndLocale(CFStringRef theString, CFStringRef stringToFind, CFRange rangeToSearch, CFStringCompareFlags searchOptions, CFLocaleRef locale, CFRange *result) CF_AVAILABLE(10_5, 2_0);
+Boolean CFStringFindWithOptionsAndLocale(CFStringRef theString, CFStringRef stringToFind, CFRange rangeToSearch, CFStringCompareFlags searchOptions, CFLocaleRef locale, CFRange *result) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Find convenience. Uses the current user locale (the return value from CFLocaleCopyCurrent()) if kCFCompareLocalized. Refer to CFStringFindWithOptionsAndLocale() for more info.
 */
@@ -8257,7 +8841,7 @@ CF_EXPORT CFRange CFStringGetRangeOfComposedCharactersAtIndex(CFStringRef theStr
 	@param theSet The CFCharacterSet against which the membership
 			of characters is checked.  If this parameter is not a valid
 			CFCharacterSet, the behavior is undefined.
-	@param range The range of characters within the string to search. If
+	@param rangeToSearch The range of characters within the string to search. If
 			the range location or end point (defined by the location
 			plus length minus 1) are outside the index space of the
 			string (0 to N-1 inclusive, where N is the length of the
@@ -8294,7 +8878,7 @@ void CFStringGetLineBounds(CFStringRef theString, CFRange range, CFIndex *lineBe
 /* Same as CFStringGetLineBounds(), however, will only look for paragraphs. Won't stop at Unicode NextLine or LineSeparator characters.
 */
 CF_EXPORT
-void CFStringGetParagraphBounds(CFStringRef string, CFRange range, CFIndex *parBeginIndex, CFIndex *parEndIndex, CFIndex *contentsEndIndex) CF_AVAILABLE(10_5, 2_0);
+void CFStringGetParagraphBounds(CFStringRef string, CFRange range, CFIndex *parBeginIndex, CFIndex *parEndIndex, CFIndex *contentsEndIndex) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /*!
 	@function CFStringGetHyphenationLocationBeforeIndex
@@ -8322,10 +8906,10 @@ void CFStringGetParagraphBounds(CFStringRef string, CFRange range, CFIndex *parB
 			one exists; else kCFNotFound
 */
 CF_EXPORT
-CFIndex CFStringGetHyphenationLocationBeforeIndex(CFStringRef string, CFIndex location, CFRange limitRange, CFOptionFlags options, CFLocaleRef locale, UTF32Char *character) CF_AVAILABLE(10_7, 4_2);
+CFIndex CFStringGetHyphenationLocationBeforeIndex(CFStringRef string, CFIndex location, CFRange limitRange, CFOptionFlags options, CFLocaleRef locale, UTF32Char *character) API_AVAILABLE(macos(10.7), ios(4.2), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
-Boolean CFStringIsHyphenationAvailableForLocale(CFLocaleRef locale) CF_AVAILABLE(10_7, 4_3);
+Boolean CFStringIsHyphenationAvailableForLocale(CFLocaleRef locale) API_AVAILABLE(macos(10.7), ios(4.3), watchos(2.0), tvos(9.0));
 
 /*** Exploding and joining strings with a separator string ***/
 
@@ -8472,7 +9056,7 @@ CF_EXPORT void CFStringNormalize(CFMutableStringRef theString, CFStringNormaliza
 		the effect of kCFCompareNonliteral.
 	@param theString  The string which is to be folded.  If this parameter is not
 		a valid mutable CFString, the behavior is undefined.
-	@param theFlag  The equivalency flags which describes the character folding form.
+	@param theFlags  The equivalency flags which describes the character folding form.
 		Only those flags containing the word "insensitive" are recognized here; other flags are ignored.		
 		Folding with kCFCompareCaseInsensitive removes case distinctions in accordance with the mapping
 		specified by ftp://ftp.unicode.org/Public/UNIDATA/CaseFolding.txt.  Folding with
@@ -8485,7 +9069,7 @@ CF_EXPORT void CFStringNormalize(CFMutableStringRef theString, CFStringNormaliza
 */
 
 CF_EXPORT
-void CFStringFold(CFMutableStringRef theString, CFStringCompareFlags theFlags, CFLocaleRef theLocale) CF_AVAILABLE(10_5, 2_0);
+void CFStringFold(CFMutableStringRef theString, CFStringCompareFlags theFlags, CFLocaleRef theLocale) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Perform string transliteration.  The transformation represented by transform is applied to the given range of string, modifying it in place. Only the specified range will be modified, but the transform may look at portions of the string outside that range for context. NULL range pointer causes the whole string to be transformed. On return, range is modified to reflect the new range corresponding to the original range. reverse indicates that the inverse transform should be used instead, if it exists. If the transform is successful, true is returned; if unsuccessful, false. Reasons for the transform being unsuccessful include an invalid transform identifier, or attempting to reverse an irreversible transform.
 
@@ -8511,7 +9095,7 @@ CF_EXPORT const CFStringRef kCFStringTransformLatinCyrillic;
 CF_EXPORT const CFStringRef kCFStringTransformLatinGreek;
 CF_EXPORT const CFStringRef kCFStringTransformToXMLHex;
 CF_EXPORT const CFStringRef kCFStringTransformToUnicodeName;
-CF_EXPORT const CFStringRef kCFStringTransformStripDiacritics CF_AVAILABLE(10_5, 2_0);
+CF_EXPORT const CFStringRef kCFStringTransformStripDiacritics API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 
 /*** General encoding related functionality ***/
@@ -8669,7 +9253,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif /* ! __COREFOUNDATION_CFSTRING__ */
 // ==========  CoreFoundation.framework/Headers/CFBinaryHeap.h
 /*	CFBinaryHeap.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 /*!
         @header CFBinaryHeap
@@ -8737,7 +9326,7 @@ CF_EXPORT const CFBinaryHeapCallBacks kCFStringBinaryHeapCallBacks;
 	@typedef CFBinaryHeapApplierFunction
 	Type of the callback function used by the apply functions of
 		CFBinaryHeap.
-	@param value The current value from the binary heap.
+	@param val The current value from the binary heap.
 	@param context The user-defined context parameter given to the apply
 		function.
 */
@@ -8921,7 +9510,7 @@ CF_EXPORT void		CFBinaryHeapGetValues(CFBinaryHeapRef heap, const void **values)
 		what is expected by the applier function, the behavior is
 		undefined.
 */
-CF_EXPORT void		CFBinaryHeapApplyFunction(CFBinaryHeapRef heap, CFBinaryHeapApplierFunction applier, void *context);
+CF_EXPORT void		CFBinaryHeapApplyFunction(CFBinaryHeapRef heap, CFBinaryHeapApplierFunction CF_NOESCAPE applier, void *context);
 
 /*!
 	@function CFBinaryHeapAddValue
@@ -8959,13 +9548,22 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFBase.h
 /*	CFBase.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFBASE__)
 #define __COREFOUNDATION_CFBASE__ 1
 
+#if DEPLOYMENT_RUNTIME_SWIFT
+#include <CoreFoundation/TargetConditionals.h>
+#else
 #include <TargetConditionals.h>
+#endif
 #include <CoreFoundation/CFAvailability.h>
 
 #if (defined(__CYGWIN32__) || defined(_WIN32)) && !defined(__WIN32__)
@@ -9019,7 +9617,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <stdbool.h>
 #endif
 
-#if __BLOCKS__
+#if __BLOCKS__ && ((TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
 #include <Block.h>
 #endif
 
@@ -9028,14 +9626,18 @@ CF_IMPLICIT_BRIDGING_DISABLED
     #include <MacTypes.h>
   #endif
 #else
-  #if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+  #if ((TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) && !DEPLOYMENT_RUNTIME_SWIFT
     #include <libkern/OSTypes.h>
   #endif
 #endif
 
 #if !defined(__MACTYPES__)
 #if !defined(_OS_OSTYPES_H)
+#if DEPLOYMENT_RUNTIME_SWIFT
+    typedef _Bool                   Boolean;
+#else
     typedef unsigned char           Boolean;
+#endif
     typedef unsigned char           UInt8;
     typedef signed char             SInt8;
     typedef unsigned short          UInt16;
@@ -9080,19 +9682,17 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif
 
 #if TARGET_OS_WIN32
-
-#if !defined(CF_EXPORT)
-#if defined(CF_BUILDING_CF) && defined(__cplusplus)
-#define CF_EXPORT extern "C" __declspec(dllexport) 
-#elif defined(CF_BUILDING_CF) && !defined(__cplusplus)
-#define CF_EXPORT extern __declspec(dllexport) 
-#elif defined(__cplusplus)
-#define CF_EXPORT extern "C" __declspec(dllimport) 
-#else
-#define CF_EXPORT extern __declspec(dllimport) 
-#endif
-#endif
-
+    #if !defined(CF_EXPORT)
+        #if defined(CF_BUILDING_CF) && defined(__cplusplus)
+            #define CF_EXPORT extern "C" __declspec(dllexport)
+        #elif defined(CF_BUILDING_CF) && !defined(__cplusplus)
+            #define CF_EXPORT extern __declspec(dllexport)
+        #elif defined(__cplusplus)
+            #define CF_EXPORT extern "C" __declspec(dllimport)
+        #else
+            #define CF_EXPORT extern __declspec(dllimport)
+        #endif
+    #endif
 #else
 #define CF_EXPORT extern
 #endif
@@ -9231,14 +9831,14 @@ CF_EXTERN_C_BEGIN
 
 
 #if !__has_feature(nullability)
-#ifndef __nullable
-#define __nullable
+#ifndef _Nullable
+#define _Nullable
 #endif
-#ifndef __nonnull
-#define __nonnull
+#ifndef _Nonnull
+#define _Nonnull
 #endif
-#ifndef __null_unspecified
-#define __null_unspecified
+#ifndef _Null_unspecified
+#define _Null_unspecified
 #endif
 #endif
 
@@ -9256,6 +9856,17 @@ CF_EXTERN_C_BEGIN
 # define CF_SWIFT_NAME(_name)
 #endif
 
+#if __has_attribute(noescape)
+#define CF_NOESCAPE __attribute__((noescape))
+#else
+#define CF_NOESCAPE
+#endif
+
+#if __has_attribute(not_tail_called)
+#define CF_NO_TAIL_CALL __attribute__((not_tail_called))
+#else
+#define CF_NO_TAIL_CALL
+#endif
 
 #if !__has_feature(objc_generics_variance)
 #ifndef __covariant
@@ -9348,6 +9959,15 @@ CF_EXPORT double kCFCoreFoundationVersionNumber;
 #define kCFCoreFoundationVersionNumber10_10_1   1151.16
 #define kCFCoreFoundationVersionNumber10_10_2   1152
 #define kCFCoreFoundationVersionNumber10_10_3   1153.18
+#define kCFCoreFoundationVersionNumber10_10_4   1153.18
+#define kCFCoreFoundationVersionNumber10_10_5   1153.18
+#define kCFCoreFoundationVersionNumber10_10_Max 1199
+#define kCFCoreFoundationVersionNumber10_11     1253
+#define kCFCoreFoundationVersionNumber10_11_1   1255.1
+#define kCFCoreFoundationVersionNumber10_11_2   1256.14
+#define kCFCoreFoundationVersionNumber10_11_3   1256.14
+#define kCFCoreFoundationVersionNumber10_11_4   1258.1
+#define kCFCoreFoundationVersionNumber10_11_Max 1299
 #endif
 
 #if TARGET_OS_IPHONE
@@ -9370,6 +9990,15 @@ CF_EXPORT double kCFCoreFoundationVersionNumber;
 #define kCFCoreFoundationVersionNumber_iOS_8_0 1140.1
 #define kCFCoreFoundationVersionNumber_iOS_8_1 1141.14
 #define kCFCoreFoundationVersionNumber_iOS_8_2 1142.16
+#define kCFCoreFoundationVersionNumber_iOS_8_3 1144.17
+#define kCFCoreFoundationVersionNumber_iOS_8_4 1145.15
+#define kCFCoreFoundationVersionNumber_iOS_8_x_Max 1199
+#define kCFCoreFoundationVersionNumber_iOS_9_0 1240.1
+#define kCFCoreFoundationVersionNumber_iOS_9_1 1241.11
+#define kCFCoreFoundationVersionNumber_iOS_9_2 1242.13
+#define kCFCoreFoundationVersionNumber_iOS_9_3 1242.13
+#define kCFCoreFoundationVersionNumber_iOS_9_4 1280.38
+#define kCFCoreFoundationVersionNumber_iOS_9_x_Max 1299
 #endif
 
 #if __LLP64__
@@ -9577,11 +10206,14 @@ CFTypeRef CFRetain(CFTypeRef cf);
 CF_EXPORT
 void CFRelease(CFTypeRef cf);
 
+#if DEPLOYMENT_RUNTIME_SWIFT
+#else
 CF_EXPORT
-CFTypeRef CFAutorelease(CFTypeRef CF_RELEASES_ARGUMENT arg) CF_AVAILABLE(10_9, 7_0);
+CFTypeRef CFAutorelease(CFTypeRef CF_RELEASES_ARGUMENT arg) API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
 CFIndex CFGetRetainCount(CFTypeRef cf);
+#endif
 
 CF_EXPORT
 Boolean CFEqual(CFTypeRef cf1, CFTypeRef cf2);
@@ -9597,9 +10229,17 @@ CFAllocatorRef CFGetAllocator(CFTypeRef cf);
 
 CF_IMPLICIT_BRIDGING_DISABLED
 
-// This function is unavailable in ARC mode.
+// This function is unavailable in ARC mode. On OS X 10.12 and later, this function simply returns the argument.
 CF_EXPORT
 CFTypeRef CFMakeCollectable(CFTypeRef cf) CF_AUTOMATED_REFCOUNT_UNAVAILABLE;
+
+#if DEPLOYMENT_RUNTIME_SWIFT
+
+#define _CF_SWIFT_RC_PINNED_FLAG 0x1
+#define _CF_SWIFT_RC_FLAGS_COUNT 2
+#define _CF_CONSTANT_OBJECT_STRONG_RC ((1 << _CF_SWIFT_RC_FLAGS_COUNT) | _CF_SWIFT_RC_PINNED_FLAG)
+
+#endif
 
 CF_EXTERN_C_END
 
@@ -9607,7 +10247,12 @@ CF_EXTERN_C_END
 
 // ==========  CoreFoundation.framework/Headers/CFSet.h
 /*	CFSet.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 /*!
         @header CFSet
@@ -10006,7 +10651,7 @@ void CFSetGetValues(CFSetRef theSet, const void **values);
 		undefined.
 */
 CF_EXPORT
-void CFSetApplyFunction(CFSetRef theSet, CFSetApplierFunction applier, void *context);
+void CFSetApplyFunction(CFSetRef theSet, CFSetApplierFunction CF_NOESCAPE applier, void *context);
 
 /*!
 	@function CFSetAddValue
@@ -10094,7 +10739,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFUtilities.h
 /*	CFUtilities.h
-	Copyright (c) 2005-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2005-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFUTILITIES__)
@@ -10108,7 +10758,7 @@ CF_IMPLICIT_BRIDGING_ENABLED
 CF_EXTERN_C_BEGIN
 
 CF_EXPORT
-CFURLRef CFCopyHomeDirectoryURL(void) CF_AVAILABLE_IOS(5_0);
+CFURLRef CFCopyHomeDirectoryURL(void) API_AVAILABLE(ios(5.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos);
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -10117,7 +10767,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFCalendar.h
 /*	CFCalendar.h
-	Copyright (c) 2004-2015, Apple Inc. All rights reserved.
+	Copyright (c) 2004-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFCALENDAR__)
@@ -10140,12 +10795,12 @@ CF_EXPORT
 CFCalendarRef CFCalendarCopyCurrent(void);
 
 CF_EXPORT
-CFCalendarRef CFCalendarCreateWithIdentifier(CFAllocatorRef allocator, CFStringRef identifier);
+CFCalendarRef CFCalendarCreateWithIdentifier(CFAllocatorRef allocator, CFCalendarIdentifier identifier);
 	// Create a calendar.  The identifiers are the kCF*Calendar
 	// constants in CFLocale.h.
 
 CF_EXPORT
-CFStringRef CFCalendarGetIdentifier(CFCalendarRef calendar);
+CFCalendarIdentifier CFCalendarGetIdentifier(CFCalendarRef calendar);
 	// Returns the calendar's identifier.
 
 CF_EXPORT
@@ -10181,13 +10836,13 @@ typedef CF_OPTIONS(CFOptionFlags, CFCalendarUnit) {
 	kCFCalendarUnitHour = (1UL << 5),
 	kCFCalendarUnitMinute = (1UL << 6),
 	kCFCalendarUnitSecond = (1UL << 7),
-	kCFCalendarUnitWeek CF_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0) = (1UL << 8),
+	kCFCalendarUnitWeek API_DEPRECATED("Use kCFCalendarUnitWeekOfYear or kCFCalendarUnitWeekOfMonth instead", macos(10.4,10.10), ios(2.0,8.0), watchos(2.0,2.0), tvos(9.0,9.0)) = (1UL << 8),
 	kCFCalendarUnitWeekday = (1UL << 9),
 	kCFCalendarUnitWeekdayOrdinal = (1UL << 10),
-	kCFCalendarUnitQuarter CF_ENUM_AVAILABLE(10_6, 4_0) = (1UL << 11),
-	kCFCalendarUnitWeekOfMonth CF_ENUM_AVAILABLE(10_7, 5_0) = (1UL << 12),
-	kCFCalendarUnitWeekOfYear CF_ENUM_AVAILABLE(10_7, 5_0) = (1UL << 13),
-	kCFCalendarUnitYearForWeekOfYear CF_ENUM_AVAILABLE(10_7, 5_0) = (1UL << 14),
+	kCFCalendarUnitQuarter API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) = (1UL << 11),
+	kCFCalendarUnitWeekOfMonth API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = (1UL << 12),
+	kCFCalendarUnitWeekOfYear API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = (1UL << 13),
+	kCFCalendarUnitYearForWeekOfYear API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = (1UL << 14),
 };
 
 CF_EXPORT
@@ -10203,7 +10858,7 @@ CF_EXPORT
 CFIndex CFCalendarGetOrdinalityOfUnit(CFCalendarRef calendar, CFCalendarUnit smallerUnit, CFCalendarUnit biggerUnit, CFAbsoluteTime at);
 
 CF_EXPORT
-Boolean CFCalendarGetTimeRangeOfUnit(CFCalendarRef calendar, CFCalendarUnit unit, CFAbsoluteTime at, CFAbsoluteTime *startp, CFTimeInterval *tip) CF_AVAILABLE(10_5, 2_0);
+Boolean CFCalendarGetTimeRangeOfUnit(CFCalendarRef calendar, CFCalendarUnit unit, CFAbsoluteTime at, CFAbsoluteTime *startp, CFTimeInterval *tip) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 CF_EXPORT
 Boolean CFCalendarComposeAbsoluteTime(CFCalendarRef calendar, /* out */ CFAbsoluteTime *at, const char *componentDesc, ...);
@@ -10230,7 +10885,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 // ==========  CoreFoundation.framework/Headers/CFStringEncodingExt.h
 /*	CFStringEncodingExt.h
-	Copyright (c) 1998-2015, Apple Inc. All rights reserved.
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 */
 
 #if !defined(__COREFOUNDATION_CFSTRINGENCODINGEXT__)
@@ -10352,7 +11012,7 @@ typedef CF_ENUM(CFIndex, CFStringEncodings) {
     kCFStringEncodingJIS_X0208_90 = 0x0622,
     kCFStringEncodingJIS_X0212_90 = 0x0623,
     kCFStringEncodingJIS_C6226_78 = 0x0624,
-    kCFStringEncodingShiftJIS_X0213 CF_ENUM_AVAILABLE(10_5, 2_0) = 0x0628, /* Shift-JIS format encoding of JIS X0213 planes 1 and 2*/
+    kCFStringEncodingShiftJIS_X0213 API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) = 0x0628, /* Shift-JIS format encoding of JIS X0213 planes 1 and 2*/
     kCFStringEncodingShiftJIS_X0213_MenKuTen = 0x0629,	/* JIS X0213 in plane-row-column notation */
     kCFStringEncodingGB_2312_80 = 0x0630,
     kCFStringEncodingGBK_95 = 0x0631,		/* annex to GB 13000-93; for Windows 95 */
@@ -10397,8 +11057,8 @@ typedef CF_ENUM(CFIndex, CFStringEncodings) {
     kCFStringEncodingEBCDIC_US = 0x0C01,	/* basic EBCDIC-US */
     kCFStringEncodingEBCDIC_CP037 = 0x0C02,	/* code page 037, extended EBCDIC (Latin-1 set) for US,Canada... */
 
-    kCFStringEncodingUTF7 CF_ENUM_AVAILABLE(10_6, 4_0) = 0x04000100, /* kTextEncodingUnicodeDefault + kUnicodeUTF7Format RFC2152 */
-    kCFStringEncodingUTF7_IMAP CF_ENUM_AVAILABLE(10_6, 4_0) = 0x0A10, /* UTF-7 (IMAP folder variant) RFC3501 */
+    kCFStringEncodingUTF7 API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) = 0x04000100, /* kTextEncodingUnicodeDefault + kUnicodeUTF7Format RFC2152 */
+    kCFStringEncodingUTF7_IMAP API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) = 0x0A10, /* UTF-7 (IMAP folder variant) RFC3501 */
 
     /* Deprecated constants */
     kCFStringEncodingShiftJIS_X0213_00 = 0x0628 /* Shift-JIS format encoding of JIS X0213 planes 1 and 2 (DEPRECATED) */

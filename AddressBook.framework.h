@@ -53,8 +53,10 @@ AB_EXTERN CFArrayRef ABAddressBookCopyArrayOfAllGroupsInSource(ABAddressBookRef 
 #define __ABAddressBook__
 
 #include <AddressBook/AddressBookDefines.h>
-#include <CoreFoundation/CoreFoundation.h>
 #include <AddressBook/ABRecord.h>
+
+#include <CoreFoundation/CoreFoundation.h>
+
 
 AB_EXTERN const CFStringRef ABAddressBookErrorDomain AB_DEPRECATED("use CNErrorDomain");
 
@@ -402,6 +404,7 @@ AB_EXTERN const CFStringRef kABPersonAlternateBirthdayDayKey AB_DEPRECATED("use 
 #ifndef __AddressBook__
 #define __AddressBook__
 
+#include <AddressBook/ABAddressBook.h>
 #include <AddressBook/ABAddressBook.h>
 #include <AddressBook/ABRecord.h>
 #include <AddressBook/ABPerson.h>

@@ -1,24 +1,60 @@
 // ==========  QuickLook.framework/Headers/QuickLook.h
 //
 //  QuickLook.h
-//  Quick Look
+//  QuickLook
 //
-//  Copyright 2008 Apple Inc.
-//  All rights reserved.
+//  Copyright (c) 2008-2015 Apple Inc. All rights reserved.
 //
- 
+
+
 #if !defined(__QUICKLOOK_QUICKLOOK__)
 #define __QUICKLOOK_QUICKLOOK__
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <QuickLook/QLBase.h>
 
-
 #if __OBJC__
+#import <QuickLook/QLPreviewingController.h>
 #import <QuickLook/QLPreviewController.h>
 #import <QuickLook/QLPreviewItem.h>
+#import <QuickLook/QLThumbnailProvider.h>
+#import <QuickLook/QLThumbnailRequest.h>
+#import <QuickLook/QLThumbnailReply.h>
 #endif
 
+#endif
+// ==========  QuickLook.framework/Headers/QLThumbnailRequest.h
+//
+//  QLPreviewingController.h
+//  Mobile Quick Look
+//
+//  Copyright 2016 Apple Inc. All rights reserved.
+//
+
+#if !defined(USE_PUBLIC_QUICKLOOK_HEADERS) && __has_include(<QuickLookSupport/QLThumbnailProvider.h>)
+#import <QuickLookSupport/QLThumbnailRequest.h>
+#else
+
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
+#import <QuickLook/QLBase.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ @abstract This class contains information about the thumbnail that should be provided.
+ */
+NS_CLASS_AVAILABLE_IOS(11_0) QL_EXPORT @interface QLFileThumbnailRequest : NSObject
+
+@property (nonatomic, readonly) CGSize maximumSize;
+@property (nonatomic, readonly) CGSize minimumSize;
+@property (nonatomic, readonly) CGFloat scale;
+@property (nonatomic, copy, readonly) NSURL* fileURL;
+
+@end
+
+NS_ASSUME_NONNULL_END
 
 #endif
 // ==========  QuickLook.framework/Headers/QLBase.h
@@ -51,6 +87,61 @@
 #define QL_FORMAT_ARG(F, A) __attribute__((format(CFString, F, A)))
 
 #endif
+// ==========  QuickLook.framework/Headers/QLPreviewingController.h
+//
+//  QLPreviewingController.h
+//  Mobile Quick Look
+//
+//  Copyright 2016 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <QuickLook/QLBase.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ The controller that implements the QLPreviewingController protocol must at least implement one of the two following methods:
+ -[QLPreviewingController preparePreviewOfSearchableItemWithIdentifier:queryString:completionHandler:], to generate previews for Spotlight searchable items.
+ -[QLPreviewingController preparePreviewOfFileAtURL:completionHandler:], to generate previews for file URLs.
+ */
+QL_EXPORT @protocol QLPreviewingController <NSObject>
+
+@optional
+
+/**
+ @abstract
+ Use this method to prepare the content of the view controller with the data that the searchable item represents.
+ 
+ @discussion
+ This method will be called only once. It will be called in the main thread before presenting the view controller.
+ Heavy work potentially blocking the main thread should be avoided in this method.
+ 
+ @param identifier The identifier of the CSSearchableItem the user interacted with in Spotlight.
+ @param queryString The query string the user entered in Spotlight before interacting with the CSSearchableItem.
+ @param handler The completion handler should be called whenever the view is ready to be displayed. A loading spinner will be shown until the handler is called.
+ It can be called asynchronously after the method has returned.
+ */
+- (void)preparePreviewOfSearchableItemWithIdentifier:(NSString *)identifier queryString:(NSString * _Nullable)queryString completionHandler:(void (^)(NSError * _Nullable))handler NS_SWIFT_NAME(preparePreviewOfSearchableItem(identifier:queryString:completionHandler:));
+
+/**
+ @abstract
+ Use this method to prepare the content of the view controller with the given file URL.
+
+ @discussion
+ This method will be called only once. It will be called in the main thread before presenting the view controller.
+ Heavy work potentially blocking the main thread should be avoided in this method.
+ 
+ @param url The URL of the file the user is about to preview.
+ @param handler The completion handler should be called whenever the view is ready to be displayed. A loading spinner will be shown until the handler is called.
+ It can be called asynchronously after the method has returned.
+ */
+- (void)preparePreviewOfFileAtURL:(NSURL *)url completionHandler:(void (^)(NSError * _Nullable))handler NS_SWIFT_NAME(preparePreviewOfFile(at:completionHandler:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  QuickLook.framework/Headers/QLPreviewItem.h
 //
 //  QLPreviewItem.h
@@ -59,12 +150,12 @@
 //  Copyright 2008 Apple Inc. All rights reserved.
 //
 
-
 #import <Foundation/Foundation.h>
-#import <QuickLook/QLBase.h>
+
+#include <QuickLook/QLBase.h>
 
 /*!
- * @abstract The QLPreviewItem protocol declares the methods that a QLPreviewController  instance uses to access the contents of a given item.
+ * @abstract The QLPreviewItem protocol declares the methods that a QLPreviewController instance uses to access the contents of a given item.
  */
 QL_EXPORT @protocol QLPreviewItem <NSObject>
 
@@ -72,9 +163,9 @@ QL_EXPORT @protocol QLPreviewItem <NSObject>
 
 /*!
  * @abstract The URL of the item to preview.
- * @discussion The URL must be a file URL. 
+ * @discussion The URL must be a file URL.
  */
-@property(readonly, nonnull, nonatomic) NSURL * previewItemURL;
+@property(readonly, nullable, nonatomic) NSURL * previewItemURL;
 
 @optional
 
@@ -92,8 +183,6 @@ QL_EXPORT @protocol QLPreviewItem <NSObject>
  */
 @interface NSURL (QLPreviewConvenienceAdditions) <QLPreviewItem>
 @end
-
-
 // ==========  QuickLook.framework/Headers/QLPreviewController.h
 //
 //  QLPreviewController.h
@@ -102,7 +191,6 @@ QL_EXPORT @protocol QLPreviewItem <NSObject>
 //  Copyright 2008 Apple Inc. All rights reserved.
 //
 
-
 #import <UIKit/UIKit.h>
 #import <QuickLook/QLBase.h>
 
@@ -110,14 +198,10 @@ QL_EXPORT @protocol QLPreviewItem <NSObject>
 @protocol QLPreviewControllerDelegate;
 @protocol QLPreviewControllerDataSource;
 
-@class QLPreviewControllerReserved;
-
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(NA, 4_0) QL_EXPORT
-@interface QLPreviewController : UIViewController {
-    QLPreviewControllerReserved * _reserved;
-}
+NS_CLASS_AVAILABLE_IOS(4_0) QL_EXPORT
+@interface QLPreviewController : UIViewController
 
 /*!
  * @abstract Returns YES if QLPreviewController can display this preview item.
@@ -131,7 +215,7 @@ NS_CLASS_AVAILABLE(NA, 4_0) QL_EXPORT
 /*!
  * @abstract The Preview Panel data source.
  */
-@property(weak, nullable) id <QLPreviewControllerDataSource> dataSource;
+@property(nonatomic, weak, nullable) id <QLPreviewControllerDataSource> dataSource;
 
 /*!
  * @abstract Asks the Preview Controller to reload its data from its data source.
@@ -164,7 +248,7 @@ NS_CLASS_AVAILABLE(NA, 4_0) QL_EXPORT
  * @abstract The Preview Controller delegate.
  * @discussion Should implement the <QLPreviewControllerDelegate> protocol
  */
-@property(weak, nullable) id <QLPreviewControllerDelegate> delegate;
+@property(nonatomic, weak, nullable) id <QLPreviewControllerDelegate> delegate;
 
 @end
 
@@ -198,6 +282,7 @@ QL_EXPORT @protocol QLPreviewControllerDataSource
 QL_EXPORT @protocol QLPreviewControllerDelegate <NSObject>
 @optional
 
+
 /*!
  * @abstract Invoked before the preview controller is closed.
  */
@@ -219,16 +304,128 @@ QL_EXPORT @protocol QLPreviewControllerDelegate <NSObject>
  * @abstract Invoked when the preview controller is about to be presented full screen or dismissed from full screen, to provide a zoom effect.
  * @discussion Return the origin of the zoom. It should be relative to view, or screen based if view is not set. The controller will fade in/out if the rect is CGRectZero.
  */
-- (CGRect)previewController:(QLPreviewController *)controller frameForPreviewItem:(id <QLPreviewItem>)item inSourceView:(UIView * __nullable * __nonnull)view;
+- (CGRect)previewController:(QLPreviewController *)controller frameForPreviewItem:(id <QLPreviewItem>)item inSourceView:(UIView * _Nullable * __nonnull)view;
 
 /*!
  * @abstract Invoked when the preview controller is about to be presented full screen or dismissed from full screen, to provide a smooth transition when zooming.
  * @param contentRect The rect within the image that actually represents the content of the document. For example, for icons the actual rect is generally smaller than the icon itself.
  * @discussion Return an image the controller will crossfade with when zooming. You can specify the actual "document" content rect in the image in contentRect.
  */
-- (UIImage *)previewController:(QLPreviewController *)controller transitionImageForPreviewItem:(id <QLPreviewItem>)item contentRect:(CGRect *)contentRect;
+- (UIImage * _Nullable)previewController:(QLPreviewController *)controller transitionImageForPreviewItem:(id <QLPreviewItem>)item contentRect:(CGRect *)contentRect;
+
+/*!
+ * @abstract Invoked when the preview controller is about to be presented full screen or dismissed from full screen, to provide a smooth transition when zooming.
+ * @discussion  Return the view that will crossfade with the preview.
+ */
+- (UIView* _Nullable)previewController:(QLPreviewController *)controller transitionViewForPreviewItem:(id <QLPreviewItem>)item NS_AVAILABLE_IOS(10_0);
 
 @end
 
 NS_ASSUME_NONNULL_END
 
+// ==========  QuickLook.framework/Headers/QLThumbnailReply.h
+//
+//  QLThumbnailReply.h
+//  Mobile Quick Look
+//
+//  Copyright 2016 Apple Inc. All rights reserved.
+//
+
+#if !defined(USE_PUBLIC_QUICKLOOK_HEADERS) && __has_include(<QuickLookSupport/QLThumbnailReply.h>)
+#import <QuickLookSupport/QLThumbnailReply.h>
+#else
+
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
+#import <QuickLook/QLBase.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ To provide a thumbnail for a request, you have to return a QLThumbnailReply object.
+ 
+ @discussion To provide a thumbnail, you have two options:
+ 1. Draw the thumbnail, by providing a QLThumbnailReply created with a drawing block.
+ 2. Pass the thumbnail file URL, by providing a QLThumbnailReply created with a file URL.
+ */
+NS_CLASS_AVAILABLE_IOS(11_0) QL_EXPORT @interface QLThumbnailReply : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/**
+ You can create a reply with a drawing block that will draw into a given context with the coordinate system of Core Graphics.
+ 
+ @param contextSize The desired size of the context that will be passed to the drawing block.
+ It should be as close as possible to the maximumSize of the QLFileThumbnailRequest and it has to be greater than or equal to its minimumSize.
+ 
+ Ideally, at least either contextSize's width matches maximumSize's width or contextSize's height matches maximumSize's height.
+ The context size will be scaled to QLFileThumbnailRequest's scale value (if you pass (x, y), the size of the context will be (scale * x, scale * y)).
+ @param drawingBlock The thumbnail should be drawn into the context passed to this block. It is a context of type CGBitmapContext, set up to be used with the coordinate system of Core Graphics.
+ Return YES if the thumbnail was successfully drawn into the context. Return NO otherwise.
+ */
++ (instancetype)replyWithContextSize:(CGSize)contextSize drawingBlock:(BOOL (^)(CGContextRef context))drawingBlock;
+
+/**
+ You can create a reply with a drawing block that will draw into the current context with the coordinate system of UIKit.
+ 
+ @param contextSize The desired size of the context that will be passed to the drawing block.
+ It should be as close as possible to the maximumSize of the QLFileThumbnailRequest and it has to be greater than or equal to its minimumSize.
+ 
+ Ideally, at least either contextSize's width matches maximumSize's width or contextSize's height matches maximumSize's height.
+ The context size will be scaled to QLFileThumbnailRequest's scale value (if you pass (x, y), the size of the context will be (scale * x, scale * y)).
+ @param drawingBlock A block that draws the thumbnail into the current context which you can access via UIGraphicsGetCurrentContext().
+ It is a context of type CGBitmapContext, set up to be used with the coordinate system of UIKit.
+ Return YES if the thumbnail was successfully drawn into the current context. Return NO otherwise.
+ */
++ (instancetype)replyWithContextSize:(CGSize)contextSize currentContextDrawingBlock:(BOOL (^)(void))drawingBlock;
+
+/**
+ You can create a reply object with a file URL of an image that will be used as the thumbnail.
+ The image will be downscaled to fit the size of the QLFileThumbnailRequest if necessary.
+ */
++ (instancetype)replyWithImageFileURL:(NSURL *)fileURL;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+// ==========  QuickLook.framework/Headers/QLThumbnailProvider.h
+//
+//  QLThumbnailProvider.h
+//  Mobile Quick Look
+//
+//  Copyright 2016 Apple Inc. All rights reserved.
+//
+
+#if !defined(USE_PUBLIC_QUICKLOOK_HEADERS) && __has_include(<QuickLookSupport/QLThumbnailProvider.h>)
+#import <QuickLookSupport/QLThumbnailProvider.h>
+#else
+
+#import <Foundation/Foundation.h>
+#import <QuickLook/QLBase.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class QLFileThumbnailRequest, QLThumbnailReply;
+
+NS_CLASS_AVAILABLE_IOS(11_0) QL_EXPORT @interface QLThumbnailProvider : NSObject
+
+/**
+ Subclass this method to provide a QLThumbnailReply that either contains a drawing block or an image file URL.
+ 
+ 
+ @param request An object which contains information about the thumbnail that should be provided. It contains the URL of the file to provide a thumbnail for.
+ @param handler Call the completion handler with a QLThumbnailReply if you can provide a thumbnail, or with an NSError if you cannot.
+                If an error is passed or reply is nil, no thumbnail will be drawn.
+                The handler can be called asynchronously after the method has returned.
+ */
+- (void)provideThumbnailForFileRequest:(QLFileThumbnailRequest *)request completionHandler:(void (^)(QLThumbnailReply * _Nullable reply, NSError * _Nullable error))handler NS_SWIFT_NAME(provideThumbnail(for:_:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif

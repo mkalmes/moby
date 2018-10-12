@@ -4,11 +4,13 @@
  
  Node that holds an AVAudioEngine sound graph, including from a single sound source or URL.
  
- @copyright 2015 Apple, Inc. All rights reserve.
+ @copyright 2015 Apple, Inc. All rights reserved.
  
  */
 
 #import <SpriteKit/SpriteKit.h>
+
+#if __has_include(<AVFoundation/AVAudioEngine.h>)
 
 @class AVAudioNode;
 
@@ -24,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see AVAudio3DMixing
  * @see SKScene.listener
  */
-SK_EXPORT NS_AVAILABLE(10_11, 9_0) @interface SKAudioNode : SKNode <NSCoding>
+SK_EXPORT NS_AVAILABLE(10_11, 9_0) @interface SKAudioNode : SKNode <NSSecureCoding>
 
 /**Creates a SpriteKit scene graph audio node from the given AVAudioNode.
  * @see AVAudioNode
@@ -86,6 +88,169 @@ SK_EXPORT NS_AVAILABLE(10_11, 9_0) @interface SKAudioNode : SKNode <NSCoding>
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
+// ==========  SpriteKit.framework/Headers/SKAttribute.h
+/**
+ @header
+ 
+ SKAttributes can be used to provide a per-node value to be
+ used with SKShaders.
+ 
+ @copyright 2015 Apple, Inc. All rights reserved.
+ 
+ */
+
+#import <SpriteKit/SpriteKitBase.h>
+#import <simd/simd.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, SKAttributeType) {
+    SKAttributeTypeNone                 =    0,
+    
+    SKAttributeTypeFloat                =    1,
+    SKAttributeTypeVectorFloat2         =    2,
+    SKAttributeTypeVectorFloat3         =    3,
+    SKAttributeTypeVectorFloat4         =    4,
+    
+    SKAttributeTypeHalfFloat            =    5,
+    SKAttributeTypeVectorHalfFloat2     =    6,
+    SKAttributeTypeVectorHalfFloat3     =    7,
+    SKAttributeTypeVectorHalfFloat4     =    8,
+    
+} NS_ENUM_AVAILABLE(10_11, 9_0);
+
+NS_CLASS_AVAILABLE(10_11, 9_0)
+SK_EXPORT @interface SKAttribute : NSObject <NSSecureCoding>
+
++ (instancetype)attributeWithName:(NSString*)name type:(SKAttributeType)type;
+- (instancetype)initWithName:(NSString*)name type:(SKAttributeType)type NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, nonatomic) NSString *name;
+@property (readonly, nonatomic) SKAttributeType type;
+
+@end
+
+
+
+NS_CLASS_AVAILABLE(10_11, 9_0)
+SK_EXPORT @interface SKAttributeValue : NSObject <NSSecureCoding>
+
++ (instancetype)valueWithFloat:(float)value;
++ (instancetype)valueWithVectorFloat2:(vector_float2)value;
++ (instancetype)valueWithVectorFloat3:(vector_float3)value;
++ (instancetype)valueWithVectorFloat4:(vector_float4)value;
+
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
+
+@property (nonatomic) float floatValue;
+@property (nonatomic) vector_float2 vectorFloat2Value;
+@property (nonatomic) vector_float3 vectorFloat3Value;
+@property (nonatomic) vector_float4 vectorFloat4Value;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  SpriteKit.framework/Headers/SKRenderer.h
+//
+// SKRenderer.h
+// SpriteKit
+//
+// Copyright (c) 2016 Apple Inc. All rights reserved
+//
+
+#import <SpriteKit/SpriteKitBase.h>
+#import <SpriteKit/SKScene.h>
+
+/* SKRenderer is not available for WatchKit apps and the iOS simulator */
+#if SKVIEW_AVAILABLE && !TARGET_OS_SIMULATOR
+
+#import <Metal/Metal.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ A renderer for displaying a SpriteKit scene in an existing Metal workflow.
+ */
+NS_AVAILABLE(10_13, 11_0)
+SK_EXPORT @interface SKRenderer : NSObject
+
+/**
+ Creates a renderer with the specified Metal device.
+ 
+ @param device A Metal device.
+ @return A new renderer object.
+ */
++ (SKRenderer *)rendererWithDevice:(id<MTLDevice>)device;
+
+/**
+ Render the scene content in the specified Metal command buffer.
+ 
+ @param viewport The pixel dimensions in which to render.
+ @param commandBuffer The Metal command buffer in which SpriteKit should schedule rendering commands.
+ @param renderPassDescriptor The Metal render pass descriptor describing the rendering target.
+ */
+- (void)renderWithViewport:(CGRect)viewport
+             commandBuffer:(id <MTLCommandBuffer>)commandBuffer
+      renderPassDescriptor:(MTLRenderPassDescriptor *)renderPassDescriptor;
+
+/**
+ Render the scene content using a specific Metal command encoder.
+ 
+ @param viewport The pixel dimensions in which to render.
+ @param renderCommandEncoder The Metal render command encoder that SpriteKit will use to encode rendering commands. This method will not call endEncoding.
+ @param renderPassDescriptor The Metal render pass descriptor describing the rendering target.
+ @param commandQueue The Metal command queue.
+ */
+- (void)renderWithViewport:(CGRect)viewport
+      renderCommandEncoder:(id <MTLRenderCommandEncoder>)renderCommandEncoder
+      renderPassDescriptor:(MTLRenderPassDescriptor *)renderPassDescriptor
+              commandQueue:(id <MTLCommandQueue>)commandQueue;
+
+/**
+ Update the scene at the specified system time.
+ 
+ @param currentTime The timestamp in seconds.
+ */
+- (void)updateAtTime:(NSTimeInterval)currentTime;
+
+/**
+ The currently presented scene, otherwise nil. If in a transition, the 'incoming' scene is returned.
+ */
+@property (nonatomic, nullable) SKScene *scene;
+
+/**
+ Ignores sibling and traversal order to sort the rendered contents of a scene into the most efficient batching possible.
+ This will require zPosition to be used in the scenes to properly guarantee elements are in front or behind each other.
+
+ This defaults to NO, meaning that sibling order overrides efficiency heuristics in the rendering of the scenes in the view.
+
+ Setting this to YES for a complex scene may substantially increase performance, but care must be taken as only zPosition
+ determines render order before the efficiency heuristics are used.
+ */
+@property (nonatomic) BOOL ignoresSiblingOrder;
+
+/**
+ A boolean that indicated whether non-visible nodes should be automatically culled when rendering.
+ */
+@property (nonatomic) BOOL shouldCullNonVisibleNodes;
+
+/**
+ Toggles display of performance stats when rendering. All default to false.
+ */
+@property (nonatomic) BOOL showsDrawCount;
+@property (nonatomic) BOOL showsNodeCount;
+@property (nonatomic) BOOL showsQuadCount;
+@property (nonatomic) BOOL showsPhysics;
+@property (nonatomic) BOOL showsFields;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+
 // ==========  SpriteKit.framework/Headers/SKVideoNode.h
 /**
  @header
@@ -94,11 +259,12 @@ NS_ASSUME_NONNULL_END
  Node that can play a video file
  
  
- @copyright 2011 Apple, Inc. All rights reserve.
+ @copyright 2011 Apple, Inc. All rights reserved.
  
  */
 
 @class AVPlayer;
+
 
 #import <SpriteKit/SKSpriteNode.h>
 #import <SpriteKit/SpriteKitBase.h>
@@ -115,14 +281,14 @@ SK_EXPORT @interface SKVideoNode : SKNode
 /**
  Create a video node from a file.
  */
-+ (SKVideoNode *)videoNodeWithVideoFileNamed:(NSString *)videoFile NS_DEPRECATED(10_8, 10_10, 7_0, 8_0);
-+ (SKVideoNode *)videoNodeWithFileNamed:(NSString *)videoFile NS_AVAILABLE(10_10, 8_0);
++ (SKVideoNode *)videoNodeWithVideoFileNamed:(NSString *)videoFile NS_DEPRECATED(10_8, 10_11, 7_0, 9_0);
++ (SKVideoNode *)videoNodeWithFileNamed:(NSString *)videoFile NS_AVAILABLE(10_11, 9_0);
 
 /**
  Create a video node from a URL.
  */
-+ (SKVideoNode *)videoNodeWithVideoURL:(NSURL *)videoURL NS_DEPRECATED(10_8, 10_10, 7_0, 8_0);
-+ (SKVideoNode *)videoNodeWithURL:(NSURL *)videoURL NS_AVAILABLE(10_10, 8_0);
++ (SKVideoNode *)videoNodeWithVideoURL:(NSURL *)videoURL NS_DEPRECATED(10_8, 10_11, 7_0, 9_0);
++ (SKVideoNode *)videoNodeWithURL:(NSURL *)videoURL NS_AVAILABLE(10_11, 9_0);
 
 /**
  Designated Initializer.
@@ -169,7 +335,7 @@ NS_ASSUME_NONNULL_END
  3D Nodes are used to display 3D content in a SKScene.
  
  
- @copyright 2011 Apple, Inc. All rights reserve.
+ @copyright 2011 Apple, Inc. All rights reserved.
  
  */
 
@@ -282,7 +448,11 @@ NS_ASSUME_NONNULL_END
 #import <SpriteKit/SKEffectNode.h>
 #import <SpriteKit/SpriteKitBase.h>
 
-@class SKView, SKPhysicsWorld, AVAudioEngine;
+#if SKVIEW_AVAILABLE
+@class SKView;
+#endif
+
+@class SKPhysicsWorld, AVAudioEngine;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -311,17 +481,18 @@ NS_AVAILABLE(10_10, 8_0) @protocol SKSceneDelegate <NSObject>
 SK_EXPORT @interface SKScene : SKEffectNode
 
 /**
- Called once when the scene is created, do your one-time setup here.
- 
  A scene is infinitely large, but it has a viewport that is the frame through which you present the content of the scene.
  The passed in size defines the size of this viewport that you use to present the scene.
- To display different portions of your scene, move the contents relative to the viewport. One way to do that is to create a SKNode to function as a viewport transformation. That node should have all visible conents parented under it.
  
  @param size a size in points that signifies the viewport into the scene that defines your framing of the scene.
  */
 - (instancetype)initWithSize:(CGSize)size;
 
 + (instancetype)sceneWithSize:(CGSize)size;
+
+/* This is called once after the scene has been initialized or decoded,
+ this is the recommended place to perform one-time setup */
+- (void)sceneDidLoad NS_AVAILABLE(10_12, 10_0);
 
 @property (nonatomic) CGSize size;
 
@@ -344,14 +515,16 @@ SK_EXPORT @interface SKScene : SKEffectNode
 /**
  The audio engine that the listener and the scene's audio nodes use to process their sound through.
  */
+#if __has_include(<AVFoundation/AVAudioEngine.h>)
 @property (nonatomic, retain, readonly) AVAudioEngine *audioEngine NS_AVAILABLE(10_11, 9_0);
+#endif
 
 /**
  Background color, defaults to gray
  */
 @property (nonatomic, retain) SKColor *backgroundColor;
 
-@property (nonatomic, assign, nullable) id<SKSceneDelegate> delegate NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, weak, nullable) id<SKSceneDelegate> delegate NS_AVAILABLE(10_10, 8_0);
 
 /**
  Used to choose the origin of the scene's coordinate system
@@ -363,13 +536,16 @@ SK_EXPORT @interface SKScene : SKEffectNode
  */
 @property (nonatomic, readonly) SKPhysicsWorld *physicsWorld;
 
-- (CGPoint)convertPointFromView:(CGPoint)point;
-- (CGPoint)convertPointToView:(CGPoint)point;
 
+#if SKVIEW_AVAILABLE
 /**
  The SKView this scene is currently presented in, or nil if it is not being presented.
  */
 @property (nonatomic, weak, readonly, nullable) SKView *view;
+
+- (CGPoint)convertPointFromView:(CGPoint)point;
+- (CGPoint)convertPointToView:(CGPoint)point;
+#endif
 
 /**
  Override this to perform per-frame game logic. Called exactly once per frame before any actions are evaluated and any physics are simulated.
@@ -400,8 +576,11 @@ SK_EXPORT @interface SKScene : SKEffectNode
  */
 - (void)didFinishUpdate NS_AVAILABLE(10_10, 8_0);
 
+#if SKVIEW_AVAILABLE
 - (void)didMoveToView:(SKView *)view;
 - (void)willMoveFromView:(SKView *)view;
+#endif
+
 - (void)didChangeSize:(CGSize)oldSize;
 
 @end
@@ -461,9 +640,9 @@ typedef float (^SKActionTimingFunction)(float time);
 
 NS_ASSUME_NONNULL_BEGIN
 
-SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
+SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
 
-/** The duration required to complete an action. */
+/** The duration required to complete an action, in seconds. */
 @property (nonatomic) NSTimeInterval duration;
 
 /** The timing mode used to execute an action
@@ -477,7 +656,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
  */
 @property (nonatomic) SKActionTimingFunction timingFunction NS_AVAILABLE(10_10, 8_0);
 
-/** A speed factor that modifies how fast an action runs. */
+/** A speed factor that modifies how fast an action runs. Default value is 1.0 */
 @property (nonatomic) CGFloat speed;
 
 /** Creates an action that reverses the behavior of another action
@@ -493,51 +672,51 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
 
 /** Creates an action that moves a node relative to its current position
  @param delta A vector that describes the change to apply to the node’s position
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)moveBy:(CGVector)delta duration:(NSTimeInterval)sec;
-+ (SKAction *)moveByX:(CGFloat)deltaX y:(CGFloat)deltaY duration:(NSTimeInterval)sec;
++ (SKAction *)moveBy:(CGVector)delta duration:(NSTimeInterval)duration;
++ (SKAction *)moveByX:(CGFloat)deltaX y:(CGFloat)deltaY duration:(NSTimeInterval)duration;
 
 /** Creates an action that moves a node to a new position
  @param location The coordinates for the node’s new position
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)moveTo:(CGPoint)location duration:(NSTimeInterval)sec;
-+ (SKAction *)moveToX:(CGFloat)x duration:(NSTimeInterval)sec;
-+ (SKAction *)moveToY:(CGFloat)y duration:(NSTimeInterval)sec;
++ (SKAction *)moveTo:(CGPoint)location duration:(NSTimeInterval)duration;
++ (SKAction *)moveToX:(CGFloat)x duration:(NSTimeInterval)duration;
++ (SKAction *)moveToY:(CGFloat)y duration:(NSTimeInterval)duration;
 
 /** Creates an action that rotates the node by a relative value
  @param radians The amount to rotate the node, in radians
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)rotateByAngle:(CGFloat)radians duration:(NSTimeInterval)sec;
++ (SKAction *)rotateByAngle:(CGFloat)radians duration:(NSTimeInterval)duration;
 
 /** Creates an action that rotates the node counterclockwise to an absolute angle
  @param radians The angle to rotate the node to, in radians
  @param duration The duration of the animation
  */
-+ (SKAction *)rotateToAngle:(CGFloat)radians duration:(NSTimeInterval)sec;
++ (SKAction *)rotateToAngle:(CGFloat)radians duration:(NSTimeInterval)duration;
 
 /** Creates an action that rotates the node to an absolute value
  @param radians The angle to rotate the node to, in radians
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  @param shortestUnitArc If YES, then the rotation is performed in whichever
  direction results in the smallest rotation. If NO, then the rotation
  is interpolated
  */
-+ (SKAction *)rotateToAngle:(CGFloat)radians duration:(NSTimeInterval)sec shortestUnitArc:(BOOL)shortestUnitArc;
++ (SKAction *)rotateToAngle:(CGFloat)radians duration:(NSTimeInterval)duration shortestUnitArc:(BOOL)shortestUnitArc;
 
 /** Creates an action that adjusts the size of a sprite
  @param width The amount to add to the sprite’s width
  @param height The amount to add to the sprite’s height
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
 + (SKAction *)resizeByWidth:(CGFloat)width height:(CGFloat)height duration:(NSTimeInterval)duration;
 
 /** Creates an action that changes the width and height of a sprite to a new absolute value
  @param width The new width of the sprite
  @param height The new height of the sprite
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
 + (SKAction *)resizeToWidth:(CGFloat)width height:(CGFloat)height duration:(NSTimeInterval)duration;
 + (SKAction *)resizeToWidth:(CGFloat)width duration:(NSTimeInterval)duration;
@@ -545,19 +724,25 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
 
 /** Creates an action that changes the x and y scale values of a node by a relative value
  @param scale The amount to modify to the node’s x and y scale values
- @param sec The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)scaleBy:(CGFloat)scale duration:(NSTimeInterval)sec;
-+ (SKAction *)scaleXBy:(CGFloat)xScale y:(CGFloat)yScale duration:(NSTimeInterval)sec;
++ (SKAction *)scaleBy:(CGFloat)scale duration:(NSTimeInterval)duration;
++ (SKAction *)scaleXBy:(CGFloat)xScale y:(CGFloat)yScale duration:(NSTimeInterval)duration;
 
 /** Creates an action that changes the x and y scale values of a node by a relative value
  @param scale The new value for the node’s x and y scale values
- @param sec The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)scaleTo:(CGFloat)scale duration:(NSTimeInterval)sec;
-+ (SKAction *)scaleXTo:(CGFloat)xScale y:(CGFloat)yScale duration:(NSTimeInterval)sec;
-+ (SKAction *)scaleXTo:(CGFloat)scale duration:(NSTimeInterval)sec;
-+ (SKAction *)scaleYTo:(CGFloat)scale duration:(NSTimeInterval)sec;
++ (SKAction *)scaleTo:(CGFloat)scale duration:(NSTimeInterval)duration;
++ (SKAction *)scaleXTo:(CGFloat)xScale y:(CGFloat)yScale duration:(NSTimeInterval)duration;
++ (SKAction *)scaleXTo:(CGFloat)scale duration:(NSTimeInterval)duration;
++ (SKAction *)scaleYTo:(CGFloat)scale duration:(NSTimeInterval)duration;
+
+/**
+ Adjust the sprite's xScale & yScale to achieve the desired size (in parent's coordinate space)
+ @param duration The duration of the animation, in seconds
+*/
++ (SKAction *)scaleToSize:(CGSize)size duration:(NSTimeInterval)duration NS_AVAILABLE(10_12, 10_0);
 
 /** Creates an action that runs a collection of actions sequentially
  @param sequence An array of SKAction objects
@@ -600,26 +785,26 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
 + (SKAction *)repeatActionForever:(SKAction *)action;
 
 /** Creates an action that changes the alpha value of the node to 1.0
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)fadeInWithDuration:(NSTimeInterval)sec;
++ (SKAction *)fadeInWithDuration:(NSTimeInterval)duration;
 
 /** Creates an action that changes the alpha value of the node to 0.0
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)fadeOutWithDuration:(NSTimeInterval)sec;
++ (SKAction *)fadeOutWithDuration:(NSTimeInterval)duration;
 
 /** Creates an action that adjusts the alpha value of a node by a relative value
  @param factor The amount to modify the node’s alpha value
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)fadeAlphaBy:(CGFloat)factor duration:(NSTimeInterval)sec;
++ (SKAction *)fadeAlphaBy:(CGFloat)factor duration:(NSTimeInterval)duration;
 
 /** Creates an action that adjusts the alpha value of a node to a new value
  @param alpha The new value of the node’s alpha
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)fadeAlphaTo:(CGFloat)alpha duration:(NSTimeInterval)sec;
++ (SKAction *)fadeAlphaTo:(CGFloat)alpha duration:(NSTimeInterval)duration;
 
 /** Creates an action that hides a node */
 + (SKAction *)hide NS_AVAILABLE(10_10, 8_0);
@@ -628,7 +813,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
 + (SKAction *)unhide NS_AVAILABLE(10_10, 8_0);
 
 /** Creates an action that changes a sprite’s texture
- @param The new texture to use on the sprite
+ @param texture The new texture to use on the sprite
  */
 + (SKAction *)setTexture:(SKTexture *)texture NS_AVAILABLE(10_10, 7_1);
 + (SKAction *)setNormalTexture:(SKTexture *)texture NS_AVAILABLE(10_11, 9_0);
@@ -677,24 +862,24 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
 /** Creates an animation that animates a sprite’s color and blend factor
  @param The new color for the sprite
  @param colorBlendFactor The new blend factor for the sprite
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)colorizeWithColor:(SKColor *)color colorBlendFactor:(CGFloat)colorBlendFactor duration:(NSTimeInterval)sec;
++ (SKAction *)colorizeWithColor:(SKColor *)color colorBlendFactor:(CGFloat)colorBlendFactor duration:(NSTimeInterval)duration;
 + (SKAction *)colorizeWithColorBlendFactor:(CGFloat)colorBlendFactor duration:(NSTimeInterval)sec;
 
 /** Creates an action that sets the falloff of a field
  @param falloff The new value for falloff
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  @see SKFieldNode
  */
-+ (SKAction *)falloffTo:(float)falloff duration:(NSTimeInterval)sec NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)falloffTo:(float)falloff duration:(NSTimeInterval)duration NS_AVAILABLE(10_10, 8_0);
 
 /** Creates an action that sets the falloff of a field
  @param falloff The value to modify falloff by
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  @see SKFieldNode
  */
-+ (SKAction *)falloffBy:(float)falloff duration:(NSTimeInterval)sec NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)falloffBy:(float)falloff duration:(NSTimeInterval)duration NS_AVAILABLE(10_10, 8_0);
 
 
 /** Creates an action that moves the node along a relative path, orienting the
@@ -702,9 +887,9 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
  
  @param path A Core Graphics path whose coordinates are relative to the node’s
  current position
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)followPath:(CGPathRef)path duration:(NSTimeInterval)sec;
++ (SKAction *)followPath:(CGPathRef)path duration:(NSTimeInterval)duration;
 
 /** Creates an action that moves the node along a path
  
@@ -718,7 +903,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
  the node is unchanged.
  @param duration The duration of the animation
  */
-+ (SKAction *)followPath:(CGPathRef)path asOffset:(BOOL)offset orientToPath:(BOOL)orient duration:(NSTimeInterval)sec;
++ (SKAction *)followPath:(CGPathRef)path asOffset:(BOOL)offset orientToPath:(BOOL)orient duration:(NSTimeInterval)duration;
 
 /** Creates an action that moves the node along a relative path, orienting the
  node to the path
@@ -733,24 +918,24 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
 /** Creates an action that changes how fast the node executes actions by a
  relative value
  @param speed amount to modify the speed by
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)speedBy:(CGFloat)speed duration:(NSTimeInterval)sec;
++ (SKAction *)speedBy:(CGFloat)speed duration:(NSTimeInterval)duration;
 
 /** Creates an action that changes how fast the node executes actions
  @param speed The new value for the node’s speed
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)speedTo:(CGFloat)speed duration:(NSTimeInterval)sec;
++ (SKAction *)speedTo:(CGFloat)speed duration:(NSTimeInterval)duration;
 
 /** Creates an action that performs an inverse kinematic reach.
  This action must be run on a descendent of the rootNode for animation to occur.
  Running this action on the rootNode itself will not cause any animation to occur.
  @param position The position (in screen space) to reach for
  @param rootNode Where to start the inverse kinematic operation from
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)reachTo:(CGPoint)position rootNode:(SKNode *)root duration:(NSTimeInterval)sec NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)reachTo:(CGPoint)position rootNode:(SKNode *)root duration:(NSTimeInterval)duration NS_AVAILABLE(10_10, 8_0);
 
 /** Creates an action that performs an inverse kinematic reach.
  This action must be run on a descendent of the rootNode for animation to occur.
@@ -766,7 +951,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
  Running this action on the rootNode itself will not cause any animation to occur.
  @param node The node to reach for
  @param rootNode Where to start the inverse kinematic operation from
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  */
 + (SKAction *)reachToNode:(SKNode *)node rootNode:(SKNode *)root duration:(NSTimeInterval)sec NS_AVAILABLE(10_10, 8_0);
 
@@ -781,27 +966,28 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
 
 /** Creates an action that sets the strength of a field
  @param strength The new value for strength
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  @see SKFieldNode
  */
-+ (SKAction *)strengthTo:(float)strength duration:(NSTimeInterval)sec NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)strengthTo:(float)strength duration:(NSTimeInterval)duration NS_AVAILABLE(10_10, 8_0);
 
 /** Creates an action that sets the strength of a field
  @param strength The value to modify strength by
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  @see SKFieldNode
  */
-+ (SKAction *)strengthBy:(float)strength duration:(NSTimeInterval)sec NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)strengthBy:(float)strength duration:(NSTimeInterval)duration NS_AVAILABLE(10_10, 8_0);
 
 /** Creates an action that idles for a specified period of time
- @param duration The duration of the idle
+ @param duration The duration of the idle, in seconds
  */
-+ (SKAction *)waitForDuration:(NSTimeInterval)sec;
++ (SKAction *)waitForDuration:(NSTimeInterval)duration;
 
 /** Creates an action that idles for a randomized period of time
+ @param duration The duration of the idle, in seconds
  @param withRange The range of possible values for the duration
  */
-+ (SKAction *)waitForDuration:(NSTimeInterval)sec withRange:(NSTimeInterval)durationRange;
++ (SKAction *)waitForDuration:(NSTimeInterval)duration withRange:(NSTimeInterval)durationRange;
 
 /** Creates an action that removes the node from its parent */
 + (SKAction *)removeFromParent;
@@ -831,12 +1017,12 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
 + (SKAction *)runAction:(SKAction *)action onChildWithName:(NSString*)name;
 
 /** Creates an action that executes a block over a duration
- @param duration The duration of the animation
+ @param duration The duration of the animation, in seconds
  @param actionBlock The block to run. The block takes the following parameters:
  node The node on which the action is running.
  elapsedTime The amount of time that has passed in the animation.
  */
-+ (SKAction *)customActionWithDuration:(NSTimeInterval)seconds actionBlock:(void (^)(SKNode *node, CGFloat elapsedTime))block;
++ (SKAction *)customActionWithDuration:(NSTimeInterval)duration actionBlock:(void (^)(SKNode *node, CGFloat elapsedTime))block;
 
 /** Creates an action of the given name from an action file.
  @param name The name of the action
@@ -847,7 +1033,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
  @param name The name of the action
  @param duration The duration of the action
  */
-+ (nullable SKAction *)actionNamed:(NSString *)name duration:(NSTimeInterval)sec NS_AVAILABLE(10_11, 9_0);
++ (nullable SKAction *)actionNamed:(NSString *)name duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
 
 /** Creates an action of the given name from an action file.
  @param name The name of the action
@@ -860,7 +1046,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
  @param url The url of the file containing the action
  @param duration The duration of the action
  */
-+ (nullable SKAction *)actionNamed:(NSString *)name fromURL:(NSURL *)url duration:(NSTimeInterval)sec NS_AVAILABLE(10_11, 9_0);
++ (nullable SKAction *)actionNamed:(NSString *)name fromURL:(NSURL *)url duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
 
 @end
 
@@ -872,15 +1058,15 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
 + (SKAction *)changeMassTo:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
 + (SKAction *)changeMassBy:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
 
-+ (SKAction *)applyForce:(CGVector)force duration:(NSTimeInterval)sec NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)applyForce:(CGVector)force atPoint:(CGPoint)point duration:(NSTimeInterval)sec NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)applyForce:(CGVector)force duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)applyForce:(CGVector)force atPoint:(CGPoint)point duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
 
-+ (SKAction *)applyTorque:(CGFloat)torque duration:(NSTimeInterval)sec NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)applyTorque:(CGFloat)torque duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
 
-+ (SKAction *)applyImpulse:(CGVector)impulse duration:(NSTimeInterval)sec NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)applyImpulse:(CGVector)impulse atPoint:(CGPoint)point duration:(NSTimeInterval)sec NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)applyImpulse:(CGVector)impulse duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)applyImpulse:(CGVector)impulse atPoint:(CGPoint)point duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
 
-+ (SKAction *)applyAngularImpulse:(CGFloat)impulse duration:(NSTimeInterval)sec NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)applyAngularImpulse:(CGFloat)impulse duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
 
 @end
 
@@ -904,7 +1090,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSCoding>
 
 NS_ASSUME_NONNULL_END
 // ==========  SpriteKit.framework/Headers/SKVersion.h
-#define SK_VERSION 17096000
+#define SK_VERSION 25001000
 // ==========  SpriteKit.framework/Headers/SKConstraint.h
 /**
  @header
@@ -925,7 +1111,7 @@ NS_ASSUME_NONNULL_BEGIN
  SKRange object used to define a range of allowable values 
  */
 NS_CLASS_AVAILABLE(10_10, 8_0)
-SK_EXPORT @interface SKRange : NSObject <NSCoding, NSCopying>
+SK_EXPORT @interface SKRange : NSObject <NSSecureCoding, NSCopying>
 
 /* SKRange with a lower and upper limit. Designated initializer. */
 - (instancetype)initWithLowerLimit:(CGFloat)lower upperLimit:(CGFloat)upper NS_DESIGNATED_INITIALIZER;
@@ -968,7 +1154,7 @@ SK_EXPORT @interface SKRange : NSObject <NSCoding, NSCopying>
  The node's transform will be changed to staisfy the constarint
  */
 NS_CLASS_AVAILABLE(10_10, 8_0)
-SK_EXPORT @interface SKConstraint : NSObject <NSCoding, NSCopying>
+SK_EXPORT @interface SKConstraint : NSObject <NSSecureCoding, NSCopying>
 
 /* Wether the constraint should apply. Defualts to YES */
 @property BOOL enabled;
@@ -1013,7 +1199,7 @@ NS_ASSUME_NONNULL_END
  Particle Emitter Node
  
  
- @copyright 2011 Apple, Inc. All rights reserve.
+ @copyright 2011 Apple, Inc. All rights reserved.
  
  */
 
@@ -1210,7 +1396,7 @@ SK_EXPORT @interface SKEmitterNode : SKNode
 @property (nonatomic, retain, nullable) SKKeyframeSequence *particleAlphaSequence;
 
 /**
- The rate at which to modify the alpha for each particle. Defaults to 1.0.
+ Specifies an action executed by new particles.
  */
 @property (nonatomic, copy, nullable) SKAction *particleAction;
 
@@ -1226,6 +1412,15 @@ SK_EXPORT @interface SKEmitterNode : SKNode
 @property (nonatomic, weak, nullable) SKNode *targetNode;
 
 @property (nonatomic, retain, nullable) SKShader *shader;
+
+/**
+ Optional dictionary of SKAttributeValues
+ Attributes can be used with custom SKShaders.
+ */
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_AVAILABLE(10_12, 10_0);
+
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_AVAILABLE(10_12, 10_0);
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_AVAILABLE(10_12, 10_0);
 
 
 /**
@@ -1266,7 +1461,6 @@ NS_ASSUME_NONNULL_END
 #import <TargetConditionals.h>
 #import <CoreGraphics/CGGeometry.h>
 #import <Foundation/Foundation.h>
-#import <QuartzCore/QuartzCore.h>
 
 #import <SpriteKit/SKVersion.h>
 
@@ -1276,12 +1470,20 @@ NS_ASSUME_NONNULL_END
 #import <AppKit/AppKit.h>
 #endif
 
+
+#if TARGET_OS_IPHONE && !__has_include(<UIKit/UIView.h>)
+#define SKVIEW_AVAILABLE 0
+#else
+#define SKVIEW_AVAILABLE 1
+#endif
+
 #ifdef __cplusplus
 #define SK_EXPORT extern "C" __attribute__((visibility ("default")))
 #else
 #define SK_EXPORT extern __attribute__((visibility ("default")))
 #endif
 #define SK_AVAILABLE __OSX_AVAILABLE_STARTING
+#define SK_WEAK_LINK __attribute__((weak_import))
 
 #if TARGET_OS_IPHONE
 #define SKColor UIColor
@@ -1364,12 +1566,12 @@ NS_ASSUME_NONNULL_END
  */
 
 #import <SpriteKit/SpriteKitBase.h>
-#import <SpriteKit/SKUniform.h>
+@class SKUniform, SKAttribute;
 
 NS_ASSUME_NONNULL_BEGIN
 
 NS_CLASS_AVAILABLE(10_10, 8_0)
-SK_EXPORT @interface SKShader : NSObject <NSCopying, NSCoding>
+SK_EXPORT @interface SKShader : NSObject <NSCopying, NSSecureCoding>
 
 /**
  Create a custom shader with source code.
@@ -1397,7 +1599,7 @@ SK_EXPORT @interface SKShader : NSObject <NSCopying, NSCoding>
                    encoding:NSUTF8StringEncoding
                       error:NULL]];
  
- Though error handling is encapsulated and the encoding flexible.
+ The encoding is assumed to be NSUTF8StringEncoding.
  */
 + (instancetype)shaderWithFileNamed:(NSString *)name;
 
@@ -1443,9 +1645,12 @@ SK_EXPORT @interface SKShader : NSObject <NSCopying, NSCoding>
 - (nullable SKUniform *)uniformNamed:(NSString *)name;
 - (void)removeUniformNamed:(NSString *)name;
 
+@property (nonatomic, copy, nonnull) NSArray<SKAttribute*> *attributes NS_AVAILABLE(10_11, 9_0);
+
 @end
 
-NS_ASSUME_NONNULL_END// ==========  SpriteKit.framework/Headers/SKLightNode.h
+NS_ASSUME_NONNULL_END
+// ==========  SpriteKit.framework/Headers/SKLightNode.h
 /**
  @header
  
@@ -1669,6 +1874,15 @@ SK_EXPORT @interface SKShapeNode : SKNode
 /* An optional SKShader used for the Shape's Stroke. */
 @property (nonatomic, retain, nullable) SKShader *strokeShader NS_AVAILABLE(10_10, 8_0);
 
+/**
+ Optional dictionary of SKAttributeValues
+ Attributes can be used with custom SKShaders.
+ */
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_AVAILABLE(10_12, 10_0);
+
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_AVAILABLE(10_12, 10_0);
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_AVAILABLE(10_12, 10_0);
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -1685,7 +1899,7 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 #import <SpriteKit/SpriteKitBase.h>
 
-SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKReachConstraints : NSObject <NSCoding>
+SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKReachConstraints : NSObject <NSSecureCoding>
 
 /**
  Lower angle limit in radians
@@ -1713,7 +1927,7 @@ SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKReachConstraints : NSObject <NSC
 
 NS_ASSUME_NONNULL_BEGIN
 
-SK_EXPORT @interface SKTextureAtlas : NSObject <NSCoding>
+SK_EXPORT @interface SKTextureAtlas : NSObject <NSSecureCoding>
 
 
 /* Atlas with .png and .plist file name*/
@@ -1761,7 +1975,7 @@ NS_ASSUME_NONNULL_END
  
  Node that controls camera movement, zoom and rotation.
  
- @copyright 2015 Apple, Inc. All rights reserve.
+ @copyright 2015 Apple, Inc. All rights reserved.
  
  */
 
@@ -1803,7 +2017,157 @@ SK_EXPORT NS_AVAILABLE(10_11, 9_0) @interface SKCameraNode : SKNode
 
 @end
 
-NS_ASSUME_NONNULL_END// ==========  SpriteKit.framework/Headers/SKMutableTexture.h
+NS_ASSUME_NONNULL_END
+// ==========  SpriteKit.framework/Headers/SKWarpGeometry.h
+
+/**
+ SKWarpGeometry.h
+ 
+ Nodes that conform to the SKWarpable protocol can be warped and animated by defining distortions via a SKWarpGeometry objects.
+
+  @copyright 2016 Apple, Inc. All rights reserved.
+ */
+
+#import <SpriteKit/SpriteKitBase.h>
+#import <SpriteKit/SKAction.h>
+#import <simd/simd.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class SKTexture, SKShader, SKWarpGeometry, SKWarpGeometryGrid;
+
+
+SK_EXPORT NS_AVAILABLE(10_12, 10_0) @protocol SKWarpable <NSObject>
+
+/* Warp geometry used to define the distortion */
+@property (nonatomic, nullable) SKWarpGeometry *warpGeometry;
+
+/* maximum number of subdivision iterations used to generate the final vertices */
+@property (nonatomic) NSInteger subdivisionLevels;
+
+@end
+
+
+
+
+/* Base class for future expansion */
+SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKWarpGeometry : NSObject <NSCopying, NSSecureCoding>
+@end
+
+SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKWarpGeometryGrid : SKWarpGeometry <NSSecureCoding>
+
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+
+/* 1x1 grid with no distortion */
++ (instancetype)grid;
+
+/* grid of the specified dimensions and no distortion */
++ (instancetype)gridWithColumns:(NSInteger)cols
+                           rows:(NSInteger)rows;
+
+/*
+ Create a grid of the specified dimensions, source and dest positions.
+ 
+ Grid dimensions (cols and rows) refer to the number of faces in each dimension. The
+ number of vertices required for a given dimension is equal to (cols + 1) * (rows + 1).
+ 
+ SourcePositions are normalized (0.0 - 1.0) coordinates to determine the source content.
+ 
+ DestPositions are normalized (0.0 - 1.0) positional coordinates with respect to
+ the node's native size. Values outside the (0.0-1.0) range are perfectly valid and
+ correspond to positions outside of the native undistorted bounds.
+ 
+ Source and dest positions are provided in row-major order staring from the top-left.
+ For example the indices for a 2x2 grid would be as follows:
+ 
+ [6]---[7]---[8]
+  |     |     |
+ [3]---[4]---[5]
+  |     |     |
+ [0]---[1]---[2]
+ 
+ */
+#if (defined(SWIFT_SDK_OVERLAY_SPRITEKIT_EPOCH) && SWIFT_SDK_OVERLAY_SPRITEKIT_EPOCH >= 1)
++ (instancetype)gridWithColumns:(NSInteger)cols
+                           rows:(NSInteger)rows
+                sourcePositions:(nullable const vector_float2 *)sourcePositions
+                  destPositions:(nullable const vector_float2 *)destPositions NS_REFINED_FOR_SWIFT;
+
+/* init with the specified dimensions, source and dest positions. */
+- (instancetype)initWithColumns:(NSInteger)cols
+                           rows:(NSInteger)rows
+                sourcePositions:(nullable const vector_float2 *)sourcePositions
+                  destPositions:(nullable const vector_float2 *)destPositions NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+#else
++ (instancetype)gridWithColumns:(NSInteger)cols
+                           rows:(NSInteger)rows
+                sourcePositions:(nullable const vector_float2 *)sourcePositions
+                  destPositions:(nullable const vector_float2 *)destPositions;
+
+/* init with the specified dimensions, source and dest positions. */
+- (instancetype)initWithColumns:(NSInteger)cols
+                           rows:(NSInteger)rows
+                sourcePositions:(nullable const vector_float2 *)sourcePositions
+                  destPositions:(nullable const vector_float2 *)destPositions NS_DESIGNATED_INITIALIZER;
+#endif
+
+/* the number of columns in this grid */
+@property (nonatomic, readonly) NSInteger numberOfColumns;
+
+/* the number of rows in this grid */
+@property (nonatomic, readonly) NSInteger numberOfRows;
+
+
+/* the total number of (sourcePosition + destPosition) pairs that define this grid.
+ For a given dimension this is equal to (numberOfColumns + 1) * (numberOfRows + 1). */
+@property (nonatomic, readonly) NSInteger vertexCount;
+
+- (vector_float2)sourcePositionAtIndex:(NSInteger)index;
+- (vector_float2)destPositionAtIndex:(NSInteger)index;
+
+#if (defined(SWIFT_SDK_OVERLAY_SPRITEKIT_EPOCH) && SWIFT_SDK_OVERLAY_SPRITEKIT_EPOCH >= 1)
+- (instancetype)gridByReplacingSourcePositions:(const vector_float2 *)sourcePositions NS_REFINED_FOR_SWIFT;
+- (instancetype)gridByReplacingDestPositions:(const vector_float2 *)destPositions NS_REFINED_FOR_SWIFT;
+#else
+- (instancetype)gridByReplacingSourcePositions:(const vector_float2 *)sourcePositions;
+- (instancetype)gridByReplacingDestPositions:(const vector_float2 *)destPositions;
+#endif
+@end
+
+
+
+
+@interface SKAction (SKWarpable)
+
+/* Animate from the node's current warpGeometry to a new one over the specified duration.
+ 
+ If the numberOfColumns and numberOfRows match, a smooth interpolation will be performed
+ from the node current warp.
+ */
++ (nullable SKAction *)warpTo:(SKWarpGeometry *)warp
+                     duration:(NSTimeInterval)duration NS_AVAILABLE(10_12, 10_0);
+
+/* Animate through an array of warps
+ 
+ The numberOfColumns and numberOfRows must match for all warps.
+ Times are specified in seconds and must be increasing values.
+ */
++ (nullable SKAction *)animateWithWarps:(NSArray<SKWarpGeometry *> *)warps
+                                  times:(NSArray<NSNumber *> *)times NS_AVAILABLE(10_12, 10_0);
+
+/* Animate through an array of warps
+ 
+ The numberOfColumns and numberOfRows must match for all warps.
+ Times are specified in seconds and must be increasing values.
+ Optionally restore the original node's warpGeometry from before the action.
+ */
++ (nullable SKAction *)animateWithWarps:(NSArray<SKWarpGeometry *> *)warps
+                                  times:(NSArray<NSNumber *> *)times
+                                restore:(BOOL)restore NS_AVAILABLE(10_12, 10_0);
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  SpriteKit.framework/Headers/SKMutableTexture.h
 /**
  @header
  
@@ -1867,7 +2231,7 @@ typedef NS_ENUM(NSInteger, SKRepeatMode) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-SK_EXPORT @interface SKKeyframeSequence : NSObject <NSCoding, NSCopying>
+SK_EXPORT @interface SKKeyframeSequence : NSObject <NSSecureCoding, NSCopying>
 
 /* Designated initializer */
 - (instancetype)initWithKeyframeValues:(NSArray*)values times:(NSArray<NSNumber*> *)times NS_DESIGNATED_INITIALIZER;
@@ -1954,7 +2318,7 @@ SK_EXPORT @protocol SKPhysicsContactDelegate<NSObject>
 - (void)didEndContact:(SKPhysicsContact *)contact;
 @end
 
-SK_EXPORT @interface SKPhysicsWorld : NSObject<NSCoding>
+SK_EXPORT @interface SKPhysicsWorld : NSObject<NSSecureCoding>
 
 /**
  A global 2D vector specifying the field force acceleration due to gravity. The unit is meters per second so standard earth gravity would be { 0.0, +/-9.8 }.
@@ -1981,7 +2345,10 @@ SK_EXPORT @interface SKPhysicsWorld : NSObject<NSCoding>
 
 @end
 
-NS_ASSUME_NONNULL_END// ==========  SpriteKit.framework/Headers/SKView.h
+NS_ASSUME_NONNULL_END
+
+
+// ==========  SpriteKit.framework/Headers/SKView.h
 //
 //  SKView.h
 //  SpriteKit
@@ -1989,9 +2356,15 @@ NS_ASSUME_NONNULL_END// ==========  SpriteKit.framework/Headers/SKView.h
 //  Copyright (c) 2011 Apple Inc. All rights reserved.
 //
 
+
 #import <SpriteKit/SpriteKitBase.h>
 
+
+/* SKView is not available on WatchOS, please see WKInterfaceSpriteKit */
+#if SKVIEW_AVAILABLE
+
 @class SKScene, SKTransition, SKTexture, SKNode;
+@protocol SKViewDelegate;
 
 /**
  The view to present your SKScene nodes in.
@@ -2011,7 +2384,7 @@ SK_EXPORT @interface SKView : UIView
 
 #import <Cocoa/Cocoa.h>
 NS_ASSUME_NONNULL_BEGIN
-SK_EXPORT @interface SKView : NSView
+SK_EXPORT @interface SKView : NSView <NSSecureCoding>
 
 #endif
 
@@ -2053,10 +2426,30 @@ SK_EXPORT @interface SKView : NSView
  */
 @property (nonatomic) BOOL ignoresSiblingOrder;
 
+
 @property (nonatomic) BOOL shouldCullNonVisibleNodes NS_AVAILABLE(10_10, 8_0);
 
-/* Number of hardware vsyncs between callbacks, same behaviour as CADisplayLink. Defaults to 1 (render every vsync) */
-@property (nonatomic) NSInteger frameInterval;
+
+/* Defines the desired rate for this SKView to it's content. 
+ Actual rate maybe be limited by hardware or other software. */
+@property (nonatomic) NSInteger preferredFramesPerSecond NS_AVAILABLE(10_12, 10_0);
+
+
+/**
+ Optional view delegate, see SKViewDelegate.
+ */
+@property (nonatomic, weak, nullable) NSObject<SKViewDelegate> *delegate NS_AVAILABLE(10_12, 10_0);
+
+
+/* Deprecated, please use preferredFramesPerSecond.
+ Number of frames to skip between renders, defaults to 1 (render every frame)
+ Actual requested rate will be preferredFramesPerSecond / frameInterval.  */
+@property (nonatomic) NSInteger frameInterval NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+
+/* Deprecated, please use preferredFramesPerSecond. */
+/* FIXME: remove from public headers once all clinets adopt preferredFramesPerSecond. */
+@property(nonatomic) float preferredFrameRate NS_DEPRECATED(10_12, 10_12, 10_0, 10_0);
+
 
 /**
  Present an SKScene in the view, replacing the current scene.
@@ -2113,7 +2506,23 @@ SK_EXPORT @interface SKView : NSView
 
 @end
 
+
+
+SK_EXPORT NS_AVAILABLE(10_12, 10_0) @protocol SKViewDelegate <NSObject>
+@optional
+/**
+ Allows the client to dynamically control the render rate.
+ 
+ return YES to initiate an update and render for the target time.
+ return NO to skip update and render for this target time.
+ */
+- (BOOL)view:(SKView *)view shouldRenderAtTime:(NSTimeInterval)time;
+@end
+
+
 NS_ASSUME_NONNULL_END
+
+#endif
 // ==========  SpriteKit.framework/Headers/SKSpriteNode.h
 /**
  @header
@@ -2133,6 +2542,7 @@ NS_ASSUME_NONNULL_END
 
 #import <SpriteKit/SKNode.h>
 #import <SpriteKit/SKShader.h>
+#import <SpriteKit/SKWarpGeometry.h>
 #import <SpriteKit/SpriteKitBase.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -2146,7 +2556,7 @@ NS_ASSUME_NONNULL_BEGIN
  See <a href="http://en.wikipedia.org/wiki/Sprite_(computer_graphics)">wiki</a> for a definition of a Sprite.
  
  */
-SK_EXPORT @interface SKSpriteNode : SKNode
+SK_EXPORT @interface SKSpriteNode : SKNode <SKWarpable>
 
 /**
  Create a sprite with an SKTexture and the specified size.
@@ -2278,7 +2688,21 @@ SK_EXPORT @interface SKSpriteNode : SKNode
  */
 @property (nonatomic) CGSize size;
 
+/**
+ Adjust the sprite's xScale & yScale to achieve the desired size (in parent's coordinate space)
+ */
+- (void)scaleToSize:(CGSize)size NS_AVAILABLE(10_12, 10_0);
+
 @property (nonatomic, retain, nullable) SKShader *shader NS_AVAILABLE(10_10, 8_0);
+
+/**
+ Optional dictionary of SKAttributeValues
+ Attributes can be used with custom SKShaders.
+ */
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_AVAILABLE(10_12, 10_0);
+
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_AVAILABLE(10_12, 10_0);
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_AVAILABLE(10_12, 10_0);
 
 @end
 
@@ -2291,7 +2715,7 @@ NS_ASSUME_NONNULL_END
  Nodes are the base scene graph nodes used in the SpriteKit scene graph.
  
  
- @copyright 2011 Apple, Inc. All rights reserve.
+ @copyright 2011 Apple, Inc. All rights reserved.
  
  */
 
@@ -2299,7 +2723,9 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SKView, SKAction, SKScene, SKTexture, SKPhysicsBody, SKFieldNode, SKReachConstraints, SKConstraint, GKPolygonObstacle;
+@class SKAction, SKScene, SKTexture, SKPhysicsBody, SKFieldNode;
+@class SKReachConstraints, SKConstraint, SKAttributeValue, SKWarpGeometry;
+@protocol UIFocusItem;
 
 /**
  Blend modes that the SKNode uses to compose with the framebuffer to produce blended colors.
@@ -2314,15 +2740,25 @@ typedef NS_ENUM(NSInteger, SKBlendMode) {
     SKBlendModeReplace      = 6     // Replaces the destination with the source (ignores alpha).
 } NS_ENUM_AVAILABLE(10_9, 7_0);
 
+typedef NS_ENUM(NSInteger, SKNodeFocusBehavior) {
+    SKNodeFocusBehaviorNone = 0,    // Not focusable and node has no impact on other nodes that have focus interaction enabled.  This is the default.
+    SKNodeFocusBehaviorOccluding,   // Not focusable, but will prevent other focusable nodes that this node visually obscures from being focusable.
+    SKNodeFocusBehaviorFocusable    // Focusable and will also prevent other focusable nodes that this node visually obscures from being focusable.
+} API_AVAILABLE(ios(11.0), tvos(11.0)) API_UNAVAILABLE(macos, watchos);
+
 /**
  A SpriteKit scene graph node. These are the branch nodes that together with geometric leaf nodes make up the directed acyclic graph that is the SpriteKit scene graph tree.
  
  All nodes have one and exactly one parent unless they are the root node of a graph tree. Leaf nodes have no children and contain some sort of sharable data that guarantee the DAG condition.
  */
 #if TARGET_OS_IPHONE
-SK_EXPORT @interface SKNode : UIResponder <NSCopying, NSCoding>
+#if SKVIEW_AVAILABLE
+SK_EXPORT @interface SKNode : UIResponder <NSCopying, NSSecureCoding, UIFocusItem>
 #else
-SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSCoding>
+SK_EXPORT @interface SKNode : NSObject <NSCopying, NSSecureCoding>
+#endif
+#else
+SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSSecureCoding>
 #endif
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
@@ -2335,6 +2771,8 @@ SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSCoding>
 + (instancetype)node;
 
 + (nullable instancetype)nodeWithFileNamed:(NSString*)filename;
+
++ (nullable instancetype)nodeWithFileNamed:(NSString *)filename securelyWithClasses:(NSSet<Class> *)classes andError:(NSError **)error API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
 
 @property (nonatomic, readonly) CGRect frame;
 
@@ -2393,12 +2831,16 @@ SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSCoding>
 @property (nonatomic, getter=isUserInteractionEnabled) BOOL userInteractionEnabled;
 
 /**
+ Determines how this node participates in the focus system.  The default is SKNodeFocusBehaviorNone.
+ */
+@property (nonatomic) SKNodeFocusBehavior focusBehavior API_AVAILABLE(ios(11.0), tvos(11.0)) API_UNAVAILABLE(macos, watchos);
+
+/**
  The parent of the node.
  
  If this is nil the node has not been added to another group and is thus the root node of its own graph.
  */
 @property (nonatomic, readonly, nullable) SKNode *parent;
-
 
 /**
  The children of this node.
@@ -2443,6 +2885,16 @@ SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSCoding>
 @property (nonatomic, copy, nullable) NSArray<SKConstraint*> *constraints;
 
 /**
+ Optional dictionary of SKAttributeValues
+ Attributes can be used with custom SKShaders.
+ DEPRECATED: Attributes are only available for node classes supporting SKShader (see SKSpriteNode etc.).
+ */
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_DEPRECATED(10_12, 10_12, 10_0, 10_0);
+
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_DEPRECATED(10_12, 10_12, 10_0, 10_0);
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_DEPRECATED(10_12, 10_12, 10_0, 10_0);
+
+/**
  Sets both the x & y scale
  
  @param scale the uniform scale to set.
@@ -2464,7 +2916,7 @@ SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSCoding>
 - (void)removeAllChildren;
 
 - (void)removeFromParent;
-- (void)moveToParent:(SKNode *)parent;
+- (void)moveToParent:(SKNode *)parent NS_AVAILABLE(10_11, 9_0);
 
 - (nullable SKNode *)childNodeWithName:(NSString *)name;
 
@@ -2488,7 +2940,7 @@ SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSCoding>
 - (BOOL)inParentHierarchy:(SKNode *)parent;
 
 - (void)runAction:(SKAction *)action;
-- (void)runAction:(SKAction *)action completion:(void (^)())block;
+- (void)runAction:(SKAction *)action completion:(void (^)(void))block;
 - (void)runAction:(SKAction *)action withKey:(NSString *)key;
 
 - (BOOL)hasActions;
@@ -2518,15 +2970,6 @@ SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSCoding>
 
 - (BOOL)isEqualToNode:(SKNode *)node;
 
-/* Returns an array of GKPolygonObstacles from a group of SKSpriteNode's textures in scene space. For use with GPObstacleGraph in GameplayKit */
-+ (NSArray<GKPolygonObstacle*> *)obstaclesFromSpriteTextures:(NSArray<SKNode*>*)sprites accuracy:(float)accuracy;
-
-/* Returns an array of GKPolygonObstacles from a group of SKNode's transformed bounds in scene space. For use with GPObstacleGraph in GameplayKit */
-+ (NSArray<GKPolygonObstacle*> *)obstaclesFromNodeBounds:(NSArray<SKNode*>*)nodes;
-
-/* Returns an array of GKPolygonObstacles from a group of SKNode's physics bodies in scene space. For use with GPObstacleGraph in GameplayKit */
-+ (NSArray<GKPolygonObstacle*> *)obstaclesFromNodePhysicsBodies:(NSArray<SKNode*>*)nodes;
-
 @end
 
 
@@ -2534,20 +2977,21 @@ SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSCoding>
  Provided for easy transformation of UITouches coordinates to SKNode coordinates should you choose to handle touch events natively.
  */
 #if TARGET_OS_IPHONE
+#if __has_include(<UIKit/UITouch.h>)
 //Allow conversion of UITouch coordinates to scene-space
 @interface UITouch (SKNodeTouches)
 - (CGPoint)locationInNode:(SKNode *)node;
 - (CGPoint)previousLocationInNode:(SKNode *)node;
 @end
+#endif
 #else
 @interface NSEvent (SKNodeEvent)
 - (CGPoint)locationInNode:(SKNode *)node;
 @end
 #endif
 
-
-
-NS_ASSUME_NONNULL_END// ==========  SpriteKit.framework/Headers/SpriteKit.h
+NS_ASSUME_NONNULL_END
+// ==========  SpriteKit.framework/Headers/SpriteKit.h
 //
 //  SpriteKit.h
 //  SpriteKit
@@ -2570,10 +3014,19 @@ NS_ASSUME_NONNULL_END// ==========  SpriteKit.framework/Headers/SpriteKit.h
 #import <SpriteKit/SKLightNode.h>
 #import <SpriteKit/SKReferenceNode.h>
 #import <SpriteKit/SK3DNode.h>
+#import <SpriteKit/SKTransformNode.h>
 #import <SpriteKit/SKRegion.h>
 #import <SpriteKit/SKView.h>
 #import <SpriteKit/SKTransition.h>
+#import <SpriteKit/SKShader.h>
+#import <SpriteKit/SKUniform.h>
+#import <SpriteKit/SKAttribute.h>
+#import <SpriteKit/SKWarpGeometry.h>
+#import <SpriteKit/SKRenderer.h>
 
+#import <SpriteKit/SKTileDefinition.h>
+#import <SpriteKit/SKTileSet.h>
+#import <SpriteKit/SKTileMapNode.h>
 
 #import <SpriteKit/SKTexture.h>
 #import <SpriteKit/SKMutableTexture.h>
@@ -2587,6 +3040,53 @@ NS_ASSUME_NONNULL_END// ==========  SpriteKit.framework/Headers/SpriteKit.h
 #import <SpriteKit/SKPhysicsBody.h>
 #import <SpriteKit/SKPhysicsJoint.h>
 #import <SpriteKit/SKPhysicsWorld.h>
+
+#if !TARGET_OS_IPHONE
+#import <SpriteKit/SKNode+NSAccessibility.h>
+#endif
+// ==========  SpriteKit.framework/Headers/SKTransformNode.h
+//
+//  SKTransformNode.h
+//  SpriteKit
+//
+//
+
+#import <SpriteKit/SpriteKit.h>
+#import <simd/simd.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+#if !defined(__MAC_10_13) && !defined(__IPHONE_11_0) && !defined(__WATCHOS_4_0) && !defined(__TVOS_11_0)
+typedef struct {  vector_float4 vector; } simd_quatf;
+#endif
+
+/**
+ * An SKTransformNode can be applied a 3D rotation that will affect
+ * the visual aspect of its children.
+ * The physics and constraints of the children will behave as if none
+ * of them were transformed.
+ */
+NS_AVAILABLE(10_13, 11_0) SK_EXPORT @interface SKTransformNode : SKNode
+
+@property (nonatomic) CGFloat xRotation;
+@property (nonatomic) CGFloat yRotation;
+
+/**
+ * Rotation specific setter/getter
+ */
+
+- (void)setEulerAngles:(vector_float3)euler;
+- (vector_float3)eulerAngles;
+
+- (void)setRotationMatrix:(matrix_float3x3)rotationMatrix;
+- (matrix_float3x3)rotationMatrix;
+
+- (void)setQuaternion:(simd_quatf)quaternion;
+- (simd_quatf)quaternion;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  SpriteKit.framework/Headers/SKFieldNode.h
 /**
  @header
@@ -2810,7 +3310,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKRegion : NSObject <NSCopying, NSCoding>
+SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKRegion : NSObject <NSCopying, NSSecureCoding>
 
 @property (nonatomic, readonly, nullable) CGPathRef path;
 
@@ -2867,7 +3367,9 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 #import <SpriteKit/SpriteKitBase.h>
 
+#if __has_include(<CoreImage/CIFilter.h>)
 @class CIFilter;
+#endif
 
 typedef NS_ENUM(NSInteger, SKTextureFilteringMode) {
     SKTextureFilteringNearest,
@@ -2879,7 +3381,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  A texture to be mapped onto SKSpriteNode instances.
  */
-SK_EXPORT @interface SKTexture : NSObject <NSCopying, NSCoding>
+SK_EXPORT @interface SKTexture : NSObject <NSCopying, NSSecureCoding>
 
 /**
  Create a texture from an image file. Behaves similar to imageNamed: in UIImage or NSImage
@@ -2950,12 +3452,15 @@ SK_EXPORT @interface SKTexture : NSObject <NSCopying, NSCoding>
  */
 + (instancetype)textureWithData:(NSData *)pixelData size:(CGSize)size rowLength:(unsigned int)rowLength alignment:(unsigned int)alignment;
 
+
+#if __has_include(<CoreImage/CIFilter.h>)
 /**
  Create new texture by applying a CIFilter to an existing one. Any CIFilter that requires only a single "inputImage" and produces an "outputImage" is allowed.
  
  @param filter the CI filter to apply in the copy.
  */
 - (instancetype)textureByApplyingCIFilter:(CIFilter *)filter;
+#endif
 
 
 /**
@@ -2997,7 +3502,7 @@ SK_EXPORT @interface SKTexture : NSObject <NSCopying, NSCoding>
 /**
  Convert the current SKTexture into a CGImageRef object
  */
-@property(nonatomic, readonly) CGImageRef CGImage NS_AVAILABLE(10_11, 9_0);
+- (CGImageRef)CGImage CF_RETURNS_RETAINED NS_AVAILABLE(10_11, 9_0);
 
 /**
  Start a texture preload operation on an array of textures
@@ -3016,6 +3521,467 @@ SK_EXPORT @interface SKTexture : NSObject <NSCopying, NSCoding>
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  SpriteKit.framework/Headers/SKTileSet.h
+//
+//  SKTileSet.h
+//
+//  Copyright © 2015 Apple Inc. All rights reserved.
+//
+
+#import <SpriteKit/SKTileDefinition.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ The tile set type is used to describe how the tiles will be arranged in a tile map.
+ 
+ @enum SKTileSetTypeGrid Specifies that the tiles will be axis-alligned rectangles that are placed in rows and columns at right angles to one another. This is the default type.
+ @enum SKTileSetTypeIsometric Specifies that the tiles will be rectangles that are rotated and scaled to give the appearance of 3/4 perspective.
+ @enum SKTileSetTypeHexagonalFlat Specifies that the tiles will be flat bottomed hexagons.
+ @enum SKTileSetTypeHexagonalPointy Specifies that the tiles will be "pointy" bottomed hexagons.
+*/
+typedef NS_ENUM(NSUInteger, SKTileSetType) {
+    SKTileSetTypeGrid,
+    SKTileSetTypeIsometric,
+    SKTileSetTypeHexagonalFlat,
+    SKTileSetTypeHexagonalPointy,
+} NS_ENUM_AVAILABLE(10_12, 10_0);
+
+/**
+ The adjacency mask is used to specify which neighboring tiles need to be filled in for a rule to go into effect.
+ */
+typedef NS_OPTIONS(NSUInteger, SKTileAdjacencyMask) {
+    
+    SKTileAdjacencyUp         = 1 << 0, // The above neighboring tile
+    SKTileAdjacencyUpperRight = 1 << 1, // The neighboring tile to the upper right
+    SKTileAdjacencyRight      = 1 << 2, // The neighboring tile to the right
+    SKTileAdjacencyLowerRight = 1 << 3, // The neighboring tile to the lower right
+    SKTileAdjacencyDown       = 1 << 4, // The below neighboring tile
+    SKTileAdjacencyLowerLeft  = 1 << 5, // The neighboring tile to the lower left
+    SKTileAdjacencyLeft       = 1 << 6, // The neighboring tile to the left
+    SKTileAdjacencyUpperLeft  = 1 << 7, // The neighboring tile to the upper left
+    
+    SKTileAdjacencyAll = SKTileAdjacencyUp | SKTileAdjacencyUpperRight | SKTileAdjacencyRight | SKTileAdjacencyLowerRight | SKTileAdjacencyDown | SKTileAdjacencyLowerLeft | SKTileAdjacencyLeft | SKTileAdjacencyUpperLeft,
+    
+    SKTileHexFlatAdjacencyUp         = 1 << 0,
+    SKTileHexFlatAdjacencyUpperRight = 1 << 1,
+    SKTileHexFlatAdjacencyLowerRight = 1 << 2,
+    SKTileHexFlatAdjacencyDown       = 1 << 3,
+    SKTileHexFlatAdjacencyLowerLeft  = 1 << 4,
+    SKTileHexFlatAdjacencyUpperLeft  = 1 << 5,
+    
+    SKTileHexFlatAdjacencyAll = SKTileHexFlatAdjacencyUp | SKTileHexFlatAdjacencyUpperRight | SKTileHexFlatAdjacencyLowerRight | SKTileHexFlatAdjacencyDown | SKTileHexFlatAdjacencyLowerLeft | SKTileHexFlatAdjacencyUpperLeft,
+    
+    SKTileHexPointyAdjacencyUpperLeft  = 1 << 0,
+    SKTileHexPointyAdjacencyUpperRight = 1 << 1,
+    SKTileHexPointyAdjacencyRight      = 1 << 2,
+    SKTileHexPointyAdjacencyLowerRight = 1 << 3,
+    SKTileHexPointyAdjacencyLowerLeft  = 1 << 4,
+    SKTileHexPointyAdjacencyLeft       = 1 << 5,
+    
+    SKTileHexPointyAdjacencyAdd = SKTileHexPointyAdjacencyUpperLeft | SKTileHexPointyAdjacencyUpperRight | SKTileHexPointyAdjacencyRight | SKTileHexPointyAdjacencyLowerRight | SKTileHexPointyAdjacencyLowerLeft | SKTileHexPointyAdjacencyLeft,
+    
+    // The enumerators below are pre-defined values for common tile configurations
+    
+    // Pre-defined values for an upwards-facing edge tile.
+    SKTileAdjacencyUpEdge = SKTileAdjacencyRight | SKTileAdjacencyLowerRight | SKTileAdjacencyDown | SKTileAdjacencyLowerLeft | SKTileAdjacencyLeft,
+    
+    // Pre-defined values for an upper right-facing edge tile.
+    SKTileAdjacencyUpperRightEdge = SKTileAdjacencyDown | SKTileAdjacencyLowerLeft | SKTileAdjacencyLeft,
+    
+    // Pre-defined values for a right-facing edge tile.
+    SKTileAdjacencyRightEdge = SKTileAdjacencyDown | SKTileAdjacencyLowerLeft | SKTileAdjacencyLeft | SKTileAdjacencyUpperLeft | SKTileAdjacencyUp,
+    
+    // Pre-defined values for a lower right-facing edge tile.
+    SKTileAdjacencyLowerRightEdge = SKTileAdjacencyLeft | SKTileAdjacencyUpperLeft | SKTileAdjacencyUp,
+    
+    // Pre-defined values for a downwards-facing edge tile.
+    SKTileAdjacencyDownEdge = SKTileAdjacencyUp | SKTileAdjacencyUpperRight | SKTileAdjacencyRight | SKTileAdjacencyLeft | SKTileAdjacencyUpperLeft,
+    
+    // Pre-defined values for a lower left-facing edge tile.
+    SKTileAdjacencyLowerLeftEdge = SKTileAdjacencyUp | SKTileAdjacencyUpperRight | SKTileAdjacencyRight,
+    
+    // Pre-defined values for a left-facing edge tile.
+    SKTileAdjacencyLeftEdge = SKTileAdjacencyUp | SKTileAdjacencyUpperRight | SKTileAdjacencyRight | SKTileAdjacencyLowerRight | SKTileAdjacencyDown,
+    
+    // Pre-defined values for a upper left-facing edge tile.
+    SKTileAdjacencyUpperLeftEdge = SKTileAdjacencyRight | SKTileAdjacencyLowerRight | SKTileAdjacencyDown,
+    
+    // Pre-defined values for an upper right-facing corner tile.
+    SKTileAdjacencyUpperRightCorner = SKTileAdjacencyUp | SKTileAdjacencyUpperRight | SKTileAdjacencyRight | SKTileAdjacencyLowerRight | SKTileAdjacencyDown | SKTileAdjacencyLeft | SKTileAdjacencyUpperLeft,
+    
+    // Pre-defined values for a lower right-facing corner tile.
+    SKTileAdjacencyLowerRightCorner = SKTileAdjacencyUp | SKTileAdjacencyUpperRight | SKTileAdjacencyRight | SKTileAdjacencyLowerRight | SKTileAdjacencyDown | SKTileAdjacencyLowerLeft | SKTileAdjacencyLeft,
+    
+    // Pre-defined values for a lower left-facing corner tile.
+    SKTileAdjacencyLowerLeftCorner = SKTileAdjacencyUp | SKTileAdjacencyRight | SKTileAdjacencyLowerRight | SKTileAdjacencyDown | SKTileAdjacencyLowerLeft | SKTileAdjacencyLeft | SKTileAdjacencyUpperLeft,
+    
+    // Pre-defined values for an upper left-facing corner tile.
+    SKTileAdjacencyUpperLeftCorner = SKTileAdjacencyUp | SKTileAdjacencyUpperRight | SKTileAdjacencyRight | SKTileAdjacencyDown | SKTileAdjacencyLowerLeft | SKTileAdjacencyLeft | SKTileAdjacencyUpperLeft,
+} NS_ENUM_AVAILABLE(10_12, 10_0);
+
+@class SKTileGroup, SKTileGroupRule;
+
+/**
+ A tile set contains all of the tile definitions that are available for use in a tile map. In addition, it also contains tile groups, which define collections of related tile definitions and the rules that govern their placement.
+ */
+SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileSet : NSObject <NSCopying, NSSecureCoding>
+
+/**
+ Create a tile set with the specified tile groups.
+ @param tileGroups the tile groups that will be available for use with this set
+ */
++ (instancetype)tileSetWithTileGroups:(NSArray<SKTileGroup *> *)tileGroups;
+
+/**
+ Create a tile set with the specified tile groups and tile set type.
+ @param tileGroups the tile groups that will be available for use with this set
+ @param tileSetType the type of tile set this will be
+ */
++ (instancetype)tileSetWithTileGroups:(NSArray<SKTileGroup *> *)tileGroups tileSetType:(SKTileSetType)tileSetType;
+
+/**
+ Initilize a tile set with the specified tile groups.
+ @param tileGroups the tile groups that will be available for use with this set
+ */
+- (instancetype)initWithTileGroups:(NSArray<SKTileGroup *> *)tileGroups;
+
+/**
+ Initilize a tile set with the specified tile groups and tile set type.
+ @param tileGroups the tile groups that will be available for use with this set
+ @param tileSetType the type of tile set this will be
+ */
+- (instancetype)initWithTileGroups:(NSArray<SKTileGroup *> *)tileGroups tileSetType:(SKTileSetType)tileSetType;
+
+/**
+ Gets the tile set with the specified name from the SpriteKit resource bundle. Returns nil if a tile set with a matching name cannot be found.
+ @param name the name of the tile set to search for
+ */
++ (nullable instancetype)tileSetNamed:(NSString *)name;
+
+/**
+ Creates a tile set from the specified tile set file. Returns nil if the URL doesn't point to a valid tile set file.
+ @param name the URL of the tile set file
+ */
++ (nullable instancetype)tileSetFromURL:(NSURL *)url;
+
+/**
+ The tile groups that this set provides for use.
+ */
+@property (nonatomic, copy) NSArray<SKTileGroup *> *tileGroups;
+
+/**
+ Client-assignable name for the tile set. Defaults to nil.
+ */
+@property (nonatomic, copy, nullable) NSString *name;
+
+/**
+ The tile set type specifies how the tiles in the set will be arranged when placed in a tile map. Defaults to SKTileSetTypeGrid.
+ */
+@property (nonatomic) SKTileSetType type;
+
+@property (nonatomic, nullable) SKTileGroup *defaultTileGroup;
+
+/**
+ The default tile size is the value an SKTileMapNode will use for it's tiles when the tile set is assigned to it.
+ */
+@property (nonatomic) CGSize defaultTileSize;
+
+@end
+
+/**
+ A tile group encapsulates a collection of related tile definitions that are designed to be pieced together within a tile map. How those tiles are pieced together is governed by the set of rules. When a tile group is placed in a tile map, the map evaluates the rules to determine which tiles should be placed to achieve the desired outcome.
+ */
+SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileGroup : NSObject <NSCopying, NSSecureCoding>
+
+/**
+ Create a simple tile group for a single tile definition. This creates and initializes the SKTileGroupRule necessary to place the provided tile definition in a tile map.
+ @param the tile definition we wish to place in a tile map
+ */
++ (instancetype)tileGroupWithTileDefinition:(SKTileDefinition *)tileDefinition;
+
+/**
+ Create a tile group with the specified rules.
+ @param rules the rules the group will use to determine tile placement
+ */
++ (instancetype)tileGroupWithRules:(NSArray<SKTileGroupRule *> *)rules;
+
+/**
+ Create an empty tile group. Placing this in a tile map will erase the existing tile at that location.
+ */
++ (instancetype)emptyTileGroup;
+
+/**
+ Initilize a simple tile group for a single tile definition. This creates and initializes the SKTileGroupRule necessary to place the provided tile definition in a tile map.
+ @param the tile definition we wish to place in a tile map
+ */
+- (instancetype)initWithTileDefinition:(SKTileDefinition *)tileDefinition;
+
+/**
+ Initilize a tile group with the specified rules.
+ @param rules the rules the group will use to determine tile placement
+ */
+- (instancetype)initWithRules:(NSArray<SKTileGroupRule *> *)rules;
+
+/**
+ The rules that govern which tiles are placed when this group is used, and where in the map they'll be placed.
+ */
+@property (nonatomic, copy) NSArray<SKTileGroupRule *> *rules;
+
+/**
+ Client-assignable name for the tile group. Defaults to nil.
+ */
+@property (nonatomic, copy, nullable) NSString *name;
+
+@end
+
+/**
+ A tile group rule defines how a certain type of tile should be placed on the map. These tiles are like puzzle pieces, and the rules define how they should be pieced together. This is accomplished by defining which neighboring spaces need to be filled with tiles that belong to the same group, and which tiles are required to be empty. The required pattern of neighboring tiles is defined using the SKTileAdjacencyMask.
+ */
+SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileGroupRule : NSObject <NSCopying, NSSecureCoding>
+
+/**
+ Create a tile group rule with the specified adjacency and tile definitions.
+ @param adjacency the adjacency requirements for this rule; use the mask that covers the adjacent spaces that must be filled with tiles belonging to the same group; tiles not masked out must be empty
+ @param tileDefinitions the tile definitions used for this rule
+ */
++ (instancetype)tileGroupRuleWithAdjacency:(SKTileAdjacencyMask)adjacency tileDefinitions:(NSArray<SKTileDefinition*>*)tileDefinitions;
+
+/**
+ Initilize a tile group rule with the specified adjacency and tile definitions.
+ @param adjacency the adjacency requirements for this rule; use the mask that covers the adjacent spaces that must be filled with tiles belonging to the same group; tiles not masked out must be empty
+ @param tileDefinitions the tile definitions used for this rule
+ */
+- (instancetype)initWithAdjacency:(SKTileAdjacencyMask)adjacency tileDefinitions:(NSArray<SKTileDefinition *> *)tileDefinitions;
+
+/**
+ The adjacency mask used by this rule. Set this to the mask that covers the adjacent spaces that must be filled with tiles belonging to the same group for this rule met.
+ */
+@property (nonatomic) SKTileAdjacencyMask adjacency;
+
+
+/**
+ The tile definitions used by this rule. If the rule is evaluated and its conditions are met, one of the tile definitions within this array will be randomly selected for placement within the tile map. Each tile definitions' placement weight is taken into consideration to determine how likely each is to be selected; tile definitions with higher placement weights will be selected more frequently than those with lower placement weights.
+ */
+@property (nonatomic, copy) NSArray<SKTileDefinition *> *tileDefinitions;
+
+/**
+ Client-assignable name for the tile group rule. Defaults to nil.
+ */
+@property (nonatomic, copy, nullable) NSString *name;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  SpriteKit.framework/Headers/SKTileMapNode.h
+//
+//  SKTileMapNode.h
+//
+//  Copyright © 2015 Apple Inc. All rights reserved.
+//
+
+#import <SpriteKit/SKNode.h>
+#import <SpriteKit/SKShader.h>
+#import <SpriteKit/SpriteKitBase.h>
+
+#import <SpriteKit/SKTileSet.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ A SpriteKit node used to render a 2D array of textured sprites. Uses SKTileSet to determine what textures it can use to render. Separate tile map nodes can be layered on top of one another to achieve various effects, such as parallax scrolling.
+ */
+SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileMapNode : SKNode <NSCopying, NSSecureCoding>
+
+/**
+ Create a tile map node with the specified tile set and dimensions. The tiles of the map will be empty, equivalent to the nil tile definition/group.
+ @param tileSet the tile set that is used to render the tiles
+ @param columns the number of columns in the map that can hold tiles
+ @param rows the number of rows in the map that can hold tiles
+ @param tileSize the size of each tile in points
+ */
++ (instancetype)tileMapNodeWithTileSet:(SKTileSet *)tileSet columns:(NSUInteger)columns rows:(NSUInteger)rows tileSize:(CGSize)tileSize;
+
+/**
+ Create a tile map node with the specified tile set and dimensions, and fill it with the specified tile group.
+ @param tileSet the tile set that is used to render the tiles
+ @param columns the number of columns in the map that can hold tiles
+ @param rows the number of rows in the map that can hold tiles
+ @param tileSize the size of each tile in points
+ @param tileGroup the tile group we wish to fill the tile map with
+ */
++ (instancetype)tileMapNodeWithTileSet:(SKTileSet *)tileSet columns:(NSUInteger)columns rows:(NSUInteger)rows tileSize:(CGSize)tileSize fillWithTileGroup:(SKTileGroup *)tileGroup;
+
+/**
+ Create a tile map node with the specified tile set and dimensions, and fill it with a specific layout of tile groups that belong to the provided tile set. The tileGroupLayout array should match the dimensions of the tile map (i.e., the number of elements should be equal to columns * rows). Index 0 of the array maps to column 0, row 0 of the tile map. Index 1 is column 1, row 0, and so on, wrapping around to the next row once the index passes the number of columns in the tile map. If the array has fewer elements than the number of tiles in the map, the remaining tiles are initialized with the nil tile group. If the array has more elements than the number of tiles in the map, the extra tile groups are ignored.
+ @param tileSet the tile set that is used to render the tiles
+ @param columns the number of columns in the map that can hold tiles
+ @param rows the number of rows in the map that can hold tiles
+ @param tileSize the size of each tile in points
+ @param tileGroupLayout an array of tile groups that we want to use to fill the tile map
+ */
++ (instancetype)tileMapNodeWithTileSet:(SKTileSet *)tileSet columns:(NSUInteger)columns rows:(NSUInteger)rows tileSize:(CGSize)tileSize tileGroupLayout:(NSArray<SKTileGroup *> *)tileGroupLayout;
+
+/**
+ Initialize a tile map node with the specified tile set and dimensions. The tiles of the map will be empty, equivalent to the nil tile definition/group.
+ @param tileSet the tile set that is used to render the tiles
+ @param columns the number of columns in the map that can hold tiles
+ @param rows the number of rows in the map that can hold tiles
+ @param tileSize the size of each tile in points
+ */
+- (instancetype)initWithTileSet:(SKTileSet *)tileSet columns:(NSUInteger)columns rows:(NSUInteger)rows tileSize:(CGSize)tileSize;
+
+/**
+ Initialize a tile map node with the specified tile set and dimensions, and fill it with the specified tile group.
+ @param tileSet the tile set that is used to render the tiles
+ @param columns the number of columns in the map that can hold tiles
+ @param rows the number of rows in the map that can hold tiles
+ @param tileSize the size of each tile in points
+ @param tileGroup the tile group we wish to fill the tile map with
+ */
+- (instancetype)initWithTileSet:(SKTileSet *)tileSet columns:(NSUInteger)columns rows:(NSUInteger)rows tileSize:(CGSize)tileSize fillWithTileGroup:(SKTileGroup *)tileGroup;
+
+/**
+ Initialize a tile map node with the specified tile set and dimensions, and fill it with a specific layout of tile groups that belong to the provided tile set. The tileGroupLayout array should match the dimensions of the tile map (i.e., the number of elements should be equal to columns * rows). Index 0 of the array maps to column 0, row 0 of the tile map. Index 1 is column 1, row 0, and so on, wrapping around to the next row once the index passes the number of columns in the tile map. If the array has fewer elements than the number of tiles in the map, the remaining tiles are initialized with the nil tile group. If the array has more elements than the number of tiles in the map, the extra tile groups are ignored.
+ @param tileSet the tile set that is used to render the tiles
+ @param columns the number of columns in the map that can hold tiles
+ @param rows the number of rows in the map that can hold tiles
+ @param tileSize the size of each tile in points
+ @param tileGroupLayout an array of tile groups that we want to use to fill the tile map
+ */
+- (instancetype)initWithTileSet:(SKTileSet *)tileSet columns:(NSUInteger)columns rows:(NSUInteger)rows tileSize:(CGSize)tileSize tileGroupLayout:(NSArray<SKTileGroup *> *)tileGroupLayout;
+
+/**
+ The number of columns in the tile map.
+ */
+@property (nonatomic) NSUInteger numberOfColumns;
+
+/**
+ The number of rows in the tile map.
+ */
+@property (nonatomic) NSUInteger numberOfRows;
+
+/**
+ The size of each tile in the map.
+ */
+@property (nonatomic) CGSize tileSize;
+
+/**
+ The size of the tile map. This is dependent on the tileSize, the number of columns and rows in the map, and the tile set type.
+ */
+@property (nonatomic, readonly) CGSize mapSize;
+
+/**
+ The tile set being used by this tile map.
+ */
+@property (nonatomic) SKTileSet *tileSet;
+
+/**
+ Controls the blending between the texture and the tile map color. The valid interval of values is from 0.0 up to and including 1.0. A value above or below that interval is clamped to the minimum (0.0) if below or the maximum (1.0) if above.
+ */
+@property (nonatomic) CGFloat colorBlendFactor;
+
+/**
+ Base color for the tile map (If no texture is present, the color still is drawn).
+ */
+@property (nonatomic, retain) SKColor *color;
+
+/**
+ Sets the blend mode to use when composing the tile map with the final framebuffer.
+ @see SKNode.SKBlendMode
+ */
+@property (nonatomic) SKBlendMode blendMode;
+
+/**
+ Used to choose the location in the tile map that maps to its 'position' in the parent's coordinate space. The valid interval for each input is from 0.0 up to and including 1.0.
+ */
+@property (nonatomic) CGPoint anchorPoint;
+
+/**
+ A property that determines whether the tile map is rendered using a custom shader.
+ */
+@property (nonatomic, retain, nullable) SKShader *shader;
+
+/**
+ Optional dictionary of SKAttributeValues
+ Attributes can be used with custom SKShaders.
+ */
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_AVAILABLE(10_12, 10_0);
+
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_AVAILABLE(10_12, 10_0);
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_AVAILABLE(10_12, 10_0);
+
+/**
+ Bitmask to indicate being lit by a set of lights using overlapping lighting categories.
+
+ A light whose category is set to a value that masks to non-zero using this mask will
+ apply light to this sprite.
+
+ When used together with a normal texture, complex lighting effects can be used.
+ */
+@property (nonatomic) uint32_t lightingBitMask;
+
+@property (nonatomic) BOOL enableAutomapping;
+
+/**
+ Fill the entire tile map with the provided tile group.
+ @param tileGroup the tile group that will be used to fill the map
+ */
+- (void)fillWithTileGroup:(nullable SKTileGroup *)tileGroup;
+
+/**
+ Look up the tile definition at the specified tile index.
+ @param column the column index of the tile
+ @param row the row index of the tile
+ */
+- (nullable SKTileDefinition *)tileDefinitionAtColumn:(NSUInteger)column row:(NSUInteger)row;
+
+/**
+ Look up the tile group at the specified tile index.
+ @param column the column index of the tile
+ @param row the row index of the tile
+ */
+- (nullable SKTileGroup *)tileGroupAtColumn:(NSUInteger)column row:(NSUInteger)row;
+
+/**
+ Set the tile group at the specified tile index. When automapping is enabled, the appropriate tile definitions will automatically be selected and placed, possibly modifying neighboring tiles. When automapping is disabled, it will simply place the default center tile definition for the group, and will not modify any of the neihboring tiles.
+ @param tileGroup the tile group we want to place in the map
+ @param column the column index of the tile
+ @param row the row index of the tile
+ */
+- (void)setTileGroup:(nullable SKTileGroup *)tileGroup forColumn:(NSUInteger)column row:(NSUInteger)row;
+
+/**
+ Set the tile group and tile defintion at the specified tile index. When automapping is enabled, it will attempt to resolve the surrounding tiles to allow the specified tile definition to be placed. When automapping is disabled, it will simply place the tile definition and not modify any of the neighboring tiles.
+ @param tileGroup the tile group we want to place in the map
+ @param tileDefinition the tile definition we want to place in the map
+ @param column the column index of the tile
+ @param row the row index of the tile
+ */
+- (void)setTileGroup:(SKTileGroup *)tileGroup andTileDefinition:(SKTileDefinition *)tileDefinition forColumn:(NSUInteger)column row:(NSUInteger)row;
+
+/**
+ Returns the column index of the tile that lies under the specified position. Returns NSUIntegerMax if the position does not fall within the tile map.
+ @param position the position we want to check against the tile map
+ */
+- (NSUInteger)tileColumnIndexFromPosition:(CGPoint)position;
+
+/**
+ Returns the row index of the tile that lies under the specified position. Returns NSUIntegerMax if the position does not fall within the tile map.
+ @param position the position we want to check against the tile map
+ */
+- (NSUInteger)tileRowIndexFromPosition:(CGPoint)position;
+
+/**
+ Returns the position of the center of the tile at the specified column and row.
+ @param column the column index of the tile
+ @param row the row index of the tile
+ */
+- (CGPoint)centerOfTileAtColumn:(NSUInteger)column row:(NSUInteger)row;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  SpriteKit.framework/Headers/SKCropNode.h
 /**
  @header
@@ -3024,7 +3990,7 @@ NS_ASSUME_NONNULL_END
  Node that can crop its children's contents with a mask
  
  
- @copyright 2011 Apple, Inc. All rights reserve.
+ @copyright 2011 Apple, Inc. All rights reserved.
  
  */
 
@@ -3047,7 +4013,8 @@ SK_EXPORT @interface SKCropNode : SKNode
 
 @end
 
-NS_ASSUME_NONNULL_END// ==========  SpriteKit.framework/Headers/SKLabelNode.h
+NS_ASSUME_NONNULL_END
+// ==========  SpriteKit.framework/Headers/SKLabelNode.h
 //
 //  SKLabelNode.h
 //  SpriteKit
@@ -3079,7 +4046,7 @@ NS_ASSUME_NONNULL_BEGIN
 SK_EXPORT @interface SKLabelNode : SKNode
 
 + (instancetype)labelNodeWithText:(nullable NSString *)text;
-
++ (instancetype)labelNodeWithAttributedText:(nullable NSAttributedString *)attributedText NS_AVAILABLE(10_13, 11);
 + (instancetype)labelNodeWithFontNamed:(nullable NSString *)fontName;
 
 - (instancetype)initWithFontNamed:(nullable NSString *)fontName;
@@ -3087,9 +4054,26 @@ SK_EXPORT @interface SKLabelNode : SKNode
 @property (nonatomic) SKLabelVerticalAlignmentMode verticalAlignmentMode;
 @property (nonatomic) SKLabelHorizontalAlignmentMode horizontalAlignmentMode;
 
+/**Determines the number of lines to draw. The default value is 1 (single line). A value of 0 means no limit.
+   If the height of the text reaches the # of lines the text will be truncated using the line break mode.
+ */
+@property(nonatomic) NSInteger numberOfLines API_AVAILABLE(ios(11.0), tvos(11.0), macos(10.13), watchos(4.0));
+
+/**Determines the line break mode for multiple lines.
+   Default is NSLineBreakByTruncatingTail
+ */
+@property(nonatomic) NSLineBreakMode lineBreakMode API_AVAILABLE(ios(11.0), tvos(11.0), macos(10.13), watchos(4.0));
+
+/**If nonzero, this is used when determining layout width for multiline labels.
+   Default is zero.
+ */
+@property(nonatomic) CGFloat preferredMaxLayoutWidth API_AVAILABLE(ios(11.0), tvos(11.0), macos(10.13), watchos(4.0));
+
 @property (nonatomic, copy, nullable) NSString *fontName;
 @property (nonatomic, copy, nullable) NSString *text;
+@property (nonatomic, copy, nullable) NSAttributedString *attributedText API_AVAILABLE(ios(11.0), tvos(11.0), macos(10.13), watchos(4.0));
 @property (nonatomic) CGFloat fontSize;
+
 
 /**
  Base color that the text is rendered with (if supported by the font)
@@ -3129,7 +4113,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-SK_EXPORT @interface SKPhysicsJoint : NSObject <NSCoding>
+SK_EXPORT @interface SKPhysicsJoint : NSObject <NSSecureCoding>
 
 @property (nonatomic, retain) SKPhysicsBody *bodyA;
 @property (nonatomic, retain) SKPhysicsBody *bodyB;
@@ -3197,26 +4181,33 @@ NS_ASSUME_NONNULL_END
  Node that can apply an effect to its children
  
  
- @copyright 2011 Apple, Inc. All rights reserve.
+ @copyright 2011 Apple, Inc. All rights reserved.
  
  */
+
+#if __has_include(<CoreImage/CIFilter.h>)
+@class CIFilter;
+#endif
 
 #import <SpriteKit/SKNode.h>
 #import <SpriteKit/SpriteKitBase.h>
 #import <SpriteKit/SKShader.h>
+#import <SpriteKit/SKWarpGeometry.h>
 
 NS_ASSUME_NONNULL_BEGIN
 /**
  A SpriteKit node that applies frame buffer effects to the rendered results of its child nodes. This is done continuously on live content and is not a simple snapshot of the rendered result at one instant of time.
  */
-SK_EXPORT @interface SKEffectNode : SKNode
+SK_EXPORT @interface SKEffectNode : SKNode <SKWarpable>
 
+#if __has_include(<CoreImage/CIFilter.h>)
 /**
  A CIFilter to be used as an effect
  
  Any CIFilter that requires only a single "inputImage" and produces an "outputImage" is allowed. The filter is applied to all children of the SKEffectNode. If the filter is nil, the children of this node is flattened before being drawn as long as the SKEffectNode is enabled.
  */
 @property (nonatomic, retain, nullable) CIFilter *filter;
+#endif
 
 /* Controls whether the filter's "inputCenter" (if it exists) should automatically be set to the center of the effect area. Defaults to YES. */
 @property (nonatomic) BOOL shouldCenterFilter;
@@ -3243,6 +4234,15 @@ SK_EXPORT @interface SKEffectNode : SKNode
 
 @property (nonatomic, retain, nullable) SKShader *shader;
 
+/**
+ Optional dictionary of SKAttributeValues
+ Attributes can be used with custom SKShaders.
+ */
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_AVAILABLE(10_12, 10_0);
+
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_AVAILABLE(10_12, 10_0);
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_AVAILABLE(10_12, 10_0);
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -3258,7 +4258,9 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if __has_include(<CoreImage/CIFilter.h>)
 @class CIFilter;
+#endif
 
 typedef NS_ENUM(NSInteger, SKTransitionDirection) {
     SKTransitionDirectionUp,
@@ -3292,9 +4294,11 @@ SK_EXPORT @interface SKTransition : NSObject <NSCopying>
 
 + (SKTransition *)doorwayWithDuration:(NSTimeInterval)sec;
 
+#if __has_include(<CoreImage/CIFilter.h>)
 /* Create a transition with a CIFilter. The filter must be a transition filter which requires only two images (inputImage, inputTargetImage) and generates a single image (outputImage). SpriteKit sets the inputImage, inputTargetImage, and inputTime properties when rendering, all others must be setup beforehand. */
 
 + (SKTransition *)transitionWithCIFilter:(CIFilter*)filter duration:(NSTimeInterval)sec;
+#endif
 
 /**
  Pause the incoming Scene during the transition, defaults to YES.
@@ -3310,6 +4314,164 @@ SK_EXPORT @interface SKTransition : NSObject <NSCopying>
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  SpriteKit.framework/Headers/SKTileDefinition.h
+//
+//  SKTileDefinition.h
+//
+//  Copyright © 2015 Apple Inc. All rights reserved.
+//
+
+#import <SpriteKit/SKNode.h>
+#import <SpriteKit/SpriteKitBase.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ Adjust the rotation of the tile definition image, in 90 degree increments.
+ */
+typedef NS_ENUM(NSUInteger, SKTileDefinitionRotation) {
+    SKTileDefinitionRotation0 = 0,
+    SKTileDefinitionRotation90,
+    SKTileDefinitionRotation180,
+    SKTileDefinitionRotation270
+} NS_ENUM_AVAILABLE(10_12, 10_0);
+
+/**
+ A tile definition contains the information needed to represent a single type of tile within a tile map.
+ */
+SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileDefinition : NSObject <NSCopying, NSSecureCoding>
+
+/**
+ Create a tile definition with an SKTexture, and set its size to the SKTexture's width/height.
+ @param texture the texture to reference for size and content
+ */
++ (instancetype)tileDefinitionWithTexture:(SKTexture *)texture;
+
+/**
+ Create a tile definition with an SKTexture and the specified size.
+ @param texture the texture to reference for content
+ @param size the size of the tile in points
+ */
++ (instancetype)tileDefinitionWithTexture:(SKTexture *)texture size:(CGSize)size;
+
+/**
+ Create a tile definition with an SKTexture and the specified size.
+ @param texture the texture to reference for content
+ @param normalTexture the normal texture to use for generating normals for lighting
+ @param size the size of the tile in points
+ */
++ (instancetype)tileDefinitionWithTexture:(SKTexture *)texture normalTexture:(SKTexture *)normalTexture size:(CGSize)size;
+
+/**
+ Create an animated tile definition with an array of SKTextures, the specified size, and the length of time each texture should be displayed for in the animation.
+ @param textures the textures to reference for animated content
+ @param size the size of the tile in points
+ @param timePerFrame the duration, in seconds, that each texture in the textures array is displayed before switching to the next texture in the sequence
+ */
++ (instancetype)tileDefinitionWithTextures:(NSArray<SKTexture *> *)textures size:(CGSize)size timePerFrame:(CGFloat)timePerFrame;
+
+/**
+ Create an animated tile definition with an array of SKTextures, the specified size, and the length of time each texture should be displayed for in the animation.
+ @param textures the textures to reference for animated content
+ @param normalTextures the normal textures to use for generating normals for lighting
+ @param size the size of the tile in points
+ @param timePerFrame the duration, in seconds, that each texture in the textures array is displayed before switching to the next texture in the sequence
+ */
++ (instancetype)tileDefinitionWithTextures:(NSArray<SKTexture *> *)textures normalTextures:(NSArray<SKTexture *> *)normalTextures size:(CGSize)size timePerFrame:(CGFloat)timePerFrame;
+
+/**
+ Initilize a tile definition with an SKTexture, and set its size to the SKTexture's width/height.
+ @param texture the texture to reference for size and content
+ */
+- (instancetype)initWithTexture:(SKTexture *)texture;
+
+/**
+ Initilize a tile definition with an SKTexture and the specified size.
+ @param texture the texture to reference for content
+ @param size the size of the tile in points
+ */
+- (instancetype)initWithTexture:(SKTexture *)texture size:(CGSize)size;
+
+/**
+ Initilize a tile definition with an SKTexture and the specified size.
+ @param texture the texture to reference for content
+ @param normalTexture the normal texture to use for generating normals for lighting
+ @param size the size of the tile in points
+ */
+- (instancetype)initWithTexture:(SKTexture *)texture normalTexture:(SKTexture *)normalTexture size:(CGSize)size;
+
+/**
+ Initilize an animated tile definition with an array of SKTextures, the specified size, and the length of time each texture should be displayed for in the animation.
+ @param textures the textures to reference for animated content
+ @param size the size of the tile in points
+ @param timePerFrame the duration, in seconds, that each texture in the textures array is displayed before switching to the next texture in the sequence
+ */
+- (instancetype)initWithTextures:(NSArray<SKTexture *>*)textures size:(CGSize)size timePerFrame:(CGFloat)timePerFrame;
+
+/**
+ Initilize an animated tile definition with an array of SKTextures, the specified size, and the length of time each texture should be displayed for in the animation.
+ @param textures the textures to reference for animated content
+ @param normalTextures the normal textures to use for generating normals for lighting
+ @param size the size of the tile in points
+ @param timePerFrame the duration, in seconds, that each texture in the textures array is displayed before switching to the next texture in the sequence
+ */
+- (instancetype)initWithTextures:(NSArray<SKTexture *>*)textures normalTextures:(NSArray<SKTexture *> *)normalTextures size:(CGSize)size timePerFrame:(CGFloat)timePerFrame;
+
+/**
+ The textures used to draw the tile. Non-animated tiles use only one texture. When more than one texture is present, the tile will swap through them in sequence, showing each for the duration specified in the timePerFrame property. After displaying the last texture in the array, the sequence is repeated from the first texture.
+ */
+@property (nonatomic, copy) NSArray<SKTexture *> *textures;
+
+/**
+ The textures to use for generating normals that lights use to light this tile. These will only be used if the tile is lit by at least one light. Each normal texture corresponds to a texture in the textures property.
+ */
+@property (nonatomic, copy) NSArray<SKTexture *> *normalTextures;
+
+/**
+ An optional dictionary that can be used to store your own data for each tile definition. Defaults to nil.
+ */
+@property (nonatomic, retain, nullable) NSMutableDictionary *userData;
+
+/**
+ Client-assignable name for the tile definition. Defaults to nil.
+ */
+@property (nonatomic, copy, nullable) NSString *name;
+
+/**
+ The size of the tile in points.
+ */
+@property (nonatomic) CGSize size;
+
+/**
+ The duration, in seconds, that each texture in the textures array is displayed before switching to the next texture in the sequence. Only used when there is more than one texture available.
+ */
+@property (nonatomic) CGFloat timePerFrame;
+
+/**
+ This value is used to determine how likely this tile definition is to be chosen for placement when a SKTileGroupRule has mulitple tile definitions assigned to it. A higher value relative to the other definitions assigned to the rule make it more likely for this definition to be selected; lower values make it less likely. Defaults to 1. When set to 0, the definition will never be chosen as long as there is at least one other definition with a placementWeight above 0.
+ */
+@property (nonatomic) NSUInteger placementWeight;
+
+/**
+ The rotation of the tile definition's images can be set in 90 degree increments. Defaults to SKTileDefinitionRotation0.
+ */
+@property (nonatomic) SKTileDefinitionRotation rotation;
+
+/**
+ When set to YES, the tile definition's images will be flipped vertically (i.e., the top of the image becomes the bottom). Defaults to NO.
+ */
+@property (nonatomic) BOOL flipVertically;
+
+/**
+ When set to YES, the tile definition's images will be flipped horizontally (i.e., the left of the image becomes the right). Defaults to NO.
+ */
+@property (nonatomic) BOOL flipHorizontally;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+
 // ==========  SpriteKit.framework/Headers/SKPhysicsBody.h
 //
 //  SKPhysicsBody.h
@@ -3334,7 +4496,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-SK_EXPORT @interface SKPhysicsBody : NSObject <NSCopying, NSCoding>
+SK_EXPORT @interface SKPhysicsBody : NSObject <NSCopying, NSSecureCoding>
 
 /**
  Creates a circle of radius r centered at the node's origin.
@@ -3544,7 +4706,11 @@ NS_ASSUME_NONNULL_END
 
 #import <SpriteKit/SpriteKitBase.h>
 #import <SpriteKit/SKTexture.h>
+#import <simd/simd.h>
+
+#if __has_include(<GLKit/GLKMath.h>)
 #import <GLKit/GLKMath.h>
+#endif
 
 typedef NS_ENUM(NSInteger, SKUniformType) {
     SKUniformTypeNone               =    0,
@@ -3562,7 +4728,7 @@ typedef NS_ENUM(NSInteger, SKUniformType) {
 NS_ASSUME_NONNULL_BEGIN
 
 NS_CLASS_AVAILABLE(10_10, 8_0)
-SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSCoding>
+SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSSecureCoding>
 
 /**
  Create a shader uniform with a given name.
@@ -3577,7 +4743,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSCoding>
  @param name the name of the shader uniform.
  @param texture the texture data associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name texture:(SKTexture*)texture;
++ (instancetype)uniformWithName:(NSString *)name texture:(nullable SKTexture*)texture;
 
 /**
  Create a shader uniform with a given name, and a float value
@@ -3593,7 +4759,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSCoding>
  @param name the name of the shader uniform.
  @param value the float vector2 value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name floatVector2:(GLKVector2)value;
++ (instancetype)uniformWithName:(NSString *)name vectorFloat2:(vector_float2)value NS_AVAILABLE(10_12, 10_0);
 
 /**
  Create a shader uniform with a given name, and a float vector3 value
@@ -3601,7 +4767,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSCoding>
  @param name the name of the shader uniform.
  @param value the float vector3 value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name floatVector3:(GLKVector3)value;
++ (instancetype)uniformWithName:(NSString *)name vectorFloat3:(vector_float3)value NS_AVAILABLE(10_12, 10_0);
 
 /**
  Create a shader uniform with a given name, and a float vector4 value
@@ -3609,7 +4775,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSCoding>
  @param name the name of the shader uniform.
  @param value the float vector4 value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name floatVector4:(GLKVector4)value;
++ (instancetype)uniformWithName:(NSString *)name vectorFloat4:(vector_float4)value NS_AVAILABLE(10_12, 10_0);
 
 /**
  Create a shader uniform with a given name, and a 2x2 matrix value
@@ -3617,7 +4783,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSCoding>
  @param name the name of the shader uniform.
  @param value the 2x2 matrix value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name floatMatrix2:(GLKMatrix2)value;
++ (instancetype)uniformWithName:(NSString *)name matrixFloat2x2:(matrix_float2x2)value NS_AVAILABLE(10_12, 10_0);
 
 /**
  Create a shader uniform with a given name, and a 3x3 matrix value
@@ -3625,7 +4791,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSCoding>
  @param name the name of the shader uniform.
  @param value the 3x3 matrix value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name floatMatrix3:(GLKMatrix3)value;
++ (instancetype)uniformWithName:(NSString *)name matrixFloat3x3:(matrix_float3x3)value NS_AVAILABLE(10_12, 10_0);
 
 /**
  Create a shader uniform with a given name, and a 4x4 matrix value
@@ -3633,7 +4799,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSCoding>
  @param name the name of the shader uniform.
  @param value the 4x4 matrix value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name floatMatrix4:(GLKMatrix4)value;
++ (instancetype)uniformWithName:(NSString *)name matrixFloat4x4:(matrix_float4x4)value NS_AVAILABLE(10_12, 10_0);
 
 /* The name by which this uniform will be referenced in a shader */
 @property (nonatomic, readonly) NSString *name;
@@ -3644,35 +4810,47 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSCoding>
 /* Access to the texture data associated with the current uniform */
 @property (nonatomic, retain, nullable) SKTexture *textureValue;
 
-/* Access to the float value associated with the current uniform */
-@property float floatValue;
-/* Access to the float vector 2 value associated with the current uniform */
-@property GLKVector2 floatVector2Value;
-/* Access to the float vector 3 value associated with the current uniform */
-@property GLKVector3 floatVector3Value;
-/* Access to the float vector 4 value associated with the current uniform */
-@property GLKVector4 floatVector4Value;
-
-/* Access to the 2x2 matrix value associated with the current uniform */
-@property GLKMatrix2 floatMatrix2Value;
-/* Access to the 3x3 matrix value associated with the current uniform */
-@property GLKMatrix3 floatMatrix3Value;
-/* Access to the 4x4 matrix value associated with the current uniform */
-@property GLKMatrix4 floatMatrix4Value;
-
+/* Access to the value associated with the uniform */
+@property (nonatomic) float floatValue;
+@property (nonatomic) vector_float2 vectorFloat2Value NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic) vector_float3 vectorFloat3Value NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic) vector_float4 vectorFloat4Value NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic) matrix_float2x2 matrixFloat2x2Value NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic) matrix_float3x3 matrixFloat3x3Value NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic) matrix_float4x4 matrixFloat4x4Value NS_AVAILABLE(10_12, 10_0);
 
 - (instancetype)initWithName:(NSString *)name;
-
 - (instancetype)initWithName:(NSString *)name texture:(nullable SKTexture*)texture;
-
 - (instancetype)initWithName:(NSString *)name float:(float)value;
-- (instancetype)initWithName:(NSString *)name floatVector2:(GLKVector2)value;
-- (instancetype)initWithName:(NSString *)name floatVector3:(GLKVector3)value;
-- (instancetype)initWithName:(NSString *)name floatVector4:(GLKVector4)value;
+- (instancetype)initWithName:(NSString *)name vectorFloat2:(vector_float2)value NS_AVAILABLE(10_12, 10_0);
+- (instancetype)initWithName:(NSString *)name vectorFloat3:(vector_float3)value NS_AVAILABLE(10_12, 10_0);
+- (instancetype)initWithName:(NSString *)name vectorFloat4:(vector_float4)value NS_AVAILABLE(10_12, 10_0);
+- (instancetype)initWithName:(NSString *)name matrixFloat2x2:(matrix_float2x2)value NS_AVAILABLE(10_12, 10_0);
+- (instancetype)initWithName:(NSString *)name matrixFloat3x3:(matrix_float3x3)value NS_AVAILABLE(10_12, 10_0);
+- (instancetype)initWithName:(NSString *)name matrixFloat4x4:(matrix_float4x4)value NS_AVAILABLE(10_12, 10_0);
 
-- (instancetype)initWithName:(NSString *)name floatMatrix2:(GLKMatrix2)value;
-- (instancetype)initWithName:(NSString *)name floatMatrix3:(GLKMatrix3)value;
-- (instancetype)initWithName:(NSString *)name floatMatrix4:(GLKMatrix4)value;
+#if __has_include(<GLKit/GLKMath.h>)
+@property GLKVector2 floatVector2Value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+@property GLKVector3 floatVector3Value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+@property GLKVector4 floatVector4Value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+@property GLKMatrix2 floatMatrix2Value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+@property GLKMatrix3 floatMatrix3Value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+@property GLKMatrix4 floatMatrix4Value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+
++ (instancetype)uniformWithName:(NSString *)name floatVector2:(GLKVector2)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
++ (instancetype)uniformWithName:(NSString *)name floatVector3:(GLKVector3)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
++ (instancetype)uniformWithName:(NSString *)name floatVector4:(GLKVector4)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
++ (instancetype)uniformWithName:(NSString *)name floatMatrix2:(GLKMatrix2)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
++ (instancetype)uniformWithName:(NSString *)name floatMatrix3:(GLKMatrix3)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
++ (instancetype)uniformWithName:(NSString *)name floatMatrix4:(GLKMatrix4)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+
+- (instancetype)initWithName:(NSString *)name floatVector2:(GLKVector2)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+- (instancetype)initWithName:(NSString *)name floatVector3:(GLKVector3)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+- (instancetype)initWithName:(NSString *)name floatVector4:(GLKVector4)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+- (instancetype)initWithName:(NSString *)name floatMatrix2:(GLKMatrix2)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+- (instancetype)initWithName:(NSString *)name floatMatrix3:(GLKMatrix3)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+- (instancetype)initWithName:(NSString *)name floatMatrix4:(GLKMatrix4)value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
+#endif
 
 @end
 

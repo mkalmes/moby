@@ -6,9 +6,13 @@
 //  Copyright 2012 Apple, Inc. All rights reserved.
 //
 
+#include <TargetConditionals.h>
+#if TARGET_OS_IOS
 #import <AVKit/AVPlayerViewController.h>
 
 @interface AVPlayerViewController (iAdPreroll)
+
+NS_ASSUME_NONNULL_BEGIN
 
 /*!
  * @method +preparePrerollAds
@@ -37,7 +41,7 @@
  *
  * Passing nil as the completion handler is an error and will throw an exception.
  */
-- (void)playPrerollAdWithCompletionHandler:(void (^)(NSError *error))completionHandler NS_AVAILABLE_IOS(8_0);
+- (void)playPrerollAdWithCompletionHandler:(void (^)(NSError * _Nullable error))completionHandler NS_AVAILABLE_IOS(8_0);
 
 /*!
  * @method -cancelPreroll
@@ -48,6 +52,9 @@
 - (void)cancelPreroll NS_AVAILABLE_IOS(8_0);
 
 @end
+
+NS_ASSUME_NONNULL_END
+#endif
 // ==========  iAd.framework/Headers/ADBannerView.h
 //
 //  ADBannerView.h
@@ -57,6 +64,10 @@
 //
 
 #import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+#pragma clang system_header
 
 /*!
  * @const ADErrorDomain
@@ -126,7 +137,14 @@ typedef NS_ENUM(NSInteger, ADError) {
 #if __IPHONE_6_0 <= __IPHONE_OS_VERSION_MAX_ALLOWED
     ADErrorAdUnloaded = 7,
 #endif
-} NS_ENUM_AVAILABLE_IOS(4_0);
+#if __IPHONE_9_3 <= __IPHONE_OS_VERSION_MAX_ALLOWED
+    ADErrorAssetLoadFailure = 8,
+#endif
+#if __IPHONE_10_3 <= __IPHONE_OS_VERSION_MAX_ALLOWED
+    ADErrorAdResponseValidateFailure = 9,
+    ADErrorAdAssetLoadPending = 10
+#endif
+} NS_ENUM_DEPRECATED_IOS(4_0, 10_0);
 
 /*!
  * @enum ADAdType
@@ -146,7 +164,7 @@ typedef NS_ENUM(NSInteger, ADError) {
 typedef NS_ENUM(NSInteger, ADAdType) {
     ADAdTypeBanner,
     ADAdTypeMediumRectangle
-} NS_ENUM_AVAILABLE_IOS(6_0);
+} NS_ENUM_DEPRECATED_IOS(6_0, 10_0);
 
 @protocol ADBannerViewDelegate;
 
@@ -164,7 +182,7 @@ typedef NS_ENUM(NSInteger, ADAdType) {
  * managing the banner view must be correctly configured to ensure banner action
  * presentation works correctly.
  */
-NS_CLASS_AVAILABLE_IOS(4_0) @interface ADBannerView : UIView
+NS_CLASS_DEPRECATED_IOS(4_0, 10_0) @interface ADBannerView : UIView
 
 /*!
  * @method initWithAdType:
@@ -173,7 +191,7 @@ NS_CLASS_AVAILABLE_IOS(4_0) @interface ADBannerView : UIView
  * Initialize the view with a specific ad type. The ad type cannot be changed
  * after initialization.
  */
-- (instancetype)initWithAdType:(ADAdType)type NS_AVAILABLE_IOS(6_0);
+- (nullable instancetype)initWithAdType:(ADAdType)type NS_AVAILABLE_IOS(6_0);
 
 /*!
  * @property adType
@@ -194,7 +212,7 @@ NS_CLASS_AVAILABLE_IOS(4_0) @interface ADBannerView : UIView
  * On iOS 5 and later, this property is a weak reference and cannot be used with
  * objects that modify the behavior of release or retain.
  */
-@property (nonatomic, weak) id<ADBannerViewDelegate> delegate;
+@property (nullable, nonatomic, weak) id<ADBannerViewDelegate> delegate;
 
 /*!
  * @property bannerLoaded
@@ -227,7 +245,7 @@ NS_CLASS_AVAILABLE_IOS(4_0) @interface ADBannerView : UIView
  * @discussion
  * Reserved for future use.
  */
-@property (nonatomic, copy) NSString *advertisingSection;
+@property (nullable, nonatomic, copy) NSString *advertisingSection;
 
 @end
 
@@ -297,6 +315,11 @@ NS_CLASS_AVAILABLE_IOS(4_0) @interface ADBannerView : UIView
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner;
 
 @end
+
+CGSize ADClampedBannerSize(CGSize size);
+
+NS_ASSUME_NONNULL_END
+
 // ==========  iAd.framework/Headers/ADInterstitialAd.h
 //
 //  ADInterstitialAd.h
@@ -307,6 +330,10 @@ NS_CLASS_AVAILABLE_IOS(4_0) @interface ADBannerView : UIView
 
 #import <Foundation/Foundation.h>
 #import <iAd/ADBannerView.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+#pragma clang system_header
 
 #define IAD_DEPRECATED_IOS_MSG(_iosIntro, _iosDep, _msg) \
     __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_##_iosIntro, __IPHONE_##_iosDep, _msg)
@@ -333,7 +360,7 @@ NS_CLASS_AVAILABLE_IOS(4_0) @interface ADBannerView : UIView
  * Note that using interstitial ads on iPhones running iOS < 7.0 will cause an
  * exception to be thrown.
  */
-NS_CLASS_AVAILABLE_IOS(4_3) @interface ADInterstitialAd : NSObject
+NS_CLASS_DEPRECATED_IOS(4_3, 10_0) @interface ADInterstitialAd : NSObject
 
 /*!
  * @property delegate
@@ -345,7 +372,7 @@ NS_CLASS_AVAILABLE_IOS(4_3) @interface ADInterstitialAd : NSObject
  * On iOS 5 and later, this property is a weak reference and cannot be used with
  * objects that modify the behavior of release or retain.
  */
-@property (nonatomic, weak) id<ADInterstitialAdDelegate> delegate;
+@property (nullable, nonatomic, weak) id<ADInterstitialAdDelegate> delegate;
 
 /*!
  * @property loaded
@@ -496,6 +523,19 @@ NS_CLASS_AVAILABLE_IOS(4_3) @interface ADInterstitialAd : NSObject
 - (void)interstitialAdActionDidFinish:(ADInterstitialAd *)interstitialAd;
 
 @end
+
+@interface ADInterstitialAdPresentationViewController : UIViewController
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (id)initForInterstitialAd:(ADInterstitialAd *)interstitialAd;
+#pragma clang diagnostic pop
+- (BOOL)shouldTestVisibilityAtPoint:(CGPoint)point;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  iAd.framework/Headers/ADBannerView_Deprecated.h
 //
 //  ADBannerView_Deprecated.h
@@ -505,6 +545,8 @@ NS_CLASS_AVAILABLE_IOS(4_3) @interface ADInterstitialAd : NSObject
 //
 
 #import <iAd/ADBannerView.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 /*!
  * @category ADBannerView (Deprecated)
@@ -525,9 +567,9 @@ NS_CLASS_AVAILABLE_IOS(4_3) @interface ADInterstitialAd : NSObject
  */
 @interface ADBannerView (Deprecated)
 
-@property (nonatomic, copy) NSSet *requiredContentSizeIdentifiers NS_DEPRECATED_IOS(4_0, 6_0);
+@property (nullable, nonatomic, copy) NSSet *requiredContentSizeIdentifiers NS_DEPRECATED_IOS(4_0, 6_0);
 
-@property (nonatomic, copy) NSString *currentContentSizeIdentifier NS_DEPRECATED_IOS(4_0, 6_0);
+@property (nullable, nonatomic, copy) NSString *currentContentSizeIdentifier NS_DEPRECATED_IOS(4_0, 6_0);
 
 + (CGSize)sizeFromBannerContentSizeIdentifier:(NSString *)contentSizeIdentifier NS_DEPRECATED_IOS(4_0, 6_0);
 
@@ -537,6 +579,8 @@ extern NSString * const ADBannerContentSizeIdentifier320x50 NS_DEPRECATED_IOS(4_
 extern NSString * const ADBannerContentSizeIdentifier480x32 NS_DEPRECATED_IOS(4_0, 4_2);
 extern NSString * const ADBannerContentSizeIdentifierPortrait NS_DEPRECATED_IOS(4_2, 6_0);
 extern NSString * const ADBannerContentSizeIdentifierLandscape NS_DEPRECATED_IOS(4_2, 6_0);
+
+NS_ASSUME_NONNULL_END
 // ==========  iAd.framework/Headers/UIViewControlleriAdAdditions.h
 //
 //  UIViewControlleriAdAdditions.h
@@ -547,6 +591,10 @@ extern NSString * const ADBannerContentSizeIdentifierLandscape NS_DEPRECATED_IOS
 //
 
 #import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+#pragma clang system_header
 
 /*!
  * @enum ADInterstitialPresentationPolicy
@@ -570,7 +618,7 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
     ADInterstitialPresentationPolicyNone = 0,
     ADInterstitialPresentationPolicyAutomatic,
     ADInterstitialPresentationPolicyManual
-}  NS_ENUM_AVAILABLE_IOS(7_0);
+}  NS_ENUM_DEPRECATED_IOS(7_0, 10_0);
 
 /*!
  * @category UIViewController (iAdAdditions)
@@ -597,7 +645,7 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
  * view controller's interstitialPresentationPolicy is set to something other
  * than ADInterstitialPresentationPolicyNone.
  */
-+ (void)prepareInterstitialAds NS_AVAILABLE_IOS(7_0);
++ (void)prepareInterstitialAds NS_DEPRECATED_IOS(7_0, 10_0);
 
 /*!
  * @property interstitialPresentationPolicy
@@ -608,7 +656,7 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
  * -requestInterstitialAdPresentation. By default the policy is "None", so to be
  * able to present an interstitial it must be changed to either "Automatic" or "Manual".
  */
-@property (nonatomic, assign) ADInterstitialPresentationPolicy interstitialPresentationPolicy NS_AVAILABLE_IOS(7_0);
+@property (nonatomic, assign) ADInterstitialPresentationPolicy interstitialPresentationPolicy NS_DEPRECATED_IOS(7_0, 10_0);
 
 /*!
  * @property canDisplayBannerAds
@@ -623,7 +671,7 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
  *
  * @seealso originalContentView
  */
-@property (nonatomic, assign) BOOL canDisplayBannerAds NS_AVAILABLE_IOS(7_0);
+@property (nonatomic, assign) BOOL canDisplayBannerAds NS_DEPRECATED_IOS(7_0, 10_0);
 
 /*!
  * @property originalContentView
@@ -635,7 +683,7 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
  * disabled, the view controller's content view will remain embedded - that operation
  * will not be reversed.
  */
-@property (nonatomic, retain, readonly) UIView *originalContentView NS_AVAILABLE_IOS(7_0);
+@property (nullable, nonatomic, retain, readonly) UIView *originalContentView NS_DEPRECATED_IOS(7_0, 10_0);
 
 /*!
  * @property presentingFullScreenAd
@@ -644,7 +692,7 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
  * Can be used to query the controller to determine if it is presenting a full screen
  * ad, which may be an interstitial or the iAd shown when the user taps a banner.
  */
-@property (nonatomic, readonly, getter=isPresentingFullScreenAd) BOOL presentingFullScreenAd NS_AVAILABLE_IOS(7_0);
+@property (nonatomic, readonly, getter=isPresentingFullScreenAd) BOOL presentingFullScreenAd NS_DEPRECATED_IOS(7_0, 10_0);
 
 /*!
  * @property displayingBannerAd
@@ -652,7 +700,7 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
  * @discussion
  * Can be used to query the controller to determine if it is displaying a banner ad.
  */
-@property (nonatomic, readonly, getter=isDisplayingBannerAd) BOOL displayingBannerAd NS_AVAILABLE_IOS(7_0);
+@property (nonatomic, readonly, getter=isDisplayingBannerAd) BOOL displayingBannerAd NS_DEPRECATED_IOS(7_0, 10_0);
 
 /*!
  * @method requestInterstitialAdPresentation
@@ -666,7 +714,7 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
  * manage significant state changes, such as game levels. Returns YES if an interstitial
  * will be presented.
  */
-- (BOOL)requestInterstitialAdPresentation NS_AVAILABLE_IOS(7_0);
+- (BOOL)requestInterstitialAdPresentation NS_DEPRECATED_IOS(7_0, 10_0);
 
 /*!
  * @method shouldPresentInterstitialAd
@@ -681,9 +729,12 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
  * state. The method will be invoked when the framework is about to present an interstitial
  * ad in the ADInterstitialPresentationPolicyAutomatic configuration.
  */
-@property (NS_NONATOMIC_IOSONLY, readonly) BOOL shouldPresentInterstitialAd NS_AVAILABLE_IOS(7_0);
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL shouldPresentInterstitialAd NS_DEPRECATED_IOS(7_0, 10_0);
 
 @end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  iAd.framework/Headers/ADClient.h
 //
 //  ADClient.h
@@ -694,6 +745,8 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
 //
 
 #import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 NS_CLASS_AVAILABLE_IOS(7_1) @interface ADClient : NSObject
 
@@ -731,6 +784,13 @@ extern NSString * const ADClientErrorDomain;
  * The device has Limit Ad Tracking enabled. It will not be possible to recieve
  * attribution details for app purchases made on this device.
  *
+ * @const ADClientErrorMissingData
+ * The downloaded app received a payload lacking enough data to perform an
+ * Attribution Check.
+ *
+ * @const ADClientErrorCorruptResponse
+ * The response received from the Attribution Server was corrupt.
+ *
  * @discussion
  * Error codes for NSErrors passed to the completionHandler block
  * when calling the requestAttributionDetailsWithBlock method.
@@ -738,6 +798,8 @@ extern NSString * const ADClientErrorDomain;
 typedef NS_ENUM(NSInteger, ADClientError) {
     ADClientErrorUnknown = 0,
     ADClientErrorLimitAdTracking = 1,
+    ADClientErrorMissingData = 2,
+    ADClientErrorCorruptResponse = 3
 };
 
 /*!
@@ -762,9 +824,8 @@ typedef NS_ENUM(NSInteger, ADClientError) {
  * @method lookupAdConversionDetails:
  *
  * @param completionHandler
- * A block which will be called with the app purchase date and the date at which
- * the user saw an iAd for the app. If no conversion has been tracked, or if
- * Limit Ad Tracking is enabled on the device, both dates will be nil.
+ * This method is deprecated.
+ * A block will be called with iAdImpressionDate = nil
  *
  * The handler will be called on an arbitrary queue.
  *
@@ -772,7 +833,7 @@ typedef NS_ENUM(NSInteger, ADClientError) {
  * Provides a way for an app to determine when an iAd was shown to the user
  * which resulted in the user's purchase of the app.
  */
-- (void)lookupAdConversionDetails:(void (^)(NSDate *appPurchaseDate, NSDate *iAdImpressionDate))completionHandler NS_DEPRECATED_IOS(8_0, 9_0, "Use requestAttributionDetailsWithBlock instead.");
+- (void)lookupAdConversionDetails:(void (^)(NSDate * _Nullable appPurchaseDate, NSDate * _Nullable iAdImpressionDate))completionHandler NS_DEPRECATED_IOS(8_0, 9_0, "Use requestAttributionDetailsWithBlock instead.");
 
 /*!
  * @method requestAttributionDetailsWithBlock:
@@ -789,7 +850,7 @@ typedef NS_ENUM(NSInteger, ADClientError) {
  * Provides a way for an app to determine when an iAd was shown to the user
  * which resulted in the user's purchase of the app.
  */
-- (void)requestAttributionDetailsWithBlock:(void (^)(NSDictionary *attributionDetails, NSError *error))completionHandler NS_AVAILABLE_IOS(9_0);
+- (void)requestAttributionDetailsWithBlock:(void (^)(NSDictionary<NSString *, NSObject *> * _Nullable attributionDetails, NSError * _Nullable error))completionHandler NS_AVAILABLE_IOS(9_0);
 
 /*!
  * @method addClientToSegments:replaceExisting:
@@ -807,73 +868,39 @@ typedef NS_ENUM(NSInteger, ADClientError) {
  * application.  If Limit Ad Tracking is enabled on the device, this method will
  * have no effect.
  */
-- (void)addClientToSegments:(NSArray *)segmentIdentifiers replaceExisting:(BOOL)replaceExisting NS_AVAILABLE_IOS(8_0);
+- (void)addClientToSegments:(NSArray<NSString *> *)segmentIdentifiers replaceExisting:(BOOL)replaceExisting NS_AVAILABLE_IOS(8_0);
 
 @end
-// ==========  iAd.framework/Headers/MPMoviePlayerController_iAdPreroll.h
+
+NS_ASSUME_NONNULL_END
+
+// ==========  iAd.framework/Headers/ADCommonDefinitions.h
 //
-//  MPMoviePlayerController_iAdPreroll.h
+//  ADCommonDefinitions.h
 //  iAd
 //
-//  Copyright 2012 Apple, Inc. All rights reserved.
+//  Created by Dheeraj Goswami on 9/19/17.
 //
 
-#import <MediaPlayer/MediaPlayer.h>
+#ifndef ADCommonDefinitions_h
+#define ADCommonDefinitions_h
 
-/*!
- * @category MPMoviePlayerController (iAdPreroll)
- *
- * @dependency MediaPlayer.framework
- * 
- * @discussion
- * Adds optional pre-roll advertising support to MPMoviePlayerController.
- */
-@interface MPMoviePlayerController (iAdPreroll)
+#define IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+#define IS_IPHONE (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+#define IS_RETINA ([[UIScreen mainScreen] scale] >= 2.0)
 
-/*!
- * @method +preparePrerollAds
- *
- * @discussion
- * Inform iAd that the application intends to use MPMoviePlayerController's
- * -playPrerollAdWithCompletionHandler: API. Ad metadata will be fetched eagerly,
- * increasing the likelihood of an ad being available when first requested.
- */
-+ (void)preparePrerollAds NS_AVAILABLE_IOS(7_0);
+#define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
+#define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
+#define SCREEN_MAX_LENGTH (MAX(SCREEN_WIDTH, SCREEN_HEIGHT))
+#define SCREEN_MIN_LENGTH (MIN(SCREEN_WIDTH, SCREEN_HEIGHT))
 
-/*!
- * @method -playPrerollAdWithCompletionHandler:
- *
- * @discussion
- * Request playback of a pre-roll video iAd.
- *
- * When the completion handler is called, the MPMoviePlayerController's -play
- * API can be called if a contentURL or asset is configured, or the controller's
- * view can be dismissed.
- *
- * The completion handler's error argument will be non-nil if the pre-roll ad
- * could not be played. Errors can occur for a number of reasons, such as lack
- * of ad inventory, exceeding the maximum pre-roll ad playback frequency, iAd
- * account configuration issues, and media playback issues. See ADError for an
- * exhaustive list of possible errors.
- *
- * Passing nil as the completion handler is an error and will throw an exception.
- *
- * NOTE: The MPMoviePlayerController must not be playing (or configured to
- * autoplay) when -playPrerollAdWithCompletionHandler: is called. If the
- * MPMoviePlayerController starts regular playback during pre-roll playback, the
- * ad will be skipped immediately.
- */
-- (void)playPrerollAdWithCompletionHandler:(void (^)(NSError *error))completionHandler NS_AVAILABLE_IOS(7_0);
+#define IS_IPHONE_4 (IS_IPHONE && SCREEN_MAX_LENGTH < 568.0)
+#define IS_IPHONE_5_OR_SE (IS_IPHONE && SCREEN_MAX_LENGTH == 568.0)
+#define IS_IPHONE_6_OR_7_OR_8 (IS_IPHONE && SCREEN_MAX_LENGTH == 667.0)
+#define IS_IPHONE_6P_OR_7P_OR_8P (IS_IPHONE && SCREEN_MAX_LENGTH == 736.0)
+#define IS_IPHONE_X (IS_IPHONE && SCREEN_MAX_LENGTH == 812.0)
 
-/*!
- * @method -cancelPreroll
- *
- * @discussion
- * Cancel pre-roll video ad playback.
- */
-- (void)cancelPreroll NS_AVAILABLE_IOS(8_0);
-
-@end
+#endif /* ADCommonDefinitions_h */
 // ==========  iAd.framework/Headers/iAd.h
 /*
  *  iAd.h
@@ -886,6 +913,35 @@ typedef NS_ENUM(NSInteger, ADClientError) {
 #import <iAd/ADBannerView_Deprecated.h>
 #import <iAd/ADClient.h>
 #import <iAd/ADInterstitialAd.h>
-#import <iAd/MPMoviePlayerController_iAdPreroll.h>
 #import <iAd/AVPlayerViewController_iAdPreroll.h>
 #import <iAd/UIViewControlleriAdAdditions.h>
+// ==========  iAd.framework/Headers/ADActionViewControllerInterface.h
+//
+//  ADSActionViewControllerInterface.h
+//  iAd
+//
+//  Created by David Wilson on 3/28/14.
+//
+//
+
+#import <Foundation/Foundation.h>
+
+@class ADAdSpace;
+
+@protocol ADActionViewControllerInterface <NSObject>
+
+@property (nonatomic, readonly) BOOL readyForPresentation;
+@property (nonatomic, weak, readonly) ADAdSpace *adSpace;
+
+- (void)dismiss;
+
+- (void)clientApplicationDidEnterBackground;
+- (void)clientApplicationCancelledAction;
+
+@end
+
+@protocol ADActionViewControllerChildInterface <NSObject>
+
+- (void)actionViewControllerClosed;
+
+@end

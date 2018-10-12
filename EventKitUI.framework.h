@@ -53,7 +53,7 @@ EVENTKITUI_CLASS_AVAILABLE(4_0)
     @abstract   The event store to use to save events.
     @discussion You must set this before presenting the view controller.
 */
-@property(nonatomic, retain) EKEventStore   *eventStore;
+@property(nonatomic, retain, null_unspecified) EKEventStore   *eventStore;
 
 /*!
     @property   event
@@ -124,14 +124,26 @@ NS_ASSUME_NONNULL_END
  *
  */
 
-
 #ifdef __cplusplus
 #define EVENTKITUI_EXTERN               extern "C" __attribute__((visibility ("default")))
 #else
 #define EVENTKITUI_EXTERN               extern __attribute__((visibility ("default")))
 #endif
 
-#define EVENTKITUI_CLASS_AVAILABLE(_iphoneIntro) __attribute__((visibility("default"))) NS_CLASS_AVAILABLE(NA, _iphoneIntro)// ==========  EventKitUI.framework/Headers/EKCalendarChooser.h
+#define EVENTKITUI_CLASS_AVAILABLE(_iphoneIntro) __attribute__((visibility("default"))) NS_CLASS_AVAILABLE(NA, _iphoneIntro)
+
+#ifndef EKUI_HAS_HEADER
+#define EKUI_HAS_HEADER(include_path) (defined(__has_include) && __has_include(include_path))
+#endif
+
+#ifndef EKUI_IS_IOS
+#define EKUI_IS_IOS (defined(TARGET_OS_IOS) && TARGET_OS_IOS)
+#endif
+
+#ifndef EKUI_IS_SIMULATOR
+#define EKUI_IS_SIMULATOR (defined(TARGET_OS_SIMULATOR) && TARGET_OS_SIMULATOR)
+#endif
+// ==========  EventKitUI.framework/Headers/EKCalendarChooser.h
 //
 //  EKCalendarChooser.h
 //  EventKitUI
@@ -225,6 +237,7 @@ NS_ASSUME_NONNULL_END
 
 #import <UIKit/UIKit.h>
 #import <EventKitUI/EventKitUIDefines.h>
+#import <EventKitUI/EventKitUIBundle.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -260,7 +273,7 @@ EVENTKITUI_CLASS_AVAILABLE(4_0)
     @abstract   Specifies the event to view.
     @discussion You must set this prior to displaying the view controller.
 */
-@property(nonatomic, retain) EKEvent *event;
+@property(nonatomic, retain, null_unspecified) EKEvent *event;
 
 /*!
     @property   allowsEditing
@@ -305,3 +318,17 @@ EVENTKITUI_CLASS_AVAILABLE(4_0)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  EventKitUI.framework/Headers/EventKitUIBundle.h
+//
+//  EventKitUIBundle.h
+//  EventKitUI
+//
+//  Created by Greg Novick on 2/26/08.
+//  Copyright 2008 Apple Computer, Inc. All rights reserved.
+//
+
+#import <EventKitUI/EventKitUIDefines.h>
+#import <Foundation/Foundation.h>
+
+EVENTKITUI_EXTERN NSBundle *EventKitUIBundle(void);
+

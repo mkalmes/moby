@@ -123,7 +123,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  
 	Framework:  CoreMedia
  
-	Copyright 2006-2015 Apple Inc. All rights reserved.
+	Copyright © 2006-2018 Apple Inc. All rights reserved.
  
 */
 
@@ -159,7 +159,8 @@ CM_EXPORT OSStatus
 CMAudioClockCreate(
 		CM_NULLABLE CFAllocatorRef allocator,
 		CM_RETURNS_RETAINED_PARAMETER CM_NULLABLE CMClockRef * CM_NONNULL clockOut)
-			__OSX_AVAILABLE_STARTING(__MAC_NA, __IPHONE_6_0);
+			API_AVAILABLE(ios(6.0))
+			API_UNAVAILABLE(macosx);
 
 #pragma pack(pop)
     
@@ -174,7 +175,7 @@ CMAudioClockCreate(
 	
 	Framework:  CoreMedia
  
-    Copyright 2007-2015 Apple Inc. All rights reserved.
+	Copyright © 2007-2018 Apple Inc. All rights reserved.
  
 */
 
@@ -279,25 +280,25 @@ CM_EXPORT CMTimeRange CMTimeRangeMake(
 /*!
 	@function	CMTimeRangeGetUnion
     @abstract   Returns the union of two CMTimeRanges.
-    @discussion	This function returns a CMTimeRange structure that represents the union of the time ranges specified by the <i>range1</i> and <i>range2</i> parameters.
+    @discussion	This function returns a CMTimeRange structure that represents the union of the time ranges specified by the <i>range</i> and <i>otherRange</i> parameters.
 				This is the smallest range that includes all times that are in either range.
 	@result     The union of the two CMTimeRanges.
 */
 CM_EXPORT CMTimeRange CMTimeRangeGetUnion(
-				CMTimeRange range1,				/*! @param range1			A CMTimeRange to be unioned. */
-				CMTimeRange range2)				/*! @param range2			Another CMTimeRange to be unioned. */
+				CMTimeRange range,				/*! @param range			A CMTimeRange to be unioned. */
+				CMTimeRange otherRange)				/*! @param otherRange			Another CMTimeRange to be unioned. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
 	@function	CMTimeRangeGetIntersection
     @abstract   Returns the intersection of two CMTimeRanges.
-    @discussion	This function returns a CMTimeRange structure that represents the intersection of the time ranges specified by the <i>range1</i> and <i>range2</i> parameters.
+    @discussion	This function returns a CMTimeRange structure that represents the intersection of the time ranges specified by the <i>range</i> and <i>otherRange</i> parameters.
 				This is the largest range that both ranges include.
 	@result     The intersection of the two CMTimeRanges.
 */
 CM_EXPORT CMTimeRange CMTimeRangeGetIntersection(
-				CMTimeRange range1,				/*! @param range1			A CMTimeRange to be intersected. */
-				CMTimeRange range2)				/*! @param range2			Another CMTimeRange to be intersected. */
+				CMTimeRange range,				/*! @param range			A CMTimeRange to be intersected. */
+				CMTimeRange otherRange)				/*! @param otherRange			Another CMTimeRange to be intersected. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
@@ -326,13 +327,13 @@ CM_EXPORT Boolean CMTimeRangeContainsTime(
 /*!
 	@function	CMTimeRangeContainsTimeRange
 	@abstract	Indicates whether a time range is contained within a time range.
-    @discussion	This function returns a Boolean value that indicates whether the time range specified by the <i>range1</i> parameter
-				contains the range specified by the <i>range2</i> parameter.
+    @discussion	This function returns a Boolean value that indicates whether the time range specified by the <i>range</i> parameter
+				contains the range specified by the <i>otherRange</i> parameter.
     @result     Returns true if the second time range is contained within the first time range, false if it is not.
 */
 CM_EXPORT Boolean CMTimeRangeContainsTimeRange(
-				CMTimeRange range1,				/*! @param range1			A CMTimeRange. */
-				CMTimeRange range2)				/*! @param range2			Another CMTimeRange to be tested for inclusion. */
+				CMTimeRange range,				/*! @param range			A CMTimeRange. */
+				CMTimeRange otherRange)				/*! @param otherRange			Another CMTimeRange to be tested for inclusion. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
@@ -392,7 +393,20 @@ CM_EXPORT CMTime CMTimeMapDurationFromRangeToRange(
 				CMTimeRange fromRange, 
 				CMTimeRange toRange )
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
-	
+
+/*!
+	@function	CMTimeFoldIntoRange
+	@abstract	Folds a time into the given range.  This can be used in looping time calculations.
+	@result		A CMTime structure representing the translated duration.
+	@discussion	Note that for certain types of looping, you may want to NOT fold times that are prior
+				to the loop range.  That's up to the client.
+*/
+CM_EXPORT CMTime
+CMTimeFoldIntoRange(
+				CMTime time,					/*! @param time				The CMTime to fold. */
+				CMTimeRange foldRange )			/*! @param foldRange		The CMTimeRange into which to fold it. */
+							API_AVAILABLE(macosx(10.14), ios(12.0));
+
 /*!
 	@function	CMTimeRangeFromTimeToTime
 	@abstract	Make a valid CMTimeRange with the given starting and ending times.
@@ -422,20 +436,20 @@ CM_EXPORT CFDictionaryRef CM_NULLABLE CMTimeRangeCopyAsDictionary(
 	@result		The created CMTimeRange.  
 */
 CM_EXPORT CMTimeRange CMTimeRangeMakeFromDictionary(
-				CFDictionaryRef CM_NONNULL dict)			/*! @param dict				A CFDictionary from which to create a CMTimeRange. */
+				CFDictionaryRef CM_NONNULL dictionaryRepresentation)			/*! @param dictionaryRepresentation				A CFDictionary from which to create a CMTimeRange. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 CM_ASSUME_NONNULL_BEGIN
 
 /*!
-	@defined kCMTimeRangeTimeKey
+	@constant kCMTimeRangeStartKey
 	@discussion CFDictionary key for start field of a CMTimeRange (CMTime)
 */
 CM_EXPORT const CFStringRef kCMTimeRangeStartKey
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
-	@defined kCMTimeRangeDurationKey
+	@constant kCMTimeRangeDurationKey
 	@discussion CFDictionary key for timescale field of a CMTimeRange (CMTime)
 */
 CM_EXPORT const CFStringRef kCMTimeRangeDurationKey
@@ -553,18 +567,18 @@ CM_EXPORT CFDictionaryRef CM_NULLABLE CMTimeMappingCopyAsDictionary(
 	@result		The created CMTimeMapping.  
 */
 CM_EXPORT CMTimeMapping CMTimeMappingMakeFromDictionary(
-				CFDictionaryRef CM_NONNULL dict)			/*! @param dict				A CFDictionary from which to create a CMTimeMapping. */
+				CFDictionaryRef CM_NONNULL dictionaryRepresentation)			/*! @param dictionaryRepresentation				A CFDictionary from which to create a CMTimeMapping. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
 CM_ASSUME_NONNULL_BEGIN
 /*!
-	@defined kCMTimeMappingSourceKey
+	@constant kCMTimeMappingSourceKey
 	@discussion CFDictionary key for source field of a CMTimeMapping (CMTimeRange)
 */
 CM_EXPORT const CFStringRef kCMTimeMappingSourceKey
 							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
 
 /*!
-	@defined kCMTimeMappingTargetKey
+	@constant kCMTimeMappingTargetKey
 	@discussion CFDictionary key for target field of a CMTimeMapping (CMTimeRange)
 */
 CM_EXPORT const CFStringRef kCMTimeMappingTargetKey
@@ -810,7 +824,7 @@ int32_t CMSimpleQueueGetCount(
 
 	Framework:  CoreMedia
  
-    Copyright 2005-2015 Apple Inc. All rights reserved.
+	Copyright © 2005-2018 Apple Inc. All rights reserved.
 
 */
 
@@ -894,7 +908,7 @@ enum
 	kCMMediaType_ClosedCaption		= 'clcp',
 	kCMMediaType_Subtitle			= 'sbtl',
 	kCMMediaType_TimeCode			= 'tmcd',
-	kCMMediaType_Metadata			= 'meta'
+	kCMMediaType_Metadata			= 'meta',
 };
 
 /*! 
@@ -918,11 +932,11 @@ CMFormatDescriptionCreate(
 																	allocator will be used. */
 	CMMediaType mediaType,										/*! @param mediaType
 																	Four character code identifying the type of media associated with the CMFormatDescription. */
-	FourCharCode mediaSubtype,									/*! @param mediaSubtype
+	FourCharCode mediaSubType,									/*! @param mediaSubType
 																	Four character code identifying the sub-type of media. */
 	CFDictionaryRef CM_NULLABLE extensions,						/*! @param extensions
 																	Dictionary of extensions to be attached to the CMFormatDescription. May be NULL. */
-	CM_RETURNS_RETAINED_PARAMETER CMFormatDescriptionRef CM_NULLABLE * CM_NONNULL descOut)	/*! @param descOut
+	CM_RETURNS_RETAINED_PARAMETER CMFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut)	/*! @param formatDescriptionOut
 																	Receives the newly-created CMFormatDescription. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -946,9 +960,9 @@ CFTypeID CMFormatDescriptionGetTypeID(void)
 */
 CM_EXPORT
 Boolean CMFormatDescriptionEqual(
-	CMFormatDescriptionRef CM_NULLABLE desc1,	/*! @param desc1
+	CMFormatDescriptionRef CM_NULLABLE formatDescription,	/*! @param formatDescription
 									The first formatDescription. */
-	CMFormatDescriptionRef CM_NULLABLE desc2)	/*! @param desc2
+	CMFormatDescriptionRef CM_NULLABLE otherFormatDescription)	/*! @param otherFormatDescription
 									The second formatDescription. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -970,8 +984,8 @@ Boolean CMFormatDescriptionEqual(
 */
 CM_EXPORT
 Boolean CMFormatDescriptionEqualIgnoringExtensionKeys(
-	CMFormatDescriptionRef CM_NULLABLE desc1,
-	CMFormatDescriptionRef CM_NULLABLE desc2,
+	CMFormatDescriptionRef CM_NULLABLE formatDescription,
+	CMFormatDescriptionRef CM_NULLABLE otherFormatDescription,
 	CFTypeRef CM_NULLABLE formatDescriptionExtensionKeysToIgnore,
 	CFTypeRef CM_NULLABLE sampleDescriptionExtensionAtomKeysToIgnore )
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_3);
@@ -1141,7 +1155,7 @@ OSStatus CMAudioFormatDescriptionCreate(
 	CFDictionaryRef CM_NULLABLE extensions,								/*! @param extensions		Dictionary of extension key/value pairs.  Keys are always CFStrings.
 																			Values are always property list objects (ie. CFData, CFString, CFArray, CFDictionary,
 																			CFDate, CFBoolean, or CFNumber). Can be NULL. */
-	CM_RETURNS_RETAINED_PARAMETER CMAudioFormatDescriptionRef CM_NULLABLE * CM_NONNULL outDesc)		/*! @param outDesc			Returned newly created audio CMFormatDescription */
+	CM_RETURNS_RETAINED_PARAMETER CMAudioFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut)		/*! @param formatDescriptionOut			Returned newly created audio CMFormatDescription */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -1171,7 +1185,7 @@ const AudioStreamBasicDescription * CM_NULLABLE CMAudioFormatDescriptionGetStrea
 CM_EXPORT
 const void * CM_NULLABLE CMAudioFormatDescriptionGetMagicCookie(
 	CMAudioFormatDescriptionRef CM_NONNULL desc,		/*! @param desc				CMFormatDescription being interrogated. */
-	size_t * CM_NULLABLE cookieSizeOut)					/*! @param cookieSizeOut	Pointer to variable that will be written with the size of the cookie. Can be NULL. */
+	size_t * CM_NULLABLE sizeOut)						/*! @param sizeOut	Pointer to variable that will be written with the size of the cookie. Can be NULL. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
@@ -1187,7 +1201,7 @@ const void * CM_NULLABLE CMAudioFormatDescriptionGetMagicCookie(
 CM_EXPORT
 const AudioChannelLayout * CM_NULLABLE CMAudioFormatDescriptionGetChannelLayout(
 	CMAudioFormatDescriptionRef CM_NONNULL desc,		/*! @param desc			CMFormatDescription being interrogated. */
-	size_t * CM_NULLABLE layoutSize)					/*! @param layoutSize	Pointer to variable that will be written with the size of the layout.
+	size_t * CM_NULLABLE sizeOut)						/*! @param sizeOut	Pointer to variable that will be written with the size of the layout.
 																	Can be NULL. */    
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -1204,7 +1218,7 @@ const AudioChannelLayout * CM_NULLABLE CMAudioFormatDescriptionGetChannelLayout(
 CM_EXPORT
 const AudioFormatListItem * CM_NULLABLE CMAudioFormatDescriptionGetFormatList(
 	CMAudioFormatDescriptionRef CM_NONNULL desc,		/*! @param desc             CMFormatDescription being interrogated. */
-	size_t * CM_NULLABLE formatListSize)	            /*! @param formatListSize	Pointer to variable that will be written with the size of the formatList.
+	size_t * CM_NULLABLE sizeOut)			            /*! @param sizeOut	Pointer to variable that will be written with the size of the formatList.
                                                                         Can be NULL. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -1251,7 +1265,7 @@ CM_EXPORT OSStatus CMAudioFormatDescriptionCreateSummary(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CFArrayRef CM_NONNULL formatDescriptionArray, // CFArray[CMAudioFormatDescription]
 		uint32_t flags, // pass 0
-		CM_RETURNS_RETAINED_PARAMETER CMAudioFormatDescriptionRef CM_NULLABLE * CM_NONNULL summaryFormatDescriptionOut )
+		CM_RETURNS_RETAINED_PARAMETER CMAudioFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -1296,8 +1310,8 @@ enum
 */
 CM_EXPORT
 Boolean CMAudioFormatDescriptionEqual(
-	CMAudioFormatDescriptionRef CM_NONNULL desc1,				/*! @param desc1			The CMAudioFormatDescription being compared. */
-	CMAudioFormatDescriptionRef CM_NONNULL desc2,				/*! @param desc2			The CMAudioFormatDescription to which it is being compared. */
+	CMAudioFormatDescriptionRef CM_NONNULL formatDescription,				/*! @param formatDescription			The CMAudioFormatDescription being compared. */
+	CMAudioFormatDescriptionRef CM_NONNULL otherFormatDescription,			/*! @param otherFormatDescription			The CMAudioFormatDescription to which it is being compared. */
 	CMAudioFormatDescriptionMask equalityMask,					/*! @param equalityMask		Mask specifying which parts of the descriptions to compare. */
 	CMAudioFormatDescriptionMask * CM_NULLABLE equalityMaskOut)	/*! @param equalityMaskOut  Pointer to variable that will be written with the results by part.
 																				Bits not set in equalityMask will not be set in equalityMaskOut.
@@ -1390,11 +1404,14 @@ enum
 	@constant	kCMVideoCodecType_DVCPROHD1080i50	Panasonic DVCPro-HD 1080i50 format
 	@constant	kCMVideoCodecType_DVCPROHD1080p30	Panasonic DVCPro-HD 1080p30 format
 	@constant	kCMVideoCodecType_DVCPROHD1080p25	Panasonic DVCPro-HD 1080p25 format
+	@constant	kCMVideoCodecType_AppleProRes4444XQ	Apple ProRes 4444 XQ format
 	@constant	kCMVideoCodecType_AppleProRes4444	Apple ProRes 4444 format
 	@constant	kCMVideoCodecType_AppleProRes422HQ	Apple ProRes 422 HQ format
 	@constant	kCMVideoCodecType_AppleProRes422	Apple ProRes 422 format
 	@constant	kCMVideoCodecType_AppleProRes422LT	Apple ProRes 422 LT format
 	@constant	kCMVideoCodecType_AppleProRes422Proxy	Apple ProRes 422 Proxy format
+	@constant	kCMVideoCodecType_AppleProResRAW	Apple ProRes RAW format
+	@constant	kCMVideoCodecType_AppleProResRAWHQ	Apple ProRes RAW HQ format
 */
 typedef FourCharCode CMVideoCodecType;
 #if COREMEDIA_USE_DERIVED_ENUMS_FOR_CONSTANTS
@@ -1429,11 +1446,15 @@ enum
 	kCMVideoCodecType_DVCPROHD1080p30  = 'dvh3',
 	kCMVideoCodecType_DVCPROHD1080p25  = 'dvh2',
 	
+	kCMVideoCodecType_AppleProRes4444XQ = 'ap4x',
 	kCMVideoCodecType_AppleProRes4444  = 'ap4h',
 	kCMVideoCodecType_AppleProRes422HQ = 'apch',
 	kCMVideoCodecType_AppleProRes422   = 'apcn',
 	kCMVideoCodecType_AppleProRes422LT = 'apcs',
 	kCMVideoCodecType_AppleProRes422Proxy = 'apco',
+
+	kCMVideoCodecType_AppleProResRAW   = 'aprn',
+	kCMVideoCodecType_AppleProResRAWHQ = 'aprh',
 };
 
 /*!
@@ -1465,6 +1486,7 @@ CM_EXPORT const CFStringRef kCMFormatDescriptionKey_CleanApertureVerticalOffset 
 #define kCMFormatDescriptionKey_CleanApertureVerticalOffset		kCVImageBufferCleanApertureVerticalOffsetKey	// CFNumber
 
 // These additional keys are used to record the precise numerator and denominator in cases where the number is not an integer.
+// NOTE: Some modules only read the float-valued keys, so if you set any of the ...Rational keys, you should also set the corresponding floating-point keys.
 CM_EXPORT const CFStringRef kCMFormatDescriptionKey_CleanApertureWidthRational									// CFArray of 2 CFNumbers: numerator, denominator
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 CM_EXPORT const CFStringRef kCMFormatDescriptionKey_CleanApertureHeightRational									// CFArray of 2 CFNumbers: numerator, denominator
@@ -1520,8 +1542,16 @@ CM_EXPORT const CFStringRef kCMFormatDescriptionTransferFunction_UseGamma __OSX_
 #define kCMFormatDescriptionTransferFunction_ITU_R_709_2		kCVImageBufferTransferFunction_ITU_R_709_2		// CFString
 #define kCMFormatDescriptionTransferFunction_SMPTE_240M_1995	kCVImageBufferTransferFunction_SMPTE_240M_1995	// CFString
 #define kCMFormatDescriptionTransferFunction_UseGamma			kCVImageBufferTransferFunction_UseGamma			// CFString
-CM_EXPORT const CFStringRef kCMFormatDescriptionTransferFunction_ITU_R_2020										// same as kCVImageBufferTransferFunction_ITU_R_2020
+CM_EXPORT const CFStringRef kCMFormatDescriptionTransferFunction_ITU_R_2020										// same as kCVImageBufferTransferFunction_ITU_R_2020. note: semantically equivalent to kCMFormatDescriptionTransferFunction_ITU_R_709_2, which is preferred.
 							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
+CM_EXPORT const CFStringRef kCMFormatDescriptionTransferFunction_SMPTE_ST_428_1									// same as kCVImageBufferTransferFunction_SMPTE_ST_428_1
+							__OSX_AVAILABLE_STARTING(__MAC_10_12,__IPHONE_10_0);
+CM_EXPORT const CFStringRef kCMFormatDescriptionTransferFunction_SMPTE_ST_2084_PQ								// same as kCVImageBufferTransferFunction_SMPTE_ST_2084_PQ
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CM_EXPORT const CFStringRef kCMFormatDescriptionTransferFunction_ITU_R_2100_HLG								// same as kCVImageBufferTransferFunction_ITU_R_2100_HLG
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CM_EXPORT const CFStringRef kCMFormatDescriptionTransferFunction_Linear											// same as kCVImageBufferTransferFunction_Linear
+							API_AVAILABLE(macosx(10.14), ios(12.0), tvos(12.0), watchos(5.0));
 
 CM_EXPORT const CFStringRef kCMFormatDescriptionExtension_GammaLevel __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
 #define kCMFormatDescriptionExtension_GammaLevel				kCVImageBufferGammaLevelKey						// CFNumber describing the gamma level, used in absence of (or ignorance of) kCMFormatDescriptionExtension_TransferFunction
@@ -1534,10 +1564,6 @@ CM_EXPORT const CFStringRef kCMFormatDescriptionYCbCrMatrix_SMPTE_240M_1995 __OS
 #define kCMFormatDescriptionYCbCrMatrix_ITU_R_709_2				kCVImageBufferYCbCrMatrix_ITU_R_709_2			// CFString
 #define kCMFormatDescriptionYCbCrMatrix_ITU_R_601_4				kCVImageBufferYCbCrMatrix_ITU_R_601_4			// CFString
 #define kCMFormatDescriptionYCbCrMatrix_SMPTE_240M_1995			kCVImageBufferYCbCrMatrix_SMPTE_240M_1995		// CFString
-CM_EXPORT const CFStringRef kCMFormatDescriptionYCbCrMatrix_DCI_P3												// same as kCVImageBufferYCbCrMatrix_DCI_P3
-							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
-CM_EXPORT const CFStringRef kCMFormatDescriptionYCbCrMatrix_P3_D65												// same as kCVImageBufferYCbCrMatrix_P3_D65
-							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
 CM_EXPORT const CFStringRef kCMFormatDescriptionYCbCrMatrix_ITU_R_2020											// same as kCVImageBufferYCbCrMatrix_ITU_R_2020
 							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
 
@@ -1638,6 +1664,11 @@ CM_EXPORT const CFStringRef kCMFormatDescriptionExtension_Vendor					// CFString
 CM_EXPORT const CFStringRef kCMFormatDescriptionVendor_Apple
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
+CM_EXPORT const CFStringRef kCMFormatDescriptionExtension_MasteringDisplayColorVolume	// CFData(24 bytes); big-endian structure; same as kCVImageBufferMasteringDisplayColorVolumeKey; matches payload of ISO/IEC 23008-2:2015(E), D.2.28 Mastering display colour volume SEI message
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CM_EXPORT const CFStringRef kCMFormatDescriptionExtension_ContentLightLevelInfo			// CFData(4 bytes); big-endian structure; same as kCVImageBufferContentLightLevelInfoKey
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+
 CM_ASSUME_NONNULL_END
 
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -1657,7 +1688,7 @@ OSStatus CMVideoFormatDescriptionCreate(
 	CFDictionaryRef CM_NULLABLE extensions,							/*! @param extensions	Dictionary of extension key/value pairs. Keys are always CFStrings.
 																		Values are always property list objects (ie. CFData, CFString, CFArray,
 																		CFDictionary, CFDate, CFBoolean, or CFNumber). Can be NULL. */
-	CM_RETURNS_RETAINED_PARAMETER CMVideoFormatDescriptionRef CM_NULLABLE * CM_NONNULL outDesc)	/*! @param outDesc		Returned newly created video CMFormatDescription */
+	CM_RETURNS_RETAINED_PARAMETER CMVideoFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut)	/*! @param formatDescriptionOut		Returned newly created video CMFormatDescription */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
@@ -1681,7 +1712,7 @@ OSStatus CMVideoFormatDescriptionCreateForImageBuffer(
 																		CFAllocator to be used when creating the CMFormatDescription. NULL will cause the default allocator to be used */
 	CVImageBufferRef CM_NONNULL imageBuffer,						/*! @param imageBuffer
 																		Image buffer for which we are creating the format description. */
-	CM_RETURNS_RETAINED_PARAMETER CMVideoFormatDescriptionRef CM_NULLABLE * CM_NONNULL outDesc)	/*! @param outDesc
+	CM_RETURNS_RETAINED_PARAMETER CMVideoFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut)	/*! @param formatDescriptionOut
 																		Returned newly-created video CMFormatDescription */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -1707,13 +1738,39 @@ OSStatus CMVideoFormatDescriptionCreateFromH264ParameterSets(
 	CM_RETURNS_RETAINED_PARAMETER CMFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )	/*! @param formatDescriptionOut
 																				Returned newly-created video CMFormatDescription */
 							__OSX_AVAILABLE_STARTING(__MAC_10_9,__IPHONE_7_0);
-
+	
+/*!
+	@function	CMVideoFormatDescriptionCreateFromHEVCParameterSets
+	@abstract	Creates a format description for a video media stream described by HEVC (H.265) parameter set NAL units.
+	@discussion	This function parses the dimensions provided by the parameter sets and creates a format description suitable for a raw H.265 stream.
+				The parameter sets' data can come from raw NAL units and must have any emulation prevention bytes needed.
+				The supported NAL unit types to be included in the format description are 32 (video parameter set), 33 (sequence parameter set), 34 (picture parameter set), 39 (prefix SEI) and 40 (suffix SEI). At least one of each parameter set must be provided.
+*/
+CM_EXPORT
+OSStatus CMVideoFormatDescriptionCreateFromHEVCParameterSets(
+	CFAllocatorRef CM_NULLABLE allocator,									/*! @param allocator
+																				 CFAllocator to be used when creating the CMFormatDescription. Pass NULL to use the default allocator. */
+	size_t parameterSetCount,												/*! @param parameterSetCount
+																				 The number of parameter sets to include in the format description. This parameter must be at least 3. */
+	const uint8_t * CM_NONNULL const * CM_NONNULL parameterSetPointers,		/*! @param parameterSetPointers
+																				 Points to a C array containing parameterSetCount pointers to parameter sets. */
+	const size_t * CM_NONNULL parameterSetSizes,							/*! @param parameterSetSizes
+																				 Points to a C array containing the size, in bytes, of each of the parameter sets. */
+	int NALUnitHeaderLength,												/*! @param NALUnitHeaderLength
+																				 Size, in bytes, of the NALUnitLength field in a HEVC video sample or HEVC parameter set sample. Pass 1, 2 or 4. */
+	CFDictionaryRef CM_NULLABLE extensions,									/*! @param extensions	Dictionary of extension key/value pairs. Keys are always CFStrings.
+																				Values are always property list objects (ie. CFData, CFString, CFArray,
+																				CFDictionary, CFDate, CFBoolean, or CFNumber). Can be NULL. */
+	CM_RETURNS_RETAINED_PARAMETER CMFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )	/*! @param formatDescriptionOut
+																				 Returned newly-created video CMFormatDescription */
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+					
 CF_IMPLICIT_BRIDGING_ENABLED
 
 /*!
 	@function	CMVideoFormatDescriptionGetH264ParameterSetAtIndex
 	@abstract	Returns a parameter set contained in a H.264 format description.
-	@discussion	This function parses the AVC decoder configuration record contained in a H.264 video format description and returns the parameter set NAL unit at the given index from it.
+	@discussion	This function parses the AVC decoder configuration record contained in a H.264 video format description and returns the NAL unit at the given index from it.  These NAL units are typically parameter sets (e.g. SPS, PPS), but may contain others as specified by ISO/IEC 14496-15 (e.g. user-data SEI).
 				Both parameterSetPointerOut and parameterSetSizeOut may be NULL, parameterSetCountOut will return the total number of parameter set NAL units contained in the AVC decoder configuration record.
 				The parameter set NAL units returned will already have any emulation prevention bytes needed.
 				The pointer returned in parameterSetPointerOut points to internal memory of videoDesc, and may only be accessed as long as a retain on videoDesc is held.
@@ -1733,6 +1790,30 @@ OSStatus CMVideoFormatDescriptionGetH264ParameterSetAtIndex(
 		int * CM_NULLABLE NALUnitHeaderLengthOut )						/*! @param NALUnitHeaderLengthOut
 																			Points to an int to receive the size, in bytes, of the NALUnitLength field in an AVC video sample or AVC parameter set sample. Pass NULL if you do not want this information. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_9,__IPHONE_7_0);
+	
+/*!
+	@function	CMVideoFormatDescriptionGetHEVCParameterSetAtIndex
+	@abstract	Returns a parameter set contained in a HEVC (H.265) format description.
+	@discussion	This function parses the HEVC decoder configuration record contained in a H.265 video format description and returns the NAL unit at the given index from it.  These NAL units are typically parameter sets (e.g. VPS, SPS, PPS), but may contain others as specified by ISO/IEC 14496-15 (e.g. user-data SEI).
+				Both parameterSetPointerOut and parameterSetSizeOut may be NULL, parameterSetCountOut will return the total number of parameter set NAL units contained in the HEVC decoder configuration record.
+				The parameter set NAL units returned will already have any emulation prevention bytes needed.
+				The pointer returned in parameterSetPointerOut points to internal memory of videoDesc, and may only be accessed as long as a retain on videoDesc is held.
+*/
+CM_EXPORT
+OSStatus CMVideoFormatDescriptionGetHEVCParameterSetAtIndex(
+		CMFormatDescriptionRef CM_NONNULL videoDesc,					/*! @param videoDesc
+																			 FormatDescription being interrogated. */
+		size_t parameterSetIndex,										/*! @param parameterSetIndex
+																			 Index of the parameter set to be returned in parameterSetPointerOut and parameterSetSizeOut. This parameter is ignored if both parameterSetPointerOut and parameterSetSizeOut are NULL. */
+		const uint8_t * CM_NULLABLE * CM_NULLABLE parameterSetPointerOut,	/*! @param parameterSetPointerOut
+																				Points to a pointer to receive the parameter set. Pass NULL if you do not want this information. */
+		size_t * CM_NULLABLE parameterSetSizeOut,						/*! @param parameterSetSizeOut
+																			 Points to a size_t to receive the size in bytes of the parameter set. Pass NULL if you do not want this information. */
+		size_t * CM_NULLABLE parameterSetCountOut,						/*! @param parameterSetCountOut
+																			 Number of parameter sets in the HEVC decoder configuration record contained in videoDesc. Pass NULL if you do not want this information. */
+		int * CM_NULLABLE NALUnitHeaderLengthOut )						/*! @param NALUnitHeaderLengthOut
+																			 Points to an int to receive the size, in bytes, of the NALUnitLength field in an HEVC video sample or HEVC parameter set sample. Pass NULL if you do not want this information. */
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
 
 #define CMVideoFormatDescriptionGetCodecType(desc)  CMFormatDescriptionGetMediaSubType(desc)
 
@@ -1774,12 +1855,12 @@ CM_EXPORT
 CGRect CMVideoFormatDescriptionGetCleanAperture( 
 		CMVideoFormatDescriptionRef CM_NONNULL videoDesc,		/*! @param videoDesc
 																	FormatDescription being interrogated. */
-		Boolean originIsAtTopLeft )								/*! @param�originIsAtTopLeft
+		Boolean originIsAtTopLeft )								/*! @param originIsAtTopLeft
 																	Pass true if the CGRect will be used in an environment
 																	where (0,0) is at the top-left corner of an enclosing rectangle
 																	and y coordinates increase as you go down.
-																	Pass false if the CGRect will be used in�an environment 
-																	where (0,0) is at the bottom-left corner of an enclosing rectangle�
+																	Pass false if the CGRect will be used in an environment 
+																	where (0,0) is at the bottom-left corner of an enclosing rectangle 
 																	and y coordinates increase as you go up. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -1883,7 +1964,7 @@ OSStatus CMMuxedFormatDescriptionCreate(
 	CFDictionaryRef CM_NULLABLE extensions,							/*! @param extensions		Dictionary of extension key/value pairs. Keys are always CFStrings.
 																		Values are always property list objects (ie. CFData, CFString, CFArray,
 																		CFDictionary, CFDate, CFBoolean, or CFNumber). Can be NULL. */
-	CM_RETURNS_RETAINED_PARAMETER CMMuxedFormatDescriptionRef CM_NULLABLE * CM_NONNULL outDesc)	/*! @param outDesc		Returned newly created muxed CMFormatDescription */
+	CM_RETURNS_RETAINED_PARAMETER CMMuxedFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut)	/*! @param formatDescriptionOut		Returned newly created muxed CMFormatDescription */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -1949,7 +2030,7 @@ enum
 #endif
 {
     kCMTextFormatType_QTText           = 'text',
-    kCMTextFormatType_3GText           = 'tx3g'
+    kCMTextFormatType_3GText           = 'tx3g',
 };
 
 /*!
@@ -2082,7 +2163,7 @@ CM_EXPORT
 OSStatus CMTextFormatDescriptionGetDisplayFlags(
 	CMFormatDescriptionRef CM_NONNULL desc,			/*! @param desc
 											FormatDescription being interrogated. */
-	CMTextDisplayFlags * CM_NONNULL outDisplayFlags)	/*! @param outDisplayFlags
+	CMTextDisplayFlags * CM_NONNULL displayFlagsOut)	/*! @param displayFlagsOut
 											Receives the display flags. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -2096,9 +2177,9 @@ CM_EXPORT
 OSStatus CMTextFormatDescriptionGetJustification(
 	CMFormatDescriptionRef CM_NONNULL desc,					/*! @param desc
 													FormatDescription being interrogated. */
-	CMTextJustificationValue * CM_NULLABLE outHorizontalJust,/*! @param outHorizontalJust
+	CMTextJustificationValue * CM_NULLABLE horizontaJustificationlOut,/*! @param horizontaJustificationlOut
 													Horizontal justification mode. May be NULL. */
-	CMTextJustificationValue * CM_NULLABLE outVerticalJust)		/*! @param outVerticalJust
+	CMTextJustificationValue * CM_NULLABLE verticalJustificationOut)		/*! @param verticalJustificationOut
 													Vertical justification mode. May be NULL. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -2112,18 +2193,18 @@ CM_EXPORT
 OSStatus CMTextFormatDescriptionGetDefaultTextBox(
 	CMFormatDescriptionRef CM_NONNULL desc,		/*! @param desc
 													FormatDescription being interrogated. */
-	Boolean originIsAtTopLeft,					/*! @param�originIsAtTopLeft
+	Boolean originIsAtTopLeft,					/*! @param originIsAtTopLeft
 													Pass true if the CGRect will be used in an environment
 													where (0,0) is at the top-left corner of an enclosing rectangle
 													and y coordinates increase as you go down.
-													Pass false if the CGRect will be used in�an environment
+													Pass false if the CGRect will be used in an environment
 													where (0,0) is at the bottom-left corner of an enclosing rectangle
 													and y coordinates increase as you go up. */
-	CGFloat heightOfTextTrack,					/*! @param�heightOfTextTrack
+	CGFloat heightOfTextTrack,					/*! @param heightOfTextTrack
 													If originIsAtTopLeft is false, pass the height of the enclosing text track or destination.
 													This value will be used to properly compute the default text box for the given origin.
 													Ignored if originIsAtTopLeft is true. */
-	CGRect * CM_NONNULL outDefaultTextBox)		/*! @param outDefaultTextBox
+	CGRect * CM_NONNULL defaultTextBoxOut)		/*! @param defaultTextBoxOut
 													Receives the default text box. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -2137,17 +2218,17 @@ CM_EXPORT
 OSStatus CMTextFormatDescriptionGetDefaultStyle(
 	CMFormatDescriptionRef CM_NONNULL desc,		/*! @param desc
 													FormatDescription being interrogated. */
-	uint16_t * CM_NULLABLE outLocalFontID,		/*! @param localFontID
+	uint16_t * CM_NULLABLE localFontIDOut,		/*! @param localFontIDOut
 													Font number, local to the FormatDescription. May be NULL. */
-	Boolean * CM_NULLABLE outBold,				/*! @param outBold
+	Boolean * CM_NULLABLE boldOut,				/*! @param boldOut
 													Returned true if style includes Bold. May be NULL. */
-	Boolean * CM_NULLABLE outItalic,				/*! @param outItalic
+	Boolean * CM_NULLABLE italicOut,				/*! @param italicOut
 													Returned true if style includes Italic. May be NULL. */
-	Boolean * CM_NULLABLE outUnderline,			/*! @param outUnderline
+	Boolean * CM_NULLABLE underlineOut,			/*! @param underlineOut
 													Returned true if style includes Underline. May be NULL. */
-	CGFloat * CM_NULLABLE outFontSize,			/*! @param outFontSize
+	CGFloat * CM_NULLABLE fontSizeOut,			/*! @param fontSizeOut
 													FontSize in points. May be NULL. */
-	/* CM_NULLABLE */ CGFloat outColorComponents[4])	/*! @param outColorComponents
+	CGFloat colorComponentsOut[CM_NULLABLE 4])	/*! @param colorComponentsOut
 													Components are in order red, green, blue, alpha. May be NULL. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 	
@@ -2165,7 +2246,7 @@ OSStatus CMTextFormatDescriptionGetFontName(
 																FormatDescription being interrogated. */
 	uint16_t localFontID,									/*! @param localFontID
 																Font number, local to the FormatDescription. */
-	CM_RETURNS_NOT_RETAINED_PARAMETER CFStringRef CM_NULLABLE * CM_NONNULL outFontName)		/*! @param outFontName
+	CM_RETURNS_NOT_RETAINED_PARAMETER CFStringRef CM_NULLABLE * CM_NONNULL fontNameOut)		/*! @param fontNameOut
 																Name of the font. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 	
@@ -2259,11 +2340,11 @@ OSStatus CMTimeCodeFormatDescriptionCreate(
 																			Duration of each frame (eg. 100/2997) */
 	uint32_t frameQuanta,												/*! @param frameQuanta
 																			Frames/sec for timecode (eg. 30) OR frames/tick for counter mode */
-	uint32_t tcFlags,													/*! @param tcFlags
+	uint32_t flags,														/*! @param flags
 																			kCMTimeCodeFlag_DropFrame, kCMTimeCodeFlag_24HourMax, kCMTimeCodeFlag_NegTimesOK */
 	CFDictionaryRef CM_NULLABLE extensions,								/*! @param extensions
 																			Keys are always CFStrings. Values are always property list objects (ie. CFData). May be NULL. */
-	CM_RETURNS_RETAINED_PARAMETER CMTimeCodeFormatDescriptionRef CM_NULLABLE * CM_NONNULL descOut)	/*! @param descOut
+	CM_RETURNS_RETAINED_PARAMETER CMTimeCodeFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut)	/*! @param formatDescriptionOut
 																			Receives the newly-created CMFormatDescription. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -2361,6 +2442,8 @@ CM_EXPORT const CFStringRef kCMFormatDescriptionExtensionKey_MetadataKeyTable
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 	CM_EXPORT const CFStringRef kCMMetadataFormatDescriptionKey_StructuralDependency	// CFDictionary
 							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
+	CM_EXPORT const CFStringRef kCMMetadataFormatDescriptionKey_SetupData	// CFData
+							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
 
 CM_EXPORT const CFStringRef kCMMetadataFormatDescription_StructuralDependencyKey_DependencyIsInvalidFlag	// CFBoolean
 							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
@@ -2372,6 +2455,8 @@ CM_EXPORT const CFStringRef kCMMetadataFormatDescriptionMetadataSpecificationKey
 CM_EXPORT const CFStringRef kCMMetadataFormatDescriptionMetadataSpecificationKey_ExtendedLanguageTag	// CFString in BCP 47 format
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 CM_EXPORT const CFStringRef kCMMetadataFormatDescriptionMetadataSpecificationKey_StructuralDependency	// CFDictionary
+							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
+CM_EXPORT const CFStringRef kCMMetadataFormatDescriptionMetadataSpecificationKey_SetupData				// CFData
 							__OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
 
 CM_ASSUME_NONNULL_END
@@ -2388,7 +2473,7 @@ OSStatus CMMetadataFormatDescriptionCreateWithKeys(
 																			kCMMetadataFormatDescriptionKey_Namespace
 																			kCMMetadataFormatDescriptionKey_Value
 																			kCMMetadataFormatDescriptionKey_LocalID */
-	CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL outDesc)	/*! @param outDesc		Returned newly created metadata CMFormatDescription */
+	CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut)	/*! @param formatDescriptionOut		Returned newly created metadata CMFormatDescription */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 CM_EXPORT
@@ -2396,23 +2481,23 @@ OSStatus CMMetadataFormatDescriptionCreateWithMetadataSpecifications(
 	CFAllocatorRef CM_NULLABLE allocator,								/*! @param allocator		CFAllocator to be used. kCFAllocatorDefault if you don't care. */
 	CMMetadataFormatType metadataType,									/*! @param metadataType		Currently the type must be kCMMetadataFormatType_Boxed. */
 	CFArrayRef CM_NONNULL metadataSpecifications,						/*! @param metadataSpecifications	An array of dictionaries, each dictionary supplies a metadata identifier, a datatype, and an optional language tag. */
-	CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL outDesc)	/*! @param outDesc			Returned newly created metadata CMFormatDescription */
+	CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut)	/*! @param formatDescriptionOut			Returned newly created metadata CMFormatDescription */
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 CM_EXPORT
 OSStatus CMMetadataFormatDescriptionCreateWithMetadataFormatDescriptionAndMetadataSpecifications(
 	CFAllocatorRef CM_NULLABLE allocator,								/*! @param allocator		CFAllocator to be used. kCFAllocatorDefault if you don't care. */
-	CMMetadataFormatDescriptionRef CM_NONNULL srcDesc,					/*! @param srcDesc			Source metadata format description being extended */
+	CMMetadataFormatDescriptionRef CM_NONNULL sourceDescription,					/*! @param sourceDescription			Source metadata format description being extended */
 	CFArrayRef CM_NONNULL metadataSpecifications,						/*! @param metadataSpecifications	An array of dictionaries, each dictionary supplies a metadata identifier, a datatype, and an optional language tag. */
-	CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL outDesc)	/*! @param outDesc			Returned newly created metadata CMFormatDescription */
+	CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut)	/*! @param formatDescriptionOut			Returned newly created metadata CMFormatDescription */
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 CM_EXPORT
 OSStatus CMMetadataFormatDescriptionCreateByMergingMetadataFormatDescriptions(
 	CFAllocatorRef CM_NULLABLE allocator,								/*! @param allocator		CFAllocator to be used. kCFAllocatorDefault if you don't care. */
-	CMMetadataFormatDescriptionRef CM_NONNULL srcDesc1,					/*! @param srcDesc1			Metadata format description being merged */
-	CMMetadataFormatDescriptionRef CM_NONNULL srcDesc2,					/*! @param srcDesc2			Metadata format description being merged */
-	CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL outDesc)	/*! @param outDesc			Returned newly created metadata CMFormatDescription */
+	CMMetadataFormatDescriptionRef CM_NONNULL sourceDescription,					/*! @param sourceDescription			Metadata format description being merged */
+	CMMetadataFormatDescriptionRef CM_NONNULL otherSourceDescription,					/*! @param otherSourceDescription			Metadata format description being merged */
+	CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut)	/*! @param formatDescriptionOut			Returned newly created metadata CMFormatDescription */
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -2440,7 +2525,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 	
 	Framework:  CoreMedia
 	
-    Copyright 2006-2015 Apple Inc. All rights reserved.
+    Copyright 2006-2018 Apple Inc. All rights reserved.
 
 */
 
@@ -2451,6 +2536,31 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <Availability.h>
 #include <AvailabilityMacros.h>
 
+
+// Pre-10.13, weak import
+#ifndef __AVAILABILITY_INTERNAL__MAC_10_13
+#define __AVAILABILITY_INTERNAL__MAC_10_13 __AVAILABILITY_INTERNAL_WEAK_IMPORT
+#endif
+
+// Pre- iOS 11.0 weak import
+#ifndef __AVAILABILITY_INTERNAL__IPHONE_11_0
+#define __AVAILABILITY_INTERNAL__IPHONE_11_0 __AVAILABILITY_INTERNAL_WEAK_IMPORT
+#endif
+
+// Pre-10.12, weak import
+#ifndef __AVAILABILITY_INTERNAL__MAC_10_12
+#define __AVAILABILITY_INTERNAL__MAC_10_12 __AVAILABILITY_INTERNAL_WEAK_IMPORT
+#endif
+
+// Pre- iOS 10.0, weak import
+#ifndef __AVAILABILITY_INTERNAL__IPHONE_10_0
+#define __AVAILABILITY_INTERNAL__IPHONE_10_0 __AVAILABILITY_INTERNAL_WEAK_IMPORT
+#endif
+
+// Pre-10.11.3, weak import
+#ifndef __AVAILABILITY_INTERNAL__MAC_10_11_3
+#define __AVAILABILITY_INTERNAL__MAC_10_11_3 __AVAILABILITY_INTERNAL_WEAK_IMPORT
+#endif
 // Pre-10.11, weak import
 #ifndef __AVAILABILITY_INTERNAL__MAC_10_11
 	#define __AVAILABILITY_INTERNAL__MAC_10_11 __AVAILABILITY_INTERNAL_WEAK_IMPORT
@@ -2500,6 +2610,11 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define __AVAILABILITY_INTERNAL__MAC_10_10 __AVAILABILITY_INTERNAL_WEAK_IMPORT
 #endif
 
+// Pre-9.3, weak import
+#ifndef __AVAILABILITY_INTERNAL__IPHONE_9_3
+#define __AVAILABILITY_INTERNAL__IPHONE_9_3 __AVAILABILITY_INTERNAL_WEAK_IMPORT
+#endif
+
 // Pre-9.0, weak import
 #ifndef __AVAILABILITY_INTERNAL__IPHONE_9_0
 #define __AVAILABILITY_INTERNAL__IPHONE_9_0 __AVAILABILITY_INTERNAL_WEAK_IMPORT
@@ -2526,13 +2641,28 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <stdint.h>						// int32_t, etc.
 #include <stddef.h>						// size_t
 
-#include <CoreFoundation/CFBase.h>		// OSStatus, Boolean, Float32, Float64
+#include <CoreFoundation/CFBase.h>		// OSStatus, Boolean, Float32, Float64, CF_NOESCAPE
+#if ! TARGET_OS_WINDOWS
+#include <CoreFoundation/CFAvailability.h>	// CF_EXTENSIBLE_STRING_ENUM
+#endif
+
+#ifndef API_AVAILABLE
+#define API_AVAILABLE(...)
+#endif
+
+#ifndef API_UNAVAILABLE
+#define API_UNAVAILABLE(...)
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
 #pragma pack(push, 4)
+
+#define COREMEDIA_TRUE (1 && 1)
+#define COREMEDIA_FALSE (0 && 1)
 
 #if TARGET_OS_MAC
 	#define CM_EXPORT extern
@@ -2554,26 +2684,68 @@ typedef signed long	CMItemCount;
 typedef signed long	CMItemIndex;
 #endif
 
-#define COREMEDIA_USE_DERIVED_ENUMS_FOR_CONSTANTS	(__cplusplus && __cplusplus >= 201103L && (__has_extension(cxx_strong_enums) || __has_feature(objc_fixed_enum))) || (!__cplusplus && __has_feature(objc_fixed_enum))
+#ifndef COREMEDIA_USE_ALIGNED_CMBASECLASS_VERSION
+#define COREMEDIA_USE_ALIGNED_CMBASECLASS_VERSION COREMEDIA_TRUE
+#endif
+
+#if ! COREMEDIA_USE_ALIGNED_CMBASECLASS_VERSION
+	typedef uint32_t CMBaseClassVersion, CMStructVersion;
+#else
+#if (TARGET_OS_OSX || 0 || TARGET_OS_WINDOWS) && TARGET_CPU_X86_64
+	typedef uint32_t CMBaseClassVersion, CMStructVersion;
+#else
+	typedef uintptr_t CMBaseClassVersion, CMStructVersion;
+#endif
+#endif
+
+#if (__cplusplus && __cplusplus >= 201103L && (__has_extension(cxx_strong_enums) || __has_feature(objc_fixed_enum))) || (!__cplusplus && __has_feature(objc_fixed_enum))
+#define COREMEDIA_USE_DERIVED_ENUMS_FOR_CONSTANTS COREMEDIA_TRUE
+#else
+#define COREMEDIA_USE_DERIVED_ENUMS_FOR_CONSTANTS COREMEDIA_FALSE
+#endif
 
 #if (TARGET_OS_IPHONE || TARGET_OS_MAC) && defined(__has_feature)
 #if __has_feature(nullability)
-	#define COREMEDIA_DECLARE_NULLABILITY 1
+	#define COREMEDIA_DECLARE_NULLABILITY COREMEDIA_TRUE
 #endif
 #if __has_feature(assume_nonnull)
-	#define COREMEDIA_DECLARE_NULLABILITY_BEGIN_END 1
+	#define COREMEDIA_DECLARE_NULLABILITY_BEGIN_END COREMEDIA_TRUE
 #endif
 #if __has_feature(objc_bridge_id)
-	#define COREMEDIA_DECLARE_BRIDGED_TYPES 1
+	#define COREMEDIA_DECLARE_BRIDGED_TYPES COREMEDIA_TRUE
 #endif
 #if __has_feature(attribute_cf_returns_retained)
-	#define COREMEDIA_DECLARE_RETURNS_RETAINED 1
+	#define COREMEDIA_DECLARE_RETURNS_RETAINED COREMEDIA_TRUE
 #endif
 #if __has_feature(attribute_cf_returns_on_parameters)
-	#define COREMEDIA_DECLARE_RETURNS_RETAINED_ON_PARAMETERS 1
-	#define COREMEDIA_DECLARE_RETURNS_NOT_RETAINED_ON_PARAMETERS 1
+	#define COREMEDIA_DECLARE_RETURNS_RETAINED_ON_PARAMETERS COREMEDIA_TRUE
+	#define COREMEDIA_DECLARE_RETURNS_NOT_RETAINED_ON_PARAMETERS COREMEDIA_TRUE
 #endif
 #endif // (TARGET_OS_IPHONE || TARGET_OS_MAC) && defined(__has_feature)
+
+#ifndef COREMEDIA_DECLARE_NULLABILITY
+#define COREMEDIA_DECLARE_NULLABILITY COREMEDIA_FALSE
+#endif
+
+#ifndef COREMEDIA_DECLARE_NULLABILITY_BEGIN_END
+#define COREMEDIA_DECLARE_NULLABILITY_BEGIN_END COREMEDIA_FALSE
+#endif
+
+#ifndef COREMEDIA_DECLARE_BRIDGED_TYPES
+#define COREMEDIA_DECLARE_BRIDGED_TYPES COREMEDIA_FALSE
+#endif
+
+#ifndef COREMEDIA_DECLARE_RETURNS_RETAINED
+#define COREMEDIA_DECLARE_RETURNS_RETAINED COREMEDIA_FALSE
+#endif
+
+#ifndef COREMEDIA_DECLARE_RETURNS_RETAINED_ON_PARAMETERS
+#define COREMEDIA_DECLARE_RETURNS_RETAINED_ON_PARAMETERS COREMEDIA_FALSE
+#endif
+
+#ifndef COREMEDIA_DECLARE_RETURNS_NOT_RETAINED_ON_PARAMETERS
+#define COREMEDIA_DECLARE_RETURNS_NOT_RETAINED_ON_PARAMETERS COREMEDIA_FALSE
+#endif
 
 #if COREMEDIA_DECLARE_NULLABILITY
 #define CM_NULLABLE __nullable
@@ -2652,7 +2824,7 @@ enum
  
 	Framework:  CoreMedia
 
-    Copyright 2005-2015 Apple Inc. All rights reserved.
+	Copyright © 2005-2018 Apple Inc. All rights reserved.
 
 */
 
@@ -2665,7 +2837,7 @@ enum
 	@discussion	BlockBuffers are CF objects that are used to move blocks of memory through a processing system.
 	A CMBlockBuffer represents a contiguous range of data offsets, from zero to CMBlockBufferGetDataLength(), across a
 	possibly noncontiguous memory region composed of memoryBlocks and buffer references which in turn could
-	refer to addtional regions.
+	refer to additional regions.
 	<BR>
 	IMPORTANT: Clients of CMBlockBuffer must explicitly manage the retain count by 
 	calling CFRetain and CFRelease even in processes using garbage collection.  
@@ -2697,7 +2869,7 @@ extern "C" {
 				from the CFAllocator provided for CMBlockBuffer construction.
 	@constant	kCMBlockBufferBlockAllocationFailedErr Returned when the allocator provided to allocate a memory block
 				(as distinct from CMBlockBuffer structures) fails.
-	@constant	kCMBlockBufferBadCustomBlockSourceErr The custom block source�s Allocate() routine was NULL when an allocation was attempted.
+	@constant	kCMBlockBufferBadCustomBlockSourceErr The custom block source’s Allocate() routine was NULL when an allocation was attempted.
 	@constant	kCMBlockBufferBadOffsetParameterErr The offset provided to an API is out of the range of the relevent CMBlockBuffer.
 	@constant	kCMBlockBufferBadLengthParameterErr The length provided to an API is out of the range of the relevent CMBlockBuffer,
 				or is not allowed to be zero.
@@ -2765,16 +2937,16 @@ typedef struct CM_BRIDGED_TYPE(id) OpaqueCMBlockBuffer *CMBlockBufferRef;
 /*!
 	@typedef CMBlockBufferCustomBlockSource
 	Used with functions that accept a memory block allocator, this structure allows a client to provide a custom facility for
-	obtaining the memory block to be used in a CMBlockBuffer. The Allocate function must be non-zero if the CMBlockBuffer code will
+	obtaining the memory block to be used in a CMBlockBuffer. The AllocateBlock function must be non-zero if the CMBlockBuffer code will
 	need to call for allocation (not required if a previously-obtained memory block is provided to the CMBlockBuffer API). The
-	Free() routine, if non-NULL, will be called once when the CMBlockBuffer is disposed. It will not be called if no memory block
-	is ever allocated or supplied. The refCon will be passed to both the Allocate and Free() calls. The client is responsible for
-	its disposal (if any) during the Free() callback.
+	FreeBlock() routine, if non-NULL, will be called once when the CMBlockBuffer is disposed. It will not be called if no memory block
+	is ever allocated or supplied. The refCon will be passed to both the AllocateBlock and FreeBlock() calls. The client is responsible for
+	its disposal (if any) during the FreeBlock() callback.
 */
 typedef  struct {
 	uint32_t	version;
-	void* CM_NULLABLE (* CM_NULLABLE AllocateBlock)(void* CM_NULLABLE refCon, size_t sizeInBytes);
-	void (* CM_NULLABLE FreeBlock)(void* CM_NULLABLE refCon, void* CM_NONNULL doomedMemoryBlock, size_t sizeInBytes);
+	void* CM_NULLABLE (* CM_NULLABLE AllocateBlock)(void* CM_NULLABLE refcon, size_t sizeInBytes);
+	void (* CM_NULLABLE FreeBlock)(void* CM_NULLABLE refcon, void* CM_NONNULL doomedMemoryBlock, size_t sizeInBytes);
 	void* CM_NULLABLE refCon;
 } CMBlockBufferCustomBlockSource;
 
@@ -2807,7 +2979,7 @@ enum
 	@param	subBlockCapacity	Number of subBlocks the newBlockBuffer shall accommodate before expansion occurs.
 								A value of zero means "do the reasonable default"
 	@param	flags				Feature and control flags
-	@param	newBBufOut			Receives newly-created empty CMBlockBuffer object with retain count of 1. Must not be  NULL.
+	@param	blockBufferOut		Receives newly-created empty CMBlockBuffer object with retain count of 1. Must not be  NULL.
 	
 	@result	Returns kCMBlockBufferNoErr if successful.
 */
@@ -2815,7 +2987,7 @@ CM_EXPORT OSStatus	CMBlockBufferCreateEmpty(
 		CFAllocatorRef CM_NULLABLE structureAllocator,
 		uint32_t subBlockCapacity, 
 		CMBlockBufferFlags flags, 
-		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL newBBufOut)
+		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL blockBufferOut)
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
@@ -2847,7 +3019,7 @@ CM_EXPORT OSStatus	CMBlockBufferCreateEmpty(
 	@param	offsetToData		Offset within the memoryBlock at which the CMBlockBuffer should refer to data.
 	@param	dataLength			Number of relevant data bytes, starting at offsetToData, within the memory block.
 	@param	flags				Feature and control flags
-	@param	newBBufOut			Receives newly-created CMBlockBuffer object with a retain count of 1. Must not be  NULL.
+	@param	blockBufferOut		Receives newly-created CMBlockBuffer object with a retain count of 1. Must not be  NULL.
 
 	@result	Returns kCMBlockBufferNoErr if successful.
 */
@@ -2860,7 +3032,7 @@ CM_EXPORT OSStatus	CMBlockBufferCreateWithMemoryBlock(
 		size_t offsetToData, 
 		size_t dataLength,
 		CMBlockBufferFlags flags, 
-		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL newBBufOut)
+		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL blockBufferOut)
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
@@ -2872,23 +3044,23 @@ CM_EXPORT OSStatus	CMBlockBufferCreateWithMemoryBlock(
 
 	@param	structureAllocator	Allocator to use for allocating the CMBlockBuffer object. NULL will cause the
 								default allocator to be used.
-	@param	targetBuffer		CMBlockBuffer to refer to. This parameter must not be NULL. Unless the kCMBlockBufferPermitEmptyReferenceFlag
+	@param	bufferReference		CMBlockBuffer to refer to. This parameter must not be NULL. Unless the kCMBlockBufferPermitEmptyReferenceFlag
 								is passed, it must not be empty and it must have a data length at least large enough to supply the data subset
 								specified (i.e. offsetToData+dataLength bytes).
-	@param	offsetToData		Offset within the target CMBlockBuffer at which the new CMBlockBuffer should refer to data.
+	@param	offsetToData		Offset within the reference CMBlockBuffer at which the new CMBlockBuffer should refer to data.
 	@param	dataLength			Number of relevant data bytes, starting at offsetToData, within the target CMBlockBuffer.
 	@param	flags				Feature and control flags
-	@param	newBBufOut			Receives newly-created CMBlockBuffer object with a retain count of 1. Must not be  NULL.
+	@param	blockBufferOut		Receives newly-created CMBlockBuffer object with a retain count of 1. Must not be  NULL.
 
 	@result	Returns kCMBlockBufferNoErr if successful.
 */
 CM_EXPORT OSStatus	CMBlockBufferCreateWithBufferReference(
 		CFAllocatorRef CM_NULLABLE structureAllocator,
-		CMBlockBufferRef CM_NONNULL targetBuffer,
+		CMBlockBufferRef CM_NONNULL bufferReference,
 		size_t offsetToData,
 		size_t dataLength, 
 		CMBlockBufferFlags flags, 
-		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL newBBufOut)
+		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL blockBufferOut)
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
@@ -2914,7 +3086,7 @@ CM_EXPORT OSStatus	CMBlockBufferCreateWithBufferReference(
 	@param	dataLength			Number of relevant data bytes, starting at offsetToData, within the source CMBlockBuffer. If zero, the
 								target buffer's total available dataLength (starting at offsetToData) will be referenced.
 	@param	flags				Feature and control flags
-	@param	newBBufOut			Receives newly-created CMBlockBuffer object with a retain count of 1. Must not be  NULL.
+	@param	blockBufferOut		Receives newly-created CMBlockBuffer object with a retain count of 1. Must not be  NULL.
 	
 	@result	Returns kCMBlockBufferNoErr if successful
 */
@@ -2926,7 +3098,7 @@ CM_EXPORT OSStatus	CMBlockBufferCreateContiguous(
 		size_t offsetToData, 
 		size_t dataLength, 
 		CMBlockBufferFlags flags, 
-		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL newBBufOut)
+		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL blockBufferOut)
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 
@@ -3038,13 +3210,13 @@ CM_EXPORT OSStatus	CMBlockBufferAssureBlockMemory(CMBlockBufferRef CM_NONNULL th
 				given temporary block and its pointer will be returned. 
 
 
-	@param	theBuffer		CMBlockBuffer to operate on. Must not be NULL
-	@param	offset			Offset within the CMBlockBuffer's offset range.
-	@param	length			Desired number of bytes to access at offset
-	@param	temporaryBlock	A piece of memory, assumed to be at least length bytes in size. Must not be NULL
-	@param	returnedPointer	Receives NULL if the desired amount of data could not be accessed at the given offset.
-							Receives non-NULL if it could. The value returned will either be a direct pointer into
-							the CMBlockBuffer or temporaryBlock Must not be NULL.
+	@param	theBuffer			CMBlockBuffer to operate on. Must not be NULL
+	@param	offset				Offset within the CMBlockBuffer's offset range.
+	@param	length				Desired number of bytes to access at offset
+	@param	temporaryBlock		A piece of memory, assumed to be at least length bytes in size. Must not be NULL
+	@param	returnedPointerOut	Receives NULL if the desired amount of data could not be accessed at the given offset.
+								Receives non-NULL if it could. The value returned will either be a direct pointer into
+								the CMBlockBuffer or temporaryBlock Must not be NULL.
 							
 	@result	Returns kCMBlockBufferNoErr if the desired amount of data could be accessed at the given offset.
 */
@@ -3053,7 +3225,7 @@ CM_EXPORT OSStatus CMBlockBufferAccessDataBytes(
 		size_t offset, 
 		size_t length, 
 		void * CM_NONNULL temporaryBlock,
-		char * CM_NULLABLE * CM_NONNULL returnedPointer)
+		char * CM_NULLABLE * CM_NONNULL returnedPointerOut)
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
@@ -3139,14 +3311,14 @@ CM_EXPORT OSStatus	CMBlockBufferFillDataBytes(
 				original CMBlockBuffer is referenced - once the CMBlockBuffer is released for the last time, any pointers
 				into it will be invalid. 
 
-	@param	theBuffer		CMBlockBuffer to operate on. Must not be NULL
-	@param	offset			Offset within the buffer's offset range.
-	@param	lengthAtOffset	On return, contains the amount of data available at the specified offset. May be NULL.
-	@param	totalLength		On return, contains the block buffer's total data length (from offset 0). May be NULL.
-							The caller can compare (offset+lengthAtOffset) with totalLength to determine whether
-							the entire CMBlockBuffer has been referenced and whether it is possible to access the CMBlockBuffer's
-							data with a contiguous reference.
-	@param	dataPointer		On return, contains a pointer to the data byte at the specified offset; lengthAtOffset bytes are
+	@param	theBuffer			CMBlockBuffer to operate on. Must not be NULL
+	@param	offset				Offset within the buffer's offset range.
+	@param	lengthAtOffsetOut	On return, contains the amount of data available at the specified offset. May be NULL.
+	@param	totalLengthOut		On return, contains the block buffer's total data length (from offset 0). May be NULL.
+								The caller can compare (offset+lengthAtOffset) with totalLength to determine whether
+								the entire CMBlockBuffer has been referenced and whether it is possible to access the CMBlockBuffer's
+								data with a contiguous reference.
+	@param	dataPointerOut		On return, contains a pointer to the data byte at the specified offset; lengthAtOffset bytes are
 							available at this address. May be NULL.
 
 	@result	Returns kCMBlockBufferNoErr if data was accessible at the specified offset within the given CMBlockBuffer, false otherwise.
@@ -3154,9 +3326,9 @@ CM_EXPORT OSStatus	CMBlockBufferFillDataBytes(
 CM_EXPORT OSStatus	CMBlockBufferGetDataPointer(
 		CMBlockBufferRef CM_NONNULL theBuffer,
 		size_t offset, 
-		size_t * CM_NULLABLE lengthAtOffset,
-		size_t * CM_NULLABLE totalLength,
-		char * CM_NULLABLE * CM_NULLABLE dataPointer)
+		size_t * CM_NULLABLE lengthAtOffsetOut,
+		size_t * CM_NULLABLE totalLengthOut,
+		char * CM_NULLABLE * CM_NULLABLE dataPointerOut)
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
@@ -3185,7 +3357,7 @@ CM_EXPORT size_t	CMBlockBufferGetDataLength(CMBlockBufferRef CM_NONNULL theBuffe
 	@param	theBuffer		CMBlockBuffer to examine. Must not be NULL
 	@param	offset			Offset within the buffer's offset range.
 	@param	length			Desired number of bytes to access at offset. If zero, the number of bytes available at offset
-							(dataLength � offset), contiguous or not, is used.
+							(dataLength – offset), contiguous or not, is used.
 							
 	@result	Returns true if the specified range is contiguous within the CMBlockBuffer, false otherwise. Also returns false if the
 			CMBlockBuffer is NULL or empty.
@@ -3224,7 +3396,7 @@ CM_EXPORT Boolean	CMBlockBufferIsEmpty(CMBlockBufferRef CM_NONNULL theBuffer)
 	
 	Framework:  CoreMedia
  
-    Copyright 2006-2015 Apple Inc. All rights reserved.
+	Copyright © 2006-2018 Apple Inc. All rights reserved.
   
 */
 
@@ -3518,7 +3690,7 @@ CM_EXPORT OSStatus CMBufferQueueEnqueue(
 				it when done with it.
 	@result		The dequeued buffer.  Will be NULL if the queue is empty.
 */
-CM_EXPORT CMBufferRef CM_NULLABLE CMBufferQueueDequeueAndRetain(
+CM_EXPORT CMBufferRef CM_RETURNS_RETAINED CM_NULLABLE CMBufferQueueDequeueAndRetain(
 	CMBufferQueueRef CM_NONNULL queue)		/*! @param queue
 												The CMBufferQueue from which to dequeue a buffer. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
@@ -3531,7 +3703,7 @@ CM_EXPORT CMBufferRef CM_NULLABLE CMBufferQueueDequeueAndRetain(
 				it when done with it.
 	@result		The dequeued buffer.  Will be NULL if the queue is empty, or if the buffer to be dequeued is not yet ready.
 */
-CM_EXPORT CMBufferRef CM_NULLABLE CMBufferQueueDequeueIfDataReadyAndRetain(
+CM_EXPORT CMBufferRef CM_RETURNS_RETAINED CM_NULLABLE CMBufferQueueDequeueIfDataReadyAndRetain(
 	CMBufferQueueRef CM_NONNULL queue)		/*! @param queue
 												The CMBufferQueue from which to dequeue a buffer (if the buffer is ready). */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
@@ -3613,7 +3785,7 @@ CM_EXPORT OSStatus
 CMBufferQueueResetWithCallback(
 	CMBufferQueueRef CM_NONNULL queue,	/*! @param queue
 											CMBufferQueue being reset, that may contain multiple buffers. */
-	void (* CM_NONNULL callback)(CMBufferRef CM_NONNULL buffer, void * CM_NULLABLE refcon ),
+	void (* CM_NONNULL CF_NOESCAPE callback)(CMBufferRef CM_NONNULL buffer, void * CM_NULLABLE refcon ),
 										/*! @param callback
 											Function to be called for each buffer.
 											The callback should not make other calls to the buffer queue. */
@@ -3685,7 +3857,7 @@ CM_EXPORT CMTime CMBufferQueueGetMinPresentationTimeStamp(
 
 /*!
 	@function	CMBufferQueueGetFirstPresentationTimeStamp
-	@abstract	Gets the decode timestamp of the first buffer in a CMBufferQueue.
+	@abstract	Gets the presentation timestamp of the first buffer in a CMBufferQueue.
 	@discussion	This API is is a faster alternative to GetMinPresentationTimeStamp,
 				but only works if you know your queue is sorted by presentation
 				timestamp. If the getPresentationTimeStamp callback is NULL,
@@ -3782,6 +3954,7 @@ typedef void (*CMBufferQueueTriggerCallback)(
 	@constant	kCMBufferQueueTrigger_WhenReset									Trigger fires when CMBufferQueueReset called.  (triggerTime is ignored.)
 	@constant	kCMBufferQueueTrigger_WhenBufferCountBecomesLessThan			Trigger fires when buffer count becomes < the specified threshold number.
 	@constant	kCMBufferQueueTrigger_WhenBufferCountBecomesGreaterThan			Trigger fires when buffer count becomes > the specified threshold number.
+	@constant	kCMBufferQueueTrigger_WhenDurationBecomesGreaterThanOrEqualToAndBufferCountBecomesGreaterThan	Trigger fires when queue duration becomes >= the specified duration and buffer count becomes > the specified threshold number.
 */
 typedef int32_t CMBufferQueueTriggerCondition;
 #if COREMEDIA_USE_DERIVED_ENUMS_FOR_CONSTANTS
@@ -3801,6 +3974,7 @@ enum
 	kCMBufferQueueTrigger_WhenReset = 9,
 	kCMBufferQueueTrigger_WhenBufferCountBecomesLessThan = 10,
 	kCMBufferQueueTrigger_WhenBufferCountBecomesGreaterThan = 11,
+	kCMBufferQueueTrigger_WhenDurationBecomesGreaterThanOrEqualToAndBufferCountBecomesGreaterThan = 12,
 };
 
 /*!
@@ -3808,32 +3982,32 @@ enum
 	@abstract	Installs a trigger on a CMBufferQueue.
 	@discussion	The returned trigger token can be passed to CMBufferQueueTestTrigger and CMBufferQueueRemoveTrigger.
 				The triggerTokenOut parameter can be NULL (client doesn't need to test or remove trigger), and the
-				triggerCallback parameter can be NULL (client doesn't need callbacks, but rather will explicitly
+				callback parameter can be NULL (client doesn't need callbacks, but rather will explicitly
 				test the trigger).  One of these two parameters must be non-NULL, however, since an untestable
 				trigger that does not perform a callback is meaningless.  If the trigger condition is already true,
-				CMBufferQueueInstallTrigger will call the triggerCallback.  If it does this, it will first write
+				CMBufferQueueInstallTrigger will call the callback.  If it does this, it will first write
 				the trigger token to *triggerTokenOut.
 */
 CM_EXPORT OSStatus CMBufferQueueInstallTrigger(
 	CMBufferQueueRef CM_NONNULL queue,					/*! @param queue
 															CMBufferQueue on which the trigger is being set. */
-	CMBufferQueueTriggerCallback CM_NULLABLE triggerCallback,	/*! @param triggerCallback
+	CMBufferQueueTriggerCallback CM_NULLABLE callback,	/*! @param callback
 															Callback to be called when the trigger condition becomes true.
 															Can be NULL, if client intends only to explicitly test the
 															condition.  Cannot be NULL if triggerTokenOut is NULL,
 															since then the trigger would be meaningless. */
-	void * CM_NULLABLE triggerRefcon,					/*! @param triggerRefcon
-															Refcon to be passed to the triggerCallback.
+	void * CM_NULLABLE refcon,							/*! @param refcon
+															Refcon to be passed to the callback.
 															Can be NULL if the callback doesn't need it, or is
 															itself NULL. */
-	CMBufferQueueTriggerCondition triggerCondition,		/*! @param triggerCondition
+	CMBufferQueueTriggerCondition condition,			/*! @param condition
 															The condition to be tested when evaluating the trigger. */
-	CMTime triggerTime,									/*! @param triggerTime
+	CMTime time,										/*! @param time
 															The time value to compare against when evaluating the trigger.
 															Must be numeric (ie. not invalid, indefinite, or infinite),
 															except for certain trigger conditions which ignore it
 															(eg, kCMBufferQueueTrigger_WhenMinPresentationTimeStampChanges). */
-	CMBufferQueueTriggerToken CM_NULLABLE * CM_NONNULL triggerTokenOut )	/*! @param triggerTokenOut
+	CMBufferQueueTriggerToken CM_NULLABLE * CM_NULLABLE triggerTokenOut )	/*! @param triggerTokenOut
 															Address where created trigger token will be written.
 															Can be NULL, if client has no need to explicitly test
 															or remove the trigger. Cannot be NULL if triggerCallback
@@ -3849,21 +4023,21 @@ CM_EXPORT OSStatus CMBufferQueueInstallTrigger(
 CM_EXPORT OSStatus CMBufferQueueInstallTriggerWithIntegerThreshold(
 	CMBufferQueueRef CM_NONNULL queue,										/*! @param queue
 																				CMBufferQueue on which the trigger is being set. */
-	CMBufferQueueTriggerCallback CM_NULLABLE triggerCallback,				/*! @param triggerCallback
+	CMBufferQueueTriggerCallback CM_NULLABLE callback,						/*! @param callback
 																				Callback to be called when the trigger condition becomes true.
 																				Can be NULL, if client intends only to explicitly test the
 																				condition.  Cannot be NULL if triggerTokenOut is NULL,
 																				since then the trigger would be meaningless. */
-	void * CM_NULLABLE triggerRefcon,										/*! @param triggerRefcon
-																				Refcon to be passed to the triggerCallback.
+	void * CM_NULLABLE refcon,												/*! @param refcon
+																				Refcon to be passed to the callback.
 																				Can be NULL if the callback doesn't need it, or is
 																				itself NULL. */
-	CMBufferQueueTriggerCondition triggerCondition,							/*! @param triggerCondition
+	CMBufferQueueTriggerCondition condition,								/*! @param triggerCondition
 																				The condition to be tested when evaluating the trigger.
 																				Must be a valid condition for an integer threshold. */
-	CMItemCount triggerThreshold,											/*! @param triggerThreshold
+	CMItemCount threshold,													/*! @param threshold
 																				The integer value to compare against when evaluating the trigger. */
-	CMBufferQueueTriggerToken CM_NULLABLE * CM_NONNULL triggerTokenOut )	/*! @param triggerTokenOut
+	CMBufferQueueTriggerToken CM_NULLABLE * CM_NULLABLE triggerTokenOut )	/*! @param triggerTokenOut
 																				Address where created trigger token will be written.
 																				Can be NULL, if client has no need to explicitly test
 																				or remove the trigger. Cannot be NULL if triggerCallback
@@ -3909,7 +4083,7 @@ CM_EXPORT OSStatus
 CMBufferQueueCallForEachBuffer(
 	CMBufferQueueRef CM_NONNULL queue,		/*! @param queue
 												CMBufferQueue that may contain multiple buffers. */
-	OSStatus (* CM_NONNULL callback)(CMBufferRef CM_NONNULL buffer, void * CM_NULLABLE refcon ),
+	OSStatus (* CM_NONNULL CF_NOESCAPE callback)(CMBufferRef CM_NONNULL buffer, void * CM_NULLABLE refcon ),
 											/*! @param callback
 												Function to be called for each buffer.
 												The callback may modify buffer attachments but should not modify sort-affecting
@@ -3936,12 +4110,12 @@ typedef OSStatus (*CMBufferValidationCallback)(CMBufferQueueRef CM_NONNULL queue
 	@abstract	Sets a function that CMBufferQueueEnqueue will call to validate buffers before adding them to the queue.
 */
 CM_EXPORT OSStatus CMBufferQueueSetValidationCallback( 
-		CMBufferQueueRef CM_NONNULL queue,							/*! @param queue
-																		CMBufferQueue that will use the validation callback. */
-		CMBufferValidationCallback CM_NONNULL validationCallback,	/*! @param validationCallback
-																		Callback that will validate each buffer enqueued. */
-		void * CM_NULLABLE validationRefCon )						/*! @param validationRefCon
-																		Context refcon for validation callback. */
+		CMBufferQueueRef CM_NONNULL queue,					/*! @param queue
+																	CMBufferQueue that will use the validation callback. */
+		CMBufferValidationCallback CM_NONNULL callback,		/*! @param callback
+																	Callback that will validate each buffer enqueued. */
+		void * CM_NULLABLE refcon )							/*! @param refcon
+																	Context refcon for validation callback. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 	
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -3959,7 +4133,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  
 	Framework:  CoreMedia
  
-	Copyright © 2006-2015 Apple Inc. All rights reserved.
+	Copyright © 2006-2018 Apple Inc. All rights reserved.
  
 */
 
@@ -4120,8 +4294,8 @@ CMClockGetTime(
 CM_EXPORT OSStatus
 CMClockGetAnchorTime( 
 		CMClockRef CM_NONNULL clock,
-		CMTime * CM_NONNULL outClockTime,
-		CMTime * CM_NONNULL outReferenceClockTime )
+		CMTime * CM_NONNULL clockTimeOut,
+		CMTime * CM_NONNULL referenceClockTimeOut )
 			__OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_6_0);
 
 /*!
@@ -4215,7 +4389,7 @@ CMTimebaseCopyMasterClock(
 	@discussion
 		Only returns NULL if there was an error (such as timebase == NULL).
 */
-CM_EXPORT CMClockOrTimebaseRef CM_NULLABLE
+CM_EXPORT CMClockOrTimebaseRef CM_NONNULL
 CMTimebaseCopyMaster(
 		CMTimebaseRef CM_NONNULL timebase )
 			__OSX_AVAILABLE_STARTING(__MAC_10_11, __IPHONE_9_0);
@@ -4224,7 +4398,7 @@ CMTimebaseCopyMaster(
 	@function	CMTimebaseCopyUltimateMasterClock
 	@abstract	Returns the master clock that is the master of all of a timebase's master timebases.
 */
-CM_EXPORT CMClockRef CM_NULLABLE
+CM_EXPORT CMClockRef CM_NONNULL
 CMTimebaseCopyUltimateMasterClock(
 		CMTimebaseRef CM_NONNULL timebase )
 			__OSX_AVAILABLE_STARTING(__MAC_10_11, __IPHONE_9_0);
@@ -4239,7 +4413,7 @@ CMTimebaseCopyUltimateMasterClock(
 CM_EXPORT CMTimebaseRef CM_NULLABLE
 CMTimebaseGetMasterTimebase(
 		CMTimebaseRef CM_NONNULL timebase )
-			__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_8, __MAC_10_11, __IPHONE_6_0, __IPHONE_9_0);
+			API_DEPRECATED_WITH_REPLACEMENT("CMTimebaseCopyMasterTimebase", macosx(10.8, 10.11), ios(6.0, 9.0));
 
 /*!
 	@function	CMTimebaseGetMasterClock
@@ -4251,7 +4425,7 @@ CMTimebaseGetMasterTimebase(
 CM_EXPORT CMClockRef CM_NULLABLE
 CMTimebaseGetMasterClock(
 		CMTimebaseRef CM_NONNULL timebase )
-			__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_8, __MAC_10_11, __IPHONE_6_0, __IPHONE_9_0);
+			API_DEPRECATED_WITH_REPLACEMENT("CMTimebaseCopyMasterClock", macosx(10.8, 10.11), ios(6.0, 9.0));
 
 /*!
 	@function	CMTimebaseGetMaster
@@ -4264,7 +4438,7 @@ CMTimebaseGetMasterClock(
 CM_EXPORT CMClockOrTimebaseRef CM_NULLABLE
 CMTimebaseGetMaster(
 		CMTimebaseRef CM_NONNULL timebase )
-			__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_8, __MAC_10_11, __IPHONE_6_0, __IPHONE_9_0);
+			API_DEPRECATED_WITH_REPLACEMENT("CMTimebaseCopyMaster", macosx(10.8, 10.11), ios(6.0, 9.0));
 
 /*!
 	@function	CMTimebaseGetUltimateMasterClock
@@ -4275,7 +4449,7 @@ CMTimebaseGetMaster(
 CM_EXPORT CMClockRef CM_NULLABLE
 CMTimebaseGetUltimateMasterClock(
 		CMTimebaseRef CM_NONNULL timebase )
-			__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_8, __MAC_10_11, __IPHONE_6_0, __IPHONE_9_0);
+			API_DEPRECATED_WITH_REPLACEMENT("CMTimebaseCopyUltimateMasterClock", macosx(10.8, 10.11), ios(6.0, 9.0));
 		
 /*!
 	@function	CMTimebaseGetTime
@@ -4346,8 +4520,8 @@ CMTimebaseGetRate(
 CM_EXPORT OSStatus 
 CMTimebaseGetTimeAndRate( 
 		CMTimebaseRef CM_NONNULL timebase,
-		CMTime * CM_NONNULL outTime,
-		Float64 * CM_NONNULL outRate )
+		CMTime * CM_NULLABLE timeOut,
+		Float64 * CM_NULLABLE rateOut )
 			__OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_6_0);
 
 /*!
@@ -4598,9 +4772,9 @@ CM_EXPORT OSStatus
 CMSyncGetRelativeRateAndAnchorTime( 
 		CMClockOrTimebaseRef CM_NONNULL ofClockOrTimebase,
 		CMClockOrTimebaseRef CM_NONNULL relativeToClockOrTimebase,
-		Float64* CM_NONNULL outRelativeRate,
-		CMTime* CM_NONNULL outOfClockOrTimebaseAnchorTime,
-		CMTime* CM_NONNULL outRelativeToClockOrTimebaseAnchorTime)
+		Float64* CM_NULLABLE outRelativeRate,
+		CMTime* CM_NULLABLE outOfClockOrTimebaseAnchorTime,
+		CMTime* CM_NULLABLE outRelativeToClockOrTimebaseAnchorTime)
 			__OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_6_0);
 
 /*!
@@ -4685,7 +4859,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 	
 	Framework:  CoreMedia
  
-    Copyright 2005-2015 Apple Inc. All rights reserved.
+	Copyright © 2005-2018 Apple Inc. All rights reserved.
  
 */
 
@@ -4899,7 +5073,7 @@ CMTime CMTimeMakeWithEpoch(
 /*!
 	@function	CMTimeMakeWithSeconds
 	@abstract	Make a CMTime from a Float64 number of seconds, and a preferred timescale.
-	@discussion	The epoch of the result will be zero.  If preferredTimeScale is <= 0, the result
+	@discussion	The epoch of the result will be zero.  If preferredTimescale is <= 0, the result
 				will be an invalid CMTime.  If the preferred timescale will cause an overflow, the
 				timescale will be halved repeatedly until the overflow goes away, or the timescale
 				is 1.  If it still overflows at that point, the result will be +/- infinity.  The
@@ -4910,7 +5084,7 @@ CMTime CMTimeMakeWithEpoch(
 CM_EXPORT 
 CMTime CMTimeMakeWithSeconds(
 				Float64 seconds,
-				int32_t preferredTimeScale)
+				int32_t preferredTimescale)
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*!
@@ -5008,12 +5182,12 @@ CMTime CMTimeConvertScale(
 				are considered to be durations and can be added to times in other epochs.
 				Times in different epochs can be compared, however, because numerically greater 
 				epochs always occur after numerically lesser epochs. 
-    @result     The sum of the two CMTimes (addend1 + addend2).
+    @result     The sum of the two CMTimes (lhs + rhs).
 */
 CM_EXPORT 
 CMTime CMTimeAdd(
-				CMTime addend1,				/*! @param addend1			A CMTime to be added. */
-				CMTime addend2)				/*! @param addend2			Another CMTime to be added. */
+				CMTime lhs,				/*! @param lhs			A CMTime to be added. */
+				CMTime rhs)				/*! @param rhs			Another CMTime to be added. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 
@@ -5054,12 +5228,12 @@ CMTime CMTimeAdd(
 				are considered to be durations and can be subtracted from times in other epochs.
 				Times in different epochs can be compared, however, because numerically greater 
 				epochs always occur after numerically lesser epochs. 
-    @result     The difference of the two CMTimes (minuend - subtrahend).
+    @result     The difference of the two CMTimes (lhs - rhs).
 */
 CM_EXPORT 
 CMTime CMTimeSubtract(
-				CMTime minuend,		/*! @param minuend		The CMTime from which the subtrahend will be subtracted. */
-				CMTime subtrahend)	/*! @param subtrahend	The CMTime that will be subtracted from the minuend. */
+				CMTime lhs,		/*! @param lhs		The CMTime from which the rhs will be subtracted. */
+				CMTime rhs)		/*! @param rhs		The CMTime that will be subtracted from the lhs. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 
@@ -5244,7 +5418,7 @@ CFDictionaryRef CM_NULLABLE CMTimeCopyAsDictionary(
 */
 CM_EXPORT 
 CMTime CMTimeMakeFromDictionary(
-				CFDictionaryRef CM_NULLABLE dict)	/*! @param dict CFDictionary from which to create CMTime. */
+				CFDictionaryRef CM_NULLABLE dictionaryRepresentation)	/*! @param dictionaryRepresentation CFDictionary from which to create CMTime. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 CM_ASSUME_NONNULL_BEGIN
@@ -5424,7 +5598,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 	Framework:  CoreMedia
 
-	Copyright 2006-2015 Apple Inc. All rights reserved.
+	Copyright © 2006-2018 Apple Inc. All rights reserved.
 
 */
 
@@ -5494,9 +5668,11 @@ enum
 
 CM_ASSUME_NONNULL_BEGIN
 
-CM_EXPORT const CFStringRef kCMImageDescriptionFlavor_QuickTimeMovie	__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// equivalent to NULL
-CM_EXPORT const CFStringRef kCMImageDescriptionFlavor_ISOFamily			__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// MP4, etc
-CM_EXPORT const CFStringRef kCMImageDescriptionFlavor_3GPFamily			__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// 3GPP (implies ISO)
+typedef CFStringRef CMImageDescriptionFlavor CF_EXTENSIBLE_STRING_ENUM;
+
+CM_EXPORT const CMImageDescriptionFlavor kCMImageDescriptionFlavor_QuickTimeMovie	__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// equivalent to NULL
+CM_EXPORT const CMImageDescriptionFlavor kCMImageDescriptionFlavor_ISOFamily			__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// MP4, etc
+CM_EXPORT const CMImageDescriptionFlavor kCMImageDescriptionFlavor_3GPFamily			__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// 3GPP (implies ISO)
 
 CM_ASSUME_NONNULL_END
 
@@ -5506,18 +5682,18 @@ CM_ASSUME_NONNULL_END
 
 	@param	allocator						Allocator to use for allocating the CMVideoFormatDescription object. May be NULL.
 	@param	imageDescriptionData			ImageDescription data structure in big-endian byte ordering.
-	@param	imageDescriptionSize			Size of ImageDescription data structure.
-	@param	imageDescriptionStringEncoding	Pass CFStringGetSystemEncoding() or GetApplicationTextEncoding().
-	@param	imageDescriptionFlavor			kCMImageDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
+	@param	size							Size of ImageDescription data structure.
+	@param	stringEncoding					Pass CFStringGetSystemEncoding() or GetApplicationTextEncoding().
+	@param	flavor							kCMImageDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
 	@param	videoFormatDescriptionOut		Receives new CMVideoFormatDescription.
 */
 CM_EXPORT OSStatus CMVideoFormatDescriptionCreateFromBigEndianImageDescriptionData(
 		CFAllocatorRef CM_NULLABLE allocator,
 		const uint8_t * CM_NONNULL imageDescriptionData,
-		size_t imageDescriptionSize,
-		CFStringEncoding imageDescriptionStringEncoding,
-		CFStringRef CM_NULLABLE imageDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMVideoFormatDescriptionRef CM_NULLABLE * CM_NONNULL videoFormatDescriptionOut )
+		size_t size,
+		CFStringEncoding stringEncoding,
+		CMImageDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMVideoFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -5526,16 +5702,16 @@ CM_EXPORT OSStatus CMVideoFormatDescriptionCreateFromBigEndianImageDescriptionDa
 
 	@param	allocator						Allocator to use for allocating the CMVideoFormatDescription object. May be NULL.
 	@param	imageDescriptionBlockBuffer		CMBlockBuffer containing ImageDescription data structure in big-endian byte ordering.
-	@param	imageDescriptionStringEncoding	Pass CFStringGetSystemEncoding() or GetApplicationTextEncoding().
-	@param	imageDescriptionFlavor			kCMImageDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
+	@param	stringEncoding					Pass CFStringGetSystemEncoding() or GetApplicationTextEncoding().
+	@param	flavor							kCMImageDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
 	@param	videoFormatDescriptionOut		Receives new CMVideoFormatDescription.
 */
 CM_EXPORT OSStatus CMVideoFormatDescriptionCreateFromBigEndianImageDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMBlockBufferRef CM_NONNULL imageDescriptionBlockBuffer,
-		CFStringEncoding imageDescriptionStringEncoding,
-		CFStringRef CM_NULLABLE imageDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMVideoFormatDescriptionRef CM_NULLABLE * CM_NONNULL videoFormatDescriptionOut )
+		CFStringEncoding stringEncoding,
+		CMImageDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMVideoFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -5555,9 +5731,9 @@ CM_EXPORT OSStatus CMVideoFormatDescriptionCreateFromBigEndianImageDescriptionBl
 CM_EXPORT OSStatus CMVideoFormatDescriptionCopyAsBigEndianImageDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMVideoFormatDescriptionRef CM_NONNULL videoFormatDescription,
-		CFStringEncoding imageDescriptionStringEncoding,
-		CFStringRef CM_NULLABLE imageDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL imageDescriptionBlockBufferOut )
+		CFStringEncoding stringEncoding,
+		CMImageDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL blockBufferOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -5622,10 +5798,12 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 CM_ASSUME_NONNULL_BEGIN
 
-CM_EXPORT const CFStringRef kCMSoundDescriptionFlavor_QuickTimeMovie	__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// equivalent to NULL
-CM_EXPORT const CFStringRef kCMSoundDescriptionFlavor_QuickTimeMovieV2	__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
-CM_EXPORT const CFStringRef kCMSoundDescriptionFlavor_ISOFamily			__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// MP4, etc
-CM_EXPORT const CFStringRef kCMSoundDescriptionFlavor_3GPFamily			__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// 3GPP (implies ISO)
+typedef CFStringRef CMSoundDescriptionFlavor CF_EXTENSIBLE_STRING_ENUM;
+
+CM_EXPORT const CMSoundDescriptionFlavor kCMSoundDescriptionFlavor_QuickTimeMovie	__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// equivalent to NULL
+CM_EXPORT const CMSoundDescriptionFlavor kCMSoundDescriptionFlavor_QuickTimeMovieV2	__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
+CM_EXPORT const CMSoundDescriptionFlavor kCMSoundDescriptionFlavor_ISOFamily			__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// MP4, etc
+CM_EXPORT const CMSoundDescriptionFlavor kCMSoundDescriptionFlavor_3GPFamily			__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);	// 3GPP (implies ISO)
 
 CM_ASSUME_NONNULL_END
 
@@ -5635,16 +5813,16 @@ CM_ASSUME_NONNULL_END
 
 	@param	allocator						Allocator to use for allocating the CMAudioFormatDescription object. May be NULL.
 	@param	soundDescriptionData			SoundDescription data structure in big-endian byte ordering.
-	@param	soundDescriptionSize			Size of SoundDescription data structure.
-	@param	soundDescriptionFlavor			kCMSoundDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
-	@param	audioFormatDescriptionOut		Receives new CMAudioFormatDescription.
+	@param	size							Size of SoundDescription data structure.
+	@param	flavor							kCMSoundDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
+	@param	formatDescriptionOut			Receives new CMAudioFormatDescription.
 */
 CM_EXPORT OSStatus CMAudioFormatDescriptionCreateFromBigEndianSoundDescriptionData(
 		CM_NULLABLE CFAllocatorRef allocator,
 		const uint8_t * CM_NONNULL soundDescriptionData,
-		size_t soundDescriptionSize,
-		CFStringRef CM_NULLABLE soundDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMAudioFormatDescriptionRef CM_NULLABLE * CM_NONNULL  audioFormatDescriptionOut )
+		size_t size,
+		CMSoundDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMAudioFormatDescriptionRef CM_NULLABLE * CM_NONNULL  formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -5653,14 +5831,14 @@ CM_EXPORT OSStatus CMAudioFormatDescriptionCreateFromBigEndianSoundDescriptionDa
 
 	@param	allocator						Allocator to use for allocating the CMAudioFormatDescription object. May be NULL.
 	@param	soundDescriptionBlockBuffer		CMBlockBuffer containing SoundDescription data structure in big-endian byte ordering.
-	@param	soundDescriptionFlavor			kCMSoundDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
-	@param	audioFormatDescriptionOut		Receives new CMAudioFormatDescription.
+	@param	flavor			kCMSoundDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
+	@param	formatDescriptionOut		Receives new CMAudioFormatDescription.
 */
 CM_EXPORT OSStatus CMAudioFormatDescriptionCreateFromBigEndianSoundDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMBlockBufferRef CM_NONNULL soundDescriptionBlockBuffer,
-		CFStringRef CM_NULLABLE soundDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMAudioFormatDescriptionRef CM_NULLABLE * CM_NONNULL audioFormatDescriptionOut )
+		CMSoundDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMAudioFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -5673,14 +5851,14 @@ CM_EXPORT OSStatus CMAudioFormatDescriptionCreateFromBigEndianSoundDescriptionBl
 
 	@param	allocator						Allocator to use for allocating the CMBlockBuffer object. May be NULL.
 	@param	audioFormatDescription			CMAudioFormatDescription to be copied.
-	@param	soundDescriptionFlavor			kCMSoundDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
-	@param	soundDescriptionBlockBufferOut	Receives new CMBlockBuffer containing SoundDescription data structure in big-endian byte ordering.
+	@param	flavor							kCMSoundDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
+	@param	blockBufferOut					Receives new CMBlockBuffer containing SoundDescription data structure in big-endian byte ordering.
 */
 CM_EXPORT OSStatus CMAudioFormatDescriptionCopyAsBigEndianSoundDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMAudioFormatDescriptionRef CM_NONNULL audioFormatDescription,
-		CFStringRef CM_NULLABLE soundDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL soundDescriptionBlockBufferOut )
+		CMSoundDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL blockBufferOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -5690,11 +5868,11 @@ CF_IMPLICIT_BRIDGING_ENABLED
 	@abstract	Examine a big-endian SoundDescription data structure in a CMBlockBuffer, and report whether the sample tables will need to use the legacy CBR layout.
 
 	@param	soundDescriptionBlockBuffer		CMBlockBuffer containing SoundDescription data structure in big-endian byte ordering.
-	@param	soundDescriptionFlavor			kCMSoundDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
+	@param	flavor							kCMSoundDescriptionFlavor constant or NULL for QuickTimeMovie flavor.
 */
 CM_EXPORT Boolean CMDoesBigEndianSoundDescriptionRequireLegacyCBRSampleTableLayout(
 		CMBlockBufferRef CM_NONNULL soundDescriptionBlockBuffer,
-		CFStringRef CM_NULLABLE soundDescriptionFlavor )
+		CMSoundDescriptionFlavor CM_NULLABLE flavor )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 #if TARGET_RT_LITTLE_ENDIAN
@@ -5736,24 +5914,26 @@ CF_IMPLICIT_BRIDGING_DISABLED
 	@functiongroup	CMTextFormatDescription and TextDescription bridge functions
 */
 
+typedef CFStringRef CMTextDescriptionFlavor CF_EXTENSIBLE_STRING_ENUM;
+
 /*!
 	@function	CMTextFormatDescriptionCreateFromBigEndianTextDescriptionData
 	@abstract	Creates a CMTextFormatDescription from a big-endian TextDescription data structure.
 
 	@param	allocator						Allocator to use for allocating the CMTextFormatDescription object. May be NULL.
 	@param	textDescriptionData				TextDescription data structure in big-endian byte ordering.
-	@param	textDescriptionSize				Size of TextDescription data structure.
-	@param	textDescriptionFlavor			Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	size							Size of TextDescription data structure.
+	@param	flavor							Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
 	@param	mediaType,						Pass kCMMediaType_Text or kCMMediaType_Subtitle.
-	@param	textFormatDescriptionOut		Receives new CMTextFormatDescription.
+	@param	formatDescriptionOut			Receives new CMTextFormatDescription.
 */
 CM_EXPORT OSStatus CMTextFormatDescriptionCreateFromBigEndianTextDescriptionData(
 		CFAllocatorRef CM_NULLABLE allocator,
 		const uint8_t * CM_NONNULL textDescriptionData,
-		size_t textDescriptionSize,
-		CFStringRef CM_NULLABLE textDescriptionFlavor,
+		size_t size,
+		CMTextDescriptionFlavor CM_NULLABLE flavor,
 		CMMediaType mediaType,
-		CM_RETURNS_RETAINED_PARAMETER CMTextFormatDescriptionRef CM_NULLABLE * CM_NONNULL textFormatDescriptionOut )
+		CM_RETURNS_RETAINED_PARAMETER CMTextFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -5762,16 +5942,16 @@ CM_EXPORT OSStatus CMTextFormatDescriptionCreateFromBigEndianTextDescriptionData
 
 	@param	allocator						Allocator to use for allocating the CMTextFormatDescription object. May be NULL.
 	@param	textDescriptionBlockBuffer		CMBlockBuffer containing TextDescription data structure in big-endian byte ordering.
-	@param	textDescriptionFlavor			Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	flavor							Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
 	@param	mediaType,						Pass kCMMediaType_Text or kCMMediaType_Subtitle.
-	@param	textFormatDescriptionOut		Receives new CMTextFormatDescription.
+	@param	formatDescriptionOut			Receives new CMTextFormatDescription.
 */
 CM_EXPORT OSStatus CMTextFormatDescriptionCreateFromBigEndianTextDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMBlockBufferRef CM_NONNULL textDescriptionBlockBuffer,
-		CFStringRef CM_NULLABLE textDescriptionFlavor,
+		CMTextDescriptionFlavor CM_NULLABLE flavor,
 		CMMediaType mediaType,
-		CM_RETURNS_RETAINED_PARAMETER CMTextFormatDescriptionRef CM_NULLABLE * CM_NONNULL textFormatDescriptionOut )
+		CM_RETURNS_RETAINED_PARAMETER CMTextFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -5790,8 +5970,8 @@ CM_EXPORT OSStatus CMTextFormatDescriptionCreateFromBigEndianTextDescriptionBloc
 CM_EXPORT OSStatus CMTextFormatDescriptionCopyAsBigEndianTextDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMTextFormatDescriptionRef CM_NONNULL textFormatDescription,
-		CFStringRef CM_NULLABLE textDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL textDescriptionBlockBufferOut )
+		CMTextDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL blockBufferOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -5835,22 +6015,24 @@ CF_IMPLICIT_BRIDGING_DISABLED
 	@functiongroup	CMClosedCaptionFormatDescription and ClosedCaptionDescription bridge functions
 */
 
+typedef CFStringRef CMClosedCaptionDescriptionFlavor CF_EXTENSIBLE_STRING_ENUM;
+
 /*!
 	@function	CMClosedCaptionFormatDescriptionCreateFromBigEndianClosedCaptionDescriptionData
 	@abstract	Creates a CMClosedCaptionFormatDescription from a big-endian ClosedCaptionDescription data structure.
 
 	@param	allocator							Allocator to use for allocating the CMClosedCaptionFormatDescription object. May be NULL.
 	@param	closedCaptionDescriptionData		ClosedCaptionDescription data structure in big-endian byte ordering.
-	@param	closedCaptionDescriptionSize		Size of ClosedCaptionDescription data structure.
-	@param	closedCaptionDescriptionFlavor		Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
-	@param	closedCaptionFormatDescriptionOut	Receives new CMClosedCaptionFormatDescription.
+	@param	size								Size of ClosedCaptionDescription data structure.
+	@param	flavor								Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	formatDescriptionOut				Receives new CMClosedCaptionFormatDescription.
 */
 CM_EXPORT OSStatus CMClosedCaptionFormatDescriptionCreateFromBigEndianClosedCaptionDescriptionData(
 		CFAllocatorRef CM_NULLABLE allocator,
 		const uint8_t * CM_NONNULL closedCaptionDescriptionData,
-		size_t closedCaptionDescriptionSize,
-		CFStringRef CM_NULLABLE closedCaptionDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMClosedCaptionFormatDescriptionRef CM_NULLABLE * CM_NONNULL closedCaptionFormatDescriptionOut )
+		size_t size,
+		CMClosedCaptionDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMClosedCaptionFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -5859,14 +6041,14 @@ CM_EXPORT OSStatus CMClosedCaptionFormatDescriptionCreateFromBigEndianClosedCapt
 
 	@param	allocator							Allocator to use for allocating the CMClosedCaptionFormatDescription object. May be NULL.
 	@param	closedCaptionDescriptionBlockBuffer	CMBlockBuffer containing ClosedCaptionDescription data structure in big-endian byte ordering.
-	@param	closedCaptionDescriptionFlavor		Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
-	@param	closedCaptionFormatDescriptionOut	Receives new CMClosedCaptionFormatDescription.
+	@param	flavor								Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	formatDescriptionOut				Receives new CMClosedCaptionFormatDescription.
 */
 CM_EXPORT OSStatus CMClosedCaptionFormatDescriptionCreateFromBigEndianClosedCaptionDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMBlockBufferRef CM_NONNULL closedCaptionDescriptionBlockBuffer,
-		CFStringRef CM_NULLABLE closedCaptionDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMClosedCaptionFormatDescriptionRef CM_NULLABLE * CM_NONNULL closedCaptionFormatDescriptionOut )
+		CMClosedCaptionDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMClosedCaptionFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -5877,16 +6059,16 @@ CM_EXPORT OSStatus CMClosedCaptionFormatDescriptionCreateFromBigEndianClosedCapt
                 garbage values (0xFFFF).  The caller must overwrite these values with a valid dataRefIndex
                 if writing the SampleDescription to a QuickTime/ISO file.
 
-	@param	allocator								Allocator to use for allocating the CMBlockBuffer object. May be NULL.
-	@param	closedCaptionFormatDescription			CMClosedCaptionFormatDescription to be copied.
-	@param	closedCaptionDescriptionFlavor			Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
-	@param	closedCaptionDescriptionBlockBufferOut	Receives new CMBlockBuffer containing ClosedCaptionDescription data structure in big-endian byte ordering.
+	@param	allocator							Allocator to use for allocating the CMBlockBuffer object. May be NULL.
+	@param	closedCaptionFormatDescription		CMClosedCaptionFormatDescription to be copied.
+	@param	flavor								Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	blockBufferOut						Receives new CMBlockBuffer containing ClosedCaptionDescription data structure in big-endian byte ordering.
 */
 CM_EXPORT OSStatus CMClosedCaptionFormatDescriptionCopyAsBigEndianClosedCaptionDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMClosedCaptionFormatDescriptionRef CM_NONNULL closedCaptionFormatDescription,
-		CFStringRef CM_NULLABLE closedCaptionDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL closedCaptionDescriptionBlockBufferOut )
+		CMClosedCaptionDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL blockBufferOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -5930,22 +6112,24 @@ CF_IMPLICIT_BRIDGING_DISABLED
 	@functiongroup	CMTimeCodeFormatDescription and TimeCodeDescription bridge functions
 */
 
+typedef CFStringRef CMTimeCodeDescriptionFlavor CF_EXTENSIBLE_STRING_ENUM;
+
 /*!
 	@function	CMTimeCodeFormatDescriptionCreateFromBigEndianTimeCodeDescriptionData
 	@abstract	Creates a CMTimeCodeFormatDescription from a big-endian TimeCodeDescription data structure.
 
 	@param	allocator						Allocator to use for allocating the CMTimeCodeFormatDescription object. May be NULL.
 	@param	timeCodeDescriptionData			TimeCodeDescription data structure in big-endian byte ordering.
-	@param	timeCodeDescriptionSize			Size of TimeCodeDescription data structure.
-	@param	timeCodeDescriptionFlavor		Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
-	@param	timeCodeFormatDescriptionOut	Receives new CMTimeCodeFormatDescription.
+	@param	size							Size of TimeCodeDescription data structure.
+	@param	flavor							Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	formatDescriptionOut			Receives new CMTimeCodeFormatDescription.
 */
 CM_EXPORT OSStatus CMTimeCodeFormatDescriptionCreateFromBigEndianTimeCodeDescriptionData(
 		CFAllocatorRef CM_NULLABLE allocator,
 		const uint8_t * CM_NONNULL timeCodeDescriptionData,
-		size_t timeCodeDescriptionSize, 
-		CFStringRef CM_NULLABLE timeCodeDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMTimeCodeFormatDescriptionRef CM_NULLABLE * CM_NONNULL timeCodeFormatDescriptionOut )
+		size_t size, 
+		CMTimeCodeDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMTimeCodeFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -5954,14 +6138,14 @@ CM_EXPORT OSStatus CMTimeCodeFormatDescriptionCreateFromBigEndianTimeCodeDescrip
 
 	@param	allocator						Allocator to use for allocating the CMTimeCodeFormatDescription object. May be NULL.
 	@param	timeCodeDescriptionBlockBuffer	CMBlockBuffer containing TimeCodeDescription data structure in big-endian byte ordering.
-	@param	timeCodeDescriptionFlavor		Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
-	@param	timeCodeFormatDescriptionOut	Receives new CMTimeCodeFormatDescription.
+	@param	flavor							Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	formatDescriptionOut			Receives new CMTimeCodeFormatDescription.
 */
 CM_EXPORT OSStatus CMTimeCodeFormatDescriptionCreateFromBigEndianTimeCodeDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMBlockBufferRef CM_NONNULL timeCodeDescriptionBlockBuffer,
-		CFStringRef CM_NULLABLE timeCodeDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMTimeCodeFormatDescriptionRef CM_NULLABLE * CM_NONNULL timeCodeFormatDescriptionOut )
+		CMTimeCodeDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMTimeCodeFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -5972,16 +6156,16 @@ CM_EXPORT OSStatus CMTimeCodeFormatDescriptionCreateFromBigEndianTimeCodeDescrip
                 garbage values (0xFFFF).  The caller must overwrite these values with a valid dataRefIndex
                 if writing the SampleDescription to a QuickTime/ISO file.
 
-	@param	allocator							Allocator to use for allocating the CMBlockBuffer object. May be NULL.
-	@param	timeCodeFormatDescription			CMTimeCodeFormatDescription to be copied.
-	@param	timeCodeDescriptionFlavor			Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
-	@param	timeCodeDescriptionBlockBufferOut	Receives new CMBlockBuffer containing TimeCodeDescription data structure in big-endian byte ordering.
+	@param	allocator					Allocator to use for allocating the CMBlockBuffer object. May be NULL.
+	@param	timeCodeFormatDescription	CMTimeCodeFormatDescription to be copied.
+	@param	flavor						Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	blockBufferOut				Receives new CMBlockBuffer containing TimeCodeDescription data structure in big-endian byte ordering.
 */
 CM_EXPORT OSStatus CMTimeCodeFormatDescriptionCopyAsBigEndianTimeCodeDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMTimeCodeFormatDescriptionRef CM_NONNULL timeCodeFormatDescription,
-		CFStringRef CM_NULLABLE timeCodeDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL timeCodeDescriptionBlockBufferOut )
+		CMTimeCodeDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL blockBufferOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -6025,22 +6209,24 @@ CF_IMPLICIT_BRIDGING_DISABLED
 	@functiongroup	CMMetadataFormatDescription and MetadataDescription bridge functions
 */
 
+typedef CFStringRef CMMetadataDescriptionFlavor CF_EXTENSIBLE_STRING_ENUM;
+
 /*!
 	@function	CMMetadataFormatDescriptionCreateFromBigEndianMetadataDescriptionData
 	@abstract	Creates a CMMetadataFormatDescription from a big-endian MetadataDescription data structure.
 
-	@param	allocator						Allocator to use for allocating the CMMetadataFormatDescription object. May be NULL.
-	@param	metadataDescriptionData			MetadataDescription data structure in big-endian byte ordering.
-	@param	metadataDescriptionSize			Size of MetadataDescription data structure.
-	@param	metadataDescriptionFlavor		Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
-	@param	metadataFormatDescriptionOut	Receives new CMMetadataFormatDescriptionRef.
+	@param	allocator					Allocator to use for allocating the CMMetadataFormatDescription object. May be NULL.
+	@param	metadataDescriptionData		MetadataDescription data structure in big-endian byte ordering.
+	@param	size						Size of MetadataDescription data structure.
+	@param	flavor						Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	formatDescriptionOut		Receives new CMMetadataFormatDescriptionRef.
 */
 CM_EXPORT OSStatus CMMetadataFormatDescriptionCreateFromBigEndianMetadataDescriptionData(
 		CFAllocatorRef CM_NULLABLE allocator,
 		const uint8_t * CM_NONNULL metadataDescriptionData,
-		size_t metadataDescriptionSize,
-		CFStringRef CM_NULLABLE metadataDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL metadataFormatDescriptionOut )
+		size_t size,
+		CMMetadataDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -6049,14 +6235,14 @@ CM_EXPORT OSStatus CMMetadataFormatDescriptionCreateFromBigEndianMetadataDescrip
 
 	@param	allocator						Allocator to use for allocating the CMMetadataFormatDescription object. May be NULL.
 	@param	metadataDescriptionBlockBuffer	CMBlockBuffer containing MetadataDescription data structure in big-endian byte ordering.
-	@param	metadataDescriptionFlavor		Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
-	@param	metadataFormatDescriptionOut	Receives new CMMetadataFormatDescriptionRef.
+	@param	flavor							Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	formatDescriptionOut			Receives new CMMetadataFormatDescriptionRef.
 */
 CM_EXPORT OSStatus CMMetadataFormatDescriptionCreateFromBigEndianMetadataDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMBlockBufferRef CM_NONNULL metadataDescriptionBlockBuffer,
-		CFStringRef CM_NULLABLE metadataDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL metadataFormatDescriptionOut )
+		CMMetadataDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMMetadataFormatDescriptionRef CM_NULLABLE * CM_NONNULL formatDescriptionOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 /*!
@@ -6067,16 +6253,16 @@ CM_EXPORT OSStatus CMMetadataFormatDescriptionCreateFromBigEndianMetadataDescrip
                 garbage values (0xFFFF).  The caller must overwrite these values with a valid dataRefIndex
                 if writing the SampleDescription to a QuickTime/ISO file.
 
-	@param	allocator							Allocator to use for allocating the CMBlockBuffer object. May be NULL.
-	@param	metadataFormatDescription			CMMetadataFormatDescriptionRef to be copied.
-	@param	metadataDescriptionFlavor			Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
-	@param	metadataDescriptionBlockBufferOut	Receives new CMBlockBuffer containing MetadataDescription data structure in big-endian byte ordering.
+	@param	allocator					Allocator to use for allocating the CMBlockBuffer object. May be NULL.
+	@param	metadataFormatDescription	CMMetadataFormatDescriptionRef to be copied.
+	@param	flavor						Reserved for future use. Pass NULL for QuickTime Movie or ISO flavor.
+	@param	blockBufferOut				Receives new CMBlockBuffer containing MetadataDescription data structure in big-endian byte ordering.
 */
 CM_EXPORT OSStatus CMMetadataFormatDescriptionCopyAsBigEndianMetadataDescriptionBlockBuffer(
 		CFAllocatorRef CM_NULLABLE allocator,
 		CMMetadataFormatDescriptionRef CM_NONNULL metadataFormatDescription,
-		CFStringRef CM_NULLABLE metadataDescriptionFlavor,
-		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL metadataDescriptionBlockBufferOut )
+		CMMetadataDescriptionFlavor CM_NULLABLE flavor,
+		CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NONNULL blockBufferOut )
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -6129,7 +6315,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 	
 	Framework:  CoreMedia
  
-    Copyright 2005-2015 Apple Inc. All rights reserved.
+	Copyright © 2005-2018 Apple Inc. All rights reserved.
  
 */
 
@@ -6226,10 +6412,10 @@ enum
 	kCMSampleBufferError_ArrayTooSmall					= -12737,
 	kCMSampleBufferError_InvalidEntryCount				= -12738,
 	kCMSampleBufferError_CannotSubdivide				= -12739,
-    kCMSampleBufferError_SampleTimingInfoInvalid      	= -12740,
-    kCMSampleBufferError_InvalidMediaTypeForOperation	= -12741,
+	kCMSampleBufferError_SampleTimingInfoInvalid		= -12740,
+	kCMSampleBufferError_InvalidMediaTypeForOperation	= -12741,
 	kCMSampleBufferError_InvalidSampleData				= -12742,
-    kCMSampleBufferError_InvalidMediaFormat				= -12743,
+	kCMSampleBufferError_InvalidMediaFormat				= -12743,
 	kCMSampleBufferError_Invalidated					= -12744,
 	kCMSampleBufferError_DataFailed						= -16750,
 	kCMSampleBufferError_DataCanceled					= -16751,
@@ -6275,7 +6461,8 @@ typedef struct
 										repeatedly adding the sample duration. */
 	CMTime decodeTimeStamp;			/*! @field decodeTimeStamp
 										The time at which the sample will be decoded. If the samples
-										are in presentation order, this must be set to kCMTimeInvalid. */
+										are in presentation order (eg. audio samples, or video samples from a codec
+										that doesn't support out-of-order samples), this can be set to kCMTimeInvalid. */
 } CMSampleTimingInfo;
 
 CM_EXPORT const CMSampleTimingInfo kCMTimingInfoInvalid		/*! @constant kCMTimingInfoInvalid
@@ -6416,7 +6603,7 @@ OSStatus CMSampleBufferCreate(
 																same size, you can pass a single size entry containing the size of one sample. Can be NULL. Must be
 																NULL if the samples are non-contiguous in the buffer (eg. non-interleaved audio, where the channel
 																values for a single sample are scattered through the buffer). */
-	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sBufOut)		/*! @param sBufOut
+	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sampleBufferOut)		/*! @param sampleBufferOut
 																Returned newly created CMSampleBuffer. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -6524,7 +6711,7 @@ OSStatus CMSampleBufferCreateReady(
 																same size, you can pass a single size entry containing the size of one sample. Can be NULL. Must be
 																NULL if the samples are non-contiguous in the buffer (eg. non-interleaved audio, where the channel
 																values for a single sample are scattered through the buffer). */
-	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sBufOut)		/*! @param sBufOut
+	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sampleBufferOut)		/*! @param sampleBufferOut
 																Returned newly created CMSampleBuffer. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
@@ -6557,13 +6744,13 @@ OSStatus CMAudioSampleBufferCreateWithPacketDescriptions(
 																A description of the media data's format. Cannot be NULL. */
 	CMItemCount numSamples,									/*! @param numSamples
 																Number of samples in the CMSampleBuffer. Must not be 0. */
-	CMTime	sbufPTS,										/*! @param sbufPTS
+	CMTime	presentationTimeStamp,							/*! @param presentationTimeStamp
 																Timestamp of the first sample in the buffer. Must be a numeric CMTime. */
 	const AudioStreamPacketDescription * CM_NULLABLE packetDescriptions,	/*! @param packetDescriptions
 																Array of packetDescriptions, one for each of numSamples. May be NULL
 																if the samples are known to have a constant number of frames per
 																packet and a constant size. */
-	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sBufOut)		/*! @param sBufOut
+	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sampleBufferOut)		/*! @param sampleBufferOut
 																Returned newly created CMSampleBuffer. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -6581,19 +6768,19 @@ OSStatus CMAudioSampleBufferCreateReadyWithPacketDescriptions(
 	CFAllocatorRef CM_NULLABLE allocator,								/*! @param allocator
 																			The allocator to use for allocating the CMSampleBuffer object.
 																			Pass kCFAllocatorDefault to use the default allocator. */
-	CMBlockBufferRef CM_NULLABLE dataBuffer,							/*! @param dataBuffer
+	CMBlockBufferRef CM_NONNULL dataBuffer,								/*! @param dataBuffer
 																			CMBlockBuffer already containing the media data. Must not be NULL. */
 	CMFormatDescriptionRef CM_NONNULL formatDescription,				/*! @param formatDescription
 																			A description of the media data's format. Cannot be NULL. */
 	CMItemCount numSamples,												/*! @param numSamples
 																			Number of samples in the CMSampleBuffer. Must not be 0. */
-	CMTime	sbufPTS,													/*! @param sbufPTS
+	CMTime	presentationTimeStamp,										/*! @param presentationTimeStamp
 																			Timestamp of the first sample in the buffer. Must be a numeric CMTime. */
 	const AudioStreamPacketDescription * CM_NULLABLE packetDescriptions,/*! @param packetDescriptions
 																			Array of packetDescriptions, one for each of numSamples. May be NULL
 																			if the samples are known to have a constant number of frames per
 																			packet and a constant size. */
-	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sBufOut)					/*! @param sBufOut
+	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sampleBufferOut)					/*! @param sampleBufferOut
 																			Returned newly created CMSampleBuffer. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
@@ -6643,7 +6830,7 @@ OSStatus CMSampleBufferCreateForImageBuffer(
 	const CMSampleTimingInfo * CM_NONNULL sampleTiming,		/*! @param sampleTiming
 																A CMSampleTimingInfo struct that provides the timing information for the media
 																represented by the CVImageBuffer. */
-	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sBufOut)		/*! @param sBufOut
+	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sampleBufferOut)		/*! @param sampleBufferOut
 																Returned newly created CMSampleBuffer. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -6686,7 +6873,7 @@ OSStatus CMSampleBufferCreateReadyWithImageBuffer(
 	const CMSampleTimingInfo * CM_NONNULL sampleTiming,			/*! @param sampleTiming
 																	A CMSampleTimingInfo struct that provides the timing information for the media
 																	represented by the CVImageBuffer. */
-	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sBufOut)			/*! @param sBufOut
+	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sampleBufferOut)			/*! @param sampleBufferOut
 																	Returned newly created CMSampleBuffer. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
@@ -6706,7 +6893,7 @@ OSStatus CMSampleBufferCreateCopy(
 																	Pass kCFAllocatorDefault to use the default allocator. */
 	CMSampleBufferRef CM_NONNULL sbuf,							/*! @param sbuf
 																	CMSampleBuffer being copied. */
-	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sbufCopyOut)		/*! @param sbufCopyOut
+	CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sampleBufferOut)		/*! @param sampleBufferOut
 																	Returned newly created CMSampleBuffer. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -6739,7 +6926,7 @@ OSStatus CMSampleBufferCreateCopyWithNewTiming(
 																set to the presentation time of the numerically earliest sample, and decodeTimeStamp set to
 																kCMTimeInvalid. Behaviour is undefined if samples in a CMSampleBuffer (or even in multiple
 																buffers in the same stream) have the same presentationTimeStamp. Can be NULL. */
-  CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sBufCopyOut)	/*! @param sBufCopyOut
+  CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sampleBufferOut)	/*! @param sampleBufferOut
 																Returned newly created CMSampleBuffer. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 	
@@ -6758,7 +6945,7 @@ OSStatus CMSampleBufferCopySampleBufferForRange(
 											  
   CFRange sampleRange,									/*! @param sampleRange
 															The range of samples to copy from sbuf, where sample 0 is the first sample in the sbuf */
-  CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sBufOut)	/*! @param sBufOut
+  CM_RETURNS_RETAINED_PARAMETER CMSampleBufferRef CM_NULLABLE * CM_NONNULL sampleBufferOut)	/*! @param sampleBufferOut
 															Returned newly created CMSampleBuffer. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -6835,11 +7022,11 @@ CM_EXPORT
 OSStatus CMSampleBufferSetDataBufferFromAudioBufferList(
 	CMSampleBufferRef CM_NONNULL sbuf,				/*! @param sbuf
 														CMSampleBuffer being modified. */
-	CFAllocatorRef CM_NULLABLE bbufStructAllocator,	/*! @param bbufStructAllocator
+	CFAllocatorRef CM_NULLABLE blockBufferStructureAllocator,	/*! @param blockBufferStructureAllocator
 														Allocator to use when creating the CMBlockBuffer structure. */
-	CFAllocatorRef CM_NULLABLE bbufMemoryAllocator,	/*! @param bbufMemoryAllocator
+	CFAllocatorRef CM_NULLABLE blockBufferBlockAllocator,	/*! @param blockBufferBlockAllocator
 														Allocator to use for memory block held by the CMBlockBuffer. */
-	uint32_t flags,									/*! @param flags
+	uint32_t flags,						/*! @param flags
 														Flags controlling operation. */
 	const AudioBufferList * CM_NONNULL bufferList)	/*! @param bufferList
 														Buffer list whose data will be copied into the new CMBlockBuffer. */
@@ -6872,11 +7059,11 @@ OSStatus CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
 																	Size of the bufferListOut allocated by the client. If bufferListOut
 																	is not NULL and bufferListSize is insufficient, kFigSampleBufferError_ArrayTooSmall
 																	is returned. */
-	CFAllocatorRef CM_NULLABLE bbufStructAllocator,				/*! @param bbufStructAllocator
+	CFAllocatorRef CM_NULLABLE blockBufferStructureAllocator,			/*! @param blockBufferStructureAllocator
 																	Allocator to use when creating the CMBlockBuffer structure. */
-	CFAllocatorRef CM_NULLABLE bbufMemoryAllocator,				/*! @param bbufMemoryAllocator
+	CFAllocatorRef CM_NULLABLE blockBufferBlockAllocator,		/*! @param blockBufferBlockAllocator
 																	Allocator to use for memory block held by the CMBlockBuffer. */
-	uint32_t flags,												/*! @param flags
+	uint32_t flags,									/*! @param flags
 																	Flags controlling operation. */
 	CM_RETURNS_RETAINED_PARAMETER CMBlockBufferRef CM_NULLABLE * CM_NULLABLE blockBufferOut)	/*! @param blockBufferOut
 																	The retained CMBlockBuffer. */
@@ -6996,7 +7183,7 @@ CM_EXPORT
 Boolean CMSampleBufferHasDataFailed(
 	CMSampleBufferRef CM_NONNULL sbuf,	/*! @param sbuf
 											CMSampleBuffer being interrogated. */
-	OSStatus * CM_NONNULL statusOut)		/*! @param statusOut
+	OSStatus * CM_NULLABLE statusOut)	/*! @param statusOut
 											Points to an OSStatus to receive a status code describing the failure.
 											Pass NULL if you do not want this information. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
@@ -7031,7 +7218,7 @@ CM_EXPORT
 OSStatus CMSampleBufferTrackDataReadiness(
 	CMSampleBufferRef CM_NONNULL sbuf,				/*! @param sbuf
 														CMSampleBuffer being modified. */
-	CMSampleBufferRef CM_NONNULL sbufToTrack)		/*! @param sbufToTrack
+	CMSampleBufferRef CM_NONNULL sampleBufferToTrack)		/*! @param sampleBufferToTrack
 														CMSampleBuffer being tracked. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
@@ -7329,8 +7516,8 @@ CM_EXPORT
 OSStatus CMSampleBufferGetSampleTimingInfoArray(
 	CMSampleBufferRef CM_NONNULL sbuf,						/*! @param sbuf
 																CMSampleBuffer being interrogated */
-	CMItemCount timingArrayEntries,							/*! @param timingArrayEntries
-																Number of entries in timingArray */
+	CMItemCount numSampleTimingEntries,						/*! @param numSampleTimingEntries
+																Number of entries in *timingArrayOut */
 	CMSampleTimingInfo * CM_NULLABLE timingArrayOut,		/*! @param timingArrayOut
 																Points to an array of CMSampleTimingInfo structs
 																to receive the timing info. */
@@ -7500,7 +7687,7 @@ CM_EXPORT const CFStringRef kCMSampleAttachmentKey_HasRedundantCoding  // kCFBoo
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 CM_EXPORT const CFStringRef kCMSampleAttachmentKey_IsDependedOnByOthers  // kCFBooleanTrue, kCFBooleanFalse, or absent if unknown
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
-CM_EXPORT const CFStringRef kCMSampleAttachmentKey_DependsOnOthers  // kCFBooleanTrue, kCFBooleanFalse, or absent if unknown
+CM_EXPORT const CFStringRef kCMSampleAttachmentKey_DependsOnOthers  // kCFBooleanTrue (e.g., non-I-frame), kCFBooleanFalse (e.g. I-frame), or absent if unknown
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 CM_EXPORT const CFStringRef kCMSampleAttachmentKey_EarlierDisplayTimesAllowed  // CFBoolean
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
@@ -7520,6 +7707,42 @@ CM_EXPORT const CFStringRef kCMSampleBufferAttachmentKey_PostNotificationWhenCon
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 CM_EXPORT const CFStringRef kCMSampleBufferAttachmentKey_ResumeOutput  // CFNumber (ResumeTag)
 							__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
+
+/*!
+	@constant	kCMSampleAttachmentKey_HEVCTemporalLevelInfo
+	@abstract	Indicates a video frame's level within a hierarchical frame dependency structure.
+	@discussion
+		When present, the temporal level attachments among a group of video frames provide information about where inter-frame dependencies may and may not exist.  
+		The temporal level attachment, if present, is a positive CFNumber, and indicates that this video frame does not depend on any video frame with a greater temporal level.
+		The attachment may be absent if no such information is available.
+
+*/
+CM_EXPORT const CFStringRef kCMSampleAttachmentKey_HEVCTemporalLevelInfo  // CFDictionary(kCMHEVCTemporalLevelInfoKey_*), optional.  Corresponds to 'tscl' sample group.
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+
+CM_EXPORT const CFStringRef kCMHEVCTemporalLevelInfoKey_TemporalLevel					// CFNumber(Int)
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CM_EXPORT const CFStringRef kCMHEVCTemporalLevelInfoKey_ProfileSpace					// CFNumber(Int)
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CM_EXPORT const CFStringRef kCMHEVCTemporalLevelInfoKey_TierFlag						// CFNumber(Int)
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CM_EXPORT const CFStringRef kCMHEVCTemporalLevelInfoKey_ProfileIndex					// CFNumber(Int)
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CM_EXPORT const CFStringRef kCMHEVCTemporalLevelInfoKey_ProfileCompatibilityFlags		// CFData(4 bytes)
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CM_EXPORT const CFStringRef kCMHEVCTemporalLevelInfoKey_ConstraintIndicatorFlags		// CFData(6 bytes)
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CM_EXPORT const CFStringRef kCMHEVCTemporalLevelInfoKey_LevelIndex						// CFNumber(Int)
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+
+CM_EXPORT const CFStringRef kCMSampleAttachmentKey_HEVCTemporalSubLayerAccess			// CFBoolean, optional.  Corresponds to 'tsas' sample group.
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+
+CM_EXPORT const CFStringRef kCMSampleAttachmentKey_HEVCStepwiseTemporalSubLayerAccess  // CFBoolean, optional.  Corresponds to 'stsa' sample group.
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+
+CM_EXPORT const CFStringRef kCMSampleAttachmentKey_HEVCSyncSampleNALUnitType			// CFNumber(Int), optional.  Corresponds to 'sync' sample group.
+							__OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
 
 /*!
 	@constant	kCMSampleBufferAttachmentKey_TransitionID
@@ -7690,7 +7913,7 @@ CM_EXPORT const CFStringRef kCMSampleBufferAttachmentKey_GradualDecoderRefresh  
 		frame.  This attachment identifies the reason for the droppage.
 */
 CM_EXPORT const CFStringRef kCMSampleBufferAttachmentKey_DroppedFrameReason  // CFString, frame drop reason
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+							API_AVAILABLE(ios(6.0));
 
 /*!
 	@constant	kCMSampleBufferDroppedFrameReason_FrameWasLate
@@ -7701,7 +7924,7 @@ CM_EXPORT const CFStringRef kCMSampleBufferAttachmentKey_DroppedFrameReason  // 
 		caused by the client's processing taking too long.
 */
 CM_EXPORT const CFStringRef kCMSampleBufferDroppedFrameReason_FrameWasLate
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+							API_AVAILABLE(ios(6.0));
 	
 /*!
 	@constant	kCMSampleBufferDroppedFrameReason_OutOfBuffers
@@ -7712,7 +7935,7 @@ CM_EXPORT const CFStringRef kCMSampleBufferDroppedFrameReason_FrameWasLate
 		buffers for too long and can be alleviated by returning buffers to the provider.
  */
 CM_EXPORT const CFStringRef kCMSampleBufferDroppedFrameReason_OutOfBuffers
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+							API_AVAILABLE(ios(6.0));
 	
 /*!
 	@constant	kCMSampleBufferDroppedFrameReason_Discontinuity
@@ -7723,7 +7946,7 @@ CM_EXPORT const CFStringRef kCMSampleBufferDroppedFrameReason_OutOfBuffers
 		typically caused by the system being too busy.
  */
 CM_EXPORT const CFStringRef kCMSampleBufferDroppedFrameReason_Discontinuity
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+							API_AVAILABLE(ios(6.0));
 	
 /*!
 	@constant	kCMSampleBufferAttachmentKey_DroppedFrameReasonInfo
@@ -7733,7 +7956,7 @@ CM_EXPORT const CFStringRef kCMSampleBufferDroppedFrameReason_Discontinuity
 		frame. If present, this attachment provides additional information about the kCMSampleBufferAttachmentKey_DroppedFrameReason.
  */
 CM_EXPORT const CFStringRef kCMSampleBufferAttachmentKey_DroppedFrameReasonInfo  
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0); // CFString, dropped frame reason additional information
+							API_AVAILABLE(ios(7.0)); // CFString, dropped frame reason additional information
 	
 /*!
 	@constant	kCMSampleBufferDroppedFrameReasonInfo_CameraModeSwitch
@@ -7744,7 +7967,7 @@ CM_EXPORT const CFStringRef kCMSampleBufferAttachmentKey_DroppedFrameReasonInfo
 		session is configured for still image capture on some devices.
  */
 CM_EXPORT const CFStringRef kCMSampleBufferDroppedFrameReasonInfo_CameraModeSwitch
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+							API_AVAILABLE(ios(7.0));
 	
 	
 	
@@ -7757,7 +7980,7 @@ CM_EXPORT const CFStringRef kCMSampleBufferDroppedFrameReasonInfo_CameraModeSwit
         during the capture.  This key will not be present in CMSampleBuffers coming from cameras without a lens stabilization module.
 */
 CM_EXPORT const CFStringRef kCMSampleBufferAttachmentKey_StillImageLensStabilizationInfo  // CFString, one of kCMSampleBufferLensStabilizationInfo_*
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_9_0);
+							API_AVAILABLE(ios(9.0));
 
 /*!
  @constant	kCMSampleBufferLensStabilizationInfo_Active
@@ -7765,7 +7988,7 @@ CM_EXPORT const CFStringRef kCMSampleBufferAttachmentKey_StillImageLensStabiliza
  @discussion
  */
 CM_EXPORT const CFStringRef kCMSampleBufferLensStabilizationInfo_Active  // CFString
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_9_0);
+							API_AVAILABLE(ios(9.0));
 
 /*!
  @constant	kCMSampleBufferLensStabilizationInfo_OutOfRange
@@ -7775,7 +7998,7 @@ CM_EXPORT const CFStringRef kCMSampleBufferLensStabilizationInfo_Active  // CFSt
 	compensate for the movement.
  */
 CM_EXPORT const CFStringRef kCMSampleBufferLensStabilizationInfo_OutOfRange  // CFString
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_9_0);
+							API_AVAILABLE(ios(9.0));
 
 /*!
  @constant	kCMSampleBufferLensStabilizationInfo_Unavailable
@@ -7785,7 +8008,7 @@ CM_EXPORT const CFStringRef kCMSampleBufferLensStabilizationInfo_OutOfRange  // 
 	to compensate for the motion of the device.  The module may be available at a later time.
  */
 CM_EXPORT const CFStringRef kCMSampleBufferLensStabilizationInfo_Unavailable  // CFString
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_9_0);
+							API_AVAILABLE(ios(9.0));
 
 /*!
  @constant	kCMSampleBufferLensStabilizationInfo_Off
@@ -7794,7 +8017,21 @@ CM_EXPORT const CFStringRef kCMSampleBufferLensStabilizationInfo_Unavailable  //
 	The value of kCMSampleBufferAttachmentKey_StillImageLensStabilizationInfo if the lens stabilization module was not used for this capture.
  */
 CM_EXPORT const CFStringRef kCMSampleBufferLensStabilizationInfo_Off  // CFString
-							__OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_9_0);
+							API_AVAILABLE(ios(9.0));
+
+/*!
+	 @constant	kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix
+	 @abstract	Indicates the 3x3 camera intrinsic matrix applied to the current sample buffer.
+	 @discussion
+		Camera intrinsic matrix is a CFData containing a matrix_float3x3, which is column-major. It has the following contents:
+			fx	0	ox
+			0	fy	oy
+			0	0	1
+			fx and fy are the focal length in pixels. For square pixels, they will have the same value.
+			ox and oy are the coordinates of the principal point. The origin is the upper left of the frame.
+ */
+CM_EXPORT const CFStringRef kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix  // CFData (matrix_float3x3)
+							API_AVAILABLE(ios(11.0));
 
 /*!
 	@constant	kCMSampleBufferAttachmentKey_ForceKeyFrame
@@ -7828,7 +8065,7 @@ CM_EXPORT OSStatus
 CMSampleBufferCallForEachSample(
 	CMSampleBufferRef CM_NONNULL sbuf,		/*! @param sbuf
 												CMSampleBuffer that may contain multiple samples. */
-	OSStatus (* CM_NONNULL callback)( CMSampleBufferRef CM_NONNULL sampleBuffer, CMItemCount index, void * CM_NULLABLE refcon ),
+	OSStatus (* CM_NONNULL CF_NOESCAPE callback)( CMSampleBufferRef CM_NONNULL sampleBuffer, CMItemCount index, void * CM_NULLABLE refcon ),
 											/*! @param callback
 												Function to be called for each individual sample. */
 	void * CM_NULLABLE refcon )				/*! @param refcon
@@ -7852,7 +8089,7 @@ CM_EXPORT OSStatus
 CMSampleBufferCallBlockForEachSample(
 	CMSampleBufferRef CM_NONNULL sbuf,		/*! @param sbuf
 												CMSampleBuffer that may contain multiple samples. */
-	OSStatus (^ CM_NONNULL handler)( CMSampleBufferRef CM_NONNULL sampleBuffer, CMItemCount index ) )
+	OSStatus (^ CM_NONNULL CF_NOESCAPE handler)( CMSampleBufferRef CM_NONNULL sampleBuffer, CMItemCount index ) )
 											/*! @param handler
 												Block to be called for each individual sample. */
 							__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
@@ -8314,9 +8551,10 @@ CM_ASSUME_NONNULL_END
 #include <CoreMedia/CMSync.h>
 #include <CoreMedia/CMTextMarkup.h>
 #include <CoreMedia/CMMetadata.h>
-#if TARGET_OS_IPHONE
+#if ! TARGET_OS_WINDOWS
 #include <CoreMedia/CMAudioClock.h>
-#else
+#endif
+#if ! TARGET_OS_IPHONE
 #include <CoreMedia/CMAudioDeviceClock.h>
 #endif
 // ==========  CoreMedia.framework/Headers/CMMetadata.h
@@ -8441,6 +8679,8 @@ enum
 		Metadata keyspace for ID3 keys.
 	@const kCMMetadataKeySpace_Icy
 		Metadata keyspace for ShoutCast keys.
+	@const kCMMetadataKeySpace_HLSDateRange
+		Metadata keyspace for HLS DateRange tags.
 */
 CM_ASSUME_NONNULL_BEGIN
 
@@ -8456,6 +8696,8 @@ CM_EXPORT const CFStringRef kCMMetadataKeySpace_ID3
 								__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 CM_EXPORT const CFStringRef kCMMetadataKeySpace_Icy
 								__OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
+CM_EXPORT const CFStringRef kCMMetadataKeySpace_HLSDateRange
+								__OSX_AVAILABLE_STARTING(__MAC_10_11_3, __IPHONE_9_3);
 
 /*!
 	@const kCMMetadataIdentifier_QuickTimeMetadataLocation_ISO6709

@@ -116,6 +116,10 @@ NS_ASSUME_NONNULL_END
 #ifndef CS_DEPRECATED
 #define CS_DEPRECATED(_macIntro, _macDep, _iosIntro, _iosDep, ...) NS_DEPRECATED(_macIntro, _macDep, _iosIntro, _iosDep, __VA_ARGS__)
 #endif
+
+#ifndef CS_TVOS_UNAVAILABLE
+#define CS_TVOS_UNAVAILABLE __TVOS_PROHIBITED
+#endif
 // ==========  CoreSpotlight.framework/Headers/CSSearchableIndex.h
 //
 //  CSSearchableIndex.h
@@ -129,7 +133,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CORESPOTLIGHT_EXPORT NSString * const CSIndexErrorDomain CS_AVAILABLE(NA, 9_0);
+CORESPOTLIGHT_EXPORT NSString * const CSIndexErrorDomain CS_AVAILABLE(10_13, 9_0) CS_TVOS_UNAVAILABLE;
 
 typedef NS_ENUM(NSInteger, CSIndexErrorCode) {
     CSIndexErrorCodeUnknownError =                               -1,
@@ -139,11 +143,12 @@ typedef NS_ENUM(NSInteger, CSIndexErrorCode) {
     CSIndexErrorCodeRemoteConnectionError =                   -1003, //There was an error trying to communicate with the remote process
     CSIndexErrorCodeQuotaExceeded =                           -1004, //Quota for bundle was exceeded
     CSIndexErrorCodeIndexingUnsupported =                     -1005, //Indexing isn't supported on this device
-} CS_AVAILABLE(NA, 9_0);
+} CS_AVAILABLE(10_13, 9_0) CS_TVOS_UNAVAILABLE;
 
 @protocol CSSearchableIndexDelegate;
 
-CS_CLASS_AVAILABLE(NA, 9_0)
+CS_CLASS_AVAILABLE(10_13, 9_0)
+CS_TVOS_UNAVAILABLE
 @interface CSSearchableIndex : NSObject
 
 @property (weak,nullable) id<CSSearchableIndexDelegate> indexDelegate;
@@ -153,10 +158,11 @@ CS_CLASS_AVAILABLE(NA, 9_0)
 
 + (instancetype)defaultSearchableIndex;
 
+// Apps can set a name for the index instance. This name is used as a handle for the client state used with the batch API, allowing a single client to have multiple client states; you have to retrieve the client state for an index instance with the same name as you used when setting the client state.
 - (instancetype)initWithName:(NSString *)name;
 
 //Apps can set a default protection class for items in their entitlements.  You can alternately create an instance with a custom protection class to use on iOS.  It should be one of NSFileProtectionComplete, NSFileProtectionCompleteUnlessOpen, or NSFileProtectionCompleteUntilFirstUserAuthentication.
-- (instancetype)initWithName:(NSString *)name protectionClass:(nullable NSString *)protectionClass;
+- (instancetype)initWithName:(NSString *)name protectionClass:(nullable NSFileProtectionType)protectionClass;
 
 // Call this method to add or update items in the index.
 // Completion handlers will be called once the data has been journaled by the index.  If the completion handler returns an error, the client should retry, as it was not journaled correctly.
@@ -168,7 +174,9 @@ CS_CLASS_AVAILABLE(NA, 9_0)
 // reindexSearchableItemsWithIdentifiers will be called if the journaling completed successfully but the data was not able to be indexed for some reason.
 - (void)deleteSearchableItemsWithIdentifiers:(NSArray<NSString *> *)identifiers completionHandler:(void (^ __nullable)(NSError * __nullable error))completionHandler;
 
-// Call this method on the index to remove any items from the index with the given domain identifiers.  The delete is recursive so if domain identifiers are of the form <account-id>.<mailbox-id>, for example, calling delete with <account-id> will items with that account and any mailbox.
+// Call this method on the index to remove any items from the index with the given domain identifiers.
+// The delete is recursive so if domain identifiers are of the form <account-id>.<mailbox-id>, for example,
+// calling delete with <account-id> will delte all the searchable items with that account and any mailbox.
 - (void)deleteSearchableItemsWithDomainIdentifiers:(NSArray<NSString *> *)domainIdentifiers completionHandler:(void (^ __nullable)(NSError * __nullable error))completionHandler;
 
 // Call this method to delete all searchable items from the index.
@@ -201,7 +209,8 @@ CS_CLASS_AVAILABLE(NA, 9_0)
 //An application that is long running should provide a CSSearchableIndexDelegate conforming object to handle communication from the index.
 //Alternatively, an app can provide an extension whose request handler conforms to this protocol and the extension will be called if the app isn't running.
 
-CS_AVAILABLE(NA, 9_0)
+CS_AVAILABLE(10_13, 9_0)
+CS_TVOS_UNAVAILABLE
 @protocol CSSearchableIndexDelegate <NSObject>
 
 @required
@@ -228,8 +237,14 @@ CS_AVAILABLE(NA, 9_0)
 - (void)searchableIndexDidThrottle:(CSSearchableIndex *)searchableIndex;
 - (void)searchableIndexDidFinishThrottle:(CSSearchableIndex *)searchableIndex;
 
-@end
 
+// The developer may provided a NSData representation if type was specified in providerDataTypeIdentifiers property.
+- (nullable NSData *)dataForSearchableIndex:(CSSearchableIndex *)searchableIndex itemIdentifier:(NSString *)itemIdentifier typeIdentifier:(NSString *)typeIdentifier error:(out NSError ** __nullable)outError CS_AVAILABLE(10_13, 11_0) CS_TVOS_UNAVAILABLE;
+
+// The developer may provided a NSURL to file representation representation if type was specified from providerDataTypeIdentifiers or providerInPlaceFileTypeIdentifiers property.
+- (nullable NSURL *)fileURLForSearchableIndex:(CSSearchableIndex *)searchableIndex itemIdentifier:(NSString *)itemIdentifier typeIdentifier:(NSString *)typeIdentifier inPlace:(BOOL)inPlace error:(out NSError ** __nullable)outError CS_AVAILABLE(10_13, 11_0) CS_TVOS_UNAVAILABLE;
+
+@end
 NS_ASSUME_NONNULL_END
 // ==========  CoreSpotlight.framework/Headers/CSSearchableItemAttributeSet_Categories.h
 //
@@ -258,7 +273,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CS_CLASS_AVAILABLE(NA, 9_0)
+CS_CLASS_AVAILABLE(10_13, 9_0)
+CS_TVOS_UNAVAILABLE
 @interface CSPerson : NSObject <NSSecureCoding,NSCopying>
 
 - (instancetype)initWithDisplayName:(nullable NSString *)displayName handles:(NSArray<NSString*> *)handles handleIdentifier:(NSString *)handleIdentifier;
@@ -296,6 +312,9 @@ NS_ASSUME_NONNULL_END
 @property(nullable, copy) NSString *path;
 
 //Optional file URL representing the content to be indexed
+//Applications that are also 'Documents & Data' clients can set this property to allow Spotlight to deduplicate
+//their searchable items against the iCloud Drive's items. When this property is set, Spotlight will not display
+//the iCloud Drive's searchable items that have the same contentURL property.
 @property(nullable, strong) NSURL *contentURL;
 
 //Optional file URL pointing to a thumbnail image for this item
@@ -304,8 +323,12 @@ NS_ASSUME_NONNULL_END
 //Optional image data for thumbnail for this item
 @property(nullable, copy) NSData *thumbnailData;
 
-//For activities, this is the unique identifier for the item this activity is related to
+//For activities, this is the unique identifier for the item this activity is related to. If the item doesn't exist in the index, the activity will not get stored. When the item is deleted, the activity will also be deleted.
 @property(nullable, copy) NSString *relatedUniqueIdentifier;
+
+//For activities, this is the unique identifier for an item this activity is related to. Unlike relatedUniqueIdentifier, this attribute does not link the life time of the items.
+@property(nullable, copy) NSString *weakRelatedUniqueIdentifier CS_AVAILABLE(10_13, 10_0) CS_TVOS_UNAVAILABLE;
+
 
 //This is the date that the last metadata attribute was changed.
 @property(nullable, strong) NSDate *metadataModificationDate;
@@ -323,23 +346,65 @@ NS_ASSUME_NONNULL_END
 //Title of the document, or it could be the title of this mp3 or a subject of a mail message.
 @property(nullable, copy) NSString *title;
 
+//A version specifier for this item.
+@property(nullable, copy) NSString *version;
+
+//This property is used to indicate if the indexed item was created by the user
+//It is used to distinguish pushed app content from content that required explicit user interaction
+//Example content that may set this field: user created notes, documents
+@property(nullable, strong, getter=isUserCreated) NSNumber *userCreated CS_AVAILABLE(10_13, 11_0) CS_TVOS_UNAVAILABLE;
+
+//This property is used to indicate if the indexed item has been purchased or otherwise acquired by the user
+//Example content are songs bought by a user and made searchable
+@property(nullable, strong, getter=isUserOwned) NSNumber *userOwned CS_AVAILABLE(10_13, 11_0) CS_TVOS_UNAVAILABLE;
+
+//This property is used to indicate if the indexed item was selected by the user
+//It is used to distinguish pushed app content from content that a user has chosen to add to a collection
+//Example content that may set this field: downloaded media content, bookmarked websites/news articles
+@property(nullable, strong, getter=isUserCurated) NSNumber *userCurated CS_AVAILABLE(10_13, 11_0) CS_TVOS_UNAVAILABLE;
+
+//This property allows content donors to provide a ranking signal to each indexed item
+//It will inform the ranker, allowing it to distinguish more easily between otherwise similar items
+//This is query-independent and should be used to indicate the relative importance of an item w.r.t. all other items for the same application
+//Expected value ∈ [0-100]; preferably integral values
+//Monotonically increasing with larger values being considered better results
+@property(nullable, strong) NSNumber *rankingHint CS_AVAILABLE(10_13, 11_0) CS_TVOS_UNAVAILABLE;
+
+// This property has the same semantics as -[CSSearchableItem domainIdentifier].
+// It can be set on the contentAttributeSet property of a NSUserActivity instance and then used to delete the user activity
+// by calling [[CSSearchableIndex defaultSearchableIndex] deleteSearchableItemsWithDomainIdentifiers:].
+@property(nullable, copy) NSString *domainIdentifier CS_AVAILABLE(10_13, 10_0) CS_TVOS_UNAVAILABLE;
+
 @end
 
 @interface CSSearchableItemAttributeSet (CSActionExtras)
 // If supportsPhoneCall is 1 and the item has the phoneNumbers property, then the phone number may be used to initiate phone calls. This should be used to indicate that using the phone number is appropriate, and a primary action for the user. For example, supportsPhoneCall would be set on a business, but not an academic paper that happens to have phone numbers for the authors or the institution.
-@property (nullable, copy) NSNumber *supportsPhoneCall;
+@property(nullable, strong) NSNumber *supportsPhoneCall;
 
 // If supportsNavigation is set to 1, and the item has the latitude and longitude properties set, then the latitude and longitude may be used for navigation. For example, supportsNavigation would be set on a restaurant review, but not on a photo.
-@property (nullable, copy) NSNumber *supportsNavigation;
+@property(nullable, strong) NSNumber *supportsNavigation;
 @end
 
 @interface CSSearchableItemAttributeSet(CSContainment)
 @property(nullable, copy) NSString *containerTitle;
 @property(nullable, copy) NSString *containerDisplayName;
 @property(nullable, copy) NSString *containerIdentifier;
-@property(nullable, copy) NSNumber *containerOrder;
+@property(nullable, strong) NSNumber *containerOrder;
 @end
 
+@interface CSSearchableItemAttributeSet (CSItemProvider)
+// The string value of type identifer can only be used by one providerTypeIdentifier array.
+
+// An array of types identifiers that owner can provided a NSData representation.
+@property(nullable, copy) NSArray<NSString *> *providerDataTypeIdentifiers CS_AVAILABLE(10_13, 11_0) CS_TVOS_UNAVAILABLE;
+
+// An array of types identifiers that owner can provided a NSURL to file representation.
+@property(nullable, copy) NSArray<NSString *> *providerFileTypeIdentifiers CS_AVAILABLE(10_13, 11_0) CS_TVOS_UNAVAILABLE;
+
+// An array of types identifiers that owner can provided a NSURL to inplace file representation.
+@property(nullable, copy) NSArray<NSString *> *providerInPlaceFileTypeIdentifiers CS_AVAILABLE(10_13, 11_0) CS_TVOS_UNAVAILABLE;
+
+@end
 
 // ==========  CoreSpotlight.framework/Headers/CSSearchableItemAttributeSet_Images.h
 //
@@ -531,6 +596,7 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <CoreSpotlight/CSSearchableItemAttributeSet.h>
+#import <CoreSpotlight/CSSearchableItemAttributeSet_General.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -579,9 +645,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 //A list of contacts that are somehow associated with this document, beyond what is captured as Author.
 @property(nullable, copy) NSArray<NSString*> *contactKeywords;
-
-//A version specifier for this item.
-@property(nullable, copy) NSString *version;
 
 //The codecs used to encode/decode the media
 @property(nullable, copy) NSArray<NSString*> *codecs;
@@ -772,7 +835,7 @@ NS_ASSUME_NONNULL_END
 #import <CoreSpotlight/CSSearchableItemAttributeSet.h>
 #import <CoreSpotlight/CSSearchableItemAttributeSet_Categories.h>
 #import <CoreSpotlight/CSIndexExtensionRequestHandler.h>
-
+#import <CoreSpotlight/CSSearchQuery.h>
 
 //! Project version number for CoreSpotlight.
 CORESPOTLIGHT_EXPORT double CoreSpotlightVersionNumber;
@@ -793,11 +856,27 @@ CORESPOTLIGHT_EXPORT const unsigned char CoreSpotlightVersionString[];
 NS_ASSUME_NONNULL_BEGIN
 
 // When opening a document from Spotlight, the application's application:willContinueUserActivityWithType:
-// method will get called with CSSearchableItemActionType, followed by  application:continueUserActivity:restorationHandler: with an NSUserActivity where the userInfo dictionary has a single key value pair where CSSearchableItemActivityIdentifier is the key and the value is the uniqueIdentifier used when creating the item.
-CORESPOTLIGHT_EXPORT NSString * const CSSearchableItemActionType CS_AVAILABLE(NA, 9_0);
-CORESPOTLIGHT_EXPORT NSString * const CSSearchableItemActivityIdentifier CS_AVAILABLE(NA, 9_0);
+// method will get called with CSSearchableItemActionType, followed by  application:continueUserActivity:restorationHandler:
+// with an NSUserActivity where the userInfo dictionary has a key value pair where CSSearchableItemActivityIdentifier is the key
+// and the value is the uniqueIdentifier used when creating the item.
+CORESPOTLIGHT_EXPORT NSString * const CSSearchableItemActionType CS_AVAILABLE(10_13, 9_0) CS_TVOS_UNAVAILABLE;
+CORESPOTLIGHT_EXPORT NSString * const CSSearchableItemActivityIdentifier CS_AVAILABLE(10_13, 9_0) CS_TVOS_UNAVAILABLE;
 
-CS_CLASS_AVAILABLE(NA, 9_0)
+// When continuing a query from Spotlight, the application's -application:willContinueUserActivityWithType:
+// method will get called with CSQueryContinuationActionType, followed by -application:continueUserActivity:restorationHandler:
+// with an NSUserActivity where the userInfo dictionary has a key value pair with CSSearchQueryString as the key
+// and the value is the string the application should use when performing its query.
+// The application should declare that it supports the query continuation by adding the CoreSpotlightContinuation key to its Info.plist:
+//
+//    <key>CoreSpotlightContinuation</key>
+//    <true/>
+//
+CORESPOTLIGHT_EXPORT NSString * const CSQueryContinuationActionType CS_AVAILABLE(10_13, 10_0) CS_TVOS_UNAVAILABLE;
+CORESPOTLIGHT_EXPORT NSString * const CSSearchQueryString CS_AVAILABLE(10_13, 10_0) CS_TVOS_UNAVAILABLE;
+
+
+CS_CLASS_AVAILABLE(10_13, 9_0)
+CS_TVOS_UNAVAILABLE
 @interface CSSearchableItem : NSObject <NSSecureCoding, NSCopying>
 
 - (instancetype)initWithUniqueIdentifier:(nullable NSString *)uniqueIdentifier //Can be null, one will be generated
@@ -843,6 +922,15 @@ NS_ASSUME_NONNULL_END
 //Other editorial instructions concerning the use of the item, such as embargoes and warnings.
 @property(nullable, copy) NSString *instructions;
 
+//The location (e.g., street name) for the item according to guidelines established by the provider.
+@property(nullable, copy) NSString *thoroughfare;
+
+//The sub-location (e.g., street number) for the item according to guidelines established by the provider.
+@property(nullable, copy) NSString *subThoroughfare;
+
+//The postal code for the item according to guidelines established by the provider.
+@property(nullable, copy) NSString *postalCode;
+
 //Identifies city of item origin according to guidelines established by the provider.
 @property(nullable, copy) NSString *city;
 
@@ -852,6 +940,9 @@ NS_ASSUME_NONNULL_END
 //Provides full, publishable, name of the country/primary location where the
 //intellectual property of the item was created,according to guidelines of the provider.
 @property(nullable, copy) NSString *country;
+
+// The fully formatted address of the item (obtained from MapKit)
+@property(nullable, copy) NSString *fullyFormattedAddress;
 
 //The altitude of the item in meters above sea level, expressed
 //using the WGS84 datum.  Negative values lie below sea level.
@@ -934,9 +1025,66 @@ NS_ASSUME_NONNULL_END
 @property(nullable, copy) NSArray<NSDate *> *importantDates;
 
 //Whether this event covers complete days
-@property(nullable, copy) NSNumber *allDay;
+@property(nullable, strong) NSNumber *allDay;
 
 @end
+// ==========  CoreSpotlight.framework/Headers/CSSearchQuery.h
+//
+//  CSSearchQuery.h
+//  CoreSpotlight
+//
+//  Copyright © 2015 Apple. All rights reserved.
+//
+
+#import <CoreSpotlight/CSBase.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+CORESPOTLIGHT_EXPORT NSString * const CSSearchQueryErrorDomain API_AVAILABLE(macos(10.12), ios(10.0)) CS_TVOS_UNAVAILABLE;
+
+typedef NS_ENUM(NSInteger, CSSearchQueryErrorCode) {
+    CSSearchQueryErrorCodeUnknown = -2000,
+    CSSearchQueryErrorCodeIndexUnreachable = -2001,
+    CSSearchQueryErrorCodeInvalidQuery = -2002,
+    CSSearchQueryErrorCodeCancelled = -2003,
+} API_AVAILABLE(macos(10.12), ios(10.0)) CS_TVOS_UNAVAILABLE;
+
+@class CSSearchableItem;
+
+API_AVAILABLE(macos(10.12), ios(10.0)) CS_TVOS_UNAVAILABLE
+@interface CSSearchQuery : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
+
+// queryString: The query string (e.g., 'contentType == "public.email-message" && subject != "Re:*"')
+// attributes: The attributes to be fetched for the searchable items
+- (instancetype)initWithQueryString:(NSString *)queryString attributes:(NSArray<NSString *> * _Nullable)attributes;
+
+@property (readonly, getter=isCancelled) BOOL cancelled;
+
+// The query will update the count before each foundItemsHandler invocation to reflect
+// the number of items found so far; if foundItemsHandler is nil then the count will
+// contain the total number of found items when the query completes.
+@property (readonly) NSUInteger foundItemCount;
+
+// The foundItemsHandler will be invoked repeatedly with a new batch of searchable items.
+// The query serializes all the foundItemsHandler invocations.
+@property (nullable, copy) void (^foundItemsHandler)(NSArray<CSSearchableItem *> *items);
+
+@property (nullable, copy) void (^completionHandler)(NSError * _Nullable error);
+
+// An array of NSFileProtectionComplete, NSFileProtectionCompleteUnlessOpen,
+// or NSFileProtectionCompleteUntilFirstUserAuthentication.
+// By default the data protection will be read from the "com.apple.developer.default-data-protection"
+// entitlement if any or NSFileProtectionCompleteUntilFirstUserAuthentication will be used otherwise.
+@property (copy) NSArray<NSFileProtectionType> *protectionClasses;
+
+- (void)start;
+- (void)cancel;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  CoreSpotlight.framework/Headers/CSSearchableItemAttributeSet.h
 //
 //  CSSearchableItemAttributeSet.h
@@ -951,7 +1099,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CS_CLASS_AVAILABLE(NA, 9_0)
+CS_CLASS_AVAILABLE(10_13, 9_0)
+CS_TVOS_UNAVAILABLE
 // CSSearchableItemAttribute encapsulates a set of properties of an CSSearchableItem.
 // CSSearchableItemAttribute set should only be mutated from one thread at a time. Concurrent access to properties has undefined behavior.
 @interface CSSearchableItemAttributeSet : NSObject <NSCopying,NSSecureCoding>
@@ -962,6 +1111,7 @@ CS_CLASS_AVAILABLE(NA, 9_0)
 @end
 
 //CSLocalizedString can be used in place of NSString to support localization
+CS_TVOS_UNAVAILABLE
 @interface CSLocalizedString : NSString
 
 //Takes a dictionary of preferred codes to the localized string for that language
@@ -973,8 +1123,11 @@ CS_CLASS_AVAILABLE(NA, 9_0)
 @end
 
 //CSCustomAttributeKey allows you to specify a custom attribute as well as various other properties of that attribute.
-CS_CLASS_AVAILABLE(NA, 9_0)
+CS_CLASS_AVAILABLE(10_13, 9_0)
+CS_TVOS_UNAVAILABLE
 @interface CSCustomAttributeKey : NSObject <NSCopying,NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
 
 //Key names should be ASCII only, with no punctuation other than '_'.
 //It is recommended keys be of the form "com_mycompany_myapp_keyname"
@@ -1016,7 +1169,7 @@ CS_CLASS_AVAILABLE(NA, 9_0)
 //Attributes to be indexed for a given NSUserActivity
 @interface NSUserActivity (CSSearchableItemAttributeSet)
 
-@property (nullable, copy) CSSearchableItemAttributeSet *contentAttributeSet CS_AVAILABLE(NA, 9_0);
+@property (nullable, copy) CSSearchableItemAttributeSet *contentAttributeSet CS_AVAILABLE(10_13, 9_0) CS_TVOS_UNAVAILABLE;
 
 @end
 
@@ -1038,8 +1191,10 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <CoreSpotlight/CSSearchableIndex.h>
+#import <CoreSpotlight/CSBase.h>
 
-CS_CLASS_AVAILABLE(NA, 9_0)
+CS_CLASS_AVAILABLE(10_13, 9_0)
+CS_TVOS_UNAVAILABLE
 @interface CSIndexExtensionRequestHandler : NSObject <NSExtensionRequestHandling,CSSearchableIndexDelegate>
 
 @end

@@ -9,6 +9,7 @@
 #include <OpenGLES/EAGL.h>
 #include <OpenGLES/OpenGLESAvailability.h>
 
+NS_ASSUME_NONNULL_BEGIN
 
 /************************************************************************/
 /* Keys for EAGLDrawable drawableProperties dictionary                  */
@@ -43,7 +44,7 @@ EAGL_EXTERN NSString * const kEAGLColorFormatSRGBA8 NS_AVAILABLE_IOS(7_0);
 @protocol EAGLDrawable 
 
 /* Contains keys from kEAGLDrawableProperty* above */
-@property(copy) NSDictionary* drawableProperties;
+@property(nullable, copy) NSDictionary<NSString*, id>* drawableProperties;
 
 @end
 
@@ -52,13 +53,20 @@ OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0))
 @interface EAGLContext (EAGLContextDrawableAdditions)
 
 /* Attaches an EAGLDrawable as storage for the OpenGL ES renderbuffer object bound to <target> */
-- (BOOL)renderbufferStorage:(NSUInteger)target fromDrawable:(id<EAGLDrawable>)drawable;
+- (BOOL)renderbufferStorage:(NSUInteger)target fromDrawable:(nullable id<EAGLDrawable>)drawable;
 
 /* Request the native window system display the OpenGL ES renderbuffer bound to <target> */
 - (BOOL)presentRenderbuffer:(NSUInteger)target;
 
+/* Request the native window system display the OpenGL ES renderbuffer bound to <target> at specified time */
+- (BOOL)presentRenderbuffer:(NSUInteger)target atTime:(CFTimeInterval)presentationTime;
+
+/* Request the native window system display the OpenGL ES renderbuffer bound to <target> after the previous frame is presented for at least duration time */
+- (BOOL)presentRenderbuffer:(NSUInteger)target afterMinimumDuration:(CFTimeInterval)duration;
+
 @end /* EAGLDrawable protocol */
 
+NS_ASSUME_NONNULL_END
 
 #endif /* _EAGL_DRAWABLE_H_ */
 
@@ -2603,6 +2611,7 @@ typedef NS_ENUM(NSUInteger, EAGLRenderingAPI)
 	kEAGLRenderingAPIOpenGLES3 = 3,
 };
 
+NS_ASSUME_NONNULL_BEGIN
 
 /************************************************************************/
 /* EAGL Functions                                                       */
@@ -2621,7 +2630,7 @@ EAGL_EXTERN_CLASS
 	struct _EAGLSharegroupPrivate *_private;
 }
 
-@property (copy, nonatomic) NSString* debugLabel NS_AVAILABLE_IOS(6_0);
+@property (nullable, copy, nonatomic) NSString* debugLabel NS_AVAILABLE_IOS(6_0);
 
 @end
 
@@ -2637,22 +2646,51 @@ OPENGLES_DEPRECATED(ios(2.0, 12.0), tvos(9.0, 12.0))
 	struct _EAGLContextPrivate *_private;
 }
 
-- (instancetype) init NS_UNAVAILABLE;
-- (instancetype) initWithAPI:(EAGLRenderingAPI) api;
-- (instancetype) initWithAPI:(EAGLRenderingAPI) api sharegroup:(EAGLSharegroup*) sharegroup NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype) init NS_UNAVAILABLE;
+- (nullable instancetype) initWithAPI:(EAGLRenderingAPI) api;
+- (nullable instancetype) initWithAPI:(EAGLRenderingAPI) api sharegroup:(EAGLSharegroup*) sharegroup NS_DESIGNATED_INITIALIZER;
 
-+ (BOOL)            setCurrentContext:(EAGLContext*) context;
-+ (EAGLContext*)    currentContext;
++ (BOOL)                     setCurrentContext:(nullable EAGLContext*) context;
++ (nullable EAGLContext*)    currentContext;
 
-@property (readonly) EAGLRenderingAPI   API;
-@property (readonly) EAGLSharegroup*    sharegroup;
+@property (readonly)          EAGLRenderingAPI   API;
+@property (nonnull, readonly) EAGLSharegroup*    sharegroup;
 
-@property (copy, nonatomic) NSString* debugLabel NS_AVAILABLE_IOS(6_0);
+@property (nullable, copy, nonatomic) NSString* debugLabel NS_AVAILABLE_IOS(6_0);
 @property (getter=isMultiThreaded, nonatomic) BOOL multiThreaded NS_AVAILABLE_IOS(7_1);
 @end
 
+NS_ASSUME_NONNULL_END
 
 #endif /* _EAGL_H_ */
+
+// ==========  OpenGLES.framework/Headers/EAGLIOSurface.h
+/*
+    Copyright:  (c) 2017 Apple Inc. All rights reserved.
+*/
+
+#ifndef _EAGL_IOSURFACE_H_
+#define _EAGL_IOSURFACE_H_
+
+#include <OpenGLES/EAGL.h>
+
+
+#if defined(__IPHONE_11_0)
+
+#include <IOSurface/IOSurfaceRef.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface EAGLContext(IOSurface)
+- (BOOL)texImageIOSurface:(IOSurfaceRef)ioSurface target:(NSUInteger)target internalFormat:(NSUInteger)internalFormat width:(uint32_t)width height:(uint32_t)height format:(NSUInteger)format type:(NSUInteger)type plane:(uint32_t)plane NS_AVAILABLE_IOS(11_0);
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
+
+
+#endif /* _EAGL_IOSURFACE_H_ */
 
 // ==========  OpenGLES.framework/Headers/ES1/glext.h
 #ifndef ES1_GLEXT_H_GUARD

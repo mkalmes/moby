@@ -59,10 +59,11 @@ typedef double CLLocationDirection;
  *    longitude:
  *      The longitude in degrees.
  */
-typedef struct {
+struct CLLocationCoordinate2D {
 	CLLocationDegrees latitude;
 	CLLocationDegrees longitude;
-} CLLocationCoordinate2D;
+};
+typedef struct CLLocationCoordinate2D CLLocationCoordinate2D;
 
 /*
  *  CLLocationDistance
@@ -91,7 +92,7 @@ extern const CLLocationDistance kCLDistanceFilterNone;
  *    power performance, be sure to specify an appropriate accuracy for your usage scenario (eg,
  *    use a large accuracy value when only a coarse location is needed).
  */
-extern const CLLocationAccuracy kCLLocationAccuracyBestForNavigation __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
+extern const CLLocationAccuracy kCLLocationAccuracyBestForNavigation API_AVAILABLE(ios(4.0), macos(10.7));
 extern const CLLocationAccuracy kCLLocationAccuracyBest;
 extern const CLLocationAccuracy kCLLocationAccuracyNearestTenMeters;
 extern const CLLocationAccuracy kCLLocationAccuracyHundredMeters;
@@ -104,7 +105,7 @@ extern const CLLocationAccuracy kCLLocationAccuracyThreeKilometers;
  *  Discussion:
  *  	Used to specify the maximum CLLocationDistance
  */
-extern const CLLocationDistance CLLocationDistanceMax __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+extern const CLLocationDistance CLLocationDistanceMax API_AVAILABLE(ios(6.0), macos(10.14));
 
 /*
  *  CLTimeIntervalMax
@@ -112,7 +113,7 @@ extern const CLLocationDistance CLLocationDistanceMax __OSX_AVAILABLE_STARTING(_
  *  Discussion:
  *  	Used to specify the maximum NSTimeInterval
  */
-extern const NSTimeInterval CLTimeIntervalMax __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+extern const NSTimeInterval CLTimeIntervalMax API_AVAILABLE(ios(6.0), macos(10.14));
 
 /*
  *  kCLLocationCoordinate2DInvalid
@@ -120,7 +121,7 @@ extern const NSTimeInterval CLTimeIntervalMax __OSX_AVAILABLE_STARTING(__MAC_NA,
  *  Discussion:
  *    Used to specify an invalid CLLocationCoordinate2D.
  */
-extern const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
+extern const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid API_AVAILABLE(ios(4.0), macos(10.7));
 
 #ifdef __cplusplus
 extern "C" {
@@ -132,7 +133,7 @@ extern "C" {
  *  Discussion:
  *    Returns YES if the specified coordinate is valid, NO otherwise.
  */
-BOOL CLLocationCoordinate2DIsValid(CLLocationCoordinate2D coord) __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
+BOOL CLLocationCoordinate2DIsValid(CLLocationCoordinate2D coord) API_AVAILABLE(ios(4.0), macos(10.7));
 
 /*
  *  CLLocationCoordinate2DMake:
@@ -140,7 +141,7 @@ BOOL CLLocationCoordinate2DIsValid(CLLocationCoordinate2D coord) __OSX_AVAILABLE
  *  Discussion:
  *    Returns a new CLLocationCoordinate2D at the given latitude and longitude
  */
-CLLocationCoordinate2D CLLocationCoordinate2DMake(CLLocationDegrees latitude, CLLocationDegrees longitude) __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
+CLLocationCoordinate2D CLLocationCoordinate2DMake(CLLocationDegrees latitude, CLLocationDegrees longitude) API_AVAILABLE(ios(4.0), macos(10.7));
 
 #ifdef __cplusplus
 }
@@ -152,7 +153,7 @@ CLLocationCoordinate2D CLLocationCoordinate2DMake(CLLocationDegrees latitude, CL
  *  Discussion:
  *    Encapsulates the information about a floor.
  */
-NS_CLASS_AVAILABLE(NA, 8_0)
+API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos)
 @interface CLFloor : NSObject <NSCopying, NSSecureCoding>
 
 /*
@@ -176,7 +177,7 @@ NS_CLASS_AVAILABLE(NA, 8_0)
  *  Discussion:
  *    Represents a geographical coordinate along with accuracy and timestamp information.
  */
-NS_CLASS_AVAILABLE(10_6, 2_0)
+API_AVAILABLE(macos(10.6), ios(2.0))
 @interface CLLocation : NSObject <NSCopying, NSSecureCoding>
 {
 @private
@@ -216,7 +217,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
     verticalAccuracy:(CLLocationAccuracy)vAccuracy
     course:(CLLocationDirection)course
     speed:(CLLocationSpeed)speed
-    timestamp:(NSDate *)timestamp __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_2);
+    timestamp:(NSDate *)timestamp API_AVAILABLE(ios(4.2), macos(10.7));
 
 /*
  *  coordinate
@@ -259,7 +260,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Range:
  *    0.0 - 359.9 degrees, 0 being true North
  */
-@property(readonly, nonatomic) CLLocationDirection course __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_2_2) __WATCHOS_PROHIBITED;
+@property(readonly, nonatomic) CLLocationDirection course API_AVAILABLE(ios(2.2), macos(10.7)) API_UNAVAILABLE(tvos);
 
 /*
  *  speed
@@ -267,7 +268,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *    Returns the speed of the location in m/s. Negative if speed is invalid.
  */
-@property(readonly, nonatomic) CLLocationSpeed speed __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_2_2) __WATCHOS_PROHIBITED;
+@property(readonly, nonatomic) CLLocationSpeed speed API_AVAILABLE(ios(2.2), macos(10.7)) API_UNAVAILABLE(tvos);
 
 /*
  *  timestamp
@@ -285,15 +286,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *    in the current building if you are inside a supported venue.
  *    This will be nil if the floor is unavailable.
  */
-@property(readonly, nonatomic, copy, nullable) CLFloor *floor __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_8_0);
-
-/*
- *  description
- *  
- *  Discussion:
- *    Returns a string representation of the location.
- */
-@property (nonatomic, readonly, copy) NSString *description;
+@property(readonly, nonatomic, copy, nullable) CLFloor *floor API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos);
 
 /*
  *  getDistanceFrom:
@@ -301,7 +294,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *    Deprecated. Use -distanceFromLocation: instead.
  */
-- (CLLocationDistance)getDistanceFrom:(const CLLocation *)location __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_NA,__MAC_NA,__IPHONE_2_0,__IPHONE_3_2) __WATCHOS_PROHIBITED;
+- (CLLocationDistance)getDistanceFrom:(const CLLocation *)location API_DEPRECATED_WITH_REPLACEMENT("-distanceFromLocation:", ios(2.0, 3.2)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  distanceFromLocation:
@@ -309,7 +302,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *    Returns the lateral distance between two locations.
  */
-- (CLLocationDistance)distanceFromLocation:(const CLLocation *)location __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_3_2);
+- (CLLocationDistance)distanceFromLocation:(const CLLocation *)location API_AVAILABLE(ios(3.2), macos(10.6));
 
 @end
 
@@ -361,7 +354,7 @@ typedef uint16_t CLBeaconMinorValue;
  *    value.
  *
  */
-NS_CLASS_AVAILABLE(NA, 7_0) __WATCHOS_PROHIBITED
+API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(watchos, tvos, macos)
 @interface CLBeaconRegion : CLRegion
 
 /*
@@ -413,7 +406,7 @@ NS_CLASS_AVAILABLE(NA, 7_0) __WATCHOS_PROHIBITED
  *    Proximity identifier associated with the region.
  *
  */
-@property (readonly, nonatomic, strong) NSUUID *proximityUUID;
+@property (readonly, nonatomic, copy) NSUUID *proximityUUID;
 
 /*
  *  major
@@ -422,7 +415,7 @@ NS_CLASS_AVAILABLE(NA, 7_0) __WATCHOS_PROHIBITED
  *    Most significant value associated with the region. If a major value wasn't specified, this will be nil.
  *
  */
-@property (readonly, nonatomic, strong, nullable) NSNumber *major;
+@property (readonly, nonatomic, copy, nullable) NSNumber *major;
 
 /*
  *  minor
@@ -431,7 +424,7 @@ NS_CLASS_AVAILABLE(NA, 7_0) __WATCHOS_PROHIBITED
  *    Least significant value associated with the region. If a minor value wasn't specified, this will be nil.
  *
  */
-@property (readonly, nonatomic, strong, nullable) NSNumber *minor;
+@property (readonly, nonatomic, copy, nullable) NSNumber *minor;
 
 /*
  *  notifyEntryStateOnDisplay
@@ -444,6 +437,8 @@ NS_CLASS_AVAILABLE(NA, 7_0) __WATCHOS_PROHIBITED
 
 @end
 
+@class CLBeaconInternal;
+
 /*
  *  CLBeacon
  *
@@ -451,8 +446,12 @@ NS_CLASS_AVAILABLE(NA, 7_0) __WATCHOS_PROHIBITED
  *    A single beacon within a CLBeaconRegion.
  *
  */
-NS_CLASS_AVAILABLE(NA, 7_0) __WATCHOS_PROHIBITED
+API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(watchos, tvos, macos)
 @interface CLBeacon : NSObject <NSCopying, NSSecureCoding>
+{
+@package
+	CLBeaconInternal *_internal;
+}
 
 /*
  *  proximityUUID
@@ -461,7 +460,7 @@ NS_CLASS_AVAILABLE(NA, 7_0) __WATCHOS_PROHIBITED
  *    Proximity identifier associated with the beacon.
  *
  */
-@property (readonly, nonatomic, strong) NSUUID *proximityUUID;
+@property (readonly, nonatomic, copy) NSUUID *proximityUUID;
 
 /*
  *  major
@@ -470,7 +469,7 @@ NS_CLASS_AVAILABLE(NA, 7_0) __WATCHOS_PROHIBITED
  *    Most significant value associated with the beacon.
  *
  */
-@property (readonly, nonatomic, strong) NSNumber *major;
+@property (readonly, nonatomic, copy) NSNumber *major;
 
 /*
  *  minor
@@ -479,7 +478,7 @@ NS_CLASS_AVAILABLE(NA, 7_0) __WATCHOS_PROHIBITED
  *    Least significant value associated with the beacon.
  *
  */
-@property (readonly, nonatomic, strong) NSNumber *minor;
+@property (readonly, nonatomic, copy) NSNumber *minor;
 
 /*
  *  proximity
@@ -522,8 +521,6 @@ NS_ASSUME_NONNULL_END
  *  Copyright (c) 2010 Apple Inc. All rights reserved.
  */
 
-#if TARGET_OS_IPHONE
-
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CLLocation.h>
 #import <CoreLocation/CLAvailability.h>
@@ -533,11 +530,12 @@ NS_ASSUME_NONNULL_BEGIN
 @class CLRegion;
 @class CLPlacemark;
 @class CLGeocoderInternal;
+@class CNPostalAddress;
 
 // geocoding handler, CLPlacemarks are provided in order of most confident to least confident
 typedef void (^CLGeocodeCompletionHandler)(NSArray< CLPlacemark *> * __nullable placemarks, NSError * __nullable error);
 
-NS_CLASS_AVAILABLE(TBD,5_0)
+API_AVAILABLE(macos(10.8), ios(5.0))
 @interface CLGeocoder : NSObject
 {
 @private
@@ -548,25 +546,29 @@ NS_CLASS_AVAILABLE(TBD,5_0)
 
 // reverse geocode requests
 - (void)reverseGeocodeLocation:(CLLocation *)location completionHandler:(CLGeocodeCompletionHandler)completionHandler;
+- (void)reverseGeocodeLocation:(CLLocation *)location preferredLocale:(nullable NSLocale *)locale completionHandler:(CLGeocodeCompletionHandler)completionHandler API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
 
 // forward geocode requests
 // geocodeAddressDictionary:completionHandler: takes an address dictionary as defined by the AddressBook framework.
 // You can obtain an address dictionary from an ABPerson by retrieving the kABPersonAddressProperty property.
 // Alternately, one can be constructed using the kABPersonAddress* keys defined in <AddressBook/ABPerson.h>.
 
-- (void)geocodeAddressDictionary:(NSDictionary *)addressDictionary completionHandler:(CLGeocodeCompletionHandler)completionHandler;
+- (void)geocodeAddressDictionary:(NSDictionary *)addressDictionary completionHandler:(CLGeocodeCompletionHandler)completionHandler API_DEPRECATED("Use -geocodePostalAddress:completionHandler:", macos(10.8, 10.13), ios(5.0, 11.0), watchos(1.0, 4.0));
 - (void)geocodeAddressString:(NSString *)addressString completionHandler:(CLGeocodeCompletionHandler)completionHandler;
 - (void)geocodeAddressString:(NSString *)addressString inRegion:(nullable CLRegion *)region completionHandler:(CLGeocodeCompletionHandler)completionHandler;
+- (void)geocodeAddressString:(NSString *)addressString inRegion:(nullable CLRegion *)region preferredLocale:(nullable NSLocale *)locale completionHandler:(CLGeocodeCompletionHandler)completionHandler API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
 
 - (void)cancelGeocode;
 
 @end
 
+@interface CLGeocoder (ContactsAdditions)
+- (void)geocodePostalAddress:(CNPostalAddress *)postalAddress completionHandler:(CLGeocodeCompletionHandler)completionHandler API_AVAILABLE(ios(11.0), macos(10.13), watchos(4.0)) API_UNAVAILABLE(tvos);
+- (void)geocodePostalAddress:(CNPostalAddress *)postalAddress preferredLocale:(nullable NSLocale *)locale completionHandler:(CLGeocodeCompletionHandler)completionHandler API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0)) API_UNAVAILABLE(tvos);
+@end
+
 NS_ASSUME_NONNULL_END
-
-#endif //TARGET_OS_IPHONE
 // ==========  CoreLocation.framework/Headers/CLLocationManager.h
-
 /*
  *  CLLocationManager.h
  *  CoreLocation
@@ -621,16 +623,25 @@ typedef NS_ENUM(int, CLAuthorizationStatus) {
 
 	// User has granted authorization to use their location at any time,
 	// including monitoring for regions, visits, or significant location changes.
-	kCLAuthorizationStatusAuthorizedAlways NS_ENUM_AVAILABLE(NA, 8_0),
+	//
+	// This value should be used on iOS, tvOS and watchOS.  It is available on
+	// MacOS, but kCLAuthorizationStatusAuthorized is synonymous and preferred.
+	kCLAuthorizationStatusAuthorizedAlways API_AVAILABLE(macos(10.12), ios(8.0)),
 
 	// User has granted authorization to use their location only when your app
 	// is visible to them (it will be made visible to them if you continue to
 	// receive location updates while in the background).  Authorization to use
 	// launch APIs has not been granted.
-	kCLAuthorizationStatusAuthorizedWhenInUse NS_ENUM_AVAILABLE(NA, 8_0),
+	//
+	// This value is not available on MacOS.  It should be used on iOS, tvOS and
+	// watchOS.
+	kCLAuthorizationStatusAuthorizedWhenInUse API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos),
 
-	// This value is deprecated, but was equivalent to the new -Always value.
-	kCLAuthorizationStatusAuthorized NS_ENUM_DEPRECATED(10_6, NA, 2_0, 8_0, "Use kCLAuthorizationStatusAuthorizedAlways") __WATCHOS_PROHIBITED = kCLAuthorizationStatusAuthorizedAlways
+	// User has authorized this application to use location services.
+	//
+	// This value is deprecated or prohibited on iOS, tvOS and watchOS.
+	// It should be used on MacOS.
+	kCLAuthorizationStatusAuthorized API_DEPRECATED("Use kCLAuthorizationStatusAuthorizedAlways", ios(2.0, 8.0)) API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(watchos, tvos) = kCLAuthorizationStatusAuthorizedAlways
 };
 
 /*
@@ -645,7 +656,8 @@ typedef NS_ENUM(NSInteger, CLActivityType) {
     CLActivityTypeOther = 1,
     CLActivityTypeAutomotiveNavigation,	// for automotive navigation
     CLActivityTypeFitness,				// includes any pedestrian activities
-    CLActivityTypeOtherNavigation 		// for other navigation cases (excluding pedestrian navigation), e.g. navigation for boats, trains, or planes
+    CLActivityTypeOtherNavigation, 		// for other navigation cases (excluding pedestrian navigation), e.g. navigation for boats, trains, or planes
+    CLActivityTypeAirborne API_AVAILABLE(ios(12.0), macos(10.14), tvos(12.0), watchos(5.0)),
 };
 
 @class CLLocation;
@@ -659,7 +671,7 @@ typedef NS_ENUM(NSInteger, CLActivityType) {
  *  Discussion:
  *    The CLLocationManager object is your entry point to the location service.
  */
-NS_CLASS_AVAILABLE(10_6, 2_0)
+API_AVAILABLE(macos(10.6), ios(2.0))
 @interface CLLocationManager : NSObject
 {
 @private
@@ -674,7 +686,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      If NO, and you proceed to call other CoreLocation API, user will be prompted with the warning
  *      dialog. You may want to check this property and use location services only when explicitly requested by the user.
  */
-+ (BOOL)locationServicesEnabled __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
++ (BOOL)locationServicesEnabled API_AVAILABLE(ios(4.0), macos(10.7));
 
 /*
  *  headingAvailable
@@ -682,7 +694,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Returns YES if the device supports the heading service, otherwise NO.
  */
-+ (BOOL)headingAvailable __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0) __WATCHOS_PROHIBITED;
++ (BOOL)headingAvailable API_AVAILABLE(ios(4.0), macos(10.7)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  significantLocationChangeMonitoringAvailable
@@ -690,7 +702,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Returns YES if the device supports significant location change monitoring, otherwise NO.
  */
-+ (BOOL)significantLocationChangeMonitoringAvailable __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0) __WATCHOS_PROHIBITED;
++ (BOOL)significantLocationChangeMonitoringAvailable API_AVAILABLE(ios(4.0), macos(10.7)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  isMonitoringAvailableForClass:
@@ -699,7 +711,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      Determines whether the device supports monitoring for the specified type of region.
  *      If NO, all attempts to monitor the specified type of region will fail.
  */
-+ (BOOL)isMonitoringAvailableForClass:(Class)regionClass __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0) __WATCHOS_PROHIBITED;
++ (BOOL)isMonitoringAvailableForClass:(Class)regionClass API_AVAILABLE(ios(7.0), macos(10.10)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  regionMonitoringAvailable
@@ -707,7 +719,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Deprecated. Use +isMonitoringAvailableForClass: instead.
  */
-+ (BOOL)regionMonitoringAvailable __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_7,__MAC_NA,__IPHONE_4_0,__IPHONE_7_0) __WATCHOS_PROHIBITED;
++ (BOOL)regionMonitoringAvailable API_DEPRECATED_WITH_REPLACEMENT("+isMonitoringAvailableForClass:", ios(4.0, 7.0), macos(10.8, 10.10)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  regionMonitoringEnabled
@@ -715,7 +727,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Deprecated. Use +isMonitoringAvailableForClass: and +authorizationStatus instead.
  */
-+ (BOOL)regionMonitoringEnabled __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_NA, __MAC_NA,__IPHONE_4_0, __IPHONE_6_0) __WATCHOS_PROHIBITED;
++ (BOOL)regionMonitoringEnabled API_DEPRECATED("Use +isMonitoringAvailableForClass: and +authorizationStatus instead", ios(4.0, 6.0), macos(10.8, 10.10)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  isRangingAvailable
@@ -724,7 +736,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      Determines whether the device supports ranging.
  *      If NO, all attempts to range beacons will fail.
  */
-+ (BOOL)isRangingAvailable __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0) __WATCHOS_PROHIBITED;
++ (BOOL)isRangingAvailable API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  authorizationStatus
@@ -732,7 +744,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Returns the current authorization status of the calling application.
  */
-+ (CLAuthorizationStatus)authorizationStatus __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_2);
++ (CLAuthorizationStatus)authorizationStatus API_AVAILABLE(ios(4.2), macos(10.7));
 
 @property(assign, nonatomic, nullable) id<CLLocationManagerDelegate> delegate;
 
@@ -742,7 +754,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Deprecated. Use +locationServicesEnabled instead.
  */
-@property(readonly, nonatomic) BOOL locationServicesEnabled __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_NA,__MAC_NA,__IPHONE_2_0,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+@property(readonly, nonatomic) BOOL locationServicesEnabled API_DEPRECATED_WITH_REPLACEMENT("+locationServicesEnabled", ios(2.0, 4.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  purpose
@@ -754,7 +766,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *
  *      Deprecated.  Set the purpose string in Info.plist using key NSLocationUsageDescription.
  */
-@property(copy, nonatomic, nullable) NSString *purpose __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_7, __MAC_NA, __IPHONE_3_2, __IPHONE_6_0) __WATCHOS_PROHIBITED;
+@property(copy, nonatomic, nullable) NSString *purpose API_AVAILABLE(macos(10.7)) API_DEPRECATED("Set the purpose string in Info.plist using key NSLocationUsageDescription", ios(3.2, 6.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *	activityType
@@ -764,7 +776,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *		the determination of when location updates may be automatically paused.
  *		By default, CLActivityTypeOther is used.
  */
-@property(assign, nonatomic) CLActivityType activityType __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) __WATCHOS_PROHIBITED;
+@property(assign, nonatomic) CLActivityType activityType API_AVAILABLE(ios(6.0), watchos(4.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  distanceFilter
@@ -796,7 +808,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *		Specifies that location updates may automatically be paused when possible.
  *		By default, this is YES for applications linked against iOS 6.0 or later.
  */
-@property(assign, nonatomic) BOOL pausesLocationUpdatesAutomatically __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) __WATCHOS_PROHIBITED;
+@property(assign, nonatomic) BOOL pausesLocationUpdatesAutomatically API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  allowsBackgroundLocationUpdates
@@ -822,7 +834,27 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      See -requestWhenInUseAuthorization and -requestAlwaysAuthorization for
  *      more details on possible authorization values.
  */
-@property(assign, nonatomic) BOOL allowsBackgroundLocationUpdates __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_9_0) __WATCHOS_PROHIBITED;
+@property(assign, nonatomic) BOOL allowsBackgroundLocationUpdates API_AVAILABLE(ios(9.0), watchos(4.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
+
+/*
+ *  showsBackgroundLocationIndicator
+ *
+ *  Discussion:
+ *      Specifies that an indicator be shown when the app makes use of continuous
+ *      background location updates.  Starting continuous background location
+ *      updates requires the app to set UIBackgroundModes to include "location"
+ *      and to set the property allowsBackgroundLocationUpdates to YES before
+ *      calling -startUpdatingLocation with the intent to continue in the
+ *      background.
+ *
+ *      Note that this property only applies to apps with Always authorization.
+ *      For apps with WhenInUse authorization, the indicator is always shown when
+ *      using continuous background location updates in order to maintain user
+ *      visibility and that the app is still in use.
+ *
+ *      The default value of this property is NO.
+ */
+@property(assign, nonatomic) BOOL showsBackgroundLocationIndicator API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  location
@@ -838,7 +870,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Deprecated. Use +headingAvailable instead.
  */
-@property(readonly, nonatomic) BOOL headingAvailable __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_NA,__MAC_NA,__IPHONE_3_0,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+@property(readonly, nonatomic) BOOL headingAvailable API_DEPRECATED_WITH_REPLACEMENT("+headingAvailable", ios(3.0, 4.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  headingFilter
@@ -848,7 +880,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      be notified of updates less than the stated filter value. Pass in kCLHeadingFilterNone to be
  *      notified of all updates. By default, 1 degree is used.
  */
-@property(assign, nonatomic) CLLocationDegrees headingFilter __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0) __WATCHOS_PROHIBITED;
+@property(assign, nonatomic) CLLocationDegrees headingFilter API_AVAILABLE(ios(3.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  headingOrientation
@@ -859,7 +891,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      CLDeviceOrientationFaceDown are ignored.
  *      
  */
-@property(assign, nonatomic) CLDeviceOrientation headingOrientation __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+@property(assign, nonatomic) CLDeviceOrientation headingOrientation API_AVAILABLE(ios(4.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  heading
@@ -867,7 +899,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Returns the latest heading update received, or nil if none is available.
  */
-@property(readonly, nonatomic, copy, nullable) CLHeading *heading __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+@property(readonly, nonatomic, copy, nullable) CLHeading *heading API_AVAILABLE(ios(4.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  maximumRegionMonitoringDistance
@@ -877,7 +909,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *       Attempts to register a region larger than this will generate a kCLErrorRegionMonitoringFailure.
  *       This value may vary based on the hardware features of the device, as well as on dynamically changing resource constraints.
  */
-@property (readonly, nonatomic) CLLocationDistance maximumRegionMonitoringDistance __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+@property (readonly, nonatomic) CLLocationDistance maximumRegionMonitoringDistance API_AVAILABLE(ios(4.0), macos(10.8)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  monitoredRegions
@@ -887,7 +919,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *       has been instructed to monitor a region, during this or previous launches of your application, it will
  *       be present in this set.
  */
-@property (readonly, nonatomic, copy) NSSet<__kindof CLRegion *> *monitoredRegions __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+@property (readonly, nonatomic, copy) NSSet<__kindof CLRegion *> *monitoredRegions API_AVAILABLE(ios(4.0), macos(10.8)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  rangedRegions
@@ -895,7 +927,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *       Retrieve a set of objects representing the regions for which this location manager is actively providing ranging.
  */
-@property (readonly, nonatomic, copy) NSSet<__kindof CLRegion *> *rangedRegions __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0) __WATCHOS_PROHIBITED;
+@property (readonly, nonatomic, copy) NSSet<__kindof CLRegion *> *rangedRegions API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  requestWhenInUseAuthorization
@@ -923,11 +955,11 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      When +authorizationStatus != kCLAuthorizationStatusNotDetermined, (ie
  *      generally after the first call) this method will do nothing.
  *
- *      If the NSLocationWhenInUseUsageDescription key is not specified in your
- *      Info.plist, this method will do nothing, as your app will be assumed not
- *      to support WhenInUse authorization.
+ *      The NSLocationWhenInUseUsageDescription key must be specified in your
+ *      Info.plist; otherwise, this method will do nothing, as your app will be
+ *      assumed not to support WhenInUse authorization.
  */
-- (void)requestWhenInUseAuthorization __OSX_AVAILABLE_STARTING(__MAC_NA, __IPHONE_8_0);
+- (void)requestWhenInUseAuthorization API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos);
 
 /*
  *  requestAlwaysAuthorization
@@ -944,7 +976,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      If received, "always" authorization grants access to the user's
  *      location via any CLLocationManager API, and grants access to
  *      launch-capable monitoring API such as geofencing/region monitoring,
- *      significante location visits, etc.  Even if killed by the user, launch
+ *      significant location visits, etc.  Even if killed by the user, launch
  *      events triggered by monitored regions or visit patterns will cause a
  *      relaunch.
  *
@@ -953,14 +985,18 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      is genuinely required.  Do not call +requestAlwaysAuthorization unless
  *      you think users will thank you for doing so.
  *
- *      When +authorizationStatus != kCLAuthorizationStatusNotDetermined, (ie
+ *      An application which currently has "when-in-use" authorization and has
+ *      never before requested "always" authorization may use this method to
+ *      request "always" authorization one time only.  Otherwise, if
+ *      +authorizationStatus != kCLAuthorizationStatusNotDetermined, (ie
  *      generally after the first call) this method will do nothing.
  *
- *      If the NSLocationAlwaysUsageDescription key is not specified in your
- *      Info.plist, this method will do nothing, as your app will be assumed not
- *      to support Always authorization.
+ *      Both the NSLocationAlwaysAndWhenInUseUsageDescription and
+ *      NSLocationWhenInUseUsageDescription keys must be specified in your
+ *      Info.plist; otherwise, this method will do nothing, as your app will be
+ *      assumed not to support Always authorization.
  */
-- (void)requestAlwaysAuthorization __OSX_AVAILABLE_STARTING(__MAC_NA, __IPHONE_8_0);
+- (void)requestAlwaysAuthorization API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  startUpdatingLocation
@@ -968,7 +1004,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Start updating locations.
  */
-- (void)startUpdatingLocation __WATCHOS_PROHIBITED;
+- (void)startUpdatingLocation API_AVAILABLE(watchos(3.0)) API_UNAVAILABLE(tvos);
 
 /*
  *  stopUpdatingLocation
@@ -1000,7 +1036,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      immediately cancel the location request.  The method
  *      stopUpdatingLocation can be used to explicitly cancel the request.
  */
-- (void)requestLocation __OSX_AVAILABLE_STARTING(__MAC_NA, __IPHONE_9_0);
+- (void)requestLocation API_AVAILABLE(ios(9.0), macos(10.14));
 
 /*
  *  startUpdatingHeading
@@ -1008,7 +1044,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Start updating heading.
  */
-- (void)startUpdatingHeading __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0) __WATCHOS_PROHIBITED;
+- (void)startUpdatingHeading API_AVAILABLE(ios(3.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  stopUpdatingHeading
@@ -1016,7 +1052,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Stop updating heading.
  */
-- (void)stopUpdatingHeading __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0) __WATCHOS_PROHIBITED;
+- (void)stopUpdatingHeading API_AVAILABLE(ios(3.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  dismissHeadingCalibrationDisplay
@@ -1024,7 +1060,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Dismiss the heading calibration immediately.
  */
-- (void)dismissHeadingCalibrationDisplay __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0) __WATCHOS_PROHIBITED;
+- (void)dismissHeadingCalibrationDisplay API_AVAILABLE(ios(3.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  startMonitoringSignificantLocationChanges
@@ -1035,7 +1071,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      location service.
  *
  */
-- (void)startMonitoringSignificantLocationChanges __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+- (void)startMonitoringSignificantLocationChanges API_AVAILABLE(ios(4.0), macos(10.7)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  stopMonitoringSignificantLocationChanges
@@ -1044,7 +1080,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      Stop monitoring significant location changes.
  *
  */
-- (void)stopMonitoringSignificantLocationChanges __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+- (void)stopMonitoringSignificantLocationChanges API_AVAILABLE(ios(4.0), macos(10.7)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  startMonitoringForRegion:desiredAccuracy:
@@ -1062,7 +1098,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      This is done asynchronously and may not be immediately reflected in monitoredRegions.
  */
 - (void)startMonitoringForRegion:(CLRegion *)region
-                 desiredAccuracy:(CLLocationAccuracy)accuracy __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_NA, __MAC_NA,__IPHONE_4_0, __IPHONE_6_0) __WATCHOS_PROHIBITED;
+                 desiredAccuracy:(CLLocationAccuracy)accuracy API_DEPRECATED_WITH_REPLACEMENT("-startMonitoringForRegion:", ios(4.0, 6.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  stopMonitoringForRegion:
@@ -1073,7 +1109,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *
  *      This is done asynchronously and may not be immediately reflected in monitoredRegions.
  */
-- (void)stopMonitoringForRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+- (void)stopMonitoringForRegion:(CLRegion *)region API_AVAILABLE(ios(4.0), macos(10.8)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  startMonitoringForRegion:
@@ -1087,7 +1123,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *
  *      This is done asynchronously and may not be immediately reflected in monitoredRegions.
  */
-- (void)startMonitoringForRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_TBD,__IPHONE_5_0) __WATCHOS_PROHIBITED;
+- (void)startMonitoringForRegion:(CLRegion *)region API_AVAILABLE(ios(5.0), macos(10.8)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  requestStateForRegion:
@@ -1096,7 +1132,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *      Asynchronously retrieve the cached state of the specified region. The state is returned to the delegate via
  *      locationManager:didDetermineState:forRegion:.
  */
-- (void)requestStateForRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0) __WATCHOS_PROHIBITED;
+- (void)requestStateForRegion:(CLRegion *)region API_AVAILABLE(ios(7.0), macos(10.10)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  startRangingBeaconsInRegion:
@@ -1104,7 +1140,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Start calculating ranges for beacons in the specified region.
  */
-- (void)startRangingBeaconsInRegion:(CLBeaconRegion *)region __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0) __WATCHOS_PROHIBITED;
+- (void)startRangingBeaconsInRegion:(CLBeaconRegion *)region API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  stopRangingBeaconsInRegion:
@@ -1112,7 +1148,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Stop calculating ranges for the specified region.
  */
-- (void)stopRangingBeaconsInRegion:(CLBeaconRegion *)region __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0) __WATCHOS_PROHIBITED;
+- (void)stopRangingBeaconsInRegion:(CLBeaconRegion *)region API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *	allowDeferredLocationUpdatesUntilTraveled:timeout:
@@ -1149,7 +1185,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *		criteria have not been met.
  */
 - (void)allowDeferredLocationUpdatesUntilTraveled:(CLLocationDistance)distance
-					  timeout:(NSTimeInterval)timeout __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) __WATCHOS_PROHIBITED;
+					  timeout:(NSTimeInterval)timeout API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *	disallowDeferredLocationUpdates
@@ -1158,7 +1194,7 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *		Disallow deferred location updates if previously enabled. Any outstanding
  *		updates will be sent and regular location updates will resume.
  */
-- (void)disallowDeferredLocationUpdates __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) __WATCHOS_PROHIBITED;
+- (void)disallowDeferredLocationUpdates API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  deferredLocationUpdatesAvailable
@@ -1166,13 +1202,12 @@ NS_CLASS_AVAILABLE(10_6, 2_0)
  *  Discussion:
  *      Returns YES if the device supports deferred location updates, otherwise NO.
  */
-+ (BOOL)deferredLocationUpdatesAvailable __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) __WATCHOS_PROHIBITED;
++ (BOOL)deferredLocationUpdatesAvailable API_AVAILABLE(ios(6.0), macos(10.9)) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreLocation.framework/Headers/CLErrorDomain.h
-
 /*
  *  CLErrorDomain.h
  *  CoreLocation
@@ -1190,6 +1225,8 @@ NS_ASSUME_NONNULL_BEGIN
  *  
  *  Discussion:
  *    Error returned as the domain to NSError from CoreLocation.
+ *
+ *  The file CLError.h defines constants for the errors in kCLErrorDomain.
  */
 extern NSString *const kCLErrorDomain;
 
@@ -1238,6 +1275,8 @@ NS_ASSUME_NONNULL_END
 
 #import <CoreLocation/CLLocationManager.h>
 
+#import <CoreLocation/CLAvailability.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface CLLocationManager (CLVisitExtensions)
@@ -1254,7 +1293,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    Detected visits are sent to the delegate's -locationManager:didVisit:
  *    method.
  */
-- (void)startMonitoringVisits NS_AVAILABLE(NA, 8_0) __WATCHOS_PROHIBITED;
+- (void)startMonitoringVisits NS_AVAILABLE(NA, 8_0) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  stopMonitoringVisits
@@ -1266,7 +1305,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    Note that stopping and starting are asynchronous operations and may not
  *    immediately reflect in delegate callback patterns.
  */
-- (void)stopMonitoringVisits NS_AVAILABLE(NA, 8_0) __WATCHOS_PROHIBITED;
+- (void)stopMonitoringVisits NS_AVAILABLE(NA, 8_0) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
@@ -1287,19 +1326,7 @@ NS_ASSUME_NONNULL_END
 */
 
 #import <Availability.h>
-
-#ifndef __MAC_TBD
-#define __MAC_TBD __MAC_NA
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__MAC_TBD
-#define __AVAILABILITY_INTERNAL__MAC_TBD __AVAILABILITY_INTERNAL_UNAVAILABLE
-#endif
-
-
-#ifndef __WATCHOS_PROHIBITED
-#define __WATCHOS_PROHIBITED
-#endif
+#import <os/availability.h>
 
 #ifdef __cplusplus
 #define CL_EXTERN extern "C" __attribute__((visibility ("default")))
@@ -1318,6 +1345,8 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CLLocation.h>
 
+#import <CoreLocation/CLAvailability.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 /*
@@ -1327,7 +1356,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    An instance of this class represents a possibly open-ended event
  *    during which the device was at the specified coordinate.
  */
-NS_CLASS_AVAILABLE(NA, 8_0) __WATCHOS_PROHIBITED
+API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLVisit : NSObject <NSSecureCoding, NSCopying>
 
 /*
@@ -1369,7 +1398,6 @@ NS_CLASS_AVAILABLE(NA, 8_0) __WATCHOS_PROHIBITED
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreLocation.framework/Headers/CLHeading.h
-
 /*
  *  CLHeading.h
  *  CoreLocation
@@ -1409,7 +1437,7 @@ extern const CLLocationDegrees kCLHeadingFilterNone;
  *  Discussion:
  *    Represents a vector pointing to magnetic North constructed from axis component values x, y, and z. An accuracy of the heading calculation is also provided along with timestamp information.
  */
-NS_CLASS_AVAILABLE(10_7, 3_0) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.7), ios(3.0)) API_UNAVAILABLE(watchos, tvos)
 @interface CLHeading : NSObject <NSCopying, NSSecureCoding>
 {
 @private
@@ -1483,14 +1511,6 @@ NS_CLASS_AVAILABLE(10_7, 3_0) __WATCHOS_PROHIBITED
  */
 @property(readonly, nonatomic, copy) NSDate *timestamp;
 
-/*
- *  description
- *  
- *  Discussion:
- *    Returns a string representation of the heading.
- */
-@property (nonatomic, readonly, copy) NSString *description;
-
 @end
 
 NS_ASSUME_NONNULL_END
@@ -1509,6 +1529,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class CLRegionInternal;
+
 /*
  * CLRegionState
  *
@@ -1520,7 +1542,7 @@ typedef NS_ENUM(NSInteger, CLRegionState) {
 	CLRegionStateUnknown,
 	CLRegionStateInside,
 	CLRegionStateOutside
-} NS_ENUM_AVAILABLE_IOS(7_0) __WATCHOS_PROHIBITED;
+} API_AVAILABLE(macos(10.10), ios(7.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  * CLProximity
@@ -1534,7 +1556,7 @@ typedef NS_ENUM(NSInteger, CLProximity) {
 	CLProximityImmediate,
 	CLProximityNear,
 	CLProximityFar
-} NS_ENUM_AVAILABLE_IOS(7_0) __WATCHOS_PROHIBITED;
+} API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  CLRegion
@@ -1542,9 +1564,12 @@ typedef NS_ENUM(NSInteger, CLProximity) {
  *  Discussion:
  *    A logical area.
  */
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0))
 @interface CLRegion : NSObject <NSCopying, NSSecureCoding>
-
+{
+@package
+	CLRegionInternal *_internal;
+}
 /*
  *  initCircularRegionWithCenter:radius:identifier:
  *  
@@ -1557,7 +1582,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  */
 - (instancetype)initCircularRegionWithCenter:(CLLocationCoordinate2D)center
 									  radius:(CLLocationDistance)radius
-								  identifier:(NSString *)identifier __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_7,__MAC_NA,__IPHONE_4_0,__IPHONE_7_0);
+								  identifier:(NSString *)identifier API_DEPRECATED("Please see CLCircularRegion", ios(4.0, 7.0), macos(10.7, 10.10)) API_UNAVAILABLE(tvos);
 
 /*
  *  center
@@ -1567,7 +1592,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  *
  *    This method has been deprecated, please see CLCircularRegion.
  */
-@property (readonly, nonatomic) CLLocationCoordinate2D center __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_7,__MAC_NA,__IPHONE_4_0,__IPHONE_7_0);
+@property (readonly, nonatomic) CLLocationCoordinate2D center API_DEPRECATED("Please see CLCircularRegion", ios(4.0, 7.0), macos(10.7, 10.10)) API_UNAVAILABLE(tvos);
 
 /*
  *  radius
@@ -1577,7 +1602,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  *
  *    This method has been deprecated, please see CLCircularRegion.
  */
-@property (readonly, nonatomic) CLLocationDistance radius __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_7,__MAC_NA,__IPHONE_4_0,__IPHONE_7_0);
+@property (readonly, nonatomic) CLLocationDistance radius API_DEPRECATED("Please see CLCircularRegion", ios(4.0, 7.0), macos(10.7, 10.10)) API_UNAVAILABLE(tvos);
 
 /*
  *  identifier
@@ -1585,7 +1610,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  *  Discussion:
  *    Returns the region's identifier.
  */
-@property (readonly, nonatomic, copy) NSString *identifier __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
+@property (readonly, nonatomic, copy) NSString *identifier API_AVAILABLE(ios(4.0), macos(10.7));
 
 /*
  *  notifyOnEntry
@@ -1594,7 +1619,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  *    App will be launched and the delegate will be notified via locationManager:didEnterRegion:
  *    when the user enters the region. By default, this is YES.
  */
-@property (nonatomic, assign) BOOL notifyOnEntry __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+@property (nonatomic, assign) BOOL notifyOnEntry API_AVAILABLE(ios(7.0), macos(10.10));
 
 /*
  *  notifyOnExit
@@ -1603,7 +1628,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  *    App will be launched and the delegate will be notified via locationManager:didExitRegion:
  *    when the user exits the region. By default, this is YES.
  */
-@property (nonatomic, assign) BOOL notifyOnExit __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+@property (nonatomic, assign) BOOL notifyOnExit API_AVAILABLE(ios(7.0), macos(10.10));
 
 /*
  *  containsCoordinate:
@@ -1613,13 +1638,12 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  *
  *    This method has been deprecated, please see CLCircularRegion.
  */
-- (BOOL)containsCoordinate:(CLLocationCoordinate2D)coordinate __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_7,__MAC_NA,__IPHONE_4_0,__IPHONE_7_0);
+- (BOOL)containsCoordinate:(CLLocationCoordinate2D)coordinate API_DEPRECATED("Please see CLCircularRegion", ios(4.0, 7.0), macos(10.7, 10.10)) API_UNAVAILABLE(tvos);
 
 @end
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreLocation.framework/Headers/CLError.h
-
 /*
  *  CLError.h
  *  CoreLocation
@@ -1667,11 +1691,10 @@ typedef NS_ENUM(NSInteger, CLError) {
  *    When an error with code kCLErrorRegionMonitoringResponseDelayed is received, this key may be populated
  *    in the userInfo dictionary.  The value is a CLRegion that the location service can more effectively monitor.
  */
-extern NSString *const kCLErrorUserInfoAlternateRegionKey NS_AVAILABLE(10_7, 5_0) __WATCHOS_PROHIBITED;
+extern NSString *const kCLErrorUserInfoAlternateRegionKey NS_AVAILABLE(10_7, 5_0) API_UNAVAILABLE(watchos, tvos);
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreLocation.framework/Headers/CLLocationManagerDelegate.h
-
 /*
  *  CLLocationManagerDelegate.h
  *  CoreLocation
@@ -1691,6 +1714,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class CLLocation;
 @class CLHeading;
 @class CLBeacon;
+@class CLVisit;
 
 /*
  *  CLLocationManagerDelegate
@@ -1714,7 +1738,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)locationManager:(CLLocationManager *)manager
 	didUpdateToLocation:(CLLocation *)newLocation
-		   fromLocation:(CLLocation *)oldLocation __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_6, __MAC_NA, __IPHONE_2_0, __IPHONE_6_0) __WATCHOS_PROHIBITED;
+		   fromLocation:(CLLocation *)oldLocation API_AVAILABLE(macos(10.6)) API_DEPRECATED("Implement -locationManager:didUpdateLocations: instead", ios(2.0, 6.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManager:didUpdateLocations:
@@ -1727,7 +1751,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    locations is an array of CLLocation objects in chronological order.
  */
 - (void)locationManager:(CLLocationManager *)manager
-	 didUpdateLocations:(NSArray<CLLocation *> *)locations __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+	 didUpdateLocations:(NSArray<CLLocation *> *)locations API_AVAILABLE(ios(6.0), macos(10.9));
 
 /*
  *  locationManager:didUpdateHeading:
@@ -1736,7 +1760,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    Invoked when a new heading is available.
  */
 - (void)locationManager:(CLLocationManager *)manager
-       didUpdateHeading:(CLHeading *)newHeading __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0) __WATCHOS_PROHIBITED;
+       didUpdateHeading:(CLHeading *)newHeading API_AVAILABLE(ios(3.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManagerShouldDisplayHeadingCalibration:
@@ -1745,7 +1769,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    Invoked when a new heading is available. Return YES to display heading calibration info. The display 
  *    will remain until heading is calibrated, unless dismissed early via dismissHeadingCalibrationDisplay.
  */
-- (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0) __WATCHOS_PROHIBITED;
+- (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager  API_AVAILABLE(ios(3.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManager:didDetermineState:forRegion:
@@ -1755,7 +1779,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    a call to requestStateForRegion:.
  */
 - (void)locationManager:(CLLocationManager *)manager
-	didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0) __WATCHOS_PROHIBITED;
+	didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region API_AVAILABLE(ios(7.0), macos(10.10)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManager:didRangeBeacons:inRegion:
@@ -1768,7 +1792,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    by the device.
  */
 - (void)locationManager:(CLLocationManager *)manager
-	didRangeBeacons:(NSArray<CLBeacon *> *)beacons inRegion:(CLBeaconRegion *)region __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0) __WATCHOS_PROHIBITED;
+	didRangeBeacons:(NSArray<CLBeacon *> *)beacons inRegion:(CLBeaconRegion *)region API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManager:rangingBeaconsDidFailForRegion:withError:
@@ -1778,7 +1802,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)locationManager:(CLLocationManager *)manager
 	rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
-	withError:(NSError *)error __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0) __WATCHOS_PROHIBITED;
+	withError:(NSError *)error API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManager:didEnterRegion:
@@ -1788,7 +1812,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    CLLocationManager instance with a non-nil delegate that implements this method.
  */
 - (void)locationManager:(CLLocationManager *)manager
-	didEnterRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+	didEnterRegion:(CLRegion *)region API_AVAILABLE(ios(4.0), macos(10.8)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManager:didExitRegion:
@@ -1798,7 +1822,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    CLLocationManager instance with a non-nil delegate that implements this method.
  */
 - (void)locationManager:(CLLocationManager *)manager
-	didExitRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+	didExitRegion:(CLRegion *)region API_AVAILABLE(ios(4.0), macos(10.8)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManager:didFailWithError:
@@ -1817,7 +1841,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)locationManager:(CLLocationManager *)manager
 	monitoringDidFailForRegion:(nullable CLRegion *)region
-	withError:(NSError *)error __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0) __WATCHOS_PROHIBITED;
+	withError:(NSError *)error API_AVAILABLE(ios(4.0), macos(10.8)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManager:didChangeAuthorizationStatus:
@@ -1825,7 +1849,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  Discussion:
  *    Invoked when the authorization status changes for this application.
  */
-- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_2);
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_AVAILABLE(ios(4.2), macos(10.7));
 
 /*
  *  locationManager:didStartMonitoringForRegion:
@@ -1834,13 +1858,13 @@ NS_ASSUME_NONNULL_BEGIN
  *    Invoked when a monitoring for a region started successfully.
  */
 - (void)locationManager:(CLLocationManager *)manager
-	didStartMonitoringForRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_TBD,__IPHONE_5_0) __WATCHOS_PROHIBITED;
+	didStartMonitoringForRegion:(CLRegion *)region API_AVAILABLE(ios(5.0), macos(10.8)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  Discussion:
  *    Invoked when location updates are automatically paused.
  */
-- (void)locationManagerDidPauseLocationUpdates:(CLLocationManager *)manager __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) __WATCHOS_PROHIBITED;
+- (void)locationManagerDidPauseLocationUpdates:(CLLocationManager *)manager API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  Discussion:
@@ -1849,7 +1873,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    In the event that your application is terminated while suspended, you will
  *	  not receive this notification.
  */
-- (void)locationManagerDidResumeLocationUpdates:(CLLocationManager *)manager __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) __WATCHOS_PROHIBITED;
+- (void)locationManagerDidResumeLocationUpdates:(CLLocationManager *)manager API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManager:didFinishDeferredUpdatesWithError:
@@ -1863,7 +1887,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    criteria are met (see CLError), otherwise error will be nil.
  */
 - (void)locationManager:(CLLocationManager *)manager
-	didFinishDeferredUpdatesWithError:(nullable NSError *)error __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) __WATCHOS_PROHIBITED;
+	didFinishDeferredUpdatesWithError:(nullable NSError *)error API_AVAILABLE(ios(6.0), macos(10.9)) API_UNAVAILABLE(watchos, tvos);
 
 /*
  *  locationManager:didVisit:
@@ -1873,7 +1897,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    a location, if visit monitoring is currently started (possibly from a
  *    prior launch).
  */
-- (void)locationManager:(CLLocationManager *)manager didVisit:(CLVisit *)visit __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_8_0) __WATCHOS_PROHIBITED;
+- (void)locationManager:(CLLocationManager *)manager didVisit:(CLVisit *)visit API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
@@ -1900,7 +1924,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  Discussion:
  *    A circular geographic area.
  */
-NS_CLASS_AVAILABLE(NA, 7_0)
+API_AVAILABLE(macos(10.10), ios(7.0))
 @interface CLCircularRegion : CLRegion
 
 /*
@@ -1950,8 +1974,6 @@ NS_ASSUME_NONNULL_END
  *  Copyright (c) 2010 Apple Inc. All rights reserved.
  */
 
-#if TARGET_OS_IPHONE
-
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CLAvailability.h>
 
@@ -1960,6 +1982,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class CLLocation;
 @class CLRegion;
 @class CLPlacemarkInternal;
+@class CNPostalAddress;
+
 
 /*
  *  CLPlacemark
@@ -1969,7 +1993,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    information such as the country, state, city, and street address.
  */
 
-NS_CLASS_AVAILABLE(TBD,5_0)
+API_AVAILABLE(macos(10.8), ios(5.0))
 @interface CLPlacemark : NSObject <NSCopying, NSSecureCoding>
 {
 @private
@@ -2015,7 +2039,7 @@ NS_CLASS_AVAILABLE(TBD,5_0)
  *    This dictionary can be formatted as an address using ABCreateStringWithAddressDictionary,
  *    defined in the AddressBookUI framework.
  */
-@property (nonatomic, readonly, copy, nullable) NSDictionary *addressDictionary;
+@property (nonatomic, readonly, copy, nullable) NSDictionary *addressDictionary API_DEPRECATED("Use @properties", macos(10.8, 10.13), ios(5.0, 11.0), watchos(1.0, 4.0));
 
 // address dictionary properties
 @property (nonatomic, readonly, copy, nullable) NSString *name; // eg. Apple Inc.
@@ -2033,6 +2057,8 @@ NS_CLASS_AVAILABLE(TBD,5_0)
 @property (nonatomic, readonly, copy, nullable) NSArray<NSString *> *areasOfInterest; // eg. Golden Gate Park
 @end
 
-#endif //TARGET_OS_IPHONE
+@interface CLPlacemark (ContactsAdditions)
+@property (nonatomic, nullable, readonly) CNPostalAddress *postalAddress API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0)) API_UNAVAILABLE(tvos);
+@end
 
 NS_ASSUME_NONNULL_END

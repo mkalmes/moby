@@ -14,11 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
  An MKGeodesicPolyline follows the shortest path along the surface of the earth,
  which may appear as a curved line when drawn on the projected MKMapView.
  */
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKGeodesicPolyline : MKPolyline
 
-+ (instancetype)polylineWithPoints:(MKMapPoint *)points count:(NSUInteger)count;
-+ (instancetype)polylineWithCoordinates:(CLLocationCoordinate2D *)coords count:(NSUInteger)count;
++ (instancetype)polylineWithPoints:(const MKMapPoint *)points count:(NSUInteger)count;
++ (instancetype)polylineWithCoordinates:(const CLLocationCoordinate2D *)coords count:(NSUInteger)count;
 
 @end
 
@@ -37,14 +37,14 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKPolygon : MKMultiPoint <MKOverlay>
 
-+ (instancetype)polygonWithPoints:(MKMapPoint *)points count:(NSUInteger)count;
-+ (instancetype)polygonWithPoints:(MKMapPoint *)points count:(NSUInteger)count interiorPolygons:(nullable NSArray<MKPolygon *> *)interiorPolygons;
++ (instancetype)polygonWithPoints:(const MKMapPoint *)points count:(NSUInteger)count;
++ (instancetype)polygonWithPoints:(const MKMapPoint *)points count:(NSUInteger)count interiorPolygons:(nullable NSArray<MKPolygon *> *)interiorPolygons;
 
-+ (instancetype)polygonWithCoordinates:(CLLocationCoordinate2D *)coords count:(NSUInteger)count;
-+ (instancetype)polygonWithCoordinates:(CLLocationCoordinate2D *)coords count:(NSUInteger)count interiorPolygons:(nullable NSArray<MKPolygon *> *)interiorPolygons;
++ (instancetype)polygonWithCoordinates:(const CLLocationCoordinate2D *)coords count:(NSUInteger)count;
++ (instancetype)polygonWithCoordinates:(const CLLocationCoordinate2D *)coords count:(NSUInteger)count interiorPolygons:(nullable NSArray<MKPolygon *> *)interiorPolygons;
 
 @property (readonly, nullable) NSArray<MKPolygon *> *interiorPolygons;
 
@@ -61,12 +61,15 @@ NS_ASSUME_NONNULL_END
 
 #import <Foundation/Foundation.h>
 #import <MapKit/MKFoundation.h>
+
+#if __has_include(<UIKit/UIView.h>) || !TARGET_OS_IPHONE
+
 #import <CoreLocation/CoreLocation.h>
 #import <CoreGraphics/CoreGraphics.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKMapCamera : NSObject <NSSecureCoding, NSCopying>
 
 @property (nonatomic) CLLocationCoordinate2D centerCoordinate;
@@ -89,6 +92,8 @@ MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
 // ==========  MapKit.framework/Headers/MKLocalSearch.h
 //
 //  MKLocalSearch.h
@@ -106,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^MKLocalSearchCompletionHandler)(MKLocalSearchResponse * __nullable response, NSError * __nullable error);
 
-MK_CLASS_AVAILABLE(10_9, 6_1) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 6_1) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKLocalSearch : NSObject
 
 // The request will be copied during initialization, so any changes made to the request
@@ -136,7 +141,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKCircleRenderer : MKOverlayPathRenderer
 
 - (instancetype)initWithCircle:(MKCircle *)circle;
@@ -160,11 +165,34 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKPolyline : MKMultiPoint <MKOverlay>
 
-+ (instancetype)polylineWithPoints:(MKMapPoint *)points count:(NSUInteger)count;
-+ (instancetype)polylineWithCoordinates:(CLLocationCoordinate2D *)coords count:(NSUInteger)count;
++ (instancetype)polylineWithPoints:(const MKMapPoint *)points count:(NSUInteger)count;
++ (instancetype)polylineWithCoordinates:(const CLLocationCoordinate2D *)coords count:(NSUInteger)count;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  MapKit.framework/Headers/MKUserTrackingButton.h
+//
+//  MKUserTrackingButton.h
+//  MapKit
+//
+//  Copyright © 2017 Apple, Inc. All rights reserved.
+//
+
+#import <UIKit/UIView.h>
+
+@class MKMapView;
+
+NS_ASSUME_NONNULL_BEGIN
+
+NS_CLASS_AVAILABLE_IOS(11_0) __TVOS_PROHIBITED
+@interface MKUserTrackingButton : UIView
+
++ (instancetype)userTrackingButtonWithMapView:(nullable MKMapView *)mapView;
+@property (nonatomic, nullable, weak) MKMapView *mapView;
 
 @end
 
@@ -183,7 +211,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKPolylineRenderer : MKOverlayPathRenderer
 
 - (instancetype)initWithPolyline:(MKPolyline *)polyline;
@@ -211,7 +239,7 @@ NS_ASSUME_NONNULL_END
 
 // MKReverseGeocoder is now deprecated.
 // Use CLGeocoder in CoreLocation instead.
-MK_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) __WATCHOS_PROHIBITED
+NS_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 @interface MKReverseGeocoder : NSObject
 
 - (instancetype)initWithCoordinate:(CLLocationCoordinate2D)coordinate NS_DEPRECATED_IOS(3_0,5_0);
@@ -228,7 +256,7 @@ MK_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) __WATCHOS_PROHIBITED
 
 @end
 
-MK_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) __WATCHOS_PROHIBITED
+NS_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 @protocol MKReverseGeocoderDelegate <NSObject>
 @required
 - (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFindPlacemark:(MKPlacemark *)placemark NS_DEPRECATED_IOS(3_0,5_0);
@@ -251,7 +279,7 @@ MK_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) __WATCHOS_PROHIBITED
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKPolygonRenderer : MKOverlayPathRenderer
 
 - (instancetype)initWithPolygon:(MKPolygon *)polygon;
@@ -268,13 +296,16 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2010-2014, Apple Inc. All rights reserved.
 //
 
+#import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
 #import <UIKit/UIKit.h>
 
 #import <MapKit/MKOverlayView.h>
-#import <MapKit/MKFoundation.h>
 
 // Prefer MKOverlayPathRenderer
-MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 @interface MKOverlayPathView : MKOverlayView
 
 @property (strong) UIColor *fillColor NS_DEPRECATED_IOS(4_0, 7_0);
@@ -303,6 +334,8 @@ MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
 - (void)fillPath:(CGPathRef)path inContext:(CGContextRef)context NS_DEPRECATED_IOS(4_0, 7_0);
 
 @end
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
 // ==========  MapKit.framework/Headers/MKCircleView.h
 //
 //  MKCircleView.h
@@ -312,12 +345,15 @@ MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
 //
 
 #import <Foundation/Foundation.h>
-#import <MapKit/MKCircle.h>
 #import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
+#import <MapKit/MKCircle.h>
 #import <MapKit/MKOverlayPathView.h>
 
 // Prefer MKCircleRenderer
-MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 @interface MKCircleView : MKOverlayPathView
 
 - (instancetype)initWithCircle:(MKCircle *)circle NS_DEPRECATED_IOS(4_0, 7_0);
@@ -325,6 +361,8 @@ MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
 @property (nonatomic, readonly) MKCircle *circle NS_DEPRECATED_IOS(4_0, 7_0);
 
 @end
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
 // ==========  MapKit.framework/Headers/MKAnnotationView.h
 //
 //  MKAnnotationView.h
@@ -334,6 +372,9 @@ MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
 //
 
 #import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #else
@@ -351,24 +392,37 @@ typedef NS_ENUM(NSUInteger, MKAnnotationViewDragState) {
     MKAnnotationViewDragStateDragging,      // View is dragging ("lift" animations are complete)
     MKAnnotationViewDragStateCanceling,     // View was not dragged and should return to its starting position (e.g. pin drop)
     MKAnnotationViewDragStateEnding         // View was dragged, new coordinate is set and view should return to resting position (e.g. pin drop)
-} NS_ENUM_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED;
+} NS_ENUM_AVAILABLE(10_9, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+
+typedef float MKFeatureDisplayPriority NS_TYPED_EXTENSIBLE_ENUM NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED;
+static const MKFeatureDisplayPriority MKFeatureDisplayPriorityRequired NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED = 1000;
+static const MKFeatureDisplayPriority MKFeatureDisplayPriorityDefaultHigh NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED = 750;
+static const MKFeatureDisplayPriority MKFeatureDisplayPriorityDefaultLow NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED = 250;
+
+typedef NS_ENUM(NSInteger, MKAnnotationViewCollisionMode) {
+    MKAnnotationViewCollisionModeRectangle,
+    MKAnnotationViewCollisionModeCircle
+} NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED;
 
 @protocol MKAnnotation;
 
 #if TARGET_OS_IPHONE
-MK_CLASS_AVAILABLE(NA, 3_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKAnnotationView : UIView
 #else
-MK_CLASS_AVAILABLE(10_9, NA)
+NS_CLASS_AVAILABLE(10_9, NA)
 @interface MKAnnotationView : NSView
 #endif
 
-- (instancetype)initWithAnnotation:(nullable id <MKAnnotation>)annotation reuseIdentifier:(nullable NSString *)reuseIdentifier;
+- (instancetype)initWithAnnotation:(nullable id <MKAnnotation>)annotation reuseIdentifier:(nullable NSString *)reuseIdentifier NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
 @property (nonatomic, readonly, nullable) NSString *reuseIdentifier;
 
 // Classes that override must call super.
 - (void)prepareForReuse;
+
+- (void)prepareForDisplay NS_REQUIRES_SUPER NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
 
 @property (nonatomic, strong, nullable) id <MKAnnotation> annotation;
 
@@ -430,18 +484,32 @@ MK_CLASS_AVAILABLE(10_9, NA)
 
 // If YES and the underlying id<MKAnnotation> responds to setCoordinate:, 
 // the user will be able to drag this annotation view around the map.
-@property (nonatomic, getter=isDraggable) BOOL draggable NS_AVAILABLE(10_9, 4_0);
+@property (nonatomic, getter=isDraggable) BOOL draggable NS_AVAILABLE(10_9, 4_0) __TVOS_PROHIBITED;
 
 // Automatically set to MKAnnotationViewDragStateStarting, Canceling, and Ending when necessary.
 // Implementer is responsible for transitioning to Dragging and None states as appropriate.
-@property (nonatomic) MKAnnotationViewDragState dragState NS_AVAILABLE(10_9, 4_0);
+@property (nonatomic) MKAnnotationViewDragState dragState NS_AVAILABLE(10_9, 4_0) __TVOS_PROHIBITED;
 
 // Developers targeting iOS 4.2 and after must use setDragState:animated: instead of setDragState:.
-- (void)setDragState:(MKAnnotationViewDragState)newDragState animated:(BOOL)animated NS_AVAILABLE(10_9, 4_2);
+- (void)setDragState:(MKAnnotationViewDragState)newDragState animated:(BOOL)animated NS_AVAILABLE(10_9, 4_2) __TVOS_PROHIBITED;
+
+// Annotation views with equal non-nil identifiers can cluster together.
+@property (nonatomic, copy, nullable) NSString *clusteringIdentifier  NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
+
+// If non-nil this is the annotation view this view is clustered into.
+@property (nonatomic, weak, readonly, nullable) MKAnnotationView *clusterAnnotationView NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
+
+// Default is MKFeatureDisplayPriorityRequired, other values opts into collision occlusion by priority.
+@property (nonatomic) MKFeatureDisplayPriority displayPriority NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
+
+// Default collision mode is rectangle.
+@property (nonatomic) MKAnnotationViewCollisionMode collisionMode NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
 // ==========  MapKit.framework/Headers/MKAnnotation.h
 //
 //  MKAnnotation.h
@@ -487,7 +555,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0)
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2)
 @interface MKDistanceFormatter : NSFormatter
 
 // Convenience methods. MKDistanceFormatter also responds to the usual NSFormatter methods.
@@ -501,7 +569,7 @@ typedef NS_ENUM(NSUInteger, MKDistanceFormatterUnits) {
     MKDistanceFormatterUnitsMetric,
     MKDistanceFormatterUnitsImperial,
     MKDistanceFormatterUnitsImperialWithYards
-} NS_ENUM_AVAILABLE(10_9, 7_0);
+} NS_ENUM_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2);
 
 @property (assign, NS_NONATOMIC_IOSONLY) MKDistanceFormatterUnits units;
 
@@ -509,7 +577,7 @@ typedef NS_ENUM(NSUInteger, MKDistanceFormatterUnitStyle) {
     MKDistanceFormatterUnitStyleDefault = 0,    // Whether to abbreviate depends on units, locale, and user interface language
     MKDistanceFormatterUnitStyleAbbreviated,    // Ex. km
     MKDistanceFormatterUnitStyleFull            // Ex. kilometers
-} NS_ENUM_AVAILABLE(10_9, 7_0);
+} NS_ENUM_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2);
 
 @property (assign, NS_NONATOMIC_IOSONLY) MKDistanceFormatterUnitStyle unitStyle;
 
@@ -529,16 +597,22 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKAnnotation.h>
 #import <CoreLocation/CLLocation.h>
 #import <CoreLocation/CLPlacemark.h>
+@class CNPostalAddress;
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 3_0)
+NS_CLASS_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2)
 @interface MKPlacemark : CLPlacemark <MKAnnotation>
+
+- (instancetype)initWithCoordinate:(CLLocationCoordinate2D)coordinate NS_AVAILABLE(10_12, 10_0) __TVOS_AVAILABLE(10_0) __WATCHOS_AVAILABLE(3_0);
 
 // An address dictionary is a dictionary in the same form as returned by 
 // ABRecordCopyValue(person, kABPersonAddressProperty).
 - (instancetype)initWithCoordinate:(CLLocationCoordinate2D)coordinate
                  addressDictionary:(nullable NSDictionary<NSString *, id> *)addressDictionary;
+
+- (instancetype)initWithCoordinate:(CLLocationCoordinate2D)coordinate
+                 postalAddress:(nonnull CNPostalAddress *)postalAddress NS_AVAILABLE(10_12, 10_0) __WATCHOS_AVAILABLE(3_0) __TVOS_UNAVAILABLE;
 
 // To create an MKPlacemark from a CLPlacemark, call [MKPlacemark initWithPlacemark:] passing the CLPlacemark instance that is returned by CLGeocoder.
 // See CLGeocoder.h and CLPlacemark.h in CoreLocation for more information.
@@ -600,7 +674,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKMultiPoint : MKShape
 
 - (MKMapPoint *)points NS_RETURNS_INNER_POINTER;
@@ -628,7 +702,7 @@ typedef NS_OPTIONS(NSUInteger, MKDirectionsTransportType) {
     MKDirectionsTransportTypeWalking = 1 << 1,
     MKDirectionsTransportTypeTransit NS_ENUM_AVAILABLE(10_11, 9_0) = 1 << 2, // Only supported for ETA calculations
     MKDirectionsTransportTypeAny = 0x0FFFFFFF
-} NS_ENUM_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED;
+} NS_ENUM_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
 // ==========  MapKit.framework/Headers/MKCircle.h
 //
 //  MKCircle.h
@@ -644,7 +718,7 @@ typedef NS_OPTIONS(NSUInteger, MKDirectionsTransportType) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKCircle : MKShape <MKOverlay>
 
 + (instancetype)circleWithCenterCoordinate:(CLLocationCoordinate2D)coord
@@ -669,13 +743,16 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <MapKit/MKFoundation.h>
+
+#if __has_include(<UIKit/UIView.h>) || !TARGET_OS_IPHONE
+
 #import <MapKit/MKGeometry.h>
 #import <MapKit/MKTypes.h>
 #import <MapKit/MKMapView.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKMapSnapshotOptions : NSObject <NSCopying>
 
 @property (nonatomic, copy) MKMapCamera *camera;
@@ -691,6 +768,7 @@ MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
 @property (nonatomic, assign) CGSize size;
 #else
 @property (nonatomic, assign) NSSize size;
+@property (nonatomic, nullable, strong) NSAppearance *appearance API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios, tvos, watchos);
 #endif
 
 #if TARGET_OS_IPHONE
@@ -701,6 +779,8 @@ MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
 // ==========  MapKit.framework/Headers/MKPointAnnotation.h
 //
 //  MKPointAnnotation.h
@@ -716,7 +796,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKPointAnnotation : MKShape
 
 @property (nonatomic, assign) CLLocationCoordinate2D coordinate;
@@ -724,6 +804,23 @@ MK_CLASS_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  MapKit.framework/Headers/NSUserActivity+MKMapItem.h
+//
+//  NSUserActivity+MKMapItem.h
+//  MapKit
+//
+//  Copyright (c) 2009-2016, Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class MKMapItem;
+
+@interface NSUserActivity (MKMapItem)
+
+@property (nonatomic, strong) MKMapItem *mapItem NS_AVAILABLE(10_12, 10_0) __TVOS_AVAILABLE(10_0) __WATCHOS_AVAILABLE(3_0);
+
+@end
 // ==========  MapKit.framework/Headers/MKMapSnapshotter.h
 //
 //  MKMapSnapshotter.h
@@ -741,7 +838,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^MKMapSnapshotCompletionHandler)(MKMapSnapshot * __nullable snapshot, NSError * __nullable error);
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKMapSnapshotter : NSObject
 
 - (instancetype)initWithOptions:(MKMapSnapshotOptions *)options NS_DESIGNATED_INITIALIZER;
@@ -764,17 +861,20 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
 #import <MapKit/MKAnnotationView.h>
 
 typedef NS_ENUM(NSUInteger, MKPinAnnotationColor) {
     MKPinAnnotationColorRed = 0,
     MKPinAnnotationColorGreen,
     MKPinAnnotationColorPurple
-} NS_ENUM_DEPRECATED(10_9, 10_11, 3_0, 9_0, "Use MKPinAnnotationView's pinTintColor instead") __WATCHOS_PROHIBITED;
+} NS_ENUM_DEPRECATED(10_9, 10_11, 3_0, 9_0, "Use MKPinAnnotationView's pinTintColor instead") __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 3_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKPinAnnotationView : MKAnnotationView
 
 #if TARGET_OS_IPHONE
@@ -795,11 +895,13 @@ MK_CLASS_AVAILABLE(10_9, 3_0) __WATCHOS_PROHIBITED
 
 @property (nonatomic) BOOL animatesDrop;
 
-@property (nonatomic) MKPinAnnotationColor pinColor NS_DEPRECATED(10_9, 10_11, 3_0, 9_0, "Use pinTintColor instead");
+@property (nonatomic) MKPinAnnotationColor pinColor NS_DEPRECATED(10_9, 10_11, 3_0, 9_0, "Use pinTintColor instead") __TVOS_PROHIBITED;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
 // ==========  MapKit.framework/Headers/MapKit.h
 //
 //  MapKit.h
@@ -815,12 +917,14 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKGeometry.h>
 #import <MapKit/MKMapItem.h>
 #import <MapKit/MKPlacemark.h>
+#import <MapKit/NSUserActivity+MKMapItem.h>
 
 #if __has_include(<MapKit/MKMapView.h>)
 #import <MapKit/MKAnnotationView.h>
 #import <MapKit/MKMapView.h>
 #import <MapKit/MKPinAnnotationView.h>
 #import <MapKit/MKUserLocation.h>
+#import <MapKit/MKClusterAnnotation.h>
 #import <MapKit/MKOverlay.h>
 #import <MapKit/MKShape.h>
 #import <MapKit/MKPointAnnotation.h>
@@ -835,6 +939,7 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKPolylineRenderer.h>
 #import <MapKit/MKCircleRenderer.h>
 #import <MapKit/MKLocalSearch.h>
+#import <MapKit/MKLocalSearchCompleter.h>
 #import <MapKit/MKLocalSearchRequest.h>
 #import <MapKit/MKLocalSearchResponse.h>
 #import <MapKit/MKDirectionsRequest.h>
@@ -850,15 +955,61 @@ NS_ASSUME_NONNULL_END
 
 #if TARGET_OS_IPHONE
 #import <MapKit/MKReverseGeocoder.h>
+#import <MapKit/MKMarkerAnnotationView.h>
 #import <MapKit/MKOverlayView.h>
 #import <MapKit/MKOverlayPathView.h>
 #import <MapKit/MKPolygonView.h>
 #import <MapKit/MKPolylineView.h>
 #import <MapKit/MKCircleView.h>
+#import <MapKit/MKScaleView.h>
 #import <MapKit/MKUserTrackingBarButtonItem.h>
-#endif
+#endif // TARGET_OS_IPHONE
 
-#endif
+#if TARGET_OS_IOS
+#import <MapKit/MKCompassButton.h>
+#import <MapKit/MKUserTrackingButton.h>
+#endif // TARGET_OS_IOS
+
+#endif // __has_include(<MapKit/MKMapView.h>)
+// ==========  MapKit.framework/Headers/MKScaleView.h
+//
+//  MKScaleView.h
+//  Maps
+//
+//  Copyright 2017, Apple. All rights reserved.
+//
+
+#import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
+// System
+#import <UIKit/UIKit.h>
+#import <MapKit/MKTypes.h>
+
+@class MKMapView;
+
+typedef NS_ENUM(NSInteger, MKScaleViewAlignment) {
+    MKScaleViewAlignmentLeading,
+    MKScaleViewAlignmentTrailing,
+} NS_AVAILABLE_IOS(11_0) __TVOS_AVAILABLE(11_0);
+
+NS_ASSUME_NONNULL_BEGIN
+
+NS_CLASS_AVAILABLE_IOS(11_0) __TVOS_AVAILABLE(11_0)
+@interface MKScaleView : UIView
+
++ (instancetype)scaleViewWithMapView:(nullable MKMapView *)mapView;
+@property (nonatomic, nullable, weak) MKMapView *mapView;
+
+@property (nonatomic, assign) MKFeatureVisibility scaleVisibility;
+@property (nonatomic, assign) MKScaleViewAlignment legendAlignment;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
 // ==========  MapKit.framework/Headers/MKPolygonView.h
 //
 //  MKPolygonView.h
@@ -867,18 +1018,23 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2010-2014, Apple Inc. All rights reserved.
 //
 
-#import <MapKit/MKPolygon.h>
-#import <MapKit/MKOverlayPathView.h>
 #import <MapKit/MKFoundation.h>
 
+#if MK_SUPPORTS_VIEW_CLASSES
+
+#import <MapKit/MKPolygon.h>
+#import <MapKit/MKOverlayPathView.h>
+
 // Prefer MKPolygonRenderer
-MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 @interface MKPolygonView : MKOverlayPathView
 
 - (instancetype)initWithPolygon:(MKPolygon *)polygon NS_DEPRECATED_IOS(4_0, 7_0);
 @property (nonatomic, readonly) MKPolygon *polygon NS_DEPRECATED_IOS(4_0, 7_0);
 
 @end
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
 // ==========  MapKit.framework/Headers/MKOverlayRenderer.h
 //
 //  MKOverlayRenderer.h
@@ -893,7 +1049,7 @@ MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKOverlayRenderer : NSObject
 
 - (instancetype)initWithOverlay:(id <MKOverlay>)overlay NS_DESIGNATED_INITIALIZER;
@@ -936,7 +1092,7 @@ MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
 // Road widths are typically not drawn to scale on the map.  This function
 // returns the approximate width in points of roads at the specified zoomScale.
 // The result of this function is suitable for use with CGContextSetLineWidth.
-MK_EXTERN CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoomScale) NS_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED;
+MK_EXTERN CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoomScale) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
 
 NS_ASSUME_NONNULL_END
 // ==========  MapKit.framework/Headers/MKDirectionsResponse.h
@@ -958,7 +1114,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKDirectionsResponse : NSObject
 
 // Source and destination may be filled with additional details compared to the request object.
@@ -969,7 +1125,7 @@ MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
 
 @end
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKRoute : NSObject
 
 @property (nonatomic, readonly) NSString *name; // localized description of the route's significant feature, e.g. "US-101"
@@ -987,7 +1143,7 @@ MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
 
 @end
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKRouteStep : NSObject
 
 @property (nonatomic, readonly) NSString *instructions; // localized written instructions
@@ -1001,7 +1157,7 @@ MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
 
 @end
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKETAResponse : NSObject
 
 // Source and destination may be filled with additional details compared to the request object.
@@ -1029,7 +1185,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKTileOverlayRenderer : MKOverlayRenderer
 
 - (instancetype)initWithTileOverlay:(MKTileOverlay *)overlay;
@@ -1055,7 +1211,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 3_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKUserLocation : NSObject <MKAnnotation>
 
 // Returns YES if the user's location is being updated.
@@ -1065,7 +1221,7 @@ MK_CLASS_AVAILABLE(10_9, 3_0) __WATCHOS_PROHIBITED
 @property (readonly, nonatomic, nullable) CLLocation *location;
 
 // Returns nil if not in MKUserTrackingModeFollowWithHeading
-@property (readonly, nonatomic, nullable) CLHeading *heading NS_AVAILABLE(10_9, 5_0);
+@property (readonly, nonatomic, nullable) CLHeading *heading NS_AVAILABLE(10_9, 5_0) __TVOS_PROHIBITED;
 
 // The title to be displayed for the user location annotation.
 @property (nonatomic, copy, nullable) NSString *title;
@@ -1073,6 +1229,69 @@ MK_CLASS_AVAILABLE(10_9, 3_0) __WATCHOS_PROHIBITED
 // The subtitle to be displayed for the user location annotation.
 @property (nonatomic, copy, nullable) NSString *subtitle;
 
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  MapKit.framework/Headers/MKLocalSearchCompleter.h
+//
+//  MKLocalSearchCompleter.h
+//  MapKit
+//
+//  Copyright (c) 2016, Apple Inc. All rights reserved.
+//
+
+#import <MapKit/MapKit.h>
+#import <MapKit/MKLocalSearchRequest.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class MKLocalSearchCompletion;
+@protocol MKLocalSearchCompleterDelegate;
+
+typedef NS_ENUM(NSInteger, MKSearchCompletionFilterType) {
+    MKSearchCompletionFilterTypeLocationsAndQueries = 0, // Returns completions for points of interest as well as query suggestions (e.g., "coffee")
+    MKSearchCompletionFilterTypeLocationsOnly, // Returns completions only for points of interest
+} NS_ENUM_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+
+NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+@interface MKLocalSearchCompleter : NSObject
+
+@property (nonatomic, copy) NSString *queryFragment;
+@property (nonatomic, assign) MKCoordinateRegion region;
+@property (nonatomic, assign) MKSearchCompletionFilterType filterType; // Defaults to MKSearchCompletionFilterTypeLocationsAndQueries
+
+@property (nonatomic, weak, nullable) id<MKLocalSearchCompleterDelegate> delegate;
+
+@property (nonatomic, readonly, strong) NSArray<MKLocalSearchCompletion *> *results;
+
+@property (nonatomic, readonly, getter=isSearching) BOOL searching;
+
+- (void)cancel;
+
+@end
+
+NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+@protocol MKLocalSearchCompleterDelegate <NSObject>
+@optional
+
+- (void)completerDidUpdateResults:(MKLocalSearchCompleter *)completer;
+- (void)completer:(MKLocalSearchCompleter *)completer didFailWithError:(NSError *)error;
+
+@end
+
+NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+@interface MKLocalSearchCompletion : NSObject
+
+@property (nonatomic, readonly, strong) NSString *title;
+@property (nonatomic, readonly, strong) NSArray<NSValue *> *titleHighlightRanges; // NSValue-wrapped NSRanges
+
+@property (nonatomic, readonly, strong) NSString *subtitle;
+@property (nonatomic, readonly, strong) NSArray<NSValue *> *subtitleHighlightRanges; // NSValue-wrapped NSRanges
+
+@end
+
+@interface MKLocalSearchRequest ()
+- (instancetype)initWithCompletion:(MKLocalSearchCompletion *)completion NS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
 @end
 
 NS_ASSUME_NONNULL_END
@@ -1091,7 +1310,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 6_1) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 6_1) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKLocalSearchResponse : NSObject
 
 // An array of MKMapItems sorted by relevance in descending order
@@ -1120,9 +1339,10 @@ typedef NS_ENUM(NSUInteger, MKMapType) {
     MKMapTypeHybrid,
     MKMapTypeSatelliteFlyover NS_ENUM_AVAILABLE(10_11, 9_0),
     MKMapTypeHybridFlyover NS_ENUM_AVAILABLE(10_11, 9_0),
-} NS_ENUM_AVAILABLE(10_9, 3_0) __WATCHOS_PROHIBITED;
+    MKMapTypeMutedStandard NS_ENUM_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0),
+} NS_ENUM_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
 
-MK_EXTERN NSString *MKErrorDomain;
+MK_EXTERN NSString *MKErrorDomain __TVOS_AVAILABLE(9_2);
 
 typedef NS_ENUM(NSUInteger, MKErrorCode) {
     MKErrorUnknown = 1,
@@ -1130,7 +1350,13 @@ typedef NS_ENUM(NSUInteger, MKErrorCode) {
     MKErrorLoadingThrottled,
     MKErrorPlacemarkNotFound,
     MKErrorDirectionsNotFound NS_ENUM_AVAILABLE(10_9, 7_0)
-} NS_ENUM_AVAILABLE(10_9, 3_0) __WATCHOS_PROHIBITED;
+} NS_ENUM_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+
+typedef NS_ENUM(NSInteger, MKFeatureVisibility) {
+    MKFeatureVisibilityAdaptive,
+    MKFeatureVisibilityHidden,
+    MKFeatureVisibilityVisible
+} NS_AVAILABLE_IOS(11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED;
 
 NS_ASSUME_NONNULL_END
 // ==========  MapKit.framework/Headers/MKGeometry.h
@@ -1174,7 +1400,7 @@ NS_INLINE MKCoordinateRegion MKCoordinateRegionMake(CLLocationCoordinate2D cente
 	return region;
 }
 
-MK_EXTERN MKCoordinateRegion MKCoordinateRegionMakeWithDistance(CLLocationCoordinate2D centerCoordinate, CLLocationDistance latitudinalMeters, CLLocationDistance longitudinalMeters);
+MK_EXTERN MKCoordinateRegion MKCoordinateRegionMakeWithDistance(CLLocationCoordinate2D centerCoordinate, CLLocationDistance latitudinalMeters, CLLocationDistance longitudinalMeters) __TVOS_AVAILABLE(9_2);
 
 // Projected geometry is available in iPhone OS 4.0 or later and Mac OS X 10.9 or later
 #if (__IPHONE_4_0 <= __IPHONE_OS_VERSION_MAX_ALLOWED || __MAC_10_9 <= __MAC_OS_X_VERSION_MAX_ALLOWED)
@@ -1203,21 +1429,21 @@ typedef struct {
 typedef CGFloat MKZoomScale;
 #endif
 
-MK_EXTERN const MKMapSize MKMapSizeWorld NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN const MKMapSize MKMapSizeWorld NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 // The rect that contains every map point in the world.
-MK_EXTERN const MKMapRect MKMapRectWorld NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN const MKMapRect MKMapRectWorld NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 
 // Conversion between unprojected and projected coordinates
-MK_EXTERN MKMapPoint MKMapPointForCoordinate(CLLocationCoordinate2D coordinate) NS_AVAILABLE(10_9, 4_0);
-MK_EXTERN CLLocationCoordinate2D MKCoordinateForMapPoint(MKMapPoint mapPoint) NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN MKMapPoint MKMapPointForCoordinate(CLLocationCoordinate2D coordinate) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
+MK_EXTERN CLLocationCoordinate2D MKCoordinateForMapPoint(MKMapPoint mapPoint) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 
 // Conversion between distances and projected coordinates
-MK_EXTERN CLLocationDistance MKMetersPerMapPointAtLatitude(CLLocationDegrees latitude) NS_AVAILABLE(10_9, 4_0);
-MK_EXTERN double MKMapPointsPerMeterAtLatitude(CLLocationDegrees latitude) NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN CLLocationDistance MKMetersPerMapPointAtLatitude(CLLocationDegrees latitude) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
+MK_EXTERN double MKMapPointsPerMeterAtLatitude(CLLocationDegrees latitude) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 
-MK_EXTERN CLLocationDistance MKMetersBetweenMapPoints(MKMapPoint a, MKMapPoint b) NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN CLLocationDistance MKMetersBetweenMapPoints(MKMapPoint a, MKMapPoint b) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 
-MK_EXTERN const MKMapRect MKMapRectNull NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN const MKMapRect MKMapRectNull NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 
 #if (__IPHONE_4_0 <= __IPHONE_OS_VERSION_MAX_ALLOWED || __MAC_10_9 <= __MAC_OS_X_VERSION_MAX_ALLOWED)
 
@@ -1289,33 +1515,33 @@ NS_INLINE NSString *MKStringFromMapRect(MKMapRect rect) {
 }
 #endif
 
-MK_EXTERN MKMapRect MKMapRectUnion(MKMapRect rect1, MKMapRect rect2) NS_AVAILABLE(10_9, 4_0);
-MK_EXTERN MKMapRect MKMapRectIntersection(MKMapRect rect1, MKMapRect rect2) NS_AVAILABLE(10_9, 4_0);
-MK_EXTERN MKMapRect MKMapRectInset(MKMapRect rect, double dx, double dy) NS_AVAILABLE(10_9, 4_0);
-MK_EXTERN MKMapRect MKMapRectOffset(MKMapRect rect, double dx, double dy) NS_AVAILABLE(10_9, 4_0);
-MK_EXTERN void MKMapRectDivide(MKMapRect rect, MKMapRect *slice, MKMapRect *remainder, double amount, CGRectEdge edge) NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN MKMapRect MKMapRectUnion(MKMapRect rect1, MKMapRect rect2) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
+MK_EXTERN MKMapRect MKMapRectIntersection(MKMapRect rect1, MKMapRect rect2) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
+MK_EXTERN MKMapRect MKMapRectInset(MKMapRect rect, double dx, double dy) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
+MK_EXTERN MKMapRect MKMapRectOffset(MKMapRect rect, double dx, double dy) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
+MK_EXTERN void MKMapRectDivide(MKMapRect rect, MKMapRect *slice, MKMapRect *remainder, double amount, CGRectEdge edge) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 
-MK_EXTERN BOOL MKMapRectContainsPoint(MKMapRect rect, MKMapPoint point) NS_AVAILABLE(10_9, 4_0);
-MK_EXTERN BOOL MKMapRectContainsRect(MKMapRect rect1, MKMapRect rect2) NS_AVAILABLE(10_9, 4_0);
-MK_EXTERN BOOL MKMapRectIntersectsRect(MKMapRect rect1, MKMapRect rect2) NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN BOOL MKMapRectContainsPoint(MKMapRect rect, MKMapPoint point) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
+MK_EXTERN BOOL MKMapRectContainsRect(MKMapRect rect1, MKMapRect rect2) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
+MK_EXTERN BOOL MKMapRectIntersectsRect(MKMapRect rect1, MKMapRect rect2) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 
-MK_EXTERN MKCoordinateRegion MKCoordinateRegionForMapRect(MKMapRect rect) NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN MKCoordinateRegion MKCoordinateRegionForMapRect(MKMapRect rect) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 
-MK_EXTERN BOOL MKMapRectSpans180thMeridian(MKMapRect rect) NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN BOOL MKMapRectSpans180thMeridian(MKMapRect rect) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 // For map rects that span the 180th meridian, this returns the portion of the rect
 // that lies outside of the world rect wrapped around to the other side of the
 // world.  The portion of the rect that lies inside the world rect can be 
 // determined with MKMapRectIntersection(rect, MKMapRectWorld).
-MK_EXTERN MKMapRect MKMapRectRemainder(MKMapRect rect) NS_AVAILABLE(10_9, 4_0);
+MK_EXTERN MKMapRect MKMapRectRemainder(MKMapRect rect) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2);
 
 
 @interface NSValue (NSValueMapKitGeometryExtensions)
 
-+ (NSValue *)valueWithMKCoordinate:(CLLocationCoordinate2D)coordinate;
-+ (NSValue *)valueWithMKCoordinateSpan:(MKCoordinateSpan)span;
++ (NSValue *)valueWithMKCoordinate:(CLLocationCoordinate2D)coordinate __TVOS_AVAILABLE(9_2);
++ (NSValue *)valueWithMKCoordinateSpan:(MKCoordinateSpan)span __TVOS_AVAILABLE(9_2);
 
-@property (readonly) CLLocationCoordinate2D MKCoordinateValue;
-@property (readonly) MKCoordinateSpan MKCoordinateSpanValue;
+@property (readonly) CLLocationCoordinate2D MKCoordinateValue __TVOS_AVAILABLE(9_2);
+@property (readonly) MKCoordinateSpan MKCoordinateSpanValue __TVOS_AVAILABLE(9_2);
 
 @end
 
@@ -1328,14 +1554,17 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2010-2014, Apple Inc. All rights reserved.
 //
 
-#import <UIKit/UIBarButtonItem.h>
 #import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
+#import <UIKit/UIBarButtonItem.h>
 
 @class MKMapView;
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(NA, 5_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 5_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 @interface MKUserTrackingBarButtonItem : UIBarButtonItem
 
 - (instancetype)initWithMapView:(nullable MKMapView *)mapView NS_DESIGNATED_INITIALIZER;
@@ -1344,6 +1573,8 @@ MK_CLASS_AVAILABLE(NA, 5_0) __WATCHOS_PROHIBITED
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
 // ==========  MapKit.framework/Headers/MKTileOverlay.h
 //
 //  MKTileOverlay.h
@@ -1358,7 +1589,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 // MKTileOverlay represents a data source for raster image tiles in the spherical mercator projection (EPSG:3857).
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKTileOverlay : NSObject <MKOverlay>
 
 - (instancetype)initWithURLTemplate:(nullable NSString *)URLTemplate NS_DESIGNATED_INITIALIZER; // URL template is a string where the substrings "{x}", "{y}", "{z}", and "{scale}" are replaced with values from a tile path to create a URL to load. For example: http://server/path?x={x}&y={y}&z={z}&scale={scale}.
@@ -1410,7 +1641,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 6_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 6_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKDirectionsRequest : NSObject
 
 @property (nonatomic, strong, nullable) MKMapItem *source;
@@ -1441,6 +1672,43 @@ MK_CLASS_AVAILABLE(10_9, 6_0) __WATCHOS_PROHIBITED
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  MapKit.framework/Headers/MKMarkerAnnotationView.h
+//
+//  MKMarkerAnnotationView.h
+//  MapKit
+//
+//  Copyright © 2017 Apple, Inc. All rights reserved.
+//
+
+#import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
+#import <MapKit/MKAnnotationView.h>
+#import <MapKit/MKTypes.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+NS_CLASS_AVAILABLE_IOS(11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED
+@interface MKMarkerAnnotationView : MKAnnotationView
+
+@property (nonatomic) MKFeatureVisibility titleVisibility;
+@property (nonatomic) MKFeatureVisibility subtitleVisibility;
+
+@property (nonatomic, copy, nullable) UIColor *markerTintColor UI_APPEARANCE_SELECTOR;
+
+@property (nonatomic, copy, nullable) UIColor *glyphTintColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, copy, nullable) NSString *glyphText UI_APPEARANCE_SELECTOR;
+@property (nonatomic, copy, nullable) UIImage *glyphImage UI_APPEARANCE_SELECTOR;
+@property (nonatomic, copy, nullable) UIImage *selectedGlyphImage UI_APPEARANCE_SELECTOR;
+
+@property (nonatomic) BOOL animatesWhenAdded;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
 // ==========  MapKit.framework/Headers/MKFoundation.h
 //
 //  MKFoundation.h
@@ -1459,7 +1727,8 @@ NS_ASSUME_NONNULL_END
 #endif
 
 #define MK_CLASS_AVAILABLE(_macIntro, _iphoneIntro) __attribute__((visibility("default"))) NS_CLASS_AVAILABLE(_macIntro, _iphoneIntro)
-#define MK_CLASS_DEPRECATED(_macIntro, _macDep, _iphoneIntro, _iphoneDep) __attribute__((visibility("default"))) NS_DEPRECATED(_macIntro, macDep, _iphoneIntro,_iphoneDep)
+
+#define MK_SUPPORTS_VIEW_CLASSES (__has_include(<UIKit/UIView.h>) || !TARGET_OS_IPHONE)
 // ==========  MapKit.framework/Headers/MKLocalSearchRequest.h
 //
 //  MKLocalSearchRequest.h
@@ -1473,7 +1742,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 6_1) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 6_1) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKLocalSearchRequest : NSObject <NSCopying>
 
 @property (nonatomic, copy, nullable) NSString *naturalLanguageQuery;
@@ -1495,7 +1764,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 6_0)
+NS_CLASS_AVAILABLE(10_9, 6_0) __TVOS_AVAILABLE(9_2)
 @interface MKMapItem : NSObject
 
 // If this MKMapItem represents your current location (isCurrentLocation == YES), then placemark will be nil.
@@ -1512,25 +1781,38 @@ MK_CLASS_AVAILABLE(10_9, 6_0)
 + (MKMapItem *)mapItemForCurrentLocation;
 - (instancetype)initWithPlacemark:(MKPlacemark *)placemark;
 
-- (BOOL)openInMapsWithLaunchOptions:(nullable NSDictionary<NSString *, id> *)launchOptions;
-+ (BOOL)openMapsWithItems:(NSArray<MKMapItem *> *)mapItems launchOptions:(nullable NSDictionary<NSString *, id> *)launchOptions;
+- (BOOL)openInMapsWithLaunchOptions:(nullable NSDictionary<NSString *, id> *)launchOptions __TVOS_PROHIBITED;
++ (BOOL)openMapsWithItems:(NSArray<MKMapItem *> *)mapItems launchOptions:(nullable NSDictionary<NSString *, id> *)launchOptions __TVOS_PROHIBITED;
 
 @end
 
-MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeKey     NS_AVAILABLE(10_9, 6_0); // Key to a directions mode
-MK_EXTERN NSString * const MKLaunchOptionsMapTypeKey            NS_AVAILABLE(10_9, 6_0) __WATCHOS_PROHIBITED; // Key to an NSNumber corresponding to a MKMapType
-MK_EXTERN NSString * const MKLaunchOptionsShowsTrafficKey       NS_AVAILABLE(10_9, 6_0) __WATCHOS_PROHIBITED; // Key to a boolean NSNumber
+MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeKey     NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED; // Key to a directions mode
+MK_EXTERN NSString * const MKLaunchOptionsMapTypeKey            NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // Key to an NSNumber corresponding to a MKMapType
+MK_EXTERN NSString * const MKLaunchOptionsShowsTrafficKey       NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // Key to a boolean NSNumber
 
 // Directions modes
-MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeDriving NS_AVAILABLE(10_9, 6_0);
-MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeWalking NS_AVAILABLE(10_9, 6_0);
-MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeTransit NS_AVAILABLE(10_11, 9_0);
+MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeDefault NS_AVAILABLE(10_12, 10_0) __TVOS_PROHIBITED __WATCHOS_AVAILABLE(3_0); // Will pick the best directions mode, given the user's preferences
+MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeDriving NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED;
+MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeWalking NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED;
+MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeTransit NS_AVAILABLE(10_11, 9_0) __TVOS_PROHIBITED;
 
 // If center and span are present, having a camera as well is undefined
-MK_EXTERN NSString * const MKLaunchOptionsMapCenterKey          NS_AVAILABLE(10_9, 6_0); // Key to an NSValue-encoded CLLocationCoordinate2D
-MK_EXTERN NSString * const MKLaunchOptionsMapSpanKey            NS_AVAILABLE(10_9, 6_0); // Key to an NSValue-encoded MKCoordinateSpan
+MK_EXTERN NSString * const MKLaunchOptionsMapCenterKey          NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED; // Key to an NSValue-encoded CLLocationCoordinate2D
+MK_EXTERN NSString * const MKLaunchOptionsMapSpanKey            NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED; // Key to an NSValue-encoded MKCoordinateSpan
 
-MK_EXTERN NSString * const MKLaunchOptionsCameraKey             NS_AVAILABLE(10_10, 7_1); // Key to MKMapCamera object
+MK_EXTERN NSString * const MKLaunchOptionsCameraKey             NS_AVAILABLE(10_10, 7_1) __TVOS_PROHIBITED; // Key to MKMapCamera object
+
+
+@interface MKMapItem (MKMapItemSerialization) <NSSecureCoding>
+@end
+
+MK_EXTERN NSString * const MKMapItemTypeIdentifier NS_AVAILABLE(10_13, 11_0);
+
+
+#if TARGET_OS_IOS
+@interface MKMapItem (MKMapItemDragAndDropSupport) <NSItemProviderReading, NSItemProviderWriting>
+@end
+#endif
 
 NS_ASSUME_NONNULL_END
 // ==========  MapKit.framework/Headers/MKMapView.h
@@ -1541,8 +1823,11 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2009-2014, Apple Inc. All rights reserved.
 //
 
-#import <MapKit/MKAnnotationView.h>
 #import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
+#import <MapKit/MKAnnotationView.h>
 #import <MapKit/MKGeometry.h>
 #import <MapKit/MKTypes.h>
 #import <MapKit/MKOverlay.h>
@@ -1553,6 +1838,7 @@ NS_ASSUME_NONNULL_END
 
 @class MKUserLocation;
 @class MKMapCamera;
+@class MKClusterAnnotation;
 
 @protocol MKMapViewDelegate;
 
@@ -1561,14 +1847,17 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, MKUserTrackingMode) {
 	MKUserTrackingModeNone = 0, // the user's location is not followed
 	MKUserTrackingModeFollow, // the map follows the user's location
-	MKUserTrackingModeFollowWithHeading, // the map follows the user's location and heading
-} NS_ENUM_AVAILABLE(NA, 5_0) __WATCHOS_PROHIBITED;
+	MKUserTrackingModeFollowWithHeading __TVOS_PROHIBITED, // the map follows the user's location and heading
+} NS_ENUM_AVAILABLE(NA, 5_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+
+MK_EXTERN NSString * const MKMapViewDefaultAnnotationViewReuseIdentifier NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
+MK_EXTERN NSString * const MKMapViewDefaultClusterAnnotationViewReuseIdentifier NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
 
 #if TARGET_OS_IPHONE
-MK_CLASS_AVAILABLE(NA, 3_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKMapView : UIView <NSCoding>
 #else
-MK_CLASS_AVAILABLE(10_9, NA)
+NS_CLASS_AVAILABLE(10_9, NA)
 @interface MKMapView : NSView <NSCoding>
 #endif
 
@@ -1596,9 +1885,6 @@ MK_CLASS_AVAILABLE(10_9, NA)
 
 // Returns an MKMapRect modified to fit the aspect ratio of the map.
 - (MKMapRect)mapRectThatFits:(MKMapRect)mapRect;
-
-// To be used in testing only
-- (void)_handleSelectionAtPoint:(CGPoint)locationInView;
 
 // Edge padding is the minumum padding on each side around the specified MKMapRect.
 #if TARGET_OS_IPHONE
@@ -1629,15 +1915,15 @@ MK_CLASS_AVAILABLE(10_9, NA)
 @property (nonatomic, getter=isZoomEnabled) BOOL zoomEnabled;
 @property (nonatomic, getter=isScrollEnabled) BOOL scrollEnabled;
 // Rotate and pitch are enabled by default on Mac OS X and on iOS 7.0 and later.
-@property (nonatomic, getter=isRotateEnabled) BOOL rotateEnabled NS_AVAILABLE(10_9, 7_0);
-@property (nonatomic, getter=isPitchEnabled) BOOL pitchEnabled NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, getter=isRotateEnabled) BOOL rotateEnabled NS_AVAILABLE(10_9, 7_0) __TVOS_PROHIBITED;
+@property (nonatomic, getter=isPitchEnabled) BOOL pitchEnabled NS_AVAILABLE(10_9, 7_0) __TVOS_PROHIBITED;
 
 #if !TARGET_OS_IPHONE
 @property (nonatomic) BOOL showsZoomControls NS_AVAILABLE(10_9, NA);
 #endif
 
 
-@property (nonatomic) BOOL showsCompass NS_AVAILABLE(10_9, 9_0);
+@property (nonatomic) BOOL showsCompass NS_AVAILABLE(10_9, 9_0) __TVOS_PROHIBITED;
 @property (nonatomic) BOOL showsScale NS_AVAILABLE(10_10, 9_0);
 
 @property (nonatomic) BOOL showsPointsOfInterest NS_AVAILABLE(10_9, 7_0); // Affects MKMapTypeStandard and MKMapTypeHybrid
@@ -1672,8 +1958,14 @@ MK_CLASS_AVAILABLE(10_9, NA)
 // Currently displayed view for an annotation; returns nil if the view for the annotation isn't being displayed.
 - (nullable MKAnnotationView *)viewForAnnotation:(id <MKAnnotation>)annotation;
 
-// Used by the delegate to acquire an already allocated annotation view, in lieu of allocating a new one.
+// Used by the delegate to acquire a reusable annotation view, or create a new view for registered class, in lieu of allocating a new one.
 - (nullable MKAnnotationView *)dequeueReusableAnnotationViewWithIdentifier:(NSString *)identifier;
+
+// Used by the delegate to acquire a reusable annotation view, or create a new view for registered class, in lieu of allocating a new one. Throws an exception if view could not be aquired.
+- (MKAnnotationView *)dequeueReusableAnnotationViewWithIdentifier:(NSString *)identifier forAnnotation:(id<MKAnnotation>)annotation NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
+
+// Register a MKAnnotationView subclass to be instantiated when dequeueReusableAnnotationViewWithIdentifier: does not have a view to reuse.
+- (void)registerClass:(nullable Class)viewClass forAnnotationViewWithReuseIdentifier:(NSString *)identifier NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
 
 // Select or deselect a given annotation.  Asks the delegate for the corresponding annotation view if necessary.
 - (void)selectAnnotation:(id <MKAnnotation>)annotation animated:(BOOL)animated;
@@ -1692,7 +1984,7 @@ MK_CLASS_AVAILABLE(10_9, NA)
 typedef NS_ENUM(NSInteger, MKOverlayLevel) {
     MKOverlayLevelAboveRoads = 0, // note that labels include shields and point of interest icons.
     MKOverlayLevelAboveLabels
-} NS_ENUM_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED;
+} NS_ENUM_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
 
 @interface MKMapView (OverlaysAPI)
 
@@ -1721,7 +2013,7 @@ typedef NS_ENUM(NSInteger, MKOverlayLevel) {
 #if TARGET_OS_IPHONE
 // Currently displayed view for overlay; returns nil if the view has not been created yet.
 // Prefer using MKOverlayRenderer and -rendererForOverlay.
-- (MKOverlayView *)viewForOverlay:(id <MKOverlay>)overlay NS_DEPRECATED_IOS(4_0, 7_0);
+- (MKOverlayView *)viewForOverlay:(id <MKOverlay>)overlay NS_DEPRECATED_IOS(4_0, 7_0) __TVOS_PROHIBITED;
 #endif
 
 // These methods operate implicitly on overlays in MKOverlayLevelAboveLabels and may be deprecated in a future release in favor of the methods that specify the level.
@@ -1739,6 +2031,8 @@ __WATCHOS_PROHIBITED
 
 - (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated;
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated;
+
+- (void)mapViewDidChangeVisibleRegion:(MKMapView *)mapView API_AVAILABLE(ios(11), tvos(11), macos(10.13));
 
 - (void)mapViewWillStartLoadingMap:(MKMapView *)mapView;
 - (void)mapViewDidFinishLoadingMap:(MKMapView *)mapView;
@@ -1759,7 +2053,7 @@ __WATCHOS_PROHIBITED
 
 #if TARGET_OS_IPHONE
 // mapView:annotationView:calloutAccessoryControlTapped: is called when the user taps on left & right callout accessory UIControls.
-- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control;
+- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control __TVOS_PROHIBITED;
 #endif
 
 - (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view NS_AVAILABLE(10_9, 4_0);
@@ -1771,7 +2065,7 @@ __WATCHOS_PROHIBITED
 - (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error NS_AVAILABLE(10_9, 4_0);
 
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view didChangeDragState:(MKAnnotationViewDragState)newState 
-   fromOldState:(MKAnnotationViewDragState)oldState NS_AVAILABLE(10_9, 4_0);
+   fromOldState:(MKAnnotationViewDragState)oldState NS_AVAILABLE(10_9, 4_0) __TVOS_PROHIBITED;
 
 #if TARGET_OS_IPHONE
 - (void)mapView:(MKMapView *)mapView didChangeUserTrackingMode:(MKUserTrackingMode)mode animated:(BOOL)animated NS_AVAILABLE(NA, 5_0);
@@ -1782,15 +2076,20 @@ __WATCHOS_PROHIBITED
 
 #if TARGET_OS_IPHONE
 // Prefer -mapView:rendererForOverlay:
-- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay NS_DEPRECATED_IOS(4_0, 7_0);
+- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay NS_DEPRECATED_IOS(4_0, 7_0) __TVOS_PROHIBITED;
 // Called after the provided overlay views have been added and positioned in the map.
 // Prefer -mapView:didAddOverlayRenderers:
-- (void)mapView:(MKMapView *)mapView didAddOverlayViews:(NSArray *)overlayViews NS_DEPRECATED_IOS(4_0, 7_0);
+- (void)mapView:(MKMapView *)mapView didAddOverlayViews:(NSArray *)overlayViews NS_DEPRECATED_IOS(4_0, 7_0) __TVOS_PROHIBITED;
 #endif
+
+// Return nil for default MKClusterAnnotation, it is illegal to return a cluster annotation not containing the identical array of member annotations given.
+- (MKClusterAnnotation *)mapView:(MKMapView *)mapView clusterAnnotationForMemberAnnotations:(NSArray<id<MKAnnotation>>*)memberAnnotations NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
 // ==========  MapKit.framework/Headers/MKPolylineView.h
 //
 //  MKPolylineView.h
@@ -1799,14 +2098,17 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2010-2014, Apple Inc. All rights reserved.
 //
 
+#import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
 #import <UIKit/UIKit.h>
 
 #import <MapKit/MKPolyline.h>
 #import <MapKit/MKOverlayPathView.h>
-#import <MapKit/MKFoundation.h>
 
 // Prefer MKPolylineRenderer
-MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 @interface MKPolylineView : MKOverlayPathView
 
 - (instancetype)initWithPolyline:(MKPolyline *)polyline NS_DEPRECATED_IOS(4_0, 7_0);
@@ -1814,6 +2116,34 @@ MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
 @property (nonatomic, readonly) MKPolyline *polyline NS_DEPRECATED_IOS(4_0, 7_0);
 
 @end
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
+// ==========  MapKit.framework/Headers/MKClusterAnnotation.h
+//
+//  MKClusterAnnotation.h
+//  MapKit
+//
+//  Copyright © 2016 Apple, Inc. All rights reserved.
+//
+
+#import <MapKit/MKAnnotation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+NS_CLASS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED
+@interface MKClusterAnnotation : NSObject <MKAnnotation>
+
+@property (nonatomic, copy, nullable) NSString *title;
+@property (nonatomic, copy, nullable) NSString *subtitle;
+@property (nonatomic, readonly) NSArray<id<MKAnnotation>> *memberAnnotations;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithMemberAnnotations:(NSArray<id<MKAnnotation>> *)memberAnnotations NS_DESIGNATED_INITIALIZER;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  MapKit.framework/Headers/MKOverlayView.h
 //
 //  MKOverlayView.h
@@ -1822,14 +2152,17 @@ MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
 //  Copyright (c) 2010-2014, Apple Inc. All rights reserved.
 //
 
+#import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
 #import <UIKit/UIKit.h>
 #import <MapKit/MKGeometry.h>
 #import <MapKit/MKOverlay.h>
-#import <MapKit/MKFoundation.h>
 
 
 // Prefer MKOverlayRenderer
-MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 @interface MKOverlayView : UIView
 
 - (instancetype)initWithOverlay:(id <MKOverlay>)overlay NS_DESIGNATED_INITIALIZER NS_DEPRECATED_IOS(4_0, 7_0);
@@ -1867,6 +2200,8 @@ MK_CLASS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED
 // returns the approximate width in points of roads at the specified zoomScale.
 // The result of this function is suitable for use with CGContextSetLineWidth.
 MK_EXTERN CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoomScale) NS_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED;
+
+#endif // MK_SUPPORTS_VIEW_CLASSES
 // ==========  MapKit.framework/Headers/MKShape.h
 //
 //  MKShape.h
@@ -1880,7 +2215,7 @@ MK_EXTERN CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoomScale) NS_AVAILABLE(10_
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKShape : NSObject <MKAnnotation>
 
 @property (nonatomic, copy, nullable) NSString *title;
@@ -1907,7 +2242,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKOverlayPathRenderer : MKOverlayRenderer
 
 #if TARGET_OS_IPHONE
@@ -1962,7 +2297,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void (^MKDirectionsHandler)(MKDirectionsResponse * __nullable response, NSError * __nullable error);
 typedef void (^MKETAHandler)(MKETAResponse * __nullable response, NSError * __nullable error);
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKDirections : NSObject
 
 // The request will be copied during initialization, so any changes made to the request
@@ -1976,6 +2311,31 @@ MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
 - (void)cancel;
 
 @property (nonatomic, readonly, getter=isCalculating) BOOL calculating;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  MapKit.framework/Headers/MKCompassButton.h
+//
+//  MKCompassButton.h
+//  MapKit
+//
+//  Copyright © 2017 Apple, Inc. All rights reserved.
+//
+
+#import <UIKit/UIView.h>
+#import <MapKit/MKTypes.h>
+
+@class MKMapView;
+
+NS_ASSUME_NONNULL_BEGIN
+
+NS_CLASS_AVAILABLE_IOS(11_0) __TVOS_UNAVAILABLE
+@interface MKCompassButton : UIView
+
++ (instancetype)compassButtonWithMapView:(nullable MKMapView *)mapView;
+@property (nonatomic, nullable, weak) MKMapView *mapView;
+@property (nonatomic, assign) MKFeatureVisibility compassVisibility;
 
 @end
 
@@ -1999,7 +2359,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @interface MKMapSnapshot : NSObject
 
 #if TARGET_OS_IPHONE
@@ -2007,6 +2367,7 @@ MK_CLASS_AVAILABLE(10_9, 7_0) __WATCHOS_PROHIBITED
 - (CGPoint)pointForCoordinate:(CLLocationCoordinate2D)coordinate;
 #else
 @property (nonatomic, readonly) NSImage *image;
+@property (nonatomic, readonly) NSAppearance *appearance API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios, tvos, watchos);
 - (NSPoint)pointForCoordinate:(CLLocationCoordinate2D)coordinate;
 #endif
 

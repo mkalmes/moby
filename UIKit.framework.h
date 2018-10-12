@@ -1,9 +1,10 @@
 // ==========  UIKit.framework/Headers/UIDynamicBehavior.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDynamicBehavior.h>)
 //
 //  UIDynamicBehavior.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -68,12 +69,17 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIDynamicBehavior : NSObject
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIDynamicBehavior.h>
+#endif
 // ==========  UIKit.framework/Headers/UIGravityBehavior.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIGravityBehavior.h>)
 //
 //  UIGravityBehavior.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -101,12 +107,17 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIGravityBehavior : UIDynamicBehavior
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIGravityBehavior.h>
+#endif
 // ==========  UIKit.framework/Headers/UIWindow.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIWindow.h>)
 //
 //  UIWindow.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -117,7 +128,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef CGFloat UIWindowLevel;
+typedef CGFloat UIWindowLevel NS_TYPED_EXTENSIBLE_ENUM;
 
 @class UIEvent, UIScreen, NSUndoManager, UIViewController;
 
@@ -146,97 +157,134 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIWindow : UIView
 
 UIKIT_EXTERN const UIWindowLevel UIWindowLevelNormal;
 UIKIT_EXTERN const UIWindowLevel UIWindowLevelAlert;
-UIKIT_EXTERN const UIWindowLevel UIWindowLevelStatusBar;
+UIKIT_EXTERN const UIWindowLevel UIWindowLevelStatusBar __TVOS_PROHIBITED;
 
-UIKIT_EXTERN NSString *const UIWindowDidBecomeVisibleNotification; // nil
-UIKIT_EXTERN NSString *const UIWindowDidBecomeHiddenNotification;  // nil
-UIKIT_EXTERN NSString *const UIWindowDidBecomeKeyNotification;     // nil
-UIKIT_EXTERN NSString *const UIWindowDidResignKeyNotification;     // nil
+UIKIT_EXTERN NSNotificationName const UIWindowDidBecomeVisibleNotification; // nil
+UIKIT_EXTERN NSNotificationName const UIWindowDidBecomeHiddenNotification;  // nil
+UIKIT_EXTERN NSNotificationName const UIWindowDidBecomeKeyNotification;     // nil
+UIKIT_EXTERN NSNotificationName const UIWindowDidResignKeyNotification;     // nil
 
 // Each notification includes a nil object and a userInfo dictionary containing the
 // begining and ending keyboard frame in screen coordinates. Use the various UIView and
 // UIWindow convertRect facilities to get the frame in the desired coordinate system.
 // Animation key/value pairs are only available for the "will" family of notification.
-UIKIT_EXTERN NSString *const UIKeyboardWillShowNotification;
-UIKIT_EXTERN NSString *const UIKeyboardDidShowNotification;
-UIKIT_EXTERN NSString *const UIKeyboardWillHideNotification;
-UIKIT_EXTERN NSString *const UIKeyboardDidHideNotification;
+UIKIT_EXTERN NSNotificationName const UIKeyboardWillShowNotification __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIKeyboardDidShowNotification __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIKeyboardWillHideNotification __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIKeyboardDidHideNotification __TVOS_PROHIBITED;
 
-UIKIT_EXTERN NSString *const UIKeyboardFrameBeginUserInfoKey        NS_AVAILABLE_IOS(3_2); // NSValue of CGRect
-UIKIT_EXTERN NSString *const UIKeyboardFrameEndUserInfoKey          NS_AVAILABLE_IOS(3_2); // NSValue of CGRect
-UIKIT_EXTERN NSString *const UIKeyboardAnimationDurationUserInfoKey NS_AVAILABLE_IOS(3_0); // NSNumber of double
-UIKIT_EXTERN NSString *const UIKeyboardAnimationCurveUserInfoKey    NS_AVAILABLE_IOS(3_0); // NSNumber of NSUInteger (UIViewAnimationCurve)
-UIKIT_EXTERN NSString *const UIKeyboardIsLocalUserInfoKey           NS_AVAILABLE_IOS(9_0); // NSNumber of BOOL
+UIKIT_EXTERN NSString *const UIKeyboardFrameBeginUserInfoKey        NS_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED; // NSValue of CGRect
+UIKIT_EXTERN NSString *const UIKeyboardFrameEndUserInfoKey          NS_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED; // NSValue of CGRect
+UIKIT_EXTERN NSString *const UIKeyboardAnimationDurationUserInfoKey NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED; // NSNumber of double
+UIKIT_EXTERN NSString *const UIKeyboardAnimationCurveUserInfoKey    NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED; // NSNumber of NSUInteger (UIViewAnimationCurve)
+UIKIT_EXTERN NSString *const UIKeyboardIsLocalUserInfoKey           NS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED; // NSNumber of BOOL
 
 // Like the standard keyboard notifications above, these additional notifications include
 // a nil object and begin/end frames of the keyboard in screen coordinates in the userInfo dictionary.
-UIKIT_EXTERN NSString *const UIKeyboardWillChangeFrameNotification  NS_AVAILABLE_IOS(5_0);
-UIKIT_EXTERN NSString *const UIKeyboardDidChangeFrameNotification   NS_AVAILABLE_IOS(5_0);
+UIKIT_EXTERN NSNotificationName const UIKeyboardWillChangeFrameNotification  NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIKeyboardDidChangeFrameNotification   NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED;
 
 // These keys are superseded by UIKeyboardFrameBeginUserInfoKey and UIKeyboardFrameEndUserInfoKey.
-UIKIT_EXTERN NSString *const UIKeyboardCenterBeginUserInfoKey   NS_DEPRECATED_IOS(2_0, 3_2);
-UIKIT_EXTERN NSString *const UIKeyboardCenterEndUserInfoKey     NS_DEPRECATED_IOS(2_0, 3_2);
-UIKIT_EXTERN NSString *const UIKeyboardBoundsUserInfoKey        NS_DEPRECATED_IOS(2_0, 3_2);
+UIKIT_EXTERN NSString *const UIKeyboardCenterBeginUserInfoKey   NS_DEPRECATED_IOS(2_0, 3_2) __TVOS_PROHIBITED;
+UIKIT_EXTERN NSString *const UIKeyboardCenterEndUserInfoKey     NS_DEPRECATED_IOS(2_0, 3_2) __TVOS_PROHIBITED;
+UIKIT_EXTERN NSString *const UIKeyboardBoundsUserInfoKey        NS_DEPRECATED_IOS(2_0, 3_2) __TVOS_PROHIBITED;
 
-NS_ASSUME_NONNULL_END// ==========  UIKit.framework/Headers/NSAttributedString.h
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIWindow.h>
+#endif
+// ==========  UIKit.framework/Headers/UIVibrancyEffect.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIVibrancyEffect.h>)
+//
+//  UIVibrancyEffect.h
+//  UIKit
+//
+//  Copyright © 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIVisualEffect.h>
+
+@class UIBlurEffect;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/* UIVibrancyEffect amplifies and adjusts the color of content layered behind the view, allowing content placed inside the contentView to become more vivid. It is intended to be placed over, or as a subview of, a UIVisualEffectView that has been configured with a UIBlurEffect. This effect only affects content added to the contentView. Because the vibrancy effect is color dependent, subviews added to the contentView need to be tintColorDidChange aware and must be prepared to update themselves accordingly. UIImageView will need its image to have a rendering mode of UIImageRenderingModeAlwaysTemplate to receive the proper effect.
+ */
+NS_CLASS_AVAILABLE_IOS(8.0) @interface UIVibrancyEffect : UIVisualEffect
+
++ (UIVibrancyEffect *)effectForBlurEffect:(UIBlurEffect *)blurEffect;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIVibrancyEffect.h>
+#endif
+// ==========  UIKit.framework/Headers/NSAttributedString.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSAttributedString.h>)
 //
 //  NSAttributedString.h
 //  UIKit
 //
-//  Copyright (c) 2011-2015, Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018, Apple Inc. All rights reserved.
 //
 
 #import <Foundation/NSAttributedString.h>
+#import <Foundation/NSItemProvider.h>
 #import <UIKit/UIKitDefines.h>
+@class NSAttributedString;
 @class NSFileWrapper;
 @class NSURL;
 
 NS_ASSUME_NONNULL_BEGIN
 /************************ Attributes ************************/
 
-// Predefined character attributes for text. If the key is not in the dictionary, then use the default values as described below.
-UIKIT_EXTERN NSString * const NSFontAttributeName NS_AVAILABLE(10_0, 6_0);                // UIFont, default Helvetica(Neue) 12
-UIKIT_EXTERN NSString * const NSParagraphStyleAttributeName NS_AVAILABLE(10_0, 6_0);      // NSParagraphStyle, default defaultParagraphStyle
-UIKIT_EXTERN NSString * const NSForegroundColorAttributeName NS_AVAILABLE(10_0, 6_0);     // UIColor, default blackColor
-UIKIT_EXTERN NSString * const NSBackgroundColorAttributeName NS_AVAILABLE(10_0, 6_0);     // UIColor, default nil: no background
-UIKIT_EXTERN NSString * const NSLigatureAttributeName NS_AVAILABLE(10_0, 6_0);            // NSNumber containing integer, default 1: default ligatures, 0: no ligatures
-UIKIT_EXTERN NSString * const NSKernAttributeName NS_AVAILABLE(10_0, 6_0);                // NSNumber containing floating point value, in points; amount to modify default kerning. 0 means kerning is disabled.
-UIKIT_EXTERN NSString * const NSStrikethroughStyleAttributeName NS_AVAILABLE(10_0, 6_0);  // NSNumber containing integer, default 0: no strikethrough
-UIKIT_EXTERN NSString * const NSUnderlineStyleAttributeName NS_AVAILABLE(10_0, 6_0);      // NSNumber containing integer, default 0: no underline
-UIKIT_EXTERN NSString * const NSStrokeColorAttributeName NS_AVAILABLE(10_0, 6_0);         // UIColor, default nil: same as foreground color
-UIKIT_EXTERN NSString * const NSStrokeWidthAttributeName NS_AVAILABLE(10_0, 6_0);         // NSNumber containing floating point value, in percent of font point size, default 0: no stroke; positive for stroke alone, negative for stroke and fill (a typical value for outlined text would be 3.0)
-UIKIT_EXTERN NSString * const NSShadowAttributeName NS_AVAILABLE(10_0, 6_0);              // NSShadow, default nil: no shadow
-UIKIT_EXTERN NSString *const NSTextEffectAttributeName NS_AVAILABLE(10_10, 7_0);          // NSString, default nil: no text effect
+// Predefined character attributes for text. If the key is not present in the dictionary, it indicates the default value described below.
+UIKIT_EXTERN NSAttributedStringKey const NSFontAttributeName NS_AVAILABLE(10_0, 6_0);                // UIFont, default Helvetica(Neue) 12
+UIKIT_EXTERN NSAttributedStringKey const NSParagraphStyleAttributeName NS_AVAILABLE(10_0, 6_0);      // NSParagraphStyle, default defaultParagraphStyle
+UIKIT_EXTERN NSAttributedStringKey const NSForegroundColorAttributeName NS_AVAILABLE(10_0, 6_0);     // UIColor, default blackColor
+UIKIT_EXTERN NSAttributedStringKey const NSBackgroundColorAttributeName NS_AVAILABLE(10_0, 6_0);     // UIColor, default nil: no background
+UIKIT_EXTERN NSAttributedStringKey const NSLigatureAttributeName NS_AVAILABLE(10_0, 6_0);            // NSNumber containing integer, default 1: default ligatures, 0: no ligatures
+UIKIT_EXTERN NSAttributedStringKey const NSKernAttributeName NS_AVAILABLE(10_0, 6_0);                // NSNumber containing floating point value, in points; amount to modify default kerning. 0 means kerning is disabled.
+UIKIT_EXTERN NSAttributedStringKey const NSStrikethroughStyleAttributeName NS_AVAILABLE(10_0, 6_0);  // NSNumber containing integer, default 0: no strikethrough
+UIKIT_EXTERN NSAttributedStringKey const NSUnderlineStyleAttributeName NS_AVAILABLE(10_0, 6_0);      // NSNumber containing integer, default 0: no underline
+UIKIT_EXTERN NSAttributedStringKey const NSStrokeColorAttributeName NS_AVAILABLE(10_0, 6_0);         // UIColor, default nil: same as foreground color
+UIKIT_EXTERN NSAttributedStringKey const NSStrokeWidthAttributeName NS_AVAILABLE(10_0, 6_0);         // NSNumber containing floating point value, in percent of font point size, default 0: no stroke; positive for stroke alone, negative for stroke and fill (a typical value for outlined text would be 3.0)
+UIKIT_EXTERN NSAttributedStringKey const NSShadowAttributeName NS_AVAILABLE(10_0, 6_0);              // NSShadow, default nil: no shadow
+UIKIT_EXTERN NSAttributedStringKey const NSTextEffectAttributeName NS_AVAILABLE(10_10, 7_0);          // NSString, default nil: no text effect
 
-UIKIT_EXTERN NSString * const NSAttachmentAttributeName NS_AVAILABLE(10_0, 7_0);          // NSTextAttachment, default nil
-UIKIT_EXTERN NSString * const NSLinkAttributeName NS_AVAILABLE(10_0, 7_0);                // NSURL (preferred) or NSString
-UIKIT_EXTERN NSString * const NSBaselineOffsetAttributeName NS_AVAILABLE(10_0, 7_0);      // NSNumber containing floating point value, in points; offset from baseline, default 0
-UIKIT_EXTERN NSString * const NSUnderlineColorAttributeName NS_AVAILABLE(10_0, 7_0);      // UIColor, default nil: same as foreground color
-UIKIT_EXTERN NSString * const NSStrikethroughColorAttributeName NS_AVAILABLE(10_0, 7_0);  // UIColor, default nil: same as foreground color
-UIKIT_EXTERN NSString * const NSObliquenessAttributeName NS_AVAILABLE(10_0, 7_0);         // NSNumber containing floating point value; skew to be applied to glyphs, default 0: no skew
-UIKIT_EXTERN NSString * const NSExpansionAttributeName NS_AVAILABLE(10_0, 7_0);           // NSNumber containing floating point value; log of expansion factor to be applied to glyphs, default 0: no expansion
+UIKIT_EXTERN NSAttributedStringKey const NSAttachmentAttributeName NS_AVAILABLE(10_0, 7_0);          // NSTextAttachment, default nil
+UIKIT_EXTERN NSAttributedStringKey const NSLinkAttributeName NS_AVAILABLE(10_0, 7_0);                // NSURL (preferred) or NSString
+UIKIT_EXTERN NSAttributedStringKey const NSBaselineOffsetAttributeName NS_AVAILABLE(10_0, 7_0);      // NSNumber containing floating point value, in points; offset from baseline, default 0
+UIKIT_EXTERN NSAttributedStringKey const NSUnderlineColorAttributeName NS_AVAILABLE(10_0, 7_0);      // UIColor, default nil: same as foreground color
+UIKIT_EXTERN NSAttributedStringKey const NSStrikethroughColorAttributeName NS_AVAILABLE(10_0, 7_0);  // UIColor, default nil: same as foreground color
+UIKIT_EXTERN NSAttributedStringKey const NSObliquenessAttributeName NS_AVAILABLE(10_0, 7_0);         // NSNumber containing floating point value; skew to be applied to glyphs, default 0: no skew
+UIKIT_EXTERN NSAttributedStringKey const NSExpansionAttributeName NS_AVAILABLE(10_0, 7_0);           // NSNumber containing floating point value; log of expansion factor to be applied to glyphs, default 0: no expansion
 
-UIKIT_EXTERN NSString * const NSWritingDirectionAttributeName NS_AVAILABLE(10_6, 7_0);    // NSArray of NSNumbers representing the nested levels of writing direction overrides as defined by Unicode LRE, RLE, LRO, and RLO characters.  The control characters can be obtained by masking NSWritingDirection and NSTextWritingDirection values.  LRE: NSWritingDirectionLeftToRight|NSWritingDirectionEmbedding, RLE: NSWritingDirectionRightToLeft|NSWritingDirectionEmbedding, LRO: NSWritingDirectionLeftToRight|NSWritingDirectionOverride, RLO: NSWritingDirectionRightToLeft|NSWritingDirectionOverride,
+UIKIT_EXTERN NSAttributedStringKey const NSWritingDirectionAttributeName NS_AVAILABLE(10_6, 7_0);    // NSArray of NSNumbers representing the nested levels of writing direction overrides as defined by Unicode LRE, RLE, LRO, and RLO characters.  The control characters can be obtained by masking NSWritingDirection and NSWritingDirectionFormatType values.  LRE: NSWritingDirectionLeftToRight|NSWritingDirectionEmbedding, RLE: NSWritingDirectionRightToLeft|NSWritingDirectionEmbedding, LRO: NSWritingDirectionLeftToRight|NSWritingDirectionOverride, RLO: NSWritingDirectionRightToLeft|NSWritingDirectionOverride,
 
-UIKIT_EXTERN NSString * const NSVerticalGlyphFormAttributeName NS_AVAILABLE(10_7, 6_0);   // An NSNumber containing an integer value.  0 means horizontal text.  1 indicates vertical text.  If not specified, it could follow higher-level vertical orientation settings.  Currently on iOS, it's always horizontal.  The behavior for any other value is undefined.
+UIKIT_EXTERN NSAttributedStringKey const NSVerticalGlyphFormAttributeName NS_AVAILABLE(10_7, 6_0);   // An NSNumber containing an integer value.  0 means horizontal text.  1 indicates vertical text.  If not specified, it could follow higher-level vertical orientation settings.  Currently on iOS, it's always horizontal.  The behavior for any other value is undefined.
 
 
 
 /************************ Attribute values ************************/
-// This defines currently supported values for NSUnderlineStyleAttributeName and NSStrikethroughStyleAttributeName. NSUnderlineStyle*, NSUnderlinePattern*, and NSUnderlineByWord are or'ed together to produce an underline style.
-typedef NS_ENUM(NSInteger, NSUnderlineStyle) {
+// This defines currently supported values for NSUnderlineStyleAttributeName and NSStrikethroughStyleAttributeName. These values are or'ed together to produce an underline style.
+// Underlines will be drawn with a solid pattern by default, so NSUnderlineStylePatternSolid does not need to be specified.
+typedef NS_OPTIONS(NSInteger, NSUnderlineStyle) {
     NSUnderlineStyleNone                                    = 0x00,
     NSUnderlineStyleSingle                                  = 0x01,
     NSUnderlineStyleThick NS_ENUM_AVAILABLE(10_0, 7_0)      = 0x02,
     NSUnderlineStyleDouble NS_ENUM_AVAILABLE(10_0, 7_0)     = 0x09,
 
-    NSUnderlinePatternSolid NS_ENUM_AVAILABLE(10_0, 7_0)      = 0x0000,
-    NSUnderlinePatternDot NS_ENUM_AVAILABLE(10_0, 7_0)        = 0x0100,
-    NSUnderlinePatternDash NS_ENUM_AVAILABLE(10_0, 7_0)       = 0x0200,
-    NSUnderlinePatternDashDot NS_ENUM_AVAILABLE(10_0, 7_0)    = 0x0300,
-    NSUnderlinePatternDashDotDot NS_ENUM_AVAILABLE(10_0, 7_0) = 0x0400,
+    NSUnderlineStylePatternSolid NS_ENUM_AVAILABLE(10_0, 7_0)      = 0x0000,
+    NSUnderlineStylePatternDot NS_ENUM_AVAILABLE(10_0, 7_0)        = 0x0100,
+    NSUnderlineStylePatternDash NS_ENUM_AVAILABLE(10_0, 7_0)       = 0x0200,
+    NSUnderlineStylePatternDashDot NS_ENUM_AVAILABLE(10_0, 7_0)    = 0x0300,
+    NSUnderlineStylePatternDashDotDot NS_ENUM_AVAILABLE(10_0, 7_0) = 0x0400,
 
-    NSUnderlineByWord NS_ENUM_AVAILABLE(10_0, 7_0)            = 0x8000
+    NSUnderlineStyleByWord NS_ENUM_AVAILABLE(10_0, 7_0)            = 0x8000
 } NS_ENUM_AVAILABLE(10_0, 6_0);
 
 // NSWritingDirectionFormatType values used by NSWritingDirectionAttributeName. It is or'ed with either NSWritingDirectionLeftToRight or NSWritingDirectionRightToLeft. Can specify the formatting controls defined by Unicode Bidirectional Algorithm.
@@ -246,7 +294,8 @@ typedef NS_ENUM(NSInteger, NSWritingDirectionFormatType) {
 } NS_ENUM_AVAILABLE(10_11, 9_0);
 
 // NSTextEffectAttributeName values
-UIKIT_EXTERN NSString *const NSTextEffectLetterpressStyle NS_AVAILABLE(10_10, 7_0);
+typedef NSString * NSTextEffectStyle NS_TYPED_ENUM;
+UIKIT_EXTERN NSTextEffectStyle const NSTextEffectLetterpressStyle NS_AVAILABLE(10_10, 7_0);
 
 
 /************************ Attribute fixing ************************/
@@ -260,64 +309,76 @@ UIKIT_EXTERN NSString *const NSTextEffectLetterpressStyle NS_AVAILABLE(10_10, 7_
 
 /************************ Document formats ************************/
 
+typedef NSString * NSAttributedStringDocumentType NS_TYPED_EXTENSIBLE_ENUM;
+
 // Supported document types for the NSDocumentTypeDocumentAttribute key in the document attributes dictionary.
-UIKIT_EXTERN NSString * const NSPlainTextDocumentType NS_AVAILABLE(10_0, 7_0);
-UIKIT_EXTERN NSString * const NSRTFTextDocumentType NS_AVAILABLE(10_0, 7_0);
-UIKIT_EXTERN NSString * const NSRTFDTextDocumentType NS_AVAILABLE(10_0, 7_0);
-UIKIT_EXTERN NSString * const NSHTMLTextDocumentType NS_AVAILABLE(10_0, 7_0);
+UIKIT_EXTERN NSAttributedStringDocumentType const NSPlainTextDocumentType NS_AVAILABLE(10_0, 7_0);
+UIKIT_EXTERN NSAttributedStringDocumentType const NSRTFTextDocumentType  NS_AVAILABLE(10_0, 7_0);
+UIKIT_EXTERN NSAttributedStringDocumentType const NSRTFDTextDocumentType NS_AVAILABLE(10_0, 7_0);
+UIKIT_EXTERN NSAttributedStringDocumentType const NSHTMLTextDocumentType  NS_AVAILABLE(10_0, 7_0);
+
+typedef NSString * NSTextLayoutSectionKey NS_TYPED_ENUM;
 
 // Keys for NSLayoutOrientationSectionsAttribute.
-UIKIT_EXTERN NSString * const NSTextLayoutSectionOrientation NS_AVAILABLE(10_7, 7_0); // NSNumber containing NSTextLayoutOrientation value. default: NSTextLayoutOrientationHorizontal
-UIKIT_EXTERN NSString * const NSTextLayoutSectionRange NS_AVAILABLE(10_7, 7_0); // NSValue containing NSRange representing a character range. default: a range covering the whole document
+UIKIT_EXTERN NSTextLayoutSectionKey const NSTextLayoutSectionOrientation NS_AVAILABLE(10_7, 7_0); // NSNumber containing NSTextLayoutOrientation value. default: NSTextLayoutOrientationHorizontal
+UIKIT_EXTERN NSTextLayoutSectionKey const NSTextLayoutSectionRange NS_AVAILABLE(10_7, 7_0); // NSValue containing NSRange representing a character range. default: a range covering the whole document
 
+typedef NSString * NSAttributedStringDocumentAttributeKey NS_TYPED_EXTENSIBLE_ENUM;
 
 // Keys for options and document attributes dictionaries.  They are in and out document properties used by both read/write methods.
 
-UIKIT_EXTERN NSString * const NSDocumentTypeDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"DocumentType", one of the document types declared above.  For reader methods, this key in options can specify the document type for interpreting the contents.  Upon return, the document attributes can contain this key for indicating the actual format used to read the contents.  For write methods, this key specifies the format for generating the data.
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSDocumentTypeDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"DocumentType", one of the document types declared above.  For reader methods, this key in options can specify the document type for interpreting the contents.  Upon return, the document attributes can contain this key for indicating the actual format used to read the contents.  For write methods, this key specifies the format for generating the data.
 
 
 // NSPlainTextDocumentType document attributes
-UIKIT_EXTERN NSString * const NSCharacterEncodingDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"CharacterEncoding", NSNumber containing integer specifying NSStringEncoding for the file; default for plain text is the default encoding.  This key in options can specify the string encoding for reading the data.  Upon return, the document attributes can contain the actual encoding used.  For writing methods, this value is used for generating the plain text data.
-UIKIT_EXTERN NSString * const NSDefaultAttributesDocumentAttribute NS_AVAILABLE(10_11, 7_0);  // @"DefaultAttributes", NSDictionary containing attributes to be applied to plain files.  Used by reader methods.  This key in options can specify the default attributes applied to the entire document contents.  The document attributes can contain this key indicating the actual attributes used.
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSCharacterEncodingDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"CharacterEncoding", NSNumber containing integer specifying NSStringEncoding for the file; default for plain text is the default encoding.  This key in options can specify the string encoding for reading the data.  Upon return, the document attributes can contain the actual encoding used.  For writing methods, this value is used for generating the plain text data.
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSDefaultAttributesDocumentAttribute NS_AVAILABLE(10_11, 7_0);  // @"DefaultAttributes", NSDictionary containing attributes to be applied to plain files.  Used by reader methods.  This key in options can specify the default attributes applied to the entire document contents.  The document attributes can contain this key indicating the actual attributes used.
 
 
 // NSRTFTextDocumentType and NSRTFDTextDocumentType document attributes
 // Document dimension
 // They are document attributes used by read/write methods.
-UIKIT_EXTERN NSString * const NSPaperSizeDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"PaperSize", NSValue containing CGSize (in points)
-UIKIT_EXTERN NSString * const NSPaperMarginDocumentAttribute NS_AVAILABLE_IOS(7_0);  // @"PaperMargin", NSValue containing UIEdgeInsets
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSPaperSizeDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"PaperSize", NSValue containing CGSize (in points)
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSPaperMarginDocumentAttribute NS_AVAILABLE_IOS(7_0);  // @"PaperMargin", NSValue containing UIEdgeInsets
 
-UIKIT_EXTERN NSString * const NSViewSizeDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"ViewSize", NSValue containing CGSize (in points)
-UIKIT_EXTERN NSString * const NSViewZoomDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"ViewZoom", NSNumber containing floating point value (100 == 100% zoom)
-UIKIT_EXTERN NSString * const NSViewModeDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"ViewMode", NSNumber containing integer; 0 = normal; 1 = page layout
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSViewSizeDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"ViewSize", NSValue containing CGSize (in points)
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSViewZoomDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"ViewZoom", NSNumber containing floating point value (100 == 100% zoom)
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSViewModeDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"ViewMode", NSNumber containing integer; 0 = normal; 1 = page layout
 
 // Document settings
 // They are document attributes used by read/write methods.
-UIKIT_EXTERN NSString * const NSReadOnlyDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"ReadOnly", NSNumber containing integer; if missing, or 0 or negative, not readonly; 1 or more, readonly. Note that this has nothing to do with the file system protection on the file, but instead, on how the file should be displayed to the user
-UIKIT_EXTERN NSString * const NSBackgroundColorDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"BackgroundColor", UIColor, representing the document-wide page background color
-UIKIT_EXTERN NSString * const NSHyphenationFactorDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"HyphenationFactor", NSNumber containing floating point value (0=off, 1=full hyphenation)
-UIKIT_EXTERN NSString * const NSDefaultTabIntervalDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"DefaultTabInterval", NSNumber containing floating point value, representing the document-wide default tab stop interval, in points
-UIKIT_EXTERN NSString * const NSTextLayoutSectionsAttribute NS_AVAILABLE(10_7, 7_0);  // NSArray of dictionaries.  Each dictionary describing a layout orientation section.  The dictionary can have two attributes: NSTextLayoutSectionOrientation and NSTextLayoutSectionRange.  When there is a gap between sections, it's assumed to have NSTextLayoutOrientationHorizontal.
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSReadOnlyDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"ReadOnly", NSNumber containing integer; if missing, or 0 or negative, not readonly; 1 or more, readonly. Note that this has nothing to do with the file system protection on the file, but instead, on how the file should be displayed to the user
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSBackgroundColorDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"BackgroundColor", UIColor, representing the document-wide page background color
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSHyphenationFactorDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"HyphenationFactor", NSNumber containing floating point value (0=off, 1=full hyphenation)
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSDefaultTabIntervalDocumentAttribute NS_AVAILABLE(10_0, 7_0);  // @"DefaultTabInterval", NSNumber containing floating point value, representing the document-wide default tab stop interval, in points
+UIKIT_EXTERN NSAttributedStringDocumentAttributeKey const NSTextLayoutSectionsAttribute NS_AVAILABLE(10_7, 7_0);  // NSArray of dictionaries.  Each dictionary describing a layout orientation section.  The dictionary can have two attributes: NSTextLayoutSectionOrientation and NSTextLayoutSectionRange.  When there is a gap between sections, it's assumed to have NSTextLayoutOrientationHorizontal.
+
+
+typedef NSString * NSAttributedStringDocumentReadingOptionKey NS_TYPED_EXTENSIBLE_ENUM;
+
+UIKIT_EXTERN NSAttributedStringDocumentReadingOptionKey const NSDocumentTypeDocumentOption;  // @"DocumentType", NSString indicating a document type to be forced when loading the document, specified as one of the NSDocumentTypeDocumentAttribute constants listed above
+UIKIT_EXTERN NSAttributedStringDocumentReadingOptionKey const NSDefaultAttributesDocumentOption;  // @"DefaultAttributes", for plain text only; NSDictionary containing attributes to be applied to plain files
+UIKIT_EXTERN NSAttributedStringDocumentReadingOptionKey const NSCharacterEncodingDocumentOption;  // @"CharacterEncoding", for plain text and HTML; NSNumber containing integer specifying NSStringEncoding to be used to interpret the file
 
 
 
 @interface NSAttributedString (NSAttributedStringDocumentFormats)
 // Methods initializing the receiver contents with an external document data.  options specify document attributes for interpreting the document contents.  NSDocumentTypeDocumentAttribute, NSCharacterEncodingDocumentAttribute, and NSDefaultAttributesDocumentAttribute are supported options key.  When they are not specified, these methods will examine the data and do their best to detect the appropriate attributes.  If dict is non-NULL, it will return a dictionary with various document-wide attributes accessible via NS...DocumentAttribute keys.
-- (nullable instancetype)initWithURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)options documentAttributes:(NSDictionary<NSString *, id> * __nullable * __nullable)dict error:(NSError **)error NS_AVAILABLE(10_11, 9_0);
-- (nullable instancetype)initWithData:(NSData *)data options:(NSDictionary<NSString *, id> *)options documentAttributes:(NSDictionary<NSString *, id> * __nullable * __nullable)dict error:(NSError **)error NS_AVAILABLE(10_0, 7_0);
+- (nullable instancetype)initWithURL:(NSURL *)url options:(NSDictionary<NSAttributedStringDocumentReadingOptionKey, id> *)options documentAttributes:(NSDictionary<NSAttributedStringDocumentAttributeKey, id> * __nullable * __nullable)dict error:(NSError **)error NS_AVAILABLE(10_4, 9_0);
+- (nullable instancetype)initWithData:(NSData *)data options:(NSDictionary<NSAttributedStringDocumentReadingOptionKey, id> *)options documentAttributes:(NSDictionary<NSAttributedStringDocumentAttributeKey, id> * __nullable * __nullable)dict error:(NSError **)error NS_AVAILABLE(10_0, 7_0);
 
 // Generates an NSData object for the receiver contents in range.  It requires a document attributes dict specifying at least the NSDocumentTypeDocumentAttribute to determine the format to be written.
-- (nullable NSData *)dataFromRange:(NSRange)range documentAttributes:(NSDictionary<NSString *, id> *)dict error:(NSError **)error NS_AVAILABLE(10_0, 7_0);
+- (nullable NSData *)dataFromRange:(NSRange)range documentAttributes:(NSDictionary<NSAttributedStringDocumentAttributeKey, id> *)dict error:(NSError **)error NS_AVAILABLE(10_0, 7_0);
 
 // Returns an NSFileWrapper object for the receiver contents in range.  It requires a document attributes dict specifying at least the NSDocumentTypeDocumentAttribute to determine the format to be written.  The method returns a directory file wrapper for those document types represented by a file package such as NSRTFDTextDocumentType; otherwise, it returns a regular-file file wrapper.
-- (nullable NSFileWrapper *)fileWrapperFromRange:(NSRange)range documentAttributes:(NSDictionary<NSString *, id> *)dict error:(NSError **)error NS_AVAILABLE(10_0, 7_0);
+- (nullable NSFileWrapper *)fileWrapperFromRange:(NSRange)range documentAttributes:(NSDictionary<NSAttributedStringDocumentAttributeKey, id> *)dict error:(NSError **)error NS_AVAILABLE(10_0, 7_0);
 
 @end
 
 @interface NSMutableAttributedString (NSMutableAttributedStringDocumentFormats)
 // Methods replacing the receiver contents with an external document data.  options specify document attributes for interpreting the document contents.  NSDocumentTypeDocumentAttribute, NSCharacterEncodingDocumentAttribute, and NSDefaultAttributesDocumentAttribute are supported options key.  When they are not specified, these methods will examine the data and do their best to detect the appropriate attributes.  If dict is non-NULL, it will return a dictionary with various document-wide attributes accessible via NS...DocumentAttribute keys.
-- (BOOL)readFromURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)opts documentAttributes:(NSDictionary<NSString *, id> * __nullable * __nullable)dict error:(NSError **)error  NS_AVAILABLE(10_11, 9_0);
-- (BOOL)readFromData:(NSData *)data options:(NSDictionary<NSString *, id> *)opts documentAttributes:(NSDictionary<NSString *, id> * __nullable * __nullable)dict error:(NSError **)error NS_AVAILABLE(10_0, 7_0);
+- (BOOL)readFromURL:(NSURL *)url options:(NSDictionary<NSAttributedStringDocumentReadingOptionKey, id> *)opts documentAttributes:(NSDictionary<NSAttributedStringDocumentAttributeKey, id> * __nullable * __nullable)dict error:(NSError **)error  API_AVAILABLE(macosx(10.5), ios(9.0), watchos(2.0), tvos(9.0));
+- (BOOL)readFromData:(NSData *)data options:(NSDictionary<NSAttributedStringDocumentReadingOptionKey, id> *)opts documentAttributes:(NSDictionary<NSAttributedStringDocumentAttributeKey, id> * __nullable * __nullable)dict error:(NSError **)error NS_AVAILABLE(10_0, 7_0);
 @end
 
 
@@ -327,27 +388,45 @@ UIKIT_EXTERN NSString * const NSTextLayoutSectionsAttribute NS_AVAILABLE(10_7, 7
 - (BOOL)containsAttachmentsInRange:(NSRange)range NS_AVAILABLE(10_11, 9_0);
 @end
 
+@interface NSAttributedString (NSAttributedString_ItemProvider) <NSItemProviderReading, NSItemProviderWriting>
+@end
+
+
 /************************ Deprecated ************************/
+// NSUnderlineByWord and the NSUnderlinePattern* values are soft deprecated starting with macOS 10.14/iOS 12 and will be officially deprecated in a future release.  Please use the NSUnderlineStyle* equivalents instead.
+// Underlines will be drawn with a solid pattern by default, so NSUnderlinePatternSolid does not need to be specified.
+static const NSUnderlineStyle NSUnderlinePatternSolid = NSUnderlineStylePatternSolid;
+static const NSUnderlineStyle NSUnderlinePatternDot = NSUnderlineStylePatternDot;
+static const NSUnderlineStyle NSUnderlinePatternDash = NSUnderlineStylePatternDash;
+static const NSUnderlineStyle NSUnderlinePatternDashDot = NSUnderlineStylePatternDashDot;
+static const NSUnderlineStyle NSUnderlinePatternDashDotDot = NSUnderlineStylePatternDashDotDot;
+static const NSUnderlineStyle NSUnderlineByWord = NSUnderlineStyleByWord;
+
 
 typedef NS_ENUM(NSInteger, NSTextWritingDirection) {
     NSTextWritingDirectionEmbedding     = (0 << 1),
     NSTextWritingDirectionOverride      = (1 << 1)
-} NS_ENUM_DEPRECATED_IOS(7_0, 9_0, "Use NSWritingDirectionFormatType instead");
+} NS_ENUM_DEPRECATED_IOS(7_0, 9_0, "Use NSWritingDirectionFormatType instead") __TVOS_PROHIBITED;
 
 @interface NSAttributedString(NSDeprecatedKitAdditions)
-- (nullable instancetype)initWithFileURL:(NSURL *)url options:(NSDictionary *)options documentAttributes:(NSDictionary* __nullable * __nullable)dict error:(NSError **)error NS_DEPRECATED_IOS(7_0, 9_0, "Use -initWithURL:options:documentAttributes:error: instead");
+- (nullable instancetype)initWithFileURL:(NSURL *)url options:(NSDictionary *)options documentAttributes:(NSDictionary* __nullable * __nullable)dict error:(NSError **)error NS_DEPRECATED_IOS(7_0, 9_0, "Use -initWithURL:options:documentAttributes:error: instead") __TVOS_PROHIBITED;
 @end
 
 @interface NSMutableAttributedString (NSDeprecatedKitAdditions)
-- (BOOL)readFromFileURL:(NSURL *)url options:(NSDictionary *)opts documentAttributes:(NSDictionary* __nullable * __nullable)dict error:(NSError **)error NS_DEPRECATED_IOS(7_0, 9_0, "Use -readFromURL:options:documentAttributes:error: instead");
+- (BOOL)readFromFileURL:(NSURL *)url options:(NSDictionary *)opts documentAttributes:(NSDictionary* __nullable * __nullable)dict error:(NSError **)error NS_DEPRECATED_IOS(7_0, 9_0, "Use -readFromURL:options:documentAttributes:error: instead") __TVOS_PROHIBITED;
 @end
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSAttributedString.h>
+#endif
 // ==========  UIKit.framework/Headers/UIBarButtonItem.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIBarButtonItem.h>)
 //
 //  UIBarButtonItem.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -357,6 +436,7 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIAppearance.h>
 #import <UIKit/UIApplication.h>
 #import <UIKit/UIBarCommon.h>
+#import <UIKit/UISpringLoadedInteractionSupporting.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -390,7 +470,7 @@ typedef NS_ENUM(NSInteger, UIBarButtonSystemItem) {
     UIBarButtonSystemItemFastForward,
     UIBarButtonSystemItemUndo NS_ENUM_AVAILABLE_IOS(3_0),
     UIBarButtonSystemItemRedo NS_ENUM_AVAILABLE_IOS(3_0),
-    UIBarButtonSystemItemPageCurl NS_ENUM_AVAILABLE_IOS(4_0),
+    UIBarButtonSystemItemPageCurl NS_ENUM_DEPRECATED_IOS(4_0, 11_0)
 };
 
 @class UIImage, UIView;
@@ -450,27 +530,37 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIBarButtonItem : UIBarItem <NSCoding>
 /*
  backgroundImage must be a resizable image for good results.
  */
-- (void)setBackButtonBackgroundImage:(nullable UIImage *)backgroundImage forState:(UIControlState)state barMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
-- (nullable UIImage *)backButtonBackgroundImageForState:(UIControlState)state barMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+- (void)setBackButtonBackgroundImage:(nullable UIImage *)backgroundImage forState:(UIControlState)state barMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
+- (nullable UIImage *)backButtonBackgroundImageForState:(UIControlState)state barMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
 
-- (void)setBackButtonTitlePositionAdjustment:(UIOffset)adjustment forBarMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
-- (UIOffset)backButtonTitlePositionAdjustmentForBarMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+- (void)setBackButtonTitlePositionAdjustment:(UIOffset)adjustment forBarMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
+- (UIOffset)backButtonTitlePositionAdjustmentForBarMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
 
 /* For adjusting the vertical centering of bordered bar buttons within the bar 
  */
-- (void)setBackButtonBackgroundVerticalPositionAdjustment:(CGFloat)adjustment forBarMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
-- (CGFloat)backButtonBackgroundVerticalPositionAdjustmentForBarMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+- (void)setBackButtonBackgroundVerticalPositionAdjustment:(CGFloat)adjustment forBarMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
+- (CGFloat)backButtonBackgroundVerticalPositionAdjustmentForBarMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
 
 @end
 
+#if TARGET_OS_IOS
+@interface UIBarButtonItem (SpringLoading) <UISpringLoadedInteractionSupporting>
+@end
+#endif
+
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIBarButtonItem.h>
+#endif
 // ==========  UIKit.framework/Headers/NSTextContainer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSTextContainer.h>)
 //
 //  NSTextContainer.h
 //  UIKit
 //
-//  Copyright (c) 2011-2015, Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018, Apple Inc. All rights reserved.
 //
 
 #import <Foundation/NSObject.h>
@@ -486,14 +576,14 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextContainer : NSObject <NSCoding, N
 /**************************** Initialization ****************************/
 
 - (instancetype)initWithSize:(CGSize)size NS_DESIGNATED_INITIALIZER NS_AVAILABLE(10_11, 7_0);
-- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 
 /**************************** Layout ****************************/
 
 // Accessor for the NSLayoutManager object owning the receiver.
 // Avoid assigning a layout manager directly through this property.  Adding a text container to a layout manager through -[NSLayoutManager addTextContainer:] will use the property for assigning the new layout manager.
-@property(nullable, assign, NS_NONATOMIC_IOSONLY) NSLayoutManager *layoutManager;
+@property (nullable, assign, NS_NONATOMIC_IOSONLY) NSLayoutManager *layoutManager;
 
 // This method should be used instead of the primitive -setLayoutManager: if you need to replace a container's layoutManager with a new one leaving the rest of the web intact.  All the NSTextContainers on the old NSLayoutManager get transferred to the new one.  This method deals with all the work of making sure the containers don't get deallocated and removing the old layoutManager from the text storage and replacing it with the new one.
 - (void)replaceLayoutManager:(NSLayoutManager *)newLayoutManager NS_AVAILABLE(10_0, 9_0);
@@ -502,21 +592,21 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextContainer : NSObject <NSCoding, N
 /************************* Container shape properties *************************/
 
 // Default value: CGSizeZero  Defines the maximum size for the layout area returned from -lineFragmentRectForProposedRect:writingDirection:remainingRect:.  0.0 and less means no limitation.
-@property(NS_NONATOMIC_IOSONLY) CGSize size NS_AVAILABLE(10_11, 7_0);
+@property (NS_NONATOMIC_IOSONLY) CGSize size NS_AVAILABLE(10_11, 7_0);
 
 // Default value : empty array  An array of UIBezierPath representing the exclusion paths inside the receiver's bounding rect.
-@property(copy, NS_NONATOMIC_IOSONLY) NSArray<UIBezierPath *> *exclusionPaths NS_AVAILABLE(10_11, 7_0);
+@property (copy, NS_NONATOMIC_IOSONLY) NSArray<UIBezierPath *> *exclusionPaths NS_AVAILABLE(10_11, 7_0);
 
 // Default value: NSLineBreakByWordWrapping  The line break mode defines the behavior of the last line inside the text container.
-@property(NS_NONATOMIC_IOSONLY) NSLineBreakMode lineBreakMode NS_AVAILABLE(10_11, 7_0);
+@property (NS_NONATOMIC_IOSONLY) NSLineBreakMode lineBreakMode NS_AVAILABLE(10_11, 7_0);
 
 /************************* Layout constraint properties *************************/
 
 // Default value: 5.0  The layout padding at the beginning and end of the line fragment rects insetting the layout width available for the contents.  This value is utilized by NSLayoutManager for determining the layout width.
-@property(NS_NONATOMIC_IOSONLY) CGFloat lineFragmentPadding;
+@property (NS_NONATOMIC_IOSONLY) CGFloat lineFragmentPadding;
 
 // Default value: 0 (no limit)  The maximum number of lines that can be stored in the receiver.  This value is utilized by NSLayoutManager for determining the maximum number of lines associated with the text container.
-@property(NS_NONATOMIC_IOSONLY) NSUInteger maximumNumberOfLines NS_AVAILABLE(10_11, 7_0);
+@property (NS_NONATOMIC_IOSONLY) NSUInteger maximumNumberOfLines NS_AVAILABLE(10_11, 7_0);
 
 /**************************** Line fragments ****************************/
 
@@ -530,25 +620,82 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextContainer : NSObject <NSCoding, N
 /**************************** View synchronization ****************************/
 
 // Default value: NO  Define whether the text container view bounds changes can affect the text container size.
-@property(NS_NONATOMIC_IOSONLY) BOOL widthTracksTextView;
-@property(NS_NONATOMIC_IOSONLY) BOOL heightTracksTextView;
+@property (NS_NONATOMIC_IOSONLY) BOOL widthTracksTextView;
+@property (NS_NONATOMIC_IOSONLY) BOOL heightTracksTextView;
 
 @end
 
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSTextContainer.h>
+#endif
+// ==========  UIKit.framework/Headers/UIDragItem.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDragItem.h>)
+//
+//  UIDragItem.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIDragPreview;
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @interface UIDragItem : NSObject
+
+- (instancetype)initWithItemProvider:(NSItemProvider *)itemProvider NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@property (nonatomic, readonly) __kindof NSItemProvider *itemProvider;
+
+/* Use `localObject` to attach additional information to
+ * this drag item, visible only inside the app that started the drag.
+ */
+@property (nonatomic, strong, nullable) id localObject;
+
+/* Use `previewProvider` to change the preview for an item.
+ *
+ * Each item is usually given a preview when the drag begins,
+ * either by the UIDragInteractionDelegate's `-dragInteraction:previewForLiftingItem:session:`
+ * method, or by creating a preview from the dragging view.
+ *
+ * During the drag, applications may attempt to change the item's preview,
+ * by setting `previewProvider` to a block that returns a preview.
+ * It will be called when and if the system requests it.
+ *
+ * To use the default preview, set `previewProvider` to nil.
+ * To hide the preview, set `previewProvider` to a block that returns nil.
+ */
+@property (nonatomic, copy, nullable) UIDragPreview * _Nullable (^previewProvider)(void);
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDragItem.h>
+#endif
 // ==========  UIKit.framework/Headers/UIWebView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIWebView.h>)
 //
 //  UIWebView.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 #import <Foundation/Foundation.h>
 #import <UIKit/UIView.h>
 #import <UIKit/UIKitDefines.h>
 #import <UIKit/UIDataDetectors.h>
 #import <UIKit/UIScrollView.h>
+#import <Availability.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -559,7 +706,7 @@ typedef NS_ENUM(NSInteger, UIWebViewNavigationType) {
     UIWebViewNavigationTypeReload,
     UIWebViewNavigationTypeFormResubmitted,
     UIWebViewNavigationTypeOther
-};
+} API_UNAVAILABLE(tvos);
 
 typedef NS_ENUM(NSInteger, UIWebPaginationMode) {
     UIWebPaginationModeUnpaginated,
@@ -567,17 +714,17 @@ typedef NS_ENUM(NSInteger, UIWebPaginationMode) {
     UIWebPaginationModeTopToBottom,
     UIWebPaginationModeBottomToTop,
     UIWebPaginationModeRightToLeft
-};
+} API_UNAVAILABLE(tvos);
 
 typedef NS_ENUM(NSInteger, UIWebPaginationBreakingMode) {
     UIWebPaginationBreakingModePage,
     UIWebPaginationBreakingModeColumn
-};
+} API_UNAVAILABLE(tvos);
 
 @class UIWebViewInternal;
 @protocol UIWebViewDelegate;
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UIWebView : UIView <NSCoding, UIScrollViewDelegate> 
+UIKIT_EXTERN API_DEPRECATED("No longer supported; please adopt WKWebView.", ios(2.0, 12.0)) API_UNAVAILABLE(tvos, macos) @interface UIWebView : UIView <NSCoding, UIScrollViewDelegate>
 
 @property (nullable, nonatomic, assign) id <UIWebViewDelegate> delegate;
 
@@ -626,23 +773,28 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIWebView : UIView <NSCoding, UIScrollVie
 @property (nonatomic) BOOL allowsLinkPreview NS_AVAILABLE_IOS(9_0); // default is NO
 @end
 
- @protocol UIWebViewDelegate <NSObject>
+API_UNAVAILABLE(tvos) @protocol UIWebViewDelegate <NSObject>
 
 @optional
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType;
-- (void)webViewDidStartLoad:(UIWebView *)webView;
-- (void)webViewDidFinishLoad:(UIWebView *)webView;
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(nullable NSError *)error;
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType API_DEPRECATED("No longer supported.", ios(2.0, 12.0));
+- (void)webViewDidStartLoad:(UIWebView *)webView API_DEPRECATED("No longer supported.", ios(2.0, 12.0));
+- (void)webViewDidFinishLoad:(UIWebView *)webView API_DEPRECATED("No longer supported.", ios(2.0, 12.0));
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error API_DEPRECATED("No longer supported.", ios(2.0, 12.0));
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIWebView.h>
+#endif
 // ==========  UIKit.framework/Headers/UIImageAsset.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIImageAsset.h>)
 //
 //  UIImageAsset.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIImage.h>
@@ -657,18 +809,23 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIImageAsset : NSObject <NSSecureCoding>
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
 - (UIImage *)imageWithTraitCollection:(UITraitCollection *)traitCollection; // Images returned hold a strong reference to the asset that created them
-- (void)registerImage:(UIImage *)image withTraitCollection:(UITraitCollection *)traitCollection;
+- (void)registerImage:(UIImage *)image withTraitCollection:(UITraitCollection *)traitCollection; // Adds a new variation to this image asset that is appropriate for the provided traits. Any traits not exposed by asset catalogs (such as forceTouchCapability) are ignored.
 - (void)unregisterImageWithTraitCollection:(UITraitCollection *)traitCollection; // removes only those images added with registerImage:withTraitCollection:
 @end
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIImageAsset.h>
+#endif
 // ==========  UIKit.framework/Headers/UINibDeclarations.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UINibDeclarations.h>)
 //
 //  UINibDeclarations.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #ifndef IBOutlet
@@ -691,12 +848,17 @@ NS_ASSUME_NONNULL_END
 #define IB_DESIGNABLE
 #endif
 
+
+#else
+#import <UIKitCore/UINibDeclarations.h>
+#endif
 // ==========  UIKit.framework/Headers/NSLayoutManager.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSLayoutManager.h>)
 //
 //  NSLayoutManager.h
 //  UIKit
 //
-//  Copyright (c) 2011-2015, Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018, Apple Inc. All rights reserved.
 //
 
 #import <Foundation/NSObject.h>
@@ -716,14 +878,14 @@ typedef NS_ENUM(NSInteger, NSTextLayoutOrientation) {
     NSTextLayoutOrientationVertical = 1, // Lines rendered vertically, grow right to left
 } NS_ENUM_AVAILABLE(10_7, 7_0);
 
-typedef NS_ENUM(NSInteger, NSGlyphProperty) {
+typedef NS_OPTIONS(NSInteger, NSGlyphProperty) {
     NSGlyphPropertyNull = (1 << 0), // null glyph ignored for layout and display
     NSGlyphPropertyControlCharacter = (1 << 1), // control character such as tab, attachment, etc that has special behavior associated with
     NSGlyphPropertyElastic = (1 << 2), // glyphs with elastic glyph width behavior such as white spaces
     NSGlyphPropertyNonBaseCharacter = (1 << 3) // glyphs with combining properties. typically characters in Unicode Mn class.
 } NS_ENUM_AVAILABLE(10_11, 7_0);
 
-typedef NS_ENUM(NSInteger, NSControlCharacterAction) {
+typedef NS_OPTIONS(NSInteger, NSControlCharacterAction) {
     NSControlCharacterActionZeroAdvancement = (1 << 0), // glyphs with this action are filtered out from layout (notShownAttribute == YES)
     NSControlCharacterActionWhitespace = (1 << 1), // the width for glyphs with this action are determined by -layoutManager:boundingBoxForControlGlyphAtIndex:forTextContainer:proposedLineFragment:glyphPosition:characterIndex: if the method is implemented; otherwise, same as NSControlCharacterZeroAdvancementAction
     NSControlCharacterActionHorizontalTab = (1 << 2), // Treated as tab character
@@ -734,7 +896,7 @@ typedef NS_ENUM(NSInteger, NSControlCharacterAction) {
 
 @protocol NSTextLayoutOrientationProvider
 // A property describing the receiver's layout orientation.  This property defines the default value for the range of string laid out in the receiver in absence of explicit NSVerticalGlyphFormAttributeName attribute.  For example, when NSTextLayoutOrientationVertical, the default value for NSVerticalGlyphFormAttributeName is 1.  When rendering into the receiver, the Text System assumes the coordinate system is appropriately rotated.
-@property(readonly, NS_NONATOMIC_IOSONLY) NSTextLayoutOrientation layoutOrientation NS_AVAILABLE(10_7, 7_0);
+@property (readonly, NS_NONATOMIC_IOSONLY) NSTextLayoutOrientation layoutOrientation NS_AVAILABLE(10_7, 7_0);
 @end
 
 
@@ -752,14 +914,14 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSLayoutManager : NSObject <NSCoding>
 
 // Accessor for the NSTextStorage object owning the receiver.
 // Avoid assigning a text storage directly through this property.  Adding a layout manager to a text storage through -[NSTextStorage addLayoutManager:] will use the property for assigning the new text storage.
-@property(nullable, assign, NS_NONATOMIC_IOSONLY) NSTextStorage *textStorage;
+@property (nullable, assign, NS_NONATOMIC_IOSONLY) NSTextStorage *textStorage;
 
 
 
 /**************************** Text containers ****************************/
 
 // NSTextContainer objects owner by the receiver.
-@property(readonly, NS_NONATOMIC_IOSONLY) NSArray<NSTextContainer *> *textContainers;
+@property (readonly, NS_NONATOMIC_IOSONLY) NSArray<NSTextContainer *> *textContainers;
 
 // Add a container to the end of the array.  Must invalidate layout of all glyphs after the previous last container (i.e., glyphs that were not previously laid out because they would not fit anywhere).
 - (void)addTextContainer:(NSTextContainer *)container;
@@ -777,28 +939,31 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSLayoutManager : NSObject <NSCoding>
 
 /**************************** Delegate ****************************/
 
-@property(nullable, assign, NS_NONATOMIC_IOSONLY) id <NSLayoutManagerDelegate> delegate;
+@property (nullable, weak, NS_NONATOMIC_IOSONLY) id <NSLayoutManagerDelegate> delegate;
 
 
 /*********************** Global layout manager options ***********************/
 
 // If YES, then whitespace and other "invisible" characters will be shown with special glyphs or other drawing.  The default is NO.
-@property(NS_NONATOMIC_IOSONLY) BOOL showsInvisibleCharacters;
+@property (NS_NONATOMIC_IOSONLY) BOOL showsInvisibleCharacters;
 
 // If YES, then control characters will be rendered visibly (usually like "^M").  The default is NO.
-@property(NS_NONATOMIC_IOSONLY) BOOL showsControlCharacters;
+@property (NS_NONATOMIC_IOSONLY) BOOL showsControlCharacters;
 
 // 0.0 - 1.0.  Whenever (width of the real contents of the line) / (the line fragment width) is below this value, hyphenation will be attempted when laying out the line.  By default, the value is 0.0, meaning hyphenation is off.  A value of 1.0 causes hyphenation to be attempted always.  Note that hyphenation will slow down text layout and increase memory usage, so it should be used sparingly.  Maybe overridden on a per-paragraph basis by the NSParagraphStyle's hyphenationFactor.
-@property(NS_NONATOMIC_IOSONLY) CGFloat hyphenationFactor;
+@property (NS_NONATOMIC_IOSONLY) CGFloat hyphenationFactor;
 
 // By default, a layout manager will use leading as specified by the font.  However, this is not appropriate for most UI text, for which a fixed leading is usually specified by UI layout guidelines.  These methods allow the use of the font's leading to be turned off.
-@property(NS_NONATOMIC_IOSONLY) BOOL usesFontLeading;
+@property (NS_NONATOMIC_IOSONLY) BOOL usesFontLeading;
 
 // If YES, then the layout manager may perform glyph generation and layout for a given portion of the text, without having glyphs or layout for preceding portions.  The default is NO.  Turning this setting on will significantly alter which portions of the text will have glyph generation or layout performed when a given generation-causing method is invoked.  It also gives significant performance benefits, especially for large documents.
-@property(NS_NONATOMIC_IOSONLY) BOOL allowsNonContiguousLayout NS_AVAILABLE(10_5, 7_0);
+@property (NS_NONATOMIC_IOSONLY) BOOL allowsNonContiguousLayout NS_AVAILABLE(10_5, 7_0);
 
 // Even if non-contiguous layout is allowed, it may not always be used, and there may not always be layout holes.  This method returns YES if there might currently be non-contiguous portions of the text laid out.
-@property(readonly, NS_NONATOMIC_IOSONLY) BOOL hasNonContiguousLayout NS_AVAILABLE(10_5, 7_0);
+@property (readonly, NS_NONATOMIC_IOSONLY) BOOL hasNonContiguousLayout NS_AVAILABLE(10_5, 7_0);
+
+// When YES, enables internal security analysis for malicious inputs and activates defensive behaviors. By enabling this functionality, it's possible certain text such as a very long paragraph might result in unexpected layout. NO by default.
+@property BOOL limitsLayoutForSuspiciousContents API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
 
 
 
@@ -838,12 +1003,12 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSLayoutManager : NSObject <NSCoding>
 /************************ Get glyphs and glyph properties ************************/
 
 // Returns the total number of glyphs.  If non-contiguous layout is not enabled, this will force generation of glyphs for all characters.
-@property(readonly, NS_NONATOMIC_IOSONLY) NSUInteger numberOfGlyphs;
+@property (readonly, NS_NONATOMIC_IOSONLY) NSUInteger numberOfGlyphs;
 
 // If non-contiguous layout is not enabled, these will cause generation of all glyphs up to and including glyphIndex.  The first CGGlyphAtIndex variant returns kCGFontIndexInvalid if the requested index is out of the range (0, numberOfGlyphs), and optionally returns a flag indicating whether the requested index is in range.  The second CGGlyphAtIndex variant raises a NSRangeError if the requested index is out of range.
-- (CGGlyph)CGGlyphAtIndex:(NSUInteger)glyphIndex isValidIndex:(nullable BOOL *)isValidIndex;
-- (CGGlyph)CGGlyphAtIndex:(NSUInteger)glyphIndex;
-- (BOOL)isValidGlyphIndex:(NSUInteger)glyphIndex;
+- (CGGlyph)CGGlyphAtIndex:(NSUInteger)glyphIndex isValidIndex:(nullable BOOL *)isValidIndex NS_AVAILABLE(10_11,7_0);
+- (CGGlyph)CGGlyphAtIndex:(NSUInteger)glyphIndex NS_AVAILABLE(10_11,7_0);
+- (BOOL)isValidGlyphIndex:(NSUInteger)glyphIndex API_AVAILABLE(macosx(10.0), ios(7.0), watchos(2.0), tvos(9.0));
 
 // If non-contiguous layout is not enabled, this will cause generation of all glyphs up to and including glyphIndex.  It will return the glyph property associated with the glyph at the specified index.
 - (NSGlyphProperty)propertyForGlyphAtIndex:(NSUInteger)glyphIndex NS_AVAILABLE(10_5, 7_0);
@@ -906,9 +1071,9 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSLayoutManager : NSObject <NSCoding>
 - (CGRect)lineFragmentUsedRectForGlyphAtIndex:(NSUInteger)glyphIndex effectiveRange:(nullable NSRangePointer)effectiveGlyphRange withoutAdditionalLayout:(BOOL)flag NS_AVAILABLE(10_0, 9_0);
 
 // Return info about the extra line fragment.  The extra line fragment is used for displaying the line at the end of document when the last character in the document causes a line or paragraph break.  Since the extra line is not associated with any glyph inside the layout manager, the information is handed separately from other line fragment rects.  Typically the extra line fragment is placed in the last document content text container along with other normal line fragment rects.  Line fragment rects and line fragment used rects are always in container coordinates.
-@property(readonly, NS_NONATOMIC_IOSONLY) CGRect extraLineFragmentRect;
-@property(readonly, NS_NONATOMIC_IOSONLY) CGRect extraLineFragmentUsedRect;
-@property(nullable, readonly, NS_NONATOMIC_IOSONLY) NSTextContainer *extraLineFragmentTextContainer;
+@property (readonly, NS_NONATOMIC_IOSONLY) CGRect extraLineFragmentRect;
+@property (readonly, NS_NONATOMIC_IOSONLY) CGRect extraLineFragmentUsedRect;
+@property (nullable, readonly, NS_NONATOMIC_IOSONLY) NSTextContainer *extraLineFragmentTextContainer;
 
 
 // Returns the location for the given glyph within its line fragment.  If this glyph does not have an explicit location set for it (i.e., it is part of (but not first in) a sequence of nominally spaced characters), the location is calculated by glyph advancements from the location of the most recent preceding glyph with a location set.  Glyph locations are relative to their line fragment rect's origin.  This will cause glyph generation and layout for the line fragment containing the specified glyph, or if non-contiguous layout is not enabled, up to and including that line fragment.
@@ -973,7 +1138,7 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSLayoutManager : NSObject <NSCoding>
 - (void)drawGlyphsForGlyphRange:(NSRange)glyphsToShow atPoint:(CGPoint)origin;
 
 // This is the glyph rendering primitive method.  Renders glyphs at positions into the graphicsContext.  The positions are in the user space coordinate system.  graphicsContext that passed in is already configured according to the text attributes arguments: font, textMatrix, and attributes.  The font argument represents the font applied to the graphics state.  The value can be different from the NSFontAttributeName value in the attributes argument because of various font substitutions that the system automatically executes.  The textMatrix is the affine transform mapping the text space coordinate system to the user space coordinate system.  The tx and ty components of textMatrix are ignored since Quartz overrides them with the glyph positions.
-- (void)showCGGlyphs:(const CGGlyph *)glyphs positions:(const CGPoint *)positions count:(NSUInteger)glyphCount font:(UIFont *)font matrix:(CGAffineTransform)textMatrix attributes:(NSDictionary<NSString *, id> *)attributes inContext:(CGContextRef)graphicsContext NS_AVAILABLE(10_7, 7_0);
+- (void)showCGGlyphs:(const CGGlyph *)glyphs positions:(const CGPoint *)positions count:(NSUInteger)glyphCount font:(UIFont *)font matrix:(CGAffineTransform)textMatrix attributes:(NSDictionary<NSAttributedStringKey, id> *)attributes inContext:(CGContextRef)graphicsContext NS_AVAILABLE(10_7, 7_0);
 
 // This is the primitive used by -drawBackgroundForGlyphRange:atPoint: for actually filling rects with a particular background color, whether due to a background color attribute, a selected or marked range highlight, a block decoration, or any other rect fill needed by that method.  As with -showCGGlyphs:..., the character range and color are merely for informational purposes; the color will already be set in the graphics state.  If for any reason you modify it, you must restore it before returning from this method.  You should never call this method, but you might override it.  The default implementation will simply fill the specified rect array.
 - (void)fillBackgroundRectArray:(const CGRect *)rectArray count:(NSUInteger)rectCount forCharacterRange:(NSRange)charRange color:(UIColor *)color NS_AVAILABLE(10_6, 7_0);
@@ -1056,12 +1221,17 @@ enum {
 
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSLayoutManager.h>
+#endif
 // ==========  UIKit.framework/Headers/UIProgressView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIProgressView.h>)
 //
 //  UIProgressView.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1074,7 +1244,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, UIProgressViewStyle) {
     UIProgressViewStyleDefault,     // normal progress bar
-    UIProgressViewStyleBar,     // for use in a toolbar
+    UIProgressViewStyleBar __TVOS_PROHIBITED,     // for use in a toolbar
 };
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UIProgressView : UIView <NSCoding>
@@ -1097,15 +1267,22 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIProgressView : UIView <NSCoding>
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIProgressView.h>
+#endif
 // ==========  UIKit.framework/Headers/NSLayoutAnchor.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSLayoutAnchor.h>)
 /*	NSLayoutAnchor.h
-	Copyright (c) 2015, Apple Inc. All rights reserved.
+	Copyright (c) 2015-2018, Apple Inc. All rights reserved.
 */
 
 #import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
 
-@class NSLayoutConstraint, NSLayoutAnchor;
+NS_ASSUME_NONNULL_BEGIN
 
+@class NSLayoutConstraint;
 
 /* An NSLayoutAnchor represents an edge or dimension of a layout item.  Its concrete 
  subclasses allow concise creation of constraints.  
@@ -1139,18 +1316,48 @@ NS_CLASS_AVAILABLE_IOS(9_0)
 
 /* Axis-specific subclasses for location anchors: top/bottom, leading/trailing, baseline, etc.
  */
-@class NSLayoutXAxisAnchor, NSLayoutYAxisAnchor;
+@class NSLayoutXAxisAnchor, NSLayoutYAxisAnchor, NSLayoutDimension;
 NS_CLASS_AVAILABLE_IOS(9_0)
 @interface NSLayoutXAxisAnchor : NSLayoutAnchor<NSLayoutXAxisAnchor *>
+// A composite anchor for creating constraints relating horizontal distances between locations.
+- (NSLayoutDimension *)anchorWithOffsetToAnchor:(NSLayoutXAxisAnchor *)otherAnchor API_AVAILABLE(ios(10.0),tvos(10.0));
+
+@end
+
+@interface NSLayoutXAxisAnchor (UIViewDynamicSystemSpacingSupport)
+/* Constraints of the form,
+        receiver [= | ≥ | ≤] 'anchor' + 'multiplier' * system space, 
+ where the value of the system space is determined from information available from the anchors.
+    The constraint affects how far the receiver will be positioned trailing 'anchor', per the effective user interface layout direction.
+ */
+- (NSLayoutConstraint *)constraintEqualToSystemSpacingAfterAnchor:(NSLayoutXAxisAnchor *)anchor multiplier:(CGFloat)multiplier API_AVAILABLE(ios(11.0),tvos(11.0));
+- (NSLayoutConstraint *)constraintGreaterThanOrEqualToSystemSpacingAfterAnchor:(NSLayoutXAxisAnchor *)anchor multiplier:(CGFloat)multiplier API_AVAILABLE(ios(11.0),tvos(11.0));
+- (NSLayoutConstraint *)constraintLessThanOrEqualToSystemSpacingAfterAnchor:(NSLayoutXAxisAnchor *)anchor multiplier:(CGFloat)multiplier API_AVAILABLE(ios(11.0),tvos(11.0));
+
 @end
 NS_CLASS_AVAILABLE_IOS(9_0)
 @interface NSLayoutYAxisAnchor : NSLayoutAnchor<NSLayoutYAxisAnchor *>
+// A composite anchor for creating constraints relating vertical distances between locations.
+- (NSLayoutDimension *)anchorWithOffsetToAnchor:(NSLayoutYAxisAnchor *)otherAnchor API_AVAILABLE(ios(10.0),tvos(10.0));
+
+@end
+
+@interface NSLayoutYAxisAnchor (UIViewDynamicSystemSpacingSupport)
+/* Constraints of the form,
+        receiver [= | ≥ | ≤] 'anchor' + 'multiplier' * system space, 
+ where the value of the system space is determined from information available from the anchors.
+    The constraint affects how far the receiver will be positioned below 'anchor'. 
+    If either the receiver or 'anchor' is the firstBaselineAnchor or lastBaselineAnchor of a view with text content
+ then the spacing will depend on the fonts involved and will change when those do.
+ */
+- (NSLayoutConstraint *)constraintEqualToSystemSpacingBelowAnchor:(NSLayoutYAxisAnchor *)anchor multiplier:(CGFloat)multiplier API_AVAILABLE(ios(11.0),tvos(11.0));
+- (NSLayoutConstraint *)constraintGreaterThanOrEqualToSystemSpacingBelowAnchor:(NSLayoutYAxisAnchor *)anchor multiplier:(CGFloat)multiplier API_AVAILABLE(ios(11.0),tvos(11.0));
+- (NSLayoutConstraint *)constraintLessThanOrEqualToSystemSpacingBelowAnchor:(NSLayoutYAxisAnchor *)anchor multiplier:(CGFloat)multiplier API_AVAILABLE(ios(11.0),tvos(11.0));
 @end
 
 
 /* This layout anchor subclass is used for sizes (width & height).
  */
-@class NSLayoutDimension;
 NS_CLASS_AVAILABLE_IOS(9_0)
 @interface NSLayoutDimension : NSLayoutAnchor<NSLayoutDimension *>
 
@@ -1175,12 +1382,88 @@ NS_CLASS_AVAILABLE_IOS(9_0)
 - (NSLayoutConstraint *)constraintGreaterThanOrEqualToAnchor:(NSLayoutDimension *)anchor multiplier:(CGFloat)m constant:(CGFloat)c;
 - (NSLayoutConstraint *)constraintLessThanOrEqualToAnchor:(NSLayoutDimension *)anchor multiplier:(CGFloat)m constant:(CGFloat)c;
 @end
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSLayoutAnchor.h>
+#endif
+// ==========  UIKit.framework/Headers/UITimingCurveProvider.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITimingCurveProvider.h>)
+//
+//  UITimingCurveProvider.h
+//  UIKit
+//
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+typedef NS_ENUM(NSInteger, UITimingCurveType) {
+    UITimingCurveTypeBuiltin,
+    UITimingCurveTypeCubic,
+    UITimingCurveTypeSpring,
+    UITimingCurveTypeComposed,        
+} NS_ENUM_AVAILABLE_IOS(10_0);
+
+@class UICubicTimingParameters, UISpringTimingParameters;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol UITimingCurveProvider <NSCoding, NSCopying>
+
+@property(nonatomic, readonly) UITimingCurveType timingCurveType;
+@property(nullable, nonatomic, readonly) UICubicTimingParameters *cubicTimingParameters;
+@property(nullable, nonatomic, readonly) UISpringTimingParameters *springTimingParameters;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITimingCurveProvider.h>
+#endif
+// ==========  UIKit.framework/Headers/UIFocusGuide.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFocusGuide.h>)
+//
+//  UIFocusGuide.h
+//  UIKit
+//
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UILayoutGuide.h>
+
+@protocol UIFocusEnvironment;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// UIFocusGuides are UILayoutGuide subclasses that participate in the focus system from within their owning view. A UIFocusGuide may be used to expose non-view areas as focusable.
+NS_CLASS_AVAILABLE_IOS(9_0) @interface UIFocusGuide : UILayoutGuide
+
+/// If disabled, UIFocusGuides are ignored by the focus engine, but still participate in layout. Modifying this flag allows you to conditionally enable or disable certain focus behaviors. YES by default.
+@property (nonatomic, getter=isEnabled) BOOL enabled;
+
+/// Setting preferredFocusEnvironments to a non-empty array marks this guide's layoutFrame as focusable. If empty, this guide is effectively disabled.
+/// If focused, the guide attempts to redirect focus to each environment in the array, in order, stopping when a focusable item in an environment has been found.
+@property (nonatomic, copy, null_resettable) NSArray<id<UIFocusEnvironment>> *preferredFocusEnvironments NS_AVAILABLE_IOS(10_0);
+
+/// Setting a preferred focused view marks this guide's layoutFrame as focusable, and if focused, redirects focus to its preferred focused view. If nil, this guide is effectively disabled.
+@property (nonatomic, weak, nullable) UIView *preferredFocusedView NS_DEPRECATED_IOS(9_0, 10_0, "Use -preferredFocusEnvironments instead.");
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIFocusGuide.h>
+#endif
 // ==========  UIKit.framework/Headers/NSParagraphStyle.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSParagraphStyle.h>)
 //
 //  NSParagraphStyle.h
 //  UIKit
 //
-//  Copyright (c) 2011-2015, Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018, Apple Inc. All rights reserved.
 //
 // NSParagraphStyle and NSMutableParagraphStyle hold paragraph style information
 // NSTextTab holds information about a single tab stop
@@ -1193,18 +1476,19 @@ NS_CLASS_AVAILABLE_IOS(9_0)
 NS_ASSUME_NONNULL_BEGIN
 
 // NSTextTab
-UIKIT_EXTERN NSString *const NSTabColumnTerminatorsAttributeName NS_AVAILABLE(10_0, 7_0); // An attribute for NSTextTab options.  The value is NSCharacterSet.  The character set is used to determine the tab column terminating character.  The tab and newline characters are implied even if not included in the character set.
+typedef NSString * NSTextTabOptionKey NS_TYPED_ENUM;
+UIKIT_EXTERN NSTextTabOptionKey const NSTabColumnTerminatorsAttributeName NS_AVAILABLE(10_0, 7_0); // An attribute for NSTextTab options.  The value is NSCharacterSet.  The character set is used to determine the tab column terminating character.  The tab and newline characters are implied even if not included in the character set.
 
-NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextTab : NSObject <NSCopying, NSCoding>
+NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextTab : NSObject <NSCopying, NSCoding, NSSecureCoding>
 
 + (NSCharacterSet *)columnTerminatorsForLocale:(nullable NSLocale *)aLocale NS_AVAILABLE(10_11, 7_0); // Returns the column terminators for locale. Passing nil returns an instance corresponding to +[NSLocale systemLocale]. For matching user's formatting preferences, pass +[NSLocale currentLocale]. Can be used as the value for NSTabColumnTerminatorsAttributeName to make a decimal tab stop.
 
-- (instancetype)initWithTextAlignment:(NSTextAlignment)alignment location:(CGFloat)loc options:(NSDictionary<NSString *, id> *)options NS_DESIGNATED_INITIALIZER; // Initializes a text tab with the text alignment, location, and options.  The text alignment is used to determine the position of text inside the tab column.
+- (instancetype)initWithTextAlignment:(NSTextAlignment)alignment location:(CGFloat)loc options:(NSDictionary<NSTextTabOptionKey, id> *)options NS_DESIGNATED_INITIALIZER; // Initializes a text tab with the text alignment, location, and options.  The text alignment is used to determine the position of text inside the tab column.
 
 
-@property(readonly, NS_NONATOMIC_IOSONLY) NSTextAlignment alignment;  // Defines the alignment of tab column contents. NSTextAlignmentNatural and NSTextAlignmentJustified are resolved either NSTextAlignmentLeft or NSTextAlignmentRight based on the user's preferred language.
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat location; // Location of the tab stop inside the line fragment rect coordinate system
-@property(readonly, NS_NONATOMIC_IOSONLY) NSDictionary<NSString *, id> *options; // Optional configuration attributes
+@property (readonly, NS_NONATOMIC_IOSONLY) NSTextAlignment alignment;  // Defines the alignment of tab column contents. NSTextAlignmentNatural and NSTextAlignmentJustified are resolved either NSTextAlignmentLeft or NSTextAlignmentRight based on the user's preferred language.
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat location; // Location of the tab stop inside the line fragment rect coordinate system
+@property (readonly, NS_NONATOMIC_IOSONLY) NSDictionary<NSTextTabOptionKey, id> *options; // Optional configuration attributes
 @end
 
 
@@ -1221,58 +1505,58 @@ typedef NS_ENUM(NSInteger, NSLineBreakMode) {
 
 NS_CLASS_AVAILABLE(10_0, 6_0) @interface NSParagraphStyle : NSObject <NSCopying, NSMutableCopying, NSSecureCoding>
 
-+ (NSParagraphStyle *)defaultParagraphStyle; // This class method returns a shared and cached NSParagraphStyle instance with the default style settings, with same value as the result of [[NSParagraphStyle alloc] init].
+@property (class, readonly, copy, NS_NONATOMIC_IOSONLY) NSParagraphStyle *defaultParagraphStyle; // This class property returns a shared and cached NSParagraphStyle instance with the default style settings, with same value as the result of [[NSParagraphStyle alloc] init].
 
 + (NSWritingDirection)defaultWritingDirectionForLanguage:(nullable NSString *)languageName;  // languageName is in ISO lang region format
 
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat lineSpacing; // "Leading": distance between the bottom of one line fragment and top of next (applied between lines in the same container). This value is included in the line fragment heights in layout manager.
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat paragraphSpacing; // Distance between the bottom of this paragraph and top of next (or the beginning of its paragraphSpacingBefore, if any).
-@property(readonly, NS_NONATOMIC_IOSONLY) NSTextAlignment alignment;
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat lineSpacing; // "Leading": distance between the bottom of one line fragment and top of next (applied between lines in the same container). This value is included in the line fragment heights in layout manager.
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat paragraphSpacing; // Distance between the bottom of this paragraph and top of next (or the beginning of its paragraphSpacingBefore, if any).
+@property (readonly, NS_NONATOMIC_IOSONLY) NSTextAlignment alignment;
 
 // The following values are relative to the appropriate margin (depending on the paragraph direction)
 
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat headIndent; // Distance from margin to front edge of paragraph
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat tailIndent; // Distance from margin to back edge of paragraph; if negative or 0, from other margin
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat firstLineHeadIndent; // Distance from margin to edge appropriate for text direction
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat headIndent; // Distance from margin to front edge of paragraph
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat tailIndent; // Distance from margin to back edge of paragraph; if negative or 0, from other margin
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat firstLineHeadIndent; // Distance from margin to edge appropriate for text direction
 
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat minimumLineHeight; // Line height is the distance from bottom of descenders to top of ascenders; basically the line fragment height. Does not include lineSpacing (which is added after this computation).
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat maximumLineHeight; // 0 implies no maximum.
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat minimumLineHeight; // Line height is the distance from bottom of descenders to top of ascenders; basically the line fragment height. Does not include lineSpacing (which is added after this computation).
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat maximumLineHeight; // 0 implies no maximum.
 
-@property(readonly, NS_NONATOMIC_IOSONLY) NSLineBreakMode lineBreakMode;
+@property (readonly, NS_NONATOMIC_IOSONLY) NSLineBreakMode lineBreakMode;
 
-@property(readonly, NS_NONATOMIC_IOSONLY) NSWritingDirection baseWritingDirection;
+@property (readonly, NS_NONATOMIC_IOSONLY) NSWritingDirection baseWritingDirection;
 
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat lineHeightMultiple; // Natural line height is multiplied by this factor (if positive) before being constrained by minimum and maximum line height.
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat paragraphSpacingBefore; // Distance between the bottom of the previous paragraph (or the end of its paragraphSpacing, if any) and the top of this paragraph.
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat lineHeightMultiple; // Natural line height is multiplied by this factor (if positive) before being constrained by minimum and maximum line height.
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat paragraphSpacingBefore; // Distance between the bottom of the previous paragraph (or the end of its paragraphSpacing, if any) and the top of this paragraph.
 
 // Specifies the threshold for hyphenation.  Valid values lie between 0.0 and 1.0 inclusive.  Hyphenation will be attempted when the ratio of the text width as broken without hyphenation to the width of the line fragment is less than the hyphenation factor.  When this takes on its default value of 0.0, the layout manager's hyphenation factor is used instead.  When both are 0.0, hyphenation is disabled.
-@property(readonly, NS_NONATOMIC_IOSONLY) float hyphenationFactor;
+@property (readonly, NS_NONATOMIC_IOSONLY) float hyphenationFactor;
 
-@property(readonly,copy, NS_NONATOMIC_IOSONLY) NSArray<NSTextTab *> *tabStops NS_AVAILABLE(10_0, 7_0); // An array of NSTextTabs. Contents should be ordered by location. The default value is an array of 12 left-aligned tabs at 28pt interval
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat defaultTabInterval NS_AVAILABLE(10_0, 7_0); // The default tab interval used for locations beyond the last element in tabStops
+@property (readonly,copy, NS_NONATOMIC_IOSONLY) NSArray<NSTextTab *> *tabStops NS_AVAILABLE(10_0, 7_0); // An array of NSTextTabs. Contents should be ordered by location. The default value is an array of 12 left-aligned tabs at 28pt interval
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat defaultTabInterval NS_AVAILABLE(10_0, 7_0); // The default tab interval used for locations beyond the last element in tabStops
 
-@property(readonly, NS_NONATOMIC_IOSONLY) BOOL allowsDefaultTighteningForTruncation NS_AVAILABLE(10_11, 9_0); // Tightens inter-character spacing in attempt to fit lines wider than the available space if the line break mode is one of the truncation modes before starting to truncate. NO by default. The maximum amount of tightening performed is determined by the system based on contexts such as font, line width, etc.
+@property (readonly, NS_NONATOMIC_IOSONLY) BOOL allowsDefaultTighteningForTruncation NS_AVAILABLE(10_11, 9_0); // Tightens inter-character spacing in attempt to fit lines wider than the available space if the line break mode is one of the truncation modes before starting to truncate. NO by default. The maximum amount of tightening performed is determined by the system based on contexts such as font, line width, etc.
 @end
 
 
 NS_CLASS_AVAILABLE(10_0, 6_0) @interface NSMutableParagraphStyle : NSParagraphStyle
 
-@property(NS_NONATOMIC_IOSONLY) CGFloat lineSpacing;
-@property(NS_NONATOMIC_IOSONLY) CGFloat paragraphSpacing;
-@property(NS_NONATOMIC_IOSONLY) NSTextAlignment alignment;
-@property(NS_NONATOMIC_IOSONLY) CGFloat firstLineHeadIndent;
-@property(NS_NONATOMIC_IOSONLY) CGFloat headIndent;
-@property(NS_NONATOMIC_IOSONLY) CGFloat tailIndent;
-@property(NS_NONATOMIC_IOSONLY) NSLineBreakMode lineBreakMode;
-@property(NS_NONATOMIC_IOSONLY) CGFloat minimumLineHeight;
-@property(NS_NONATOMIC_IOSONLY) CGFloat maximumLineHeight;
-@property(NS_NONATOMIC_IOSONLY) NSWritingDirection baseWritingDirection;
-@property(NS_NONATOMIC_IOSONLY) CGFloat lineHeightMultiple;
-@property(NS_NONATOMIC_IOSONLY) CGFloat paragraphSpacingBefore;
-@property(NS_NONATOMIC_IOSONLY) float hyphenationFactor;
-@property(null_resettable, copy, NS_NONATOMIC_IOSONLY) NSArray<NSTextTab *> *tabStops NS_AVAILABLE(10_0, 7_0);
-@property(NS_NONATOMIC_IOSONLY) CGFloat defaultTabInterval NS_AVAILABLE(10_0, 7_0);
-@property(NS_NONATOMIC_IOSONLY) BOOL allowsDefaultTighteningForTruncation NS_AVAILABLE(10_11, 9_0);
+@property (NS_NONATOMIC_IOSONLY) CGFloat lineSpacing;
+@property (NS_NONATOMIC_IOSONLY) CGFloat paragraphSpacing;
+@property (NS_NONATOMIC_IOSONLY) NSTextAlignment alignment;
+@property (NS_NONATOMIC_IOSONLY) CGFloat firstLineHeadIndent;
+@property (NS_NONATOMIC_IOSONLY) CGFloat headIndent;
+@property (NS_NONATOMIC_IOSONLY) CGFloat tailIndent;
+@property (NS_NONATOMIC_IOSONLY) NSLineBreakMode lineBreakMode;
+@property (NS_NONATOMIC_IOSONLY) CGFloat minimumLineHeight;
+@property (NS_NONATOMIC_IOSONLY) CGFloat maximumLineHeight;
+@property (NS_NONATOMIC_IOSONLY) NSWritingDirection baseWritingDirection;
+@property (NS_NONATOMIC_IOSONLY) CGFloat lineHeightMultiple;
+@property (NS_NONATOMIC_IOSONLY) CGFloat paragraphSpacingBefore;
+@property (NS_NONATOMIC_IOSONLY) float hyphenationFactor;
+@property (null_resettable, copy, NS_NONATOMIC_IOSONLY) NSArray<NSTextTab *> *tabStops NS_AVAILABLE(10_0, 7_0);
+@property (NS_NONATOMIC_IOSONLY) CGFloat defaultTabInterval NS_AVAILABLE(10_0, 7_0);
+@property (NS_NONATOMIC_IOSONLY) BOOL allowsDefaultTighteningForTruncation NS_AVAILABLE(10_11, 9_0);
 
 - (void)addTabStop:(NSTextTab *)anObject NS_AVAILABLE(10_0, 9_0);
 - (void)removeTabStop:(NSTextTab *)anObject NS_AVAILABLE(10_0, 9_0);
@@ -1283,12 +1567,17 @@ NS_CLASS_AVAILABLE(10_0, 6_0) @interface NSMutableParagraphStyle : NSParagraphSt
 
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSParagraphStyle.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAccessibilityConstants.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibilityConstants.h>)
 //
 //  UIAccessibilityConstants.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1310,7 +1599,7 @@ NS_ASSUME_NONNULL_BEGIN
  will cause accessibility clients to incorrectly interpret the element.
  Use common sense when combining traits.
  */
-typedef uint64_t UIAccessibilityTraits;
+typedef uint64_t UIAccessibilityTraits NS_TYPED_ENUM;
 
 // Used when the element has no traits.
 UIKIT_EXTERN UIAccessibilityTraits UIAccessibilityTraitNone;
@@ -1357,7 +1646,7 @@ UIKIT_EXTERN UIAccessibilityTraits UIAccessibilityTraitSummaryElement;
 UIKIT_EXTERN UIAccessibilityTraits UIAccessibilityTraitNotEnabled;
 
 /*
- Used when the element frequently updates its label or value, but too often to send notifications. 
+ Used when the element frequently updates its label or value, but too often to send notifications.
  Allows an accessibility client to poll for changes. A stopwatch would be an example.
  */
 UIKIT_EXTERN UIAccessibilityTraits UIAccessibilityTraitUpdatesFrequently;
@@ -1385,13 +1674,19 @@ UIKIT_EXTERN UIAccessibilityTraits UIAccessibilityTraitAllowsDirectInteraction N
 UIKIT_EXTERN UIAccessibilityTraits UIAccessibilityTraitCausesPageTurn NS_AVAILABLE_IOS(5_0);
 
 /*
+ Used when a view or accessibility container represents an ordered list of tabs.
+ The object with this trait should return NO for isAccessibilityElement.
+ */
+UIKIT_EXTERN UIAccessibilityTraits UIAccessibilityTraitTabBar NS_AVAILABLE_IOS(10_0);
+
+/*
  Accessibility Notifications
  
  UIKit posts notifications for standard events as appropriate, however the
  following notifications may be posted to accommodate custom controls
  and events.
  */
-typedef uint32_t UIAccessibilityNotifications;
+typedef uint32_t UIAccessibilityNotifications NS_TYPED_ENUM;
 
 /*
  Should be posted when a new view appears that encompasses a major portion of the screen.
@@ -1414,35 +1709,9 @@ UIKIT_EXTERN UIAccessibilityNotifications UIAccessibilityLayoutChangedNotificati
 UIKIT_EXTERN UIAccessibilityNotifications UIAccessibilityAnnouncementNotification NS_AVAILABLE_IOS(4_0);
 
 /*
- Listen for this notification to know when VoiceOver finishes outputting an announcement. 
- The userInfo dictionary contains UIAccessibilityAnnouncementKeyString and UIAccessibilityAnnouncementKeyWasSuccessful.
- */
-UIKIT_EXTERN NSString *const UIAccessibilityAnnouncementDidFinishNotification NS_AVAILABLE_IOS(6_0);
-
-// The corresponding value is the string that was used for the announcement.
-UIKIT_EXTERN NSString *const UIAccessibilityAnnouncementKeyStringValue NS_AVAILABLE_IOS(6_0);
-
-// The corresponding value is an NSNumber representing whether VoiceOver successfully outputted the announcement.
-UIKIT_EXTERN NSString *const UIAccessibilityAnnouncementKeyWasSuccessful NS_AVAILABLE_IOS(6_0);
-
-
-// In order to know when an assistive technology has focused on an element listen to this notification
-// The newly focused element will be referenced by UIAccessibilityElementFocusedKeyElement in the userInfo dictionary.
-UIKIT_EXTERN NSString *const UIAccessibilityElementFocusedNotification NS_AVAILABLE_IOS(9_0);
-
-// The corresponding value is the element that is now focused by the assistive technology.
-UIKIT_EXTERN NSString *const UIAccessibilityFocusedElementKey NS_AVAILABLE_IOS(9_0);
-
-// The corresponding value is the element that had previously been focused by the assistive technology.
-UIKIT_EXTERN NSString *const UIAccessibilityUnfocusedElementKey NS_AVAILABLE_IOS(9_0);
-
-// The corresponding value is the identifier of the assistive technology
-UIKIT_EXTERN NSString *const UIAccessibilityAssistiveTechnologyKey NS_AVAILABLE_IOS(9_0);
-
-/*
- Should be posted after accessibilityScroll: is called and the scrolling action has completed. 
- A string representing the status of the new scroll position should be used as the argument 
- (e.g. "Page 2 of 5"). If the same status is used repeatedly, the assistive technology will 
+ Should be posted after accessibilityScroll: is called and the scrolling action has completed.
+ A string representing the status of the new scroll position should be used as the argument
+ (e.g. "Page 2 of 5"). If the same status is used repeatedly, the assistive technology will
  indicate a border has been reached.
  The argument is a NSString.
  */
@@ -1463,13 +1732,41 @@ UIKIT_EXTERN UIAccessibilityNotifications UIAccessibilityPauseAssistiveTechnolog
 UIKIT_EXTERN UIAccessibilityNotifications UIAccessibilityResumeAssistiveTechnologyNotification NS_AVAILABLE_IOS(8_0);
 
 /*
+ Listen for this notification to know when VoiceOver finishes outputting an announcement. 
+ The userInfo dictionary contains UIAccessibilityAnnouncementKeyString and UIAccessibilityAnnouncementKeyWasSuccessful.
+ */
+UIKIT_EXTERN NSNotificationName const UIAccessibilityAnnouncementDidFinishNotification NS_AVAILABLE_IOS(6_0);
+
+// The corresponding value is the string that was used for the announcement.
+UIKIT_EXTERN NSString *const UIAccessibilityAnnouncementKeyStringValue NS_AVAILABLE_IOS(6_0);
+
+// The corresponding value is an NSNumber representing whether VoiceOver successfully outputted the announcement.
+UIKIT_EXTERN NSString *const UIAccessibilityAnnouncementKeyWasSuccessful NS_AVAILABLE_IOS(6_0);
+
+
+// In order to know when an assistive technology has focused on an element listen to this notification
+// The newly focused element will be referenced by UIAccessibilityElementFocusedKeyElement in the userInfo dictionary.
+UIKIT_EXTERN NSNotificationName const UIAccessibilityElementFocusedNotification NS_AVAILABLE_IOS(9_0);
+
+// The corresponding value is the element that is now focused by the assistive technology.
+UIKIT_EXTERN NSString *const UIAccessibilityFocusedElementKey NS_AVAILABLE_IOS(9_0);
+
+// The corresponding value is the element that had previously been focused by the assistive technology.
+UIKIT_EXTERN NSString *const UIAccessibilityUnfocusedElementKey NS_AVAILABLE_IOS(9_0);
+
+// The corresponding value is the identifier of the assistive technology
+UIKIT_EXTERN NSString *const UIAccessibilityAssistiveTechnologyKey NS_AVAILABLE_IOS(9_0);
+
+typedef NSString * UIAccessibilityAssistiveTechnologyIdentifier NS_TYPED_ENUM;
+
+/*
  The following identifier should be used as the argument when posting a UIAccessibilityPauseAssistiveTechnologyNotification
  or a UIAccessibilityResumeAssistiveTechnologyNotification.
  */
-UIKIT_EXTERN NSString *const UIAccessibilityNotificationSwitchControlIdentifier NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN UIAccessibilityAssistiveTechnologyIdentifier const UIAccessibilityNotificationSwitchControlIdentifier NS_AVAILABLE_IOS(8_0);
 
 // Used to identify VoiceOver as the assistive technology.
-UIKIT_EXTERN NSString *const UIAccessibilityNotificationVoiceOverIdentifier NS_AVAILABLE_IOS(9_0);
+UIKIT_EXTERN UIAccessibilityAssistiveTechnologyIdentifier const UIAccessibilityNotificationVoiceOverIdentifier NS_AVAILABLE_IOS(9_0);
 
 
 /*
@@ -1494,6 +1791,14 @@ typedef NS_ENUM(NSInteger, UIAccessibilityNavigationStyle) {
     UIAccessibilityNavigationStyleCombined = 2,
 } NS_ENUM_AVAILABLE_IOS(8_0);
 
+
+typedef NS_ENUM(NSInteger, UIAccessibilityContainerType) {
+    UIAccessibilityContainerTypeNone = 0,
+    UIAccessibilityContainerTypeDataTable,     // If using this container type, you must also implement the UIAccessibilityContainerDataTable protocol.
+    UIAccessibilityContainerTypeList,
+    UIAccessibilityContainerTypeLandmark,
+} NS_ENUM_AVAILABLE_IOS(11_0);
+
 /*
  Accessibility Speech Attributes
  
@@ -1505,36 +1810,75 @@ typedef NS_ENUM(NSInteger, UIAccessibilityNavigationStyle) {
 // If YES, then all punctuation will be spoken (e.g. when displaying code).
 // If NO, then no punctuation will be spoken.
 // By default, if this attribute is not present, the user's settings will be used.
-UIKIT_EXTERN NSString *const UIAccessibilitySpeechAttributePunctuation NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN NSAttributedStringKey const UIAccessibilitySpeechAttributePunctuation NS_AVAILABLE_IOS(7_0);
 
 // Use an NSString with a BCP-47 language code to identify the language of a segment of a string.
-UIKIT_EXTERN NSString *const UIAccessibilitySpeechAttributeLanguage NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN NSAttributedStringKey const UIAccessibilitySpeechAttributeLanguage NS_AVAILABLE_IOS(7_0);
 
 // Use an NSNumber with a value between [0-2] that specifies the pitch.
 // For example, you may want to lower the pitch when an object is deleted, or raise the pitch if an object is inserted.
 // Default value == 1.0f.
-UIKIT_EXTERN NSString *const UIAccessibilitySpeechAttributePitch NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN NSAttributedStringKey const UIAccessibilitySpeechAttributePitch NS_AVAILABLE_IOS(7_0);
+
+// The corresponding value for this key should be a NSNumber with a YES or NO value.
+// If YES, then this announcement will be queued behind existing speech; if NO, then it will interrupt existing speech.
+// Default behavior is to interrupt existing speech.
+UIKIT_EXTERN NSAttributedStringKey const UIAccessibilitySpeechAttributeQueueAnnouncement NS_AVAILABLE_IOS(11_0);
+
+// Use an NSString, containing International Phonetic Alphabet (IPA) symbols.
+// Controls the pronunciation of a word or phrase, e.g. a proper name.
+UIKIT_EXTERN NSAttributedStringKey const UIAccessibilitySpeechAttributeIPANotation NS_AVAILABLE_IOS(11_0);
+
+/*
+ Accessibility Text Attributes
+ 
+ The following attributes can be used in the NSAttributedString returned by attributeText methods of views conforming to UITextInput
+ to convey extra information about the text.
+ 
+ Use existing NSAttributedString attributes for properties not defined here from <UIKit/NSAttributedString.h>
+ 
+ To include an inline element (like an image or table), use NSAttachmentAttributeName and set the value to the element.
+ */
+
+// Use an NSNumber where the value is [0, 6]. Use 0 to indicate the absence of a specific heading level.
+UIKIT_EXTERN NSAttributedStringKey const UIAccessibilityTextAttributeHeadingLevel NS_AVAILABLE_IOS(11_0);
+
+// Use an NSArray of localized NSStrings to convey custom text attributes.
+// For example, a range of text may have multiple custom 'annotation styles, which can be described with this key.
+UIKIT_EXTERN NSAttributedStringKey const UIAccessibilityTextAttributeCustom NS_AVAILABLE_IOS(11_0);
+
+#ifdef __swift__
+// This struct is not available in Objective-C. Its only purpose is to create a namespace for accessibility symbols in Swift.
+typedef struct UIAccessibility { void *_reserved; } UIAccessibility;
+#endif
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIAccessibilityConstants.h>
+#endif
 // ==========  UIKit.framework/Headers/UIColor.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIColor.h>)
 //
 //  UIColor.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
+#import <UIKit/UIKitDefines.h>
 #if __has_include(<CoreImage/CoreImage.h>)
 #import <CoreImage/CoreImage.h>
 #endif
-#import <UIKit/UIKitDefines.h>
+
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class UIImage;
+@class UITraitCollection;
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UIColor : NSObject <NSSecureCoding, NSCopying>
 
@@ -1542,6 +1886,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIColor : NSObject <NSSecureCoding, NSCop
 + (UIColor *)colorWithWhite:(CGFloat)white alpha:(CGFloat)alpha;
 + (UIColor *)colorWithHue:(CGFloat)hue saturation:(CGFloat)saturation brightness:(CGFloat)brightness alpha:(CGFloat)alpha;
 + (UIColor *)colorWithRed:(CGFloat)red green:(CGFloat)green blue:(CGFloat)blue alpha:(CGFloat)alpha;
++ (UIColor *)colorWithDisplayP3Red:(CGFloat)displayP3Red green:(CGFloat)green blue:(CGFloat)blue alpha:(CGFloat)alpha NS_AVAILABLE_IOS(10_0);
 + (UIColor *)colorWithCGColor:(CGColorRef)cgColor;
 + (UIColor *)colorWithPatternImage:(UIImage *)image;
 #if __has_include(<CoreImage/CoreImage.h>)
@@ -1552,6 +1897,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIColor : NSObject <NSSecureCoding, NSCop
 - (UIColor *)initWithWhite:(CGFloat)white alpha:(CGFloat)alpha;
 - (UIColor *)initWithHue:(CGFloat)hue saturation:(CGFloat)saturation brightness:(CGFloat)brightness alpha:(CGFloat)alpha;
 - (UIColor *)initWithRed:(CGFloat)red green:(CGFloat)green blue:(CGFloat)blue alpha:(CGFloat)alpha;
+- (UIColor *)initWithDisplayP3Red:(CGFloat)displayP3Red green:(CGFloat)green blue:(CGFloat)blue alpha:(CGFloat)alpha NS_AVAILABLE_IOS(10_0);
 - (UIColor *)initWithCGColor:(CGColorRef)cgColor;
 - (UIColor *)initWithPatternImage:(UIImage*)image;
 #if __has_include(<CoreImage/CoreImage.h>)
@@ -1560,7 +1906,24 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIColor : NSObject <NSSecureCoding, NSCop
 
 // Some convenience methods to create colors.  These colors will be as calibrated as possible.
 // These colors are cached.
-+ (UIColor *)blackColor;      // 0.0 white 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) UIColor *blackColor;      // 0.0 white
+@property(class, nonatomic, readonly) UIColor *darkGrayColor;   // 0.333 white
+@property(class, nonatomic, readonly) UIColor *lightGrayColor;  // 0.667 white
+@property(class, nonatomic, readonly) UIColor *whiteColor;      // 1.0 white
+@property(class, nonatomic, readonly) UIColor *grayColor;       // 0.5 white
+@property(class, nonatomic, readonly) UIColor *redColor;        // 1.0, 0.0, 0.0 RGB
+@property(class, nonatomic, readonly) UIColor *greenColor;      // 0.0, 1.0, 0.0 RGB
+@property(class, nonatomic, readonly) UIColor *blueColor;       // 0.0, 0.0, 1.0 RGB
+@property(class, nonatomic, readonly) UIColor *cyanColor;       // 0.0, 1.0, 1.0 RGB
+@property(class, nonatomic, readonly) UIColor *yellowColor;     // 1.0, 1.0, 0.0 RGB
+@property(class, nonatomic, readonly) UIColor *magentaColor;    // 1.0, 0.0, 1.0 RGB
+@property(class, nonatomic, readonly) UIColor *orangeColor;     // 1.0, 0.5, 0.0 RGB
+@property(class, nonatomic, readonly) UIColor *purpleColor;     // 0.5, 0.0, 0.5 RGB
+@property(class, nonatomic, readonly) UIColor *brownColor;      // 0.6, 0.4, 0.2 RGB
+@property(class, nonatomic, readonly) UIColor *clearColor;      // 0.0 white, 0.0 alpha
+#else
++ (UIColor *)blackColor;      // 0.0 white
 + (UIColor *)darkGrayColor;   // 0.333 white 
 + (UIColor *)lightGrayColor;  // 0.667 white 
 + (UIColor *)whiteColor;      // 1.0 white 
@@ -1575,6 +1938,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIColor : NSObject <NSSecureCoding, NSCop
 + (UIColor *)purpleColor;     // 0.5, 0.0, 0.5 RGB 
 + (UIColor *)brownColor;      // 0.6, 0.4, 0.2 RGB 
 + (UIColor *)clearColor;      // 0.0 white, 0.0 alpha 
+#endif
 
 // Set the color: Sets the fill and stroke colors in the current drawing context. Should be implemented by subclassers.
 - (void)set;
@@ -1601,6 +1965,12 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIColor : NSObject <NSSecureCoding, NSCop
 
 @end
 
+
+@interface UIColor (UINSItemProvider) <NSItemProviderReading, NSItemProviderWriting>
+
+@end
+
+
 #if __has_include(<CoreImage/CoreImage.h>)
 @interface CIColor(UIKitAdditions)
 
@@ -1609,13 +1979,23 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIColor : NSObject <NSSecureCoding, NSCop
 @end
 #endif
 
+@interface UIColor (UIColorNamedColors)
++ (nullable UIColor *)colorNamed:(NSString *)name NS_AVAILABLE_IOS(11_0);      // load from main bundle
++ (nullable UIColor *)colorNamed:(NSString *)name inBundle:(nullable NSBundle *)bundle compatibleWithTraitCollection:(nullable UITraitCollection *)traitCollection NS_AVAILABLE_IOS(11_0);
+@end
+
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIColor.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPresentationController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPresentationController.h>)
 //
 //  UIPresentationController.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1626,6 +2006,7 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIGeometry.h>
 #import <UIKit/UITraitCollection.h>
 #import <UIKit/UIViewControllerTransitionCoordinator.h>
+#import <UIKit/UIFocus.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1650,7 +2031,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPresentationController : NSObject <UIAppearanceContainer, UITraitEnvironment, UIContentContainer>
+NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPresentationController : NSObject <UIAppearanceContainer, UITraitEnvironment, UIContentContainer, UIFocusEnvironment>
 
 @property(nonatomic, strong, readonly) UIViewController *presentingViewController;
 @property(nonatomic, strong, readonly) UIViewController *presentedViewController;
@@ -1663,12 +2044,17 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPresentationController : NSObject <UIAp
 
 @property(nullable, nonatomic, weak) id <UIAdaptivePresentationControllerDelegate> delegate;
 
-- (instancetype)initWithPresentedViewController:(UIViewController *)presentedViewController presentingViewController:(UIViewController *)presentingViewController;
+- (instancetype)initWithPresentedViewController:(UIViewController *)presentedViewController presentingViewController:(nullable UIViewController *)presentingViewController NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
 
 // By default this implementation defers to the delegate, if one exists, or returns the current presentation style. UIFormSheetPresentationController, and
 // UIPopoverPresentationController override this implementation to return UIModalPresentationStyleFullscreen if the delegate does not provide an
 // implementation for adaptivePresentationStyleForPresentationController:
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) UIModalPresentationStyle adaptivePresentationStyle;
+#else
 - (UIModalPresentationStyle)adaptivePresentationStyle;
+#endif
 - (UIModalPresentationStyle)adaptivePresentationStyleForTraitCollection:(UITraitCollection *)traitCollection NS_AVAILABLE_IOS(8_3);
 
 - (void)containerViewWillLayoutSubviews;
@@ -1677,6 +2063,23 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPresentationController : NSObject <UIAp
 // A view that's going to be animated during the presentation. Must be an ancestor of a presented view controller's view
 // or a presented view controller's view itself.
 // (Default: presented view controller's view)
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) UIView *presentedView;
+
+// Position of the presented view in the container view by the end of the presentation transition.
+// (Default: container view bounds)
+@property(nonatomic, readonly) CGRect frameOfPresentedViewInContainerView;
+
+// By default each new presentation is full screen.
+// This behavior can be overriden with the following method to force a current context presentation.
+// (Default: YES)
+@property(nonatomic, readonly) BOOL shouldPresentInFullscreen;
+
+// Indicate whether the view controller's view we are transitioning from will be removed from the window in the end of the
+// presentation transition
+// (Default: NO)
+@property(nonatomic, readonly) BOOL shouldRemovePresentersView;
+#else
 - (nullable UIView *)presentedView;
 
 // Position of the presented view in the container view by the end of the presentation transition.
@@ -1692,6 +2095,7 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPresentationController : NSObject <UIAp
 // presentation transition
 // (Default: NO)
 - (BOOL)shouldRemovePresentersView;
+#endif
 
 - (void)presentationTransitionWillBegin;
 - (void)presentationTransitionDidEnd:(BOOL)completed;
@@ -1705,15 +2109,21 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPresentationController : NSObject <UIAp
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIPresentationController.h>
+#endif
 // ==========  UIKit.framework/Headers/NSTextStorage.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSTextStorage.h>)
 //
 //  NSTextStorage.h
 //  UIKit
 //
-//  Copyright (c) 2011-2015, Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018, Apple Inc. All rights reserved.
 //
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSNotification.h>
 #import <UIKit/NSAttributedString.h>
 
 @class NSArray, NSLayoutManager, NSNotification;
@@ -1744,7 +2154,7 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextStorage : NSMutableAttributedStri
 /**************************** Layout manager ****************************/
 
 // NSLayoutManager objects owned by the receiver.
-@property(readonly, copy, NS_NONATOMIC_IOSONLY) NSArray<NSLayoutManager *> *layoutManagers;
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSArray<NSLayoutManager *> *layoutManagers;
 
 // Adds aLayoutManager to the receiver.  Sends -[NSLayoutManager setTextStorage:] to aLayoutManager with the receiver.
 - (void)addLayoutManager:(NSLayoutManager *)aLayoutManager;
@@ -1757,18 +2167,18 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextStorage : NSMutableAttributedStri
 // These methods return information about the editing status. Especially useful when there are outstanding beginEditing calls or during processEditing...
 
 // The NSTextStorageEditActions mask indicating that there are pending changes for attributes, characters, or both.
-@property(readonly, NS_NONATOMIC_IOSONLY) NSTextStorageEditActions editedMask;
+@property (readonly, NS_NONATOMIC_IOSONLY) NSTextStorageEditActions editedMask;
 
 // The range for pending changes. {NSNotFound, 0} when there is no pending changes.
-@property(readonly, NS_NONATOMIC_IOSONLY) NSRange editedRange;
+@property (readonly, NS_NONATOMIC_IOSONLY) NSRange editedRange;
 
 // The length delta for the pending changes.
-@property(readonly, NS_NONATOMIC_IOSONLY) NSInteger changeInLength;
+@property (readonly, NS_NONATOMIC_IOSONLY) NSInteger changeInLength;
 
 
 /**************************** Delegate ****************************/
 
-@property(nullable, assign, NS_NONATOMIC_IOSONLY) id <NSTextStorageDelegate> delegate;
+@property (nullable, weak, NS_NONATOMIC_IOSONLY) id <NSTextStorageDelegate> delegate;
 
 
 /**************************** Edit management ****************************/
@@ -1783,7 +2193,7 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextStorage : NSMutableAttributedStri
 /**************************** Attribute fixing ****************************/
 
 // Indicates if the receiver fixes invalidated attributes lazily.  The concrete UIKit subclass fixes attributes lazily by default.  The abstract class (hence, all custom subclasses) is not lazy.
-@property(readonly, NS_NONATOMIC_IOSONLY) BOOL fixesAttributesLazily;
+@property (readonly, NS_NONATOMIC_IOSONLY) BOOL fixesAttributesLazily;
 
 // Notes the range of attributes that requires validation.  If the NSTextStorage is not lazy this just calls fixAttributesInRange:.  If it is lazy this instead just records the range needing fixing in order to do it later.
 - (void)invalidateAttributesInRange:(NSRange)range;
@@ -1809,18 +2219,93 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextStorage : NSMutableAttributedStri
 
 /**** Notifications ****/
 
-UIKIT_EXTERN NSString * const NSTextStorageWillProcessEditingNotification NS_AVAILABLE(10_0, 7_0);
-UIKIT_EXTERN NSString * const NSTextStorageDidProcessEditingNotification NS_AVAILABLE(10_0, 7_0);
+UIKIT_EXTERN NSNotificationName const NSTextStorageWillProcessEditingNotification NS_AVAILABLE(10_0, 7_0);
+UIKIT_EXTERN NSNotificationName const NSTextStorageDidProcessEditingNotification NS_AVAILABLE(10_0, 7_0);
 
 
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSTextStorage.h>
+#endif
+// ==========  UIKit.framework/Headers/NSIndexPath+UIKitAdditions.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSIndexPath+UIKitAdditions.h>)
+//
+//  NSIndexPath+UIKitAdditions.h
+//  UIKit
+//
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+// This category provides convenience methods to make it easier to use an NSIndexPath to represent a section and row/item, for use with UITableView and UICollectionView.
+@interface NSIndexPath (UIKitAdditions)
+
++ (instancetype)indexPathForRow:(NSInteger)row inSection:(NSInteger)section;
++ (instancetype)indexPathForItem:(NSInteger)item inSection:(NSInteger)section NS_AVAILABLE_IOS(6_0);
+
+// Returns the index at position 0.
+@property (nonatomic, readonly) NSInteger section;
+
+// Returns the index at position 1.
+@property (nonatomic, readonly) NSInteger row;
+// Returns the index at position 1 if it exists, otherwise returns NSNotFound.
+@property (nonatomic, readonly) NSInteger item NS_AVAILABLE_IOS(6_0);
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSIndexPath+UIKitAdditions.h>
+#endif
+// ==========  UIKit.framework/Headers/UIPasteConfiguration.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPasteConfiguration.h>)
+//
+//  UIPasteConfiguration.h
+//  UIKit
+//
+//  Copyright © 2007-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@interface UIPasteConfiguration : NSObject <NSSecureCoding, NSCopying>
+
+@property (nonatomic, copy) NSArray<NSString *> *acceptableTypeIdentifiers;
+
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithAcceptableTypeIdentifiers:(NSArray<NSString *> *)acceptableTypeIdentifiers;
+- (void)addAcceptableTypeIdentifiers:(NSArray<NSString *> *)acceptableTypeIdentifiers;
+
+// Uses the readableTypeIdentifiersForItemProvider class property to get acceptable types.
+- (instancetype)initWithTypeIdentifiersForAcceptingClass:(Class<NSItemProviderReading>)aClass;
+- (void)addTypeIdentifiersForAcceptingClass:(Class<NSItemProviderReading>)aClass;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPasteConfiguration.h>
+#endif
 // ==========  UIKit.framework/Headers/UIUserNotificationSettings.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIUserNotificationSettings.h>)
 //
 //  UIUserNotificationSettings.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1836,28 +2321,28 @@ typedef NS_OPTIONS(NSUInteger, UIUserNotificationType) {
     UIUserNotificationTypeBadge   = 1 << 0, // the application may badge its icon upon a notification being received
     UIUserNotificationTypeSound   = 1 << 1, // the application may play a sound upon a notification being received
     UIUserNotificationTypeAlert   = 1 << 2, // the application may display an alert upon a notification being received
-} NS_ENUM_AVAILABLE_IOS(8_0);
+} NS_ENUM_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's UNAuthorizationOptions") __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSUInteger, UIUserNotificationActionBehavior) {
     UIUserNotificationActionBehaviorDefault,        // the default action behavior
     UIUserNotificationActionBehaviorTextInput       // system provided action behavior, allows text input from the user
-} NS_ENUM_AVAILABLE_IOS(9_0);
+} NS_ENUM_DEPRECATED_IOS(9_0, 10_0, "Use UserNotifications Framework's UNNotificationAction or UNTextInputNotificationAction") __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSUInteger, UIUserNotificationActivationMode) {
     UIUserNotificationActivationModeForeground, // activates the application in the foreground
     UIUserNotificationActivationModeBackground  // activates the application in the background, unless it's already in the foreground
-} NS_ENUM_AVAILABLE_IOS(8_0);
+} NS_ENUM_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's UNNotificationActionOptions") __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSUInteger, UIUserNotificationActionContext) {
     UIUserNotificationActionContextDefault,  // the default context of a notification action
     UIUserNotificationActionContextMinimal   // the context of a notification action when space is limited
-} NS_ENUM_AVAILABLE_IOS(8_0);
+} NS_ENUM_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's -[UNNotificationCategory actions] or -[UNNotificationCategory minimalActions]") __TVOS_PROHIBITED;
 
-UIKIT_EXTERN NSString *const UIUserNotificationTextInputActionButtonTitleKey NS_AVAILABLE_IOS(9_0);
+UIKIT_EXTERN NSString *const UIUserNotificationTextInputActionButtonTitleKey NS_DEPRECATED_IOS(9_0, 10_0, "Use UserNotifications Framework's -[UNTextInputNotificationAction textInputButtonTitle]") __TVOS_PROHIBITED;
 
-UIKIT_EXTERN NSString *const UIUserNotificationActionResponseTypedTextKey NS_AVAILABLE_IOS(9_0);
+UIKIT_EXTERN NSString *const UIUserNotificationActionResponseTypedTextKey NS_DEPRECATED_IOS(9_0, 10_0, "Use UserNotifications Framework's -[UNTextInputNotificationResponse userText]") __TVOS_PROHIBITED;
 
-NS_CLASS_AVAILABLE_IOS(8_0)
+NS_CLASS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's UNNotificationSettings") __TVOS_PROHIBITED
 @interface UIUserNotificationSettings : NSObject
 
 // categories may be nil or an empty set if custom user notification actions will not be used
@@ -1871,21 +2356,21 @@ NS_CLASS_AVAILABLE_IOS(8_0)
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(8_0)
+NS_CLASS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's UNNotificationCategory") __TVOS_PROHIBITED
 @interface UIUserNotificationCategory : NSObject <NSCopying, NSMutableCopying, NSSecureCoding>
 
-- (instancetype)init NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED;
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED;
 
 // The category identifier passed in a UILocalNotification or a remote notification payload
-@property (nullable,nonatomic, copy, readonly) NSString *identifier;
+@property (nullable, nonatomic, copy, readonly) NSString *identifier __TVOS_PROHIBITED;
 
 // UIUserNotificationActions in the order to be displayed for the specified context
-- (nullable NSArray<UIUserNotificationAction *> *)actionsForContext:(UIUserNotificationActionContext)context;
+- (nullable NSArray<UIUserNotificationAction *> *)actionsForContext:(UIUserNotificationActionContext)context __TVOS_PROHIBITED;
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(8_0)
+NS_CLASS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's UNNotificationCategory") __TVOS_PROHIBITED
 @interface UIMutableUserNotificationCategory : UIUserNotificationCategory
 
 // The category identifier passed in a UILocalNotification or a remote notification payload
@@ -1896,36 +2381,36 @@ NS_CLASS_AVAILABLE_IOS(8_0)
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(8_0)
+NS_CLASS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's UNNotificationAction") __TVOS_PROHIBITED
 @interface UIUserNotificationAction : NSObject <NSCopying, NSMutableCopying, NSSecureCoding>
 
-- (instancetype)init NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED;
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED;
 
 // The unique identifier for this action.
-@property (nullable, nonatomic, copy, readonly) NSString *identifier;
+@property (nullable, nonatomic, copy, readonly) NSString *identifier __TVOS_PROHIBITED;
 
 // The localized title to display for this action.
-@property (nullable, nonatomic, copy, readonly) NSString *title;
+@property (nullable, nonatomic, copy, readonly) NSString *title __TVOS_PROHIBITED;
 
 // The behavior of this action when the user activates it.
-@property (nonatomic, assign, readonly) UIUserNotificationActionBehavior behavior NS_AVAILABLE_IOS(9_0);
+@property (nonatomic, assign, readonly) UIUserNotificationActionBehavior behavior NS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED;
 
 // Parameters that can be used by some types of actions.
-@property (nonatomic, copy, readonly) NSDictionary *parameters NS_AVAILABLE_IOS(9_0);
+@property (nonatomic, copy, readonly) NSDictionary *parameters NS_AVAILABLE_IOS(9_0)__TVOS_PROHIBITED;
 
 // How the application should be activated in response to the action.
-@property (nonatomic, assign, readonly) UIUserNotificationActivationMode activationMode;
+@property (nonatomic, assign, readonly) UIUserNotificationActivationMode activationMode __TVOS_PROHIBITED;
 
 // Whether this action is secure and should require unlocking before being performed. If the activation mode is UIUserNotificationActivationModeForeground, then the action is considered secure and this property is ignored.
-@property (nonatomic, assign, readonly, getter=isAuthenticationRequired) BOOL authenticationRequired;
+@property (nonatomic, assign, readonly, getter=isAuthenticationRequired) BOOL authenticationRequired __TVOS_PROHIBITED;
 
 // Whether this action should be indicated as destructive when displayed.
-@property (nonatomic, assign, readonly, getter=isDestructive) BOOL destructive;
+@property (nonatomic, assign, readonly, getter=isDestructive) BOOL destructive __TVOS_PROHIBITED;
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(8_0)
+NS_CLASS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's UNNotificationAction") __TVOS_PROHIBITED
 @interface UIMutableUserNotificationAction : UIUserNotificationAction
 
 // The unique identifier for this action.
@@ -1952,12 +2437,17 @@ NS_CLASS_AVAILABLE_IOS(8_0)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIUserNotificationSettings.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPinchGestureRecognizer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPinchGestureRecognizer.h>)
 //
 //  UIPinchGestureRecognizer.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -1969,19 +2459,59 @@ NS_ASSUME_NONNULL_BEGIN
 // Changes: when a finger moves while two fingers remain down
 // Ends:    when both fingers have lifted
 
-NS_CLASS_AVAILABLE_IOS(3_2) @interface UIPinchGestureRecognizer : UIGestureRecognizer 
+NS_CLASS_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED @interface UIPinchGestureRecognizer : UIGestureRecognizer
 
 @property (nonatomic)          CGFloat scale;               // scale relative to the touch points in screen coordinates
 @property (nonatomic,readonly) CGFloat velocity;            // velocity of the pinch in scale/second
 
 @end
 
-NS_ASSUME_NONNULL_END// ==========  UIKit.framework/Headers/UIPrintInteractionController.h
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPinchGestureRecognizer.h>
+#endif
+// ==========  UIKit.framework/Headers/UIBlurEffect.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIBlurEffect.h>)
+//
+//  UIBlurEffect.h
+//  UIKit
+//
+//  Copyright © 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIVisualEffect.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, UIBlurEffectStyle) {
+    UIBlurEffectStyleExtraLight,
+    UIBlurEffectStyleLight,
+    UIBlurEffectStyleDark,
+    UIBlurEffectStyleExtraDark __TVOS_AVAILABLE(10_0) __IOS_PROHIBITED __WATCHOS_PROHIBITED,
+    UIBlurEffectStyleRegular NS_ENUM_AVAILABLE_IOS(10_0), // Adapts to user interface style
+    UIBlurEffectStyleProminent NS_ENUM_AVAILABLE_IOS(10_0), // Adapts to user interface style
+} NS_ENUM_AVAILABLE_IOS(8_0);
+
+/* UIBlurEffect will provide a blur that appears to have been applied to the content layered behind the UIVisualEffectView. Views added to the contentView of a blur visual effect are not blurred themselves. */
+NS_CLASS_AVAILABLE_IOS(8.0) @interface UIBlurEffect : UIVisualEffect
+
++ (UIBlurEffect *)effectWithStyle:(UIBlurEffectStyle)style;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIBlurEffect.h>
+#endif
+// ==========  UIKit.framework/Headers/UIPrintInteractionController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPrintInteractionController.h>)
 //
 //  UIPrintInteractionController.h
 //  UIKit
 //
-//  Copyright 2010-2012 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1994,7 +2524,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class UIPrintInteractionController, UIPrintInfo, UIPrintPaper, UIPrintPageRenderer, UIPrintFormatter, UIPrinter;
 @class UIView, UIBarButtonItem;
 
-typedef void (^UIPrintInteractionCompletionHandler)(UIPrintInteractionController *printInteractionController, BOOL completed, NSError * __nullable error);
+typedef void (^UIPrintInteractionCompletionHandler)(UIPrintInteractionController *printInteractionController, BOOL completed, NSError * __nullable error) __TVOS_PROHIBITED;
 
 
 NS_ENUM_AVAILABLE_IOS(9_0) typedef NS_ENUM(NSInteger, UIPrinterCutterBehavior) {
@@ -2003,23 +2533,35 @@ NS_ENUM_AVAILABLE_IOS(9_0) typedef NS_ENUM(NSInteger, UIPrinterCutterBehavior) {
     UIPrinterCutterBehaviorCutAfterEachPage,
     UIPrinterCutterBehaviorCutAfterEachCopy,
     UIPrinterCutterBehaviorCutAfterEachJob,
-};
+} __TVOS_PROHIBITED;
 
 @protocol UIPrintInteractionControllerDelegate;
 
-NS_CLASS_AVAILABLE_IOS(4_2) @interface UIPrintInteractionController : NSObject
+NS_CLASS_AVAILABLE_IOS(4_2) __TVOS_PROHIBITED @interface UIPrintInteractionController : NSObject
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly, getter=isPrintingAvailable) BOOL printingAvailable;                    // return YES if system supports printing. use this to hide HI for unsupported devices.
+#else
 + (BOOL)isPrintingAvailable;                    // return YES if system supports printing. use this to hide HI for unsupported devices.
+#endif
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) NSSet<NSString *> *printableUTIs;                       // return set of all document UTI types we can print
+#else
 + (NSSet<NSString *> *)printableUTIs;                       // return set of all document UTI types we can print
+#endif
 + (BOOL)canPrintURL:(NSURL *)url;
 + (BOOL)canPrintData:(NSData *)data;
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) UIPrintInteractionController *sharedPrintController;
+#else
 + (UIPrintInteractionController *)sharedPrintController;
+#endif
 
 @property(nullable,nonatomic,strong) UIPrintInfo                             *printInfo;      // changes to printInfo ignored while printing. default is nil
 @property(nullable,nonatomic,weak)   id<UIPrintInteractionControllerDelegate> delegate;       // not retained. default is nil
-@property(nonatomic)        BOOL                                     showsPageRange; // default is NO.
+@property(nonatomic)        BOOL                                     showsPageRange NS_DEPRECATED_IOS(4_2,10_0, "Pages can be removed from the print preview, so page range is always shown.");
 @property(nonatomic)        BOOL                                     showsNumberOfCopies NS_AVAILABLE_IOS(7_0); // default is YES.
 @property(nonatomic)        BOOL                                     showsPaperSelectionForLoadedPapers NS_AVAILABLE_IOS(8_0); // default is NO.  Paper selection for loaded papers is always shown for UIPrintInfoOutputPhoto and UIPrintInfoOutputPhotoGrayscale
 
@@ -2045,10 +2587,10 @@ NS_CLASS_AVAILABLE_IOS(4_2) @interface UIPrintInteractionController : NSObject
 
 @end
 
- @protocol UIPrintInteractionControllerDelegate <NSObject>
+__TVOS_PROHIBITED @protocol UIPrintInteractionControllerDelegate <NSObject>
 @optional
 
-- (UIViewController *)printInteractionControllerParentViewController:(UIPrintInteractionController *)printInteractionController;
+- ( UIViewController * _Nullable )printInteractionControllerParentViewController:(UIPrintInteractionController *)printInteractionController;
 
 - (UIPrintPaper *)printInteractionController:(UIPrintInteractionController *)printInteractionController choosePaper:(NSArray<UIPrintPaper *> *)paperList;
 
@@ -2066,13 +2608,20 @@ NS_CLASS_AVAILABLE_IOS(4_2) @interface UIPrintInteractionController : NSObject
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPrintInteractionController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPopoverSupport.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPopoverSupport.h>)
 //
 //  UIPopoverSupport.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
+
+#import <UIKit/UIViewController.h>
 
 typedef NS_OPTIONS(NSUInteger, UIPopoverArrowDirection) {
     UIPopoverArrowDirectionUp = 1UL << 0,
@@ -2091,16 +2640,63 @@ typedef NS_OPTIONS(NSUInteger, UIPopoverArrowDirection) {
 
 /* contentSizeForViewInPopover allows you to set the size of the content from within the view controller. This property is read/write, and you should generally not override it.
  */
-@property (nonatomic,readwrite) CGSize contentSizeForViewInPopover NS_DEPRECATED_IOS(3_2, 7_0, "Use UIViewController.preferredContentSize instead.");
+@property (nonatomic,readwrite) CGSize contentSizeForViewInPopover NS_DEPRECATED_IOS(3_2, 7_0, "Use UIViewController.preferredContentSize instead.") __TVOS_PROHIBITED;
 
 @end
 
+
+#else
+#import <UIKitCore/UIPopoverSupport.h>
+#endif
+// ==========  UIKit.framework/Headers/UITextDragPreviewRenderer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextDragPreviewRenderer.h>)
+//
+//  UITextDragPreviewRenderer.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import <UIKit/UIKitDefines.h>
+#import <UIKit/NSLayoutManager.h>
+
+@class UIImage;
+
+NS_ASSUME_NONNULL_BEGIN
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@interface UITextDragPreviewRenderer : NSObject
+
+- (instancetype)initWithLayoutManager:(NSLayoutManager*)layoutManager range:(NSRange)range;
+- (instancetype)initWithLayoutManager:(NSLayoutManager*)layoutManager range:(NSRange)range unifyRects:(BOOL)unifyRects NS_DESIGNATED_INITIALIZER;
+
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
+
+@property (nonatomic, readonly) NSLayoutManager *layoutManager;
+@property (nonatomic, readonly) UIImage *image;
+@property (nonatomic, readonly) CGRect firstLineRect;
+@property (nonatomic, readonly) CGRect bodyRect;
+@property (nonatomic, readonly) CGRect lastLineRect;
+
+- (void)adjustFirstLineRect:(inout CGRect*)firstLineRect bodyRect:(inout CGRect*)bodyRect lastLineRect:(inout CGRect*)lastLineRect textOrigin:(CGPoint)origin;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextDragPreviewRenderer.h>
+#endif
 // ==========  UIKit.framework/Headers/UITouch.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITouch.h>)
 //
 //  UITouch.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2125,11 +2721,26 @@ typedef NS_ENUM(NSInteger, UIForceTouchCapability) {
     UIForceTouchCapabilityAvailable = 2
 };
 
+typedef NS_ENUM(NSInteger, UITouchType) {
+    UITouchTypeDirect,                       // A direct touch from a finger (on a screen)
+    UITouchTypeIndirect,                     // An indirect touch (not a screen)
+    UITouchTypePencil NS_AVAILABLE_IOS(9_1), // Add pencil name variant
+    UITouchTypeStylus NS_AVAILABLE_IOS(9_1) = UITouchTypePencil, // A touch from a stylus (deprecated name, use pencil)
+} NS_ENUM_AVAILABLE_IOS(9_0);
+
+typedef NS_OPTIONS(NSInteger, UITouchProperties) {
+    UITouchPropertyForce = (1UL << 0),
+    UITouchPropertyAzimuth = (1UL << 1),
+    UITouchPropertyAltitude = (1UL << 2),
+    UITouchPropertyLocation = (1UL << 3), // For predicted Touches
+} NS_AVAILABLE_IOS(9_1);
+
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UITouch : NSObject
 
 @property(nonatomic,readonly) NSTimeInterval      timestamp;
 @property(nonatomic,readonly) UITouchPhase        phase;
 @property(nonatomic,readonly) NSUInteger          tapCount;   // touch down within a certain point within a certain amount of time
+@property(nonatomic,readonly) UITouchType         type NS_AVAILABLE_IOS(9_0);
 
 // majorRadius and majorRadiusTolerance are in points
 // The majorRadius will be accurate +/- the majorRadiusTolerance
@@ -2143,20 +2754,54 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITouch : NSObject
 - (CGPoint)locationInView:(nullable UIView *)view;
 - (CGPoint)previousLocationInView:(nullable UIView *)view;
 
+// Use these methods to gain additional precision that may be available from touches.
+// Do not use precise locations for hit testing. A touch may hit test inside a view, yet have a precise location that lies just outside.
+- (CGPoint)preciseLocationInView:(nullable UIView *)view NS_AVAILABLE_IOS(9_1);
+- (CGPoint)precisePreviousLocationInView:(nullable UIView *)view NS_AVAILABLE_IOS(9_1);
+
 // Force of the touch, where 1.0 represents the force of an average touch
 @property(nonatomic,readonly) CGFloat force NS_AVAILABLE_IOS(9_0);
 // Maximum possible force with this input mechanism
 @property(nonatomic,readonly) CGFloat maximumPossibleForce NS_AVAILABLE_IOS(9_0);
 
+// Azimuth angle. Valid only for stylus touch types. Zero radians points along the positive X axis.
+// Passing a nil for the view parameter will return the azimuth relative to the touch's window.
+- (CGFloat)azimuthAngleInView:(nullable UIView *)view NS_AVAILABLE_IOS(9_1);
+// A unit vector that points in the direction of the azimuth angle. Valid only for stylus touch types.
+// Passing nil for the view parameter will return a unit vector relative to the touch's window.
+- (CGVector)azimuthUnitVectorInView:(nullable UIView *)view NS_AVAILABLE_IOS(9_1);
+
+// Altitude angle. Valid only for stylus touch types.
+// Zero radians indicates that the stylus is parallel to the screen surface,
+// while M_PI/2 radians indicates that it is normal to the screen surface.
+@property(nonatomic,readonly) CGFloat altitudeAngle NS_AVAILABLE_IOS(9_1);
+
+// An index which allows you to correlate updates with the original touch.
+// Is only guaranteed non-nil if this UITouch expects or is an update.
+@property(nonatomic,readonly) NSNumber * _Nullable estimationUpdateIndex NS_AVAILABLE_IOS(9_1);
+// A set of properties that has estimated values
+// Only denoting properties that are currently estimated
+@property(nonatomic,readonly) UITouchProperties estimatedProperties NS_AVAILABLE_IOS(9_1);
+// A set of properties that expect to have incoming updates in the future.
+// If no updates are expected for an estimated property the current value is our final estimate.
+// This happens e.g. for azimuth/altitude values when entering from the edges
+@property(nonatomic,readonly) UITouchProperties estimatedPropertiesExpectingUpdates NS_AVAILABLE_IOS(9_1);
+
+
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITouch.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPageViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPageViewController.h>)
 //
 //  UIPageViewController.h
 //  UIKit
 //
-//  Copyright 2011-2012 Apple Inc. All rights reserved.
+//  Copyright 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIViewController.h>
@@ -2185,22 +2830,24 @@ typedef NS_ENUM(NSInteger, UIPageViewControllerTransitionStyle) {
     UIPageViewControllerTransitionStyleScroll = 1 // Navigate between views by scrolling.
 };
 
+typedef NSString * UIPageViewControllerOptionsKey NS_TYPED_ENUM;
+
 // Key for specifying spine location in options dictionary argument to initWithTransitionStyle:navigationOrientation:options:.
 // Value should be a 'UIPageViewControllerSpineLocation' wrapped in an NSNumber.
 // Only valid for use with page view controllers with transition style 'UIPageViewControllerTransitionStylePageCurl'.
-UIKIT_EXTERN NSString * const UIPageViewControllerOptionSpineLocationKey;
+UIKIT_EXTERN UIPageViewControllerOptionsKey const UIPageViewControllerOptionSpineLocationKey;
 
 // Key for specifying spacing between pages in options dictionary argument to initWithTransitionStyle:navigationOrientation:options:.
 // Value should be a CGFloat wrapped in an NSNumber. Default is '0'.
 // Only valid for use with page view controllers with transition style 'UIPageViewControllerTransitionStyleScroll'.
-UIKIT_EXTERN NSString * const UIPageViewControllerOptionInterPageSpacingKey NS_AVAILABLE_IOS(6_0);
+UIKIT_EXTERN UIPageViewControllerOptionsKey const UIPageViewControllerOptionInterPageSpacingKey NS_AVAILABLE_IOS(6_0);
 
 @protocol UIPageViewControllerDelegate, UIPageViewControllerDataSource;
 
 NS_CLASS_AVAILABLE_IOS(5_0) @interface UIPageViewController : UIViewController {
 }
 
-- (instancetype)initWithTransitionStyle:(UIPageViewControllerTransitionStyle)style navigationOrientation:(UIPageViewControllerNavigationOrientation)navigationOrientation options:(nullable NSDictionary<NSString *, id> *)options NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithTransitionStyle:(UIPageViewControllerTransitionStyle)style navigationOrientation:(UIPageViewControllerNavigationOrientation)navigationOrientation options:(nullable NSDictionary<UIPageViewControllerOptionsKey, id> *)options NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @property (nullable, nonatomic, weak) id <UIPageViewControllerDelegate> delegate;
@@ -2237,10 +2884,10 @@ NS_CLASS_AVAILABLE_IOS(5_0) @interface UIPageViewController : UIViewController {
 
 // Delegate may specify a different spine location for after the interface orientation change. Only sent for transition style 'UIPageViewControllerTransitionStylePageCurl'.
 // Delegate may set new view controllers or update double-sided state within this method's implementation as well.
-- (UIPageViewControllerSpineLocation)pageViewController:(UIPageViewController *)pageViewController spineLocationForInterfaceOrientation:(UIInterfaceOrientation)orientation;
+- (UIPageViewControllerSpineLocation)pageViewController:(UIPageViewController *)pageViewController spineLocationForInterfaceOrientation:(UIInterfaceOrientation)orientation __TVOS_PROHIBITED;
 
-- (UIInterfaceOrientationMask)pageViewControllerSupportedInterfaceOrientations:(UIPageViewController *)pageViewController NS_AVAILABLE_IOS(7_0);
-- (UIInterfaceOrientation)pageViewControllerPreferredInterfaceOrientationForPresentation:(UIPageViewController *)pageViewController NS_AVAILABLE_IOS(7_0);
+- (UIInterfaceOrientationMask)pageViewControllerSupportedInterfaceOrientations:(UIPageViewController *)pageViewController NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+- (UIInterfaceOrientation)pageViewControllerPreferredInterfaceOrientationForPresentation:(UIPageViewController *)pageViewController NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
 
 @end
 
@@ -2264,12 +2911,159 @@ NS_CLASS_AVAILABLE_IOS(5_0) @interface UIPageViewController : UIViewController {
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPageViewController.h>
+#endif
+// ==========  UIKit.framework/Headers/UIViewAnimating.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIViewAnimating.h>)
+//
+//  UIViewAnimating.h
+//  UIKit
+//
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
+//
+
+
+#import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
+
+typedef NS_ENUM(NSInteger, UIViewAnimatingState)
+{
+    UIViewAnimatingStateInactive, // The animation is not executing.
+    UIViewAnimatingStateActive,   // The animation is executing.
+    UIViewAnimatingStateStopped,  // The animation has been stopped and has not transitioned to inactive.
+} NS_ENUM_AVAILABLE_IOS(10_0) ;
+
+typedef NS_ENUM(NSInteger, UIViewAnimatingPosition) {
+    UIViewAnimatingPositionEnd,
+    UIViewAnimatingPositionStart,
+    UIViewAnimatingPositionCurrent,
+} NS_ENUM_AVAILABLE_IOS(10_0);
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol UIViewAnimating <NSObject>
+
+@property(nonatomic, readonly) UIViewAnimatingState state;
+
+// Running indicates that the animation is running either in the forward or the reversed direction.
+// The state of a running animation is always active.
+@property(nonatomic, readonly, getter=isRunning) BOOL running;
+
+// Reversed indicates that the animation is running in the reversed direction when running is YES.
+// If running is NO, it indicates that it will run in the reversed direction when it is started.
+@property(nonatomic, getter=isReversed) BOOL reversed;
+
+// fractionComplete values are typically between 0 and 1. Some adopters may choose to give
+// meaning to values less than zero and greater than 1 to facilitate over and
+// undershooting.  The setter is usually a nop when the animation is
+// running. Adopters are free to change this if it makes sense. An adopter
+// may also choose to only return a meaningful result for this property if it 
+// is read while the animation is not running.
+@property(nonatomic) CGFloat fractionComplete;  
+
+// Starts the animation either from an inactive state, or if the animation has been paused.
+- (void)startAnimation;
+
+// Starts the animation after the given delay.
+- (void)startAnimationAfterDelay:(NSTimeInterval)delay;
+
+// Pauses an active, running animation, or start the animation as paused. This is different
+// than stopping an animation.
+- (void)pauseAnimation;
+
+// Stops the animation.  The values of a view's animated property values are
+// updated to correspond to the values that were last rendered. If
+// withoutFinishing == YES, then the animator immediately becomes
+// inactive. Otherwise it enters the stopped state and it is incumbent on the
+// client to explicitly finish the animation by calling finishAnimationAtPosition:. Note
+// when an animation finishes naturally this method is not called.
+- (void)stopAnimation:(BOOL) withoutFinishing;
+
+// This method may only be called if the animator is in the stopped state.
+// The finalPosition argument should indicate the final values of the animated properties.
+- (void)finishAnimationAtPosition:(UIViewAnimatingPosition)finalPosition;
+
+@end
+
+@protocol UITimingCurveProvider;
+
+@protocol UIViewImplicitlyAnimating <UIViewAnimating>
+
+@optional
+
+- (void)addAnimations:(void (^)(void))animation delayFactor:(CGFloat)delayFactor;
+- (void)addAnimations:(void (^)(void))animation;
+- (void)addCompletion:(void (^)(UIViewAnimatingPosition finalPosition))completion;
+- (void)continueAnimationWithTimingParameters:(nullable id <UITimingCurveProvider>)parameters durationFactor:(CGFloat)durationFactor;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIViewAnimating.h>
+#endif
+// ==========  UIKit.framework/Headers/NSItemProvider+UIKitAdditions.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSItemProvider+UIKitAdditions.h>)
+//
+//  NSItemProvider+UIKitAdditions.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+#import <CoreGraphics/CoreGraphics.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+UIKIT_SWIFT_FORWARD_DECLARE(@class NSItemProvider)
+
+typedef NS_ENUM(NSInteger, UIPreferredPresentationStyle) {
+    UIPreferredPresentationStyleUnspecified = 0,
+    UIPreferredPresentationStyleInline,
+    UIPreferredPresentationStyleAttachment,
+};
+
+@interface NSItemProvider (UIKitAdditions)
+
+@property (nonatomic, copy, nullable) NSData *teamData API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+// Estimated presentation size, in points. CGSizeZero value indicates this information is not available.
+@property (nonatomic) CGSize preferredPresentationSize API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+@property (nonatomic) UIPreferredPresentationStyle preferredPresentationStyle;
+
+@end
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UIItemProviderPresentationSizeProviding <NSObject>
+
+// Implement this on an object which conforms to the NSItemProviderWriting protocol.
+// When the object is registered to NSItemProvider, this property will be used to automatically set
+// the `preferredPresentationSize` property on NSItemProvider.
+// Return CGSizeZero to indicate that this information is not available.
+@property (nonatomic, readonly) CGSize preferredPresentationSizeForItemProvider;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSItemProvider+UIKitAdditions.h>
+#endif
 // ==========  UIKit.framework/Headers/UIDynamicItemBehavior.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDynamicItemBehavior.h>)
 //
 //  UIDynamicItemBehavior.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2320,10 +3114,15 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIDynamicItemBehavior : UIDynamicBehavior
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDynamicItemBehavior.h>
+#endif
 // ==========  UIKit.framework/Headers/UIMotionEffect.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIMotionEffect.h>)
 //
 //  UIMotionEffect.h
-//  Copyright (c) 2013-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2401,12 +3200,17 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIMotionEffectGroup : UIMotionEffect
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIMotionEffect.h>
+#endif
 // ==========  UIKit.framework/Headers/UIStateRestoration.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIStateRestoration.h>)
 /*
  *  UIStateRestoration.h
  *  UIKit
  *
- *  Copyright 2012-2011 Apple Inc. All rights reserved.
+ *  Copyright 2012-2018 Apple Inc. All rights reserved.
  *
  */
 
@@ -2424,7 +3228,7 @@ UIKIT_EXTERN NSString *const UIStateRestorationViewControllerStoryboardKey NS_AV
 // NSString with value of info.plist's Bundle Version (app version) when state was last saved for the app
 UIKIT_EXTERN NSString *const UIApplicationStateRestorationBundleVersionKey NS_AVAILABLE_IOS(6_0);
 
-// NSNumber containing the UIUSerInterfaceIdiom enum value of the app that saved state
+// NSNumber containing the UIUserInterfaceIdiom enum value of the app that saved state
 UIKIT_EXTERN NSString *const UIApplicationStateRestorationUserInterfaceIdiomKey NS_AVAILABLE_IOS(6_0);
 
 // NSDate specifying the date/time the state restoration archive was saved. This is in UTC.
@@ -2440,7 +3244,7 @@ UIKIT_EXTERN NSString *const UIApplicationStateRestorationSystemVersionKey NS_AV
 
 // A class must implement this protocol if it is specified as the restoration class of a UIViewController.
 @protocol UIViewControllerRestoration
-+ (nullable UIViewController *) viewControllerWithRestorationIdentifierPath:(NSArray *)identifierComponents coder:(NSCoder *)coder;
++ (nullable UIViewController *) viewControllerWithRestorationIdentifierPath:(NSArray<NSString *> *)identifierComponents coder:(NSCoder *)coder;
 @end
 
 @protocol UIDataSourceModelAssociation
@@ -2488,12 +3292,17 @@ UIKIT_EXTERN NSString *const UIApplicationStateRestorationSystemVersionKey NS_AV
 NS_ASSUME_NONNULL_END
 
 
+
+#else
+#import <UIKitCore/UIStateRestoration.h>
+#endif
 // ==========  UIKit.framework/Headers/UIScreenMode.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIScreenMode.h>)
 //
 //  UIScreenMode.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2506,12 +3315,17 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UIScreenMode : NSObject
 @property(readonly,nonatomic) CGFloat pixelAspectRatio; // The aspect ratio of a single pixel. The ratio is defined as X/Y.
 
 @end
+
+#else
+#import <UIKitCore/UIScreenMode.h>
+#endif
 // ==========  UIKit.framework/Headers/UIStepper.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIStepper.h>)
 //
 //  UIStepper.h
 //  UIKit
 //
-//  Copyright 2010-2012 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2522,7 +3336,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class UIButton, UIImageView;
 
-NS_CLASS_AVAILABLE_IOS(5_0) @interface UIStepper : UIControl
+NS_CLASS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED @interface UIStepper : UIControl
 
 @property(nonatomic,getter=isContinuous) BOOL continuous; // if YES, value change events are sent any time the value changes during interaction. default = YES
 @property(nonatomic) BOOL autorepeat;                     // if YES, press & hold repeatedly alters value. default = YES
@@ -2555,12 +3369,17 @@ NS_CLASS_AVAILABLE_IOS(5_0) @interface UIStepper : UIControl
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIStepper.h>
+#endif
 // ==========  UIKit.framework/Headers/UIActivityIndicatorView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIActivityIndicatorView.h>)
 //
 //  UIActivityIndicatorView.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIView.h>
@@ -2571,7 +3390,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, UIActivityIndicatorViewStyle) {
     UIActivityIndicatorViewStyleWhiteLarge,
     UIActivityIndicatorViewStyleWhite,
-    UIActivityIndicatorViewStyleGray,
+    UIActivityIndicatorViewStyleGray __TVOS_PROHIBITED,
 };
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UIActivityIndicatorView : UIView <NSCoding>
@@ -2583,21 +3402,30 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIActivityIndicatorView : UIView <NSCodin
 @property(nonatomic) UIActivityIndicatorViewStyle activityIndicatorViewStyle; // default is UIActivityIndicatorViewStyleWhite
 @property(nonatomic) BOOL                         hidesWhenStopped;           // default is YES. calls -setHidden when animating gets set to NO
 
-@property (nullable, readwrite, nonatomic, strong) UIColor *color NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+@property (null_resettable, readwrite, nonatomic, strong) UIColor *color NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 
 - (void)startAnimating;
 - (void)stopAnimating;
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isAnimating) BOOL animating;
+#else
 - (BOOL)isAnimating;
+#endif
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIActivityIndicatorView.h>
+#endif
 // ==========  UIKit.framework/Headers/UICollectionViewLayout.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UICollectionViewLayout.h>)
 //
 //  UICollectionViewLayout.h
 //  UIKit
 //
-//  Copyright (c) 2011-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIKitDefines.h>
@@ -2605,6 +3433,7 @@ NS_ASSUME_NONNULL_END
 #import <CoreGraphics/CoreGraphics.h>
 #import <QuartzCore/CATransform3D.h>
 #import <UIKit/UIDynamicBehavior.h>
+#import <UIKit/UIInterface.h>
 
 // The UICollectionViewLayout class is provided as an abstract class for subclassing to define custom collection layouts.
 // Defining a custom layout is an advanced operation intended for applications with complex needs.
@@ -2653,8 +3482,8 @@ typedef NS_ENUM(NSInteger, UICollectionUpdateAction) {
 
 NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewUpdateItem : NSObject
 
-@property (nonatomic, readonly) NSIndexPath *indexPathBeforeUpdate; // nil for UICollectionUpdateActionInsert
-@property (nonatomic, readonly) NSIndexPath *indexPathAfterUpdate; // nil for UICollectionUpdateActionDelete
+@property (nonatomic, readonly, nullable) NSIndexPath *indexPathBeforeUpdate; // nil for UICollectionUpdateActionInsert
+@property (nonatomic, readonly, nullable) NSIndexPath *indexPathAfterUpdate; // nil for UICollectionUpdateActionDelete
 @property (nonatomic, readonly) UICollectionUpdateAction updateAction;
 
 @end
@@ -2703,8 +3532,13 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewLayout : NSObject <NSCodi
 
 @interface UICollectionViewLayout (UISubclassingHooks)
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) Class layoutAttributesClass; // override this method to provide a custom class to be used when instantiating instances of UICollectionViewLayoutAttributes
+@property(class, nonatomic, readonly) Class invalidationContextClass NS_AVAILABLE_IOS(7_0); // override this method to provide a custom class to be used for invalidation contexts
+#else
 + (Class)layoutAttributesClass; // override this method to provide a custom class to be used when instantiating instances of UICollectionViewLayoutAttributes
 + (Class)invalidationContextClass NS_AVAILABLE_IOS(7_0); // override this method to provide a custom class to be used for invalidation contexts
+#endif
 
 // The collection view calls -prepareLayout once at its first layout as the first message to the layout instance.
 // The collection view calls -prepareLayout again after layout is invalidated and before requerying the layout information.
@@ -2729,7 +3563,14 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewLayout : NSObject <NSCodi
 - (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity; // return a point at which to rest after scrolling - for layouts that want snap-to-point scrolling behavior
 - (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset NS_AVAILABLE_IOS(7_0); // a layout can return the content offset to be applied during transition or update animations
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) CGSize collectionViewContentSize; // Subclasses must override this method and use it to return the width and height of the collection view’s content. These values represent the width and height of all the content, not just the content that is currently visible. The collection view uses this information to configure its own content size to facilitate scrolling.
+#else
 - (CGSize)collectionViewContentSize; // Subclasses must override this method and use it to return the width and height of the collection view’s content. These values represent the width and height of all the content, not just the content that is currently visible. The collection view uses this information to configure its own content size to facilitate scrolling.
+#endif
+
+@property (nonatomic, readonly) UIUserInterfaceLayoutDirection developmentLayoutDirection; // Default implementation returns the layout direction of the main bundle's development region; FlowLayout returns leftToRight. Subclasses may override this to specify the implementation-time layout direction of the layout.
+@property(nonatomic, readonly) BOOL flipsHorizontallyInOppositeLayoutDirection; // Base implementation returns false. If your subclass’s implementation overrides this property to return true, a UICollectionView showing this layout will ensure its bounds.origin is always found at the leading edge, flipping its coordinate system horizontally if necessary.
 
 @end
 
@@ -2780,15 +3621,18 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewLayout : NSObject <NSCodi
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UICollectionViewLayout.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPopoverPresentationController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPopoverPresentationController.h>)
 //
 //  UIPopoverPresentationController.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
-
-#import <UIKit/UIKit.h>
 
 #import <UIKit/UIPresentationController.h>
 #import <UIKit/UIPopoverSupport.h>
@@ -2798,7 +3642,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class UIPopoverPresentationController;
 
-
+__TVOS_PROHIBITED
 @protocol UIPopoverPresentationControllerDelegate <UIAdaptivePresentationControllerDelegate>
 @optional
 
@@ -2817,7 +3661,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPopoverPresentationController : UIPresentationController
+NS_CLASS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED @interface UIPopoverPresentationController : UIPresentationController
 
 @property (nullable, nonatomic, weak) id <UIPopoverPresentationControllerDelegate> delegate;
 
@@ -2856,31 +3700,159 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPopoverPresentationController : UIPrese
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPopoverPresentationController.h>
+#endif
+// ==========  UIKit.framework/Headers/UICloudSharingController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UICloudSharingController.h>)
+//
+//  UICloudSharingController.h
+//  UIKit
+//
+//  Copyright © 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+#import <UIKit/UIViewController.h>
+#import <UIKit/UIActivityItemProvider.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UICloudSharingController, CKShare, CKContainer;
+
+typedef NS_OPTIONS(NSUInteger, UICloudSharingPermissionOptions) {
+    UICloudSharingPermissionStandard = 0, // Allow the user to configure the share with the standard set of options
+
+    UICloudSharingPermissionAllowPublic = 1 << 0,    // The user is allowed to share publicly
+    UICloudSharingPermissionAllowPrivate = 1 << 1,   // The user is allowed to share privately
+
+    UICloudSharingPermissionAllowReadOnly = 1 << 2,  // The user is allowed to grant participants read-only permissions
+    UICloudSharingPermissionAllowReadWrite = 1 << 3, // The user is allowed to grant participants read/write permissions
+} NS_ENUM_AVAILABLE_IOS(10_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+
+__TVOS_PROHIBITED __WATCHOS_PROHIBITED
+@protocol UICloudSharingControllerDelegate <NSObject>
+
+- (void)cloudSharingController:(UICloudSharingController *)csc failedToSaveShareWithError:(NSError *)error;
+
+// corresponds to CKShareTitleKey on the expected share
+- (nullable NSString *)itemTitleForCloudSharingController:(UICloudSharingController *)csc;
+
+@optional
+// corresponds to CKShareThumbnailImageDataKey on the expected share
+- (nullable NSData *)itemThumbnailDataForCloudSharingController:(UICloudSharingController *)csc;
+// corresponds to CKShareTypeKey on the expected share
+- (nullable NSString *)itemTypeForCloudSharingController:(UICloudSharingController *)csc;
+
+- (void)cloudSharingControllerDidSaveShare:(UICloudSharingController *)csc;
+- (void)cloudSharingControllerDidStopSharing:(UICloudSharingController *)csc;
+
+@end
+
+NS_CLASS_AVAILABLE_IOS(10_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED @interface UICloudSharingController : UIViewController
+
+- (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil NS_UNAVAILABLE;
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_UNAVAILABLE;
+
+/* Use this initializer when you want to share a set of CKRecords but haven't yet saved a CKShare.
+ The preparation handler is called when it is time to save the share to the server.
+ After ensuring the share and record have been saved to the server, invoke the preparationCompletionHandler
+ with either the resulting CKShare, or an NSError if saving failed.
+ */
+- (instancetype)initWithPreparationHandler:(void (^)(UICloudSharingController *controller, void (^preparationCompletionHandler)(CKShare * _Nullable, CKContainer * _Nullable, NSError * _Nullable)))preparationHandler;
+
+/* Use this initializer when you already have an active CKShare that was set up previously.
+ */
+- (instancetype)initWithShare:(CKShare *)share container:(CKContainer *)container;
+
+@property (nonatomic, weak) id<UICloudSharingControllerDelegate> delegate;
+@property (nonatomic, readonly, strong, nullable) CKShare *share;
+
+/* Restrict the sharing invitation UI to specific types of share permissions. If set, only the specified combinations of permissions are selectable.
+ */
+@property (nonatomic) UICloudSharingPermissionOptions availablePermissions;
+
+/* Returns an activity item source for use with UIActivityViewController.
+ If the activity is selected, delegate methods will be called for the original instance of
+ the sharing controller.
+ */
+- (id <UIActivityItemSource>)activityItemSource;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UICloudSharingController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIResponder.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIResponder.h>)
 //
 //  UIResponder.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKitDefines.h>
 #import <UIKit/UIEvent.h>
+#import <UIKit/UIPasteConfigurationSupporting.h>
+#import <UIKit/UIUserActivity.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UIResponder : NSObject
+@class UIPress;
+@class UIPressesEvent;
 
+@protocol UIResponderStandardEditActions <NSObject>
+@optional
+- (void)cut:(nullable id)sender NS_AVAILABLE_IOS(3_0);
+- (void)copy:(nullable id)sender NS_AVAILABLE_IOS(3_0);
+- (void)paste:(nullable id)sender NS_AVAILABLE_IOS(3_0);
+- (void)select:(nullable id)sender NS_AVAILABLE_IOS(3_0);
+- (void)selectAll:(nullable id)sender NS_AVAILABLE_IOS(3_0);
+- (void)delete:(nullable id)sender NS_AVAILABLE_IOS(3_2);
+- (void)makeTextWritingDirectionLeftToRight:(nullable id)sender NS_AVAILABLE_IOS(5_0);
+- (void)makeTextWritingDirectionRightToLeft:(nullable id)sender NS_AVAILABLE_IOS(5_0);
+- (void)toggleBoldface:(nullable id)sender NS_AVAILABLE_IOS(6_0);
+- (void)toggleItalics:(nullable id)sender NS_AVAILABLE_IOS(6_0);
+- (void)toggleUnderline:(nullable id)sender NS_AVAILABLE_IOS(6_0);
+
+- (void)increaseSize:(nullable id)sender NS_AVAILABLE_IOS(7_0);
+- (void)decreaseSize:(nullable id)sender NS_AVAILABLE_IOS(7_0);
+
+@end
+
+NS_CLASS_AVAILABLE_IOS(2_0) @interface UIResponder : NSObject <UIResponderStandardEditActions>
+
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) UIResponder *nextResponder;
+#else
 - (nullable UIResponder*)nextResponder;
+#endif
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL canBecomeFirstResponder;    // default is NO
+#else
 - (BOOL)canBecomeFirstResponder;    // default is NO
+#endif
 - (BOOL)becomeFirstResponder;
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL canResignFirstResponder;    // default is YES
+#else
 - (BOOL)canResignFirstResponder;    // default is YES
+#endif
 - (BOOL)resignFirstResponder;
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL isFirstResponder;
+#else
 - (BOOL)isFirstResponder;
+#endif
 
 // Generally, all responders which do custom touch handling should override all four of these methods.
 // Your responder will receive either touchesEnded:withEvent: or touchesCancelled:withEvent: for each
@@ -2890,7 +3862,20 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIResponder : NSObject
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event;
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event;
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event;
-- (void)touchesCancelled:(nullable NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event;
+- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event;
+- (void)touchesEstimatedPropertiesUpdated:(NSSet<UITouch *> *)touches NS_AVAILABLE_IOS(9_1);
+
+// Generally, all responders which do custom press handling should override all four of these methods.
+// Your responder will receive either pressesEnded:withEvent or pressesCancelled:withEvent: for each
+// press it is handling (those presses it received in pressesBegan:withEvent:).
+// pressesChanged:withEvent: will be invoked for presses that provide an analog value
+// (like thumbsticks or analog push buttons)
+// *** You must handle cancelled presses to ensure correct behavior in your application.  Failure to
+// do so is very likely to lead to incorrect behavior or crashes.
+- (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(nullable UIPressesEvent *)event NS_AVAILABLE_IOS(9_0);
+- (void)pressesChanged:(NSSet<UIPress *> *)presses withEvent:(nullable UIPressesEvent *)event NS_AVAILABLE_IOS(9_0);
+- (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(nullable UIPressesEvent *)event NS_AVAILABLE_IOS(9_0);
+- (void)pressesCancelled:(NSSet<UIPress *> *)presses withEvent:(nullable UIPressesEvent *)event NS_AVAILABLE_IOS(9_0);
 
 - (void)motionBegan:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event NS_AVAILABLE_IOS(3_0);
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event NS_AVAILABLE_IOS(3_0);
@@ -2920,11 +3905,11 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIKeyCommand : NSObject <NSCopying, NSSec
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
-@property (nonatomic,readonly) NSString *input;
+@property (nullable,nonatomic,readonly) NSString *input;
 @property (nonatomic,readonly) UIKeyModifierFlags modifierFlags;
 @property (nullable,nonatomic,copy) NSString *discoverabilityTitle NS_AVAILABLE_IOS(9_0);
 
-// The action for UIKeyCommands should accept a single (id)sender, as do the UIResponderStandardEditActions below
+// The action for UIKeyCommands should accept a single (id)sender, as do the UIResponderStandardEditActions above
 
 // Creates an key command that will _not_ be discoverable in the UI.
 + (UIKeyCommand *)keyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)modifierFlags action:(SEL)action;
@@ -2936,25 +3921,6 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIKeyCommand : NSObject <NSCopying, NSSec
 
 @interface UIResponder (UIResponderKeyCommands)
 @property (nullable,nonatomic,readonly) NSArray<UIKeyCommand *> *keyCommands NS_AVAILABLE_IOS(7_0); // returns an array of UIKeyCommand objects<
-@end
-
-@interface NSObject(UIResponderStandardEditActions)   // these methods are not implemented in NSObject
-
-- (void)cut:(nullable id)sender NS_AVAILABLE_IOS(3_0);
-- (void)copy:(nullable id)sender NS_AVAILABLE_IOS(3_0);
-- (void)paste:(nullable id)sender NS_AVAILABLE_IOS(3_0);
-- (void)select:(nullable id)sender NS_AVAILABLE_IOS(3_0);
-- (void)selectAll:(nullable id)sender NS_AVAILABLE_IOS(3_0);
-- (void)delete:(nullable id)sender NS_AVAILABLE_IOS(3_2);
-- (void)makeTextWritingDirectionLeftToRight:(nullable id)sender NS_AVAILABLE_IOS(5_0);
-- (void)makeTextWritingDirectionRightToLeft:(nullable id)sender NS_AVAILABLE_IOS(5_0);
-- (void)toggleBoldface:(nullable id)sender NS_AVAILABLE_IOS(6_0);
-- (void)toggleItalics:(nullable id)sender NS_AVAILABLE_IOS(6_0);
-- (void)toggleUnderline:(nullable id)sender NS_AVAILABLE_IOS(6_0);
-
-- (void)increaseSize:(nullable id)sender NS_AVAILABLE_IOS(7_0);
-- (void)decreaseSize:(nullable id)sender NS_AVAILABLE_IOS(7_0);
-
 @end
 
 @class UIInputViewController;
@@ -2971,7 +3937,7 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIKeyCommand : NSObject <NSCopying, NSSec
 /// You may modify the returned inputAssistantItem to add to or replace the existing items on the bar.
 /// Modifications made to the returned UITextInputAssistantItem are reflected automatically.
 /// This method should not be overriden. Goes up the responder chain.
-@property (nonnull, nonatomic, readonly, strong) UITextInputAssistantItem *inputAssistantItem NS_AVAILABLE_IOS(9_0) __WATCHOS_PROHIBITED;
+@property (nonnull, nonatomic, readonly, strong) UITextInputAssistantItem *inputAssistantItem NS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
 // For viewController equivalents of -inputView and -inputAccessoryView
 // Called and presented when object becomes first responder.  Goes up the responder chain.
@@ -2984,7 +3950,7 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIKeyCommand : NSObject <NSCopying, NSSec
 @property (nullable, nonatomic, readonly, strong) UITextInputMode *textInputMode NS_AVAILABLE_IOS(7_0);
 /* When the first responder changes and an identifier is queried, the system will establish a context to
  * track the textInputMode automatically. The system will save and restore the state of that context to
- * the user defaults via the app identifier. Use of -textInputMode above will supercede use of -textInputContextIdentifier. */
+ * the user defaults via the app identifier. Use of -textInputMode above will supersede use of -textInputContextIdentifier. */
 @property (nullable, nonatomic, readonly, strong) NSString *textInputContextIdentifier NS_AVAILABLE_IOS(7_0);
 // This call is to remove stored app identifier state that is no longer needed.
 + (void)clearTextInputContextIdentifier:(NSString *)identifier NS_AVAILABLE_IOS(7_0);
@@ -3001,20 +3967,175 @@ UIKIT_EXTERN NSString *const UIKeyInputLeftArrow       NS_AVAILABLE_IOS(7_0);
 UIKIT_EXTERN NSString *const UIKeyInputRightArrow      NS_AVAILABLE_IOS(7_0);
 UIKIT_EXTERN NSString *const UIKeyInputEscape          NS_AVAILABLE_IOS(7_0);
 
-@interface UIResponder (ActivityContinuation)
+@interface UIResponder (ActivityContinuation) <UIUserActivityRestoring>
 @property (nullable, nonatomic, strong) NSUserActivity *userActivity NS_AVAILABLE_IOS(8_0);
 - (void)updateUserActivityState:(NSUserActivity *)activity NS_AVAILABLE_IOS(8_0);
 - (void)restoreUserActivityState:(NSUserActivity *)activity NS_AVAILABLE_IOS(8_0);
 @end
 
+#if TARGET_OS_IOS
+@interface UIResponder (UIPasteConfigurationSupporting) <UIPasteConfigurationSupporting>
+@end
+#endif
+
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIResponder.h>
+#endif
+// ==========  UIKit.framework/Headers/UIGraphicsImageRenderer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIGraphicsImageRenderer.h>)
+//
+//  UIGraphicsImageRenderer.h
+//  UIKit
+//
+//  Copyright (c) 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIGraphicsRenderer.h>
+#import <UIKit/UIImage.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIGraphicsImageRendererContext;
+
+typedef void (^UIGraphicsImageDrawingActions)(UIGraphicsImageRendererContext *rendererContext) NS_AVAILABLE_IOS(10_0);
+
+typedef NS_ENUM(NSInteger, UIGraphicsImageRendererFormatRange) {
+    UIGraphicsImageRendererFormatRangeUnspecified = -1,
+    UIGraphicsImageRendererFormatRangeAutomatic = 0,
+    UIGraphicsImageRendererFormatRangeExtended,
+    UIGraphicsImageRendererFormatRangeStandard
+} NS_ENUM_AVAILABLE_IOS(12_0);
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIGraphicsImageRendererFormat : UIGraphicsRendererFormat
+
+@property (nonatomic) CGFloat scale; // display scale of the context. The preferredFormat uses the scale most appropriate for the main screen's current configuration.
+@property (nonatomic) BOOL opaque; // indicates the bitmap context will draw fully opaque. The preferredFormat sets this to NO.
+@property (nonatomic) BOOL prefersExtendedRange NS_DEPRECATED_IOS(10_0, 12_0, "Use the preferredRange property instead"); // indicates the bitmap context should draw into a context capable of rendering extended color images. The preferredFormat sets this according to the main screen's current configuration.
+
+@property (nonatomic) UIGraphicsImageRendererFormatRange preferredRange NS_AVAILABLE_IOS(12_0);
+
+// Returns a format optimized for the specified trait collection, taking into account properties such as displayScale and displayGamut.
+// Traits that are not specified will be ignored, with their corresponding format properties defaulting to the values in preferredFormat.
++ (instancetype)formatForTraitCollection:(UITraitCollection *)traitCollection NS_AVAILABLE_IOS(11_0);
+@end
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIGraphicsImageRendererContext : UIGraphicsRendererContext
+@property (nonatomic, readonly) UIImage *currentImage; // Returns a UIImage representing the current state of the renderer's CGContext
+@end
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIGraphicsImageRenderer : UIGraphicsRenderer
+- (instancetype)initWithSize:(CGSize)size;
+- (instancetype)initWithSize:(CGSize)size format:(UIGraphicsImageRendererFormat *)format NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithBounds:(CGRect)bounds format:(UIGraphicsImageRendererFormat *)format NS_DESIGNATED_INITIALIZER;
+
+// Returns a UIImage rendered with the contents of the CGContext after the imageRenderBlock executes.
+// If the options provided to the renderer contain a rect with a zero width or height size, this will return an empty UIImage.
+- (UIImage *)imageWithActions:(NS_NOESCAPE UIGraphicsImageDrawingActions)actions;
+
+// These return compressed image data with the contents of the image drawn in the renderer block.
+- (NSData *)PNGDataWithActions:(NS_NOESCAPE UIGraphicsImageDrawingActions)actions;
+- (NSData *)JPEGDataWithCompressionQuality:(CGFloat)compressionQuality actions:(NS_NOESCAPE UIGraphicsImageDrawingActions)actions;
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIGraphicsImageRenderer.h>
+#endif
+// ==========  UIKit.framework/Headers/UINotificationFeedbackGenerator.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UINotificationFeedbackGenerator.h>)
+//
+//  UINotificationFeedbackGenerator.h
+//  UIKit
+//
+//  Copyright © 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIFeedbackGenerator.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, UINotificationFeedbackType) {
+    UINotificationFeedbackTypeSuccess,
+    UINotificationFeedbackTypeWarning,
+    UINotificationFeedbackTypeError
+};
+
+// UINotificationFeedbackGenerator is used to give user feedback when an notification is displayed
+UIKIT_CLASS_AVAILABLE_IOS_ONLY(10_0) @interface UINotificationFeedbackGenerator : UIFeedbackGenerator
+
+/// call when a notification is displayed, passing the corresponding type
+- (void)notificationOccurred:(UINotificationFeedbackType)notificationType;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UINotificationFeedbackGenerator.h>
+#endif
+// ==========  UIKit.framework/Headers/UIDragPreview.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDragPreview.h>)
+//
+//  UIDragPreview.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIDragPreviewParameters, UIView;
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @interface UIDragPreview : NSObject <NSCopying>
+
+/* UIDragPreview is a preview used after a drag has started,
+ * when no lift, drop, or cancel animation is running.
+ *
+ * A UIDragItem's `previewProvider` may be set to a block that
+ * creates and returns a UIDragPreview.
+ *
+ * The preview will show a static snapshot of the provided view. Subsequent changes
+ * to the view will not appear. The UIDragPreview will not change or move the view.
+ */
+
+/* Create a preview based on a view and parameters.
+ * Note: it doesn't matter whether this view is in a window or not.
+ */
+- (instancetype)initWithView:(UIView *)view parameters:(UIDragPreviewParameters *)parameters NS_DESIGNATED_INITIALIZER;
+
+/* Use the default parameters.
+ */
+- (instancetype)initWithView:(UIView *)view;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@property (nonatomic, readonly) UIView *view;
+
+@property (nonatomic, readonly, copy) UIDragPreviewParameters *parameters;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDragPreview.h>
+#endif
 // ==========  UIKit.framework/Headers/UITextInput.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextInput.h>)
 //
 //  UITextInput.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -3030,7 +4151,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol UIKeyInput <UITextInputTraits>
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL hasText;
+#else
 - (BOOL)hasText;
+#endif
 - (void)insertText:(NSString *)text;
 - (void)deleteBackward;
 
@@ -3061,7 +4186,7 @@ typedef NS_ENUM(NSInteger, UITextLayoutDirection) {
     UITextLayoutDirectionDown
 };
 
-typedef NSInteger UITextDirection;
+typedef NSInteger UITextDirection NS_TYPED_ENUM;
 
 typedef NS_ENUM(NSInteger, UITextWritingDirection) {
     UITextWritingDirectionNatural = -1,
@@ -3092,7 +4217,7 @@ NS_CLASS_AVAILABLE_IOS(5_1) @interface UIDictationPhrase : NSObject {
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(9_0) __WATCHOS_PROHIBITED @interface UITextInputAssistantItem : NSObject
+NS_CLASS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED @interface UITextInputAssistantItem : NSObject
 
 /// Default is YES, controls if the user is allowed to hide the shortcuts bar. Does not influence the built in auto-hiding logic.
 @property (nonatomic, readwrite, assign) BOOL allowsHidingShortcuts;
@@ -3124,7 +4249,7 @@ NS_CLASS_AVAILABLE_IOS(9_0) __WATCHOS_PROHIBITED @interface UITextInputAssistant
  * inserts it from the current selection. */ 
 
 @property (nullable, nonatomic, readonly) UITextRange *markedTextRange; // Nil if no marked text.
-@property (nullable, nonatomic, copy) NSDictionary *markedTextStyle; // Describes how the marked text should be drawn.
+@property (nullable, nonatomic, copy) NSDictionary<NSAttributedStringKey, id> *markedTextStyle; // Describes how the marked text should be drawn.
 - (void)setMarkedText:(nullable NSString *)markedText selectedRange:(NSRange)selectedRange; // selectedRange is a range within the markedText
 - (void)unmarkText;
 
@@ -3158,7 +4283,7 @@ NS_CLASS_AVAILABLE_IOS(9_0) __WATCHOS_PROHIBITED @interface UITextInputAssistant
 /* Geometry used to provide, for example, a correction rect. */
 - (CGRect)firstRectForRange:(UITextRange *)range;
 - (CGRect)caretRectForPosition:(UITextPosition *)position;
-- (NSArray *)selectionRectsForRange:(UITextRange *)range NS_AVAILABLE_IOS(6_0);       // Returns an array of UITextSelectionRects
+- (NSArray<UITextSelectionRect *> *)selectionRectsForRange:(UITextRange *)range NS_AVAILABLE_IOS(6_0);       // Returns an array of UITextSelectionRects
 
 /* Hit testing. */
 - (nullable UITextPosition *)closestPositionToPoint:(CGPoint)point;
@@ -3171,7 +4296,7 @@ NS_CLASS_AVAILABLE_IOS(9_0) __WATCHOS_PROHIBITED @interface UITextInputAssistant
 
 /* Text styling information can affect, for example, the appearance of a correction rect.
  * Returns a dictionary containing NSAttributedString keys. */
-- (nullable NSDictionary<NSString *,id> *)textStylingAtPosition:(UITextPosition *)position inDirection:(UITextStorageDirection)direction;
+- (nullable NSDictionary<NSAttributedStringKey, id> *)textStylingAtPosition:(UITextPosition *)position inDirection:(UITextStorageDirection)direction;
 
 /* To be implemented if there is not a one-to-one correspondence between text positions within range and character offsets into the associated string. */
 - (nullable UITextPosition *)positionWithinRange:(UITextRange *)range atCharacterOffset:(NSInteger)offset;
@@ -3200,7 +4325,11 @@ NS_CLASS_AVAILABLE_IOS(9_0) __WATCHOS_PROHIBITED @interface UITextInputAssistant
  * pending dictation results. -insertDictationPlaceholder must return a reference to the 
  * placeholder. This reference will be used to identify the placeholder by the other methods
  * (there may be more than one placeholder). */
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) id insertDictationResultPlaceholder;
+#else
 - (id)insertDictationResultPlaceholder;
+#endif
 - (CGRect)frameForDictationResultPlaceholder:(id)placeholder;
 /* willInsertResult will be NO if the recognition failed. */
 - (void)removeDictationResultPlaceholder:(id)placeholder willInsertResult:(BOOL)willInsertResult;
@@ -3218,9 +4347,9 @@ NS_CLASS_AVAILABLE_IOS(9_0) __WATCHOS_PROHIBITED @interface UITextInputAssistant
 //---------------------------------------------------------------------------------------------------
 
 /* UITextInput keys to style dictionaries are deprecated. Use NSAttributedString keys instead, such as NSFontAttribute, etc. */
-UIKIT_EXTERN NSString *const UITextInputTextBackgroundColorKey NS_DEPRECATED_IOS(3_2, 8_0, "Use NSBackgroundColorAttributeName instead"); // Key to a UIColor
-UIKIT_EXTERN NSString *const UITextInputTextColorKey           NS_DEPRECATED_IOS(3_2, 8_0, "Use NSForegroundColorAttributeName instead"); // Key to a UIColor
-UIKIT_EXTERN NSString *const UITextInputTextFontKey            NS_DEPRECATED_IOS(3_2, 8_0, "Use NSFontAttributeName instead"); // Key to a UIFont
+UIKIT_EXTERN NSString *const UITextInputTextBackgroundColorKey NS_DEPRECATED_IOS(3_2, 8_0, "Use NSBackgroundColorAttributeName instead") __TVOS_PROHIBITED; // Key to a UIColor
+UIKIT_EXTERN NSString *const UITextInputTextColorKey           NS_DEPRECATED_IOS(3_2, 8_0, "Use NSForegroundColorAttributeName instead") __TVOS_PROHIBITED; // Key to a UIColor
+UIKIT_EXTERN NSString *const UITextInputTextFontKey            NS_DEPRECATED_IOS(3_2, 8_0, "Use NSFontAttributeName instead") __TVOS_PROHIBITED; // Key to a UIFont
 
 /* To accommodate text entry in documents that contain nested elements, or in which supplying and
  * evaluating characters at indices is an expensive proposition, a position within a text input
@@ -3290,20 +4419,29 @@ NS_CLASS_AVAILABLE_IOS(4_2) @interface UITextInputMode : NSObject <NSSecureCodin
 @property (nullable, nonatomic, readonly, strong) NSString *primaryLanguage; // The primary language, if any, of the input mode.  A BCP 47 language identifier such as en-US
 
 // To query the UITextInputMode, refer to the UIResponder method -textInputMode.
-+ (nullable UITextInputMode *)currentInputMode NS_DEPRECATED_IOS(4_2, 7_0);; // The current input mode.  Nil if unset.
-+ (NSArray<NSString *> *)activeInputModes; // The activate input modes.
++ (nullable UITextInputMode *)currentInputMode NS_DEPRECATED_IOS(4_2, 7_0)  __TVOS_PROHIBITED; // The current input mode.  Nil if unset.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) NSArray<UITextInputMode *> *activeInputModes; // The active input modes.
+#else
++ (NSArray<UITextInputMode *> *)activeInputModes; // The active input modes.
+#endif
 
 @end
 
-UIKIT_EXTERN NSString *const UITextInputCurrentInputModeDidChangeNotification NS_AVAILABLE_IOS(4_2);
+UIKIT_EXTERN NSNotificationName const UITextInputCurrentInputModeDidChangeNotification NS_AVAILABLE_IOS(4_2);
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextInput.h>
+#endif
 // ==========  UIKit.framework/Headers/UISearchBar.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISearchBar.h>)
 //
 //  UISearchBar.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3319,9 +4457,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, UISearchBarIcon) {
     UISearchBarIconSearch, // The magnifying glass
-    UISearchBarIconClear, // The circle with an x in it
-    UISearchBarIconBookmark, // The open book icon
-    UISearchBarIconResultsList, // The list lozenge icon
+    UISearchBarIconClear __TVOS_PROHIBITED, // The circle with an x in it
+    UISearchBarIconBookmark __TVOS_PROHIBITED, // The open book icon
+    UISearchBarIconResultsList __TVOS_PROHIBITED, // The list lozenge icon
 };
 
 typedef NS_ENUM(NSUInteger, UISearchBarStyle) {
@@ -3340,25 +4478,25 @@ typedef NS_ENUM(NSUInteger, UISearchBarStyle) {
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UISearchBar : UIView <UIBarPositioning, UITextInputTraits>
 
-- (instancetype)init;
-- (instancetype)initWithFrame:(CGRect)frame NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (instancetype)init __TVOS_PROHIBITED;
+- (instancetype)initWithFrame:(CGRect)frame NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED;
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED;
 
-@property(nonatomic)        UIBarStyle              barStyle;              // default is UIBarStyleDefault (blue)
+@property(nonatomic)        UIBarStyle              barStyle __TVOS_PROHIBITED;              // default is UIBarStyleDefault (blue)
 @property(nullable,nonatomic,weak) id<UISearchBarDelegate> delegate;              // weak reference. default is nil
 @property(nullable,nonatomic,copy)   NSString               *text;                  // current/starting search text
 @property(nullable,nonatomic,copy)   NSString               *prompt;                // default is nil
 @property(nullable,nonatomic,copy)   NSString               *placeholder;           // default is nil
-@property(nonatomic)        BOOL                    showsBookmarkButton;   // default is NO
-@property(nonatomic)        BOOL                    showsCancelButton;     // default is NO
-@property(nonatomic)        BOOL                    showsSearchResultsButton NS_AVAILABLE_IOS(3_2); // default is NO
-@property(nonatomic, getter=isSearchResultsButtonSelected) BOOL searchResultsButtonSelected NS_AVAILABLE_IOS(3_2); // default is NO
-- (void)setShowsCancelButton:(BOOL)showsCancelButton animated:(BOOL)animated NS_AVAILABLE_IOS(3_0);
+@property(nonatomic)        BOOL                    showsBookmarkButton __TVOS_PROHIBITED;   // default is NO
+@property(nonatomic)        BOOL                    showsCancelButton __TVOS_PROHIBITED;     // default is NO
+@property(nonatomic)        BOOL                    showsSearchResultsButton NS_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED; // default is NO
+@property(nonatomic, getter=isSearchResultsButtonSelected) BOOL searchResultsButtonSelected NS_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED; // default is NO
+- (void)setShowsCancelButton:(BOOL)showsCancelButton animated:(BOOL)animated NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
 
 /// Use this method to modify the contents of the Unified Content Bar, shown on top of the keyboard when search is engaged.
 /// You may modify the returned inputAssistantItem to add to or replace the existing items on the bar.
 /// Modifications made to the returned UITextInputAssistantItem are reflected automatically.
-@property (nonatomic, readonly, strong) UITextInputAssistantItem *inputAssistantItem NS_AVAILABLE_IOS(9_0) __WATCHOS_PROHIBITED;
+@property (nonatomic, readonly, strong) UITextInputAssistantItem *inputAssistantItem NS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
 /*
  The behavior of tintColor for bars has changed on iOS 7.0. It no longer affects the bar's background
@@ -3427,8 +4565,8 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UISearchBar : UIView <UIBarPositioning, U
 
 /* You may specify the font, text color, and shadow properties for the title in the text attributes dictionary, using the keys found in NSAttributedString.h.
  */
-- (void)setScopeBarButtonTitleTextAttributes:(nullable NSDictionary<NSString *, id> *)attributes forState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
-- (nullable NSDictionary<NSString *, id> *)scopeBarButtonTitleTextAttributesForState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+- (void)setScopeBarButtonTitleTextAttributes:(nullable NSDictionary<NSAttributedStringKey,id> *)attributes forState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+- (nullable NSDictionary<NSAttributedStringKey, id> *)scopeBarButtonTitleTextAttributesForState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 
 /* To nudge the position of the search text field background in the search bar
  */
@@ -3456,21 +4594,90 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UISearchBar : UIView <UIBarPositioning, U
 - (BOOL)searchBar:(UISearchBar *)searchBar shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text NS_AVAILABLE_IOS(3_0); // called before text changes
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar;                     // called when keyboard search button pressed
-- (void)searchBarBookmarkButtonClicked:(UISearchBar *)searchBar;                   // called when bookmark button pressed
-- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar;                     // called when cancel button pressed
-- (void)searchBarResultsListButtonClicked:(UISearchBar *)searchBar NS_AVAILABLE_IOS(3_2); // called when search results button pressed
+- (void)searchBarBookmarkButtonClicked:(UISearchBar *)searchBar __TVOS_PROHIBITED; // called when bookmark button pressed
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar __TVOS_PROHIBITED;   // called when cancel button pressed
+- (void)searchBarResultsListButtonClicked:(UISearchBar *)searchBar NS_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED; // called when search results button pressed
 
 - (void)searchBar:(UISearchBar *)searchBar selectedScopeButtonIndexDidChange:(NSInteger)selectedScope NS_AVAILABLE_IOS(3_0);
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISearchBar.h>
+#endif
+// ==========  UIKit.framework/Headers/UIFocusAnimationCoordinator.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFocusAnimationCoordinator.h>)
+//
+//  UIFocusAnimationCoordinator.h
+//  UIKit
+//
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+/// UIFocusAnimationContext is used to provide UIKit-determined context about animations that are related to a focus update.
+NS_CLASS_AVAILABLE_IOS(11_0) @protocol UIFocusAnimationContext <NSObject>
+
+/// The duration of the main animations in seconds.
+@property (nonatomic, readonly) NSTimeInterval duration;
+
+@end
+
+/// UIFocusAnimationCoordinator is used to coordinate disparate animations that are related to a focus update.
+NS_CLASS_AVAILABLE_IOS(9_0) @interface UIFocusAnimationCoordinator : NSObject
+
+/**
+ Specifies focus-related animations that should be coordinated with the animations of the focusing or un-focusing view.
+ 
+ Any animations specified will be run in the same animation context as the main animation. The completion block is invoked after the main animation completes.
+ (Note that this may not be after all the coordinated animations specified by the call complete if the duration is not inherited.)
+ 
+ It is perfectly legitimate to only specify a completion block.
+ */
+- (void)addCoordinatedAnimations:(nullable void (^)(void))animations completion:(nullable void (^)(void))completion;
+
+/**
+ Specifies focus-related animations that should be coordinated with the animations of the focusing item.
+
+ Any animations specified will be run in the same animation context as the main animation. The completion block is invoked after the UIKit-defined animations complete.
+
+ It is perfectly legitimate to only specify a completion block.
+
+ A context object is provided in the animation block with details of the UIKit-defined animations being run for the focusing item.
+ */
+- (void)addCoordinatedFocusingAnimations:(void (^ _Nullable)(id<UIFocusAnimationContext> animationContext))animations completion:(void (^ _Nullable)(void))completion API_AVAILABLE(ios(11.0), tvos(11.0));
+
+/**
+ Specifies focus-related animations that should be coordinated with the animations of the un-focusing item.
+
+ Any animations specified will be run in the same animation context as the main animation. The completion block is invoked after the UIKit-defined animations complete.
+
+ It is perfectly legitimate to only specify a completion block.
+
+ A context object is provided in the animation block with details of the UIKit-defined animations being run for the un-focusing item.
+ */
+- (void)addCoordinatedUnfocusingAnimations:(void (^ _Nullable)(id<UIFocusAnimationContext> animationContext))animations completion:(void (^ _Nullable)(void))completion API_AVAILABLE(ios(11.0), tvos(11.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIFocusAnimationCoordinator.h>
+#endif
 // ==========  UIKit.framework/Headers/UIStringDrawing.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIStringDrawing.h>)
 //
 //  UIStringDrawing.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3486,13 +4693,13 @@ NS_ASSUME_NONNULL_END
  in NSAttributedString.h.
  */
 // Key to the font in the text attributes dictionary. A UIFont instance is expected. Use a font with size 0.0 to get the default font size for the situation.
-UIKIT_EXTERN NSString *const UITextAttributeFont NS_DEPRECATED_IOS(5_0, 7_0, "Use NSFontAttributeName");
+UIKIT_EXTERN NSString *const UITextAttributeFont NS_DEPRECATED_IOS(5_0, 7_0, "Use NSFontAttributeName") __TVOS_PROHIBITED;
 // Key to the text color in the text attributes dictionary. A UIColor instance is expected.
-UIKIT_EXTERN NSString *const UITextAttributeTextColor NS_DEPRECATED_IOS(5_0, 7_0, "Use NSForegroundColorAttributeName");
+UIKIT_EXTERN NSString *const UITextAttributeTextColor NS_DEPRECATED_IOS(5_0, 7_0, "Use NSForegroundColorAttributeName") __TVOS_PROHIBITED;
 // Key to the text shadow color in the text attributes dictionary.  A UIColor instance is expected.
-UIKIT_EXTERN NSString *const UITextAttributeTextShadowColor NS_DEPRECATED_IOS(5_0, 7_0, "Use NSShadowAttributeName with an NSShadow instance as the value");
+UIKIT_EXTERN NSString *const UITextAttributeTextShadowColor NS_DEPRECATED_IOS(5_0, 7_0, "Use NSShadowAttributeName with an NSShadow instance as the value") __TVOS_PROHIBITED;
 // Key to the offset used for the text shadow in the text attributes dictionary. An NSValue instance wrapping a UIOffset struct is expected.
-UIKIT_EXTERN NSString *const UITextAttributeTextShadowOffset NS_DEPRECATED_IOS(5_0, 7_0, "Use NSShadowAttributeName with an NSShadow instance as the value");
+UIKIT_EXTERN NSString *const UITextAttributeTextShadowOffset NS_DEPRECATED_IOS(5_0, 7_0, "Use NSShadowAttributeName with an NSShadow instance as the value") __TVOS_PROHIBITED;
 
 // Deprecated: use NSLineBreakMode instead
 typedef NS_ENUM(NSInteger, UILineBreakMode) {
@@ -3502,14 +4709,14 @@ typedef NS_ENUM(NSInteger, UILineBreakMode) {
     UILineBreakModeHeadTruncation,          // Truncate at head of line: "...wxyz". Will truncate multiline text on first line
     UILineBreakModeTailTruncation,          // Truncate at tail of line: "abcd...". Will truncate multiline text on last line
     UILineBreakModeMiddleTruncation,        // Truncate middle of line:  "ab...yz". Will truncate multiline text in the middle
-} NS_DEPRECATED_IOS(2_0,6_0);
+} NS_DEPRECATED_IOS(2_0,6_0) __TVOS_PROHIBITED;
 
 // Deprecated: use NSTextAlignment enum in UIKit/NSText.h
 typedef NS_ENUM(NSInteger, UITextAlignment) {
     UITextAlignmentLeft = 0,
     UITextAlignmentCenter,
     UITextAlignmentRight,                   // could add justified in future
-} NS_DEPRECATED_IOS(2_0,6_0);
+} NS_DEPRECATED_IOS(2_0,6_0) __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIBaselineAdjustment) {
     UIBaselineAdjustmentAlignBaselines = 0, // default. used when shrinking text to position based on the original baseline
@@ -3524,42 +4731,47 @@ typedef NS_ENUM(NSInteger, UIBaselineAdjustment) {
 @interface NSString(UIStringDrawing)
 
 // Single line, no wrapping. Truncation based on the NSLineBreakMode.
-- (CGSize)sizeWithFont:(UIFont *)font NS_DEPRECATED_IOS(2_0, 7_0, "Use -sizeWithAttributes:");
-- (CGSize)sizeWithFont:(UIFont *)font forWidth:(CGFloat)width lineBreakMode:(NSLineBreakMode)lineBreakMode NS_DEPRECATED_IOS(2_0, 7_0, "Use -boundingRectWithSize:options:attributes:context:");
+- (CGSize)sizeWithFont:(UIFont *)font NS_DEPRECATED_IOS(2_0, 7_0, "Use -sizeWithAttributes:") __TVOS_PROHIBITED;
+- (CGSize)sizeWithFont:(UIFont *)font forWidth:(CGFloat)width lineBreakMode:(NSLineBreakMode)lineBreakMode NS_DEPRECATED_IOS(2_0, 7_0, "Use -boundingRectWithSize:options:attributes:context:") __TVOS_PROHIBITED;
 
 // Single line, no wrapping. Truncation based on the NSLineBreakMode.
-- (CGSize)drawAtPoint:(CGPoint)point withFont:(UIFont *)font NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawAtPoint:withAttributes:");
-- (CGSize)drawAtPoint:(CGPoint)point forWidth:(CGFloat)width withFont:(UIFont *)font lineBreakMode:(NSLineBreakMode)lineBreakMode  NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:");
+- (CGSize)drawAtPoint:(CGPoint)point withFont:(UIFont *)font NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawAtPoint:withAttributes:") __TVOS_PROHIBITED;
+- (CGSize)drawAtPoint:(CGPoint)point forWidth:(CGFloat)width withFont:(UIFont *)font lineBreakMode:(NSLineBreakMode)lineBreakMode  NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:") __TVOS_PROHIBITED;
 
 // Wrapping to fit horizontal and vertical size. Text will be wrapped and truncated using the NSLineBreakMode. If the height is less than a line of text, it may return
 // a vertical size that is bigger than the one passed in.
 // If you size your text using the constrainedToSize: methods below, you should draw the text using the drawInRect: methods using the same line break mode for consistency
-- (CGSize)sizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size NS_DEPRECATED_IOS(2_0, 7_0, "Use -boundingRectWithSize:options:attributes:context:"); // Uses NSLineBreakModeWordWrap
-- (CGSize)sizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size lineBreakMode:(NSLineBreakMode)lineBreakMode NS_DEPRECATED_IOS(2_0, 7_0, "Use -boundingRectWithSize:options:attributes:context:"); // NSTextAlignment is not needed to determine size
+- (CGSize)sizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size NS_DEPRECATED_IOS(2_0, 7_0, "Use -boundingRectWithSize:options:attributes:context:") __TVOS_PROHIBITED; // Uses NSLineBreakModeWordWrap
+- (CGSize)sizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size lineBreakMode:(NSLineBreakMode)lineBreakMode NS_DEPRECATED_IOS(2_0, 7_0, "Use -boundingRectWithSize:options:attributes:context:") __TVOS_PROHIBITED; // NSTextAlignment is not needed to determine size
 
 // Wrapping to fit horizontal and vertical size.
-- (CGSize)drawInRect:(CGRect)rect withFont:(UIFont *)font NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:");
-- (CGSize)drawInRect:(CGRect)rect withFont:(UIFont *)font lineBreakMode:(NSLineBreakMode)lineBreakMode NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:");
-- (CGSize)drawInRect:(CGRect)rect withFont:(UIFont *)font lineBreakMode:(NSLineBreakMode)lineBreakMode alignment:(NSTextAlignment)alignment NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:");
+- (CGSize)drawInRect:(CGRect)rect withFont:(UIFont *)font NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:") __TVOS_PROHIBITED;
+- (CGSize)drawInRect:(CGRect)rect withFont:(UIFont *)font lineBreakMode:(NSLineBreakMode)lineBreakMode NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:") __TVOS_PROHIBITED;
+- (CGSize)drawInRect:(CGRect)rect withFont:(UIFont *)font lineBreakMode:(NSLineBreakMode)lineBreakMode alignment:(NSTextAlignment)alignment NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:") __TVOS_PROHIBITED;
 
 // These methods will behave identically to the above single line methods if the string will fit in the specified width in the specified font.
 // If not, the font size will be reduced until either the string fits or the minimum font size is reached.  If the minimum font
 // size is reached and the string still won't fit, the string will be truncated and drawn at the minimum font size.
 // The first two methods are used together, and the actualFontSize returned in the sizeWithFont method should be passed to the drawAtPoint method.
 // The last method will do the sizing calculation and drawing in one operation.
-- (CGSize)sizeWithFont:(UIFont *)font minFontSize:(CGFloat)minFontSize actualFontSize:(CGFloat *)actualFontSize forWidth:(CGFloat)width lineBreakMode:(NSLineBreakMode)lineBreakMode NS_DEPRECATED_IOS(2_0, 7_0);
+- (CGSize)sizeWithFont:(UIFont *)font minFontSize:(CGFloat)minFontSize actualFontSize:(CGFloat *)actualFontSize forWidth:(CGFloat)width lineBreakMode:(NSLineBreakMode)lineBreakMode NS_DEPRECATED_IOS(2_0, 7_0) __TVOS_PROHIBITED;
 
-- (CGSize)drawAtPoint:(CGPoint)point forWidth:(CGFloat)width withFont:(UIFont *)font fontSize:(CGFloat)fontSize lineBreakMode:(NSLineBreakMode)lineBreakMode baselineAdjustment:(UIBaselineAdjustment)baselineAdjustment NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:");
+- (CGSize)drawAtPoint:(CGPoint)point forWidth:(CGFloat)width withFont:(UIFont *)font fontSize:(CGFloat)fontSize lineBreakMode:(NSLineBreakMode)lineBreakMode baselineAdjustment:(UIBaselineAdjustment)baselineAdjustment NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:") __TVOS_PROHIBITED;
 
-- (CGSize)drawAtPoint:(CGPoint)point forWidth:(CGFloat)width withFont:(UIFont *)font minFontSize:(CGFloat)minFontSize actualFontSize:(CGFloat *)actualFontSize lineBreakMode:(NSLineBreakMode)lineBreakMode baselineAdjustment:(UIBaselineAdjustment)baselineAdjustment NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:");
+- (CGSize)drawAtPoint:(CGPoint)point forWidth:(CGFloat)width withFont:(UIFont *)font minFontSize:(CGFloat)minFontSize actualFontSize:(CGFloat *)actualFontSize lineBreakMode:(NSLineBreakMode)lineBreakMode baselineAdjustment:(UIBaselineAdjustment)baselineAdjustment NS_DEPRECATED_IOS(2_0, 7_0, "Use -drawInRect:withAttributes:") __TVOS_PROHIBITED;
 
 @end
+
+#else
+#import <UIKitCore/UIStringDrawing.h>
+#endif
 // ==========  UIKit.framework/Headers/UIDevice.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDevice.h>)
 //
 //  UIDevice.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3575,49 +4787,63 @@ typedef NS_ENUM(NSInteger, UIDeviceOrientation) {
     UIDeviceOrientationLandscapeRight,      // Device oriented horizontally, home button on the left
     UIDeviceOrientationFaceUp,              // Device oriented flat, face up
     UIDeviceOrientationFaceDown             // Device oriented flat, face down
-};
+} __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIDeviceBatteryState) {
     UIDeviceBatteryStateUnknown,
     UIDeviceBatteryStateUnplugged,   // on battery, discharging
     UIDeviceBatteryStateCharging,    // plugged in, less than 100%
     UIDeviceBatteryStateFull,        // plugged in, at 100%
-};              // available in iPhone 3.0
+} __TVOS_PROHIBITED;              // available in iPhone 3.0
 
 typedef NS_ENUM(NSInteger, UIUserInterfaceIdiom) {
     UIUserInterfaceIdiomUnspecified = -1,
     UIUserInterfaceIdiomPhone NS_ENUM_AVAILABLE_IOS(3_2), // iPhone and iPod touch style UI
     UIUserInterfaceIdiomPad NS_ENUM_AVAILABLE_IOS(3_2), // iPad style UI
+    UIUserInterfaceIdiomTV NS_ENUM_AVAILABLE_IOS(9_0), // Apple TV style UI
+    UIUserInterfaceIdiomCarPlay NS_ENUM_AVAILABLE_IOS(9_0), // CarPlay style UI
 };
 
-static inline BOOL UIDeviceOrientationIsPortrait(UIDeviceOrientation orientation) {
+static inline BOOL UIDeviceOrientationIsPortrait(UIDeviceOrientation orientation)  __TVOS_PROHIBITED {
     return ((orientation) == UIDeviceOrientationPortrait || (orientation) == UIDeviceOrientationPortraitUpsideDown);
 }
 
-static inline BOOL UIDeviceOrientationIsLandscape(UIDeviceOrientation orientation) {
+static inline BOOL UIDeviceOrientationIsLandscape(UIDeviceOrientation orientation)  __TVOS_PROHIBITED {
     return ((orientation) == UIDeviceOrientationLandscapeLeft || (orientation) == UIDeviceOrientationLandscapeRight);
+}
+
+static inline __attribute__((always_inline)) BOOL UIDeviceOrientationIsFlat(UIDeviceOrientation orientation)  __TVOS_PROHIBITED {
+    return ((orientation) == UIDeviceOrientationFaceUp || (orientation) == UIDeviceOrientationFaceDown);
+}
+
+static inline __attribute__((always_inline)) BOOL UIDeviceOrientationIsValidInterfaceOrientation(UIDeviceOrientation orientation)  __TVOS_PROHIBITED {
+    return ((orientation) == UIDeviceOrientationPortrait || (orientation) == UIDeviceOrientationPortraitUpsideDown || (orientation) == UIDeviceOrientationLandscapeLeft || (orientation) == UIDeviceOrientationLandscapeRight);
 }
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UIDevice : NSObject 
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) UIDevice *currentDevice;
+#else
 + (UIDevice *)currentDevice;
+#endif
 
 @property(nonatomic,readonly,strong) NSString    *name;              // e.g. "My iPhone"
 @property(nonatomic,readonly,strong) NSString    *model;             // e.g. @"iPhone", @"iPod touch"
 @property(nonatomic,readonly,strong) NSString    *localizedModel;    // localized version of model
 @property(nonatomic,readonly,strong) NSString    *systemName;        // e.g. @"iOS"
 @property(nonatomic,readonly,strong) NSString    *systemVersion;     // e.g. @"4.0"
-@property(nonatomic,readonly) UIDeviceOrientation orientation;       // return current device orientation.  this will return UIDeviceOrientationUnknown unless device orientation notifications are being generated.
+@property(nonatomic,readonly) UIDeviceOrientation orientation __TVOS_PROHIBITED;       // return current device orientation.  this will return UIDeviceOrientationUnknown unless device orientation notifications are being generated.
 
 @property(nullable, nonatomic,readonly,strong) NSUUID      *identifierForVendor NS_AVAILABLE_IOS(6_0);      // a UUID that may be used to uniquely identify the device, same across apps from a single vendor.
 
-@property(nonatomic,readonly,getter=isGeneratingDeviceOrientationNotifications) BOOL generatesDeviceOrientationNotifications;
-- (void)beginGeneratingDeviceOrientationNotifications;      // nestable
-- (void)endGeneratingDeviceOrientationNotifications;
+@property(nonatomic,readonly,getter=isGeneratingDeviceOrientationNotifications) BOOL generatesDeviceOrientationNotifications __TVOS_PROHIBITED;
+- (void)beginGeneratingDeviceOrientationNotifications __TVOS_PROHIBITED;      // nestable
+- (void)endGeneratingDeviceOrientationNotifications __TVOS_PROHIBITED;
 
-@property(nonatomic,getter=isBatteryMonitoringEnabled) BOOL batteryMonitoringEnabled NS_AVAILABLE_IOS(3_0);  // default is NO
-@property(nonatomic,readonly) UIDeviceBatteryState          batteryState NS_AVAILABLE_IOS(3_0);  // UIDeviceBatteryStateUnknown if monitoring disabled
-@property(nonatomic,readonly) float                         batteryLevel NS_AVAILABLE_IOS(3_0);  // 0 .. 1.0. -1.0 if UIDeviceBatteryStateUnknown
+@property(nonatomic,getter=isBatteryMonitoringEnabled) BOOL batteryMonitoringEnabled NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;  // default is NO
+@property(nonatomic,readonly) UIDeviceBatteryState          batteryState NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;  // UIDeviceBatteryStateUnknown if monitoring disabled
+@property(nonatomic,readonly) float                         batteryLevel NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;  // 0 .. 1.0. -1.0 if UIDeviceBatteryStateUnknown
 
 @property(nonatomic,getter=isProximityMonitoringEnabled) BOOL proximityMonitoringEnabled NS_AVAILABLE_IOS(3_0); // default is NO
 @property(nonatomic,readonly)                            BOOL proximityState NS_AVAILABLE_IOS(3_0);  // always returns NO if no proximity detector
@@ -3645,18 +4871,75 @@ static inline UIUserInterfaceIdiom UI_USER_INTERFACE_IDIOM() {
             UIUserInterfaceIdiomPhone);
 }
 
-UIKIT_EXTERN NSString *const UIDeviceOrientationDidChangeNotification;
-UIKIT_EXTERN NSString *const UIDeviceBatteryStateDidChangeNotification   NS_AVAILABLE_IOS(3_0);
-UIKIT_EXTERN NSString *const UIDeviceBatteryLevelDidChangeNotification   NS_AVAILABLE_IOS(3_0);
-UIKIT_EXTERN NSString *const UIDeviceProximityStateDidChangeNotification NS_AVAILABLE_IOS(3_0);
+UIKIT_EXTERN NSNotificationName const UIDeviceOrientationDidChangeNotification __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIDeviceBatteryStateDidChangeNotification   NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIDeviceBatteryLevelDidChangeNotification   NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIDeviceProximityStateDidChangeNotification NS_AVAILABLE_IOS(3_0);
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDevice.h>
+#endif
+// ==========  UIKit.framework/Headers/UIDragPreviewParameters.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDragPreviewParameters.h>)
+//
+//  UIDragPreviewParameters.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIBezierPath, UIColor;
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @interface UIDragPreviewParameters : NSObject <NSCopying>
+
+/* The default parameters. Use these for most drags.
+ */
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
+
+/* Parameters to show a preview of text.
+ *
+ * To clip the preview to only specific lines of text, specify one or more
+ * `NSValue`s containing `CGRect`s of those lines, in the view's coordinate
+ * system.
+ *
+ * The `visiblePath` property below will be set to a path based on the rects.
+ * If `textLineRects` is empty, the whole view will be shown.
+ */
+- (instancetype)initWithTextLineRects:(NSArray<NSValue /* CGRect */ *> *)textLineRects;
+
+/* The part of the view that should be shown in the preview.
+ * If `nil`, the whole view will be shown.
+ * Specify a path in the coordinate space of the view.
+ */
+@property (nonatomic, copy, nullable) UIBezierPath *visiblePath;
+
+/* The background color that the preview draws behind the specified view.
+ * Set this to `nil` to reset to the default value.
+ */
+@property (nonatomic, copy, null_resettable) UIColor *backgroundColor;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDragPreviewParameters.h>
+#endif
 // ==========  UIKit.framework/Headers/UICollectionViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UICollectionViewController.h>)
 //
 //  UICollectionViewController.h
 //  UIKit
 //
-//  Copyright (c) 2011-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIViewController.h>
@@ -3674,7 +4957,7 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewController : UIViewContro
 - (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
-@property (nullable, nonatomic, strong) __kindof UICollectionView *collectionView;
+@property (null_resettable, nonatomic, strong) __kindof UICollectionView *collectionView;
 
 // Defaults to YES, and if YES, any selection is cleared in viewWillAppear:
 // This property has no effect if the useLayoutToLayoutNavigationTransitions property is set to YES
@@ -3696,12 +4979,17 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewController : UIViewContro
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UICollectionViewController.h>
+#endif
 // ==========  UIKit.framework/Headers/UICollectionViewFlowLayout.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UICollectionViewFlowLayout.h>)
 //
 //  UICollectionViewFlowLayout.h
 //  UIKit
 //
-//  Copyright (c) 2011-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UICollectionViewLayout.h>
@@ -3713,11 +5001,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 UIKIT_EXTERN NSString *const UICollectionElementKindSectionHeader NS_AVAILABLE_IOS(6_0);
 UIKIT_EXTERN NSString *const UICollectionElementKindSectionFooter NS_AVAILABLE_IOS(6_0);
+UIKIT_EXTERN const CGSize UICollectionViewFlowLayoutAutomaticSize NS_AVAILABLE_IOS(10_0);
 
 typedef NS_ENUM(NSInteger, UICollectionViewScrollDirection) {
     UICollectionViewScrollDirectionVertical,
     UICollectionViewScrollDirectionHorizontal
 };
+
+typedef NS_ENUM(NSInteger, UICollectionViewFlowLayoutSectionInsetReference) {
+    UICollectionViewFlowLayoutSectionInsetFromContentInset,
+    UICollectionViewFlowLayoutSectionInsetFromSafeArea,
+    UICollectionViewFlowLayoutSectionInsetFromLayoutMargins
+} API_AVAILABLE(ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 NS_CLASS_AVAILABLE_IOS(7_0) @interface UICollectionViewFlowLayoutInvalidationContext : UICollectionViewLayoutInvalidationContext
 
@@ -3749,6 +5044,10 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewFlowLayout : UICollection
 @property (nonatomic) CGSize footerReferenceSize;
 @property (nonatomic) UIEdgeInsets sectionInset;
 
+/// The reference boundary that the section insets will be defined as relative to. Defaults to `.fromContentInset`.
+/// NOTE: Content inset will always be respected at a minimum. For example, if the sectionInsetReference equals `.fromSafeArea`, but the adjusted content inset is greater that the combination of the safe area and section insets, then section content will be aligned with the content inset instead.
+@property (nonatomic) UICollectionViewFlowLayoutSectionInsetReference sectionInsetReference API_AVAILABLE(ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+
 // Set these properties to YES to get headers that pin to the top of the screen and footers that pin to the bottom while scrolling (similar to UITableView).
 @property (nonatomic) BOOL sectionHeadersPinToVisibleBounds NS_AVAILABLE_IOS(9_0);
 @property (nonatomic) BOOL sectionFootersPinToVisibleBounds NS_AVAILABLE_IOS(9_0);
@@ -3756,15 +5055,22 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewFlowLayout : UICollection
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UICollectionViewFlowLayout.h>
+#endif
 // ==========  UIKit.framework/Headers/UIVisualEffectView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIVisualEffectView.h>)
 //
 //  UIVisualEffectView.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <UIKit/UIView.h>
+#import <UIKit/UIBlurEffect.h>
+#import <UIKit/UIVibrancyEffect.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -3779,40 +5085,56 @@ NS_ASSUME_NONNULL_BEGIN
  • Correctly capturing snapshots - Many effects require support from the window that hosts the view. As such, attempting to take a snapshot of just the UIVisualEffectView will result in the snapshot not containing the effect at all or it appearing incorrectly. To properly snapshot a view hierarchy that contains a UIVisualEffectView, you must snapshot the entire UIWindow or UIScreen that contains it.
  */
 
-typedef NS_ENUM(NSInteger, UIBlurEffectStyle) {
-    UIBlurEffectStyleExtraLight,
-    UIBlurEffectStyleLight,
-    UIBlurEffectStyleDark
-} NS_ENUM_AVAILABLE_IOS(8_0);
-
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UIVisualEffect : NSObject <NSCopying, NSSecureCoding> @end
-
-/* UIBlurEffect will provide a blur that appears to have been applied to the content layered behind the UIVisualEffectView. Views added to the contentView of a blur visual effect are not blurred themselves. */
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UIBlurEffect : UIVisualEffect
-+ (UIBlurEffect *)effectWithStyle:(UIBlurEffectStyle)style;
-@end
-
-/* UIVibrancyEffect amplifies and adjusts the color of content layered behind the view, allowing content placed inside the contentView to become more vivid. It is intended to be placed over, or as a subview of, a UIVisualEffectView that has been configured with a UIBlurEffect. This effect only affects content added to the contentView. Because the vibrancy effect is color dependent, subviews added to the contentView need to be tintColorDidChange aware and must be prepared to update themselves accordingly. UIImageView will need its image to have a rendering mode of UIImageRenderingModeAlwaysTemplate to receive the proper effect.
- */
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UIVibrancyEffect : UIVisualEffect
-+ (UIVibrancyEffect *)effectForBlurEffect:(UIBlurEffect *)blurEffect;
-@end
-
 NS_CLASS_AVAILABLE_IOS(8_0) @interface UIVisualEffectView : UIView <NSSecureCoding>
+
 @property (nonatomic, strong, readonly) UIView *contentView; // Do not add subviews directly to UIVisualEffectView, use this view instead.
+
 @property (nonatomic, copy, nullable) UIVisualEffect *effect;
+
 - (instancetype)initWithEffect:(nullable UIVisualEffect *)effect NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+
 @end
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIVisualEffectView.h>
+#endif
+// ==========  UIKit.framework/Headers/UISpringLoadedInteractionSupporting.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISpringLoadedInteractionSupporting.h>)
+//
+//  UISpringLoadedInteractionSupporting.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UISpringLoadedInteractionSupporting <NSObject>
+
+@property (nonatomic, assign, getter=isSpringLoaded) BOOL springLoaded UIKIT_AVAILABLE_IOS_ONLY(11_0);
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISpringLoadedInteractionSupporting.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPrinterPickerController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPrinterPickerController.h>)
 //
 //  UIPrinterPickerController.h
 //  UIKit
 //
-//  Copyright (c) 2013-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3826,7 +5148,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^UIPrinterPickerCompletionHandler)(UIPrinterPickerController *printerPickerController, BOOL userDidSelect, NSError * __nullable error);
 
-
+__TVOS_PROHIBITED
 @protocol UIPrinterPickerControllerDelegate <NSObject>
 @optional
 
@@ -3852,7 +5174,7 @@ typedef void (^UIPrinterPickerCompletionHandler)(UIPrinterPickerController *prin
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPrinterPickerController : NSObject
+NS_CLASS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED @interface UIPrinterPickerController : NSObject
 
 /*!
  *  @method     printerPickerControllerWithInitiallySelectedPrinter:
@@ -3879,19 +5201,24 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPrinterPickerController : NSObject
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPrinterPickerController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIReferenceLibraryViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIReferenceLibraryViewController.h>)
 //
 //  UIReferenceLibraryViewController.h
 //  UIKit
 //
-//  Copyright 2011-2012 Apple Inc. All rights reserved.
+//  Copyright 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIViewController.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE_IOS(5_0)
+NS_CLASS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED
 @interface UIReferenceLibraryViewController : UIViewController {}
 
 /*! Returns YES if any installed dictionary has a definition for the provided term.
@@ -3909,15 +5236,21 @@ NS_CLASS_AVAILABLE_IOS(5_0)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIReferenceLibraryViewController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIApplicationShortcutItem.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIApplicationShortcutItem.h>)
 //
 //  UIApplicationShortcutItem.h
 //  UIKit
 //
-//  Copyright © 2015 Apple Inc. All rights reserved.
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -3930,10 +5263,32 @@ typedef NS_ENUM(NSInteger, UIApplicationShortcutIconType) {
     UIApplicationShortcutIconTypeAdd,
     UIApplicationShortcutIconTypeLocation,
     UIApplicationShortcutIconTypeSearch,
-    UIApplicationShortcutIconTypeShare
-} NS_ENUM_AVAILABLE_IOS(9_0);
+    UIApplicationShortcutIconTypeShare,
+    UIApplicationShortcutIconTypeProhibit       NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeContact        NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeHome           NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeMarkLocation   NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeFavorite       NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeLove           NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeCloud          NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeInvitation     NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeConfirmation   NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeMail           NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeMessage        NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeDate           NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeTime           NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeCapturePhoto   NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeCaptureVideo   NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeTask           NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeTaskCompleted  NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeAlarm          NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeBookmark       NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeShuffle        NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeAudio          NS_ENUM_AVAILABLE_IOS(9_1),
+    UIApplicationShortcutIconTypeUpdate         NS_ENUM_AVAILABLE_IOS(9_1)
+} API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(macos);
 
-NS_CLASS_AVAILABLE_IOS(9_0)
+UIKIT_EXTERN API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(macos)
 @interface UIApplicationShortcutIcon : NSObject <NSCopying>
 
 // Create an icon using a system-defined image.
@@ -3946,11 +5301,11 @@ NS_CLASS_AVAILABLE_IOS(9_0)
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(9_0)
+UIKIT_EXTERN API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(macos)
 @interface UIApplicationShortcutItem : NSObject <NSCopying, NSMutableCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithType:(NSString *)type localizedTitle:(NSString *)localizedTitle localizedSubtitle:(nullable NSString *)localizedSubtitle icon:(nullable UIApplicationShortcutIcon *)icon userInfo:(nullable NSDictionary *)userInfo NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithType:(NSString *)type localizedTitle:(NSString *)localizedTitle localizedSubtitle:(nullable NSString *)localizedSubtitle icon:(nullable UIApplicationShortcutIcon *)icon userInfo:(nullable NSDictionary<NSString *, id <NSSecureCoding>> *)userInfo NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithType:(NSString *)type localizedTitle:(NSString *)localizedTitle;
 
 // An application-specific string that identifies the type of action to perform.
@@ -3967,7 +5322,7 @@ NS_CLASS_AVAILABLE_IOS(9_0)
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(9_0)
+UIKIT_EXTERN API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(macos)
 @interface UIMutableApplicationShortcutItem : UIApplicationShortcutItem
 
 // An application-specific string that identifies the type of action to perform.
@@ -3985,12 +5340,147 @@ NS_CLASS_AVAILABLE_IOS(9_0)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIApplicationShortcutItem.h>
+#endif
+// ==========  UIKit.framework/Headers/UIPress.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPress.h>)
+//
+//  UIPress.h
+//  UIKit
+//
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UITouch.h>
+
+@class UIGestureRecognizer;
+@class UIResponder;
+@class UIWindow;
+
+NS_ENUM_AVAILABLE_IOS(9_0) typedef NS_ENUM(NSInteger, UIPressPhase) {
+    UIPressPhaseBegan,         // whenever a button press begins.
+    UIPressPhaseChanged,       // whenever a button moves.
+    UIPressPhaseStationary,    // whenever a buttons was pressed and is still being held down.
+    UIPressPhaseEnded,         // whenever a button is releasd.
+    UIPressPhaseCancelled,     // whenever a button press doesn't end but we need to stop tracking.
+};
+
+NS_ENUM_AVAILABLE_IOS(9_0) typedef NS_ENUM(NSInteger, UIPressType) {
+    UIPressTypeUpArrow,
+    UIPressTypeDownArrow,
+    UIPressTypeLeftArrow,
+    UIPressTypeRightArrow,
+
+    UIPressTypeSelect,
+    UIPressTypeMenu,
+    UIPressTypePlayPause,
+};
+
+NS_CLASS_AVAILABLE_IOS(9_0) @interface UIPress : NSObject
+
+@property(nonatomic,readonly) NSTimeInterval   timestamp;
+@property(nonatomic,readonly) UIPressPhase     phase;
+@property(nonatomic,readonly) UIPressType      type;
+
+@property(nullable,nonatomic,readonly,strong) UIWindow                        *window;
+@property(nullable,nonatomic,readonly,strong) UIResponder                     *responder;
+@property(nullable,nonatomic,readonly,copy)   NSArray <UIGestureRecognizer *> *gestureRecognizers;
+
+// For analog buttons, returns a value between 0 and 1.  Digital buttons return 0 or 1.
+@property(nonatomic, readonly) CGFloat force;
+@end
+
+#else
+#import <UIKitCore/UIPress.h>
+#endif
+// ==========  UIKit.framework/Headers/UITextDragURLPreviews.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextDragURLPreviews.h>)
+//
+//  UITextDragURLPreviews.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIDragPreview.h>
+#import <UIKit/UITargetedDragPreview.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/* Methods to create previews for dragging a URL.
+ * The previews show a textual representation of the URL, and may not
+ * contain the full URL string.
+ * Should be used only for Internet protocol based URLs, not file URLs.
+ */
+
+@interface UIDragPreview (URLPreviews)
+
++ (instancetype)previewForURL:(NSURL *)url API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+/* If the title is nil or empty, this is the same as `previewForURL:`.
+ */
++ (instancetype)previewForURL:(NSURL *)url title:(NSString * _Nullable)title API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+@end
+
+
+@interface UITargetedDragPreview (URLPreviews)
+
++ (instancetype)previewForURL:(NSURL *)url target:(UIDragPreviewTarget*)target API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+/* If the title is nil or empty, this is the same as `previewForURL:target:`.
+ */
++ (instancetype)previewForURL:(NSURL *)url title:(NSString * _Nullable)title target:(UIDragPreviewTarget*)target API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextDragURLPreviews.h>
+#endif
+// ==========  UIKit.framework/Headers/UIPressesEvent.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPressesEvent.h>)
+//
+//  UIPressesEvent.h
+//  UIKit
+//
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIEvent.h>
+#import <UIKit/UIPress.h>
+#import <UIKit/UIGestureRecognizer.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+NS_CLASS_AVAILABLE_IOS(9_0) @interface UIPressesEvent : UIEvent
+
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) NSSet <UIPress *> *allPresses;
+#else
+- (NSSet <UIPress *> *)allPresses;
+#endif
+- (NSSet <UIPress *> *)pressesForGestureRecognizer:(UIGestureRecognizer *)gesture;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPressesEvent.h>
+#endif
 // ==========  UIKit.framework/Headers/UIEvent.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIEvent.h>)
 //
 //  UIEvent.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4005,6 +5495,7 @@ typedef NS_ENUM(NSInteger, UIEventType) {
     UIEventTypeTouches,
     UIEventTypeMotion,
     UIEventTypeRemoteControl,
+    UIEventTypePresses NS_ENUM_AVAILABLE_IOS(9_0),
 };
 
 typedef NS_ENUM(NSInteger, UIEventSubtype) {
@@ -4035,7 +5526,11 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIEvent : NSObject
 
 @property(nonatomic,readonly) NSTimeInterval  timestamp;
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) NSSet <UITouch *> *allTouches;
+#else
 - (nullable NSSet <UITouch *> *)allTouches;
+#endif
 - (nullable NSSet <UITouch *> *)touchesForWindow:(UIWindow *)window;
 - (nullable NSSet <UITouch *> *)touchesForView:(UIView *)view;
 - (nullable NSSet <UITouch *> *)touchesForGestureRecognizer:(UIGestureRecognizer *)gesture NS_AVAILABLE_IOS(3_2);
@@ -4049,12 +5544,17 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIEvent : NSObject
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIEvent.h>
+#endif
 // ==========  UIKit.framework/Headers/UIToolbar.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIToolbar.h>)
 //
 //  UIToolbar.h
 //  UIKit
 //
-//  Copyright (c) 2006-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4070,10 +5570,10 @@ NS_ASSUME_NONNULL_BEGIN
 @class UIBarButtonItem, UIColor;
 @protocol UIToolbarDelegate;
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UIToolbar : UIView <UIBarPositioning>
+NS_CLASS_AVAILABLE_IOS(2_0) __TVOS_PROHIBITED @interface UIToolbar : UIView <UIBarPositioning>
 
-@property(nonatomic) UIBarStyle barStyle; // default is UIBarStyleDefault (blue)
-@property(nullable,nonatomic,copy) NSArray<UIBarButtonItem *> *items; // get/set visible UIBarButtonItem. default is nil. changes not animated. shown in order
+@property(nonatomic) UIBarStyle barStyle UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED; // default is UIBarStyleDefault
+@property(nullable, nonatomic, copy) NSArray<UIBarButtonItem *> *items; // get/set visible UIBarButtonItem. default is nil. changes not animated. shown in order
 
 /*
  New behavior on iOS 7.
@@ -4096,8 +5596,8 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIToolbar : UIView <UIBarPositioning>
  and behaves as described for the tintColor property added to UIView.
  To tint the bar's background, please use -barTintColor.
  */
-@property(null_resettable, nonatomic,strong) UIColor *tintColor;
-@property(nullable, nonatomic,strong) UIColor *barTintColor NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR;  // default is nil
+@property(null_resettable, nonatomic, strong) UIColor *tintColor;
+@property(nullable, nonatomic, strong) UIColor *barTintColor NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR;  // default is nil
 
 /* Use these methods to set and access custom background images for toolbars.
       Default is nil. When non-nil the image will be used instead of the system image for toolbars in the
@@ -4117,23 +5617,58 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIToolbar : UIView <UIBarPositioning>
 - (void)setShadowImage:(nullable UIImage *)shadowImage forToolbarPosition:(UIBarPosition)topOrBottom NS_AVAILABLE_IOS(6_0) UI_APPEARANCE_SELECTOR;
 - (nullable UIImage *)shadowImageForToolbarPosition:(UIBarPosition)topOrBottom NS_AVAILABLE_IOS(6_0) UI_APPEARANCE_SELECTOR;
 
-@property(nullable, nonatomic,assign) id<UIToolbarDelegate> delegate NS_AVAILABLE_IOS(7_0); // You may not set the delegate when the toolbar is managed by a UINavigationController.
+@property(nullable, nonatomic, weak) id<UIToolbarDelegate> delegate NS_AVAILABLE_IOS(7_0); // You may not set the delegate when the toolbar is managed by a UINavigationController.
 @end
 
-
+__TVOS_PROHIBITED
 @protocol UIToolbarDelegate <UIBarPositioningDelegate>
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIToolbar.h>
+#endif
+// ==========  UIKit.framework/Headers/UISwipeActionsConfiguration.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISwipeActionsConfiguration.h>)
+//
+//  UISwipeActionsConfiguration.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+#import <UIKit/UIContextualAction.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos)
+@interface UISwipeActionsConfiguration : NSObject
+
++ (instancetype)configurationWithActions:(NSArray<UIContextualAction *> *)actions;
+
+@property (nonatomic, copy, readonly) NSArray<UIContextualAction *> *actions;
+@property (nonatomic) BOOL performsFirstActionWithFullSwipe; // default YES, set to NO to prevent a full swipe from performing the first action
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISwipeActionsConfiguration.h>
+#endif
 // ==========  UIKit.framework/Headers/UIInputView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIInputView.h>)
 //
 //  UIInputView.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <UIKit/UIView.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -4154,12 +5689,17 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIInputView : UIView
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIInputView.h>
+#endif
 // ==========  UIKit.framework/Headers/UIInterface.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIInterface.h>)
 //
 //  UIInterface.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4177,7 +5717,7 @@ typedef NS_ENUM(NSInteger, UIBarStyle) {
     
     UIBarStyleBlackOpaque      = 1, // Deprecated. Use UIBarStyleBlack
     UIBarStyleBlackTranslucent = 2, // Deprecated. Use UIBarStyleBlack and set the translucent property to YES
-};
+} __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIUserInterfaceSizeClass) {
     UIUserInterfaceSizeClassUnspecified = 0,
@@ -4185,48 +5725,96 @@ typedef NS_ENUM(NSInteger, UIUserInterfaceSizeClass) {
     UIUserInterfaceSizeClassRegular     = 2,
 } NS_ENUM_AVAILABLE_IOS(8_0);
 
+// On iOS, these values are only available on trait environments with UIUserInterfaceIdiomCarPlay. 
+typedef NS_ENUM(NSInteger, UIUserInterfaceStyle) {
+    UIUserInterfaceStyleUnspecified,
+    UIUserInterfaceStyleLight,
+    UIUserInterfaceStyleDark,
+} __TVOS_AVAILABLE(10_0) __IOS_AVAILABLE(12_0) __WATCHOS_PROHIBITED;
+
+typedef NS_ENUM(NSInteger, UIUserInterfaceLayoutDirection) {
+    UIUserInterfaceLayoutDirectionLeftToRight,
+    UIUserInterfaceLayoutDirectionRightToLeft,
+} NS_ENUM_AVAILABLE_IOS(5_0);
+
+// These values are only used for the layout direction trait, which informs but does not completely dictate the layout direction of views. To determine the effective layout direction of a view, consult the UIView.effectiveUserInterfaceLayoutDirection property, whose values are members of the UIUserInterfaceLayoutDirection enum.
+typedef NS_ENUM(NSInteger, UITraitEnvironmentLayoutDirection) {
+    UITraitEnvironmentLayoutDirectionUnspecified = -1,
+    UITraitEnvironmentLayoutDirectionLeftToRight = UIUserInterfaceLayoutDirectionLeftToRight,
+    UITraitEnvironmentLayoutDirectionRightToLeft = UIUserInterfaceLayoutDirectionRightToLeft,
+} NS_ENUM_AVAILABLE_IOS(10_0);
+
+typedef NS_ENUM(NSInteger, UIDisplayGamut) {
+    UIDisplayGamutUnspecified = -1, // UIKit will not set this anymore, instead a sensible default is chosen based on the device capabilities and settings always
+    UIDisplayGamutSRGB,
+    UIDisplayGamutP3
+} NS_ENUM_AVAILABLE_IOS(10_0);
+
+
 // System colors
 
 @interface UIColor (UIColorSystemColors)
-+ (UIColor *)lightTextColor;                // for a dark background
-+ (UIColor *)darkTextColor;                 // for a light background
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) UIColor *lightTextColor __TVOS_PROHIBITED;                // for a dark background
+@property(class, nonatomic, readonly) UIColor *darkTextColor __TVOS_PROHIBITED;                 // for a light background
 
-+ (UIColor *)groupTableViewBackgroundColor;
+@property(class, nonatomic, readonly) UIColor *groupTableViewBackgroundColor __TVOS_PROHIBITED;
 
-+ (UIColor *)viewFlipsideBackgroundColor NS_DEPRECATED_IOS(2_0, 7_0);
-+ (UIColor *)scrollViewTexturedBackgroundColor NS_DEPRECATED_IOS(3_2, 7_0);
-+ (UIColor *)underPageBackgroundColor NS_DEPRECATED_IOS(5_0, 7_0);
+@property(class, nonatomic, readonly) UIColor *viewFlipsideBackgroundColor NS_DEPRECATED_IOS(2_0, 7_0) __TVOS_PROHIBITED;
+@property(class, nonatomic, readonly) UIColor *scrollViewTexturedBackgroundColor NS_DEPRECATED_IOS(3_2, 7_0) __TVOS_PROHIBITED;
+@property(class, nonatomic, readonly) UIColor *underPageBackgroundColor NS_DEPRECATED_IOS(5_0, 7_0) __TVOS_PROHIBITED;
+#else
++ (UIColor *)lightTextColor __TVOS_PROHIBITED;                // for a dark background
++ (UIColor *)darkTextColor __TVOS_PROHIBITED;                 // for a light background
+
++ (UIColor *)groupTableViewBackgroundColor __TVOS_PROHIBITED;
+
++ (UIColor *)viewFlipsideBackgroundColor NS_DEPRECATED_IOS(2_0, 7_0) __TVOS_PROHIBITED;
++ (UIColor *)scrollViewTexturedBackgroundColor NS_DEPRECATED_IOS(3_2, 7_0) __TVOS_PROHIBITED;
++ (UIColor *)underPageBackgroundColor NS_DEPRECATED_IOS(5_0, 7_0) __TVOS_PROHIBITED;
+#endif
 @end
 
 // System fonts
 
 @interface UIFont (UIFontSystemFonts)
-+ (CGFloat)labelFontSize;
-+ (CGFloat)buttonFontSize;
-+ (CGFloat)smallSystemFontSize;
-+ (CGFloat)systemFontSize;
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) CGFloat labelFontSize __TVOS_PROHIBITED;
+@property(class, nonatomic, readonly) CGFloat buttonFontSize __TVOS_PROHIBITED;
+@property(class, nonatomic, readonly) CGFloat smallSystemFontSize __TVOS_PROHIBITED;
+@property(class, nonatomic, readonly) CGFloat systemFontSize __TVOS_PROHIBITED;
+#else
++ (CGFloat)labelFontSize __TVOS_PROHIBITED;
++ (CGFloat)buttonFontSize __TVOS_PROHIBITED;
++ (CGFloat)smallSystemFontSize __TVOS_PROHIBITED;
++ (CGFloat)systemFontSize __TVOS_PROHIBITED;
+#endif
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIInterface.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPickerView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPickerView.h>)
 //
 //  UIPickerView.h
 //  UIKit
 //
-//  Copyright (c) 2006-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <UIKit/UIView.h>
-#import <UIKit/UITableView.h>
 #import <UIKit/UIKitDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol UIPickerViewDataSource, UIPickerViewDelegate;
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UIPickerView : UIView <NSCoding, UITableViewDataSource>
+NS_CLASS_AVAILABLE_IOS(2_0) __TVOS_PROHIBITED @interface UIPickerView : UIView <NSCoding>
 
 @property(nullable,nonatomic,weak) id<UIPickerViewDataSource> dataSource;                // default is nil. weak reference
 @property(nullable,nonatomic,weak) id<UIPickerViewDelegate>   delegate;                  // default is nil. weak reference
@@ -4254,7 +5842,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIPickerView : UIView <NSCoding, UITableV
 @end
 
 
-
+__TVOS_PROHIBITED
 @protocol UIPickerViewDataSource<NSObject>
 @required
 
@@ -4265,32 +5853,37 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIPickerView : UIView <NSCoding, UITableV
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component;
 @end
 
-
+__TVOS_PROHIBITED
 @protocol UIPickerViewDelegate<NSObject>
 @optional
 
 // returns width of column and height of row for each component. 
-- (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component;
-- (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component;
+- (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component __TVOS_PROHIBITED;
+- (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component __TVOS_PROHIBITED;
 
 // these methods return either a plain NSString, a NSAttributedString, or a view (e.g UILabel) to display the row for the component.
 // for the view versions, we cache any hidden and thus unused views and pass them back for reuse. 
 // If you return back a different object, the old one will be released. the view will be centered in the row rect  
-- (nullable NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component;
-- (nullable NSAttributedString *)pickerView:(UIPickerView *)pickerView attributedTitleForRow:(NSInteger)row forComponent:(NSInteger)component NS_AVAILABLE_IOS(6_0); // attributed title is favored if both methods are implemented
-- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(nullable UIView *)view;
+- (nullable NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component __TVOS_PROHIBITED;
+- (nullable NSAttributedString *)pickerView:(UIPickerView *)pickerView attributedTitleForRow:(NSInteger)row forComponent:(NSInteger)component NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED; // attributed title is favored if both methods are implemented
+- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(nullable UIView *)view __TVOS_PROHIBITED;
 
-- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component;
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component __TVOS_PROHIBITED;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPickerView.h>
+#endif
 // ==========  UIKit.framework/Headers/UIImagePickerController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIImagePickerController.h>)
 //
 //  UIImagePickerController.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4306,7 +5899,7 @@ typedef NS_ENUM(NSInteger, UIImagePickerControllerSourceType) {
     UIImagePickerControllerSourceTypePhotoLibrary,
     UIImagePickerControllerSourceTypeCamera,
     UIImagePickerControllerSourceTypeSavedPhotosAlbum
-};
+} __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIImagePickerControllerQualityType) {
     UIImagePickerControllerQualityTypeHigh = 0,       // highest quality
@@ -4315,34 +5908,44 @@ typedef NS_ENUM(NSInteger, UIImagePickerControllerQualityType) {
     UIImagePickerControllerQualityType640x480 NS_ENUM_AVAILABLE_IOS(4_0) = 3,    // VGA quality
     UIImagePickerControllerQualityTypeIFrame1280x720 NS_ENUM_AVAILABLE_IOS(5_0) = 4,
     UIImagePickerControllerQualityTypeIFrame960x540 NS_ENUM_AVAILABLE_IOS(5_0) = 5,
-};
+} __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIImagePickerControllerCameraCaptureMode) {
     UIImagePickerControllerCameraCaptureModePhoto,
     UIImagePickerControllerCameraCaptureModeVideo
-};
+} __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIImagePickerControllerCameraDevice) {
     UIImagePickerControllerCameraDeviceRear,
     UIImagePickerControllerCameraDeviceFront
-};
+} __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIImagePickerControllerCameraFlashMode) {
     UIImagePickerControllerCameraFlashModeOff  = -1,
     UIImagePickerControllerCameraFlashModeAuto = 0,
     UIImagePickerControllerCameraFlashModeOn   = 1
-};
+} __TVOS_PROHIBITED;
+
+typedef NS_ENUM(NSInteger, UIImagePickerControllerImageURLExportPreset) {
+    UIImagePickerControllerImageURLExportPresetCompatible = 0,
+    UIImagePickerControllerImageURLExportPresetCurrent
+} NS_AVAILABLE_IOS(11_0) __TVOS_PROHIBITED;
+
+typedef NSString * UIImagePickerControllerInfoKey NS_TYPED_ENUM;
 
 // info dictionary keys
-UIKIT_EXTERN NSString *const UIImagePickerControllerMediaType;      // an NSString (UTI, i.e. kUTTypeImage)
-UIKIT_EXTERN NSString *const UIImagePickerControllerOriginalImage;  // a UIImage
-UIKIT_EXTERN NSString *const UIImagePickerControllerEditedImage;    // a UIImage
-UIKIT_EXTERN NSString *const UIImagePickerControllerCropRect;       // an NSValue (CGRect)
-UIKIT_EXTERN NSString *const UIImagePickerControllerMediaURL;       // an NSURL
-UIKIT_EXTERN NSString *const UIImagePickerControllerReferenceURL        NS_AVAILABLE_IOS(4_1);  // an NSURL that references an asset in the AssetsLibrary framework
-UIKIT_EXTERN NSString *const UIImagePickerControllerMediaMetadata       NS_AVAILABLE_IOS(4_1);  // an NSDictionary containing metadata from a captured photo
+UIKIT_EXTERN UIImagePickerControllerInfoKey const UIImagePickerControllerMediaType __TVOS_PROHIBITED;      // an NSString (UTI, i.e. kUTTypeImage)
+UIKIT_EXTERN UIImagePickerControllerInfoKey const UIImagePickerControllerOriginalImage __TVOS_PROHIBITED;  // a UIImage
+UIKIT_EXTERN UIImagePickerControllerInfoKey const UIImagePickerControllerEditedImage __TVOS_PROHIBITED;    // a UIImage
+UIKIT_EXTERN UIImagePickerControllerInfoKey const UIImagePickerControllerCropRect __TVOS_PROHIBITED;       // an NSValue (CGRect)
+UIKIT_EXTERN UIImagePickerControllerInfoKey const UIImagePickerControllerMediaURL __TVOS_PROHIBITED;       // an NSURL
+UIKIT_EXTERN UIImagePickerControllerInfoKey const UIImagePickerControllerReferenceURL        NS_DEPRECATED_IOS(4_1, 11_0, "Replace with public API: UIImagePickerControllerPHAsset") __TVOS_PROHIBITED;  // an NSURL that references an asset in the AssetsLibrary framework
+UIKIT_EXTERN UIImagePickerControllerInfoKey const UIImagePickerControllerMediaMetadata       NS_AVAILABLE_IOS(4_1) __TVOS_PROHIBITED;  // an NSDictionary containing metadata from a captured photo
+UIKIT_EXTERN UIImagePickerControllerInfoKey const UIImagePickerControllerLivePhoto NS_AVAILABLE_IOS(9_1) __TVOS_PROHIBITED;  // a PHLivePhoto
+UIKIT_EXTERN UIImagePickerControllerInfoKey const UIImagePickerControllerPHAsset NS_AVAILABLE_IOS(11_0) __TVOS_PROHIBITED;  // a PHAsset
+UIKIT_EXTERN UIImagePickerControllerInfoKey const UIImagePickerControllerImageURL NS_AVAILABLE_IOS(11_0) __TVOS_PROHIBITED;  // an NSURL
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UIImagePickerController : UINavigationController <NSCoding>
+NS_CLASS_AVAILABLE_IOS(2_0) __TVOS_PROHIBITED @interface UIImagePickerController : UINavigationController <NSCoding>
 
 + (BOOL)isSourceTypeAvailable:(UIImagePickerControllerSourceType)sourceType;                 // returns YES if source is available (i.e. camera present)
 + (nullable NSArray<NSString *> *)availableMediaTypesForSourceType:(UIImagePickerControllerSourceType)sourceType; // returns array of available media types (i.e. kUTTypeImage)
@@ -4358,10 +5961,13 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIImagePickerController : UINavigationCon
     // default value is an array containing kUTTypeImage.
 @property(nonatomic)           BOOL                                  allowsEditing NS_AVAILABLE_IOS(3_1);     // replacement for -allowsImageEditing; default value is NO.
 @property(nonatomic)           BOOL                                  allowsImageEditing NS_DEPRECATED_IOS(2_0, 3_1);
+@property(nonatomic)           UIImagePickerControllerImageURLExportPreset imageExportPreset NS_AVAILABLE_IOS(11_0);   // default value is UIImagePickerControllerImageExportPresetCompatible.
 
 // video properties apply only if mediaTypes includes kUTTypeMovie
 @property(nonatomic)           NSTimeInterval                        videoMaximumDuration NS_AVAILABLE_IOS(3_1); // default value is 10 minutes.
 @property(nonatomic)           UIImagePickerControllerQualityType    videoQuality NS_AVAILABLE_IOS(3_1);         // default value is UIImagePickerControllerQualityTypeMedium. If the cameraDevice does not support the videoQuality, it will use the default value.
+@property(nonatomic, copy)     NSString                              *videoExportPreset NS_AVAILABLE_IOS(11_0);  // videoExportPreset can be used to specify the transcoding quality for videos (via a AVAssetExportPreset* string). If the value is nil (the default) then the transcodeQuality is determined by videoQuality instead. Not valid if the source type is UIImagePickerControllerSourceTypeCamera
+
 
 // camera additions available only if sourceType is UIImagePickerControllerSourceTypeCamera.
 @property(nonatomic)           BOOL                                  showsCameraControls NS_AVAILABLE_IOS(3_1);   // set to NO to hide all standard camera UI. default is YES
@@ -4382,13 +5988,13 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIImagePickerController : UINavigationCon
 
 @end
 
- @protocol UIImagePickerControllerDelegate<NSObject>
+__TVOS_PROHIBITED @protocol UIImagePickerControllerDelegate<NSObject>
 @optional
 // The picker does not dismiss itself; the client dismisses it in these callbacks.
 // The delegate will receive one or the other, but not both, depending whether the user
 // confirms or cancels.
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(nullable NSDictionary<NSString *,id> *)editingInfo NS_DEPRECATED_IOS(2_0, 3_0);
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info;
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(nullable NSDictionary<UIImagePickerControllerInfoKey, id> *)editingInfo NS_DEPRECATED_IOS(2_0, 3_0);
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey, id> *)info;
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker;
 
 @end
@@ -4396,22 +6002,27 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIImagePickerController : UINavigationCon
 
 // Adds a photo to the saved photos album.  The optional completionSelector should have the form:
 //  - (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo;
-UIKIT_EXTERN void UIImageWriteToSavedPhotosAlbum(UIImage *image, __nullable id completionTarget, __nullable SEL completionSelector, void * __nullable contextInfo);
+UIKIT_EXTERN void UIImageWriteToSavedPhotosAlbum(UIImage *image, __nullable id completionTarget, __nullable SEL completionSelector, void * __nullable contextInfo) __TVOS_PROHIBITED;
 
 // Is a specific video eligible to be saved to the saved photos album? 
-UIKIT_EXTERN BOOL UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(NSString *videoPath) NS_AVAILABLE_IOS(3_1);
+UIKIT_EXTERN BOOL UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(NSString *videoPath) NS_AVAILABLE_IOS(3_1) __TVOS_PROHIBITED;
 
 // Adds a video to the saved photos album. The optional completionSelector should have the form:
 //  - (void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo;
-UIKIT_EXTERN void UISaveVideoAtPathToSavedPhotosAlbum(NSString *videoPath, __nullable id completionTarget, __nullable SEL completionSelector, void * __nullable contextInfo) NS_AVAILABLE_IOS(3_1);
+UIKIT_EXTERN void UISaveVideoAtPathToSavedPhotosAlbum(NSString *videoPath, __nullable id completionTarget, __nullable SEL completionSelector, void * __nullable contextInfo) NS_AVAILABLE_IOS(3_1) __TVOS_PROHIBITED;
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIImagePickerController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPrintFormatter.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPrintFormatter.h>)
 //
 //  UIPrintFormatter.h
 //  UIKit
 //
-//  Copyright 2010-2012 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4426,27 +6037,29 @@ NS_ASSUME_NONNULL_BEGIN
 @class UIPrintPageRenderer;
 @class UIView, UIFont, UIColor;
 
-NS_CLASS_AVAILABLE_IOS(4_2) @interface UIPrintFormatter : NSObject <NSCopying>
+NS_CLASS_AVAILABLE_IOS(4_2) __TVOS_PROHIBITED @interface UIPrintFormatter : NSObject <NSCopying>
 
-@property(nullable,nonatomic,readonly,weak) UIPrintPageRenderer *printPageRenderer; // default is nil. set when formatter added to a print page renderer
-- (void)removeFromPrintPageRenderer;
+@property(nullable,nonatomic,readonly,weak) UIPrintPageRenderer *printPageRenderer __TVOS_PROHIBITED; // default is nil. set when formatter added to a print page renderer
+- (void)removeFromPrintPageRenderer __TVOS_PROHIBITED;
 
-@property(nonatomic) CGFloat      maximumContentHeight;      // default is 0.0. limits content to width
-@property(nonatomic) CGFloat      maximumContentWidth;       // default is 0.0. limits content to height
-@property(nonatomic) UIEdgeInsets contentInsets;             // default is UIEdgeInsetsZero. from edge of printableRect. applies to whole content. bottom inset unused
-@property(nonatomic) UIEdgeInsets perPageContentInsets;      // default is UIEdgeInsetsZero from edge of the page.  applies to content on each page (each edge applies to each page)
+@property(nonatomic) CGFloat      maximumContentHeight __TVOS_PROHIBITED;      // default is 0.0. limits content to width
+@property(nonatomic) CGFloat      maximumContentWidth __TVOS_PROHIBITED;       // default is 0.0. limits content to height
+@property(nonatomic) UIEdgeInsets contentInsets NS_DEPRECATED_IOS(4_2,10_0, "Use perPageContentInsets instead.") __TVOS_PROHIBITED;
+                                                                               // default is UIEdgeInsetsZero. from edge of printableRect. applies to whole content. bottom inset unused
+                                                                               // Deprecated in favor of perPageContentInsets which produces better output
+@property(nonatomic) UIEdgeInsets perPageContentInsets __TVOS_PROHIBITED;      // default is UIEdgeInsetsZero from edge of the page.  applies to content on each page (each edge applies to each page)
 
-@property(nonatomic)          NSInteger startPage;           // default is NSNotFound
-@property(nonatomic,readonly) NSInteger pageCount;           // calculated
+@property(nonatomic)          NSInteger startPage __TVOS_PROHIBITED;           // default is NSNotFound
+@property(nonatomic,readonly) NSInteger pageCount __TVOS_PROHIBITED;           // calculated
 
-- (CGRect)rectForPageAtIndex:(NSInteger)pageIndex;                     // returns empty rect if index out of range
-- (void)drawInRect:(CGRect)rect forPageAtIndex:(NSInteger)pageIndex;   // override point to add custom drawing
+- (CGRect)rectForPageAtIndex:(NSInteger)pageIndex __TVOS_PROHIBITED;                     // returns empty rect if index out of range
+- (void)drawInRect:(CGRect)rect forPageAtIndex:(NSInteger)pageIndex __TVOS_PROHIBITED;   // override point to add custom drawing
 
 @end
 
 //______________________________
 
-NS_CLASS_AVAILABLE_IOS(4_2) @interface UISimpleTextPrintFormatter : UIPrintFormatter {
+NS_CLASS_AVAILABLE_IOS(4_2) __TVOS_PROHIBITED @interface UISimpleTextPrintFormatter : UIPrintFormatter {
 }
 
 - (instancetype)initWithText:(NSString *)text;
@@ -4462,7 +6075,7 @@ NS_CLASS_AVAILABLE_IOS(4_2) @interface UISimpleTextPrintFormatter : UIPrintForma
 
 //______________________________
 
-NS_CLASS_AVAILABLE_IOS(4_2) @interface UIMarkupTextPrintFormatter : UIPrintFormatter {
+NS_CLASS_AVAILABLE_IOS(4_2) __TVOS_PROHIBITED @interface UIMarkupTextPrintFormatter : UIPrintFormatter {
 }
 
 - (instancetype)initWithMarkupText:(NSString *)markupText;
@@ -4472,7 +6085,7 @@ NS_CLASS_AVAILABLE_IOS(4_2) @interface UIMarkupTextPrintFormatter : UIPrintForma
 
 //______________________________
 
-NS_CLASS_AVAILABLE_IOS(4_2) @interface UIViewPrintFormatter : UIPrintFormatter 
+NS_CLASS_AVAILABLE_IOS(4_2) __TVOS_PROHIBITED @interface UIViewPrintFormatter : UIPrintFormatter 
 
 @property(nonatomic,readonly) UIView *view;
 
@@ -4482,18 +6095,23 @@ NS_CLASS_AVAILABLE_IOS(4_2) @interface UIViewPrintFormatter : UIPrintFormatter
 
 @interface UIView(UIPrintFormatter)
 
-- (UIViewPrintFormatter *)viewPrintFormatter;                                          // returns a new print formatter each time
-- (void)drawRect:(CGRect)rect forViewPrintFormatter:(UIViewPrintFormatter *)formatter;     // default calls -drawRect:
+- (UIViewPrintFormatter *)viewPrintFormatter __TVOS_PROHIBITED;                                          // returns a new print formatter each time
+- (void)drawRect:(CGRect)rect forViewPrintFormatter:(UIViewPrintFormatter *)formatter __TVOS_PROHIBITED;     // default calls -drawRect:
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPrintFormatter.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPrintPageRenderer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPrintPageRenderer.h>)
 //
 //  UIPrintPageRenderer.h
 //  UIKit
 //
-//  Copyright 2010-2012 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4504,7 +6122,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class UIPrintFormatter;
 
-NS_CLASS_AVAILABLE_IOS(4_2) @interface UIPrintPageRenderer : NSObject
+NS_CLASS_AVAILABLE_IOS(4_2) __TVOS_PROHIBITED @interface UIPrintPageRenderer : NSObject
 
 @property(nonatomic) CGFloat   headerHeight;   // top of contentRect from printableRect
 @property(nonatomic) CGFloat   footerHeight;   // bottom of contentRect from printableRect
@@ -4512,11 +6130,12 @@ NS_CLASS_AVAILABLE_IOS(4_2) @interface UIPrintPageRenderer : NSObject
 @property(nonatomic,readonly) CGRect paperRect;      // complete paper rect. origin is (0,0)
 @property(nonatomic,readonly) CGRect printableRect;  // imageable area inside paper rect
 
+@property(nonatomic,readonly) NSInteger numberOfPages;  // override point. page count. default is maximum page count needed for all formatters or 0
+
 @property(nullable,nonatomic,copy) NSArray<UIPrintFormatter *> *printFormatters;
 - (nullable NSArray<UIPrintFormatter *> *)printFormattersForPageAtIndex:(NSInteger)pageIndex;
 - (void)addPrintFormatter:(UIPrintFormatter *)formatter startingAtPageAtIndex:(NSInteger)pageIndex;
 
-- (NSInteger)numberOfPages;                        // override point. called to get page count. default returns maximum page count needed for all formatters or 0
 - (void)prepareForDrawingPages:(NSRange)range;     // override point. default does nothing. called before requesting a set of pages to draw
 
 - (void)drawPageAtIndex:(NSInteger)pageIndex inRect:(CGRect)printableRect;                         // override point. may be called from non-main thread.  calls the various draw methods below.
@@ -4528,13 +6147,119 @@ NS_CLASS_AVAILABLE_IOS(4_2) @interface UIPrintPageRenderer : NSObject
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPrintPageRenderer.h>
+#endif
+// ==========  UIKit.framework/Headers/UIViewPropertyAnimator.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIViewPropertyAnimator.h>)
+//
+//  UIViewPropertyAnimator.h
+//  UIKit
+//
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIViewAnimating.h>
+#import <UIKit/UITimingParameters.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIViewPropertyAnimator : NSObject <UIViewImplicitlyAnimating, NSCopying>
+
+@property(nullable, nonatomic, copy, readonly) id <UITimingCurveProvider> timingParameters;
+
+@property(nonatomic, readonly) NSTimeInterval duration;
+
+/// Defaults to 0. This property is set when calling -[UIView startAnimationAfterDelay:].
+@property(nonatomic, readonly) NSTimeInterval delay;
+
+/// Defaults to YES. Raises if set on an active animator.
+@property(nonatomic, getter=isUserInteractionEnabled) BOOL userInteractionEnabled;
+
+/// Defaults to NO. Set if you need to manage the the hittesting of animating view hierarchies
+@property(nonatomic, getter=isManualHitTestingEnabled) BOOL manualHitTestingEnabled;
+
+/// Defaults to YES. Raises if set on an active animator.
+@property(nonatomic, getter=isInterruptible) BOOL interruptible;
+
+/// Defaults to YES. Provides the ability for an animator to pause and scrub either linearly or using the animator’s current timing.
+@property(nonatomic) BOOL scrubsLinearly NS_AVAILABLE_IOS(11_0);
+
+/// Defaults to NO. Provides the ability for an animator to pause on completion instead of transitioning to the .inactive state.
+@property(nonatomic) BOOL pausesOnCompletion NS_AVAILABLE_IOS(11_0);
+
+- (instancetype)initWithDuration:(NSTimeInterval)duration timingParameters:(id <UITimingCurveProvider>)parameters NS_DESIGNATED_INITIALIZER;
+
+/// All convenience initializers return an animator which is not running.
+- (instancetype)initWithDuration:(NSTimeInterval)duration curve:(UIViewAnimationCurve)curve animations:(void (^ __nullable)(void))animations;
+- (instancetype)initWithDuration:(NSTimeInterval)duration controlPoint1:(CGPoint)point1 controlPoint2:(CGPoint)point2 animations:(void (^ __nullable)(void))animations;
+- (instancetype)initWithDuration:(NSTimeInterval)duration dampingRatio:(CGFloat)ratio animations:(void (^ __nullable)(void))animations;
+
+/// @abstract This method provides compatibility with the old style [UIView
+/// animationWithDuration:...]  method. It is also useful for controlling
+/// how animations options are inherited.
+/// @discussion Creates a UIViewPropertyAnimator, sets the duration, options, etc. And starts the
+/// animation with the associated animation and completion blocks. The animator
+/// returned is interruptible only if it is not called from within the execution
+/// block of another animation (animator or legacy). Note that if it is called
+/// within the execution block of another animation it will inherit the duration
+/// and other characteristics of that animation UNLESS the appropriate override
+/// options have been specified. Also note that if is called within the execution
+/// block of another propertyAnimator that is interruptible, the implicit
+/// animations defined by this call will be tracked by the outer
+/// propertyAnimator.
++ (instancetype)runningPropertyAnimatorWithDuration:(NSTimeInterval)duration
+                                              delay:(NSTimeInterval)delay
+                                            options:(UIViewAnimationOptions)options
+                                         animations:(void (^)(void))animations
+                                         completion:(void (^ __nullable)(UIViewAnimatingPosition finalPosition))completion;
+
+/// Animatable view properties that are set by the animation block will be
+/// animated to their new values. The animations will commence at delayFactor *
+/// animator.duration seconds into the animation. The duration of the animation
+/// will be (1 - delayFactor) * animator.duration seconds.
+- (void)addAnimations:(void (^)(void))animation delayFactor:(CGFloat)delayFactor;
+
+/// Animatable view properties that are set by the animation block will be
+/// animated to their new values. Starting an animator that does not contain any animation blocks
+/// will start the animator in a transient paused state. While in this state, submitting an animation
+/// block will automatically start animating any animatable view properties set therein. When the
+/// animator is stopped, either naturally completing or explicitly, any animation blocks and completion
+/// handlers are invalidated. Immediately calling `startAnimation` again on the animator, since there
+/// are no animation blocks, will start the animator in a transient paused state.
+- (void)addAnimations:(void (^)(void))animation;
+
+- (void)addCompletion:(void (^)(UIViewAnimatingPosition finalPosition))completion;
+
+/// Provides a means to continue an animation in either the forward or reversed
+/// directions with new timing parameters and duration.  The durationFactor is in
+/// terms of a unit duration defined by the originally specified duration of the
+/// animator. It is used to specify the remaining time for the animation. When
+/// called, it behaves as if the animation was started from its current position
+/// with a new duration and timing parameters.
+- (void)continueAnimationWithTimingParameters:(nullable id <UITimingCurveProvider>)parameters durationFactor:(CGFloat)durationFactor;
+
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIViewPropertyAnimator.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAccessibilityZoom.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibilityZoom.h>)
 //
 //  UIAccessibilityZoom.h
 //  UIKit
 //
-//  Copyright (c) 2011-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018 Apple Inc. All rights reserved.
 //
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIView.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -4552,15 +6277,65 @@ UIKIT_EXTERN void UIAccessibilityZoomFocusChanged(UIAccessibilityZoomType type, 
  If your app uses multi-finger gestures that conflict with system Zoom gestures (by using three fingers), 
  calling this method will warn users of the conflict.
  */
-UIKIT_EXTERN void UIAccessibilityRegisterGestureConflictWithZoom() NS_AVAILABLE_IOS(5_0);
+UIKIT_EXTERN void UIAccessibilityRegisterGestureConflictWithZoom(void) NS_AVAILABLE_IOS(5_0);
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccessibilityZoom.h>
+#endif
+// ==========  UIKit.framework/Headers/UIDocumentBrowserAction.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<DocumentManager/UIDocumentBrowserAction.h>)
+//
+//  UIDocumentBrowserAction.h
+//  UIKit
+//
+//  Copyright © 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class UIImage;
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_OPTIONS(NSInteger, UIDocumentBrowserActionAvailability) {
+    UIDocumentBrowserActionAvailabilityMenu = 1,                        // The action can be shown in the menu
+    UIDocumentBrowserActionAvailabilityNavigationBar = 1 << 1,          // The action can be shown in navigation bar
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos,watchos,tvos)  NS_SWIFT_NAME(UIDocumentBrowserAction.Availability);
+
+/// UIDocumentBrowserAction instances are custom, contextual actions that are presented to the user by a UIDocumentBrowserViewController.
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos,watchos,tvos)  @interface UIDocumentBrowserAction : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithIdentifier:(NSString *)identifier localizedTitle:(NSString *)localizedTitle availability:(UIDocumentBrowserActionAvailability)availability handler:(void(^)(NSArray <NSURL *> *))handler NS_DESIGNATED_INITIALIZER;
+
+@property (nonatomic, readonly) NSString *identifier;
+@property (nonatomic, readonly) NSString *localizedTitle;
+@property (nonatomic, readonly) UIDocumentBrowserActionAvailability availability;
+
+@property (nonatomic, strong, nullable) UIImage *image;
+
+/// Allows clients to restrict the action to only a specific set of content types. Default: [kUTTypeItem]
+@property (nonatomic, copy) NSArray<NSString*> *supportedContentTypes;
+
+/// If NO, the action is only available, if there is only one item selected. Default: YES.
+@property (nonatomic, assign) BOOL supportsMultipleItems;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <DocumentManager/UIDocumentBrowserAction.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAccessibilityCustomAction.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibilityCustomAction.h>)
 //
 //  UIAccessibilityCustomAction.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4570,11 +6345,18 @@ NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_AVAILABLE_IOS(8_0) @interface UIAccessibilityCustomAction : NSObject
 
 - (instancetype)initWithName:(NSString *)name target:(nullable id)target selector:(SEL)selector;
+- (instancetype)initWithAttributedName:(NSAttributedString *)attributedName target:(nullable id)target selector:(SEL)selector API_AVAILABLE(ios(11.0), tvos(11.0));
 
 /*
  A localized name that describes the action.
  */
 @property (nonatomic, copy) NSString *name;
+
+/*
+ Underlying attributed version of the "name" property. Setting this property will change the
+ value of the "name" property and vice-versa.
+ */
+@property (nonatomic, copy) NSAttributedString *attributedName API_AVAILABLE(ios(11.0), tvos(11.0));
 
 /*
  The object that will perform the action.
@@ -4592,12 +6374,17 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIAccessibilityCustomAction : NSObject
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccessibilityCustomAction.h>
+#endif
 // ==========  UIKit.framework/Headers/UILayoutGuide.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UILayoutGuide.h>)
 //
 //  UILayoutGuide.h
 //  UIKit
 //
-//  Copyright © 2015 Apple Inc. All rights reserved.
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
 //
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -4636,25 +6423,30 @@ NS_CLASS_AVAILABLE_IOS(9_0)
 
 /* Constraint creation conveniences. See NSLayoutAnchor.h for details.
  */
-@property(readonly, strong) NSLayoutXAxisAnchor *leadingAnchor;
-@property(readonly, strong) NSLayoutXAxisAnchor *trailingAnchor;
-@property(readonly, strong) NSLayoutXAxisAnchor *leftAnchor;
-@property(readonly, strong) NSLayoutXAxisAnchor *rightAnchor;
-@property(readonly, strong) NSLayoutYAxisAnchor *topAnchor;
-@property(readonly, strong) NSLayoutYAxisAnchor *bottomAnchor;
-@property(readonly, strong) NSLayoutDimension *widthAnchor;
-@property(readonly, strong) NSLayoutDimension *heightAnchor;
-@property(readonly, strong) NSLayoutXAxisAnchor *centerXAnchor;
-@property(readonly, strong) NSLayoutYAxisAnchor *centerYAnchor;
+@property(nonatomic,readonly,strong) NSLayoutXAxisAnchor *leadingAnchor;
+@property(nonatomic,readonly,strong) NSLayoutXAxisAnchor *trailingAnchor;
+@property(nonatomic,readonly,strong) NSLayoutXAxisAnchor *leftAnchor;
+@property(nonatomic,readonly,strong) NSLayoutXAxisAnchor *rightAnchor;
+@property(nonatomic,readonly,strong) NSLayoutYAxisAnchor *topAnchor;
+@property(nonatomic,readonly,strong) NSLayoutYAxisAnchor *bottomAnchor;
+@property(nonatomic,readonly,strong) NSLayoutDimension *widthAnchor;
+@property(nonatomic,readonly,strong) NSLayoutDimension *heightAnchor;
+@property(nonatomic,readonly,strong) NSLayoutXAxisAnchor *centerXAnchor;
+@property(nonatomic,readonly,strong) NSLayoutYAxisAnchor *centerYAnchor;
 
 @end
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UILayoutGuide.h>
+#endif
 // ==========  UIKit.framework/Headers/UISwipeGestureRecognizer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISwipeGestureRecognizer.h>)
 //
 //  UISwipeGestureRecognizer.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -4679,18 +6471,23 @@ typedef NS_OPTIONS(NSUInteger, UISwipeGestureRecognizerDirection) {
 
 NS_CLASS_AVAILABLE_IOS(3_2) @interface UISwipeGestureRecognizer : UIGestureRecognizer 
 
-@property(nonatomic) NSUInteger                        numberOfTouchesRequired; // default is 1. the number of fingers that must swipe
+@property(nonatomic) NSUInteger                        numberOfTouchesRequired __TVOS_PROHIBITED; // default is 1. the number of fingers that must swipe
 @property(nonatomic) UISwipeGestureRecognizerDirection direction;               // default is UISwipeGestureRecognizerDirectionRight. the desired direction of the swipe. multiple directions may be specified if they will result in the same behavior (for example, UITableView swipe delete)
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISwipeGestureRecognizer.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPrintInfo.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPrintInfo.h>)
 //
 //  UIPrintInfo.h
 //  UIKit
 //
-//  Copyright 2010-2012 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4704,43 +6501,150 @@ typedef NS_ENUM(NSInteger, UIPrintInfoOutputType) {
     UIPrintInfoOutputPhoto,             // B&W or color, best quality output for images
     UIPrintInfoOutputGrayscale,         // B&W content only
     UIPrintInfoOutputPhotoGrayscale NS_ENUM_AVAILABLE_IOS(7_0),    // B&W only, best quality output for images
- };
+ } __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIPrintInfoOrientation) {
     UIPrintInfoOrientationPortrait,
     UIPrintInfoOrientationLandscape,
-};
+} __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIPrintInfoDuplex) {
     UIPrintInfoDuplexNone,
     UIPrintInfoDuplexLongEdge,       // flip back page along long edge (same orientation in portrait, flipped for landscape)
     UIPrintInfoDuplexShortEdge,      // flip back page along short edge (flipped orientation for portrait, same in landscape)
-};
+} __TVOS_PROHIBITED;
 
-NS_CLASS_AVAILABLE_IOS(4_2) @interface UIPrintInfo : NSObject <NSCopying, NSCoding>
+NS_CLASS_AVAILABLE_IOS(4_2) __TVOS_PROHIBITED @interface UIPrintInfo : NSObject <NSCopying, NSCoding>
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
 + (UIPrintInfo *)printInfo;
 + (UIPrintInfo *)printInfoWithDictionary:(nullable NSDictionary *)dictionary;
 
-- (NSDictionary *)dictionaryRepresentation;
-
 @property(nullable,nonatomic,copy)     NSString                *printerID;         // default is nil. set after user selects printer
 @property(nonatomic,copy)     NSString                *jobName;           // default is application name
 @property(nonatomic)          UIPrintInfoOutputType    outputType;        // default is UIPrintInfoOutputGeneral
 @property(nonatomic)          UIPrintInfoOrientation   orientation;       // default is UIPrintInfoOrientationPortrait
 @property(nonatomic)          UIPrintInfoDuplex        duplex;            // default is based on document type (none for photo, long edge for other)
+@property(nonatomic,readonly)   NSDictionary *dictionaryRepresentation;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPrintInfo.h>
+#endif
+// ==========  UIKit.framework/Headers/UITextDropProposal.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextDropProposal.h>)
+//
+//  UITextDropProposal.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+#import <UIKit/UIDropInteraction.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSUInteger, UITextDropAction) {
+    /* Inserts the text at the provided location. Other text is not affected.
+     */
+    UITextDropActionInsert = 0,
+    
+    /* If the target has a selection, replaces the selection with the dropped text.
+     * Otherwise, this behaves the same as UITextDropInsert.
+     */
+    UITextDropActionReplaceSelection,
+    
+    /* Replaces all the text in the target with the dropped text,
+     * via `setAttributedText:`.
+     */
+    UITextDropActionReplaceAll,
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+typedef NS_ENUM(NSUInteger, UITextDropProgressMode) {
+    /* Uses the default system UI for progress.
+     * This blocks input to the application while the drop is happening.
+     */
+    UITextDropProgressModeSystem = 0,
+    
+    /* No progress UI is shown. You're on your own.
+     */
+    UITextDropProgressModeCustom
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+typedef NS_ENUM(NSUInteger, UITextDropPerformer) {
+    /* The text droppable view will handle the drop.
+     * This is the default behavior.
+     *
+     * Note: `-textDroppableView:willPerformDrop:` will be called, if it is implemented,
+     * but it is not required.
+     */
+    UITextDropPerformerView = 0,
+    
+    /* The delegate will be responsible for performing the drop, and
+     * the default data loading provided by the text droppable view
+     * will not be invoked.
+     *
+     * The delegate must implement `-textDroppableView:willPerformDrop:`,
+     * with custom code to start loading data. If it does not, then the text
+     * droppable view will handle the drop, as if `UITextDropPerformerView`
+     * was specified.
+     */
+    UITextDropPerformerDelegate,
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@interface UITextDropProposal : UIDropProposal <NSCopying>
+
+/* Note: creating a UITextDropProposal sets the superclass's .precise property to true.
+ */
+
+/* The proposed text drop action. The default value is UITextDropInsert.
+ */
+@property (nonatomic) UITextDropAction dropAction;
+
+/* The progress mode to be used. The default value is UITextDropProgressModeSystem.
+ */
+@property (nonatomic) UITextDropProgressMode dropProgressMode;
+
+/* Specifies whether the drop is allowed to use "fast" inline operations
+ * for drags between the same view. This will not use the data in the
+ * items, but instead moves or copies text from the original positions
+ * to the dropped position.
+ * Defaults to YES.
+ */
+@property (nonatomic) BOOL useFastSameViewOperations;
+
+/* Defines who will be responsible for performing the drop.
+ * The performer must:
+ * - load the data from the item providers
+ * - insert it into the text droppable view
+ * - provide a preview for the drop
+ *
+ * The default is `UITextDropPerformerView`.
+ */
+@property (nonatomic) UITextDropPerformer dropPerformer;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextDropProposal.h>
+#endif
 // ==========  UIKit.framework/Headers/UITextField.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextField.h>)
 //
 //  UITextField.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4749,7 +6653,11 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIControl.h>
 #import <UIKit/UIFont.h>
 #import <UIKit/UIStringDrawing.h>
+#import <UIKit/UITextDragging.h>
+#import <UIKit/UITextDropping.h>
 #import <UIKit/UITextInput.h>
+#import <UIKit/UIContentSizeCategoryAdjusting.h>
+#import <UIKit/UITextPasteConfigurationSupporting.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -4779,7 +6687,12 @@ typedef NS_ENUM(NSInteger, UITextFieldViewMode) {
     UITextFieldViewModeAlways
 };
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UITextField : UIControl <UITextInput, NSCoding> 
+typedef NS_ENUM(NSInteger, UITextFieldDidEndEditingReason) {
+    UITextFieldDidEndEditingReasonCommitted,
+    UITextFieldDidEndEditingReasonCancelled UIKIT_AVAILABLE_TVOS_ONLY(10_0)
+} NS_ENUM_AVAILABLE_IOS(10_0);
+
+NS_CLASS_AVAILABLE_IOS(2_0) @interface UITextField : UIControl <UITextInput, NSCoding, UIContentSizeCategoryAdjusting>
 
 @property(nullable, nonatomic,copy)   NSString               *text;                 // default is nil
 @property(nullable, nonatomic,copy)   NSAttributedString     *attributedText NS_AVAILABLE_IOS(6_0); // default is nil
@@ -4787,7 +6700,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITextField : UIControl <UITextInput, NSC
 @property(nullable, nonatomic,strong) UIFont                 *font;                 // default is nil. use system font 12 pt
 @property(nonatomic)        NSTextAlignment         textAlignment;        // default is NSLeftTextAlignment
 @property(nonatomic)        UITextBorderStyle       borderStyle;          // default is UITextBorderStyleNone. If set to UITextBorderStyleRoundedRect, custom background images are ignored.
-@property(nonatomic,copy)   NSDictionary<NSString *, id>           *defaultTextAttributes NS_AVAILABLE_IOS(7_0); // applies attributes to the full range of text. Unset attributes act like default values.
+@property(nonatomic,copy)   NSDictionary<NSAttributedStringKey,id> *defaultTextAttributes NS_AVAILABLE_IOS(7_0); // applies attributes to the full range of text. Unset attributes act like default values.
 
 @property(nullable, nonatomic,copy)   NSString               *placeholder;          // default is nil. string is drawn 70% gray
 @property(nullable, nonatomic,copy)   NSAttributedString     *attributedPlaceholder NS_AVAILABLE_IOS(6_0); // default is nil
@@ -4800,7 +6713,8 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITextField : UIControl <UITextInput, NSC
 
 @property(nonatomic,readonly,getter=isEditing) BOOL editing;
 @property(nonatomic) BOOL allowsEditingTextAttributes NS_AVAILABLE_IOS(6_0); // default is NO. allows editing text attributes with style operations and pasting rich text
-@property(nullable, nonatomic,copy) NSDictionary<NSString *, id> *typingAttributes NS_AVAILABLE_IOS(6_0); // automatically resets when the selection changes
+@property(nullable, nonatomic,copy) NSDictionary<NSAttributedStringKey,id> *typingAttributes NS_AVAILABLE_IOS(6_0); // automatically resets when the selection changes
+
 
 // You can supply custom views which are displayed at the left or right
 // sides of the text field. Uses for such views could be to show an icon or
@@ -4840,6 +6754,13 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITextField : UIControl <UITextInput, NSC
 
 @end
 
+#if TARGET_OS_IOS
+
+@interface UITextField () <UITextDraggable, UITextDroppable, UITextPasteConfigurationSupporting>
+@end
+
+#endif
+
 @interface UIView (UITextField)
 - (BOOL)endEditing:(BOOL)force;    // use to make the view or any subview that is the first responder resign (optionally force)
 @end
@@ -4852,6 +6773,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITextField : UIControl <UITextInput, NSC
 - (void)textFieldDidBeginEditing:(UITextField *)textField;           // became first responder
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField;          // return YES to allow editing to stop and to resign first responder status. NO to disallow the editing session to end
 - (void)textFieldDidEndEditing:(UITextField *)textField;             // may be called if forced even if shouldEndEditing returns NO (e.g. view removed from window) or endEditing:YES called
+- (void)textFieldDidEndEditing:(UITextField *)textField reason:(UITextFieldDidEndEditingReason)reason NS_AVAILABLE_IOS(10_0); // if implemented, called in place of textFieldDidEndEditing:
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;   // return NO to not change text
 
@@ -4860,18 +6782,25 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITextField : UIControl <UITextInput, NSC
 
 @end
 
-UIKIT_EXTERN NSString *const UITextFieldTextDidBeginEditingNotification;
-UIKIT_EXTERN NSString *const UITextFieldTextDidEndEditingNotification;
-UIKIT_EXTERN NSString *const UITextFieldTextDidChangeNotification;
+UIKIT_EXTERN NSNotificationName const UITextFieldTextDidBeginEditingNotification;
+UIKIT_EXTERN NSNotificationName const UITextFieldTextDidEndEditingNotification;
+UIKIT_EXTERN NSNotificationName const UITextFieldTextDidChangeNotification;
+
+UIKIT_EXTERN NSString *const UITextFieldDidEndEditingReasonKey NS_AVAILABLE_IOS(10_0);
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UITextField.h>
+#endif
 // ==========  UIKit.framework/Headers/NSText.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSText.h>)
 //
 //  NSText.h
 //  UIKit
 //
-//  Copyright (c) 2011-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4885,7 +6814,7 @@ NS_ASSUME_NONNULL_BEGIN
 /* Values for NSTextAlignment */
 typedef NS_ENUM(NSInteger, NSTextAlignment) {
     NSTextAlignmentLeft      = 0,    // Visually left aligned
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !0
     NSTextAlignmentCenter    = 1,    // Visually centered
     NSTextAlignmentRight     = 2,    // Visually right aligned
 #else /* !TARGET_OS_IPHONE */
@@ -4897,6 +6826,7 @@ typedef NS_ENUM(NSInteger, NSTextAlignment) {
 } NS_ENUM_AVAILABLE_IOS(6_0);
 
 #if __has_include(<CoreText/CTParagraphStyle.h>)
+UIKIT_SWIFT_FORWARD_DECLARE(typedef CF_ENUM(uint8_t, CTTextAlignment))
 UIKIT_EXTERN CTTextAlignment NSTextAlignmentToCTTextAlignment(NSTextAlignment nsTextAlignment) NS_AVAILABLE_IOS(6_0);
 UIKIT_EXTERN NSTextAlignment NSTextAlignmentFromCTTextAlignment(CTTextAlignment ctTextAlignment) NS_AVAILABLE_IOS(6_0);
 #endif
@@ -4909,12 +6839,17 @@ typedef NS_ENUM(NSInteger, NSWritingDirection) {
 } NS_ENUM_AVAILABLE_IOS(6_0);
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSText.h>
+#endif
 // ==========  UIKit.framework/Headers/UIStoryboard.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIStoryboard.h>)
 //
 //  UIStoryboard.h
 //  UIKit
 //
-//  Copyright 2011-2012 Apple Inc. All rights reserved.
+//  Copyright 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4935,12 +6870,17 @@ NS_CLASS_AVAILABLE_IOS(5_0) @interface UIStoryboard : NSObject {
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIStoryboard.h>
+#endif
 // ==========  UIKit.framework/Headers/UITapGestureRecognizer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITapGestureRecognizer.h>)
 //
 //  UITapGestureRecognizer.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4958,17 +6898,22 @@ NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_AVAILABLE_IOS(3_2) @interface UITapGestureRecognizer : UIGestureRecognizer
 
 @property (nonatomic) NSUInteger  numberOfTapsRequired;       // Default is 1. The number of taps required to match
-@property (nonatomic) NSUInteger  numberOfTouchesRequired;    // Default is 1. The number of fingers required to match
+@property (nonatomic) NSUInteger  numberOfTouchesRequired __TVOS_PROHIBITED;    // Default is 1. The number of fingers required to match
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITapGestureRecognizer.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAccelerometer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccelerometer.h>)
 //
 //  UIAccelerometer.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4983,7 +6928,7 @@ typedef double UIAccelerationValue;
 
 @protocol UIAccelerometerDelegate;
 
-NS_CLASS_DEPRECATED_IOS(2_0, 5_0, "UIAcceleration has been replaced by the CoreMotion framework")
+NS_CLASS_DEPRECATED_IOS(2_0, 5_0, "UIAcceleration has been replaced by the CoreMotion framework") __TVOS_PROHIBITED
 @interface UIAcceleration : NSObject
 
 @property(nonatomic,readonly) NSTimeInterval timestamp;
@@ -4993,7 +6938,7 @@ NS_CLASS_DEPRECATED_IOS(2_0, 5_0, "UIAcceleration has been replaced by the CoreM
 
 @end
 
-NS_CLASS_DEPRECATED_IOS(2_0, 5_0, "UIAccelerometer has been replaced by the CoreMotion framework")
+NS_CLASS_DEPRECATED_IOS(2_0, 5_0, "UIAccelerometer has been replaced by the CoreMotion framework") __TVOS_PROHIBITED
 @interface UIAccelerometer : NSObject 
 
 + (UIAccelerometer *)sharedAccelerometer;
@@ -5003,21 +6948,26 @@ NS_CLASS_DEPRECATED_IOS(2_0, 5_0, "UIAccelerometer has been replaced by the Core
 
 @end
 
-
+ __TVOS_PROHIBITED
 @protocol UIAccelerometerDelegate<NSObject>
 @optional
 
-- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration NS_DEPRECATED_IOS(2_0, 5_0);
+- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration NS_DEPRECATED_IOS(2_0, 5_0)  __TVOS_PROHIBITED;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccelerometer.h>
+#endif
 // ==========  UIKit.framework/Headers/UITraitCollection.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITraitCollection.h>)
 //
 //  UITraitCollection.h
 //  UIKit
 //
-//  Copyright (c) 2013-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5026,6 +6976,7 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIDevice.h>
 #import <UIKit/UIInterface.h>
 #import <UIKit/UITouch.h>
+#import <UIKit/UIContentSizeCategory.h>
 
 /*! A trait collection encapsulates the system traits of an interface's environment. */
 NS_ASSUME_NONNULL_BEGIN
@@ -5038,12 +6989,19 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UITraitCollection : NSObject <NSCopying, 
 - (BOOL)containsTraitsInCollection:(nullable UITraitCollection *)trait;
 
 /*! Returns a trait collection by merging the traits in `traitCollections`. The last trait along any given
- axis (e.g. interface usage) will supercede any others. */
+ axis (e.g. interface usage) will supersede any others. */
 + (UITraitCollection *)traitCollectionWithTraitsFromCollections:(NSArray<UITraitCollection *> *)traitCollections;
 
 
 + (UITraitCollection *)traitCollectionWithUserInterfaceIdiom:(UIUserInterfaceIdiom)idiom;
 @property (nonatomic, readonly) UIUserInterfaceIdiom userInterfaceIdiom; // unspecified: UIUserInterfaceIdiomUnspecified
+
+/*! On iOS, UIUserInterfaceStyle is only available on trait environments with UIUserInterfaceIdiomCarPlay. */
++ (UITraitCollection *)traitCollectionWithUserInterfaceStyle:(UIUserInterfaceStyle)userInterfaceStyle __TVOS_AVAILABLE(10_0) __IOS_AVAILABLE(12_0) __WATCHOS_PROHIBITED;
+@property (nonatomic, readonly) UIUserInterfaceStyle userInterfaceStyle __TVOS_AVAILABLE(10_0) __IOS_AVAILABLE(12_0) __WATCHOS_PROHIBITED; // unspecified: UIUserInterfaceStyleUnspecified
+
++ (UITraitCollection *)traitCollectionWithLayoutDirection:(UITraitEnvironmentLayoutDirection)layoutDirection NS_AVAILABLE_IOS(10_0);
+@property (nonatomic, readonly) UITraitEnvironmentLayoutDirection layoutDirection NS_AVAILABLE_IOS(10_0); // unspecified: UITraitEnvironmentLayoutDirectionUnspecified
 
 + (UITraitCollection *)traitCollectionWithDisplayScale:(CGFloat)scale;
 @property (nonatomic, readonly) CGFloat displayScale; // unspecified: 0.0
@@ -5057,6 +7015,11 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UITraitCollection : NSObject <NSCopying, 
 + (UITraitCollection *)traitCollectionWithForceTouchCapability:(UIForceTouchCapability)capability NS_AVAILABLE_IOS(9_0);
 @property (nonatomic, readonly) UIForceTouchCapability forceTouchCapability NS_AVAILABLE_IOS(9_0); // unspecified: UIForceTouchCapabilityUnknown
 
++ (UITraitCollection *)traitCollectionWithPreferredContentSizeCategory:(UIContentSizeCategory)preferredContentSizeCategory NS_AVAILABLE_IOS(10_0);
+@property (nonatomic, copy, readonly) UIContentSizeCategory preferredContentSizeCategory NS_AVAILABLE_IOS(10_0); // unspecified: UIContentSizeCategoryUnspecified
+
++ (UITraitCollection *)traitCollectionWithDisplayGamut:(UIDisplayGamut)displayGamut NS_AVAILABLE_IOS(10_0);
+@property (nonatomic, readonly) UIDisplayGamut displayGamut NS_AVAILABLE_IOS(10_0); // unspecified: UIDisplayGamutUnspecified
 
 @end
 
@@ -5069,12 +7032,17 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UITraitCollection : NSObject <NSCopying, 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITraitCollection.h>
+#endif
 // ==========  UIKit.framework/Headers/UILabel.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UILabel.h>)
 //
 //  UILabel.h
 //  UIKit
 //
-//  Copyright (c) 2006-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5082,19 +7050,20 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIView.h>
 #import <UIKit/UIStringDrawing.h>
 #import <UIKit/UIKitDefines.h>
+#import <UIKit/UIContentSizeCategoryAdjusting.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class UIColor, UIFont;
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UILabel : UIView <NSCoding>
+NS_CLASS_AVAILABLE_IOS(2_0) @interface UILabel : UIView <NSCoding, UIContentSizeCategoryAdjusting>
 
 @property(nullable, nonatomic,copy)   NSString           *text;            // default is nil
 @property(null_resettable, nonatomic,strong) UIFont      *font;            // default is nil (system font 17 plain)
 @property(null_resettable, nonatomic,strong) UIColor     *textColor;       // default is nil (text draws black)
 @property(nullable, nonatomic,strong) UIColor            *shadowColor;     // default is nil (no shadow)
 @property(nonatomic)        CGSize             shadowOffset;    // default is CGSizeMake(0, -1) -- a top shadow
-@property(nonatomic)        NSTextAlignment    textAlignment;   // default is NSTextAlignmentLeft
+@property(nonatomic)        NSTextAlignment    textAlignment;   // default is NSTextAlignmentNatural (before iOS 9, the default was NSTextAlignmentLeft)
 @property(nonatomic)        NSLineBreakMode    lineBreakMode;   // default is NSLineBreakByTruncatingTail. used for single and multiple lines of text
 
 // the underlying attributed string drawn by the label, if set, the label ignores the properties above.
@@ -5114,7 +7083,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UILabel : UIView <NSCoding>
 
 @property(nonatomic) NSInteger numberOfLines;
 
-// these next 3 property allow the label to be autosized to fit a certain width by scaling the font size(s) by a scaling factor >= the minimum scaling factor
+// these next 3 properties allow the label to be autosized to fit a certain width by scaling the font size(s) by a scaling factor >= the minimum scaling factor
 // and to specify how the text baseline moves when it needs to shrink the font.
 
 @property(nonatomic) BOOL adjustsFontSizeToFitWidth;         // default is NO
@@ -5138,22 +7107,31 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UILabel : UIView <NSCoding>
 @property(nonatomic) CGFloat preferredMaxLayoutWidth NS_AVAILABLE_IOS(6_0);
 
 
+// If YES, the UILabel will scroll its text while any of its immediate or distant superviews become focused. Also, lineBreakMode, adjustsFontSizeToFitWidth, and allowsDefaultTighteningForTruncation are ignored.
+@property (nonatomic) BOOL enablesMarqueeWhenAncestorFocused API_AVAILABLE(tvos(12.0)) API_UNAVAILABLE(ios, watchos);
+
+
 // deprecated:
 
-@property(nonatomic) CGFloat minimumFontSize NS_DEPRECATED_IOS(2_0, 6_0); // deprecated - use minimumScaleFactor. default is 0.0
+@property(nonatomic) CGFloat minimumFontSize NS_DEPRECATED_IOS(2_0, 6_0) __TVOS_PROHIBITED; // deprecated - use minimumScaleFactor. default is 0.0
 
 // Non-functional.  Hand tune by using NSKernAttributeName to affect tracking, or consider using the allowsDefaultTighteningForTruncation property.
-@property(nonatomic) BOOL adjustsLetterSpacingToFitWidth NS_DEPRECATED_IOS(6_0,7_0);
+@property(nonatomic) BOOL adjustsLetterSpacingToFitWidth NS_DEPRECATED_IOS(6_0,7_0) __TVOS_PROHIBITED;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UILabel.h>
+#endif
 // ==========  UIKit.framework/Headers/UIDocumentInteractionController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDocumentInteractionController.h>)
 //
 //  UIDocumentInteractionController.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5167,17 +7145,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class UIImage, UIView, UIPopoverController;
 
-NS_CLASS_AVAILABLE_IOS(3_2) @interface UIDocumentInteractionController : NSObject <UIActionSheetDelegate>
+NS_CLASS_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED @interface UIDocumentInteractionController : NSObject <UIActionSheetDelegate>
 
 + (UIDocumentInteractionController *)interactionControllerWithURL:(NSURL *)url; // use file to determine UTI. assumes file is complete
 
 @property(nullable, nonatomic, weak) id<UIDocumentInteractionControllerDelegate> delegate; // default is nil
 
-@property(nullable, strong)   NSURL    *URL;             // default is nil. if set, updates UTI, icon and name
-@property(nullable, nonatomic, copy)     NSString *UTI;             // determined from name if set, URL otherwise, override if the name or URL uses a custom scheme and the UTI can't be determined automatically
-@property(nullable, copy)               NSString *name;            // determined from URL, override if the URL uses a custom scheme and the name can't be determined automatically
-@property(nonatomic, readonly) NSArray<UIImage *>  *icons;           // determined from name if set, URL otherwise. will return a generic document icon if an icon cannot be determined. returns an array of icons sorted from smallest to largest.
-@property(nullable, nonatomic, strong)   id        annotation;      // additional plist information for application to pass to receiver (must be a plist object). default is nil.
+@property(nullable, strong)             NSURL    *URL;              // default is nil. if set, updates UTI, icon and name
+@property(nullable, nonatomic, copy)    NSString *UTI;              // determined from name if set, URL otherwise, override if the name or URL uses a custom scheme and the UTI can't be determined automatically
+@property(nullable, copy)               NSString *name;             // determined from URL, override if the URL uses a custom scheme and the name can't be determined automatically
+@property(nonatomic, readonly)          NSArray<UIImage *>  *icons; // determined from name if set, URL otherwise. will return a generic document icon if an icon cannot be determined. returns an array of icons sorted from smallest to largest.
+@property(nullable, nonatomic, strong)  id annotation;              // additional plist information for application to pass to receiver (must be a plist object). default is nil.
 
 // This is the default method you should call to give your users the option to quick look, open, or copy the document.
 // Presents a menu allowing the user to Quick Look, open, or copy the item specified by URL.
@@ -5209,7 +7187,7 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UIDocumentInteractionController : NSObjec
 
 @end
 
- @protocol UIDocumentInteractionControllerDelegate <NSObject>
+__TVOS_PROHIBITED @protocol UIDocumentInteractionControllerDelegate <NSObject>
 
 @optional
 
@@ -5248,12 +7226,17 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UIDocumentInteractionController : NSObjec
 @end 
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDocumentInteractionController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIViewControllerTransitionCoordinator.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIViewControllerTransitionCoordinator.h>)
 //
 //  UIViewControllerTransitionCoordinator.h
 //  UIKit
 //
-//  Copyright (c) 2013-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5263,54 +7246,103 @@ NS_ASSUME_NONNULL_END
 // view controller transition.
 NS_ASSUME_NONNULL_BEGIN
 
+#if UIKIT_STRING_ENUMS
+typedef NSString * UITransitionContextViewControllerKey NS_TYPED_ENUM;
+typedef NSString * UITransitionContextViewKey NS_TYPED_ENUM;
+#else
+typedef NSString * UITransitionContextViewControllerKey;
+typedef NSString * UITransitionContextViewKey;
+#endif
+
 @protocol UIViewControllerTransitionCoordinatorContext <NSObject>
 
 // Most of the time isAnimated will be YES. For custom transitions that use the
 // new UIModalPresentationCustom presentation type we invoke the
 // animateTransition: even though the transition is not animated. (This allows
 // the custom transition to add or remove subviews to the container view.)
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isAnimated) BOOL animated;
+#else
 - (BOOL)isAnimated;
+#endif
 
 // A modal presentation style whose transition is being customized or UIModaPresentationNone if this is not a modal presentation
 // or dismissal.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) UIModalPresentationStyle presentationStyle;
+#else
 - (UIModalPresentationStyle)presentationStyle;
+#endif
 
-// initiallyInteractive can only be YES if isAnimated is YES. It never changes during the course of a transition. This indicates whether the transition
-// was initiated as an interactive transition. If this is no, isInteractive can not be YES.
+/// initiallyInteractive indicates whether the transition was initiated as an interactive transition.
+/// It never changes during the course of a transition.
+/// It can only be YES if isAnimated is YES.
+///If it is NO, then isInteractive can only be YES if isInterruptible is YES
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL initiallyInteractive;
+#else
 - (BOOL)initiallyInteractive;
+#endif
+@property(nonatomic,readonly) BOOL isInterruptible NS_AVAILABLE_IOS(10_0);
 
 // Interactive transitions have non-interactive segments. For example, they all complete non-interactively. Some interactive transitions may have
 // intermediate segments that are not interactive.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isInteractive) BOOL interactive;
+#else
 - (BOOL)isInteractive;
+#endif
 
 // isCancelled is usually NO. It is only set to YES for an interactive transition that was cancelled.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isCancelled) BOOL cancelled;
+#else
 - (BOOL)isCancelled;
+#endif
 
 // The full expected duration of the transition if it is run non-interactively. 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) NSTimeInterval transitionDuration;
+#else
 - (NSTimeInterval)transitionDuration;
+#endif
 
 // These three methods are potentially meaningful for interactive transitions that are
 // completing. It reports the percent complete of the transition when it moves
 // to the non-interactive completion phase of the transition.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) CGFloat percentComplete;
+@property(nonatomic, readonly) CGFloat completionVelocity;
+@property(nonatomic, readonly) UIViewAnimationCurve completionCurve;
+#else
 - (CGFloat)percentComplete;
 - (CGFloat)completionVelocity;
 - (UIViewAnimationCurve)completionCurve;
+#endif
 
 // Currently only two keys are defined by the system:
 //   UITransitionContextToViewControllerKey
 //   UITransitionContextFromViewControllerKey
-- (nullable __kindof UIViewController *)viewControllerForKey:(NSString *)key;
+- (nullable __kindof UIViewController *)viewControllerForKey:(UITransitionContextViewControllerKey)key;
 
 // Currently only two keys are defined by the system:
 //   UITransitionContextToViewKey
 //   UITransitionContextFromViewKey
-- (nullable __kindof UIView *)viewForKey:(NSString *)key NS_AVAILABLE_IOS(8_0);
+- (nullable __kindof UIView *)viewForKey:(UITransitionContextViewKey)key NS_AVAILABLE_IOS(8_0);
 
 // The view in which the animated transition is taking place.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) UIView *containerView;
+#else
 - (UIView *)containerView;
+#endif
 
 // This is either CGAffineTransformIdentity (indicating no rotation), or a rotation transform of +90, -90, or 180.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) CGAffineTransform targetTransform NS_AVAILABLE_IOS(8_0);
+#else
 - (CGAffineTransform)targetTransform NS_AVAILABLE_IOS(8_0);
+#endif
 
 @end
 
@@ -5352,7 +7384,13 @@ NS_ASSUME_NONNULL_BEGIN
 // appearing will receive a viewWillDisappear: call, and the view controller
 // that was disappearing will receive a viewWillAppear: call.  This handler is
 // invoked BEFORE the "will" method calls are made.
-- (void)notifyWhenInteractionEndsUsingBlock: (void (^)(id <UIViewControllerTransitionCoordinatorContext>context))handler;
+- (void)notifyWhenInteractionEndsUsingBlock: (void (^)(id <UIViewControllerTransitionCoordinatorContext>context))handler NS_DEPRECATED_IOS(7_0, 10_0,"Use notifyWhenInteractionChangesUsingBlock");
+
+// This method behavior is identical to the method above. On 10.0, however, the behavior has
+// changed slightly to account for the fact that transitions can be interruptible. For interruptible transitions
+// The block may be called multiple times. It is called each time the transition moves from an interactive to a 
+// non-interactive state and vice-versa. The block is now also retained until the transition has completed.
+- (void)notifyWhenInteractionChangesUsingBlock: (void (^)(id <UIViewControllerTransitionCoordinatorContext>context))handler NS_AVAILABLE_IOS(10_0);
 
 @end
 
@@ -5364,19 +7402,29 @@ NS_ASSUME_NONNULL_BEGIN
 // appropriate transition coordinator to return, otherwise it should call
 // super. Only custom container view controllers should ever need to override
 // this method.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) id <UIViewControllerTransitionCoordinator> transitionCoordinator NS_AVAILABLE_IOS(7_0);
+#else
 - (nullable id <UIViewControllerTransitionCoordinator>)transitionCoordinator NS_AVAILABLE_IOS(7_0);
+#endif
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIViewControllerTransitionCoordinator.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAlertController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAlertController.h>)
 //
 //  UIAlertController.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIViewController.h>
+#import <UIKit/UISpringLoadedInteractionSupporting.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -5420,13 +7468,92 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIAlertController : UIViewController
 
 @end
 
+#if TARGET_OS_IOS
+@interface UIAlertController (SpringLoading) <UISpringLoadedInteractionSupporting>
+@end
+#endif
+
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAlertController.h>
+#endif
+// ==========  UIKit.framework/Headers/UIGraphicsRenderer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIGraphicsRenderer.h>)
+//
+//  UIGraphicsRenderer.h
+//  UIKit
+//
+//  Copyright (c) 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import <UIKit/UIView.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*
+ UIGraphicsRendererFormat is an object that describes the particular properties of the
+ context created by its associated renderer class.
+ */
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIGraphicsRendererFormat : NSObject <NSCopying>
+
+// returns a default configured format object, best suited for the current device.
++ (instancetype)defaultFormat API_DEPRECATED_WITH_REPLACEMENT("+preferredFormat", tvos(10.0, 11.0)) API_AVAILABLE(ios(10.0), watchos(3.0));
+
+// Returns a new format object best suited for the main screen’s current configuration.
++ (instancetype)preferredFormat API_AVAILABLE(ios(11.0), tvos(11.0), watchos(4.0));
+
+// returns the bounds for drawing into the owning UIGraphicsRendererContext.
+@property (nonatomic, readonly) CGRect bounds;
+@end
+
+/*
+ A UIGraphicsRendererContext provides primative drawing routines not provided through other
+ UIKit classes (UIImage, UIBezierPath, etc) in addition to providing access to the underlying
+ CGContextRef.
+ */
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIGraphicsRendererContext : NSObject
+@property (nonatomic, readonly) CGContextRef CGContext;
+@property (nonatomic, readonly) __kindof UIGraphicsRendererFormat *format;
+
+- (void)fillRect:(CGRect)rect;
+- (void)fillRect:(CGRect)rect blendMode:(CGBlendMode)blendMode;
+
+- (void)strokeRect:(CGRect)rect;
+- (void)strokeRect:(CGRect)rect blendMode:(CGBlendMode)blendMode;
+
+- (void)clipToRect:(CGRect)rect;
+@end
+
+/*
+ An abstract base class for creating graphics renderers. Do not use this class directly.
+ */
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIGraphicsRenderer : NSObject
+// Creates a new UIGraphicsRenderer instance with the provides bounds and format, or a defaultFormat if none is provided.
+// The format instance is copied by the initializer, and the provided instance may be immediately reused
+// for creating other renderer instances with the same or different bounds.
+- (instancetype)initWithBounds:(CGRect)bounds;
+- (instancetype)initWithBounds:(CGRect)bounds format:(UIGraphicsRendererFormat *)format NS_DESIGNATED_INITIALIZER;
+
+@property (nonatomic, readonly) __kindof UIGraphicsRendererFormat *format; // The renderer format used to create this renderer instance. returned by copy.
+@property (nonatomic, readonly) BOOL allowsImageOutput; // If YES, this renderer may be used to generate CGImageRefs.
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIGraphicsRenderer.h>
+#endif
 // ==========  UIKit.framework/Headers/UIScrollView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIScrollView.h>)
 //
 //  UIScrollView.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5434,6 +7561,7 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIView.h>
 #import <UIKit/UIGeometry.h>
 #import <UIKit/UIKitDefines.h>
+#import <UIKit/UIRefreshControl.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -5449,29 +7577,69 @@ typedef NS_ENUM(NSInteger, UIScrollViewKeyboardDismissMode) {
     UIScrollViewKeyboardDismissModeInteractive, // the keyboard follows the dragging touch off screen, and may be pulled upward again to cancel the dismiss
 } NS_ENUM_AVAILABLE_IOS(7_0);
 
-UIKIT_EXTERN const CGFloat UIScrollViewDecelerationRateNormal NS_AVAILABLE_IOS(3_0);
-UIKIT_EXTERN const CGFloat UIScrollViewDecelerationRateFast NS_AVAILABLE_IOS(3_0);
+typedef NS_ENUM(NSInteger, UIScrollViewIndexDisplayMode) {
+    UIScrollViewIndexDisplayModeAutomatic,    // the index will show or hide automatically as needed
+    UIScrollViewIndexDisplayModeAlwaysHidden, // the index will never be displayed
+} API_AVAILABLE(tvos(10.2));
+
+typedef NS_ENUM(NSInteger, UIScrollViewContentInsetAdjustmentBehavior) {
+    UIScrollViewContentInsetAdjustmentAutomatic, // Similar to .scrollableAxes, but for backward compatibility will also adjust the top & bottom contentInset when the scroll view is owned by a view controller with automaticallyAdjustsScrollViewInsets = YES inside a navigation controller, regardless of whether the scroll view is scrollable
+    UIScrollViewContentInsetAdjustmentScrollableAxes, // Edges for scrollable axes are adjusted (i.e., contentSize.width/height > frame.size.width/height or alwaysBounceHorizontal/Vertical = YES)
+    UIScrollViewContentInsetAdjustmentNever, // contentInset is not adjusted
+    UIScrollViewContentInsetAdjustmentAlways, // contentInset is always adjusted by the scroll view's safeAreaInsets
+} API_AVAILABLE(ios(11.0),tvos(11.0));
+
+typedef CGFloat UIScrollViewDecelerationRate NS_TYPED_ENUM;
+
+UIKIT_EXTERN const UIScrollViewDecelerationRate UIScrollViewDecelerationRateNormal NS_AVAILABLE_IOS(3_0);
+UIKIT_EXTERN const UIScrollViewDecelerationRate UIScrollViewDecelerationRateFast NS_AVAILABLE_IOS(3_0);
 
 @class UIEvent, UIImageView, UIPanGestureRecognizer, UIPinchGestureRecognizer;
 @protocol UIScrollViewDelegate;
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UIScrollView : UIView <NSCoding>
+NS_CLASS_AVAILABLE_IOS(2_0) @interface UIScrollView : UIView <NSCoding, UIFocusItemScrollableContainer>
 
 @property(nonatomic)         CGPoint                      contentOffset;                  // default CGPointZero
 @property(nonatomic)         CGSize                       contentSize;                    // default CGSizeZero
 @property(nonatomic)         UIEdgeInsets                 contentInset;                   // default UIEdgeInsetsZero. add additional scroll area around content
+
+/* When contentInsetAdjustmentBehavior allows, UIScrollView may incorporate
+ its safeAreaInsets into the adjustedContentInset.
+ */
+@property(nonatomic, readonly) UIEdgeInsets adjustedContentInset API_AVAILABLE(ios(11.0),tvos(11.0));
+
+/* Also see -scrollViewDidChangeAdjustedContentInset: in the UIScrollViewDelegate protocol.
+ */
+- (void)adjustedContentInsetDidChange API_AVAILABLE(ios(11.0),tvos(11.0)) NS_REQUIRES_SUPER;
+
+/* Configure the behavior of adjustedContentInset.
+ Default is UIScrollViewContentInsetAdjustmentAutomatic.
+ */
+@property(nonatomic) UIScrollViewContentInsetAdjustmentBehavior contentInsetAdjustmentBehavior API_AVAILABLE(ios(11.0),tvos(11.0));
+
+/* contentLayoutGuide anchors (e.g., contentLayoutGuide.centerXAnchor, etc.) refer to
+ the untranslated content area of the scroll view.
+ */
+@property(nonatomic,readonly,strong) UILayoutGuide *contentLayoutGuide API_AVAILABLE(ios(11.0),tvos(11.0));
+
+/* frameLayoutGuide anchors (e.g., frameLayoutGuide.centerXAnchor) refer to
+ the untransformed frame of the scroll view.
+ */
+@property(nonatomic,readonly,strong) UILayoutGuide *frameLayoutGuide API_AVAILABLE(ios(11.0),tvos(11.0));
+
 @property(nullable,nonatomic,weak) id<UIScrollViewDelegate>        delegate;                       // default nil. weak reference
 @property(nonatomic,getter=isDirectionalLockEnabled) BOOL directionalLockEnabled;         // default NO. if YES, try to lock vertical or horizontal scrolling while dragging
 @property(nonatomic)         BOOL                         bounces;                        // default YES. if YES, bounces past edge of content and back again
 @property(nonatomic)         BOOL                         alwaysBounceVertical;           // default NO. if YES and bounces is YES, even if content is smaller than bounds, allow drag vertically
 @property(nonatomic)         BOOL                         alwaysBounceHorizontal;         // default NO. if YES and bounces is YES, even if content is smaller than bounds, allow drag horizontally
-@property(nonatomic,getter=isPagingEnabled) BOOL          pagingEnabled;                  // default NO. if YES, stop on multiples of view bounds
+@property(nonatomic,getter=isPagingEnabled) BOOL          pagingEnabled __TVOS_PROHIBITED;// default NO. if YES, stop on multiples of view bounds
 @property(nonatomic,getter=isScrollEnabled) BOOL          scrollEnabled;                  // default YES. turn off any dragging temporarily
 @property(nonatomic)         BOOL                         showsHorizontalScrollIndicator; // default YES. show indicator while we are tracking. fades out after tracking
 @property(nonatomic)         BOOL                         showsVerticalScrollIndicator;   // default YES. show indicator while we are tracking. fades out after tracking
 @property(nonatomic)         UIEdgeInsets                 scrollIndicatorInsets;          // default is UIEdgeInsetsZero. adjust indicators inside of insets
 @property(nonatomic)         UIScrollViewIndicatorStyle   indicatorStyle;                 // default is UIScrollViewIndicatorStyleDefault
-@property(nonatomic)         CGFloat                      decelerationRate NS_AVAILABLE_IOS(3_0);
+@property(nonatomic)         UIScrollViewDecelerationRate decelerationRate NS_AVAILABLE_IOS(3_0);
+@property(nonatomic)         UIScrollViewIndexDisplayMode indexDisplayMode API_AVAILABLE(tvos(10.2));
 
 - (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated;  // animate at constant velocity to new offset
 - (void)scrollRectToVisible:(CGRect)rect animated:(BOOL)animated;         // scroll so rect is just visible (nearest edges). nothing if rect completely visible
@@ -5490,15 +7658,17 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIScrollView : UIView <NSCoding>
 @property(nonatomic,readonly,getter=isDragging)     BOOL dragging;        // returns YES if user has started scrolling. this may require some time and or distance to move to initiate dragging
 @property(nonatomic,readonly,getter=isDecelerating) BOOL decelerating;    // returns YES if user isn't dragging (touch up) but scroll view is still moving
 
-@property(nonatomic) BOOL delaysContentTouches;       // default is YES. if NO, we immediately call -touchesShouldBegin:withEvent:inContentView:
-@property(nonatomic) BOOL canCancelContentTouches;    // default is YES. if NO, then once we start tracking, we don't try to drag if the touch moves
+@property(nonatomic) BOOL delaysContentTouches;       // default is YES. if NO, we immediately call -touchesShouldBegin:withEvent:inContentView:. this has no effect on presses
+@property(nonatomic) BOOL canCancelContentTouches;    // default is YES. if NO, then once we start tracking, we don't try to drag if the touch moves. this has no effect on presses
 
 // override points for subclasses to control delivery of touch events to subviews of the scroll view
 // called before touches are delivered to a subview of the scroll view. if it returns NO the touches will not be delivered to the subview
+// this has no effect on presses
 // default returns YES
 - (BOOL)touchesShouldBegin:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event inContentView:(UIView *)view;
 // called before scrolling begins if touches have already been delivered to a subview of the scroll view. if it returns NO the touches will continue to be delivered to the subview and scrolling will not occur
 // not called if canCancelContentTouches is NO. default returns YES if view isn't a UIControl
+// this has no effect on presses
 - (BOOL)touchesShouldCancelInContentView:(UIView *)view;
 
 /*
@@ -5520,17 +7690,23 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIScrollView : UIView <NSCoding>
 @property(nonatomic,readonly,getter=isZooming)       BOOL zooming;       // returns YES if user in zoom gesture
 @property(nonatomic,readonly,getter=isZoomBouncing)  BOOL zoomBouncing;  // returns YES if we are in the middle of zooming back to the min/max value
 
-// When the user taps the status bar, the scroll view beneath the touch which is closest to the status bar will be scrolled to top, but only if its `scrollsToTop` property is YES, its delegate does not return NO from `shouldScrollViewScrollToTop`, and it is not already at the top.
+// When the user taps the status bar, the scroll view beneath the touch which is closest to the status bar will be scrolled to top, but only if its `scrollsToTop` property is YES, its delegate does not return NO from `-scrollViewShouldScrollToTop:`, and it is not already at the top.
 // On iPhone, we execute this gesture only if there's one on-screen scroll view with `scrollsToTop` == YES. If more than one is found, none will be scrolled.
-@property(nonatomic) BOOL  scrollsToTop;          // default is YES.
+@property(nonatomic) BOOL  scrollsToTop __TVOS_PROHIBITED;          // default is YES.
 
 // Use these accessors to configure the scroll view's built-in gesture recognizers.
 // Do not change the gestures' delegates or override the getters for these properties.
+
+// Change `panGestureRecognizer.allowedTouchTypes` to limit scrolling to a particular set of touch types.
 @property(nonatomic, readonly) UIPanGestureRecognizer *panGestureRecognizer NS_AVAILABLE_IOS(5_0);
 // `pinchGestureRecognizer` will return nil when zooming is disabled.
 @property(nullable, nonatomic, readonly) UIPinchGestureRecognizer *pinchGestureRecognizer NS_AVAILABLE_IOS(5_0);
+// `directionalPressGestureRecognizer` is disabled by default, but can be enabled to perform scrolling in response to up / down / left / right arrow button presses directly, instead of scrolling indirectly in response to focus updates.
+@property(nonatomic, readonly) UIGestureRecognizer *directionalPressGestureRecognizer API_DEPRECATED("Configuring the panGestureRecognizer for indirect scrolling automatically supports directional presses now, so this property is no longer useful.", tvos(9.0, 11.0));
 
 @property(nonatomic) UIScrollViewKeyboardDismissMode keyboardDismissMode NS_AVAILABLE_IOS(7_0); // default is UIScrollViewKeyboardDismissModeNone
+
+@property (nonatomic, strong, nullable) UIRefreshControl *refreshControl NS_AVAILABLE_IOS(10_0) __TVOS_PROHIBITED;
 
 @end
 
@@ -5560,15 +7736,346 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIScrollView : UIView <NSCoding>
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView;   // return a yes if you want to scroll to the top. if not defined, assumes YES
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView;      // called when scrolling animation finished. may be called immediately if already at top
 
+/* Also see -[UIScrollView adjustedContentInsetDidChange]
+ */
+- (void)scrollViewDidChangeAdjustedContentInset:(UIScrollView *)scrollView API_AVAILABLE(ios(11.0), tvos(11.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIScrollView.h>
+#endif
+// ==========  UIKit.framework/Headers/UIDropInteraction.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDropInteraction.h>)
+//
+//  UIDropInteraction.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIInteraction.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol UIDragAnimating, UIDropInteractionDelegate, UIDropSession;
+@class UIDragItem, UITargetedDragPreview;
+
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @interface UIDropInteraction : NSObject <UIInteraction>
+
+- (instancetype)initWithDelegate:(id<UIDropInteractionDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@property (nonatomic, nullable, readonly, weak) id<UIDropInteractionDelegate> delegate;
+
+/* Whether to allow this interaction to handle more than one drop session
+ * at the same time. A well-behaved delegate can handle this correctly,
+ * but many will find it challenging, so the default value is false.
+ * If false, then after one session has entered the view, other sessions will
+ * be ignored until the first session exits and the other session enters again.
+ */
+@property (nonatomic, assign) BOOL allowsSimultaneousDropSessions;
+
+@end
+
+
+/* The UIDropInteraction's delegate uses a UIDropOperation to tell the system
+ * what operation it will perform if the user drops.
+ */
+typedef NS_ENUM(NSUInteger, UIDropOperation) {
+    /* Operations that do NOT cause data transfer.
+     *
+     * If the user drops here, the UIDropInteraction's -dropInteraction:performDrop:
+     * method will NOT be called.
+     */
+
+    /* The drag will be cancelled.
+     */
+    UIDropOperationCancel   = 0,
+
+    /* The drag will be cancelled.
+     * Use this operation to signal that this interaction would *normally* perform
+     * a different operation, but that it explicitly forbids a drop at this specific
+     * time and place.
+     * This may cause a special symbol to be displayed on the drag image.
+     */
+    UIDropOperationForbidden = 1,
+
+    /* Operations that cause data transfer.
+     *
+     * If the user drops here, the UIDropInteraction's -dropInteraction:performDrop:
+     * method will be called.
+     */
+
+    /* The data represented by the drag item(s) will be copied.
+     * This is the most common operation to use.
+     */
+    UIDropOperationCopy      = 2,
+
+    /* The data represented by the drag item(s) will be moved.
+     *
+     * You may use this only if UIDropSession's allowsMoveOperation is true.
+     * Otherwise it will be treated as UIDropOperationCancel.
+     *
+     * Note that the system does not give any special meaning to this operation.
+     * The delegates of both the UIDragInteraction and UIDropInteraction must
+     * cooperate to produce the correct result. For instance, the UIDropInteraction's
+     * delegate might insert the data in the new location, and the UIDragInteraction's
+     * delegate might remove the data from the old location.
+     */
+    UIDropOperationMove      = 3,
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @interface UIDropProposal : NSObject <NSCopying>
+
+- (instancetype)initWithDropOperation:(UIDropOperation)operation NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+/* The operation that this interaction proposes to perform.
+ */
+@property (nonatomic, readonly) UIDropOperation operation;
+
+/* Set `precise` to true to specify that this drop interaction wants to handle the drop
+ * in a precise way, e.g. dropping into text. The drag system may move the drag point
+ * away from the touch in order to make it easier to hit a small target.
+ */
+@property (nonatomic, getter=isPrecise) BOOL precise;
+
+/* Signals that this drop interaction wants the preview to be shown
+ * at its full original size, not scaled smaller, while this proposal is in effect.
+ * For instance, you might set this to true if the items are being moved from some
+ * other nearby view, and scaling them smaller would be distracting.
+ * This only applies to drags that started in the same app.
+ */
+@property (nonatomic) BOOL prefersFullSizePreview;
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @protocol UIDropInteractionDelegate <NSObject>
+
+@optional
+
+/* Return whether the delegate is interested in the given session.
+ * If this method is not implemented, or if it returns true, then the
+ * other delegate methods will be called, starting with `-dropInteraction:sessionDidEnter:`.
+ * If it returns false, this interaction will ignore this session. (We may ask again
+ * if something significant about the session changes, like the items in it.)
+ *
+ * Note that returning true does not mean that the delegate definitely *will* accept this drop,
+ * just that it *might* want to accept the drop.
+ * To accept it, you must also implement `-dropInteraction:sessionDidUpdate:` and return a
+ * UIDropProposal with an appropriate operation.
+ *
+ * This method is commonly used to check whether the session contains any
+ * items that this delegate can consume. Use `UIDropSession`'s convenience methods
+ * `-hasItemsConformingToTypeIdentifiers:`, `-canLoadObjectsOfClass:`, etc.
+ */
+- (BOOL)dropInteraction:(UIDropInteraction *)interaction canHandleSession:(id<UIDropSession>)session;
+
+/* Called when a drag enters the view.
+ */
+- (void)dropInteraction:(UIDropInteraction *)interaction sessionDidEnter:(id<UIDropSession>)session;
+
+/* Called when the drag enters the interaction's view, or when when the drag 
+ * moves while inside the view, or if items are added to the drag while inside the view.
+ *
+ * You *must* implement this method to accept a drop.
+ * Return a `UIDropProposal` that contains the operation that the delegate
+ * would like to perform. (Note that you may use `UIDropOperationMove` only if
+ * session.allowsMoveOperation is true.)
+ *
+ * You may also set other properties on the `UIDropProposal` to change the appearance
+ * of the drag over this view.
+ *
+ * Use the session's `-locationInView:` to get a point to use for hit testing.
+ */
+- (UIDropProposal *)dropInteraction:(UIDropInteraction *)interaction sessionDidUpdate:(id<UIDropSession>)session;
+
+/* Called when the drag has exited the interaction's view.
+ */
+- (void)dropInteraction:(UIDropInteraction *)interaction sessionDidExit:(id<UIDropSession>)session;
+
+/* Called when the user drops onto this interaction's view.
+ * The delegate should now request data from the session's
+ * items' item providers. Data may be requested *only* during
+ * the scope of this method.
+ */
+- (void)dropInteraction:(UIDropInteraction *)interaction performDrop:(id<UIDropSession>)session;
+
+/* Called when the user has dropped onto this interaction's view,
+ * after `-dropInteraction:performDrop:` has been called,
+ * and all resulting drop animations have completed.
+ *
+ * The delegate should cause the interaction's view to draw in its final post-drop state.
+ */
+- (void)dropInteraction:(UIDropInteraction *)interaction concludeDrop:(id<UIDropSession>)session;
+
+/* When the drag session ends, for any reason, this method will be called
+ * for *every* interaction that ever received `-dropInteraction:sessionDidEnter:`,
+ * `-dropInteraction:sessionDidUpdate:`, or `-dropInteraction:sessionDidExit:`.
+ *
+ * If you were keeping track of the session for any reason, you may now forget it.
+ */
+- (void)dropInteraction:(UIDropInteraction *)interaction sessionDidEnd:(id<UIDropSession>)session;
+
+/* Drop animation. */
+
+/* Called when the drop happens, after `-dropInteraction:performDrop:`, once for each visible item.
+ * Provide a preview to animate the item to where it belongs.
+ * We provide `defaultPreview` which would leave the current preview where the item was dropped.
+ * You may return:
+ * - defaultPreview, to use it as-is
+ * - nil, to fade and shrink the drag item in place
+ * - [defaultPreview retargetedPreviewWithTarget:] to move the preview to a different target
+ * - a UITargetedDragPreview that you create however you like
+ */
+- (nullable UITargetedDragPreview *)dropInteraction:(UIDropInteraction *)interaction previewForDroppingItem:(UIDragItem *)item withDefault:(UITargetedDragPreview *)defaultPreview;
+
+/* Called when the drop animation is about to start, once for each item,
+ * whether it is visible or not.
+ * Use the animator to animate your own changes alongside the system animation.
+ */
+- (void)dropInteraction:(UIDropInteraction *)interaction item:(UIDragItem *)item willAnimateDropWithAnimator:(id<UIDragAnimating>)animator;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDropInteraction.h>
+#endif
+// ==========  UIKit.framework/Headers/UIDragSession.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDragSession.h>)
+//
+//  UIDragSession.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIDragItem, UIView;
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @protocol UIDragDropSession <NSObject>
+
+/* A common protocol used for both drag and drop sessions. */
+
+/* The items in the session.
+ *
+ * Before the drop happens, the items' NSItemProviders do not allow
+ * the data in the NSItemProvider to be loaded.
+ * However, `registeredTypeIdentifiers` and metadata are available at any time.
+ * You may request the data only inside the UIDropInteractionDelegate's implementation
+ * of `-dropInteraction:performDrop:`.
+ *
+ * When handling the drop, if you display dropped items in a linear order,
+ * place them in this order, first to last.
+ */
+@property (nonatomic, readonly) NSArray<UIDragItem *> *items;
+
+/* The location of the drag in the specified view.
+ */
+- (CGPoint)locationInView:(UIView *)view;
+
+/* Whether this session allows moving, or not.
+ *
+ * This is determined based on the UIDragInteraction's delegate's
+ * `-dragInteraction:sessionAllowsMoveOperation:`.
+ *
+ * If true, then the delegate of UIDropInteraction is allowed to return `UIDropOperationMove`
+ * from `-dropInteraction:sessionDidUpdate:`.
+ */
+@property (nonatomic, readonly) BOOL allowsMoveOperation;
+
+/* Whether this session is restricted to the application that began the drag.
+ *
+ * This is determined based on the UIDragInteraction's delegate's
+ * `-dragInteraction:sessionIsRestrictedToDraggingApplication:`.
+ */
+@property (nonatomic, readonly, getter=isRestrictedToDraggingApplication) BOOL restrictedToDraggingApplication;
+
+/* Convenience methods to iterate through this session's `items`.
+ *
+ * Returns true if any of the session's items conforms to any of the specified UTIs.
+ */
+- (BOOL)hasItemsConformingToTypeIdentifiers:(NSArray<NSString *> *)typeIdentifiers;
+
+/* Returns true if any of the session's items could create any objects of the specified class.
+ */
+- (BOOL)canLoadObjectsOfClass:(Class<NSItemProviderReading>)aClass;
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @protocol UIDragSession <UIDragDropSession>
+
+/* Use `localContext` to attach additional information to this drag session,
+ * visible only inside the app that started the drag.
+ */
+@property (nonatomic, strong, nullable) id localContext;
+
+@end
+
+
+typedef NS_ENUM(NSUInteger, UIDropSessionProgressIndicatorStyle) {
+    UIDropSessionProgressIndicatorStyleNone,       // No indicator is displayed
+    UIDropSessionProgressIndicatorStyleDefault,    // A default indicator is displayed
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @protocol UIDropSession <UIDragDropSession, NSProgressReporting>
+
+/* The `UIDragSession` that corresponds to this `UIDropSession`.
+ * If the drag was started in a different app, this is nil.
+ */
+@property (nonatomic, readonly, nullable) id<UIDragSession> localDragSession;
+
+/* The kind of progress and cancellation UI that UIKit will display
+ * if handling this session's drop takes a significant amount of time.
+ *
+ * The default value is UIDropSessionProgressIndicatorStyleDefault,
+ * meaning that some progress UI will be shown. If you show your own
+ * progress indicator, hide the system progress UI by setting this
+ * property to UIDropSessionProgressIndicatorStyleNone.
+ */
+@property (nonatomic) UIDropSessionProgressIndicatorStyle progressIndicatorStyle;
+
+/* A convenience method that can be used only during the UIDropInteractionDelegate's
+ * implementation of `-dropInteraction:performDrop:`.
+ * Asynchronously instantiates objects of the provided class for each
+ * drag item that can do so. The completion handler is called on the
+ * main queue, with an array of all objects that were created, in the
+ * same order as `items`.
+ * The progress returned is an aggregate of the progress for all objects
+ * that are loaded.
+ */
+- (NSProgress *)loadObjectsOfClass:(Class<NSItemProviderReading>)aClass completion:(void(^)(NSArray<__kindof id<NSItemProviderReading>> *objects))completion;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDragSession.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPushBehavior.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPushBehavior.h>)
 //
 //  UIPushBehavior.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5606,12 +8113,17 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIPushBehavior : UIDynamicBehavior
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPushBehavior.h>
+#endif
 // ==========  UIKit.framework/Headers/UIViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIViewController.h>)
 //
 //  UIViewController.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5620,6 +8132,7 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIApplication.h>
 #import <UIKit/UIStateRestoration.h>
 #import <UIKit/UITraitCollection.h>
+#import <UIKit/UIFocus.h>
 
 /*
   UIViewController is a generic controller base class that manages a view.  It has methods that are called
@@ -5642,21 +8155,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, UIModalTransitionStyle) {
     UIModalTransitionStyleCoverVertical = 0,
-    UIModalTransitionStyleFlipHorizontal,
+    UIModalTransitionStyleFlipHorizontal __TVOS_PROHIBITED,
     UIModalTransitionStyleCrossDissolve,
-    UIModalTransitionStylePartialCurl NS_ENUM_AVAILABLE_IOS(3_2),
+    UIModalTransitionStylePartialCurl NS_ENUM_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED,
 };
 
 typedef NS_ENUM(NSInteger, UIModalPresentationStyle) {
         UIModalPresentationFullScreen = 0,
-        UIModalPresentationPageSheet NS_ENUM_AVAILABLE_IOS(3_2),
-        UIModalPresentationFormSheet NS_ENUM_AVAILABLE_IOS(3_2),
+        UIModalPresentationPageSheet NS_ENUM_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED,
+        UIModalPresentationFormSheet NS_ENUM_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED,
         UIModalPresentationCurrentContext NS_ENUM_AVAILABLE_IOS(3_2),
         UIModalPresentationCustom NS_ENUM_AVAILABLE_IOS(7_0),
         UIModalPresentationOverFullScreen NS_ENUM_AVAILABLE_IOS(8_0),
         UIModalPresentationOverCurrentContext NS_ENUM_AVAILABLE_IOS(8_0),
-        UIModalPresentationPopover NS_ENUM_AVAILABLE_IOS(8_0),
-        UIModalPresentationNone NS_ENUM_AVAILABLE_IOS(7_0) = -1,         
+        UIModalPresentationPopover NS_ENUM_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED,
+        UIModalPresentationBlurOverFullScreen __TVOS_AVAILABLE(11_0) __IOS_PROHIBITED __WATCHOS_PROHIBITED,
+        UIModalPresentationNone NS_ENUM_AVAILABLE_IOS(7_0) = -1,
 };
 
 @protocol UIContentContainer <NSObject>
@@ -5696,9 +8210,9 @@ typedef NS_ENUM(NSInteger, UIModalPresentationStyle) {
 @end
 
 // Sometimes view controllers that are using showViewController:sender and showDetailViewController:sender: will need to know when the split view controller environment above it has changed. This notification will be posted when that happens (for example, when a split view controller is collapsing or expanding). The NSNotification's object will be the view controller that caused the change.
-UIKIT_EXTERN NSString *const UIViewControllerShowDetailTargetDidChangeNotification NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN NSNotificationName const UIViewControllerShowDetailTargetDidChangeNotification NS_AVAILABLE_IOS(8_0);
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding, UIAppearanceContainer, UITraitEnvironment, UIContentContainer>
+NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding, UIAppearanceContainer, UITraitEnvironment, UIContentContainer, UIFocusEnvironment>
 
 /*
   The designated initializer. If you subclass UIViewController, you must call the super implementation of this
@@ -5717,11 +8231,15 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 - (void)loadViewIfNeeded NS_AVAILABLE_IOS(9_0); // Loads the view controller's view if it has not already been set.
 @property(nullable, nonatomic, readonly, strong) UIView *viewIfLoaded NS_AVAILABLE_IOS(9_0); // Returns the view controller's view if loaded, nil if not.
 
-- (void)viewWillUnload NS_DEPRECATED_IOS(5_0,6_0);
-- (void)viewDidUnload NS_DEPRECATED_IOS(3_0,6_0); // Called after the view controller's view is released and set to nil. For example, a memory warning which causes the view to be purged. Not invoked as a result of -dealloc.
+- (void)viewWillUnload NS_DEPRECATED_IOS(5_0,6_0) __TVOS_PROHIBITED;
+- (void)viewDidUnload NS_DEPRECATED_IOS(3_0,6_0) __TVOS_PROHIBITED; // Called after the view controller's view is released and set to nil. For example, a memory warning which causes the view to be purged. Not invoked as a result of -dealloc.
 
 - (void)viewDidLoad; // Called after the view has been loaded. For view controllers created in code, this is after -loadView. For view controllers unarchived from a nib, this is after the view is set.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isViewLoaded) BOOL viewLoaded NS_AVAILABLE_IOS(3_0);
+#else
 - (BOOL)isViewLoaded NS_AVAILABLE_IOS(3_0);
+#endif
 
 @property(nullable, nonatomic, readonly, copy) NSString *nibName;     // The name of the nib to be loaded to instantiate the view.
 @property(nullable, nonatomic, readonly, strong) NSBundle *nibBundle; // The bundle from which to load the nib.
@@ -5746,12 +8264,15 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 - (nullable UIViewController *)childViewControllerContainingSegueSource:(UIStoryboardUnwindSegueSource *)source NS_AVAILABLE_IOS(9_0);
 
 // Deprecated. Returns a direct child of the receiver that responds YES to -canPerformUnwindSegueAction:fromViewController:withSender:, or self if no children respond YES but the receiver itself does. If this method has been overridden, UIViewController's implementation does not consult child view controllers at all, and skips straight to sending -canPerformUnwindSegueAction:... to self.
+// Applications targeting iOS 9 or later should not override this method. Applications can instead override -allowedChildViewControllersForUnwindingFromSource: to guide UIKit’s search for a descendant view controller that returns YES from -canPerformUnwindSegueAction:fromViewController:withSender:.
 - (nullable UIViewController *)viewControllerForUnwindSegueAction:(SEL)action fromViewController:(UIViewController *)fromViewController withSender:(nullable id)sender NS_DEPRECATED_IOS(6_0, 9_0);
 
 // Custom container view controllers should override this method to modify themselves as part of an ongoing unwind segue. The subsequentVC is the parent, child, or presented view controller closest to the receiver in the direction of the segue's destinationViewController. For example, UINavigationController's implementation of this method will pop any necessary view controllers to reveal the subsequentVC.
 - (void)unwindForSegue:(UIStoryboardSegue *)unwindSegue towardsViewController:(UIViewController *)subsequentVC NS_AVAILABLE_IOS(9_0);
 
-// Deprecated. Returns a segue that will unwind from the source to destination view controller via the -unwindForSegue:towardViewController: method. When performing an unwind segue defined in a storyboard, if any view controller along the unwind path has overridden this method and returns non-nil, the runtime will use that segue object instead of constructing an instance of the class specified in Interface Builder.
+// Deprecated. This method is only used for unwind segues whose destination view controller has been returned by an override of the deprecated method -viewControllerForUnwindSegueAction:fromViewController:withSender:. In that case, UIKit will choose a view controller to act as the “executor” of the unwind. If the destination view controller is being modally presented, the destination view controller itself is the executor. Otherwise, the destination view controller’s parent view controller is the executor. If the executor overrides this method, UIKit will ignore the Custom Class specified in Interface Builder and instead call this method on the executor to obtain a segue that can perform the unwind.
+// The returned segue object must be able to perform all steps necessary to unwind, including dismissing any intermediate modal presentations or popping any necessary navigation items.
+// Applications targeting iOS 9 or later should not override this method. Custom container view controllers should instead override -unwindForSegue:towardsViewController: to modify their local state as part of a UIKit-generated incremental unwind segue.
 - (nullable UIStoryboardSegue *)segueForUnwindingToViewController:(UIViewController *)toViewController fromViewController:(UIViewController *)fromViewController identifier:(nullable NSString *)identifier NS_DEPRECATED_IOS(6_0, 9_0);
 
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
@@ -5776,7 +8297,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 @property(nullable,nonatomic,weak,readonly) UIViewController *parentViewController;
 
 // This property has been replaced by presentedViewController.
-@property(nullable, nonatomic,readonly) UIViewController *modalViewController NS_DEPRECATED_IOS(2_0, 6_0);
+@property(nullable, nonatomic,readonly) UIViewController *modalViewController NS_DEPRECATED_IOS(2_0, 6_0) __TVOS_PROHIBITED;
 
 // The view controller that was presented by this view controller or its nearest ancestor.
 @property(nullable, nonatomic,readonly) UIViewController *presentedViewController  NS_AVAILABLE_IOS(5_0);
@@ -5794,6 +8315,9 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 // A controller that defines the presentation context can also specify the modal transition style if this property is true.
 @property(nonatomic,assign) BOOL providesPresentationContextTransitionStyle NS_AVAILABLE_IOS(5_0);
 
+// If YES, when this view controller becomes visible and focusable, focus will be automatically restored to the item that was last focused. For example, when an item in this view controller is focused, and then another view controller is presented and dismissed, the original item will become focused again. Defaults to YES.
+@property (nonatomic) BOOL restoresFocusAfterTransition NS_AVAILABLE_IOS(10_0);
+
 /*
   These four methods can be used in a view controller's appearance callbacks to determine if it is being
   presented, dismissed, or added or removed as a child view controller. For example, a view controller can
@@ -5801,11 +8325,19 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
   method by checking the expression ([self isBeingDismissed] || [self isMovingFromParentViewController]).
 */
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isBeingPresented) BOOL beingPresented NS_AVAILABLE_IOS(5_0);
+@property(nonatomic, readonly, getter=isBeingDismissed) BOOL beingDismissed NS_AVAILABLE_IOS(5_0);
+
+@property(nonatomic, readonly, getter=isMovingToParentViewController) BOOL movingToParentViewController NS_AVAILABLE_IOS(5_0);
+@property(nonatomic, readonly, getter=isMovingFromParentViewController) BOOL movingFromParentViewController NS_AVAILABLE_IOS(5_0);
+#else
 - (BOOL)isBeingPresented NS_AVAILABLE_IOS(5_0);
 - (BOOL)isBeingDismissed NS_AVAILABLE_IOS(5_0);
 
 - (BOOL)isMovingToParentViewController NS_AVAILABLE_IOS(5_0);
 - (BOOL)isMovingFromParentViewController NS_AVAILABLE_IOS(5_0);
+#endif
 
 /*
   The next two methods are replacements for presentModalViewController:animated and
@@ -5817,10 +8349,10 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 - (void)dismissViewControllerAnimated: (BOOL)flag completion: (void (^ __nullable)(void))completion NS_AVAILABLE_IOS(5_0);
 
 // Display another view controller as a modal child. Uses a vertical sheet transition if animated.This method has been replaced by presentViewController:animated:completion:
-- (void)presentModalViewController:(UIViewController *)modalViewController animated:(BOOL)animated NS_DEPRECATED_IOS(2_0, 6_0);
+- (void)presentModalViewController:(UIViewController *)modalViewController animated:(BOOL)animated NS_DEPRECATED_IOS(2_0, 6_0) __TVOS_PROHIBITED;
 
 // Dismiss the current modal child. Uses a vertical sheet transition if animated. This method has been replaced by dismissViewControllerAnimated:completion:
-- (void)dismissModalViewControllerAnimated:(BOOL)animated NS_DEPRECATED_IOS(2_0, 6_0);
+- (void)dismissModalViewControllerAnimated:(BOOL)animated NS_DEPRECATED_IOS(2_0, 6_0) __TVOS_PROHIBITED;
 
 /*
   Defines the transition style that will be used for this view controller when it is presented modally. Set
@@ -5830,29 +8362,40 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 @property(nonatomic,assign) UIModalTransitionStyle modalTransitionStyle NS_AVAILABLE_IOS(3_0);
 @property(nonatomic,assign) UIModalPresentationStyle modalPresentationStyle NS_AVAILABLE_IOS(3_2);
 // This controls whether this view controller takes over control of the status bar's appearance when presented non-full screen on another view controller. Defaults to NO.
-@property(nonatomic,assign) BOOL modalPresentationCapturesStatusBarAppearance NS_AVAILABLE_IOS(7_0);
+@property(nonatomic,assign) BOOL modalPresentationCapturesStatusBarAppearance NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
 
 // Presentation modes may keep the keyboard visible when not required. Default implementation affects UIModalPresentationFormSheet visibility.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL disablesAutomaticKeyboardDismissal NS_AVAILABLE_IOS(4_3);
+#else
 - (BOOL)disablesAutomaticKeyboardDismissal NS_AVAILABLE_IOS(4_3);
+#endif
 
-@property(nonatomic,assign) BOOL wantsFullScreenLayout NS_DEPRECATED_IOS(3_0, 7_0); // Deprecated in 7_0, Replaced by the following:
+@property(nonatomic,assign) BOOL wantsFullScreenLayout NS_DEPRECATED_IOS(3_0, 7_0) __TVOS_PROHIBITED; // Deprecated in 7_0, Replaced by the following:
 
 @property(nonatomic,assign) UIRectEdge edgesForExtendedLayout NS_AVAILABLE_IOS(7_0); // Defaults to UIRectEdgeAll
 @property(nonatomic,assign) BOOL extendedLayoutIncludesOpaqueBars NS_AVAILABLE_IOS(7_0); // Defaults to NO, but bars are translucent by default on 7_0.  
-@property(nonatomic,assign) BOOL automaticallyAdjustsScrollViewInsets NS_AVAILABLE_IOS(7_0); // Defaults to YES
+@property(nonatomic,assign) BOOL automaticallyAdjustsScrollViewInsets API_DEPRECATED("Use UIScrollView's contentInsetAdjustmentBehavior instead", ios(7.0,11.0),tvos(7.0,11.0)); // Defaults to YES
 
 /* The preferredContentSize is used for any container laying out a child view controller.
  */
 @property (nonatomic) CGSize preferredContentSize NS_AVAILABLE_IOS(7_0);
 
 // These methods control the attributes of the status bar when this view controller is shown. They can be overridden in view controller subclasses to return the desired status bar attributes.
-- (UIStatusBarStyle)preferredStatusBarStyle NS_AVAILABLE_IOS(7_0); // Defaults to UIStatusBarStyleDefault
-- (BOOL)prefersStatusBarHidden NS_AVAILABLE_IOS(7_0); // Defaults to NO
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) UIStatusBarStyle preferredStatusBarStyle NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED; // Defaults to UIStatusBarStyleDefault
+@property(nonatomic, readonly) BOOL prefersStatusBarHidden NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED; // Defaults to NO
 // Override to return the type of animation that should be used for status bar changes for this view controller. This currently only affects changes to prefersStatusBarHidden.
-- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation NS_AVAILABLE_IOS(7_0); // Defaults to UIStatusBarAnimationFade
+@property(nonatomic, readonly) UIStatusBarAnimation preferredStatusBarUpdateAnimation NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED; // Defaults to UIStatusBarAnimationFade
+#else
+- (UIStatusBarStyle)preferredStatusBarStyle NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED; // Defaults to UIStatusBarStyleDefault
+- (BOOL)prefersStatusBarHidden NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED; // Defaults to NO
+// Override to return the type of animation that should be used for status bar changes for this view controller. This currently only affects changes to prefersStatusBarHidden.
+- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED; // Defaults to UIStatusBarAnimationFade
+#endif
 
 // This should be called whenever the return values for the view controller's status bar attributes have changed. If it is called from within an animation block, the changes will be animated along with the rest of the animation block.
-- (void)setNeedsStatusBarAppearanceUpdate NS_AVAILABLE_IOS(7_0);
+- (void)setNeedsStatusBarAppearanceUpdate NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
 
 /* This method returns either itself or the nearest ancestor that can perform the given action and, if applicable, has overridden UIViewController's default implementation of the action method. View controllers can return NO from canPerformAction:withSender: to opt out of being a target for a given action. */
 - (nullable UIViewController *)targetViewControllerForAction:(SEL)action sender:(nullable id)sender NS_AVAILABLE_IOS(8_0);
@@ -5864,6 +8407,12 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 /* This method will show a view controller within the semantic "detail" UI associated with the current size-class environment. It's implementation calls  `[self targetViewControllerForAction:sender:]` first and redirects accordingly if the return value is not `self`, otherwise it will present the vc.  */
 - (void)showDetailViewController:(UIViewController *)vc sender:(nullable id)sender NS_AVAILABLE_IOS(8_0);
 
+// Subclasses may override if they prefer a user interface style other than the one preferred by the application.
+@property (nonatomic, readonly) UIUserInterfaceStyle preferredUserInterfaceStyle API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios, watchos); // Defaults to UIUserInterfaceStyleUnspecified
+
+// This should be called whenever the view controller's preferredUserInterfaceStyle changes.
+- (void)setNeedsUserInterfaceAppearanceUpdate API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios, watchos);
+
 @end
 
 // To make it more convenient for applications to adopt rotation, a view controller may implement the below methods. Your UIWindow's frame should use [UIScreen mainScreen].bounds as its frame.
@@ -5871,32 +8420,39 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 
 // call this method when your return value from shouldAutorotateToInterfaceOrientation: changes
 // if the current interface orientation does not match the current device orientation, a rotation may occur provided all relevant view controllers now return YES from shouldAutorotateToInterfaceOrientation:
-+ (void)attemptRotationToDeviceOrientation NS_AVAILABLE_IOS(5_0);
++ (void)attemptRotationToDeviceOrientation NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED;
 
 // Applications should use supportedInterfaceOrientations and/or shouldAutorotate..
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation NS_DEPRECATED_IOS(2_0, 6_0);
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation NS_DEPRECATED_IOS(2_0, 6_0) __TVOS_PROHIBITED;
 
 // New Autorotation support.
-- (BOOL)shouldAutorotate NS_AVAILABLE_IOS(6_0);
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations NS_AVAILABLE_IOS(6_0);
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL shouldAutorotate NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+@property(nonatomic, readonly) UIInterfaceOrientationMask supportedInterfaceOrientations NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
 // Returns interface orientation masks.
-- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation NS_AVAILABLE_IOS(6_0);
+@property(nonatomic, readonly) UIInterfaceOrientation preferredInterfaceOrientationForPresentation NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+#else
+- (BOOL)shouldAutorotate NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+// Returns interface orientation masks.
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+#endif
 
 // The rotating header and footer views will slide out during the rotation and back in once it has completed.
-- (nullable UIView *)rotatingHeaderView NS_DEPRECATED_IOS(2_0,8_0, "Header views are animated along with the rest of the view hierarchy");     // Must be in the view hierarchy. Default returns nil.
-- (nullable UIView *)rotatingFooterView NS_DEPRECATED_IOS(2_0,8_0, "Footer views are animated along with the rest of the view hierarchy");     // Must be in the view hierarchy. Default returns nil.
+- (nullable UIView *)rotatingHeaderView NS_DEPRECATED_IOS(2_0,8_0, "Header views are animated along with the rest of the view hierarchy") __TVOS_PROHIBITED;     // Must be in the view hierarchy. Default returns nil.
+- (nullable UIView *)rotatingFooterView NS_DEPRECATED_IOS(2_0,8_0, "Footer views are animated along with the rest of the view hierarchy") __TVOS_PROHIBITED;     // Must be in the view hierarchy. Default returns nil.
 
-@property(nonatomic,readonly) UIInterfaceOrientation interfaceOrientation NS_DEPRECATED_IOS(2_0,8_0);
+@property(nonatomic,readonly) UIInterfaceOrientation interfaceOrientation NS_DEPRECATED_IOS(2_0,8_0) __TVOS_PROHIBITED;
 
 // Notifies when rotation begins, reaches halfway point and ends.
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(2_0,8_0, "Implement viewWillTransitionToSize:withTransitionCoordinator: instead");
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation NS_DEPRECATED_IOS(2_0,8_0);
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(2_0,8_0, "Implement viewWillTransitionToSize:withTransitionCoordinator: instead") __TVOS_PROHIBITED;
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation NS_DEPRECATED_IOS(2_0,8_0) __TVOS_PROHIBITED;
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(3_0,8_0, "Implement viewWillTransitionToSize:withTransitionCoordinator: instead");
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(3_0,8_0, "Implement viewWillTransitionToSize:withTransitionCoordinator: instead") __TVOS_PROHIBITED;
 
-- (void)willAnimateFirstHalfOfRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(2_0, 5_0);
-- (void)didAnimateFirstHalfOfRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation NS_DEPRECATED_IOS(2_0, 5_0); // The rotating header and footer views are offscreen.
-- (void)willAnimateSecondHalfOfRotationFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(2_0, 5_0); // A this point, our view orientation is set to the new orientation.
+- (void)willAnimateFirstHalfOfRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(2_0, 5_0) __TVOS_PROHIBITED;
+- (void)didAnimateFirstHalfOfRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation NS_DEPRECATED_IOS(2_0, 5_0) __TVOS_PROHIBITED; // The rotating header and footer views are offscreen.
+- (void)willAnimateSecondHalfOfRotationFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(2_0, 5_0) __TVOS_PROHIBITED; // A this point, our view orientation is set to the new orientation.
 
 @end
 
@@ -5907,13 +8463,17 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 @property(nonatomic,getter=isEditing) BOOL editing;
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated; // Updates the appearance of the Edit|Done button item as necessary. Clients who override it must call super first.
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) UIBarButtonItem *editButtonItem; // Return an Edit|Done button that can be used as a navigation item's custom view. Default action toggles the editing state with animation.
+#else
 - (UIBarButtonItem *)editButtonItem; // Return an Edit|Done button that can be used as a navigation item's custom view. Default action toggles the editing state with animation.
+#endif
 
 @end
 
 @interface UIViewController (UISearchDisplayControllerSupport)
 
-@property(nullable, nonatomic, readonly, strong) UISearchDisplayController *searchDisplayController NS_DEPRECATED_IOS(3_0,8_0);
+@property(nullable, nonatomic, readonly, strong) UISearchDisplayController *searchDisplayController NS_DEPRECATED_IOS(3_0,8_0) __TVOS_PROHIBITED;
 
 @end
 
@@ -5923,7 +8483,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
   superview of the child view controller's view that has a view controller is NOT the child view controller's
   parent.
 */
-UIKIT_EXTERN NSString *const UIViewControllerHierarchyInconsistencyException NS_AVAILABLE_IOS(5_0);
+UIKIT_EXTERN NSExceptionName const UIViewControllerHierarchyInconsistencyException NS_AVAILABLE_IOS(5_0);
 
 /*
   The methods in the UIContainerViewControllerProtectedMethods and the UIContainerViewControllerCallbacks
@@ -5946,7 +8506,7 @@ UIKIT_EXTERN NSString *const UIViewControllerHierarchyInconsistencyException NS_
   Removes the the receiver from its parent's children controllers array. If this method is overridden then
   the super implementation must be called.
 */
-- (void) removeFromParentViewController NS_AVAILABLE_IOS(5_0);
+- (void)removeFromParentViewController NS_AVAILABLE_IOS(5_0);
 
 /*
   This method can be used to transition between sibling child view controllers. The receiver of this method is
@@ -5971,13 +8531,21 @@ UIKIT_EXTERN NSString *const UIViewControllerHierarchyInconsistencyException NS_
 - (void)beginAppearanceTransition:(BOOL)isAppearing animated:(BOOL)animated __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
 - (void)endAppearanceTransition __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
 
-// Override to return a child view controller or nil. If non-nil, that view controller's status bar appearance attributes will be used. If nil, self is used. Whenever the return values from these methods change, -setNeedsUpdatedStatusBarAttributes should be called.
-- (nullable UIViewController *)childViewControllerForStatusBarStyle NS_AVAILABLE_IOS(7_0);
-- (nullable UIViewController *)childViewControllerForStatusBarHidden NS_AVAILABLE_IOS(7_0);
+// Override to return a child view controller or nil. If non-nil, that view controller's status bar appearance attributes will be used. If nil, self is used. Whenever the return values from these methods change, -setNeedsStatusBarAppearanceUpdate should be called.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) UIViewController *childViewControllerForStatusBarStyle NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+@property(nonatomic, readonly, nullable) UIViewController *childViewControllerForStatusBarHidden NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+#else
+- (nullable UIViewController *)childViewControllerForStatusBarStyle NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+- (nullable UIViewController *)childViewControllerForStatusBarHidden NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+#endif
 
 // Call to modify the trait collection for child view controllers.
 - (void)setOverrideTraitCollection:(nullable UITraitCollection *)collection forChildViewController:(UIViewController *)childViewController NS_AVAILABLE_IOS(8_0);
 - (nullable UITraitCollection *)overrideTraitCollectionForChildViewController:(UIViewController *)childViewController NS_AVAILABLE_IOS(8_0);
+
+// Override to return a child view controller or nil. If non-nil, that view controller's preferred user interface style will be used. If nil, self is used. Whenever the preferredUserInterfaceStyle for a view controller has changed setNeedsUserInterfaceAppearanceUpdate should be called.
+@property (nonatomic, readonly, nullable) UIViewController *childViewControllerForUserInterfaceStyle API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios, watchos);
 
 @end
 
@@ -5992,10 +8560,14 @@ UIKIT_EXTERN NSString *const UIViewControllerHierarchyInconsistencyException NS_
   willAnimateRotationToInterfaceOrientation:duration: didRotateFromInterfaceOrientation:
 */
 
-- (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers NS_DEPRECATED_IOS(5_0,6_0);
-- (BOOL)shouldAutomaticallyForwardRotationMethods NS_DEPRECATED_IOS(6_0,8_0, "Manually forward viewWillTransitionToSize:withTransitionCoordinator: if necessary");
+- (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers NS_DEPRECATED_IOS(5_0,6_0) __TVOS_PROHIBITED;
+- (BOOL)shouldAutomaticallyForwardRotationMethods NS_DEPRECATED_IOS(6_0,8_0, "Manually forward viewWillTransitionToSize:withTransitionCoordinator: if necessary") __TVOS_PROHIBITED;
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL shouldAutomaticallyForwardAppearanceMethods NS_AVAILABLE_IOS(6_0);
+#else
 - (BOOL)shouldAutomaticallyForwardAppearanceMethods NS_AVAILABLE_IOS(6_0);
+#endif
 
 
 /*
@@ -6007,8 +8579,8 @@ UIKIT_EXTERN NSString *const UIViewControllerHierarchyInconsistencyException NS_
   addChildViewController: will call [child willMoveToParentViewController:self] before adding the
   child. However, it will not call didMoveToParentViewController:. It is expected that a container view
   controller subclass will make this call after a transition to the new child has completed or, in the
-  case of no transition, immediately after the call to addChildViewController:. Similarly
-  removeFromParentViewController: does not call [self willMoveToParentViewController:nil] before removing the
+  case of no transition, immediately after the call to addChildViewController:. Similarly,
+  removeFromParentViewController does not call [self willMoveToParentViewController:nil] before removing the
   child. This is also the responsibilty of the container subclass. Container subclasses will typically define
   a method that transitions to a new child by first calling addChildViewController:, then executing a
   transition which will add the new child's view into the view hierarchy of its parent, and finally will call
@@ -6050,8 +8622,29 @@ UIKIT_EXTERN NSString *const UIViewControllerHierarchyInconsistencyException NS_
 
 @interface UIViewController (UILayoutSupport)
 // These objects may be used as layout items in the NSLayoutConstraint API
-@property(nonatomic,readonly,strong) id<UILayoutSupport> topLayoutGuide NS_AVAILABLE_IOS(7_0);
-@property(nonatomic,readonly,strong) id<UILayoutSupport> bottomLayoutGuide NS_AVAILABLE_IOS(7_0);
+@property(nonatomic,readonly,strong) id<UILayoutSupport> topLayoutGuide API_DEPRECATED("Use view.safeAreaLayoutGuide.topAnchor instead of topLayoutGuide.bottomAnchor", ios(7.0,11.0), tvos(7.0,11.0));
+@property(nonatomic,readonly,strong) id<UILayoutSupport> bottomLayoutGuide API_DEPRECATED("Use view.safeAreaLayoutGuide.bottomAnchor instead of bottomLayoutGuide.topAnchor", ios(7.0,11.0), tvos(7.0,11.0));
+
+/* Custom container UIViewController subclasses can use this property to add to the overlay
+ that UIViewController calculates for the safeAreaInsets for contained view controllers.
+ */
+@property(nonatomic) UIEdgeInsets additionalSafeAreaInsets API_AVAILABLE(ios(11.0), tvos(11.0));
+
+/* Minimum layoutMargins for the view determined by the view controller from context and hardware information.
+ The view controller's view will respect these minimums unless viewRespectsSystemMinimumLayoutMargins
+ (which defaults to YES) is set to NO.
+ */
+@property(nonatomic,readonly) NSDirectionalEdgeInsets systemMinimumLayoutMargins API_AVAILABLE(ios(11.0), tvos(11.0));
+
+/* Default YES. The return value of the view's layoutMargins and directionalLayoutMargins properties will have
+ values no smaller than the systemMinimumLayoutMargins. Set to NO for full customizability of the view's
+ layoutMargins.
+ */
+@property(nonatomic) BOOL viewRespectsSystemMinimumLayoutMargins API_AVAILABLE(ios(11.0), tvos(11.0));
+
+- (void)viewLayoutMarginsDidChange NS_REQUIRES_SUPER API_AVAILABLE(ios(11.0), tvos(11.0));
+- (void)viewSafeAreaInsetsDidChange NS_REQUIRES_SUPER API_AVAILABLE(ios(11.0), tvos(11.0));
+
 @end
 
 @interface UIViewController (UIKeyCommand)
@@ -6106,16 +8699,49 @@ NS_CLASS_AVAILABLE_IOS(9_0) @protocol UIViewControllerPreviewingDelegate <NSObje
 
 @interface UIViewController (UIViewControllerPreviewingRegistration)
 
+// Registers a view controller to participate with 3D Touch preview (peek) and commit (pop).
 - (id <UIViewControllerPreviewing>)registerForPreviewingWithDelegate:(id<UIViewControllerPreviewingDelegate>)delegate sourceView:(UIView *)sourceView NS_AVAILABLE_IOS(9_0);
 - (void)unregisterForPreviewingWithContext:(id <UIViewControllerPreviewing>)previewing NS_AVAILABLE_IOS(9_0);
 
 @end
 
+@interface UIViewController (UIScreenEdgesDeferringSystemGestures)
+
+// Override to return a child view controller or nil. If non-nil, that view controller's screen edges deferring system gestures will be used. If nil, self is used. Whenever the return value changes, -setNeedsScreenEdgesDeferringSystemGesturesUpdate should be called.
+@property (nonatomic, readonly, nullable) UIViewController *childViewControllerForScreenEdgesDeferringSystemGestures API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+// Controls the application's preferred screen edges deferring system gestures when this view controller is shown. Default is UIRectEdgeNone.
+@property (nonatomic, readonly) UIRectEdge preferredScreenEdgesDeferringSystemGestures API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+// This should be called whenever the return values for the view controller's screen edges deferring system gestures have changed.
+- (void)setNeedsUpdateOfScreenEdgesDeferringSystemGestures API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+@end
+
+
+@interface UIViewController (UIHomeIndicatorAutoHidden)
+
+// Override to return a child view controller or nil. If non-nil, that view controller's home indicator auto-hiding will be used. If nil, self is used. Whenever the return value changes, -setNeedsHomeIndicatorAutoHiddenUpdate should be called.
+@property (nonatomic, readonly, nullable) UIViewController *childViewControllerForHomeIndicatorAutoHidden API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+// Controls the application's preferred home indicator auto-hiding when this view controller is shown.
+@property (nonatomic, readonly) BOOL prefersHomeIndicatorAutoHidden API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+// This should be called whenever the return values for the view controller's home indicator auto-hiding have changed.
+- (void)setNeedsUpdateOfHomeIndicatorAutoHidden API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+@end
+
+
 @protocol UIPreviewActionItem;
 
 @interface UIViewController ()
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) NSArray <id <UIPreviewActionItem>> *previewActionItems NS_AVAILABLE_IOS(9_0);
+#else
 - (NSArray <id <UIPreviewActionItem>> *)previewActionItems NS_AVAILABLE_IOS(9_0);
+#endif
 
 @end
 
@@ -6142,19 +8768,25 @@ NS_CLASS_AVAILABLE_IOS(9_0) @interface UIPreviewActionGroup : NSObject <NSCopyin
 + (instancetype)actionGroupWithTitle:(NSString *)title style:(UIPreviewActionStyle)style actions:(NSArray<UIPreviewAction *> *)actions;
 @end
 
-
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIViewController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIViewControllerTransitioning.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIViewControllerTransitioning.h>)
 //
 //  UIViewControllerTransitioning.h
 //  UIKit
 //
-//  Copyright (c) 2013-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIViewController.h>
 #import <UIKit/UIViewControllerTransitionCoordinator.h>
+#import <UIKit/UIViewAnimating.h>
+#import <UIKit/UITimingParameters.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -6163,11 +8795,20 @@ NS_ASSUME_NONNULL_BEGIN
 // The following keys are understood by UIViewControllerContextTransitioning context objects
 // that are created by the system.
 
-UIKIT_EXTERN NSString *const UITransitionContextFromViewControllerKey NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UITransitionContextToViewControllerKey NS_AVAILABLE_IOS(7_0);
+#if UIKIT_STRING_ENUMS
+UIKIT_EXTERN UITransitionContextViewControllerKey const UITransitionContextFromViewControllerKey NS_SWIFT_NAME(from) NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UITransitionContextViewControllerKey const UITransitionContextToViewControllerKey NS_SWIFT_NAME(to) NS_AVAILABLE_IOS(7_0);
 
-UIKIT_EXTERN NSString *const UITransitionContextFromViewKey NS_AVAILABLE_IOS(8_0);
-UIKIT_EXTERN NSString *const UITransitionContextToViewKey NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN UITransitionContextViewKey const UITransitionContextFromViewKey NS_SWIFT_NAME(from) NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN UITransitionContextViewKey const UITransitionContextToViewKey NS_SWIFT_NAME(to) NS_AVAILABLE_IOS(8_0);
+#else
+UIKIT_EXTERN UITransitionContextViewControllerKey const UITransitionContextFromViewControllerKey NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UITransitionContextViewControllerKey const UITransitionContextToViewControllerKey NS_AVAILABLE_IOS(7_0);
+
+UIKIT_EXTERN UITransitionContextViewKey const UITransitionContextFromViewKey NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN UITransitionContextViewKey const UITransitionContextToViewKey NS_AVAILABLE_IOS(8_0);
+#endif
+
 
 // A transition context object is constructed by the system and passed to the
 // animator in its animateTransition: and transitionDuration: methods as well as
@@ -6178,12 +8819,12 @@ UIKIT_EXTERN NSString *const UITransitionContextToViewKey NS_AVAILABLE_IOS(8_0);
 // then the system automatically invokes the animator's animateTransition:
 // method.
 //
-// The system queries the view controller's transitionDelegate or the the
+// The system queries the view controller's transitioningDelegate or the
 // navigation controller's delegate to determine if an animator or interaction
-// controller should be used in a transition. The transitionDelegate is a new
+// controller should be used in a transition. The transitioningDelegate is a new
 // propery on UIViewController and conforms to the
 // UIViewControllerTransitioningDelegate protocol defined below. The navigation
-// controller likewise has been agumented with a couple of new delegate methods.
+// controller likewise has been augmented with a couple of new delegate methods.
 //
 // The UIViewControllerContextTransitioning protocol can be adopted by custom
 // container controllers.  It is purposely general to cover more complex
@@ -6200,33 +8841,58 @@ UIKIT_EXTERN NSString *const UITransitionContextToViewKey NS_AVAILABLE_IOS(8_0);
 // within the containerView specified by the context. For interactive
 // transitions the context's updateInteractiveTransition:,
 // finishInteractiveTransition or cancelInteractiveTransition should be called
-// as the interactive animation proceeds. A concrete interaction controller
-// class, UIPercentDrivenInteractiveTransition, is provided below to
-// interactive; drive CA transitions defined by an animator.
+// as the interactive animation proceeds. The UIPercentDrivenInteractiveTransition
+// class provides an implementation of the UIViewControllerInteractiveTransitioning
+// protocol that can be used to interactively drive any UIView property animations
+// that are created by an animator.
+
 
 @protocol UIViewControllerContextTransitioning <NSObject>
 
 // The view in which the animated transition should take place.
-- (nullable UIView *)containerView;
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) UIView *containerView;
+#else
+- (UIView *)containerView;
+#endif
 
 // Most of the time this is YES. For custom transitions that use the new UIModalPresentationCustom
 // presentation type we will invoke the animateTransition: even though the transition should not be
 // animated. This allows the custom transition to add or remove subviews to the container view. 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isAnimated) BOOL animated;
+
+@property(nonatomic, readonly, getter=isInteractive) BOOL interactive; // This indicates whether the transition is currently interactive.
+
+@property(nonatomic, readonly) BOOL transitionWasCancelled;
+
+@property(nonatomic, readonly) UIModalPresentationStyle presentationStyle;
+#else
 - (BOOL)isAnimated;
 
+// The next two values can change if the animating transition is interruptible.
 - (BOOL)isInteractive; // This indicates whether the transition is currently interactive.
-
 - (BOOL)transitionWasCancelled;
 
 - (UIModalPresentationStyle)presentationStyle;
+#endif
 
-// It only makes sense to call these from an interaction controller that
-// conforms to the UIViewControllerInteractiveTransitioning protocol and was
-// vended to the system by a container view controller's delegate or, in the case
-// of a present or dismiss, the transitioningDelegate.
+// An interaction controller that conforms to the
+// UIViewControllerInteractiveTransitioning protocol (which is vended by a
+// container view controller's delegate or, in the case of a presentation, the
+// transitioningDelegate) should call these methods as the interactive
+// transition is scrubbed and then either cancelled or completed. Note that if
+// the animator is interruptible, then calling finishInteractiveTransition: and
+// cancelInteractiveTransition: are indications that if the transition is not
+// interrupted again it will finish naturally or be cancelled.
+
 - (void)updateInteractiveTransition:(CGFloat)percentComplete;
 - (void)finishInteractiveTransition;
 - (void)cancelInteractiveTransition;
+
+// This should be called if the transition animation is interruptible and it 
+// is being paused.
+- (void)pauseInteractiveTransition NS_AVAILABLE_IOS(10_0);
 
 // This must be called whenever a transition completes (or is cancelled.)
 // Typically this is called by the object conforming to the
@@ -6242,15 +8908,19 @@ UIKIT_EXTERN NSString *const UITransitionContextToViewKey NS_AVAILABLE_IOS(8_0);
 // UITransitionContextFromViewControllerKey. 
 // Animators should not directly manipulate a view controller's views and should
 // use viewForKey: to get views instead.
-- (nullable __kindof UIViewController *)viewControllerForKey:(NSString *)key;
+- (nullable __kindof UIViewController *)viewControllerForKey:(UITransitionContextViewControllerKey)key;
 
 // Currently only two keys are defined by the system -
 // UITransitionContextFromViewKey, and UITransitionContextToViewKey
 // viewForKey: may return nil which would indicate that the animator should not
 // manipulate the associated view controller's view.
-- (nullable __kindof UIView *)viewForKey:(NSString *)key NS_AVAILABLE_IOS(8_0);
+- (nullable __kindof UIView *)viewForKey:(UITransitionContextViewKey)key NS_AVAILABLE_IOS(8_0);
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) CGAffineTransform targetTransform NS_AVAILABLE_IOS(8_0);
+#else
 - (CGAffineTransform)targetTransform NS_AVAILABLE_IOS(8_0);
+#endif
 
 // The frame's are set to CGRectZero when they are not known or
 // otherwise undefined.  For example the finalFrame of the
@@ -6264,14 +8934,20 @@ UIKIT_EXTERN NSString *const UITransitionContextToViewKey NS_AVAILABLE_IOS(8_0);
 
 @protocol UIViewControllerAnimatedTransitioning <NSObject>
 
-// This is used for percent driven interactive transitions, as well as for container controllers that have companion animations that might need to
-// synchronize with the main animation. 
+// This is used for percent driven interactive transitions, as well as for
+// container controllers that have companion animations that might need to
+// synchronize with the main animation.
 - (NSTimeInterval)transitionDuration:(nullable id <UIViewControllerContextTransitioning>)transitionContext;
 // This method can only  be a nop if the transition is interactive and not a percentDriven interactive transition.
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext;
 
-
 @optional
+
+/// A conforming object implements this method if the transition it creates can
+/// be interrupted. For example, it could return an instance of a
+/// UIViewPropertyAnimator. It is expected that this method will return the same
+/// instance for the life of a transition.
+- (id <UIViewImplicitlyAnimating>) interruptibleAnimatorForTransition:(id <UIViewControllerContextTransitioning>)transitionContext NS_AVAILABLE_IOS(10_0);
 
 // This is a convenience and if implemented will be invoked by the system when the transition context's completeTransition: method is invoked.
 - (void)animationEnded:(BOOL) transitionCompleted;
@@ -6283,8 +8959,20 @@ UIKIT_EXTERN NSString *const UITransitionContextToViewKey NS_AVAILABLE_IOS(8_0);
 - (void)startInteractiveTransition:(id <UIViewControllerContextTransitioning>)transitionContext;
 
 @optional
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) CGFloat completionSpeed;
+@property(nonatomic, readonly) UIViewAnimationCurve completionCurve;
+#else
 - (CGFloat)completionSpeed;
 - (UIViewAnimationCurve)completionCurve;
+#endif
+
+/// In 10.0, if an object conforming to UIViewControllerAnimatedTransitioning is
+/// known to be interruptible, it is possible to start it as if it was not
+/// interactive and then interrupt the transition and interact with it. In this
+/// case, implement this method and return NO. If an interactor does not
+/// implement this method, YES is assumed.
+@property (nonatomic, readonly) BOOL wantsInteractiveStart NS_AVAILABLE_IOS(10_0);
 
 @end
 
@@ -6301,31 +8989,46 @@ UIKIT_EXTERN NSString *const UITransitionContextToViewKey NS_AVAILABLE_IOS(8_0);
 
 - (nullable id <UIViewControllerInteractiveTransitioning>)interactionControllerForDismissal:(id <UIViewControllerAnimatedTransitioning>)animator;
 
-- (nullable UIPresentationController *)presentationControllerForPresentedViewController:(UIViewController *)presented presentingViewController:(UIViewController *)presenting sourceViewController:(UIViewController *)source NS_AVAILABLE_IOS(8_0);
+- (nullable UIPresentationController *)presentationControllerForPresentedViewController:(UIViewController *)presented presentingViewController:(nullable UIViewController *)presenting sourceViewController:(UIViewController *)source NS_AVAILABLE_IOS(8_0);
 
 @end
 
 NS_CLASS_AVAILABLE_IOS(7_0) @interface UIPercentDrivenInteractiveTransition : NSObject <UIViewControllerInteractiveTransitioning>
 
-// This is the non-interactive duration that was returned when the
-// animators transitionDuration: method was called when the transition started.
+/// This is the non-interactive duration that was returned when the
+/// animators transitionDuration: method was called when the transition started.
 @property (readonly) CGFloat duration;
 
-// The last percentComplete value specified by updateInteractiveTransition:
+/// The last percentComplete value specified by updateInteractiveTransition:
 @property (readonly) CGFloat percentComplete;
 
-// completionSpeed defaults to 1.0 which corresponds to a completion duration of
-// (1 - percentComplete)*duration.  It must be greater than 0.0. The actual
-// completion is inversely proportional to the completionSpeed.  This can be set
-// before cancelInteractiveTransition or finishInteractiveTransition is called
-// in order to speed up or slow down the non interactive part of the
-// transition.
+/// completionSpeed defaults to 1.0 which corresponds to a completion duration of
+/// (1 - percentComplete)*duration.  It must be greater than 0.0. The actual
+/// completion is inversely proportional to the completionSpeed.  This can be set
+/// before cancelInteractiveTransition or finishInteractiveTransition is called
+/// in order to speed up or slow down the non interactive part of the
+/// transition.
 @property (nonatomic,assign) CGFloat completionSpeed;
 
-// When the interactive part of the transition has completed, this property can
-// be set to indicate a different animation curve. It defaults to UIViewAnimationCurveEaseInOut.
-// Note that during the interactive portion of the animation the timing curve is linear. 
+/// When the interactive part of the transition has completed, this property can
+/// be set to indicate a different animation curve. It defaults to UIViewAnimationCurveEaseInOut.
+/// Note that during the interactive portion of the animation the timing curve is linear. 
 @property (nonatomic,assign) UIViewAnimationCurve completionCurve;
+
+/// For an interruptible animator, one can specify a different timing curve provider to use when the
+/// transition is continued. This property is ignored if the animated transitioning object does not
+/// vend an interruptible animator.
+@property (nullable, nonatomic, strong)id <UITimingCurveProvider> timingCurve NS_AVAILABLE_IOS(10_0);
+
+/// Set this to NO in order to start an interruptible transition non
+/// interactively. By default this is YES, which is consistent with the behavior
+/// before 10.0.
+@property (nonatomic) BOOL wantsInteractiveStart NS_AVAILABLE_IOS(10_0);
+
+/// Use this method to pause a running interruptible animator. This will ensure that all blocks
+/// provided by a transition coordinator's notifyWhenInteractionChangesUsingBlock: method
+/// are executed when a transition moves in and out of an interactive mode.
+- (void)pauseInteractiveTransition NS_AVAILABLE_IOS(10_0);
 
 // These methods should be called by the gesture recognizer or some other logic
 // to drive the interaction. This style of interaction controller should only be
@@ -6334,8 +9037,8 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIPercentDrivenInteractiveTransition : NS
 // specified, the animateTransition: method must ensure to call the
 // UIViewControllerTransitionParameters completeTransition: method. The other
 // interactive methods on UIViewControllerContextTransitioning should NOT be
-// called.
-
+// called. If there is an interruptible animator, these methods will either scrub or continue 
+// the transition in the forward or reverse directions.
 - (void)updateInteractiveTransition:(CGFloat)percentComplete;
 - (void)cancelInteractiveTransition;
 - (void)finishInteractiveTransition;
@@ -6344,18 +9047,24 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIPercentDrivenInteractiveTransition : NS
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIViewControllerTransitioning.h>
+#endif
 // ==========  UIKit.framework/Headers/UITabBarItem.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITabBarItem.h>)
 //
 //  UITabBarItem.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIBarItem.h>
 #import <UIKit/UIGeometry.h>
 #import <UIKit/UIKitDefines.h>
+#import <UIKit/UISpringLoadedInteractionSupporting.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -6394,9 +9103,9 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBarItem : UIBarItem
 
 /*  These methods are now deprecated. Please use -initWithTitle:image:selectedImage:.
  */
-- (void)setFinishedSelectedImage:(nullable UIImage *)selectedImage withFinishedUnselectedImage:(nullable UIImage *)unselectedImage NS_DEPRECATED_IOS(5_0,7_0,"Use initWithTitle:image:selectedImage: or the image and selectedImage properties along with UIImageRenderingModeAlwaysOriginal");
-- (nullable UIImage *)finishedSelectedImage NS_DEPRECATED_IOS(5_0,7_0);
-- (nullable UIImage *)finishedUnselectedImage NS_DEPRECATED_IOS(5_0,7_0);
+- (void)setFinishedSelectedImage:(nullable UIImage *)selectedImage withFinishedUnselectedImage:(nullable UIImage *)unselectedImage NS_DEPRECATED_IOS(5_0,7_0,"Use initWithTitle:image:selectedImage: or the image and selectedImage properties along with UIImageRenderingModeAlwaysOriginal") __TVOS_PROHIBITED;
+- (nullable UIImage *)finishedSelectedImage NS_DEPRECATED_IOS(5_0,7_0) __TVOS_PROHIBITED;
+- (nullable UIImage *)finishedUnselectedImage NS_DEPRECATED_IOS(5_0,7_0) __TVOS_PROHIBITED;
 
 /* To set item label text attributes use the appearance selectors available on the superclass, UIBarItem.
 
@@ -6404,15 +9113,34 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBarItem : UIBarItem
  */
 @property (nonatomic, readwrite, assign) UIOffset titlePositionAdjustment NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 
+/// If this item displays a badge, this color will be used for the badge's background. If set to nil, the default background color will be used instead.
+@property (nonatomic, readwrite, copy, nullable) UIColor *badgeColor NS_AVAILABLE_IOS(10_0) UI_APPEARANCE_SELECTOR;
+
+/// Provide text attributes to use to draw the badge text for the given singular control state (Normal, Disabled, Focused, Selected, or Highlighted). Default values will be supplied for keys that are not provided by this dictionary. See NSAttributedString.h for details on what keys are available.
+- (void)setBadgeTextAttributes:(nullable NSDictionary<NSAttributedStringKey,id> *)textAttributes forState:(UIControlState)state NS_AVAILABLE_IOS(10_0) UI_APPEARANCE_SELECTOR;
+
+/// Returns attributes previously set via -setBadgeTextAttributes:forState:.
+- (nullable NSDictionary<NSAttributedStringKey,id> *)badgeTextAttributesForState:(UIControlState)state NS_AVAILABLE_IOS(10_0) UI_APPEARANCE_SELECTOR;
+
 @end
 
+#if TARGET_OS_IOS
+@interface UITabBarItem (SpringLoading) <UISpringLoadedInteractionSupporting>
+@end
+#endif
+
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITabBarItem.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPrintPaper.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPrintPaper.h>)
 //
 //  UIPrintPaper.h
 //  UIKit
 //
-//  Copyright 2010-2012 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6421,7 +9149,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE_IOS(4_2) @interface UIPrintPaper : NSObject 
+NS_CLASS_AVAILABLE_IOS(4_2)__TVOS_PROHIBITED @interface UIPrintPaper : NSObject 
 
 + (UIPrintPaper *)bestPaperForPageSize:(CGSize)contentSize withPapersFromArray:(NSArray<UIPrintPaper *> *)paperList; // for use by delegate. pass in list
 
@@ -6433,16 +9161,77 @@ NS_CLASS_AVAILABLE_IOS(4_2) @interface UIPrintPaper : NSObject
 //_____________________________________________
 
 @interface UIPrintPaper(Deprecated_Nonfunctional)
-- (CGRect)printRect ;
+- (CGRect)printRect __TVOS_PROHIBITED ;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPrintPaper.h>
+#endif
+// ==========  UIKit.framework/Headers/UIDataSourceTranslating.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDataSourceTranslating.h>)
+//
+//  UIDataSourceTranslating.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/* For advanced clients with data model centric layouts (i.e. the layout refers to the data source
+ * to gather information in order to create UICollectionViewLayoutAttributes) this protocol allows
+ * translation between the data source index path into the presentation index path (i.e. layout) state.
+ */
+API_AVAILABLE(ios(11.0), tvos(11.0))
+@protocol UIDataSourceTranslating <NSObject>
+
+/* Translate (if needed) a Data Source section index to its Presentation section index value.
+ * If section was deleted during a transaction, this will return NSNotFound.
+ * If no effective change took place, will return passed value.
+ */
+- (NSInteger)presentationSectionIndexForDataSourceSectionIndex:(NSInteger)dataSourceSectionIndex;
+
+/* Translate (if needed) a Presentation section index to its Data Source section index value.
+ * If section was inserted and not known the Data Source, this will return NSNotFound.
+ * If no effective change took place, will return passed value.
+ */
+- (NSInteger)dataSourceSectionIndexForPresentationSectionIndex:(NSInteger)presentationSectionIndex;
+
+/* Translate (if needed) a Data Source index path to the Presentation index path.
+ * If the item was deleted at the index path, this will return nil.
+ * If no effective change took place, will return passed value.
+ */
+- (nullable NSIndexPath *)presentationIndexPathForDataSourceIndexPath:(nullable NSIndexPath *)dataSourceIndexPath;
+
+/* Translate (if needed) a Presentation index path to the Data Source index path.
+ * If the item was inserted at the index path, this will return nil.
+ * If no effective change took place, will return passed value.
+ */
+- (nullable NSIndexPath *)dataSourceIndexPathForPresentationIndexPath:(nullable NSIndexPath *)presentationIndexPath;
+
+/* Arguments passed to actions performed inside the scope of this block will be interpreted as values in the presentation state,
+ * and the values returned from these actions will also be in the presentation state.
+ */
+- (void)performUsingPresentationValues:(void (NS_NOESCAPE ^)(void))actionsToTranslate NS_SWIFT_NAME(performUsingPresentationValues(_:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDataSourceTranslating.h>
+#endif
 // ==========  UIKit.framework/Headers/NSLayoutConstraint.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSLayoutConstraint.h>)
 //
 //  NSLayoutConstraint.h
 //  UIKit
 //	
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/NSObject.h>
@@ -6450,7 +9239,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NSArray, NSDictionary;
+@class NSArray, NSDictionary, NSLayoutAnchor;
 
 
 typedef NS_ENUM(NSInteger, NSLayoutRelation) {
@@ -6470,8 +9259,8 @@ typedef NS_ENUM(NSInteger, NSLayoutAttribute) {
     NSLayoutAttributeHeight,
     NSLayoutAttributeCenterX,
     NSLayoutAttributeCenterY,
-    NSLayoutAttributeBaseline,
-    NSLayoutAttributeLastBaseline = NSLayoutAttributeBaseline,
+    NSLayoutAttributeLastBaseline,
+    NSLayoutAttributeBaseline NS_SWIFT_UNAVAILABLE("Use 'lastBaseline' instead") = NSLayoutAttributeLastBaseline,
     NSLayoutAttributeFirstBaseline NS_ENUM_AVAILABLE_IOS(8_0),
     
     
@@ -6496,8 +9285,8 @@ typedef NS_OPTIONS(NSUInteger, NSLayoutFormatOptions) {
     NSLayoutFormatAlignAllTrailing = (1 << NSLayoutAttributeTrailing),
     NSLayoutFormatAlignAllCenterX = (1 << NSLayoutAttributeCenterX),
     NSLayoutFormatAlignAllCenterY = (1 << NSLayoutAttributeCenterY),
-    NSLayoutFormatAlignAllBaseline = (1 << NSLayoutAttributeBaseline),
-    NSLayoutFormatAlignAllLastBaseline = NSLayoutFormatAlignAllBaseline,
+    NSLayoutFormatAlignAllLastBaseline = (1 << NSLayoutAttributeLastBaseline),
+    NSLayoutFormatAlignAllBaseline NS_SWIFT_UNAVAILABLE("Use 'alignAllLastBaseline' instead") = NSLayoutFormatAlignAllLastBaseline,
     NSLayoutFormatAlignAllFirstBaseline NS_ENUM_AVAILABLE_IOS(8_0) = (1 << NSLayoutAttributeFirstBaseline),
     
     NSLayoutFormatAlignmentMask = 0xFFFF,
@@ -6509,9 +9298,24 @@ typedef NS_OPTIONS(NSUInteger, NSLayoutFormatOptions) {
     NSLayoutFormatDirectionRightToLeft = 2 << 16,  
     
     NSLayoutFormatDirectionMask = 0x3 << 16,  
+    
+    /* choose only one spacing format
+     */
+    NSLayoutFormatSpacingEdgeToEdge API_AVAILABLE(ios(11.0),tvos(11.0)) = 0 << 19, // default
+    
+    /* Valid only for vertical layouts. Between views with text content the value
+     will be used to determine the distance from the last baseline of the view above
+     to the first baseline of the view below. For views without text content the top
+     or bottom edge will be used in lieu of the baseline position.
+     The default spacing "]-[" will be determined from the line heights of the fonts
+     involved in views with text content, when present.
+     */
+    NSLayoutFormatSpacingBaselineToBaseline API_AVAILABLE(ios(11.0),tvos(11.0)) = 1 << 19,
+    
+    NSLayoutFormatSpacingMask API_AVAILABLE(ios(11.0),tvos(11.0)) = 0x1 << 19,
 };
 
-typedef float UILayoutPriority;
+typedef float UILayoutPriority NS_TYPED_EXTENSIBLE_ENUM;
 static const UILayoutPriority UILayoutPriorityRequired NS_AVAILABLE_IOS(6_0) = 1000; // A required constraint.  Do not exceed this.
 static const UILayoutPriority UILayoutPriorityDefaultHigh NS_AVAILABLE_IOS(6_0) = 750; // This is the priority level with which a button resists compressing its content.
 static const UILayoutPriority UILayoutPriorityDefaultLow NS_AVAILABLE_IOS(6_0) = 250; // This is the priority level at which a button hugs its contents horizontally.
@@ -6538,7 +9342,7 @@ UIKIT_EXTERN  NSDictionary *_NSDictionaryOfVariableBindings(NSString *commaSepar
 
 /* If a constraint's priority level is less than UILayoutPriorityRequired, then it is optional.  Higher priority constraints are met before lower priority constraints.
  Constraint satisfaction is not all or nothing.  If a constraint 'a == b' is optional, that means we will attempt to minimize 'abs(a-b)'.
- This property may only be modified as part of initial set up.  An exception will be thrown if it is set after a constraint has been added to a view.
+ This property may only be modified as part of initial set up or when optional.  After a constraint has been added to a view, an exception will be thrown if the priority is changed from/to NSLayoutPriorityRequired.
  */
 @property UILayoutPriority priority;
 
@@ -6549,12 +9353,19 @@ UIKIT_EXTERN  NSDictionary *_NSDictionaryOfVariableBindings(NSString *commaSepar
 
 /* accessors
  firstItem.firstAttribute {==,<=,>=} secondItem.secondAttribute * multiplier + constant
+ Access to these properties is not recommended. Use the `firstAnchor` and `secondAnchor` properties instead.
  */
-@property (readonly, assign) id firstItem;
+@property (nullable, readonly, assign) id firstItem;
 @property (readonly) NSLayoutAttribute firstAttribute;
-@property (readonly) NSLayoutRelation relation;
 @property (nullable, readonly, assign) id secondItem;
 @property (readonly) NSLayoutAttribute secondAttribute;
+
+/* accessors
+ firstAnchor{==,<=,>=} secondAnchor * multiplier + constant
+ */
+@property (readonly, copy) NSLayoutAnchor *firstAnchor NS_AVAILABLE(10_12, 10_0);
+@property (readonly, copy, nullable) NSLayoutAnchor *secondAnchor NS_AVAILABLE(10_12, 10_0);
+@property (readonly) NSLayoutRelation relation;
 @property (readonly) CGFloat multiplier;
 
 /* Unlike the other properties, the constant may be modified after constraint creation.  Setting the constant on an existing constraint performs much better than removing the constraint and adding a new one that's just like the old but for having a new constant.
@@ -6598,12 +9409,17 @@ UIKIT_EXTERN  NSDictionary *_NSDictionaryOfVariableBindings(NSString *commaSepar
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/NSLayoutConstraint.h>
+#endif
 // ==========  UIKit.framework/Headers/UICollisionBehavior.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UICollisionBehavior.h>)
 //
 //  UICollisionBehavior.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6660,12 +9476,17 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UICollisionBehavior : UIDynamicBehavior
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UICollisionBehavior.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAccessibilityElement.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibilityElement.h>)
 //
 //  UIAccessibilityElement.h
 //  UIAccessibility
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -6696,34 +9517,51 @@ NS_CLASS_AVAILABLE_IOS(3_0) @interface UIAccessibilityElement : NSObject<UIAcces
 @property (nonatomic, assign) CGRect accessibilityFrame;
 @property (nonatomic, assign) UIAccessibilityTraits accessibilityTraits;
 
+// When set, -[UIAccessibilityElement accessibilityFrame] will automatically adjust for the container's frame.
+// This can be useful when the element is a descendant of a scroll view, for instance.
+@property (nonatomic, assign) CGRect accessibilityFrameInContainerSpace NS_AVAILABLE_IOS(10_0);
+
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccessibilityElement.h>
+#endif
 // ==========  UIKit.framework/Headers/UIDataDetectors.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDataDetectors.h>)
 //
 //  UIDataDetectors.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 typedef NS_OPTIONS(NSUInteger, UIDataDetectorTypes) {
-    UIDataDetectorTypePhoneNumber                              = 1 << 0,          // Phone number detection
-    UIDataDetectorTypeLink                                     = 1 << 1,          // URL detection
-    UIDataDetectorTypeAddress NS_ENUM_AVAILABLE_IOS(4_0)       = 1 << 2,          // Street address detection
-    UIDataDetectorTypeCalendarEvent NS_ENUM_AVAILABLE_IOS(4_0) = 1 << 3,          // Event detection
+    UIDataDetectorTypePhoneNumber                                        = 1 << 0, // Phone number detection
+    UIDataDetectorTypeLink                                               = 1 << 1, // URL detection
+    UIDataDetectorTypeAddress NS_ENUM_AVAILABLE_IOS(4_0)                 = 1 << 2, // Street address detection
+    UIDataDetectorTypeCalendarEvent NS_ENUM_AVAILABLE_IOS(4_0)           = 1 << 3, // Event detection
+    UIDataDetectorTypeShipmentTrackingNumber NS_ENUM_AVAILABLE_IOS(10_0) = 1 << 4, // Shipment tracking number detection
+    UIDataDetectorTypeFlightNumber NS_ENUM_AVAILABLE_IOS(10_0)           = 1 << 5, // Flight number detection
+    UIDataDetectorTypeLookupSuggestion NS_ENUM_AVAILABLE_IOS(10_0)       = 1 << 6, // Information users may want to look up
 
-    UIDataDetectorTypeNone          = 0,               // No detection at all
-    UIDataDetectorTypeAll           = NSUIntegerMax    // All types
-};
+    UIDataDetectorTypeNone          = 0,               // Disable detection
+    UIDataDetectorTypeAll           = NSUIntegerMax    // Enable all types, including types that may be added later
+} API_UNAVAILABLE(tvos);
+
+#else
+#import <UIKitCore/UIDataDetectors.h>
+#endif
 // ==========  UIKit.framework/Headers/UIFont.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFont.h>)
 //
 //  UIFont.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6731,18 +9569,26 @@ typedef NS_OPTIONS(NSUInteger, UIDataDetectorTypes) {
 #import <UIKit/UIKitDefines.h>
 #import <UIKit/UIFontDescriptor.h>
 
+@class UITraitCollection;
+
 NS_ASSUME_NONNULL_BEGIN
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UIFont : NSObject <NSCopying>
 
 // Returns an instance of the font associated with the text style and scaled appropriately for the user's selected content size category. See UIFontDescriptor.h for the complete list.
-+ (UIFont *)preferredFontForTextStyle:(NSString *)style NS_AVAILABLE_IOS(7_0);
++ (UIFont *)preferredFontForTextStyle:(UIFontTextStyle)style NS_AVAILABLE_IOS(7_0);
+// Returns an instance of the font associated with the text style and scaled appropriately for the content size category defined in the trait collection.
++ (UIFont *)preferredFontForTextStyle:(UIFontTextStyle)style compatibleWithTraitCollection:(nullable UITraitCollection *)traitCollection NS_AVAILABLE_IOS(10_0) __WATCHOS_PROHIBITED;
 
 // Returns a font using CSS name matching semantics.
 + (nullable UIFont *)fontWithName:(NSString *)fontName size:(CGFloat)fontSize;
 
 // Returns an array of font family names for all installed fonts
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) NSArray<NSString *> *familyNames;
+#else
 + (NSArray<NSString *> *)familyNames;
+#endif
 
 // Returns an array of font names for the specified family name
 + (NSArray<NSString *> *)fontNamesForFamilyName:(NSString *)familyName;
@@ -6758,8 +9604,8 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIFont : NSObject <NSCopying>
 // Weights used here are analogous to those used with UIFontDescriptor's UIFontWeightTrait.
 // See the UIFontWeight... constants in UIFontDescriptor.h for suggested values.
 // The caveat above about the use of ...systemFont... methods applies to these methods too.
-+ (UIFont *)systemFontOfSize:(CGFloat)fontSize weight:(CGFloat)weight NS_AVAILABLE_IOS(8_2);
-+ (UIFont *)monospacedDigitSystemFontOfSize:(CGFloat)fontSize weight:(CGFloat)weight NS_AVAILABLE_IOS(9_0);
++ (UIFont *)systemFontOfSize:(CGFloat)fontSize weight:(UIFontWeight)weight NS_AVAILABLE_IOS(8_2);
++ (UIFont *)monospacedDigitSystemFontOfSize:(CGFloat)fontSize weight:(UIFontWeight)weight NS_AVAILABLE_IOS(9_0);
 
 
 // Font attributes
@@ -6780,19 +9626,28 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIFont : NSObject <NSCopying>
 + (UIFont *)fontWithDescriptor:(UIFontDescriptor *)descriptor size:(CGFloat)pointSize NS_AVAILABLE_IOS(7_0);
 
 // Returns a font descriptor which describes the font.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) UIFontDescriptor *fontDescriptor NS_AVAILABLE_IOS(7_0);
+#else
 - (UIFontDescriptor *)fontDescriptor NS_AVAILABLE_IOS(7_0);
+#endif
 
 @end
 
 NS_ASSUME_NONNULL_END
 
  
+
+#else
+#import <UIKitCore/UIFont.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAttachmentBehavior.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAttachmentBehavior.h>)
 //
 //  UIAttachmentBehavior.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6892,12 +9747,17 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIAttachmentBehavior : UIDynamicBehavior
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAttachmentBehavior.h>
+#endif
 // ==========  UIKit.framework/Headers/UIDocumentPickerExtensionViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDocumentPickerExtensionViewController.h>)
 //
 //  UIDocumentPickerExtensionViewController.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6906,7 +9766,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UIDocumentPickerExtensionViewController : UIViewController
+NS_CLASS_AVAILABLE_IOS(8_0)  __TVOS_PROHIBITED @interface UIDocumentPickerExtensionViewController : UIViewController
 
 // The preconditions for the URL passed to dismissGrantingAccessToURL: vary depending on the document picker mode.
 // In Import mode, any URL that the extension has access to is valid.
@@ -6933,12 +9793,17 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIDocumentPickerExtensionViewController :
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDocumentPickerExtensionViewController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIKitDefines.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIKitDefines.h>)
 //
 //  UIKitDefines.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Availability.h>
@@ -6951,14 +9816,52 @@ NS_ASSUME_NONNULL_END
 
 #define UIKIT_STATIC_INLINE	static inline
 
-#define UIKIT_AVAILABLE_IOS_ONLY(vers)      __IOS_AVAILABLE(vers) __WATCHOS_UNAVAILABLE
-#define UIKIT_AVAILABLE_WATCHOS_ONLY(vers)  __IOS_UNAVAILABLE __WATCHOS_AVAILABLE(vers)
+#define UIKIT_AVAILABLE_IOS_ONLY(vers)      __IOS_AVAILABLE(vers) __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE
+#define UIKIT_AVAILABLE_WATCHOS_ONLY(vers)  __IOS_UNAVAILABLE __WATCHOS_AVAILABLE(vers) __TVOS_UNAVAILABLE
+#define UIKIT_AVAILABLE_TVOS_ONLY(vers)     __IOS_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_AVAILABLE(vers)
+#define UIKIT_AVAILABLE_IOS_TVOS(_ios, _tvos) __IOS_AVAILABLE(_ios) __WATCHOS_UNAVAILABLE __TVOS_AVAILABLE(_tvos)
+#define UIKIT_AVAILABLE_IOS_WATCHOS_TVOS(_ios, _watchos, _tvos) __IOS_AVAILABLE(_ios) __WATCHOS_AVAILABLE(_watchos) __TVOS_AVAILABLE(_tvos)
+
+#define UIKIT_CLASS_AVAILABLE_IOS_ONLY(vers) UIKIT_EXTERN __IOS_AVAILABLE(vers) __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE
+#define UIKIT_CLASS_AVAILABLE_WATCHOS_ONLY(vers) UIKIT_EXTERN __IOS_UNAVAILABLE __WATCHOS_AVAILABLE(vers) __TVOS_UNAVAILABLE
+#define UIKIT_CLASS_AVAILABLE_TVOS_ONLY(vers) UIKIT_EXTERN __IOS_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_AVAILABLE(vers)
+#define UIKIT_CLASS_AVAILABLE_IOS_TVOS(_ios, _tvos) UIKIT_EXTERN __IOS_AVAILABLE(_ios) __WATCHOS_UNAVAILABLE __TVOS_AVAILABLE(_tvos)
+#define UIKIT_CLASS_AVAILABLE_IOS_WATCHOS_TVOS(_ios, _watchos, _tvos) UIKIT_EXTERN __IOS_AVAILABLE(_ios) __WATCHOS_AVAILABLE(_watchos) __TVOS_AVAILABLE(_tvos)
+
+#if (!defined(SWIFT_CLASS_EXTRA) || (defined(SWIFT_SDK_OVERLAY_UIKIT_EPOCH) && SWIFT_SDK_OVERLAY_UIKIT_EPOCH >= 1))
+    #define UIKIT_DEFINE_AS_PROPERTIES 1
+#else
+    #define UIKIT_DEFINE_AS_PROPERTIES 0
+#endif
+
+#if (!defined(SWIFT_CLASS_EXTRA) || (defined(SWIFT_SDK_OVERLAY_UIKIT_EPOCH) && SWIFT_SDK_OVERLAY_UIKIT_EPOCH >= 1))
+    #define UIKIT_REMOVE_ZERO_FROM_SWIFT 1
+#else
+    #define UIKIT_REMOVE_ZERO_FROM_SWIFT 0
+#endif
+
+#if ((defined(SWIFT_SDK_OVERLAY_UIKIT_EPOCH) && SWIFT_SDK_OVERLAY_UIKIT_EPOCH >= 2))
+    #define UIKIT_STRING_ENUMS 1
+#else
+    #define UIKIT_STRING_ENUMS 0
+#endif
+
+#if __swift__
+#define UIKIT_SWIFT_FORWARD_DECLARE(DECLARATION) DECLARATION;
+#else
+#define UIKIT_SWIFT_FORWARD_DECLARE(DECLARATION)
+#endif
+
+#else
+#import <UIKitCore/UIKitDefines.h>
+#endif
 // ==========  UIKit.framework/Headers/UILocalNotification.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UILocalNotification.h>)
 //
 //  UILocalNotification.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6969,7 +9872,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class CLRegion;
 
 // In iOS 8.0 and later, your application must register for user notifications using -[UIApplication registerUserNotificationSettings:] before being able to schedule and present UILocalNotifications
-NS_CLASS_AVAILABLE_IOS(4_0) @interface UILocalNotification : NSObject<NSCopying, NSCoding>       // added in iOS 4.0
+NS_CLASS_DEPRECATED_IOS(4_0, 10_0, "Use UserNotifications Framework's UNNotificationRequest") __TVOS_PROHIBITED
+@interface UILocalNotification : NSObject<NSCopying, NSCoding>
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
@@ -7013,15 +9917,20 @@ NS_CLASS_AVAILABLE_IOS(4_0) @interface UILocalNotification : NSObject<NSCopying,
 @end
 
 
-UIKIT_EXTERN NSString *const UILocalNotificationDefaultSoundName NS_AVAILABLE_IOS(4_0);
+UIKIT_EXTERN NSString *const UILocalNotificationDefaultSoundName NS_DEPRECATED_IOS(4_0, 10_0, "Use UserNotifications Framework's +[UNNotificationSound defaultSound]") __TVOS_PROHIBITED;
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UILocalNotification.h>
+#endif
 // ==========  UIKit.framework/Headers/UIControl.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIControl.h>)
 //
 //  UIControl.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7068,6 +9977,8 @@ typedef NS_ENUM(NSInteger, UIControlContentHorizontalAlignment) {
     UIControlContentHorizontalAlignmentLeft   = 1,
     UIControlContentHorizontalAlignmentRight  = 2,
     UIControlContentHorizontalAlignmentFill   = 3,
+    UIControlContentHorizontalAlignmentLeading  API_AVAILABLE(ios(11.0), tvos(11.0)) = 4,
+    UIControlContentHorizontalAlignmentTrailing API_AVAILABLE(ios(11.0), tvos(11.0)) = 5,
 };
 
 typedef NS_OPTIONS(NSUInteger, UIControlState) {
@@ -7075,6 +9986,7 @@ typedef NS_OPTIONS(NSUInteger, UIControlState) {
     UIControlStateHighlighted  = 1 << 0,                  // used when UIControl isHighlighted is set
     UIControlStateDisabled     = 1 << 1,
     UIControlStateSelected     = 1 << 2,                  // flag usable by app (see below)
+    UIControlStateFocused NS_ENUM_AVAILABLE_IOS(9_0) = 1 << 3, // Applicable only when the screen supports focus
     UIControlStateApplication  = 0x00FF0000,              // additional flags available for application use
     UIControlStateReserved     = 0xFF000000               // flags reserved for internal framework use
 };
@@ -7091,7 +10003,8 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIControl : UIView
 @property(nonatomic,getter=isSelected) BOOL selected;                                // default is NO may be used by some subclasses or by application
 @property(nonatomic,getter=isHighlighted) BOOL highlighted;                          // default is NO. this gets set/cleared automatically when touch enters/exits during tracking and cleared on up
 @property(nonatomic) UIControlContentVerticalAlignment contentVerticalAlignment;     // how to position content vertically inside control. default is center
-@property(nonatomic) UIControlContentHorizontalAlignment contentHorizontalAlignment; // how to position content hozontally inside control. default is center
+@property(nonatomic) UIControlContentHorizontalAlignment contentHorizontalAlignment; // how to position content horizontally inside control. default is center
+@property(nonatomic, readonly) UIControlContentHorizontalAlignment effectiveContentHorizontalAlignment; // how to position content horizontally inside control, guaranteed to return 'left' or 'right' for any 'leading' or 'trailing'
 
 @property(nonatomic,readonly) UIControlState state;                  // could be more than one state (e.g. disabled|selected). synthesized from other flags.
 @property(nonatomic,readonly,getter=isTracking) BOOL tracking;
@@ -7111,8 +10024,14 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIControl : UIView
 - (void)removeTarget:(nullable id)target action:(nullable SEL)action forControlEvents:(UIControlEvents)controlEvents;
 
 // get info about target & actions. this makes it possible to enumerate all target/actions by checking for each event kind
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic,readonly) NSSet *allTargets;
+@property(nonatomic,readonly) UIControlEvents allControlEvents;                            // list of all events that have at least one action
+#else
 - (NSSet *)allTargets;                                                                     // set may include NSNull to indicate at least one nil target
 - (UIControlEvents)allControlEvents;                                                       // list of all events that have at least one action
+#endif
+
 - (nullable NSArray<NSString *> *)actionsForTarget:(nullable id)target forControlEvent:(UIControlEvents)controlEvent;    // single event. returns NSArray of NSString selector names. returns nil if none
 
 // send the action. the first method is called for the event and is a point at which you can observe or override behavior. it is called repeately by the second.
@@ -7122,12 +10041,17 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIControl : UIView
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIControl.h>
+#endif
 // ==========  UIKit.framework/Headers/UIManagedDocument.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIManagedDocument.h>)
 //
 //  UIManagedDocument.h
 //  UIKit
 //
-//  Copyright (c) 2011-2014 Apple Inc.
+//  Copyright (c) 2011-2018 Apple Inc.
 //  All rights reserved.
 //
 
@@ -7139,11 +10063,15 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSManagedObjectContext;
 @class NSPersistentStoreCoordinator;
 
-NS_CLASS_AVAILABLE_IOS(5_0) @interface UIManagedDocument : UIDocument
+NS_CLASS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED @interface UIManagedDocument : UIDocument
 
 /* The name for the persistent store file inside the document's file wrapper.  When working with the Core Data APIs, this path component is appended to the document URL provided by the UIDocument APIs.  The default name is @"documentpersistentstore.db"
  */
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) NSString *persistentStoreName;
+#else
 + (NSString *)persistentStoreName;
+#endif
 
 /* Persistent documents always have a managed object context and a persistent store coordinator through that context.  The managed object context is required to be initialized with the concurrency type NSMainQueueConcurrencyType and it must have a parent context initialized with the concurrency type NSPrivateQueueConcurrencyType.
  */
@@ -7184,25 +10112,359 @@ NS_CLASS_AVAILABLE_IOS(5_0) @interface UIManagedDocument : UIDocument
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIManagedDocument.h>
+#endif
+// ==========  UIKit.framework/Headers/UITextPasteDelegate.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextPasteDelegate.h>)
+//
+//  UITextPasteDelegate.h
+//  UIKit Framework
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol UITextPasteConfigurationSupporting;
+@protocol UITextPasteItem;
+
+@class UITextRange;
+@class NSTextAttachment;
+
+/*
+ * Defines a delegate to handle text paste handling through item providers.
+ * UIKit will handle the state management for pasting several long during item providers
+ * if necessary. While the pasting is ongoing, the state of the text control will not
+ * be altered, and only at the end the resulting string will be pasted at the specified location.
+ *
+ * The location of the paste is referenced from the time the paste was initiated. If the
+ * text changes in the mean time, this might not be at the same location as before.
+ * If the old location is out of bounds of the new text, it will be clamped to the range of the
+ * current state of the text when the paste actually occurs.
+ *
+ * The ranges passed to the 2 optional methods will reflect the actual correct range at the
+ * time of actually pasting the resulting string.
+ *
+ * UITextView and UITextField do not have an explicit .pasteConfiguration set, but will
+ * behave like they have one set implicitly depending on a few factors:
+ *
+ *  - if the view allows editing text attributes (.allowsEditingTextAttributes == YES),
+ *    it accepts items that can be read as:
+ *      - plain strings
+ *      - attributed strings
+ *      - images (but only for UITextView)
+ *  - if the view does not allow editing text attributes (.allowsEditingTextAttributes == NO),
+ *    it accepts items that can be read as:
+ *      - plain strings
+ *
+ * If you modify your text control's pasteConfiguration, you should probably also use
+ * this delegate to properly handle any custom items you have there.
+ */
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UITextPasteDelegate <NSObject>
+
+@optional
+
+/*
+ * Will be called for each item in the paste.
+ * You *must* eventually call on of the result methods (`setFooResult:`
+ * or `discardResult`) on the given UITextPasteItem.
+ *
+ * Note: It is not required to call these result methods in the
+ * same scope as the transformPasteItem:. You can pass these on to any
+ * async handling code (see: NSItemProvider), hold on to them through
+ * a closure and/or invoke them in a completion block.
+ *
+ * Note: You can use this UITextPasteItem on any thread,
+ * but textPasteConfigurationSupporting:transformPasteItem: will be called
+ * on the main thread.
+ */
+- (void)textPasteConfigurationSupporting:(id<UITextPasteConfigurationSupporting>)textPasteConfigurationSupporting transformPasteItem:(id<UITextPasteItem>)item;
+
+/*
+ * When you want to alter how the different item strings are combined
+ * into one string, you can implement this method.
+ * By default, all strings will just be concatenated without any delimiters,
+ * but you are free to do what you want here.
+ * The target text range is provided so you can alter behavior here depending on
+ * where the text will be dropped.
+ */
+- (NSAttributedString *)textPasteConfigurationSupporting:(id<UITextPasteConfigurationSupporting>)textPasteConfigurationSupporting combineItemAttributedStrings:(NSArray<NSAttributedString *> *)itemStrings forRange:(UITextRange*)textRange;
+
+/*
+ * Handle the pasting of the final string. This will be a combination of all pasted items.
+ * It this is not implemented, the standard paste mechanism will be used.
+ * The target range will be a zero length range for normal pastes, but might be
+ * non-zero for text drops (see text drop API).
+ * Please honor this range as doing something different here will be confusing
+ * to the user.
+ * Return the resulting text range from the method (or nil to indicate no changes to the range).
+ * This might be used to select the range for text drops.
+ */
+- (UITextRange*)textPasteConfigurationSupporting:(id<UITextPasteConfigurationSupporting>)textPasteConfigurationSupporting performPasteOfAttributedString:(NSAttributedString*)attributedString toRange:(UITextRange*)textRange;
+
+/* By default, the standard text controls will animate pasting or dropping text.
+ * If you don't want this to happen for a certain paste or range, you can implement
+ * this method and return false here.
+ *
+ * If you don't implement this, the default is true.
+ */
+- (BOOL)textPasteConfigurationSupporting:(id<UITextPasteConfigurationSupporting>)textPasteConfigurationSupporting shouldAnimatePasteOfAttributedString:(NSAttributedString*)attributedString toRange:(UITextRange*)textRange;
+
+@end
+
+
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UITextPasteItem <NSObject>
+
+// This is the NSItemProvider for the item being pasted or dropped.
+// You should set a result for this item using one of the methods below.
+@property (nonatomic, readonly) __kindof NSItemProvider *itemProvider;
+
+// This is nil for normal pastes, but might be filled with the
+// UIDragItem's localObject for pastes from drops.
+@property (nonatomic, readonly, nullable) id localObject;
+
+// These will be the default attributes that will
+// be applied to plain strings when they are provided.
+// You can use these to make your own attributed string if you want.
+@property (nonatomic, readonly) NSDictionary<NSAttributedStringKey, id> *defaultAttributes;
+
+// provide a plain string representation result from this NSItemProvider's data
+- (void)setStringResult:(NSString*)string;
+
+// provide an attributed representation result from this NSItemProvider's data
+- (void)setAttributedStringResult:(NSAttributedString*)string;
+
+// provide an attachment result from this NSItemProvider's data
+- (void)setAttachmentResult:(NSTextAttachment*)textAttachment;
+
+// Use this to indicate that you don't want the data of this NSItemProvider
+// included in the resulting string.
+- (void)setNoResult;
+
+// Use this to indicate that want the default transformation to happen.
+// If the item data for the item provider is not supported, this action
+// will be the same as `setNoResult`.
+// You can use this as a fallback for any items you are not handling yourself.
+- (void)setDefaultResult;
+
+@end
+
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextPasteDelegate.h>
+#endif
+// ==========  UIKit.framework/Headers/UIFocus.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFocus.h>)
+//
+//  UIFocus.h
+//  UIKit
+//
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIFocusGuide.h>
+#import <UIKit/UIFocusAnimationCoordinator.h>
+#import <UIKit/UIKitDefines.h>
+
+@class UIView, UIFocusUpdateContext, UIFocusMovementHint;
+@protocol UICoordinateSpace, UIFocusItemContainer;
+
+typedef NS_OPTIONS(NSUInteger, UIFocusHeading) {
+    UIFocusHeadingNone          = 0,
+    UIFocusHeadingUp            = 1 << 0,
+    UIFocusHeadingDown          = 1 << 1,
+    UIFocusHeadingLeft          = 1 << 2,
+    UIFocusHeadingRight         = 1 << 3,
+    UIFocusHeadingNext          = 1 << 4,
+    UIFocusHeadingPrevious      = 1 << 5,
+} NS_ENUM_AVAILABLE_IOS(9_0);
+
+#if UIKIT_STRING_ENUMS
+typedef NSString * UIFocusSoundIdentifier NS_TYPED_EXTENSIBLE_ENUM;
+#else
+typedef NSString * UIFocusSoundIdentifier;
+#endif
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// Objects conforming to UIFocusEnvironment influence and respond to focus behavior within a specific area of the screen that they control.
+NS_CLASS_AVAILABLE_IOS(9_0) @protocol UIFocusEnvironment <NSObject>
+
+/// The preferred focus environments define where to search for the default focused item in an environment, such as when focus updates programmatically.
+/// Starting from the target environment, each preferred focus environment is recursively searched in the order of the array until an eligible, focusable item is found.
+/// Preferred focus environments can include focusable and non-focusable items, in addition to non-item environments. Returning an empty array is equivalent to returning an array containing only 'self'.
+@property (nonatomic, copy, readonly) NSArray<id<UIFocusEnvironment>> *preferredFocusEnvironments;
+
+/// The parent focus environment of this environment, or nil if no parent exists.
+/// NOTE: If you implement this method, you must return a non-nil value for parent focus environment, otherwise your focus environment will not participate in focus interactions.
+@property (nonatomic, weak, readonly, nullable) id<UIFocusEnvironment> parentFocusEnvironment NS_SWIFT_NAME(parentFocusEnvironment) API_AVAILABLE(tvos(12.0), ios(12.0));
+
+/// The container of any child focus items in this focus environment, or nil if no container exists.
+@property (nonatomic, readonly, nullable) id<UIFocusItemContainer> focusItemContainer API_AVAILABLE(tvos(12.0), ios(12.0));
+
+/// Marks this environment as needing a focus update, which if accepted will attempt to reset focus to this environment, or one of its preferred focus environments, on the next update cycle. If this environment does not currently contain the focused item, then calling this method has no effect. If a parent of this environment is also requesting focus, then this environment's request is rejected in favor of the parent's.
+/// NOTE: If you provide your own implementation, it must call `[[UIFocusSystem focusSystemForEnvironment:self] requestFocusUpdateToEnvironment:self]`;
+- (void)setNeedsFocusUpdate;
+
+/// Forces focus to be updated immediately. If there is an environment that has requested a focus update via -setNeedsFocusUpdate, and the request was accepted, then focus will be updated to that environment or one of its preferred focus environments.
+/// NOTE: If you provide your own implementation, it must call `[[UIFocusSystem focusSystemForEnvironment:self] updateFocusIfNeeded];`.
+- (void)updateFocusIfNeeded;
+
+/// Asks whether the system should allow a focus update to occur.
+- (BOOL)shouldUpdateFocusInContext:(UIFocusUpdateContext *)context;
+
+/// Called when the screen’s focused item has been updated to a new item. Use the animation coordinator to schedule focus-related animations in response to the update.
+- (void)didUpdateFocusInContext:(UIFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator;
+
+@optional
+
+/// Specifies an identifier corresponding to a sound that should be played for a focus update.
+/// Return UIFocusSoundIdentifierNone to opt out of sounds, UIFocusSoundIdentifierDefault for the system
+/// default sounds, a previously registered identifier for a custom sound, or nil to defer the decision
+/// to the parent.
+- (nullable UIFocusSoundIdentifier)soundIdentifierForFocusUpdateInContext:(UIFocusUpdateContext *)context API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios, watchos);
+
+@property (nonatomic, weak, readonly, nullable) UIView *preferredFocusedView NS_DEPRECATED_IOS(9_0, 10_0, "Use -preferredFocusEnvironments instead.");
+
+@end
+
+
+/// Objects conforming to UIFocusItem are considered capable of participating in focus. Only UIFocusItems can ever be focused.
+NS_CLASS_AVAILABLE_IOS(10_0) @protocol UIFocusItem <UIFocusEnvironment>
+
+/// Indicates whether or not this item is currently allowed to become focused.
+/// Returning NO restricts the item from being focusable, even if it is visible in the user interface. For example, UIControls return NO if they are disabled.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL canBecomeFocused;
+#else
+- (BOOL)canBecomeFocused;
+#endif
+
+/// The geometric frame of this item, represented in the `coordinateSpace` of the UIFocusItemContainer in which it is contained.
+@property (nonatomic, readonly) CGRect frame API_AVAILABLE(tvos(12.0), ios(12.0));
+
+@optional
+
+/// Called whenever this focus item is hinting to the user a focus movement might occur.
+/// The provided object is mutated by the focus engine whenever the user's finger moves.
+- (void)didHintFocusMovement:(UIFocusMovementHint *)hint;
+
+@end
+
+
+/// Objects conforming to UIFocusItemContainer are responsible for providing which focus items they
+/// contain and where they are.
+NS_CLASS_AVAILABLE_IOS(12_0) @protocol UIFocusItemContainer <NSObject>
+
+/// The coordinate space of the focus items contained in this container. The focus items returned by focusItemsInRect: should report their frames in this coordinate space.
+/// If you are implementing this protocol, you may find it convenient to return the UIScreen as your coordinate space, and ensure that your contained items report their frames in screen space.
+/// Similarly, you might find that your focus items' containing UIView or UIWindow is the most convenient coordinate space to use.
+/// You may also choose to implement your own object that conforms to UICoordinateSpace, if that is the most natural solution for your architecture.
+@property (nonatomic, readonly) id<UICoordinateSpace> coordinateSpace;
+
+/// Returns an array of all focus items within this container that intersect with the provided rect. `rect` is expressed in `coordinateSpace`.
+- (NSArray<id<UIFocusItem>> *)focusItemsInRect:(CGRect)rect;
+
+@end
+
+
+/// Objects conforming to UIFocusItemScrollableContainer are updated accordingly to ensure the
+/// focused item remains visible on the screen.
+NS_CLASS_AVAILABLE_IOS(12_0) @protocol UIFocusItemScrollableContainer <UIFocusItemContainer>
+
+/// The current content offset of this scrollable container. If the scrollable container has a `bounds` property, `bounds.origin` must be equal to `contentOffset`.
+@property (nonatomic, readwrite) CGPoint contentOffset;
+
+/// The total size of the content contained by this container. If this size exceeds the size of
+/// this container's visible size, then scrolling is possible.
+@property (nonatomic, readonly) CGSize contentSize;
+
+/// The visible size of this scrollable container.
+@property (nonatomic, readonly) CGSize visibleSize;
+
+@end
+
+
+/// UIFocusUpdateContexts provide information relevant to a specific focus update from one view to another. They are ephemeral objects that are usually discarded after the update is finished.
+NS_CLASS_AVAILABLE_IOS(9_0) @interface UIFocusUpdateContext : NSObject
+
+/// The item that was focused before the update, i.e. where focus is updating from. May be nil if no item was focused, such as when focus is initially set.
+@property (nonatomic, weak, readonly, nullable) id<UIFocusItem> previouslyFocusedItem NS_AVAILABLE_IOS(10_0);
+
+/// The item that is focused after the update, i.e. where focus is updating to. May be nil if no item is being focused, meaning focus is being lost.
+@property (nonatomic, weak, readonly, nullable) id<UIFocusItem> nextFocusedItem NS_AVAILABLE_IOS(10_0);
+
+/// The view that was focused before the update. May be nil if no view was focused, such as when setting initial focus.
+/// If previouslyFocusedItem is not a view, this returns that item's containing view, otherwise they are equal.
+/// NOTE: This property will be deprecated in a future release. Use previouslyFocusedItem instead.
+@property (nonatomic, weak, readonly, nullable) UIView *previouslyFocusedView;
+
+/// The view that will be focused after the update. May be nil if no view will be focused.
+/// If nextFocusedItem is not a view, this returns that item's containing view, otherwise they are equal.
+/// NOTE: This property will be deprecated in a future release. Use nextFocusedItem instead.
+@property (nonatomic, weak, readonly, nullable) UIView *nextFocusedView;
+
+/// The focus heading in which the update is occuring.
+@property (nonatomic, assign, readonly) UIFocusHeading focusHeading;
+
+@end
+
+
+UIKIT_EXTERN NSNotificationName const UIFocusDidUpdateNotification API_AVAILABLE(ios(11.0), tvos(11.0));
+UIKIT_EXTERN NSNotificationName const UIFocusMovementDidFailNotification API_AVAILABLE(ios(11.0), tvos(11.0));
+
+UIKIT_EXTERN NSString * const UIFocusUpdateContextKey API_AVAILABLE(ios(11.0), tvos(11.0));
+UIKIT_EXTERN NSString * const UIFocusUpdateAnimationCoordinatorKey API_AVAILABLE(ios(11.0), tvos(11.0));
+
+/// Sound identifier for disabling sound during a focus update.
+UIKIT_EXTERN UIFocusSoundIdentifier const UIFocusSoundIdentifierNone API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios, watchos);
+
+/// Sound identifier for playing the default sound during a focus update.
+UIKIT_EXTERN UIFocusSoundIdentifier const UIFocusSoundIdentifierDefault API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios, watchos);
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIFocus.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAlert.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAlert.h>)
 //
 //  UIAlert.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIActionSheet.h>
 #import <UIKit/UIAlertView.h>
+
+#else
+#import <UIKitCore/UIAlert.h>
+#endif
 // ==========  UIKit.framework/Headers/UICollectionViewTransitionLayout.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UICollectionViewTransitionLayout.h>)
 //
 //  UICollectionView.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <UIKit/UICollectionViewLayout.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -7227,12 +10489,86 @@ NS_ASSUME_NONNULL_END
 
 
 
+
+#else
+#import <UIKitCore/UICollectionViewTransitionLayout.h>
+#endif
+// ==========  UIKit.framework/Headers/UIAccessibilityLocationDescriptor.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibilityLocationDescriptor.h>)
+//
+//  UIAccessibilityLocationDescriptor.h
+//  UIKit
+//
+//  Copyright (c) 2017-2018 Apple Inc. All rights reserved.
+//
+
+
+#import <UIKit/UIKitDefines.h>
+#import <UIKit/UIView.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*
+ * UIAccessibilityLocationDescriptor objects are used to describe to assistive
+ * technologies points of interest within a view; where they are and how an assistive technology
+ * should describe them. For example, the `accessibilityDragSourceDescriptors` and
+ * `accessibilityDropPointDescriptors` properties in the UIAccessibilityDragging informal protocol
+ * use UIAccessibilityLocationDescriptor objects to describe where drags may begin and end.
+ */
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @interface UIAccessibilityLocationDescriptor : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+/* Convenience initializer that uses the view's accessibilityActivationPoint. (This point will be
+ * converted to the coordinate space of the view).
+ *
+ * Note that by default, the accessibilityActivationPoint of a view is its center.
+ */
+- (instancetype)initWithName:(NSString *)name view:(UIView *)view;
+
+/* Provide the view, the point in that view's coordinate space that is of interest, and a name to
+ * use to describe it to the user.
+ */
+- (instancetype)initWithName:(NSString *)name point:(CGPoint)point inView:(UIView *)view;
+- (instancetype)initWithAttributedName:(NSAttributedString *)attributedName point:(CGPoint)point inView:(UIView *)view NS_DESIGNATED_INITIALIZER;
+
+/* The view in which the described point resides.
+ *
+ * This property is weak to make it simple to avoid reference cycles. Descriptors whose views have
+ * been deallocated (or are no longer in a visible window, or are obscured) will be silently
+ * ignored. That said, you should still clean up after yourself.
+ */
+@property (nonatomic, readonly, weak) UIView *view;
+
+/* The point in the view that is being described. The point is in the view's coordinate space.
+ */
+@property (nonatomic, readonly) CGPoint point;
+
+/* The "name" property and initializer are conveniences for referring to the "attributedName"
+ * property, which is the real underlying property.
+ */
+@property (nonatomic, readonly, strong) NSString *name;
+
+/* Assistive technologies will use the attributedName of the descriptor when describing it to the
+ * user (for instance, VoiceOver will speak it).
+ */
+@property (nonatomic, readonly, strong) NSAttributedString *attributedName;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccessibilityLocationDescriptor.h>
+#endif
 // ==========  UIKit.framework/Headers/UILongPressGestureRecognizer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UILongPressGestureRecognizer.h>)
 //
 //  UILongPressGestureRecognizer.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7249,20 +10585,25 @@ NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_AVAILABLE_IOS(3_2) @interface UILongPressGestureRecognizer : UIGestureRecognizer
 
 @property (nonatomic) NSUInteger numberOfTapsRequired;      // Default is 0. The number of full taps required before the press for gesture to be recognized
-@property (nonatomic) NSUInteger numberOfTouchesRequired;   // Default is 1. Number of fingers that must be held down for the gesture to be recognized
+@property (nonatomic) NSUInteger numberOfTouchesRequired __TVOS_PROHIBITED;   // Default is 1. Number of fingers that must be held down for the gesture to be recognized
 
-@property (nonatomic) CFTimeInterval minimumPressDuration; // Default is 0.5. Time in seconds the fingers must be held down for the gesture to be recognized
+@property (nonatomic) NSTimeInterval minimumPressDuration; // Default is 0.5. Time in seconds the fingers must be held down for the gesture to be recognized
 @property (nonatomic) CGFloat allowableMovement;           // Default is 10. Maximum movement in pixels allowed before the gesture fails. Once recognized (after minimumPressDuration) there is no limit on finger movement for the remainder of the touch tracking
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UILongPressGestureRecognizer.h>
+#endif
 // ==========  UIKit.framework/Headers/NSShadow.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSShadow.h>)
 //
 //  NSShadow.h
 //  UIKit
 //
-//  Copyright (c) 2002-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2002-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7275,7 +10616,7 @@ NS_ASSUME_NONNULL_BEGIN
  To set a shadow on an NSAttributedString use it as a value for NSShadowAttributeName.
  */
 
-NS_CLASS_AVAILABLE_IOS(6_0) @interface NSShadow : NSObject <NSCopying, NSCoding>
+NS_CLASS_AVAILABLE_IOS(6_0) @interface NSShadow : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
@@ -7287,12 +10628,17 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface NSShadow : NSObject <NSCopying, NSCoding>
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSShadow.h>
+#endif
 // ==========  UIKit.framework/Headers/UIDatePicker.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDatePicker.h>)
 //
 //  UIDatePicker.h
 //  UIKit
 //
-//  Copyright (c) 2006-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7306,9 +10652,9 @@ typedef NS_ENUM(NSInteger, UIDatePickerMode) {
     UIDatePickerModeDate,           // Displays month, day, and year depending on the locale setting (e.g. November | 15 | 2007)
     UIDatePickerModeDateAndTime,    // Displays date, hour, minute, and optionally AM/PM designation depending on the locale setting (e.g. Wed Nov 15 | 6 | 53 | PM)
     UIDatePickerModeCountDownTimer, // Displays hour and minute (e.g. 1 | 53)
-};
+} __TVOS_PROHIBITED;
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UIDatePicker : UIControl <NSCoding>
+NS_CLASS_AVAILABLE_IOS(2_0) __TVOS_PROHIBITED @interface UIDatePicker : UIControl <NSCoding>
 @property (nonatomic) UIDatePickerMode datePickerMode; // default is UIDatePickerModeDateAndTime
 
 @property (nullable, nonatomic, strong) NSLocale   *locale;   // default is [NSLocale currentLocale]. setting nil returns to default
@@ -7327,16 +10673,23 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIDatePicker : UIControl <NSCoding>
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIDatePicker.h>
+#endif
 // ==========  UIKit.framework/Headers/UITextInputTraits.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextInputTraits.h>)
 //
 //  UITextInputTraits.h
 //  UIKit
 //
-//  Copyright (c) 2006-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 //
 // UITextAutocapitalizationType
@@ -7378,6 +10731,36 @@ typedef NS_ENUM(NSInteger, UITextSpellCheckingType) {
 } NS_ENUM_AVAILABLE_IOS(5_0);
 
 //
+// UITextSmartQuotesType
+//
+// Controls the automatic conversion of typographic quote characters for a text widget.
+typedef NS_ENUM(NSInteger, UITextSmartQuotesType) {
+    UITextSmartQuotesTypeDefault,
+    UITextSmartQuotesTypeNo,
+    UITextSmartQuotesTypeYes,
+} NS_ENUM_AVAILABLE_IOS(11_0);
+
+//
+// UITextSmartDashesType
+//
+// Controls the automatic conversion of hyphens into en/em-dashes for a text widget.
+typedef NS_ENUM(NSInteger, UITextSmartDashesType) {
+    UITextSmartDashesTypeDefault,
+    UITextSmartDashesTypeNo,
+    UITextSmartDashesTypeYes,
+} NS_ENUM_AVAILABLE_IOS(11_0);
+
+//
+// UITextSmartInsertDeleteType
+//
+// Controls the automatic insertion/removal of spaces for a text widget.
+typedef NS_ENUM(NSInteger, UITextSmartInsertDeleteType) {
+    UITextSmartInsertDeleteTypeDefault,
+    UITextSmartInsertDeleteTypeNo,
+    UITextSmartInsertDeleteTypeYes,
+} NS_ENUM_AVAILABLE_IOS(11_0);
+
+//
 // UIKeyboardType
 //
 // Requests that a particular keyboard type be displayed when a text widget
@@ -7389,16 +10772,17 @@ typedef NS_ENUM(NSInteger, UITextSpellCheckingType) {
 //
 typedef NS_ENUM(NSInteger, UIKeyboardType) {
     UIKeyboardTypeDefault,                // Default type for the current input method.
-    UIKeyboardTypeASCIICapable,           // Displays a keyboard which can enter ASCII characters, non-ASCII keyboards remain active
+    UIKeyboardTypeASCIICapable,           // Displays a keyboard which can enter ASCII characters
     UIKeyboardTypeNumbersAndPunctuation,  // Numbers and assorted punctuation.
     UIKeyboardTypeURL,                    // A type optimized for URL entry (shows . / .com prominently).
-    UIKeyboardTypeNumberPad,              // A number pad (0-9). Suitable for PIN entry.
+    UIKeyboardTypeNumberPad,              // A number pad with locale-appropriate digits (0-9, ۰-۹, ०-९, etc.). Suitable for PIN entry.
     UIKeyboardTypePhonePad,               // A phone pad (1-9, *, 0, #, with letters under the numbers).
     UIKeyboardTypeNamePhonePad,           // A type optimized for entering a person's name or phone number.
     UIKeyboardTypeEmailAddress,           // A type optimized for multiple email address entry (shows space @ . prominently).
     UIKeyboardTypeDecimalPad NS_ENUM_AVAILABLE_IOS(4_1),   // A number pad with a decimal point.
     UIKeyboardTypeTwitter NS_ENUM_AVAILABLE_IOS(5_0),      // A type optimized for twitter text entry (easy access to @ #)
     UIKeyboardTypeWebSearch NS_ENUM_AVAILABLE_IOS(7_0),    // A default keyboard type with URL-oriented addition (shows space . prominently).
+    UIKeyboardTypeASCIICapableNumberPad NS_ENUM_AVAILABLE_IOS(10_0), // A number pad (0-9) that will always be ASCII digits.
 
     UIKeyboardTypeAlphabet = UIKeyboardTypeASCIICapable, // Deprecated
 
@@ -7443,6 +10827,22 @@ typedef NS_ENUM(NSInteger, UIReturnKeyType) {
     UIReturnKeyContinue NS_ENUM_AVAILABLE_IOS(9_0),
 };
 
+#if UIKIT_STRING_ENUMS
+typedef NSString * UITextContentType NS_TYPED_ENUM;
+#else
+typedef NSString * UITextContentType;
+#endif
+
+NS_CLASS_AVAILABLE_IOS(12_0) @interface UITextInputPasswordRules : NSObject <NSSecureCoding, NSCopying>
+
+@property (nonatomic,readonly) NSString *passwordRulesDescriptor;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
++ (instancetype)passwordRulesWithDescriptor:(NSString *)passwordRulesDescriptor;
+
+@end
+
 //
 // UITextInputTraits
 //
@@ -7456,25 +10856,121 @@ typedef NS_ENUM(NSInteger, UIReturnKeyType) {
 @property(nonatomic) UITextAutocapitalizationType autocapitalizationType; // default is UITextAutocapitalizationTypeSentences
 @property(nonatomic) UITextAutocorrectionType autocorrectionType;         // default is UITextAutocorrectionTypeDefault
 @property(nonatomic) UITextSpellCheckingType spellCheckingType NS_AVAILABLE_IOS(5_0); // default is UITextSpellCheckingTypeDefault;
+@property(nonatomic) UITextSmartQuotesType smartQuotesType NS_AVAILABLE_IOS(11_0); // default is UITextSmartQuotesTypeDefault;
+@property(nonatomic) UITextSmartDashesType smartDashesType NS_AVAILABLE_IOS(11_0); // default is UITextSmartDashesTypeDefault;
+@property(nonatomic) UITextSmartInsertDeleteType smartInsertDeleteType NS_AVAILABLE_IOS(11_0); // default is UITextSmartInsertDeleteTypeDefault;
 @property(nonatomic) UIKeyboardType keyboardType;                         // default is UIKeyboardTypeDefault
 @property(nonatomic) UIKeyboardAppearance keyboardAppearance;             // default is UIKeyboardAppearanceDefault
 @property(nonatomic) UIReturnKeyType returnKeyType;                       // default is UIReturnKeyDefault (See note under UIReturnKeyType enum)
 @property(nonatomic) BOOL enablesReturnKeyAutomatically;                  // default is NO (when YES, will automatically disable return key when text widget has zero-length contents, and will automatically enable when text widget has non-zero-length contents)
 @property(nonatomic,getter=isSecureTextEntry) BOOL secureTextEntry;       // default is NO
 
+// The textContentType property is to provide the keyboard with extra information about the semantic intent of the text document.
+@property(null_unspecified,nonatomic,copy) UITextContentType textContentType NS_AVAILABLE_IOS(10_0); // default is nil
+
+// The passwordRules property is used to communicate requirements for passwords for your service
+// to ensure iOS can generate compatible passwords for users. It only works when secureTextEntry
+// is YES. You do not need to use this property if the passwords that iOS generates are already
+// compatible with your service. You can learn more about the purpose of and syntax for these rules
+// on the Password Rules documentation guide.
+@property(nullable,nonatomic,copy) UITextInputPasswordRules *passwordRules NS_AVAILABLE_IOS(12_0); // default is nil
+
 @end
 
+
+UIKIT_EXTERN UITextContentType const UITextContentTypeName                      NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeNamePrefix                NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeGivenName                 NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeMiddleName                NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeFamilyName                NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeNameSuffix                NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeNickname                  NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeJobTitle                  NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeOrganizationName          NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeLocation                  NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeFullStreetAddress         NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeStreetAddressLine1        NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeStreetAddressLine2        NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeAddressCity               NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeAddressState              NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeAddressCityAndState       NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeSublocality               NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeCountryName               NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypePostalCode                NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeTelephoneNumber           NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeEmailAddress              NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeURL                       NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeCreditCardNumber          NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeUsername                  NS_AVAILABLE_IOS(11_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypePassword                  NS_AVAILABLE_IOS(11_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeNewPassword               NS_AVAILABLE_IOS(12_0);
+UIKIT_EXTERN UITextContentType const UITextContentTypeOneTimeCode               NS_AVAILABLE_IOS(12_0);
+
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextInputTraits.h>
+#endif
+// ==========  UIKit.framework/Headers/UIGraphicsPDFRenderer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIGraphicsPDFRenderer.h>)
+//
+//  UIGraphicsPDFRenderer.h
+//  UIKit
+//
+//  Copyright (c) 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIGraphicsRenderer.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIGraphicsPDFRendererContext;
+
+typedef void (^UIGraphicsPDFDrawingActions)(UIGraphicsPDFRendererContext *rendererContext) NS_AVAILABLE_IOS(10_0);
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIGraphicsPDFRendererFormat : UIGraphicsRendererFormat
+@property (nonatomic, copy) NSDictionary<NSString *, id> *documentInfo;
+@end
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIGraphicsPDFRendererContext : UIGraphicsRendererContext
+@property (nonatomic, readonly) CGRect pdfContextBounds;
+
+- (void)beginPage;
+- (void)beginPageWithBounds:(CGRect)bounds pageInfo:(NSDictionary<NSString *, id> *)pageInfo;
+
+- (void)setURL:(NSURL *)url forRect:(CGRect)rect;
+- (void)addDestinationWithName:(NSString *)name atPoint:(CGPoint)point;
+- (void)setDestinationWithName:(NSString *)name forRect:(CGRect)rect;
+@end
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIGraphicsPDFRenderer : UIGraphicsRenderer
+- (instancetype)initWithBounds:(CGRect)bounds format:(UIGraphicsPDFRendererFormat *)format NS_DESIGNATED_INITIALIZER;
+
+- (BOOL)writePDFToURL:(NSURL *)url withActions:(NS_NOESCAPE UIGraphicsPDFDrawingActions)actions error:(NSError **)error;
+- (NSData *)PDFDataWithActions:(NS_NOESCAPE UIGraphicsPDFDrawingActions)actions;
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIGraphicsPDFRenderer.h>
+#endif
 // ==========  UIKit.framework/Headers/UIGestureRecognizerSubclass.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIGestureRecognizerSubclass.h>)
 //
 //  UIGestureRecognizerSubclass.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIGestureRecognizer.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+@class UIPressesEvent;
+@class UIPress;
 
 // the extensions in this header are to be used only by subclasses of UIGestureRecognizer
 // code that uses UIGestureRecognizers must never call these
@@ -7485,6 +10981,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,readwrite) UIGestureRecognizerState state;  // the current state of the gesture recognizer. can only be set by subclasses of UIGestureRecognizer, but can be read by consumers
 
 - (void)ignoreTouch:(UITouch*)touch forEvent:(UIEvent*)event; // if a touch isn't part of this gesture it can be passed to this method to be ignored. ignored touches won't be cancelled on the view even if cancelsTouchesInView is YES
+
+- (void)ignorePress:(UIPress *)button forEvent:(UIPressesEvent *)event NS_AVAILABLE_IOS(9_0);
 
 // the following methods are to be overridden by subclasses of UIGestureRecognizer
 // if you override one you must call super
@@ -7510,22 +11008,463 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
+- (void)touchesEstimatedPropertiesUpdated:(NSSet<UITouch *> *)touches NS_AVAILABLE_IOS(9_1);
+
+- (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event NS_AVAILABLE_IOS(9_0);
+- (void)pressesChanged:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event NS_AVAILABLE_IOS(9_0);
+- (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event NS_AVAILABLE_IOS(9_0);
+- (void)pressesCancelled:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event NS_AVAILABLE_IOS(9_0);
 
 @end
 
-NS_ASSUME_NONNULL_END// ==========  UIKit.framework/Headers/UIPrinter.h
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIGestureRecognizerSubclass.h>
+#endif
+// ==========  UIKit.framework/Headers/UITextDragging.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextDragging.h>)
+//
+//  UITextDragging.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIDragInteraction.h>
+#import <UIKit/UITextInput.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_OPTIONS(NSInteger, UITextDragOptions) {
+    UITextDragOptionsNone = 0,
+
+    /* By default, previews generated by the system will retain
+     * the foreground and background text colors.
+     * Activating this option causes those colors to be stripped away,
+     * resulting in a text preview with black text on a clear background.
+     * This affects only the preview, not the contents of the drag.
+     * Any embedded images in the preview will remain as they are.
+     */
+    UITextDragOptionStripTextColorFromPreviews = (1 << 0)
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+@protocol UITextDragDelegate;
+
+/* Defines a text draggable control.
+ */
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UITextDraggable <UITextInput>
+
+@property (nonatomic, weak, nullable) id<UITextDragDelegate> textDragDelegate;
+
+/* The text drag interaction that UIKit installs on the text control.
+ * Use this to explicitly disable drag interactions on system text controls,
+ * if desired.
+ */
+@property (nonatomic, readonly, nullable) UIDragInteraction *textDragInteraction;
+
+/* Returns whether this control currently has at least one active drag session.
+ */
+@property (nonatomic, readonly, getter=isTextDragActive) BOOL textDragActive;
+
+@property (nonatomic) UITextDragOptions textDragOptions;
+
+@end
+
+
+@class UIDragItem, UITargetedDragPreview;
+@protocol UIDragSession, UITextDragRequest;
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UITextDragDelegate <NSObject>
+
+@optional
+
+/* Implement this to provide custom drag items when dragging out of a text control.
+ * If you return an empty array here, no drag will occur.
+ * The drag request provides the text range from which the user is dragging, and
+ * a set of default drag items which would be used if this delegate method were
+ * not implemented. You can modify and/or augment these at will.
+ *
+ * Note: this method might be called more than once. For instance, if the control
+ * is asked to provide more items to add to an existing session.
+ * You can detect this by checking the `existingItems` in the drag request.
+ */
+- (NSArray<UIDragItem *> *)textDraggableView:(UIView<UITextDraggable> *)textDraggableView itemsForDrag:(id<UITextDragRequest>)dragRequest;
+
+/* Provide a preview for lifting the item out of the text control.
+ * If you return nil, the drag interaction will provide a default preview.
+ *
+ * Note: This will not be called for items obtained from a UITextDragRequest’s suggestedItems
+ * (via textDraggableView:itemsForDrag:).
+ * The text control will use its own previews for those items.
+ */
+- (nullable UITargetedDragPreview *)textDraggableView:(UIView<UITextDraggable> *)textDraggableView dragPreviewForLiftingItem:(UIDragItem *)item session:(id<UIDragSession>)session;
+
+/* Called when the lift animation is about to start.
+ * Use the animator to animate your own changes alongside the system animation,
+ * or to be called when the lift animation completes.
+ */
+- (void)textDraggableView:(UIView<UITextDraggable> *)textDraggableView willAnimateLiftWithAnimator:(id<UIDragAnimating>)animator session:(id<UIDragSession>)session;
+
+/* Called when the user actually begins dragging.
+ * At that point, the text has lifted out of the text control.
+ * `textDraggableView:dragSessionDidEnd:withOperation:` will be called when the drag ends.
+ */
+- (void)textDraggableView:(UIView<UITextDraggable> *)textDraggableView dragSessionWillBegin:(id<UIDragSession>)session;
+
+/* Called when a drag out of this text control has ended.
+ * The operation tells you what happened on the drop side.
+ */
+- (void)textDraggableView:(UIView<UITextDraggable> *)textDraggableView dragSessionDidEnd:(id<UIDragSession>)session withOperation:(UIDropOperation)operation;
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UITextDragRequest <NSObject>
+
+@required
+
+/* The text range being dragged.
+ */
+@property (nonatomic, readonly) UITextRange *dragRange;
+
+/* The suggested items that the text control would return,
+ * if the responsible delegate method were not implemented.
+ * This is populated lazily, so only use it when you need it.
+ */
+@property (nonatomic, readonly) NSArray<UIDragItem *> *suggestedItems;
+
+/* The existing items in the session.
+ * Will be filled when we request new items.
+ */
+@property (nonatomic, readonly) NSArray<UIDragItem *> *existingItems;
+
+/* Indicates whether the drag context contains a selection.
+ * Use this to disable dragging from an attachment or links
+ * without them being selected. (In those cases, `selected` will be false.)
+ * For regular dragged text, this will always be true.
+ */
+@property (nonatomic, readonly, getter=isSelected) BOOL selected;
+
+/* The current drag session.
+ */
+@property (nonatomic, readonly) id<UIDragSession> dragSession;
+
+@end
+
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextDragging.h>
+#endif
+// ==========  UIKit.framework/Headers/UIFeedbackGenerator.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFeedbackGenerator.h>)
+//
+//  UIFeedbackGenerator.h
+//  UIKit
+//
+//  Copyright © 2016-2018 Apple Inc. All rights reserved.
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+// UIFeedbackGenerator is an abstract class that should not be used directly
+UIKIT_CLASS_AVAILABLE_IOS_ONLY(10_0) @interface UIFeedbackGenerator : NSObject
+
+/// informs self that it will likely receive events soon, so that it can ensure minimal latency for any feedback generated
+/// safe to call more than once before the generator receives an event, if events are still imminently possible
+- (void)prepare;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIFeedbackGenerator.h>
+#endif
+// ==========  UIKit.framework/Headers/UINavigationItem.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UINavigationItem.h>)
+//
+//  UINavigationItem.h
+//  UIKit
+//
+//  Copyright © 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIView.h>
+#import <UIKit/UIBarButtonItem.h>
+
+@class UISearchController;
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, UINavigationItemLargeTitleDisplayMode) {
+    /// Automatically use the large out-of-line title based on the state of the previous item in the navigation bar. An item with largeTitleDisplayMode=Automatic will show or hide the large title based on the request of the previous navigation item. If the first item pushed is set to Automatic, then it will show the large title if the navigation bar has prefersLargeTitles=YES.
+    UINavigationItemLargeTitleDisplayModeAutomatic,
+    /// Always use a larger title when this item is top most.
+    UINavigationItemLargeTitleDisplayModeAlways,
+    /// Never use a larger title when this item is top most.
+    UINavigationItemLargeTitleDisplayModeNever,
+} NS_SWIFT_NAME(UINavigationItem.LargeTitleDisplayMode);
+
+NS_CLASS_AVAILABLE_IOS(2_0) @interface UINavigationItem : NSObject <NSCoding>
+
+- (instancetype)initWithTitle:(NSString *)title NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
+
+@property(nullable, nonatomic,copy)   NSString        *title;             // Title when topmost on the stack. default is nil
+@property(nullable, nonatomic,strong) UIView          *titleView;         // Custom view to use in lieu of a title. May be sized horizontally. Only used when item is topmost on the stack.
+
+@property(nullable,nonatomic,copy)   NSString *prompt __TVOS_PROHIBITED;     // Explanatory text to display above the navigation bar buttons.
+@property(nullable,nonatomic,strong) UIBarButtonItem *backBarButtonItem __TVOS_PROHIBITED; // Bar button item to use for the back button in the child navigation item.
+
+@property(nonatomic,assign) BOOL hidesBackButton __TVOS_PROHIBITED; // If YES, this navigation item will hide the back button when it's on top of the stack.
+- (void)setHidesBackButton:(BOOL)hidesBackButton animated:(BOOL)animated __TVOS_PROHIBITED;
+
+/* Use these properties to set multiple items in a navigation bar.
+ The older single properties (leftBarButtonItem and rightBarButtonItem) now refer to
+ the first item in the respective array of items.
+ 
+ NOTE: You'll achieve the best results if you use either the singular properties or
+ the plural properties consistently and don't try to mix them.
+ 
+ leftBarButtonItems are placed in the navigation bar left to right with the first
+ item in the list at the left outside edge and left aligned.
+ rightBarButtonItems are placed right to left with the first item in the list at
+ the right outside edge and right aligned.
+ */
+@property(nullable,nonatomic,copy) NSArray<UIBarButtonItem *> *leftBarButtonItems NS_AVAILABLE_IOS(5_0);
+@property(nullable,nonatomic,copy) NSArray<UIBarButtonItem *> *rightBarButtonItems NS_AVAILABLE_IOS(5_0);
+- (void)setLeftBarButtonItems:(nullable NSArray<UIBarButtonItem *> *)items animated:(BOOL)animated NS_AVAILABLE_IOS(5_0);
+- (void)setRightBarButtonItems:(nullable NSArray<UIBarButtonItem *> *)items animated:(BOOL)animated NS_AVAILABLE_IOS(5_0);
+
+/* By default, the leftItemsSupplementBackButton property is NO. In this case,
+ the back button is not drawn and the left item or items replace it. If you
+ would like the left items to appear in addition to the back button (as opposed to instead of it)
+ set leftItemsSupplementBackButton to YES.
+ */
+@property(nonatomic) BOOL leftItemsSupplementBackButton NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED;
+
+// Some navigation items want to display a custom left or right item when they're on top of the stack.
+// A custom left item replaces the regular back button unless you set leftItemsSupplementBackButton to YES
+@property(nullable, nonatomic,strong) UIBarButtonItem *leftBarButtonItem;
+@property(nullable, nonatomic,strong) UIBarButtonItem *rightBarButtonItem;
+- (void)setLeftBarButtonItem:(nullable UIBarButtonItem *)item animated:(BOOL)animated;
+- (void)setRightBarButtonItem:(nullable UIBarButtonItem *)item animated:(BOOL)animated;
+
+/// When UINavigationBar.prefersLargeTitles=YES, this property controls when the larger out-of-line title is displayed. If prefersLargeTitles=NO, this property has no effect. The default value is Automatic.
+@property (nonatomic, readwrite, assign) UINavigationItemLargeTitleDisplayMode largeTitleDisplayMode API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos);
+
+// A view controller that will be shown inside of a navigation controller can assign a UISearchController to this property to display the search controller’s search bar in its containing navigation controller’s navigation bar.
+@property (nonatomic, retain, nullable) UISearchController *searchController API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos);
+
+// If this property is true (the default), the searchController’s search bar will hide as the user scrolls in the top view controller’s scroll view. If false, the search bar will remain visible and pinned underneath the navigation bar.
+@property (nonatomic) BOOL hidesSearchBarWhenScrolling API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos);
+
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UINavigationItem.h>
+#endif
+// ==========  UIKit.framework/Headers/UIDocumentBrowserViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<DocumentManager/UIDocumentBrowserViewController.h>)
+//
+//  UIDocumentBrowserViewController.h
+//  UIKit
+//
+//  Copyright © 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIViewController.h>
+#import <UIKit/UIViewControllerTransitioning.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol UIDocumentBrowserViewControllerDelegate;
+@class UIImage, UIColor, UIActivity, UIActivityViewController, UIDocumentBrowserAction, UIDocumentBrowserTransitionController;
+
+extern NSString * const UIDocumentBrowserErrorDomain API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos,watchos,tvos) ;
+typedef NS_ERROR_ENUM(UIDocumentBrowserErrorDomain, UIDocumentBrowserErrorCode) {
+    UIDocumentBrowserErrorGeneric                                      = 1,
+    UIDocumentBrowserErrorNoLocationAvailable API_AVAILABLE(ios(12.0))  = 2,
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos,watchos,tvos) ;
+
+typedef NS_ENUM(NSUInteger, UIDocumentBrowserImportMode) {
+    UIDocumentBrowserImportModeNone,
+    UIDocumentBrowserImportModeCopy,
+    UIDocumentBrowserImportModeMove,
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos,watchos,tvos)  NS_SWIFT_NAME(UIDocumentBrowserViewController.ImportMode);
+
+typedef NS_ENUM(NSUInteger, UIDocumentBrowserUserInterfaceStyle) {
+    UIDocumentBrowserUserInterfaceStyleWhite = 0,
+    UIDocumentBrowserUserInterfaceStyleLight,
+    UIDocumentBrowserUserInterfaceStyleDark,
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos,watchos,tvos)  NS_SWIFT_NAME(UIDocumentBrowserViewController.BrowserUserInterfaceStyle);
+
+
+#pragma mark -
+
+/// UIDocumentBrowserViewController is a view controller to browse the files on the user's device or cloud services and open them directly in your application
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos,watchos,tvos) 
+@interface UIDocumentBrowserViewController : UIViewController <NSCoding>
+
+/// @param allowedContentTypes  The document types that the user should be able to open. If nil, the types specified via the CFBundleDocumentTypes key in the application plist will be used instead.
+- (instancetype)initForOpeningFilesWithContentTypes:(nullable NSArray <NSString *> *)allowedContentTypes NS_DESIGNATED_INITIALIZER;
+
+/// Please use the designated initializers above instead.
+- (instancetype)initWithNibName:(nullable NSString *)nibName bundle:(nullable NSBundle *)bundle NS_UNAVAILABLE;
+
+@property (nullable, nonatomic, weak) id <UIDocumentBrowserViewControllerDelegate> delegate;
+
+
+#pragma mark Behaviors
+
+/// Defaults to YES
+@property (assign, nonatomic) BOOL allowsDocumentCreation;
+
+/// Defaults to NO
+@property (assign, nonatomic) BOOL allowsPickingMultipleItems;
+
+@property (readonly, copy, nonatomic) NSArray<NSString *> *allowedContentTypes;
+
+
+#pragma mark Additional Navigation Bar Buttons
+
+/// An array of buttons that will be added to the existing buttons in the UIDocumentBrowserViewController navigation bar
+@property (strong, nonatomic) NSArray <UIBarButtonItem *> *additionalLeadingNavigationBarButtonItems;
+
+/// An array of buttons that will be added to the existing buttons in the UIDocumentBrowserViewController navigation bar
+@property (strong, nonatomic) NSArray <UIBarButtonItem *> *additionalTrailingNavigationBarButtonItems;
+
+
+#pragma mark Reveal Items
+
+/// Called to reveal a document at the URL.
+/// Typically called from the application delegate method application:openURL:options:; to let the application present the document.
+- (void)revealDocumentAtURL:(NSURL *)url importIfNeeded:(BOOL)importIfNeeded completion:(nullable void(^)(NSURL * _Nullable revealedDocumentURL,  NSError * _Nullable error))completion;
+
+
+#pragma mark Document Import
+
+/// Allow a document to be imported next to another document.
+- (void)importDocumentAtURL:(NSURL *)documentURL nextToDocumentAtURL:(NSURL *)neighbourURL mode:(UIDocumentBrowserImportMode)importMode completionHandler:(void (^)(NSURL * _Nullable, NSError * _Nullable))completion;
+
+
+#pragma mark Item Presentation
+
+/// A UIDocumentBrowserTransitionController object is used to display a loading indicator, while the application is spending time on time-consuming operations (e.g., loading, parsing, …) after having finished the file download, and before presenting it. To be used together with the UIViewControllerTransitioningDelegate protocol for custom view controller transitions.
+- (UIDocumentBrowserTransitionController *)transitionControllerForDocumentAtURL:(NSURL *)documentURL API_AVAILABLE(ios(12.0)) NS_SWIFT_NAME(transitionController(forDocumentAt:));
+
+- (UIDocumentBrowserTransitionController *)transitionControllerForDocumentURL:(NSURL *)documentURL API_DEPRECATED_WITH_REPLACEMENT("transitionControllerForDocumentAtURL:", ios(11.0,12.0));
+
+
+#pragma mark Custom actions
+
+/// Allows clients to add custom actions in the menu and the navigation bar. These actions are contextual to the document items.
+@property (strong, nonatomic) NSArray <UIDocumentBrowserAction *> *customActions;
+
+#pragma mark UI Customization
+
+/// Allows clients to customize the look of the browser. Default: UIDocumentBrowserUserInterfaceStyleWhite
+@property (assign, nonatomic) UIDocumentBrowserUserInterfaceStyle browserUserInterfaceStyle;
+
+
+@end
+
+
+#pragma mark -
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos,watchos,tvos) 
+@protocol UIDocumentBrowserViewControllerDelegate <NSObject>
+
+@optional
+
+/// Called when the user validates a selection of items to open or pick.
+/// If you have created this document manager to open files, you should then open the document, potentially using a @c UIDocumentBrowserTransitionController for the transition.
+- (void)documentBrowser:(UIDocumentBrowserViewController *)controller didPickDocumentURLs:(NSArray <NSURL *> *)documentURLs API_DEPRECATED_WITH_REPLACEMENT("documentBrowser:didPickDocumentsAtURLs:", ios(11.0, 12.0));
+
+- (void)documentBrowser:(UIDocumentBrowserViewController *)controller didPickDocumentsAtURLs:(NSArray <NSURL *> *)documentURLs API_AVAILABLE(ios(12.0));
+
+
+#pragma mark Document Creation Support
+
+/// When the user requests the creation of a new document, this method will be called. The application can then, optionally, present UI
+/// it deems appropriate to let the user configure the new document (for example, it could show a list of templates).
+/// When done, create an empty document or a copy of your template to a temporary location.
+/// Then use the importHandler to pass the document URL to be imported.
+/// If the user cancels the document creation, it's still expetected to call importHandler(nil, UIDocumentBrowserImportModeNone).
+/// The Document Browser will asynchronously move the document to its final destination and call back one of the following delegate methods:
+/// -documentBrowser:didImportDocumentURL:toDestinationURL:
+/// -documentBrowser:failedToImportDocumentAtURL:error:
+/// The app should wait for the delegate callbacks before presenting the imported document at the destination URL. Usage of UIDocument is recommended.
+/// If you do not implement this method, document creation will not be available.
+- (void)documentBrowser:(UIDocumentBrowserViewController *)controller didRequestDocumentCreationWithHandler:(void(^)(NSURL *_Nullable urlToImport, UIDocumentBrowserImportMode importMode))importHandler;
+- (void)documentBrowser:(UIDocumentBrowserViewController *)controller didImportDocumentAtURL:(NSURL *)sourceURL toDestinationURL:(NSURL *)destinationURL;
+- (void)documentBrowser:(UIDocumentBrowserViewController *)controller failedToImportDocumentAtURL:(NSURL *)documentURL error:(NSError * _Nullable)error;
+
+#pragma mark Activities
+
+/// Allows clients to add application specific UIActivity instances
+- (NSArray<__kindof UIActivity *> *)documentBrowser:(UIDocumentBrowserViewController *)controller applicationActivitiesForDocumentURLs:(NSArray <NSURL *> *)documentURLs;
+
+/// Implement this to customize the UIActivityViewController before it's presented.
+- (void)documentBrowser:(UIDocumentBrowserViewController *)controller willPresentActivityViewController:(UIActivityViewController *)activityViewController;
+
+@end
+
+
+#pragma mark -
+
+/// Class to handle the loading and animation transition when opening or closing a document.
+/// @discussion You can use this object to display a loading indicator if you need time to perform time-consuming operations (loading, parsing, …) after the document download and before presenting it. You can also get a transition controller to pass to UIKit when pushing or presenting your document view
+/// in response to @c documentBrowser:didPickItem:, or when popping or dismissing it.
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos,watchos,tvos) 
+@interface UIDocumentBrowserTransitionController : NSObject <UIViewControllerAnimatedTransitioning>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/// An optional progress can be displayed on the document thumbnail while the document is loading (during opening).
+@property (strong, nonatomic, nullable) NSProgress *loadingProgress;
+
+
+/// This view will be used for the zoom transition from/to the document collection view.
+/// If UIDocumentBrowserViewController is being dismissed, this view should be a subview of the presented view controller's view
+/// If UIDocumentBrowserViewController is being presented, this view should be a subview of the presenting view controller's view
+@property (weak, nullable, nonatomic) UIView *targetView;
+
+@end
+
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <DocumentManager/UIDocumentBrowserViewController.h>
+#endif
+// ==========  UIKit.framework/Headers/UIPrinter.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPrinter.h>)
 //
 //  UIPrinter.h
 //  UIKit
 //
-//  Copyright (c) 2013-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
     
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UIPrinter : NSObject
+NS_CLASS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED @interface UIPrinter : NSObject
 
 /*!
  *  @enum       UIPrinterJobTypes
@@ -7552,7 +11491,7 @@ typedef NS_OPTIONS(NSInteger, UIPrinterJobTypes) {
     UIPrinterJobTypeRoll = 1 << 5,
     UIPrinterJobTypeLargeFormat = 1 << 6,
     UIPrinterJobTypePostcard = 1 << 7
-} NS_ENUM_AVAILABLE_IOS(8_0);
+} NS_ENUM_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 
 
 /*!
@@ -7638,12 +11577,343 @@ typedef NS_OPTIONS(NSInteger, UIPrinterJobTypes) {
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPrinter.h>
+#endif
+// ==========  UIKit.framework/Headers/UITargetedDragPreview.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITargetedDragPreview.h>)
+//
+//  UITargetedDragPreview.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIDragPreviewParameters, UIView;
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @interface UIDragPreviewTarget : NSObject <NSCopying>
+
+/* UIDragPreviewTarget specifies where a drag preview should come from, or go to.
+ *
+ * `container` must be a view that is currently in a window.
+ * `center` specifies where the center of the drag preview should go,
+ * in `container`'s coordinate system.
+ * `transform` is an additional transform to apply to the drag preview,
+ * for special effects like rotating or scaling the preview.
+ * Use CGAffineTransformIdentity if you only want the preview to move.
+ */
+- (instancetype)initWithContainer:(UIView *)container center:(CGPoint)center transform:(CGAffineTransform)transform NS_DESIGNATED_INITIALIZER;
+
+/* As above, but with transform = CGAffineTransformIdentity.
+ */
+- (instancetype)initWithContainer:(UIView *)container center:(CGPoint)center;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@property (nonatomic, readonly) UIView *container;
+@property (nonatomic, readonly) CGPoint center;
+@property (nonatomic, readonly) CGAffineTransform transform;
+
+@end
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @interface UITargetedDragPreview : NSObject <NSCopying>
+
+/* UITargetedDragPreview is a preview used during a lift, drop, or cancel animation.
+ *
+ * The preview will show the view, including all subviews, live. 
+ * The UITargetedDragPreview will not change or move the view.
+ */
+
+/* To use this initializer, the view need not be in a window.
+ */
+- (instancetype)initWithView:(UIView *)view parameters:(UIDragPreviewParameters *)parameters target:(UIDragPreviewTarget *)target NS_DESIGNATED_INITIALIZER;
+
+/* To use this initializer, the view must be in a window.
+ * Sets the target based on the view's current superview, center, and transform.
+ */
+- (instancetype)initWithView:(UIView *)view parameters:(UIDragPreviewParameters *)parameters;
+
+/* To use this initializer, the view must be in a window.
+ * Sets the parameters to defaults.
+ * Sets the target based on the view's current superview, center, and transform.
+ */
+- (instancetype)initWithView:(UIView *)view;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@property (nonatomic, readonly) UIDragPreviewTarget* target;
+
+@property (nonatomic, readonly) UIView *view;
+
+@property (nonatomic, readonly, copy) UIDragPreviewParameters *parameters;
+
+/* Provide the size of the item.
+ * You might use this size to create an appropriately-sized gap in your view,
+ * where this item will land when it is dropped.
+ */
+@property (nonatomic, readonly) CGSize size;
+
+/* Returns a preview with the same view and parameters, but a new target.
+ *
+ * You might call this in a UIDropInteractionDelegate in
+ * -dropInteraction:previewForDroppingItem:withDefault:, or in
+ * a UIDropInteractionDelegate in -dropInteraction:previewForCancellingItem:withDefault:,
+ * to direct the default UITargetedDragPreview to a different target.
+ */
+- (UITargetedDragPreview *)retargetedPreviewWithTarget:(UIDragPreviewTarget *)newTarget;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITargetedDragPreview.h>
+#endif
+// ==========  UIKit.framework/Headers/UIDragInteraction.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDragInteraction.h>)
+//
+//  UIDragInteraction.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIDropInteraction.h>
+#import <UIKit/UIInteraction.h>
+#import <UIKit/UIViewAnimating.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol UIDragInteractionDelegate, UIDragSession;
+@class UIDragItem, UITargetedDragPreview;
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @protocol UIDragAnimating <NSObject>
+
+/* Instances of UIDragAnimating provide you a way to animate your own changes
+ * alongside the drag and drop system's animations.
+ *
+ * Animatable view properties that are set by the animation block will be
+ * animated to their new values. 
+ */
+- (void)addAnimations:(void (^)(void))animations;
+- (void)addCompletion:(void (^)(UIViewAnimatingPosition finalPosition))completion;
+
+@end
+
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @interface UIDragInteraction : NSObject <UIInteraction>
+
+- (instancetype)initWithDelegate:(id<UIDragInteractionDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@property (nonatomic, nullable, readonly, weak) id<UIDragInteractionDelegate> delegate;
+
+/* Determines whether this interaction allows recognition of other gesture recognizers during the lift.
+ * If true, the interaction will be cancelled during the lift if another gesture recognizer recognizes.
+ * If false (the default value), all competing gesture recognizers will be failed when the lift begins.
+ * Note: UILongPressGestureRecognizers are always delayed and simultaneous during the lift.
+ */
+@property (nonatomic) BOOL allowsSimultaneousRecognitionDuringLift;
+
+/* Whether this interaction is allowed to drag.
+ * If true, the interaction will use touches to begin drags and/or add items to drags.
+ * If false, it will ignore touches.
+ */
+@property (nonatomic, getter=isEnabled) BOOL enabled;
+
+/* The default value of `enabled` in newly created UIDragInteractions.
+ * The value depends on the device.
+ */
+@property (class, nonatomic, readonly, getter=isEnabledByDefault) BOOL enabledByDefault;
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos) @protocol UIDragInteractionDelegate <NSObject>
+
+@required
+
+/* Provide items to begin a drag.
+ *
+ * If these items represent things that are displayed in a linear order
+ * (for example, rows in a table), provide them in the same order, first
+ * to last.
+ *
+ * If an empty array is returned, then no drag will begin.
+ */
+- (NSArray<UIDragItem *> *)dragInteraction:(UIDragInteraction *)interaction itemsForBeginningSession:(id<UIDragSession>)session;
+
+@optional
+
+/* Provide a preview to display while lifting the drag item.
+ * Return nil to indicate that this item is not visible and should have no lift animation.
+ * If not implemented, a UITargetedDragPreview initialized with interaction.view will be used.
+ */
+- (nullable UITargetedDragPreview *)dragInteraction:(UIDragInteraction *)interaction previewForLiftingItem:(UIDragItem *)item session:(id<UIDragSession>)session;
+
+/* Called when the lift animation is about to start.
+ * Use the animator to animate your own changes alongside the system animation,
+ * or to be called when the lift animation completes.
+ */
+- (void)dragInteraction:(UIDragInteraction *)interaction willAnimateLiftWithAnimator:(id<UIDragAnimating>)animator session:(id<UIDragSession>)session;
+
+/* Drag session lifecycle. */
+
+/* Called when the the items are in their fully lifted appearance,
+ * and the user has started to drag the items away.
+ */
+- (void)dragInteraction:(UIDragInteraction *)interaction sessionWillBegin:(id<UIDragSession>)session;
+
+/* Return whether this drag allows the "move" drop operation to happen.
+ * This only applies to drops inside the same app. Drops in other apps are always copies.
+ *
+ * If true, then a UIDropInteraction's delegate's -dropInteraction:sessionDidUpdate:
+ * may choose to return UIDropOperationMove, and that operation will be provided to
+ * -dragInteraction:session:willEndWithOperation: and -dragInteraction:session:didEndWithOperation:.
+ *
+ * If not implemented, defaults to true.
+ */
+- (BOOL)dragInteraction:(UIDragInteraction *)interaction sessionAllowsMoveOperation:(id<UIDragSession>)session;
+
+/* Return whether this drag is restricted to only this application.
+ *
+ * If true, then the drag will be restricted. Only this application will be
+ * able to see the drag, and other applications will not.
+ * If the user drops it on another application, the drag will be cancelled.
+ *
+ * If false, then the drag is not restricted. Other applications may see the drag,
+ * and the user may drop it onto them.
+ *
+ * If not implemented, defaults to false.
+ *
+ * Note that this method is called only on devices that support dragging across applications.
+ */
+- (BOOL)dragInteraction:(UIDragInteraction *)interaction sessionIsRestrictedToDraggingApplication:(id<UIDragSession>)session;
+
+/* Return whether this drag's items' previews should be shown in their full
+ * original size while over the source view. For instance, if you are reordering
+ * items, you may want them not to shrink like they otherwise would.
+ *
+ * If not implemented, defaults to false.
+ */
+- (BOOL)dragInteraction:(UIDragInteraction *)interaction prefersFullSizePreviewsForSession:(id<UIDragSession>)session;
+
+/* Called when the drag has moved (because the user's touch moved).
+ * Use -[UIDragSession locationInView:] to get its new location.
+ */
+- (void)dragInteraction:(UIDragInteraction *)interaction sessionDidMove:(id<UIDragSession>)session;
+
+/* Called when the user is done dragging, and the drag will finish.
+ *
+ * If the operation is UIDropOperationCancel or UIDropOperationForbidden,
+ * the delegate should prepare its views to show an appropriate appearance 
+ * before the cancel animation starts.
+ */
+- (void)dragInteraction:(UIDragInteraction *)interaction session:(id<UIDragSession>)session willEndWithOperation:(UIDropOperation)operation;
+
+/* Called when the user is done dragging and all related animations are
+ * completed. The app should now return to its normal appearance.
+ *
+ * If the operation is UIDropOperationCopy or UIDropOperationMove, 
+ * then data transfer will begin, and -dragInteraction:sessionDidTransferItems: will be called later.
+ */
+- (void)dragInteraction:(UIDragInteraction *)interaction session:(id<UIDragSession>)session didEndWithOperation:(UIDropOperation)operation;
+
+/* Called after a drop happened and the handler of the drop has received
+ * all of the data that it requested. You may now clean up any extra information
+ * relating to those items or their item providers.
+ */
+- (void)dragInteraction:(UIDragInteraction *)interaction sessionDidTransferItems:(id<UIDragSession>)session;
+
+/* Adding items to an existing drag. */
+
+/* To allow touches on this view to add items to an existing drag,
+ * implement `-dragInteraction:itemsForAddingToSession:withTouchAtPoint:`.
+ *
+ * If the provided session is an appropriate one to use, then return an array of items,
+ * just like in `-dragInteraction:itemsForBeginningSession:`. They will be added to the 
+ * drag session.
+ * Afterwards, `-dragInteraction:session:willAddItems:forInteraction:` will be sent
+ * to each interaction which has contributed items to the session, including this one.
+ *
+ * Otherwise, return an empty array. No items will be added, and the touch
+ * will be handled as if the other drag session did not exist.
+ *
+ * If this method is not implemented, acts as though an an empty array was returned.
+ *
+ * Use the point, in the view's coordinate space, to determine what part of your view
+ * has been touched.
+ */
+- (NSArray<UIDragItem *> *)dragInteraction:(UIDragInteraction *)interaction itemsForAddingToSession:(id<UIDragSession>)session withTouchAtPoint:(CGPoint)point;
+
+/* If there are two or more existing drag sessions, it may not be clear to the user
+ * which session items will be added to. Therefore, by default, we do not add to any session.
+ *
+ * If you *do* want to add the item to a session, implement
+ * `-dragInteraction:sessionForAddingItems:withTouchAtPoint:` and return the
+ * appropriate session. This should be rare.
+ *
+ * To continue without adding items, return nil.
+ *
+ * If this method is not implemented, defaults to nil.
+ */
+- (nullable id<UIDragSession>)dragInteraction:(UIDragInteraction *)interaction sessionForAddingItems:(NSArray<id<UIDragSession>> *)sessions withTouchAtPoint:(CGPoint)point;
+
+/* Similar to -dragInteraction:sessionWillBegin:, but for
+ * items added to an session after it has already begun.
+ *
+ * Note that the interaction that is causing the items to be added
+ * may be different than the interaction that started the drag.
+ * This method is called on the delegates of all interactions that ever added items
+ * to this session. `addingInteraction` is the interaction that is causing
+ * these new items to be dragged.
+ */
+- (void)dragInteraction:(UIDragInteraction *)interaction session:(id<UIDragSession>)session willAddItems:(NSArray<UIDragItem *> *)items forInteraction:(UIDragInteraction *)addingInteraction;
+
+/* Drag cancellation animation. */
+
+/* Called when the drag is cancelled, once for each visible item.
+ * Provide a preview to animate the item back to where it belongs.
+ * We provide `defaultPreview` which would move the current preview back to where it came from.
+ * You may return:
+ * - defaultPreview, to use it as-is
+ * - nil, to fade the drag item in place
+ * - [defaultPreview retargetedPreviewWithTarget:] to move the preview to a different target
+ * - a UITargetedDragPreview that you create however you like
+ */
+- (nullable UITargetedDragPreview *)dragInteraction:(UIDragInteraction *)interaction previewForCancellingItem:(UIDragItem *)item withDefault:(UITargetedDragPreview *)defaultPreview;
+
+/* Called when the cancel animation is about to start, once for each item,
+ * whether it is visible or not.
+ * Use the animator to animate your own changes alongside the system animation.
+ */
+- (void)dragInteraction:(UIDragInteraction *)interaction item:(UIDragItem *)item willAnimateCancelWithAnimator:(id<UIDragAnimating>)animator;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDragInteraction.h>
+#endif
 // ==========  UIKit.framework/Headers/UIImage.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIImage.h>)
 //
 //  UIImage.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7654,11 +11924,16 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIKitDefines.h>
 #import <UIKit/UIColor.h>
 #import <UIKit/UIGeometry.h>
+#import <UIKit/NSItemProvider+UIKitAdditions.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 #if __has_include(<UIKit/UITraitCollection.h>)
 @class UITraitCollection, UIImageAsset;
+#endif
+
+#if __has_include(<UIKit/UIGraphicsImageRenderer.h>)
+@class UIGraphicsImageRendererFormat;
 #endif
 
 typedef NS_ENUM(NSInteger, UIImageOrientation) {
@@ -7764,23 +12039,42 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIImage : NSObject <NSSecureCoding>
 - (UIImage *)imageWithRenderingMode:(UIImageRenderingMode)renderingMode NS_AVAILABLE_IOS(7_0);
 @property(nonatomic, readonly) UIImageRenderingMode renderingMode NS_AVAILABLE_IOS(7_0);
 
+#if __has_include(<UIKit/UIGraphicsImageRenderer.h>)
+// Returns an optimal UIGraphicsImageRendererFormat instance for this image, maintaining pixel format and color space.
+@property (nonatomic, readonly) UIGraphicsImageRendererFormat *imageRendererFormat NS_AVAILABLE_IOS(10_0);
+#endif
+
 #if __has_include(<UIKit/UITraitCollection.h>)
 @property (nonatomic, readonly, copy) UITraitCollection *traitCollection NS_AVAILABLE_IOS(8_0); // describes the image in terms of its traits
 @property (nullable, nonatomic, readonly) UIImageAsset *imageAsset NS_AVAILABLE_IOS(8_0); // The asset is not encoded along with the image. Returns nil if the image is not CGImage based.
 #endif
 
+// Creates a version of this image that, when assigned to a UIImageView’s image property, draws its underlying image contents horizontally mirrored when running under a right-to-left language. Affects the flipsForRightToLeftLayoutDirection property; does not affect the imageOrientation property.
+// This method cannot be used to create a left-to-right version of a right-to-left source image, and will be deprecated in a future release. New code should instead use -imageWithHorizontallyFlippedOrientation to construct a UIImageAsset.
 - (UIImage *)imageFlippedForRightToLeftLayoutDirection NS_AVAILABLE_IOS(9_0);
 @property (nonatomic, readonly) BOOL flipsForRightToLeftLayoutDirection NS_AVAILABLE_IOS(9_0);
 
+// Creates a version of this image with an imageOrientation property that is horizontally mirrored from this image’s. Does not affect the flipsForRightToLeftLayoutDirection property.
+- (UIImage *)imageWithHorizontallyFlippedOrientation NS_AVAILABLE_IOS(10_0);
+
 @end
+
+#if TARGET_OS_IOS
+@interface UIImage (NSItemProvider) <NSItemProviderReading, NSItemProviderWriting, UIItemProviderPresentationSizeProviding>
+#else
+@interface UIImage (NSItemProvider) <NSItemProviderReading, NSItemProviderWriting>
+#endif
+
+@end
+
 
 @interface UIImage(UIImageDeprecated)
 
 // use resizableImageWithCapInsets: and capInsets.
 
-- (UIImage *)stretchableImageWithLeftCapWidth:(NSInteger)leftCapWidth topCapHeight:(NSInteger)topCapHeight;
-@property(nonatomic,readonly) NSInteger leftCapWidth;   // default is 0. if non-zero, horiz. stretchable. right cap is calculated as width - leftCapWidth - 1
-@property(nonatomic,readonly) NSInteger topCapHeight;   // default is 0. if non-zero, vert. stretchable. bottom cap is calculated as height - topCapWidth - 1
+- (UIImage *)stretchableImageWithLeftCapWidth:(NSInteger)leftCapWidth topCapHeight:(NSInteger)topCapHeight __TVOS_PROHIBITED;
+@property(nonatomic,readonly) NSInteger leftCapWidth __TVOS_PROHIBITED;   // default is 0. if non-zero, horiz. stretchable. right cap is calculated as width - leftCapWidth - 1
+@property(nonatomic,readonly) NSInteger topCapHeight __TVOS_PROHIBITED;   // default is 0. if non-zero, vert. stretchable. bottom cap is calculated as height - topCapWidth - 1
 
 @end
 
@@ -7789,7 +12083,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIImage : NSObject <NSSecureCoding>
 @interface CIImage(UIKitAdditions)
 
 - (nullable instancetype)initWithImage:(UIImage *)image NS_AVAILABLE_IOS(5_0);
-- (nullable instancetype)initWithImage:(UIImage *)image options:(nullable NSDictionary *)options NS_AVAILABLE_IOS(5_0);
+- (nullable instancetype)initWithImage:(UIImage *)image options:(nullable NSDictionary<CIImageOption, id> *)options NS_AVAILABLE_IOS(5_0);
 
 @end
 #endif
@@ -7799,12 +12093,17 @@ UIKIT_EXTERN  NSData * __nullable UIImageJPEGRepresentation(UIImage * __nonnull 
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIImage.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPanGestureRecognizer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPanGestureRecognizer.h>)
 //
 //  UIPanGestureRecognizer.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -7818,23 +12117,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_CLASS_AVAILABLE_IOS(3_2) @interface UIPanGestureRecognizer : UIGestureRecognizer 
 
-@property (nonatomic)          NSUInteger minimumNumberOfTouches;   // default is 1. the minimum number of touches required to match
-@property (nonatomic)          NSUInteger maximumNumberOfTouches;   // default is UINT_MAX. the maximum number of touches that can be down
+@property (nonatomic)          NSUInteger minimumNumberOfTouches __TVOS_PROHIBITED;   // default is 1. the minimum number of touches required to match
+@property (nonatomic)          NSUInteger maximumNumberOfTouches __TVOS_PROHIBITED;   // default is UINT_MAX. the maximum number of touches that can be down
 
 - (CGPoint)translationInView:(nullable UIView *)view;                        // translation in the coordinate system of the specified view
 - (void)setTranslation:(CGPoint)translation inView:(nullable UIView *)view;
 
-- (CGPoint)velocityInView:(nullable UIView *)view;                           // velocity of the pan in pixels/second in the coordinate system of the specified view
+- (CGPoint)velocityInView:(nullable UIView *)view;                           // velocity of the pan in points/second in the coordinate system of the specified view
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPanGestureRecognizer.h>
+#endif
 // ==========  UIKit.framework/Headers/UIStoryboardSegue.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIStoryboardSegue.h>)
 //
 //  UIStoryboardSegue.h
 //  UIKit
 //
-//  Copyright 2011-2012 Apple Inc. All rights reserved.
+//  Copyright 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7863,7 +12167,7 @@ NS_CLASS_AVAILABLE_IOS(5_0) @interface UIStoryboardSegue : NSObject
 @end
 
 /// Encapsulates the source of a prospective unwind segue.
-/// You do not create instances of this class directly. Instead, UIKit creates an instance of this class and sends -destinationViewControllerForUnwindSource: to each ancestor of the sourceViewController until one returns a non-null result or the chain is exhausted.
+/// You do not create instances of this class directly. Instead, UIKit creates an instance of this class and sends -allowedChildViewControllersForUnwindingFromSource: to each ancestor of the sourceViewController until it finds a view controller which returns YES from -canPerformUnwindSegueAction:fromViewController:withSender:.
 NS_CLASS_AVAILABLE_IOS(9_0) @interface UIStoryboardUnwindSegueSource : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -7875,16 +12179,22 @@ NS_CLASS_AVAILABLE_IOS(9_0) @interface UIStoryboardUnwindSegueSource : NSObject
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIStoryboardSegue.h>
+#endif
 // ==========  UIKit.framework/Headers/UIActivityItemProvider.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIActivityItemProvider.h>)
 //
 //  UIActivityItemProvider.h
 //  UIKit
 //
-//  Copyright 2012-2014 Apple Inc. All rights reserved.
+//  Copyright 2012-2018 Apple Inc. All rights reserved.
 //
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <UIKit/UIKitDefines.h>
+#import <UIKit/UIActivity.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -7895,35 +12205,44 @@ NS_ASSUME_NONNULL_BEGIN
 @required
 
 - (id)activityViewControllerPlaceholderItem:(UIActivityViewController *)activityViewController;	// called to determine data type. only the class of the return type is consulted. it should match what -itemForActivityType: returns later
-- (nullable id)activityViewController:(UIActivityViewController *)activityViewController itemForActivityType:(NSString *)activityType;	// called to fetch data after an activity is selected. you can return nil.
+- (nullable id)activityViewController:(UIActivityViewController *)activityViewController itemForActivityType:(nullable UIActivityType)activityType;	// called to fetch data after an activity is selected. you can return nil.
 
 @optional
 
-- (NSString *)activityViewController:(UIActivityViewController *)activityViewController subjectForActivityType:(nullable NSString *)activityType; // if activity supports a Subject field. iOS 7.0
-- (NSString *)activityViewController:(UIActivityViewController *)activityViewController dataTypeIdentifierForActivityType:(nullable NSString *)activityType; // UTI for item if it is an NSData. iOS 7.0. will be called with nil activity and then selected activity
-- (nullable UIImage *)activityViewController:(UIActivityViewController *)activityViewController thumbnailImageForActivityType:(nullable NSString *)activityType suggestedSize:(CGSize)size; // if activity supports preview image. iOS 7.0
+- (NSString *)activityViewController:(UIActivityViewController *)activityViewController subjectForActivityType:(nullable UIActivityType)activityType; // if activity supports a Subject field. iOS 7.0
+- (NSString *)activityViewController:(UIActivityViewController *)activityViewController dataTypeIdentifierForActivityType:(nullable UIActivityType)activityType; // UTI for item if it is an NSData. iOS 7.0. will be called with nil activity and then selected activity
+- (nullable UIImage *)activityViewController:(UIActivityViewController *)activityViewController thumbnailImageForActivityType:(nullable UIActivityType)activityType suggestedSize:(CGSize)size; // if activity supports preview image. iOS 7.0
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(6_0) @interface UIActivityItemProvider : NSOperation <UIActivityItemSource>
+NS_CLASS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED @interface UIActivityItemProvider : NSOperation <UIActivityItemSource>
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithPlaceholderItem:(id)placeholderItem NS_DESIGNATED_INITIALIZER;               // placeHolder is the return value for -activityViewControllerPlaceholderItem:
 
 @property(nullable,nonatomic,strong,readonly) id        placeholderItem;
-@property(nullable,nonatomic,copy,readonly)   NSString *activityType;     // activity type available when -item is called. nil at other times. use this in your -item method to customize the data to return
+@property(nullable,nonatomic,copy,readonly)   UIActivityType activityType;     // activity type available when -item is called. nil at other times. use this in your -item method to customize the data to return
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonnull, nonatomic, readonly) id item;   // called on secondary thread when user selects an activity. you must subclass and return a non-nil value. The item can use the UIActivityItemSource protocol to return extra information
+#else
 - (nonnull id)item;   // called on secondary thread when user selects an activity. you must subclass and return a non-nil value. The item can use the UIActivityItemSource protocol to return extra information
+#endif
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIActivityItemProvider.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPrintError.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPrintError.h>)
 //
 //  UIPrintError.h
 //  UIKit
 //
-//  Copyright 2010-2012 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7931,21 +12250,27 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-UIKIT_EXTERN NSString *const UIPrintErrorDomain;
+UIKIT_EXTERN NSErrorDomain const UIPrintErrorDomain __TVOS_PROHIBITED;
 
-enum {
+typedef NS_ERROR_ENUM(UIPrintErrorDomain, UIPrintErrorCode) {
     UIPrintingNotAvailableError = 1,  // cannot print at this time
     UIPrintNoContentError,            // empty list of files or images
     UIPrintUnknownImageFormatError,   // unrecognized image format
     UIPrintJobFailedError,            // internal error with print job
-};
+} __TVOS_PROHIBITED;
 
-NS_ASSUME_NONNULL_END// ==========  UIKit.framework/Headers/UISnapBehavior.h
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPrintError.h>
+#endif
+// ==========  UIKit.framework/Headers/UISnapBehavior.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISnapBehavior.h>)
 //
 //  UISnapBehavior.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7960,17 +12285,180 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UISnapBehavior : UIDynamicBehavior
 - (instancetype)initWithItem:(id <UIDynamicItem>)item snapToPoint:(CGPoint)point NS_DESIGNATED_INITIALIZER;
 
 @property (nonatomic, assign) CGPoint snapPoint NS_AVAILABLE_IOS(9_0);
-@property (nonatomic, assign) CGFloat damping; // damping value from 0.0 to 1.0. 0.0 is the least oscillation.
+@property (nonatomic, assign) CGFloat damping; // damping value from 0.0 to 1.0. 1.0 is the least oscillation.
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISnapBehavior.h>
+#endif
+// ==========  UIKit.framework/Headers/UITextDropping.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextDropping.h>)
+//
+//  UITextDropping.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UITextInput.h>
+#import <UIKit/UITextDropProposal.h>
+#import <UIKit/UITextPasteConfigurationSupporting.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIDropInteraction;
+@protocol UITextDropDelegate;
+
+/* Defines a text droppable control.
+ */
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UITextDroppable <UITextInput, UITextPasteConfigurationSupporting>
+
+@property (nonatomic, weak, nullable) id<UITextDropDelegate> textDropDelegate;
+
+/* The text drop interaction that UIKit installs on the text control.
+ * Use this to explicitly disable drop interactions on system text controls,
+ * if desired.
+ */
+@property (nonatomic, readonly, nullable) UIDropInteraction *textDropInteraction;
+
+/* Returns whether this control currently has at least one active drag session.
+ */
+@property (nonatomic, readonly, getter=isTextDropActive) bool textDropActive;
+
+@end
+
+
+typedef NS_ENUM(NSUInteger, UITextDropEditability) {
+    /* A non-editable control will remain non-editable and
+     * the drop will not be allowed.
+     */
+    UITextDropEditabilityNo = 0,
+
+    /* A non-editable control will become editable for the drop
+     * only, but will be restored to non-editable afterwards.
+     */
+    UITextDropEditabilityTemporary,
+
+    /* A non-editable control will become editable and remain
+     * editable after the drop concludes.
+     */
+    UITextDropEditabilityYes,
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+
+@protocol UITextDropRequest;
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UITextDropDelegate <NSObject>
+
+@optional
+
+/* By default, when the text control is not editable, drops will not occur.
+ * However, there might be scenarios where dropping into a non-editable text control
+ * is desirable.
+ * If not implemented, uses UITextDropEditabilityNo.
+ */
+- (UITextDropEditability)textDroppableView:(UIView<UITextDroppable> *)textDroppableView willBecomeEditableForDrop:(id<UITextDropRequest>)drop;
+
+/* Defines whether a text control can accept a drag.
+ * Return a UITextDropProposal here to change the drag behavior.
+ * This will get called:
+ * - when the drag enters the text control,
+ * - when the *text position* changes while the drag moves over the text control
+ * - when the drag session changes (e.g. items were added)
+ *
+ * Note: this is called frequently, so try to do minimal work.
+ */
+- (UITextDropProposal*)textDroppableView:(UIView<UITextDroppable> *)textDroppableView proposalForDrop:(id<UITextDropRequest>)drop;
+
+/* Indicates that the drop is about to be performed.
+ * To modify the result of the items to be dropped, provide a pasteHandler on
+ * the text control, which will handle the conversion and pasting of the text.
+ */
+- (void)textDroppableView:(UIView<UITextDroppable> *)textDroppableView willPerformDrop:(id<UITextDropRequest>)drop;
+
+/* Provide a custom preview for dropping text into the text control.
+ *
+ * Only one preview is used, regardless of the number of items being dropped.
+ * Becase we're animating into one range of text, there is no need for individual
+ * previews.
+ *
+ * The defaultPreview is the preview that the control would normally use
+ * to animate the drop. It is based on the (ordered) combination of text
+ * representations for each item. (See UITextPasteDelegate to customize it.)
+ * It resembles the text that will be inserted into the view.
+ *
+ * If any of the items have not finished loading, this will be an animation into the
+ * location of the caret when the drop was being performed.
+ *
+ * Return nil to use the default preview of the underlying drop interaction.
+ */
+- (nullable UITargetedDragPreview *)textDroppableView:(UIView<UITextDroppable> *)textDroppableView previewForDroppingAllItemsWithDefault:(UITargetedDragPreview *)defaultPreview;
+
+/* Called when a drag has entered the text view.
+ */
+- (void)textDroppableView:(UIView<UITextDroppable> *)textDroppableView dropSessionDidEnter:(id<UIDropSession>)session;
+
+/* Called when the drag has updated. This is often, but not always, preceded by a call
+ * to -textDroppableView:proposalForDrop:.
+ *
+ * Note: this is called *very* frequently, so try to do minimal work.
+ */
+- (void)textDroppableView:(UIView<UITextDroppable> *)textDroppableView dropSessionDidUpdate:(id<UIDropSession>)session;
+
+/* Called when the drag has left the view.
+ */
+- (void)textDroppableView:(UIView<UITextDroppable> *)textDroppableView dropSessionDidExit:(id<UIDropSession>)session;
+
+/* Called when the drag has ended.
+ */
+- (void)textDroppableView:(UIView<UITextDroppable> *)textDroppableView dropSessionDidEnd:(id<UIDropSession>)session;
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UITextDropRequest <NSObject>
+
+/* The text position that the drag is over.
+ */
+@property (nonatomic, readonly) UITextPosition *dropPosition;
+
+/* The suggested proposal by the text control.
+ */
+@property (nonatomic, readonly) UITextDropProposal *suggestedProposal;
+
+/* Returns whether the drop is a local drop
+ * (that is, the drag and drop are in the same text control).
+ */
+@property (nonatomic, readonly, getter=isSameView) BOOL sameView;
+
+/* The current drop session. Use this to get the location of the
+ * session in the view, for example.
+ */
+@property (nonatomic, readonly) id<UIDropSession> dropSession;
+
+@end
+
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextDropping.h>
+#endif
 // ==========  UIKit.framework/Headers/UITableViewHeaderFooterView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITableViewHeaderFooterView.h>)
 //
 //  UITableViewHeaderFooterView.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7985,8 +12473,6 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UITableViewHeaderFooterView : UIView
 - (instancetype)initWithReuseIdentifier:(nullable NSString *)reuseIdentifier NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
-@property (nonatomic, strong, null_resettable) UIColor *tintColor;
-
 @property (nonatomic, readonly, strong, nullable) UILabel *textLabel;
 @property (nonatomic, readonly, strong, nullable) UILabel *detailTextLabel; // only supported for headers in grouped style
 
@@ -7995,17 +12481,88 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UITableViewHeaderFooterView : UIView
 
 @property (nonatomic, readonly, copy, nullable) NSString *reuseIdentifier;
 
-- (void)prepareForReuse;  // if the view is reusable (has a reuse identifier), this is called just before the view is returned from the table view method dequeueReusableHeaderFooterViewWithIdentifier:.  If you override, you MUST call super.
+- (void)prepareForReuse NS_REQUIRES_SUPER;  // if the view is reusable (has a reuse identifier), this is called just before the view is returned from the table view method dequeueReusableHeaderFooterViewWithIdentifier:.  If you override, you MUST call super.
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITableViewHeaderFooterView.h>
+#endif
+// ==========  UIKit.framework/Headers/UIGraphicsRendererSubclass.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIGraphicsRendererSubclass.h>)
+//
+//  UIGraphicsRendererSubclass.h
+//  UIKit
+//
+//  Copyright (c) 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIGraphicsRenderer.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef void (^UIGraphicsDrawingActions)(__kindof UIGraphicsRendererContext *rendererContext) NS_AVAILABLE_IOS(10_0);
+
+/*
+ To create a subclass of UIGraphicsRenderer, you must include this header in your implimentation and override at least the following methods:
+    + (Class)rendererContextClass
+    + (nullable CGContextRef)contextWithFormat:(UIGraphicsRendererFormat *)format
+ */
+@interface UIGraphicsRenderer (UIGraphicsRendererProtected)
+// The Class of your UIGraphicsRendererContext subclass
++ (Class)rendererContextClass NS_AVAILABLE_IOS(10_0);
+
+// Override this to create a context with a custom format
++ (nullable CGContextRef)contextWithFormat:(UIGraphicsRendererFormat *)format CF_RETURNS_RETAINED NS_AVAILABLE_IOS(10_0);
+
+// Override this to provide a CGContext created by a renderer with a custom initial configuration
++ (void)prepareCGContext:(CGContextRef)context withRendererContext:(UIGraphicsRendererContext *)rendererContext NS_AVAILABLE_IOS(10_0);
+
+// Invokes the drawingActions with a context generated by +contextWithFormat:, captured in an instance of +rendererContextClass, after prepreation by +prepareCGContext:withRendererContext:
+// This method is not intended to be overridden.
+- (BOOL)runDrawingActions:(NS_NOESCAPE UIGraphicsDrawingActions)drawingActions completionActions:(nullable NS_NOESCAPE UIGraphicsDrawingActions)completionActions error:(NSError **)error NS_AVAILABLE_IOS(10_0);
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIGraphicsRendererSubclass.h>
+#endif
+// ==========  UIKit.framework/Headers/UISelectionFeedbackGenerator.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISelectionFeedbackGenerator.h>)
+//
+//  UISelectionFeedbackGenerator.h
+//  UIKit
+//
+//  Copyright © 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIFeedbackGenerator.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+// UISelectionFeedbackGenerator is used to give user feedback when a selection changes
+UIKIT_CLASS_AVAILABLE_IOS_ONLY(10_0) @interface UISelectionFeedbackGenerator : UIFeedbackGenerator
+
+/// call when the selection changes (not on initial selection)
+- (void)selectionChanged;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISelectionFeedbackGenerator.h>
+#endif
 // ==========  UIKit.framework/Headers/UICollectionViewCell.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UICollectionViewCell.h>)
 //
 //  UICollectionViewCell.h
 //  UIKit
 //
-//  Copyright (c) 2011-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIView.h>
@@ -8018,6 +12575,19 @@ NS_ASSUME_NONNULL_BEGIN
 @class UICollectionView;
 @class UICollectionViewLayoutAttributes;
 @class UILongPressGestureRecognizer;
+
+typedef NS_ENUM(NSInteger, UICollectionViewCellDragState) {
+    UICollectionViewCellDragStateNone,
+    /* The cell is in the "lifting" state.
+     */
+    UICollectionViewCellDragStateLifting,
+    
+    /* A cell in the "dragging" state is left behind with a
+     * "ghosted" appearance to denote where the drag
+     * started from.
+     */
+    UICollectionViewCellDragStateDragging
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
 NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionReusableView : UIView
 
@@ -8053,6 +12623,13 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewCell : UICollectionReusab
 @property (nonatomic, getter=isSelected) BOOL selected;
 @property (nonatomic, getter=isHighlighted) BOOL highlighted;
 
+// Override this method to modify the visual appearance for a particular
+// dragState.
+//
+// Call super if you want to add to the existing default implementation.
+//
+- (void)dragStateDidChange:(UICollectionViewCellDragState)dragState API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
 // The background view is a subview behind all other views.
 // If selectedBackgroundView is different than backgroundView, it will be placed above the background view and animated in on selection.
 @property (nonatomic, strong, nullable) UIView *backgroundView;
@@ -8061,15 +12638,21 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewCell : UICollectionReusab
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UICollectionViewCell.h>
+#endif
 // ==========  UIKit.framework/Headers/UIInputViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIInputViewController.h>)
 //
 //  UIInputViewController.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <UIKit/UIViewController.h>
 #import <UIKit/UIInputView.h>
 #import <UIKit/UITextInput.h>
 
@@ -8081,6 +12664,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nullable, nonatomic, readonly) NSString *documentContextBeforeInput;
 @property (nullable, nonatomic, readonly) NSString *documentContextAfterInput;
+@property (nullable, nonatomic, readonly) NSString *selectedText API_AVAILABLE(ios(11.0));
+
+// An app can store UITextInputMode in its document context, when user switches to the document, the host will pass the inputMode as documentInputMode to the UIInputViewController,
+// which can switch to the inputMode and set primaryLanguage if it supports it.
+@property (nullable, nonatomic, readonly) UITextInputMode *documentInputMode NS_AVAILABLE_IOS(10_0);
+
+@property (nonatomic, readonly, copy) NSUUID *documentIdentifier API_AVAILABLE(ios(11.0));
 
 - (void)adjustTextPositionByCharacterOffset:(NSInteger)offset;
 
@@ -8096,8 +12686,19 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIInputViewController : UIViewController 
 // If specified, this will supersede any PrimaryLanguage in the Info.plist.
 @property (nullable, nonatomic, copy) NSString *primaryLanguage;
 
+// When this property is set to YES, the system dictation key, if provided, will be disabled. 
+@property (nonatomic) BOOL hasDictationKey;
+
+@property (nonatomic, readonly) BOOL hasFullAccess API_AVAILABLE(ios(11.0));
+@property (nonatomic, readonly) BOOL needsInputModeSwitchKey API_AVAILABLE(ios(11.0));
+
 - (void)dismissKeyboard;
 - (void)advanceToNextInputMode;
+
+// Launch inputMode list above the view when long pressing or swiping up from the view,
+// Advance to nextInputMode when short tapping on the view.
+// Example: [KeyboardButton addTarget:self action:@selector(handleInputModeListFromView:withEvent:) forControlEvents:UIControlEventAllTouchEvents].
+- (void)handleInputModeListFromView:(nonnull UIView *)view withEvent:(nonnull UIEvent *)event NS_AVAILABLE_IOS(10_0);
 
 // This will not provide a complete repository of a language's vocabulary.
 // It is solely intended to supplement existing lexicons.
@@ -8106,12 +12707,17 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIInputViewController : UIViewController 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIInputViewController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIMenuController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIMenuController.h>)
 //
 //  UIMenuController.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8126,13 +12732,17 @@ typedef NS_ENUM(NSInteger, UIMenuControllerArrowDirection) {
     UIMenuControllerArrowDown NS_ENUM_AVAILABLE_IOS(3_2),
     UIMenuControllerArrowLeft NS_ENUM_AVAILABLE_IOS(3_2),
     UIMenuControllerArrowRight NS_ENUM_AVAILABLE_IOS(3_2),
-};
+} __TVOS_PROHIBITED;
 
 @class UIView, UIMenuItem;
 
-NS_CLASS_AVAILABLE_IOS(3_0) @interface UIMenuController : NSObject
+NS_CLASS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED @interface UIMenuController : NSObject
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) UIMenuController *sharedMenuController;
+#else
 + (UIMenuController *)sharedMenuController;
+#endif
 
 @property(nonatomic,getter=isMenuVisible) BOOL menuVisible;	    // default is NO
 - (void)setMenuVisible:(BOOL)menuVisible animated:(BOOL)animated;
@@ -8148,13 +12758,13 @@ NS_CLASS_AVAILABLE_IOS(3_0) @interface UIMenuController : NSObject
 
 @end
 
-UIKIT_EXTERN NSString *const UIMenuControllerWillShowMenuNotification;
-UIKIT_EXTERN NSString *const UIMenuControllerDidShowMenuNotification;
-UIKIT_EXTERN NSString *const UIMenuControllerWillHideMenuNotification;
-UIKIT_EXTERN NSString *const UIMenuControllerDidHideMenuNotification;
-UIKIT_EXTERN NSString *const UIMenuControllerMenuFrameDidChangeNotification;
+UIKIT_EXTERN NSNotificationName const UIMenuControllerWillShowMenuNotification __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIMenuControllerDidShowMenuNotification __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIMenuControllerWillHideMenuNotification __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIMenuControllerDidHideMenuNotification __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIMenuControllerMenuFrameDidChangeNotification __TVOS_PROHIBITED;
 
-NS_CLASS_AVAILABLE_IOS(3_2) @interface UIMenuItem : NSObject 
+NS_CLASS_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED @interface UIMenuItem : NSObject 
 
 - (instancetype)initWithTitle:(NSString *)title action:(SEL)action NS_DESIGNATED_INITIALIZER;
 
@@ -8164,12 +12774,165 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UIMenuItem : NSObject
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIMenuController.h>
+#endif
+// ==========  UIKit.framework/Headers/UISpringLoadedInteraction.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISpringLoadedInteraction.h>)
+//
+//  UISpringLoadedInteraction.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIView.h>
+#import <UIKit/UIInteraction.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ An object conforming to UISpringLoadedInteractionEffect uses UISpringLoadedInteractionEffectState
+ to style the interaction view for the current springloading state.
+ 
+ - UISpringLoadedInteractionEffectStateInactive: the view is not engaged in springloading and should be displayed with its default style.
+ - UISpringLoadedInteractionEffectStatePossible: the view may springload and should provide a visual cue to the user. The default effect highlights the view.
+ - UISpringLoadedInteractionEffectStateActivating: the view is about to springload. The default effect will briefly flash while in this state.
+ - UISpringLoadedInteractionEffectStateActivated: the view springloaded and the activation handler is called. The default effect will restore the view to its original appearance.
+ */
+typedef NS_ENUM(NSInteger, UISpringLoadedInteractionEffectState) {
+    UISpringLoadedInteractionEffectStateInactive,
+    UISpringLoadedInteractionEffectStatePossible,
+    UISpringLoadedInteractionEffectStateActivating,
+    UISpringLoadedInteractionEffectStateActivated,
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+@protocol UISpringLoadedInteractionBehavior, UISpringLoadedInteractionEffect, UISpringLoadedInteractionContext;
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@interface UISpringLoadedInteraction : NSObject <UIInteraction>
+
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
+
+
+/**
+ The designated `UISpringLoadedInteraction` initializer.
+ 
+ @param interactionBehavior The interaction behavior object controlling the springloaded interaction activation. If nil, the default behavior will be used.
+ @param interactionEffect The interaction effect object styling the interaction's view. If nil, the default effect will be used.
+ @param handler The handler to be performed when springloading is activated.
+ @return An initialied springloaded interaction object or `nil` if the springloaded interaction could not be initialized.
+ */
+- (instancetype)initWithInteractionBehavior:(nullable id<UISpringLoadedInteractionBehavior>)interactionBehavior interactionEffect:(nullable id<UISpringLoadedInteractionEffect>)interactionEffect activationHandler:(void(^)(UISpringLoadedInteraction *interaction, id<UISpringLoadedInteractionContext> context))handler NS_DESIGNATED_INITIALIZER;
+
+
+/**
+ A springloaded interaction with the default interaction behavior and effect.
+ 
+ @param handler The handler to be performed when springloading is activated.
+ @return An initialied springloaded interaction object or `nil` if the springloaded interaction could not be initialized.
+ */
+- (instancetype)initWithActivationHandler:(void(^)(UISpringLoadedInteraction *interaction, id<UISpringLoadedInteractionContext> context))handler;
+
+@property (nonatomic, strong, readonly) id<UISpringLoadedInteractionBehavior> interactionBehavior;
+@property (nonatomic, strong, readonly) id<UISpringLoadedInteractionEffect> interactionEffect;
+
+@end
+
+/**
+ The interaction behavior of a `UISpringLoadedInteraction` object must adopt the `UISpringLoadedInteractionBehavior` protocol.
+ */
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UISpringLoadedInteractionBehavior <NSObject>
+
+@required
+
+/**
+ Returns whether springloading should begin or continue for a given interaction.
+ 
+ @param interaction The springloaded interaction object requesting this information
+ @param context An object that provides information about the current drag.
+ @return true if the interaction should begin or continue springloading.
+ */
+- (BOOL)shouldAllowInteraction:(UISpringLoadedInteraction *)interaction withContext:(id<UISpringLoadedInteractionContext>)context;
+
+@optional
+/**
+ Informs the behavior that springloading for a given interaction was cancelled or activated.
+ 
+ @param interaction The springloaded interaction object providing this information.
+ */
+- (void)interactionDidFinish:(UISpringLoadedInteraction *)interaction;
+
+@end
+
+/**
+ The interaction effect of a `UISpringLoadedInteraction` object must adopt the `UISpringLoadedInteractionEffect` protocol.
+ It is responsible for styling the interaction view according to the current springloading state.
+ */
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UISpringLoadedInteractionEffect <NSObject>
+
+@required
+
+/**
+ Informs the effect that the springloading state changed.
+ 
+ @param interaction The springloaded interaction providing this information.
+ @param context An object that provides information about the current springloading state.
+ */
+- (void)interaction:(UISpringLoadedInteraction *)interaction didChangeWithContext:(id<UISpringLoadedInteractionContext>)context;
+
+@end
+
+
+/**
+ UISpringLoadedContext supplies information about the springloading state and current drag.
+ */
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UISpringLoadedInteractionContext <NSObject>
+
+/**
+ The state that describes the current springloading style.
+ */
+@property (nonatomic, readonly) UISpringLoadedInteractionEffectState state;
+
+/**
+ The view to which the interaction effect is applied. Defaults to the interaction's view.
+ */
+@property (nonatomic, strong, nullable) UIView *targetView;
+
+/**
+ The `targetItem` allows to distinguish a region of the view on which the interaction is installed.
+ It is convenient to set this property to a model object associated to `targetView`.
+ */
+@property (nonatomic, strong, nullable) id targetItem;
+
+/**
+ Returns the point computed as the location of the current drag in a given view.
+ 
+ @param view A view on which the drag is taking place. Specify nil to indicate the window.
+ @return A point in the local coordinate system of `view`.
+ */
+- (CGPoint)locationInView:(nullable UIView *)view;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+
+#else
+#import <UIKitCore/UISpringLoadedInteraction.h>
+#endif
 // ==========  UIKit.framework/Headers/UIDocumentMenuViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDocumentMenuViewController.h>)
 //
 //  UIDocumentMenuViewController.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8181,9 +12944,9 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSUInteger, UIDocumentMenuOrder) {
     UIDocumentMenuOrderFirst,
     UIDocumentMenuOrderLast
-} NS_ENUM_AVAILABLE_IOS(8_0);
+} NS_ENUM_DEPRECATED_IOS(8_0,11_0) __TVOS_PROHIBITED;
 
- @protocol UIDocumentMenuDelegate <NSObject>
+__TVOS_PROHIBITED @protocol UIDocumentMenuDelegate <NSObject>
 
 - (void)documentMenu:(UIDocumentMenuViewController *)documentMenu didPickDocumentPicker:(UIDocumentPickerViewController *)documentPicker;
 @optional
@@ -8191,7 +12954,8 @@ typedef NS_ENUM(NSUInteger, UIDocumentMenuOrder) {
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UIDocumentMenuViewController : UIViewController
+NS_CLASS_DEPRECATED_IOS(8_0, 11_0, "UIDocumentMenuViewController is deprecated. Use UIDocumentPickerViewController directly.")
+__TVOS_PROHIBITED @interface UIDocumentMenuViewController : UIViewController
 
 - (instancetype)initWithDocumentTypes:(NSArray <NSString *> *)allowedUTIs inMode:(UIDocumentPickerMode)mode NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithURL:(NSURL *)url inMode:(UIDocumentPickerMode)mode NS_DESIGNATED_INITIALIZER;
@@ -8204,12 +12968,29 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UIDocumentMenuViewController : UIViewCont
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDocumentMenuViewController.h>
+#endif
+// ==========  UIKit.framework/Headers/DocumentManager.h
+//
+//  DocumentManager.h
+//  DocumentManager
+//
+//  Copyright © 2017 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <UIKit/UIDocumentBrowserViewController.h>
+#import <UIKit/UIDocumentBrowserAction.h>
 // ==========  UIKit.framework/Headers/UIPageControl.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPageControl.h>)
 //
 //  UIPageControl.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8236,12 +13017,17 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIPageControl : UIControl
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPageControl.h>
+#endif
 // ==========  UIKit.framework/Headers/UIImageView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIImageView.h>)
 //
 //  UIImageView.h
 //  UIKit
 //
-//  Copyright (c) 2006-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8277,16 +13063,46 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIImageView : UIView
 
 - (void)startAnimating;
 - (void)stopAnimating;
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isAnimating) BOOL animating;
+#else
 - (BOOL)isAnimating;
+#endif
+
+// if YES, the UIImageView will display a focused appearance when any of its immediate or distant superviews become focused
+@property (nonatomic) BOOL adjustsImageWhenAncestorFocused UIKIT_AVAILABLE_TVOS_ONLY(9_0);
+
+// if adjustsImageWhenAncestorFocused is set, the image view may display its image in a larger frame when focused.
+// this layout guide can be used to align other elements with the image view's focused frame.
+@property(readonly,strong) UILayoutGuide *focusedFrameGuide UIKIT_AVAILABLE_TVOS_ONLY(9_0);
+
+// the overlayContentView will be placed above the image, automatically resized to fill the image view's frame, and created if necessary when this property is accessed.
+// You may add your own subviews to this view.
+// By default, the overlayContentView will clip its children to the image view's frame. Set the overlayContentView's clipsToBounds property to false to allow views to draw outside of the image.
+// On tvOS, if adjustsImageWhenAncestorFocused is true, the overlayContentView will receive the same floating effects as the image when focused.
+@property (nonatomic, strong, readonly) UIView *overlayContentView UIKIT_AVAILABLE_TVOS_ONLY(11_0);
+
+// if YES, the UIImageView's focused appearance will support transparency in the image.
+// For example, the shadow will be based on the alpha channel of the image; the highlight will be masked to the image's alpha channel, etc.
+// This property is only supported for single-layer images, not images will multiple layers like LCRs.
+// Additionally, the image view must have the same aspect ratio as its image for this property to be effective.
+// Supporting transparency affects performance, so only set this when needed.
+@property (nonatomic) BOOL masksFocusEffectToContents UIKIT_AVAILABLE_TVOS_ONLY(11_0);
+
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIImageView.h>
+#endif
 // ==========  UIKit.framework/Headers/NSDataAsset.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSDataAsset.h>)
 //
 //  NSDataAsset.h
 //  UIKit
 //
-//  Copyright © 2015 Apple Inc. All rights reserved.
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8314,12 +13130,17 @@ NS_CLASS_AVAILABLE_IOS(9_0) @interface NSDataAsset : NSObject<NSCopying>
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSDataAsset.h>
+#endif
 // ==========  UIKit.framework/Headers/UITextChecker.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextChecker.h>)
 //
 //  UITextChecker.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIKitDefines.h>
@@ -8336,15 +13157,19 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UITextChecker : NSObject
 - (NSRange)rangeOfMisspelledWordInString:(NSString *)stringToCheck range:(NSRange)range startingAt:(NSInteger)startingOffset wrap:(BOOL)wrapFlag language:(NSString *)language;
 
 /* Returns an array of strings, in the order in which they should be presented, representing guesses for words that might have been intended in place of the misspelled word at the given range in the given string. */
-- (nullable NSArray *)guessesForWordRange:(NSRange)range inString:(NSString *)string language:(NSString *)language;
+- (nullable NSArray<NSString *> *)guessesForWordRange:(NSRange)range inString:(NSString *)string language:(NSString *)language;
 
 /* Returns an array of strings, in the order in which they should be presented, representing complete words that the user might be trying to type when starting by typing the partial word at the given range in the given string. */
-- (nullable NSArray *)completionsForPartialWordRange:(NSRange)range inString:(nullable NSString *)string language:(NSString *)language;
+- (nullable NSArray<NSString *> *)completionsForPartialWordRange:(NSRange)range inString:(NSString *)string language:(NSString *)language;
 
 /* Methods for dealing with ignored words. */
 - (void)ignoreWord:(NSString *)wordToIgnore;
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, strong, nullable) NSArray<NSString *> *ignoredWords;
+#else
 - (nullable NSArray *)ignoredWords;
 - (void)setIgnoredWords:(nullable NSArray *)words;
+#endif
 
 /* These allow clients to programmatically instruct the checker to learn and unlearn words, and to determine whether a word has been learned (and hence can potentially be unlearned). */
 + (void)learnWord:(NSString *)word;
@@ -8352,17 +13177,26 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UITextChecker : NSObject
 + (void)unlearnWord:(NSString *)word;
 
 /* Entries in the availableLanguages list are all available spellchecking languages in user preference order, usually language abbreviations such as en_US. */
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) NSArray<NSString *> *availableLanguages;
+#else
 + (NSArray *)availableLanguages;
+#endif
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextChecker.h>
+#endif
 // ==========  UIKit.framework/Headers/UIRegion.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIRegion.h>)
 //
 //  UIRegion.h
 //  UIKit
 //
-//  Copyright © 2015 Apple Inc. All rights reserved.
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8374,7 +13208,11 @@ NS_CLASS_AVAILABLE_IOS(9_0) @interface UIRegion : NSObject <NSCopying, NSCoding>
 
 /*! A shared infinite region
  */
-+ (instancetype)infiniteRegion;
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) UIRegion *infiniteRegion;
+#else
++ (UIRegion *)infiniteRegion;
+#endif
 
 /*! Create a circular region with radius
  */
@@ -8409,12 +13247,18 @@ NS_CLASS_AVAILABLE_IOS(9_0) @interface UIRegion : NSObject <NSCopying, NSCoding>
 @end
 
 
-NS_ASSUME_NONNULL_END// ==========  UIKit.framework/Headers/UIAccessibilityAdditions.h
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIRegion.h>
+#endif
+// ==========  UIKit.framework/Headers/UIAccessibilityAdditions.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibilityAdditions.h>)
 //
 //  UIAccessibilityAdditions.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8430,12 +13274,16 @@ NS_ASSUME_NONNULL_BEGIN
   See UIAccessibility.h for more information about hints and labels.
 */
 
-
+__TVOS_PROHIBITED
 @protocol UIPickerViewAccessibilityDelegate <UIPickerViewDelegate>
 
 @optional
 - (nullable NSString *)pickerView:(UIPickerView *)pickerView accessibilityLabelForComponent:(NSInteger)component;
 - (nullable NSString *)pickerView:(UIPickerView *)pickerView accessibilityHintForComponent:(NSInteger)component;
+
+// If an object adopting this protocol responds to these methods, the system will try sending them before sending their non-attributed versions.
+- (nullable NSAttributedString *)pickerView:(UIPickerView *)pickerView accessibilityAttributedLabelForComponent:(NSInteger)component API_AVAILABLE(ios(11.0), tvos(11.0));
+- (nullable NSAttributedString *)pickerView:(UIPickerView *)pickerView accessibilityAttributedHintForComponent:(NSInteger)component API_AVAILABLE(ios(11.0), tvos(11.0));
 
 @end
 
@@ -8450,15 +13298,37 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 - (nullable NSString *)accessibilityScrollStatusForScrollView:(UIScrollView *)scrollView;
 
+// If an object adopting this protocol responds to this method, the system will try sending it before sending its non-attributed version.
+- (nullable NSAttributedString *)accessibilityAttributedScrollStatusForScrollView:(UIScrollView *)scrollView API_AVAILABLE(ios(11.0), tvos(11.0));
+
 @end
 
+/* Invert Colors is often used by those with light or color sensitivities to make bright
+   colors darker. However, this has a destructive effect on content like images and videos.
+  
+   Set accessibilityIgnoresInvertColors to YES on a view that contains content that should
+   not be inverted. This effect will apply to the entire subview hierarchy of a view.
+
+   If a view already uses a dark themed design, it may also be appropriate to set this
+   property.
+ */
+@interface UIView (UIAccessibilityInvertColors)
+@property(nonatomic) BOOL accessibilityIgnoresInvertColors API_AVAILABLE(ios(11_0), tvos(11_0));
+@end
+
+
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccessibilityAdditions.h>
+#endif
 // ==========  UIKit.framework/Headers/UINavigationBar.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UINavigationBar.h>)
 //
 //  UINavigationBar.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8467,9 +13337,8 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIInterface.h>
 #import <UIKit/UIFont.h>
 #import <UIKit/UIKitDefines.h>
-#import <UIKit/UIButton.h>
-#import <UIKit/UIBarButtonItem.h>
 #import <UIKit/UIBarCommon.h>
+#import <UIKit/UINavigationItem.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8478,7 +13347,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UINavigationBar : UIView <NSCoding, UIBarPositioning> 
 
-@property(nonatomic,assign) UIBarStyle barStyle;
+@property(nonatomic,assign) UIBarStyle barStyle UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
 @property(nullable,nonatomic,weak) id<UINavigationBarDelegate> delegate;
 
 /*
@@ -8505,6 +13374,9 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UINavigationBar : UIView <NSCoding, UIBar
 
 @property(nullable,nonatomic,copy) NSArray<UINavigationItem *> *items;
 - (void)setItems:(nullable NSArray<UINavigationItem *> *)items animated:(BOOL)animated; // If animated is YES, then simulate a push or pop depending on whether the new top item was previously in the stack.
+
+/// When set to YES, the navigation bar will use a larger out-of-line title view when requested by the current navigation item. To specify when the large out-of-line title view appears, see UINavigationItem.largeTitleDisplayMode. Defaults to NO.
+@property (nonatomic, readwrite, assign) BOOL prefersLargeTitles UI_APPEARANCE_SELECTOR API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos);
 
 /*
  The behavior of tintColor for bars has changed on iOS 7.0. It no longer affects the bar's background
@@ -8535,7 +13407,11 @@ vertically if necessary when the navigation bar is in the position UIBarPosition
 
 /* You may specify the font, text color, and shadow properties for the title in the text attributes dictionary, using the keys found in NSAttributedString.h.
  */
-@property(nullable,nonatomic,copy) NSDictionary<NSString *,id> *titleTextAttributes NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+@property(nullable,nonatomic,copy) NSDictionary<NSAttributedStringKey, id> *titleTextAttributes NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+
+/* You may specify the font, text color, and shadow properties for the large title in the text attributes dictionary, using the keys found in NSAttributedString.h.
+ */
+@property(nullable, nonatomic, copy) NSDictionary<NSAttributedStringKey, id> *largeTitleTextAttributes UI_APPEARANCE_SELECTOR API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos);
 
 - (void)setTitleVerticalPositionAdjustment:(CGFloat)adjustment forBarMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 - (CGFloat)titleVerticalPositionAdjustmentForBarMetrics:(UIBarMetrics)barMetrics NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
@@ -8545,8 +13421,8 @@ vertically if necessary when the navigation bar is in the position UIBarPosition
  The back indicator transition mask image is used as a mask for content during push and pop transitions
  Note: These properties must both be set if you want to customize the back indicator image.
  */
-@property(nullable,nonatomic,strong) UIImage *backIndicatorImage NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR;
-@property(nullable,nonatomic,strong) UIImage *backIndicatorTransitionMaskImage NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR;
+@property(nullable,nonatomic,strong) UIImage *backIndicatorImage NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
+@property(nullable,nonatomic,strong) UIImage *backIndicatorTransitionMaskImage NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
 
 @end
 
@@ -8561,60 +13437,18 @@ vertically if necessary when the navigation bar is in the position UIBarPosition
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UINavigationItem : NSObject <NSCoding>
-
-- (instancetype)initWithTitle:(NSString *)title NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
-
-@property(nullable, nonatomic,copy)   NSString        *title;             // Title when topmost on the stack. default is nil
-@property(nullable, nonatomic,strong) UIView          *titleView;         // Custom view to use in lieu of a title. May be sized horizontally. Only used when item is topmost on the stack.
-
-@property(nullable,nonatomic,copy)   NSString *prompt;     // Explanatory text to display above the navigation bar buttons.
-@property(nullable,nonatomic,strong) UIBarButtonItem *backBarButtonItem; // Bar button item to use for the back button in the child navigation item.
-
-@property(nonatomic,assign) BOOL hidesBackButton; // If YES, this navigation item will hide the back button when it's on top of the stack.
-- (void)setHidesBackButton:(BOOL)hidesBackButton animated:(BOOL)animated;
-
-/* Use these properties to set multiple items in a navigation bar.
- The older single properties (leftBarButtonItem and rightBarButtonItem) now refer to 
- the first item in the respective array of items.
- 
- NOTE: You'll achieve the best results if you use either the singular properties or
- the plural properties consistently and don't try to mix them.
- 
-   leftBarButtonItems are placed in the navigation bar left to right with the first
- item in the list at the left outside edge and left aligned.
-   rightBarButtonItems are placed right to left with the first item in the list at
- the right outside edge and right aligned.
- */
-@property(nullable,nonatomic,copy) NSArray<UIBarButtonItem *> *leftBarButtonItems NS_AVAILABLE_IOS(5_0);
-@property(nullable,nonatomic,copy) NSArray<UIBarButtonItem *> *rightBarButtonItems NS_AVAILABLE_IOS(5_0);
-- (void)setLeftBarButtonItems:(nullable NSArray<UIBarButtonItem *> *)items animated:(BOOL)animated NS_AVAILABLE_IOS(5_0);
-- (void)setRightBarButtonItems:(nullable NSArray<UIBarButtonItem *> *)items animated:(BOOL)animated NS_AVAILABLE_IOS(5_0);
-
-/* By default, the leftItemsSupplementBackButton property is NO. In this case,
- the back button is not drawn and the left item or items replace it. If you
- would like the left items to appear in addition to the back button (as opposed to instead of it)
- set leftItemsSupplementBackButton to YES.
- */
-@property(nonatomic) BOOL leftItemsSupplementBackButton NS_AVAILABLE_IOS(5_0);
-
-// Some navigation items want to display a custom left or right item when they're on top of the stack.
-// A custom left item replaces the regular back button unless you set leftItemsSupplementBackButton to YES
-@property(nullable, nonatomic,strong) UIBarButtonItem *leftBarButtonItem;
-@property(nullable, nonatomic,strong) UIBarButtonItem *rightBarButtonItem;
-- (void)setLeftBarButtonItem:(nullable UIBarButtonItem *)item animated:(BOOL)animated;
-- (void)setRightBarButtonItem:(nullable UIBarButtonItem *)item animated:(BOOL)animated;
-
-@end
-
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UINavigationBar.h>
+#endif
 // ==========  UIKit.framework/Headers/UIRotationGestureRecognizer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIRotationGestureRecognizer.h>)
 //
 //  UIRotationGestureRecognizer.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -8626,7 +13460,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Changes: when a finger moves while two fingers are down
 // Ends:    when both fingers have lifted
 
-NS_CLASS_AVAILABLE_IOS(3_2) @interface UIRotationGestureRecognizer : UIGestureRecognizer
+NS_CLASS_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED @interface UIRotationGestureRecognizer : UIGestureRecognizer
 
 @property (nonatomic)          CGFloat rotation;            // rotation in radians
 @property (nonatomic,readonly) CGFloat velocity;            // velocity of the pinch in radians/second
@@ -8634,16 +13468,22 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UIRotationGestureRecognizer : UIGestureRe
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIRotationGestureRecognizer.h>
+#endif
 // ==========  UIKit.framework/Headers/UIDocument.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDocument.h>)
 //
 //  UIDocument.h
 //  UIKit
 //
-//  Copyright (c) 1997-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 1997-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKitDefines.h>
+#import <UIKit/UIUserActivity.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8652,51 +13492,53 @@ typedef NS_ENUM(NSInteger, UIDocumentChangeKind) {
     UIDocumentChangeUndone,
     UIDocumentChangeRedone,
     UIDocumentChangeCleared
-};
+} __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIDocumentSaveOperation) {
     UIDocumentSaveForCreating,
     UIDocumentSaveForOverwriting
-};
+} __TVOS_PROHIBITED;
 
 typedef NS_OPTIONS(NSUInteger, UIDocumentState) {
     UIDocumentStateNormal            = 0,
     UIDocumentStateClosed            = 1 << 0, // The document has either not been successfully opened, or has been since closed. Document properties may not be valid.
-    UIDocumentStateInConflict        = 1 << 1, // Conflicts exist for the document's fileURL. They can be accessed through +[NSFileVersion otherVersionsOfItemAtURL:].
+    UIDocumentStateInConflict        = 1 << 1, // Conflicts exist for the document's fileURL. They can be accessed through +[NSFileVersion unresolvedConflictVersionsOfItemAtURL:].
     UIDocumentStateSavingError       = 1 << 2, // An error has occurred that prevents the document from saving.
     UIDocumentStateEditingDisabled   = 1 << 3, // Set before calling -disableEditing. The document is is busy and it is not currently safe to allow user edits. -enableEditing will be called when it becomes safe to edit again.
     UIDocumentStateProgressAvailable = 1 << 4  // Set if the document is busy loading or saving. Progress is valid while this is set.
-};
+} __TVOS_PROHIBITED;
 
-UIKIT_EXTERN NSString *const UIDocumentStateChangedNotification NS_AVAILABLE_IOS(5_0);
+UIKIT_EXTERN NSNotificationName const UIDocumentStateChangedNotification NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED;
 
-NS_CLASS_AVAILABLE_IOS(5_0) @interface UIDocument : NSObject <NSFilePresenter, NSProgressReporting>
+NS_CLASS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED @interface UIDocument : NSObject <NSFilePresenter, NSProgressReporting>
 
 #pragma mark *** Initialization ***
 
 // The designated initializer. Passing an empty URL will cause this method to throw an NSInvalidArgumentException.
-- (instancetype)initWithFileURL:(NSURL *)url NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithFileURL:(NSURL *)url NS_DESIGNATED_INITIALIZER __TVOS_PROHIBITED;
 
 #pragma mark *** Attributes Applicable to Every Kind of Document ***
 // UIKit may call these methods on background threads, so subclasses that override them must have thread safe implementations.
 // These values will be set by UIKit before the completion handlers to the opening, reverting, and saving methods are called.
 // Clients that wish to access these properties outside of an open, save, or revert completion handler and wait for any pending file operations should wrap the accesses in -performAsynchronousFileAccessUsingBlock:
 
-@property (readonly) NSURL *fileURL;
-@property (readonly, copy) NSString *localizedName;  // The default implementation derives the name from the URL. Subclasses may override to provide a custom name for presentation to the user, such as in error strings.
-@property (readonly, copy, nullable) NSString *fileType;       // The file's UTI. Derived from the fileURL by default.
-@property (copy, nullable) NSDate *fileModificationDate;       // The last known modification date of the document's on-disk representation. Updated by openWithCompletionHandler:, revertToContentsOfURL:, and saveToURL: and will return nil if none of these has completed successfully at least once.
+@property (readonly) NSURL *fileURL __TVOS_PROHIBITED;
+@property (readonly, copy) NSString *localizedName __TVOS_PROHIBITED;  // The default implementation derives the name from the URL. Subclasses may override to provide a custom name for presentation to the user, such as in error strings.
+@property (readonly, copy, nullable) NSString *fileType __TVOS_PROHIBITED;       // The file's UTI. Derived from the fileURL by default.
+@property (copy, nullable) NSDate *fileModificationDate __TVOS_PROHIBITED;       // The last known modification date of the document's on-disk representation. Updated by openWithCompletionHandler:, revertToContentsOfURL:, and saveToURL: and will return nil if none of these has completed successfully at least once.
 
-@property (readonly) UIDocumentState documentState;
+@property (readonly) UIDocumentState documentState __TVOS_PROHIBITED;
+
+@property (readonly, nullable) NSProgress *progress NS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED; // The download or upload progress of a document. Valid while UIDocumentStateProgressAvailable is set.
 
 #pragma mark *** Opening and Closing ***
 
 // Subclassing this method without calling super should be avoided. Subclassers who don't call super must use NSFileCoordinator for coordinated reading themselves.
 // Open the document located by the fileURL.  This will call readFromURL:error: on a background queue and then invoke the completionHandler on the current dispatch queue when openWithCompletionHandler: is invoked.
-- (void)openWithCompletionHandler:(void (^ __nullable)(BOOL success))completionHandler;
+- (void)openWithCompletionHandler:(void (^ __nullable)(BOOL success))completionHandler __TVOS_PROHIBITED;
 
 // Close the document. The default implementation calls [self autosaveWithCompletionHandler:completionHandler] which will save if [self hasUnsavedChanges] returns YES.
-- (void)closeWithCompletionHandler:(void (^ __nullable)(BOOL success))completionHandler;
+- (void)closeWithCompletionHandler:(void (^ __nullable)(BOOL success))completionHandler __TVOS_PROHIBITED;
 
 #pragma mark *** Simple Reading and Writing ***
 
@@ -8704,75 +13546,83 @@ NS_CLASS_AVAILABLE_IOS(5_0) @interface UIDocument : NSObject <NSFilePresenter, N
 
 // Typical subclasses will implement this method to do reading. UIKit will pass NSData typed contents for flat files and NSFileWrapper typed contents for file packages.
 // typeName is the UTI of the loaded file.
-- (BOOL)loadFromContents:(id)contents ofType:(nullable NSString *)typeName error:(NSError **)outError;
+- (BOOL)loadFromContents:(id)contents ofType:(nullable NSString *)typeName error:(NSError **)outError __TVOS_PROHIBITED;
 
 // Typical subclasses will implement this method and return an NSFileWrapper or NSData encapsulating a snapshot of their data to be written to disk during saving.
 // Subclasses that return something other than a valid NSFileWrapper or NSData instance, or don't override this method must override one of the writing methods in the Advanced Saving section to write data to disk.
-- (nullable id)contentsForType:(NSString *)typeName error:(NSError **)outError;
+- (nullable id)contentsForType:(NSString *)typeName error:(NSError **)outError __TVOS_PROHIBITED;
 
 #pragma mark *** Disabling and Enabling Editing
 // Subclasses should override these methods so that they do not allow the user to edit the document between calls to -disableEditing and -enableEditing.
 // UIKit will call -disableEditing when it is unsafe to make changes to the document, such as during a close or revert, and call -enableEditing when it is safe again.
 // The default implementation of these methods do nothing.
 
-- (void)disableEditing;
-- (void)enableEditing;
+- (void)disableEditing __TVOS_PROHIBITED;
+- (void)enableEditing __TVOS_PROHIBITED;
 
 #pragma mark *** Change Management ***
 
 // The document's undo manager. Setting the undo manager also registers the document as an observer of various NSUndoManager notifications so that -updateChangeCount: is invoked as undoable changes are made to the document. 
 // Asking for the undo manager creates a default one if one is not already set.
 // Typically, when a subclass sets the undoManager, it does not need to override -hasUnsavedChanges or call updateChangeCount: manually.
-@property (strong, null_resettable) NSUndoManager *undoManager;
+@property (strong, null_resettable) NSUndoManager *undoManager __TVOS_PROHIBITED;
 
 // Subclasses should generally not need to override this. Instead they should use the undoManager or call -updateChangeCount: every time they get a change and UIKit will calculate -hasUnsavedChanges automatically.
 // The default implementation of -autosaveWithCompletionHandler: initiates a save if [self hasUnsavedChanges] is YES.
-- (BOOL)hasUnsavedChanges;
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL hasUnsavedChanges __TVOS_PROHIBITED;
+#else
+- (BOOL)hasUnsavedChanges __TVOS_PROHIBITED;
+#endif
 
 // Record the fact that a change affecting the value returned by -hasUnsavedChanges has occurred. Subclasses should not need to call this if they set the undoManager.
-- (void)updateChangeCount:(UIDocumentChangeKind)change;
+- (void)updateChangeCount:(UIDocumentChangeKind)change __TVOS_PROHIBITED;
 
 // Change count tokens can be used to encapsulate the record of document changes being made in a particular save.
 // Subclasses that don't register changes via -updateChangeCount: or by using the undoManager should implement these methods to determine if the model has new unsaved changes at the end of a save.
 // -changeCountTokenForSaveOperation: is called at the beginning of a save operation and the token returned is passed to -updateChangeCountWithToken:forSaveOperation: at the conclusion of a save.
 // The default implementation of updateChangeCountWithToken:forSaveOperation: calls [self updateChangeCount:UIDocumentChangeCleared] if no changes are made during the save.
-- (id)changeCountTokenForSaveOperation:(UIDocumentSaveOperation)saveOperation;
-- (void)updateChangeCountWithToken:(id)changeCountToken forSaveOperation:(UIDocumentSaveOperation)saveOperation;
+- (id)changeCountTokenForSaveOperation:(UIDocumentSaveOperation)saveOperation __TVOS_PROHIBITED;
+- (void)updateChangeCountWithToken:(id)changeCountToken forSaveOperation:(UIDocumentSaveOperation)saveOperation __TVOS_PROHIBITED;
 
 #pragma mark *** Advanced Reading and Writing ***
 
 // Subclassing this method without calling super should be avoided. Subclassers  who don't call super must use NSFileCoordinator for coordinated writing themselves.
 // The default implementation of this method invokes [self contentsOfType:error:] synchronously on the calling queue, and then invokes [self writeContents:andAttributes:safelyToURL:ForSaveOperation:completionHandler:] on a background queue.
 // The completion handler is executed on the calling queue.
-- (void)saveToURL:(NSURL *)url forSaveOperation:(UIDocumentSaveOperation)saveOperation completionHandler:(void (^ __nullable)(BOOL success))completionHandler;
+- (void)saveToURL:(NSURL *)url forSaveOperation:(UIDocumentSaveOperation)saveOperation completionHandler:(void (^ __nullable)(BOOL success))completionHandler __TVOS_PROHIBITED;
 
 // Clients should not need to call this method directly. It exists as an override point for subclasses that want to do special things with autosaving.
 // The default implementation of this method invokes [self hasUnsavedChanges] and, if that returns YES, invokes [self saveToURL:[self fileURL] forSaveOperation:UIDocumentSaveForOverwriting completionHandler:completionHandler].
-- (void)autosaveWithCompletionHandler:(void (^ __nullable)(BOOL success))completionHandler;
+- (void)autosaveWithCompletionHandler:(void (^ __nullable)(BOOL success))completionHandler __TVOS_PROHIBITED;
 
-- (nullable NSString *)savingFileType; // The default implementation returns the current file type. saveToURL: will save to an extension based on this type so subclasses can override this to allow moving the document to a new type.
-- (NSString *)fileNameExtensionForType:(nullable NSString *)typeName saveOperation:(UIDocumentSaveOperation)saveOperation; // For a specified type, and a particular kind of save operation, return a file name extension that can be appended to a base file name.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) NSString *savingFileType __TVOS_PROHIBITED; // The default implementation returns the current file type. saveToURL: will save to an extension based on this type so subclasses can override this to allow moving the document to a new type.
+#else
+- (nullable NSString *)savingFileType __TVOS_PROHIBITED; // The default implementation returns the current file type. saveToURL: will save to an extension based on this type so subclasses can override this to allow moving the document to a new type.
+#endif
+- (NSString *)fileNameExtensionForType:(nullable NSString *)typeName saveOperation:(UIDocumentSaveOperation)saveOperation __TVOS_PROHIBITED; // For a specified type, and a particular kind of save operation, return a file name extension that can be appended to a base file name.
 
 // This method is responsible for doing document writing in a way that minimizes the danger of leaving the disk to which writing is being done in an inconsistent state in the event of an application crash, system crash, hardware failure, power outage, etc.
 // Because it does several different things, and because the things are likely to change in future releases of iOS, it's probably not a good idea to override this method without invoking super.
-- (BOOL)writeContents:(id)contents andAttributes:(nullable NSDictionary *)additionalFileAttributes safelyToURL:(NSURL *)url forSaveOperation:(UIDocumentSaveOperation)saveOperation error:(NSError **)outError;
+- (BOOL)writeContents:(id)contents andAttributes:(nullable NSDictionary *)additionalFileAttributes safelyToURL:(NSURL *)url forSaveOperation:(UIDocumentSaveOperation)saveOperation error:(NSError **)outError __TVOS_PROHIBITED;
 
 // Called by -writeContents:andAttributes:safelyToURL:forSaveOperation:error: to write the data to disk. Override point for subclasses that need access to the on-disk representation of the document while saving.
-- (BOOL)writeContents:(id)contents toURL:(NSURL *)url forSaveOperation:(UIDocumentSaveOperation)saveOperation originalContentsURL:(nullable NSURL *)originalContentsURL error:(NSError **)outError;
+- (BOOL)writeContents:(id)contents toURL:(NSURL *)url forSaveOperation:(UIDocumentSaveOperation)saveOperation originalContentsURL:(nullable NSURL *)originalContentsURL error:(NSError **)outError __TVOS_PROHIBITED;
 
 // Called by -saveToURL: before executing asynchronous writing to get a dictionary of attributes understood by NSFileManager for writing to the file.
 // The attributes are passed to -writeContents:andAttributes:safelyToURL:forSaveOperation:error: for writing to the file
-- (nullable NSDictionary *)fileAttributesToWriteToURL:(NSURL *)url forSaveOperation:(UIDocumentSaveOperation)saveOperation error:(NSError **)outError;
+- (nullable NSDictionary *)fileAttributesToWriteToURL:(NSURL *)url forSaveOperation:(UIDocumentSaveOperation)saveOperation error:(NSError **)outError __TVOS_PROHIBITED;
 
 // Direct calls to this method should not be necessary for typical subclasses where the entire file is read during opening.
 // If direct calls are used, the client must use NSFileCoordinator API to ensure coordinated reads and performAsynchronousFileAccessUsingBlock: to serialize with any active writes.
 // Default implementation calls [self loadFromContents:ofType:error:] on the queue that called openWithCompletionHandler:, or the main queue if called directly, with NSData or NSFileWrapper contents.
-- (BOOL)readFromURL:(NSURL *)url error:(NSError **)outError;
+- (BOOL)readFromURL:(NSURL *)url error:(NSError **)outError __TVOS_PROHIBITED;
 
 #pragma mark *** File Access Serialization ***
 
 // The default implementations of saveToURL: and openWithCompletionHandler: both use this to serialize file access. Direct calls to reading and writing methods should use this method to serialize file access on a background queue.
-- (void)performAsynchronousFileAccessUsingBlock:(void (^)(void))block;
+- (void)performAsynchronousFileAccessUsingBlock:(void (^)(void))block __TVOS_PROHIBITED;
 
 #pragma mark *** Error Presentation ***
 // These are advanced methods for dealing with errors in UIDocument.
@@ -8785,17 +13635,17 @@ NS_CLASS_AVAILABLE_IOS(5_0) @interface UIDocument : NSObject <NSFilePresenter, N
 // 1. Subclasses that do not call super are responsible for calling -finishedHandlingError: when done with the error (i.e. when the app will not require any additional user feedback from the error).
 // 2. Subclasses that do not call super are also responsible for implementing -userInteractionNoLongerPermittedForError: to wrap up error handling immediately when required.
 // 3. If the userInteractionPermitted flag is NO, you should immediately handle the error and call [self finishedHandlingError:] within the context of -handleError:userInteractionPermitted:
-- (void)handleError:(NSError *)error userInteractionPermitted:(BOOL)userInteractionPermitted;
+- (void)handleError:(NSError *)error userInteractionPermitted:(BOOL)userInteractionPermitted __TVOS_PROHIBITED;
 
 // Called when handling of an error (including any user interaction) is complete.
 // Subclasses only need to call this method if they override -handleError:userInteractionPermitted: and do not call super.
 // If overridden, subclasses must call super
-- (void)finishedHandlingError:(NSError *)error recovered:(BOOL)recovered;
+- (void)finishedHandlingError:(NSError *)error recovered:(BOOL)recovered __TVOS_PROHIBITED;
 
 // UIKit calls this method when it is no longer safe to proceed without immediately handling the error, such as when the app is being suspended.
 // Subclasses must immediately wrap up error handling (including dismissing any interactive UI) and call [self finishedHandlingError:] before returning.
 // It is only necessary to override this method if you override -handleError:userInteractionPermitted: without calling super
-- (void)userInteractionNoLongerPermittedForError:(NSError *)error;
+- (void)userInteractionNoLongerPermittedForError:(NSError *)error __TVOS_PROHIBITED;
 
 #pragma mark *** Reverting ***
 
@@ -8803,27 +13653,32 @@ NS_CLASS_AVAILABLE_IOS(5_0) @interface UIDocument : NSObject <NSFilePresenter, N
 // Default implementation calls [self disableEditing] in the beginning and [self enableEditing] on completion to indicate that the document should not accept changes from the user while this is happening.
 // The default implementation also calls [self openWithCompletionHandler:] after updating the fileURL.
 // Subclasses that override this method must call super or use NSFileCoordinator directly to initiate a coordinated read.
-- (void)revertToContentsOfURL:(NSURL *)url completionHandler:(void (^ __nullable)(BOOL success))completionHandler;
+- (void)revertToContentsOfURL:(NSURL *)url completionHandler:(void (^ __nullable)(BOOL success))completionHandler __TVOS_PROHIBITED;
 
 @end
 
 #pragma mark *** Activity Continuation ***
 
-UIKIT_EXTERN NSString* const NSUserActivityDocumentURLKey NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN NSString* const NSUserActivityDocumentURLKey NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 
-@interface UIDocument (ActivityContinuation)
-@property (nonatomic, strong, nullable) NSUserActivity *userActivity NS_AVAILABLE_IOS(8_0);
-- (void)updateUserActivityState:(NSUserActivity *)userActivity NS_AVAILABLE_IOS(8_0);
-- (void)restoreUserActivityState:(NSUserActivity *)userActivity NS_AVAILABLE_IOS(8_0);
+@interface UIDocument (ActivityContinuation) <UIUserActivityRestoring>
+@property (nonatomic, strong, nullable) NSUserActivity *userActivity NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
+- (void)updateUserActivityState:(NSUserActivity *)userActivity NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
+- (void)restoreUserActivityState:(NSUserActivity *)userActivity NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDocument.h>
+#endif
 // ==========  UIKit.framework/Headers/UIRefreshControl.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIRefreshControl.h>)
 //
 //  UIRefreshControl.h
 //  UIKit
 //
-//  Copyright 2012-2014 Apple Inc. All rights reserved.
+//  Copyright 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8832,7 +13687,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
     
-NS_CLASS_AVAILABLE_IOS(6_0) @interface UIRefreshControl : UIControl
+NS_CLASS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED @interface UIRefreshControl : UIControl
 
 /* The designated initializer
  * This initializes a UIRefreshControl with a default height and width.
@@ -8855,12 +13710,17 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UIRefreshControl : UIControl
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIRefreshControl.h>
+#endif
 // ==========  UIKit.framework/Headers/UIScreen.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIScreen.h>)
 //
 //  UIScreen.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8874,12 +13734,14 @@ NS_ASSUME_NONNULL_BEGIN
 @class UIScreenMode, CADisplayLink, UIView;
 
 // Object is the UIScreen that represents the new screen. Connection notifications are not sent for screens present when the application is first launched
-UIKIT_EXTERN NSString *const UIScreenDidConnectNotification NS_AVAILABLE_IOS(3_2);
+UIKIT_EXTERN NSNotificationName const UIScreenDidConnectNotification NS_AVAILABLE_IOS(3_2);
 // Object is the UIScreen that represented the disconnected screen.
-UIKIT_EXTERN NSString *const UIScreenDidDisconnectNotification NS_AVAILABLE_IOS(3_2);
+UIKIT_EXTERN NSNotificationName const UIScreenDidDisconnectNotification NS_AVAILABLE_IOS(3_2);
 // Object is the UIScreen which changed. [object currentMode] is the new UIScreenMode.
-UIKIT_EXTERN NSString *const UIScreenModeDidChangeNotification NS_AVAILABLE_IOS(3_2);
-UIKIT_EXTERN NSString *const UIScreenBrightnessDidChangeNotification NS_AVAILABLE_IOS(5_0);
+UIKIT_EXTERN NSNotificationName const UIScreenModeDidChangeNotification NS_AVAILABLE_IOS(3_2);
+UIKIT_EXTERN NSNotificationName const UIScreenBrightnessDidChangeNotification NS_AVAILABLE_IOS(5_0);
+// Object is the UIScreen which changed. [object isCaptured] is the new value of captured property.
+UIKIT_EXTERN NSNotificationName const UIScreenCapturedDidChangeNotification NS_AVAILABLE_IOS(11_0);
 
 // when the connected screen is overscanning, UIScreen can attempt to compensate for the overscan to avoid clipping
 typedef NS_ENUM(NSInteger, UIScreenOverscanCompensation) {
@@ -8892,23 +13754,33 @@ typedef NS_ENUM(NSInteger, UIScreenOverscanCompensation) {
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UIScreen : NSObject <UITraitEnvironment>
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) NSArray<UIScreen *> *screens NS_AVAILABLE_IOS(3_2);          // all screens currently attached to the device
+@property(class, nonatomic, readonly) UIScreen *mainScreen;      // the device's internal screen
+#else
 + (NSArray<UIScreen *> *)screens NS_AVAILABLE_IOS(3_2);          // all screens currently attached to the device
 + (UIScreen *)mainScreen;      // the device's internal screen
+#endif
 
 @property(nonatomic,readonly) CGRect  bounds;                // Bounds of entire screen in points
 @property(nonatomic,readonly) CGFloat scale NS_AVAILABLE_IOS(4_0);
 
-@property(nonatomic,readonly,copy) NSArray<UIScreenMode *> *availableModes NS_AVAILABLE_IOS(3_2);             // The list of modes that this screen supports
-@property(nullable, nonatomic,readonly,strong) UIScreenMode *preferredMode NS_AVAILABLE_IOS(4_3);       // Preferred mode of this screen. Choosing this mode will likely produce the best results
-@property(nullable, nonatomic,strong) UIScreenMode *currentMode NS_AVAILABLE_IOS(3_2);                  // Current mode of this screen
+@property(nonatomic,readonly,copy) NSArray<UIScreenMode *> *availableModes NS_AVAILABLE_IOS(3_2) __TVOS_PROHIBITED;             // The list of modes that this screen supports
+@property(nullable, nonatomic,readonly,strong) UIScreenMode *preferredMode NS_AVAILABLE_IOS(4_3) __TVOS_PROHIBITED;       // Preferred mode of this screen. Choosing this mode will likely produce the best results
+#if TARGET_OS_TV
+@property(nullable,nonatomic,readonly,strong) UIScreenMode *currentMode NS_AVAILABLE_IOS(3_2);                  // Current mode of this screen
+#else
+@property(nullable,nonatomic,strong) UIScreenMode *currentMode NS_AVAILABLE_IOS(3_2);                  // Current mode of this screen
+#endif
 @property(nonatomic) UIScreenOverscanCompensation overscanCompensation NS_AVAILABLE_IOS(5_0); // Default is UIScreenOverscanCompensationScale. Determines how the screen behaves if the connected display is overscanning
 
 @property(nonatomic,readonly) UIEdgeInsets overscanCompensationInsets NS_AVAILABLE_IOS(9_0);  // The amount that should be inset to avoid clipping
 
 @property(nullable, nonatomic,readonly,strong) UIScreen *mirroredScreen NS_AVAILABLE_IOS(4_3);          // The screen being mirrored by the receiver. nil if mirroring is disabled or unsupported. Moving a UIWindow to this screen will disable mirroring
+@property(nonatomic,readonly,getter=isCaptured) BOOL captured NS_AVAILABLE_IOS(11_0); // True if this screen is being captured (e.g. recorded, AirPlayed, mirrored, etc.)
 
-@property(nonatomic) CGFloat brightness NS_AVAILABLE_IOS(5_0);        // 0 .. 1.0, where 1.0 is maximum brightness. Only supported by main screen.
-@property(nonatomic) BOOL wantsSoftwareDimming NS_AVAILABLE_IOS(5_0); // Default is NO. If YES, brightness levels lower than that of which the hardware is capable are emulated in software, if neccessary. Having enabled may entail performance cost.
+@property(nonatomic) CGFloat brightness NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED;        // 0 .. 1.0, where 1.0 is maximum brightness. Only supported by main screen.
+@property(nonatomic) BOOL wantsSoftwareDimming NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED; // Default is NO. If YES, brightness levels lower than that of which the hardware is capable are emulated in software, if neccessary. Having enabled may entail performance cost.
 
 @property (readonly) id <UICoordinateSpace> coordinateSpace NS_AVAILABLE_IOS(8_0);
 @property (readonly) id <UICoordinateSpace> fixedCoordinateSpace NS_AVAILABLE_IOS(8_0);
@@ -8918,7 +13790,13 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIScreen : NSObject <UITraitEnvironment>
 
 - (nullable CADisplayLink *)displayLinkWithTarget:(id)target selector:(SEL)sel NS_AVAILABLE_IOS(4_0);
 
-@property(nonatomic,readonly) CGRect applicationFrame NS_DEPRECATED_IOS(2_0, 9_0, "Use -[UIScreen bounds]");
+@property (readonly) NSInteger maximumFramesPerSecond  NS_AVAILABLE_IOS(10_3); // The maximumFramesPerSecond this screen is capable of
+
+@property (nullable, nonatomic, weak, readonly) id<UIFocusItem> focusedItem NS_AVAILABLE_IOS(10_0); // Returns the focused item for this screen's focus system. Use UIFocusSystem's focusedItem property instead – this property will be deprecated in a future release.
+@property (nullable, nonatomic, weak, readonly) UIView *focusedView NS_AVAILABLE_IOS(9_0); // If focusedItem is not a view, this returns that item's containing view. Otherwise they are equal. Use UIFocusSystem's focusedItem property instead – this property will be deprecated in a future release.
+@property (readonly, nonatomic) BOOL supportsFocus NS_AVAILABLE_IOS(9_0);
+
+@property(nonatomic,readonly) CGRect applicationFrame NS_DEPRECATED_IOS(2_0, 9_0, "Use -[UIScreen bounds]") __TVOS_PROHIBITED;
 
 @end
 
@@ -8928,28 +13806,36 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIScreen : NSObject <UITraitEnvironment>
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIScreen.h>
+#endif
 // ==========  UIKit.framework/Headers/UIDocumentPickerViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDocumentPickerViewController.h>)
 //
 //  UIDocumentPickerViewController.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIViewController.h>
-
+	
 NS_ASSUME_NONNULL_BEGIN
 
 @class UIDocumentPickerViewController, UIDocumentMenuViewController;
 
- @protocol UIDocumentPickerDelegate <NSObject>
-
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url;
+__TVOS_PROHIBITED @protocol UIDocumentPickerDelegate <NSObject>
 
 @optional
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray <NSURL *>*)urls NS_AVAILABLE_IOS(11_0);
+
 // called if the user dismisses the document picker without selecting a document (using the Cancel button)
 - (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller;
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url NS_DEPRECATED_IOS(8_0, 11_0, "Implement documentPicker:didPickDocumentsAtURLs: instead");
 @end
 
 typedef NS_ENUM(NSUInteger, UIDocumentPickerMode) {
@@ -8957,29 +13843,106 @@ typedef NS_ENUM(NSUInteger, UIDocumentPickerMode) {
     UIDocumentPickerModeOpen,
     UIDocumentPickerModeExportToService,
     UIDocumentPickerModeMoveToService
-} NS_ENUM_AVAILABLE_IOS(8_0);
+} NS_ENUM_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UIDocumentPickerViewController : UIViewController
+NS_CLASS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED @interface UIDocumentPickerViewController : UIViewController
 
 // Initializes the picker instance for selecting a document in a remote location. The valid modes are Import and Open.
 - (instancetype)initWithDocumentTypes:(NSArray <NSString *>*)allowedUTIs inMode:(UIDocumentPickerMode)mode NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
 // Initializes the picker for exporting a local file to an external location. The valid modes are Export and Move. The new location will be returned using didPickDocumentAtURL:
-- (instancetype)initWithURL:(NSURL *)url inMode:(UIDocumentPickerMode)mode NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithURL:(NSURL *)url inMode:(UIDocumentPickerMode)mode NS_DESIGNATED_INITIALIZER; // This method will be deprecated in a future release and should be avoided. Instead, use initWithURLs:inMode:.
+
+// Initializes the picker for exporting local files to an external location. The valid modes are Export and Move. The new locations will be returned using didPickDocumentAtURLs:
+- (instancetype)initWithURLs:(NSArray <NSURL *> *)urls inMode:(UIDocumentPickerMode)mode NS_DESIGNATED_INITIALIZER NS_AVAILABLE_IOS(11_0);
 
 @property (nullable, nonatomic, weak) id<UIDocumentPickerDelegate> delegate;
 @property (nonatomic, assign, readonly) UIDocumentPickerMode documentPickerMode;
+@property (nonatomic, assign) BOOL allowsMultipleSelection NS_AVAILABLE_IOS(11_0);
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDocumentPickerViewController.h>
+#endif
+// ==========  UIKit.framework/Headers/UITimingParameters.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITimingParameters.h>)
+//
+//  UITimingParameters.h
+//  UIKit
+//
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIView.h>
+#import <UIKit/UITimingCurveProvider.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UICubicTimingParameters : NSObject  <UITimingCurveProvider>
+
+@property(nonatomic, readonly) UIViewAnimationCurve animationCurve;
+@property(nonatomic, readonly) CGPoint controlPoint1;
+@property(nonatomic, readonly) CGPoint controlPoint2;
+
+- (instancetype)init NS_DESIGNATED_INITIALIZER; // initializes with the default CA timing curve
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithAnimationCurve:(UIViewAnimationCurve)curve NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithControlPoint1:(CGPoint)point1 controlPoint2:(CGPoint)point2 NS_DESIGNATED_INITIALIZER;
+
+@end
+
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UISpringTimingParameters : NSObject  <UITimingCurveProvider>
+
+@property(nonatomic, readonly) CGVector initialVelocity;
+
+- (instancetype)init NS_DESIGNATED_INITIALIZER; // Initializes with the default system spring parameters
+
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+
+// Performs `animations` using a timing curve described by the motion of a
+// spring. When `dampingRatio` is 1, the animation will smoothly decelerate to
+// its final model values without oscillating. Damping ratios less than 1 will
+// oscillate more and more before coming to a complete stop. You can use the
+// initial spring velocity to specify how fast the object at the end of the
+// simulated spring was moving before it was attached. It's a unit coordinate
+// system, where 1 is defined as travelling the total animation distance in a
+// second. So if you're changing an object's position by 200pt in this
+// animation, and you want the animation to behave as if the object was moving
+// at 100pt/s before the animation started, you'd pass 0.5. You'll typically
+// want to pass 0 for the velocity. Velocity is specified as a vector for the
+// convenience of animating position changes. For 1-dimensional properties
+// the x-coordinate of the velocity vector is used.
+- (instancetype)initWithDampingRatio:(CGFloat)ratio initialVelocity:(CGVector)velocity NS_DESIGNATED_INITIALIZER;
+
+// Similiar to initWithDampingRatio:initialVelocity: except this allows you to specify the spring constants for the underlying
+// CASpringAnimation directly. The duration is computed assuming a small settling oscillation.
+- (instancetype)initWithMass:(CGFloat)mass stiffness:(CGFloat)stiffness damping:(CGFloat)damping initialVelocity:(CGVector)velocity NS_DESIGNATED_INITIALIZER;
+
+// Equivalent to initWithDampingRatio:initialVelocity: where the velocity is the zero-vector.
+- (instancetype)initWithDampingRatio:(CGFloat)ratio;
+
+@end
+
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITimingParameters.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAccessibility.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibility.h>)
+
 //
 //  UIAccessibility.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -8989,11 +13952,14 @@ NS_ASSUME_NONNULL_END
 
 #import <UIKit/UIAccessibilityAdditions.h>
 #import <UIKit/UIAccessibilityConstants.h>
+#import <UIKit/UIAccessibilityContainer.h>
 #import <UIKit/UIAccessibilityCustomAction.h>
+#import <UIKit/UIAccessibilityCustomRotor.h>
 #import <UIKit/UIAccessibilityElement.h>
 #import <UIKit/UIAccessibilityIdentification.h>
 #import <UIKit/UIAccessibilityZoom.h>
 #import <UIKit/UIGuidedAccessRestrictions.h>
+#import <UIKit/UIAccessibilityLocationDescriptor.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -9036,6 +14002,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, copy) NSString *accessibilityLabel;
 
 /*
+ The underlying attributed version of the accessibility label. Setting this property will change the
+ value of the accessibilityLabel property and vice-versa.
+ */
+@property (nullable, nonatomic, copy) NSAttributedString *accessibilityAttributedLabel API_AVAILABLE(ios(11.0),tvos(11.0));
+
+/*
  Returns a localized string that describes the result of performing an action on the element, when the result is non-obvious.
  The hint should be a brief phrase.
  For example: "Purchases the item." or "Downloads the attachment."
@@ -9043,6 +14015,12 @@ NS_ASSUME_NONNULL_BEGIN
  Setting the property will change the hint that is returned to the accessibility client. 
  */
 @property (nullable, nonatomic, copy) NSString *accessibilityHint;
+
+/*
+ The underlying attributed version of the accessibility hint. Setting this property will change the
+ value of the accessibilityHint property and vice-versa.
+ */
+@property (nullable, nonatomic, copy) NSAttributedString *accessibilityAttributedHint API_AVAILABLE(ios(11.0),tvos(11.0));
 
 /*
  Returns a localized string that represents the value of the element, such as the value 
@@ -9053,6 +14031,12 @@ NS_ASSUME_NONNULL_BEGIN
  Setting the property will change the value that is returned to the accessibility client.  
  */
 @property (nullable, nonatomic, copy) NSString *accessibilityValue;
+
+/*
+ The underlying attributed version of the accessibility value. Setting this property will change the
+ value of the accessibilityValue property and vice-versa.
+ */
+@property (nullable, nonatomic, copy) NSAttributedString *accessibilityAttributedValue API_AVAILABLE(ios(11.0),tvos(11.0));
 
 /*
  Returns a UIAccessibilityTraits mask that is the OR combination of
@@ -9138,50 +14122,17 @@ UIKIT_EXTERN UIBezierPath *UIAccessibilityConvertPathToScreenCoordinates(UIBezie
  */
 @property (nonatomic) UIAccessibilityNavigationStyle accessibilityNavigationStyle NS_AVAILABLE_IOS(8_0);
 
+/*
+ The elements considered to be the headers for this element. May be set on an instance of
+ UIAccessibilityElement, a View or a View Controller. The accessibility container chain,
+ and associated view controllers where appropriate, will be consulted.
+ To avoid retain cycles, a weak copy of the elements will be held.
+ */
+@property(nullable, nonatomic, copy) NSArray *accessibilityHeaderElements UIKIT_AVAILABLE_TVOS_ONLY(9_0);
+
 @end
 
 
-/*
- UIAccessibilityContainer
- 
- UIAccessibilityContainer methods can be overridden to vend individual elements
- that are managed by a single UIView.
- 
- For example, a single UIView might draw several items that (to an
- end user) have separate meaning and functionality.  It is important to vend
- each item as an individual accessibility element.
- 
- Sub-elements of a container that are not represented by concrete UIView
- instances (perhaps painted text or icons) can be represented using instances
- of UIAccessibilityElement class (see UIAccessibilityElement.h).
- 
- Accessibility containers MUST return NO to -isAccessibilityElement.
- */
-@interface NSObject (UIAccessibilityContainer)
-
-/*
- Returns the number of accessibility elements in the container.
- */
-- (NSInteger)accessibilityElementCount;
-
-/*
- Returns the accessibility element in order, based on index.
- default == nil 
- */
-- (nullable id)accessibilityElementAtIndex:(NSInteger)index;
-
-/*
- Returns the ordered index for an accessibility element
- default == NSNotFound 
- */
-- (NSInteger)indexOfAccessibilityElement:(id)element;
-
-// A list of container elements managed by the receiver.
-// This can be used as an alternative to implementing the dynamic methods.
-// default == nil
-@property (nullable, nonatomic, strong) NSArray *accessibilityElements NS_AVAILABLE_IOS(8_0);
-
-@end
 
 /*
  UIAccessibilityFocus
@@ -9199,13 +14150,13 @@ UIKIT_EXTERN UIBezierPath *UIAccessibilityConvertPathToScreenCoordinates(UIBezie
 - (BOOL)accessibilityElementIsFocused NS_AVAILABLE_IOS(4_0);
 
 // Returns a set of identifier keys indicating which technology is focused on this object
-- (nullable NSSet<NSString *> *)accessibilityAssistiveTechnologyFocusedIdentifiers NS_AVAILABLE_IOS(9_0);
+- (nullable NSSet<UIAccessibilityAssistiveTechnologyIdentifier> *)accessibilityAssistiveTechnologyFocusedIdentifiers NS_AVAILABLE_IOS(9_0);
 
 // Returns the element that is currently focused by an assistive technology.
 // default = nil.
 // Pass in a specific identifier (e.g. UIAccessibilityNotificationVoiceOverIdentifier) in order to choose the focused element for a specific product.
 // If no argument is used, the function will returned the element that was most recently focused.
-UIKIT_EXTERN __nullable id UIAccessibilityFocusedElement(NSString * __nullable assistiveTechnologyIdentifier) NS_AVAILABLE_IOS(9_0);
+UIKIT_EXTERN __nullable id UIAccessibilityFocusedElement(UIAccessibilityAssistiveTechnologyIdentifier __nullable assistiveTechnologyIdentifier) NS_AVAILABLE_IOS(9_0);
 
 @end
 
@@ -9300,6 +14251,55 @@ typedef NS_ENUM(NSInteger, UIAccessibilityScrollDirection) {
 // Returns a string representing the text displayed on the current page.
 - (nullable NSString *)accessibilityPageContent NS_AVAILABLE_IOS(5_0);
 
+@optional
+// If an object adopting this protocol responds to these methods, the system will try sending them before sending the non-attributed versions.
+- (nullable NSAttributedString *)accessibilityAttributedContentForLineNumber:(NSInteger)lineNumber API_AVAILABLE(ios(11.0), tvos(11.0));
+- (nullable NSAttributedString *)accessibilityAttributedPageContent API_AVAILABLE(ios(11.0), tvos(11.0));
+
+@end
+
+@interface NSObject(UIAccessibilityDragging)
+
+/* By default, if an accessible view or its subtree has drag and/or drop interactions, they will be
+ * automatically exposed by assistive technologies. However, if there is more than one such
+ * interaction, each drag or drop should have a name to disambiguate it and give a good user
+ * experience. Also, there may be situations in which you want to expose drags or drops from an
+ * element, and those interactions are installed on views that are not part of that element's view
+ * hierarchy subtree.
+ *
+ * This is trivially the case when the element is not a view at all, but an instance of
+ * UIAccessibilityElement.
+ *
+ * Another example is when a container view maintains interactions that are logically
+ * associated with subviews. For instance, UITableView has associated drag interactions that allow
+ * for dragging its rows; to make the rows draggable by assistive technologies, UITableViewCell has
+ * drag descriptors that describe where in the table view to start a drag to activate dragging of
+ * the cell.
+ * (Note that this implementation detail is noted here for expository purposes only and may change
+ * at any time without warning.)
+ *
+ * Properties defined here allow you to fine-tune how drags and drops are exposed to assistive
+ * technologies. Both of their getter methods can be overridden to provide information on-demand.
+ * For each location descriptor, the associated view should be the UIView with the appropriate
+ * UIInteraction object for that drag or drop.
+ *
+ * `accessibilityDragSourceDescriptors` is an array of UIAccessibilityLocationDescriptor
+ * objects and is used to define and describe what drags are available from an element.
+ *
+ * `accessibilityDropPointDescriptors` is similarly an array of
+ * UIAccessibilityLocationDescriptor objects and is used to define and describe where
+ * drops are possible on this element.
+ *
+ * To restore the default automatic behavior for these properties, assign (or return) the default
+ * value of nil. Note that nil does not describe the same behavior as the empty array, which
+ * specifies that there are no relevant interactions for this element.
+ *
+ */
+@property (nullable, nonatomic, copy) NSArray<UIAccessibilityLocationDescriptor *> *accessibilityDragSourceDescriptors API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+@property (nullable, nonatomic, copy) NSArray<UIAccessibilityLocationDescriptor *> *accessibilityDropPointDescriptors API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+
 @end
 
 /*
@@ -9316,65 +14316,71 @@ UIKIT_EXTERN void UIAccessibilityPostNotification(UIAccessibilityNotifications n
  Assistive Technology
  
  Use UIAccessibilityIsVoiceOverRunning() to determine if VoiceOver is running.
- Listen for UIAccessibilityVoiceOverStatusChanged to know when VoiceOver starts or stops.
+ Listen for UIAccessibilityVoiceOverStatusDidChangeNotification to know when VoiceOver starts or stops.
  */
-UIKIT_EXTERN BOOL UIAccessibilityIsVoiceOverRunning() NS_AVAILABLE_IOS(4_0);
-UIKIT_EXTERN NSString *const UIAccessibilityVoiceOverStatusChanged NS_AVAILABLE_IOS(4_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsVoiceOverRunning(void) NS_AVAILABLE_IOS(4_0);
+UIKIT_EXTERN NSString *const UIAccessibilityVoiceOverStatusChanged API_DEPRECATED_WITH_REPLACEMENT("UIAccessibilityVoiceOverStatusDidChangeNotification", ios(4.0, 11.0), tvos(9.0, 11.0));
+UIKIT_EXTERN NSNotificationName const UIAccessibilityVoiceOverStatusDidChangeNotification API_AVAILABLE(ios(11.0), tvos(11.0));
 
 // Returns whether system audio is mixed down from stereo to mono.
-UIKIT_EXTERN BOOL UIAccessibilityIsMonoAudioEnabled() NS_AVAILABLE_IOS(5_0);
-UIKIT_EXTERN NSString *const UIAccessibilityMonoAudioStatusDidChangeNotification NS_AVAILABLE_IOS(5_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsMonoAudioEnabled(void) NS_AVAILABLE_IOS(5_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityMonoAudioStatusDidChangeNotification NS_AVAILABLE_IOS(5_0);
 
 // Returns whether the system preference for closed captioning is enabled.
-UIKIT_EXTERN BOOL UIAccessibilityIsClosedCaptioningEnabled() NS_AVAILABLE_IOS(5_0);
-UIKIT_EXTERN NSString *const UIAccessibilityClosedCaptioningStatusDidChangeNotification NS_AVAILABLE_IOS(5_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsClosedCaptioningEnabled(void) NS_AVAILABLE_IOS(5_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityClosedCaptioningStatusDidChangeNotification NS_AVAILABLE_IOS(5_0);
 
 // Returns whether the system preference for invert colors is enabled.
-UIKIT_EXTERN BOOL UIAccessibilityIsInvertColorsEnabled() NS_AVAILABLE_IOS(6_0);
-UIKIT_EXTERN NSString *const UIAccessibilityInvertColorsStatusDidChangeNotification NS_AVAILABLE_IOS(6_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsInvertColorsEnabled(void) NS_AVAILABLE_IOS(6_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityInvertColorsStatusDidChangeNotification NS_AVAILABLE_IOS(6_0);
 
 // Returns whether the app is running under Guided Access mode.
-UIKIT_EXTERN BOOL UIAccessibilityIsGuidedAccessEnabled() NS_AVAILABLE_IOS(6_0);
-UIKIT_EXTERN NSString *const UIAccessibilityGuidedAccessStatusDidChangeNotification NS_AVAILABLE_IOS(6_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsGuidedAccessEnabled(void) NS_AVAILABLE_IOS(6_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityGuidedAccessStatusDidChangeNotification NS_AVAILABLE_IOS(6_0);
 
 // Returns whether the system preference for bold text is enabled
-UIKIT_EXTERN BOOL UIAccessibilityIsBoldTextEnabled() NS_AVAILABLE_IOS(8_0);
-UIKIT_EXTERN NSString *const UIAccessibilityBoldTextStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsBoldTextEnabled(void) NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityBoldTextStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
 
 // Returns whether the system preference for grayscale is enabled
-UIKIT_EXTERN BOOL UIAccessibilityIsGrayscaleEnabled() NS_AVAILABLE_IOS(8_0);
-UIKIT_EXTERN NSString *const UIAccessibilityGrayscaleStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsGrayscaleEnabled(void) NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityGrayscaleStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
 
 // Returns whether the system preference for reduce transparency is enabled
-UIKIT_EXTERN BOOL UIAccessibilityIsReduceTransparencyEnabled() NS_AVAILABLE_IOS(8_0);
-UIKIT_EXTERN NSString *const UIAccessibilityReduceTransparencyStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsReduceTransparencyEnabled(void) NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityReduceTransparencyStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
 
 // Returns whether the system preference for reduce motion is enabled
-UIKIT_EXTERN BOOL UIAccessibilityIsReduceMotionEnabled() NS_AVAILABLE_IOS(8_0);
-UIKIT_EXTERN NSString *const UIAccessibilityReduceMotionStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsReduceMotionEnabled(void) NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityReduceMotionStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
 
 // Returns whether the system preference for darker colors is enabled
-UIKIT_EXTERN BOOL UIAccessibilityDarkerSystemColorsEnabled() NS_AVAILABLE_IOS(8_0);
-UIKIT_EXTERN NSString *const UIAccessibilityDarkerSystemColorsStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN BOOL UIAccessibilityDarkerSystemColorsEnabled(void) NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityDarkerSystemColorsStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
 
 /*
  Use UIAccessibilityIsSwitchControlRunning() to determine if Switch Control is running.
  Listen for UIAccessibilitySwitchControlStatusDidChangeNotification to know when Switch Control starts or stops.
 */
-UIKIT_EXTERN BOOL UIAccessibilityIsSwitchControlRunning() NS_AVAILABLE_IOS(8_0);
-UIKIT_EXTERN NSString *const UIAccessibilitySwitchControlStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsSwitchControlRunning(void) NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilitySwitchControlStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
 
 // Returns whether the system preference for Speak Selection is enabled
-UIKIT_EXTERN BOOL UIAccessibilityIsSpeakSelectionEnabled() NS_AVAILABLE_IOS(8_0);
-UIKIT_EXTERN NSString *const UIAccessibilitySpeakSelectionStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsSpeakSelectionEnabled(void) NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilitySpeakSelectionStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
 
 // Returns whether the system preference for Speak Screen is enabled
-UIKIT_EXTERN BOOL UIAccessibilityIsSpeakScreenEnabled() NS_AVAILABLE_IOS(8_0);
-UIKIT_EXTERN NSString *const UIAccessibilitySpeakScreenStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsSpeakScreenEnabled(void) NS_AVAILABLE_IOS(8_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilitySpeakScreenStatusDidChangeNotification NS_AVAILABLE_IOS(8_0);
 
 // Returns whether the system preference for Shake to Undo is enabled
-UIKIT_EXTERN BOOL UIAccessibilityIsShakeToUndoEnabled() NS_AVAILABLE_IOS(9_0);
-UIKIT_EXTERN NSString *const UIAccessibilityShakeToUndoDidChangeNotification NS_AVAILABLE_IOS(9_0);
+UIKIT_EXTERN BOOL UIAccessibilityIsShakeToUndoEnabled(void) NS_AVAILABLE_IOS(9_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityShakeToUndoDidChangeNotification NS_AVAILABLE_IOS(9_0);
+
+// Returns whether the system preference for AssistiveTouch is enabled.
+// This always returns false if Guided Access is not enabled.
+UIKIT_EXTERN BOOL UIAccessibilityIsAssistiveTouchRunning(void) NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN NSNotificationName const UIAccessibilityAssistiveTouchStatusDidChangeNotification NS_AVAILABLE_IOS(10_0);
 
 /*
  Use UIAccessibilityRequestGuidedAccessSession() to request this app be locked into or released
@@ -9384,11 +14390,64 @@ UIKIT_EXTERN NSString *const UIAccessibilityShakeToUndoDidChangeNotification NS_
  */
 UIKIT_EXTERN void UIAccessibilityRequestGuidedAccessSession(BOOL enable, void(^completionHandler)(BOOL didSucceed)) NS_AVAILABLE_IOS(7_0);
 
+typedef NS_OPTIONS(NSUInteger, UIAccessibilityHearingDeviceEar) {
+    UIAccessibilityHearingDeviceEarNone    = 0,
+    UIAccessibilityHearingDeviceEarLeft    = 1 << 1,
+    UIAccessibilityHearingDeviceEarRight   = 1 << 2,
+    UIAccessibilityHearingDeviceEarBoth    = UIAccessibilityHearingDeviceEarLeft | UIAccessibilityHearingDeviceEarRight,
+} NS_ENUM_AVAILABLE_IOS(10_0) __TVOS_PROHIBITED;
+
+// Returns the current pairing status of MFi hearing aids
+UIKIT_EXTERN UIAccessibilityHearingDeviceEar UIAccessibilityHearingDevicePairedEar(void) NS_AVAILABLE_IOS(10_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN NSNotificationName const UIAccessibilityHearingDevicePairedEarDidChangeNotification NS_AVAILABLE_IOS(10_0) __TVOS_PROHIBITED;
+
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccessibility.h>
+#endif
+// ==========  UIKit.framework/Headers/UIInteraction.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIInteraction.h>)
+//
+//  UIInteraction.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIView.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(11.0), watchos(5.0)) API_UNAVAILABLE(tvos) @protocol UIInteraction <NSObject>
+
+@property (nonatomic, nullable, weak, readonly) __kindof UIView *view;
+
+- (void)willMoveToView:(nullable UIView *)view;
+- (void)didMoveToView:(nullable UIView *)view;
+
+@end
+
+
+@interface UIView (Interactions)
+
+- (void)addInteraction:(id<UIInteraction>)interaction API_AVAILABLE(ios(11.0), watchos(5.0)) API_UNAVAILABLE(tvos);
+- (void)removeInteraction:(id<UIInteraction>)interaction API_AVAILABLE(ios(11.0), watchos(5.0)) API_UNAVAILABLE(tvos);
+
+@property (nonatomic, copy) NSArray<id<UIInteraction>> *interactions API_AVAILABLE(ios(11.0), watchos(5.0)) API_UNAVAILABLE(tvos);
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIInteraction.h>
+#endif
 // ==========  UIKit.framework/Headers/UIScreenEdgePanGestureRecognizer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIScreenEdgePanGestureRecognizer.h>)
 //
 //  UIScreenEdgePanGestureRecognizer.h
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIGeometry.h>
@@ -9398,22 +14457,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*! This subclass of UIPanGestureRecognizer only recognizes if the user slides their finger
     in from the bezel on the specified edge. */
-NS_CLASS_AVAILABLE_IOS(7_0) @interface UIScreenEdgePanGestureRecognizer : UIPanGestureRecognizer
+NS_CLASS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED @interface UIScreenEdgePanGestureRecognizer : UIPanGestureRecognizer
 @property (readwrite, nonatomic, assign) UIRectEdge edges; //< The edges on which this gesture recognizes, relative to the current interface orientation
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIScreenEdgePanGestureRecognizer.h>
+#endif
 // ==========  UIKit.framework/Headers/UICollectionView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UICollectionView.h>)
 //
 //  UICollectionView.h
 //  UIKit
 //
-//  Copyright (c) 2011-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018 Apple Inc. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+#import <UIKit/NSIndexPath+UIKitAdditions.h>
 #import <UIKit/UIScrollView.h>
 #import <UIKit/UIKitDefines.h>
-#import <Foundation/Foundation.h>
+#import <UIKit/UIDataSourceTranslating.h>
+#import <UIKit/UIDropInteraction.h>
+#import <UIKit/UISpringLoadedInteractionSupporting.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -9432,17 +14500,29 @@ typedef NS_OPTIONS(NSUInteger, UICollectionViewScrollPosition) {
     UICollectionViewScrollPositionRight                = 1 << 5
 };
 
-@class UICollectionView;
-@class UICollectionViewCell;
-@class UICollectionViewLayout;
-@class UICollectionViewTransitionLayout;
-@class UICollectionViewLayoutAttributes;
-@class UITouch;
-@class UINib;
-@class UICollectionReusableView;
+
+typedef NS_ENUM(NSInteger, UICollectionViewReorderingCadence) {
+    UICollectionViewReorderingCadenceImmediate,
+    UICollectionViewReorderingCadenceFast,
+    UICollectionViewReorderingCadenceSlow
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+@class UICollectionView, UICollectionReusableView, UICollectionViewCell, UICollectionViewLayout, UICollectionViewTransitionLayout, UICollectionViewLayoutAttributes, UITouch, UINib;
+@class UIDragItem, UIDragPreviewParameters, UIDragPreviewTarget;
+@class UICollectionViewDropProposal, UICollectionViewPlaceholder, UICollectionViewDropPlaceholder;
+@protocol UIDataSourceTranslating, UISpringLoadedInteractionContext;
+@protocol UIDragSession, UIDropSession;
+@protocol UICollectionViewDragDelegate, UICollectionViewDropDelegate, UICollectionViewDropCoordinator, UICollectionViewDropItem, UICollectionViewDropPlaceholderContext;
 
 // layout transition block signature
 typedef void (^UICollectionViewLayoutInteractiveTransitionCompletion)(BOOL completed, BOOL finished);
+
+NS_CLASS_AVAILABLE_IOS(9_0) @interface UICollectionViewFocusUpdateContext : UIFocusUpdateContext
+
+@property (nonatomic, strong, readonly, nullable) NSIndexPath *previouslyFocusedIndexPath;
+@property (nonatomic, strong, readonly, nullable) NSIndexPath *nextFocusedIndexPath;
+
+@end
 
 @protocol UICollectionViewDataSource <NSObject>
 @required
@@ -9450,7 +14530,7 @@ typedef void (^UICollectionViewLayoutInteractiveTransitionCompletion)(BOOL compl
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section;
 
 // The cell that is returned must be retrieved from a call to -dequeueReusableCellWithReuseIdentifier:forIndexPath:
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath;
+- (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath;
 
 @optional
 
@@ -9462,7 +14542,26 @@ typedef void (^UICollectionViewLayoutInteractiveTransitionCompletion)(BOOL compl
 - (BOOL)collectionView:(UICollectionView *)collectionView canMoveItemAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(9_0);
 - (void)collectionView:(UICollectionView *)collectionView moveItemAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath NS_AVAILABLE_IOS(9_0);
 
+/// Returns a list of index titles to display in the index view (e.g. ["A", "B", "C" ... "Z", "#"])
+- (nullable NSArray<NSString *> *)indexTitlesForCollectionView:(UICollectionView *)collectionView API_AVAILABLE(tvos(10.2));
+
+/// Returns the index path that corresponds to the given title / index. (e.g. "B",1)
+/// Return an index path with a single index to indicate an entire section, instead of a specific item.
+- (NSIndexPath *)collectionView:(UICollectionView *)collectionView indexPathForIndexTitle:(NSString *)title atIndex:(NSInteger)index API_AVAILABLE(tvos(10.2));
+
 @end
+
+@protocol UICollectionViewDataSourcePrefetching <NSObject>
+@required
+// indexPaths are ordered ascending by geometric distance from the collection view
+- (void)collectionView:(UICollectionView *)collectionView prefetchItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths NS_AVAILABLE_IOS(10_0);
+
+@optional
+// indexPaths that previously were considered as candidates for pre-fetching, but were not actually used; may be a subset of the previous call to -collectionView:prefetchItemsAtIndexPaths:
+- (void)collectionView:(UICollectionView *)collectionView cancelPrefetchingForItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths  NS_AVAILABLE_IOS(10_0);
+
+@end
+
 
 @protocol UICollectionViewDelegate <UIScrollViewDelegate>
 @optional
@@ -9500,13 +14599,30 @@ typedef void (^UICollectionViewLayoutInteractiveTransitionCompletion)(BOOL compl
 // support for custom transition layout
 - (nonnull UICollectionViewTransitionLayout *)collectionView:(UICollectionView *)collectionView transitionLayoutForOldLayout:(UICollectionViewLayout *)fromLayout newLayout:(UICollectionViewLayout *)toLayout;
 
+// Focus
+- (BOOL)collectionView:(UICollectionView *)collectionView canFocusItemAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(9_0);
+- (BOOL)collectionView:(UICollectionView *)collectionView shouldUpdateFocusInContext:(UICollectionViewFocusUpdateContext *)context NS_AVAILABLE_IOS(9_0);
+- (void)collectionView:(UICollectionView *)collectionView didUpdateFocusInContext:(UICollectionViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator NS_AVAILABLE_IOS(9_0);
+- (nullable NSIndexPath *)indexPathForPreferredFocusedViewInCollectionView:(UICollectionView *)collectionView NS_AVAILABLE_IOS(9_0);
+
 - (NSIndexPath *)collectionView:(UICollectionView *)collectionView targetIndexPathForMoveFromItemAtIndexPath:(NSIndexPath *)originalIndexPath toProposedIndexPath:(NSIndexPath *)proposedIndexPath NS_AVAILABLE_IOS(9_0);
 
 - (CGPoint)collectionView:(UICollectionView *)collectionView targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset NS_AVAILABLE_IOS(9_0); // customize the content offset to be applied during transition or update animations
 
+// Spring Loading
+
+/* Allows opting-out of spring loading for an particular item.
+ *
+ * If you want the interaction effect on a different subview of the spring loaded cell, modify the context.targetView property.
+ * The default is the cell.
+ *
+ * If this method is not implemented, the default is YES.
+ */
+- (BOOL)collectionView:(UICollectionView *)collectionView shouldSpringLoadItemAtIndexPath:(NSIndexPath *)indexPath withContext:(id<UISpringLoadedInteractionContext>)context API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
 @end
 
-NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
+NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView <UIDataSourceTranslating>
 
 - (instancetype)initWithFrame:(CGRect)frame collectionViewLayout:(UICollectionViewLayout *)layout NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
@@ -9514,6 +14630,25 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
 @property (nonatomic, strong) UICollectionViewLayout *collectionViewLayout;
 @property (nonatomic, weak, nullable) id <UICollectionViewDelegate> delegate;
 @property (nonatomic, weak, nullable) id <UICollectionViewDataSource> dataSource;
+
+@property (nonatomic, weak, nullable) id<UICollectionViewDataSourcePrefetching> prefetchDataSource NS_AVAILABLE_IOS(10_0);
+@property (nonatomic, getter=isPrefetchingEnabled) BOOL prefetchingEnabled NS_AVAILABLE_IOS(10_0);
+
+@property (nonatomic, weak, nullable) id <UICollectionViewDragDelegate> dragDelegate API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+@property (nonatomic, weak, nullable) id <UICollectionViewDropDelegate> dropDelegate API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+
+/* To enable intra-app drags on iPhone, set this to YES.
+ * You can also force drags to be disabled for this collection view by setting this to NO.
+ * By default, For iPad this will return YES and iPhone will return NO.
+ */
+@property (nonatomic) BOOL dragInteractionEnabled API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+/* Reordering cadence affects how easily reordering occurs while dragging around a reorder-capable drop destination.
+ * Default is UICollectionViewReorderingCadenceImmediate.
+ */
+@property (nonatomic) UICollectionViewReorderingCadence reorderingCadence API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
 @property (nonatomic, strong, nullable) UIView *backgroundView; // will be automatically resized to track the size of the collection view and placed behind all cells and supplementary views.
 
 // For each reuse identifier that the collection view will use, register either a class or a nib from which to instantiate a cell.
@@ -9532,10 +14667,18 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
 @property (nonatomic) BOOL allowsSelection; // default is YES
 @property (nonatomic) BOOL allowsMultipleSelection; // default is NO
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property (nonatomic, readonly, nullable) NSArray<NSIndexPath *> *indexPathsForSelectedItems; // returns nil or an array of selected index paths
+#else
 - (nullable NSArray<NSIndexPath *> *)indexPathsForSelectedItems; // returns nil or an array of selected index paths
+#endif
 - (void)selectItemAtIndexPath:(nullable NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(UICollectionViewScrollPosition)scrollPosition;
 - (void)deselectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated;
 
+// Returns YES if the collection view is reordering or has drop placeholders.
+@property (nonatomic, readonly) BOOL hasUncommittedUpdates API_AVAILABLE(ios(11.0));
+
+// Note: -reloadData will discard any uncommitted updates (e.g. placeholders)
 - (void)reloadData; // discard the dataSource and delegate data and requery as necessary
 
 - (void)setCollectionViewLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated; // transition from one layout to another
@@ -9547,7 +14690,11 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
 
 // Information about the current state of the collection view.
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property (nonatomic, readonly) NSInteger numberOfSections;
+#else
 - (NSInteger)numberOfSections;
+#endif
 - (NSInteger)numberOfItemsInSection:(NSInteger)section;
 
 - (nullable UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath;
@@ -9557,10 +14704,15 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
 - (nullable NSIndexPath *)indexPathForCell:(UICollectionViewCell *)cell;
 
 - (nullable UICollectionViewCell *)cellForItemAtIndexPath:(NSIndexPath *)indexPath;
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property (nonatomic, readonly) NSArray<__kindof UICollectionViewCell *> *visibleCells;
+@property (nonatomic, readonly) NSArray<NSIndexPath *> *indexPathsForVisibleItems;
+#else
 - (NSArray<__kindof UICollectionViewCell *> *)visibleCells;
 - (NSArray<NSIndexPath *> *)indexPathsForVisibleItems;
+#endif
 
-- (UICollectionReusableView *)supplementaryViewForElementKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(9_0);
+- (nullable UICollectionReusableView *)supplementaryViewForElementKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(9_0);
 - (NSArray<UICollectionReusableView *> *)visibleSupplementaryViewsOfKind:(NSString *)elementKind NS_AVAILABLE_IOS(9_0);
 - (NSArray<NSIndexPath *> *)indexPathsForVisibleSupplementaryElementsOfKind:(NSString *)elementKind NS_AVAILABLE_IOS(9_0);
 
@@ -9579,7 +14731,7 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
 - (void)reloadItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths;
 - (void)moveItemAtIndexPath:(NSIndexPath *)indexPath toIndexPath:(NSIndexPath *)newIndexPath;
 
-- (void)performBatchUpdates:(void (^ __nullable)(void))updates completion:(void (^ __nullable)(BOOL finished))completion; // allows multiple insert/delete/reload/move calls to be animated simultaneously. Nestable.
+- (void)performBatchUpdates:(void (NS_NOESCAPE ^ _Nullable)(void))updates completion:(void (^ _Nullable)(BOOL finished))completion; // allows multiple insert/delete/reload/move calls to be animated simultaneously. Nestable.
 
 // Support for reordering
 - (BOOL)beginInteractiveMovementForItemAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(9_0); // returns NO if reordering was prevented from beginning - otherwise YES
@@ -9587,23 +14739,297 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
 - (void)endInteractiveMovement NS_AVAILABLE_IOS(9_0);
 - (void)cancelInteractiveMovement NS_AVAILABLE_IOS(9_0);
 
+// Support for Focus
+@property (nonatomic) BOOL remembersLastFocusedIndexPath NS_AVAILABLE_IOS(9_0); // defaults to NO. If YES, when focusing on a collection view the last focused index path is focused automatically. If the collection view has never been focused, then the preferred focused index path is used.
+
+// Drag & Drop
+
+/* YES if a drag session is currently active. A drag session begins after items are "lifted" from the collection view.
+ */
+@property (nonatomic, readonly) BOOL hasActiveDrag API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+/* YES if collection view is currently tracking a drop session.
+ */
+@property (nonatomic, readonly) BOOL hasActiveDrop API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
 @end
 
-@interface NSIndexPath (UICollectionViewAdditions)
+// _______________________________________________________________________________________________________________
+// Drag & Drop
 
-+ (instancetype)indexPathForItem:(NSInteger)item inSection:(NSInteger)section NS_AVAILABLE_IOS(6_0);
 
-@property (nonatomic, readonly) NSInteger item NS_AVAILABLE_IOS(6_0);
+#if TARGET_OS_IOS
+@interface UICollectionView (UIDragAndDrop) <UISpringLoadedInteractionSupporting>
+@end
+#endif
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UICollectionViewDragDelegate <NSObject>
+
+@required
+
+/* Provide items to begin a drag associated with a given indexPath.
+ * If an empty array is returned a drag session will not begin.
+ */
+- (NSArray<UIDragItem *> *)collectionView:(UICollectionView *)collectionView itemsForBeginningDragSession:(id<UIDragSession>)session atIndexPath:(NSIndexPath *)indexPath;
+
+@optional
+
+/* Called to request items to add to an existing drag session in response to the add item gesture.
+ * You can use the provided point (in the collection view's coordinate space) to do additional hit testing if desired.
+ * If not implemented, or if an empty array is returned, no items will be added to the drag and the gesture
+ * will be handled normally.
+ */
+- (NSArray<UIDragItem *> *)collectionView:(UICollectionView *)collectionView itemsForAddingToDragSession:(id<UIDragSession>)session atIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point;
+
+/* Allows customization of the preview used for the item being lifted from or cancelling back to the collection view.
+ * If not implemented or if nil is returned, the entire cell will be used for the preview.
+ */
+- (nullable UIDragPreviewParameters *)collectionView:(UICollectionView *)collectionView dragPreviewParametersForItemAtIndexPath:(NSIndexPath *)indexPath;
+
+/* Called after the lift animation has completed to signal the start of a drag session.
+ * This call will always be balanced with a corresponding call to -collectionView:dragSessionDidEnd:
+ */
+- (void)collectionView:(UICollectionView *)collectionView dragSessionWillBegin:(id<UIDragSession>)session;
+
+/* Called to signal the end of the drag session.
+ */
+- (void)collectionView:(UICollectionView *)collectionView dragSessionDidEnd:(id<UIDragSession>)session;
+
+
+/* Controls whether move operations (see UICollectionViewDropProposal.operation) are allowed for the drag session.
+ * If not implemented this will default to YES.
+ */
+- (BOOL)collectionView:(UICollectionView *)collectionView dragSessionAllowsMoveOperation:(id<UIDragSession>)session;
+
+/* Controls whether the drag session is restricted to the source application.
+ * If YES the current drag session will not be permitted to drop into another application.
+ * If not implemented this will default to NO.
+ */
+- (BOOL)collectionView:(UICollectionView *)collectionView dragSessionIsRestrictedToDraggingApplication:(id<UIDragSession>)session;
 
 @end
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UICollectionViewDropDelegate <NSObject>
+
+@required
+
+/* Called when the user initiates the drop.
+ * Use the dropCoordinator to specify how you wish to animate the dropSession's items into their final position as
+ * well as update the collection view's data source with data retrieved from the dropped items.
+ * If the supplied method does nothing, default drop animations will be supplied and the collection view will
+ * revert back to its initial pre-drop session state.
+ */
+- (void)collectionView:(UICollectionView *)collectionView performDropWithCoordinator:(id<UICollectionViewDropCoordinator>)coordinator;
+
+@optional
+
+/* If NO is returned no further delegate methods will be called for this drop session.
+ * If not implemented, a default value of YES is assumed.
+ */
+- (BOOL)collectionView:(UICollectionView *)collectionView canHandleDropSession:(id<UIDropSession>)session;
+
+/* Called when the drop session begins tracking in the collection view's coordinate space.
+ */
+- (void)collectionView:(UICollectionView *)collectionView dropSessionDidEnter:(id<UIDropSession>)session;
+
+/* Called frequently while the drop session being tracked inside the collection view's coordinate space.
+ * When the drop is at the end of a section, the destination index path passed will be for a item that does not yet exist (equal
+ * to the number of items in that section), where an inserted item would append to the end of the section.
+ * The destination index path may be nil in some circumstances (e.g. when dragging over empty space where there are no cells).
+ * Note that in some cases your proposal may not be allowed and the system will enforce a different proposal.
+ * You may perform your own hit testing via -[UIDropSession locationInView]
+ */
+- (UICollectionViewDropProposal *)collectionView:(UICollectionView *)collectionView dropSessionDidUpdate:(id<UIDropSession>)session withDestinationIndexPath:(nullable NSIndexPath *)destinationIndexPath;
+
+/* Called when the drop session is no longer being tracked inside the collection view's coordinate space.
+ */
+- (void)collectionView:(UICollectionView *)collectionView dropSessionDidExit:(id<UIDropSession>)session;
+
+/* Called when the drop session completed, regardless of outcome. Useful for performing any cleanup.
+ */
+- (void)collectionView:(UICollectionView *)collectionView dropSessionDidEnd:(id<UIDropSession>)session;
+
+/* Allows customization of the preview used for the item being dropped.
+ * If not implemented or if nil is returned, the entire cell will be used for the preview.
+ *
+ * This will be called as needed when animating drops via -[UICollectionViewDropCoordinator dropItem:toItemAtIndexPath:]
+ * (to customize placeholder drops, please see UICollectionViewDropPlaceholder.previewParametersProvider)
+ */
+- (nullable UIDragPreviewParameters *)collectionView:(UICollectionView *)collectionView dropPreviewParametersForItemAtIndexPath:(NSIndexPath *)indexPath;
+
+@end
+
+typedef NS_ENUM(NSInteger, UICollectionViewDropIntent) {
+    /* Collection view will accept the drop, but the location is not yet known and will be determined later.
+     * Will not open a gap. You may wish to provide some visual treatment to communicate this to the user.
+     */
+    UICollectionViewDropIntentUnspecified,
+    
+    /* The drop will be placed in item(s) inserted at the destination index path.
+     * Opens a gap at the specified location simulating the final dropped layout.
+     */
+    UICollectionViewDropIntentInsertAtDestinationIndexPath,
+    
+    /* The drop will be placed inside the item at the destination index path (e.g. the item is a container of other items).
+     * Will not open a gap. Collection view will highlight the item at the destination index path.
+     */
+    UICollectionViewDropIntentInsertIntoDestinationIndexPath,
+    
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@interface UICollectionViewDropProposal : UIDropProposal
+
+- (instancetype)initWithDropOperation:(UIDropOperation)operation intent:(UICollectionViewDropIntent)intent;
+
+/* The default is UICollectionViewDropIntentUnspecified.
+ */
+@property (nonatomic, readonly) UICollectionViewDropIntent intent;
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UICollectionViewDropCoordinator <NSObject>
+
+/* Ordered list of items available for this drop.
+ */
+@property (nonatomic, readonly) NSArray<id<UICollectionViewDropItem>> *items;
+
+/* The last hit-tested index path known during the drop session.
+ * If this is nil, the proposal's intent will be .unspecified
+ */
+@property (nonatomic, readonly, nullable) NSIndexPath *destinationIndexPath;
+
+/* The current drop proposal at the time of the drop.
+ */
+@property (nonatomic, readonly) UICollectionViewDropProposal *proposal;
+
+
+@property (nonatomic, readonly) id<UIDropSession> session;
+
+/* Animate the dragItem to an automatically inserted placeholder item.
+ *
+ * A placeholder cell will be created for the reuse identifier and inserted at the specified indexPath without requiring a dataSource update.
+ *
+ * The cellUpdateHandler will be called whenever the placeholder cell becomes visible; -collectionView:cellForItemAtIndexPath: will not be called
+ * for the placeholder.
+ *
+ * Once the dragItem data is available, you can exchange the temporary placeholder cell with the final cell using
+ * the placeholder context method -commitInsertionWithDataSourceUpdates:
+ *
+ * UICollectionViewDropPlaceholderContext also conforms to UIDragAnimating to allow adding alongside animations and completion handlers.
+ */
+- (id<UICollectionViewDropPlaceholderContext>)dropItem:(UIDragItem *)dragItem toPlaceholder:(UICollectionViewDropPlaceholder*)placeholder;
+
+/* Animate the dragItem to a newly inserted item at the specified index path.
+ * You must call -performBatchUpdates:completion: to update your data source and insert a new item into the collection view prior to calling this method.
+ *
+ * To tweak the appearance of the preview being dropping (e.g. supply a clipping path), see -collectionView:dropPreviewParametersForItemAtIndexPath:
+ */
+- (id<UIDragAnimating>)dropItem:(UIDragItem *)dragItem toItemAtIndexPath:(NSIndexPath *)indexPath;
+
+/* Animate the dragItem to a rect inside an existing item.
+ * The rect is in the coordinate space of the cell at this index path.
+ * The item will be animated with an aspect fit scale transform to fit inside the rect. Use a rect with zero size to shrink the item to a single point.
+ */
+- (id<UIDragAnimating>)dropItem:(UIDragItem *)dragItem intoItemAtIndexPath:(NSIndexPath *)indexPath rect:(CGRect)rect;
+
+/* Animate the dragItem to a location specified by the UIDragPreviewTarget.
+ */
+- (id<UIDragAnimating>)dropItem:(UIDragItem *)dragItem toTarget:(UIDragPreviewTarget *)target;
+
+@end
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos,watchos)
+@interface UICollectionViewPlaceholder : NSObject
+
+- (instancetype)initWithInsertionIndexPath:(NSIndexPath*)insertionIndexPath reuseIdentifier:(NSString *)reuseIdentifier NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+/* Called whenever the placeholder cell is visible to update the contents of the cell.
+ */
+@property (nonatomic, nullable, copy) void(^cellUpdateHandler)(__kindof UICollectionViewCell *);
+
+@end
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos,watchos)
+@interface UICollectionViewDropPlaceholder : UICollectionViewPlaceholder
+
+/* If specified, will be used to modify the appearance (e.g. visiblePath to supply a "cut out" region of the placeholder cell) of the animating dropped item.
+ * Handler will be called as-needed.
+ */
+@property (nonatomic, nullable, copy) UIDragPreviewParameters * _Nullable (^previewParametersProvider)(__kindof UICollectionViewCell *);
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UICollectionViewDropItem <NSObject>
+
+@property (nonatomic, readonly) UIDragItem *dragItem;
+
+/* If this drop item is also from this collection view this indexPath will specify the location of the item.
+ * If the dragItem comes from some other source (e.g. another source inside or outside of the app), it will be nil.
+ * This is useful for directly accessing the model objects in the data source instead of using the item provider
+ * to retrieve the data.
+ */
+@property (nonatomic, readonly, nullable) NSIndexPath *sourceIndexPath;
+
+/* May be useful for computing the UIDragPreviewTarget transform for UICollectionViewDropCoordinator dropItem:toTarget:
+ * Returns CGSizeZero if the dragItem does not have a visible drop preview.
+ */
+@property (nonatomic, readonly) CGSize previewSize;
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UICollectionViewDropPlaceholderContext <UIDragAnimating>
+
+/* Retrieve drop data from the dragItem's itemProvider.
+ */
+@property (nonatomic, readonly) UIDragItem *dragItem;
+
+
+/* Exchange the placeholder for the final cell.
+ * You are only responsible for updating your data source inside the block using the provided insertionIndexPath.
+ * If the placeholder is no longer available (e.g. -reloadData has been called) the dataSourceUpdates block
+ * will not be executed and this will return NO.
+ */
+- (BOOL)commitInsertionWithDataSourceUpdates:(void(NS_NOESCAPE ^)(NSIndexPath *insertionIndexPath))dataSourceUpdates;
+
+/* If the placeholder is no longer needed or you wish to manually insert a cell for the drop data, you can
+ * remove the placeholder via this method.
+ * If the placeholder is no longer available (e.g. -reloadData has been called) this will return NO.
+ */
+- (BOOL)deletePlaceholder;
+
+/* Call this method to request an update of the placeholder cell's content via the updateCellHandler.
+ * This will only be called if the placeholder is visible. If the placeholder becomes visible via scrolling,
+ * the updateCellHandler will automatically be called.
+ */
+- (void)setNeedsCellUpdate;
+
+@end
+
+
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UICollectionView.h>
+#endif
 // ==========  UIKit.framework/Headers/UIDynamicAnimator.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIDynamicAnimator.h>)
 //
 //  UIDynamicAnimator.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -9642,7 +15068,11 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIDynamicAnimator: NSObject
 - (void)updateItemUsingCurrentState:(id <UIDynamicItem>)item;
 
 @property (nonatomic, readonly, getter = isRunning) BOOL running;
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property (nonatomic, readonly) NSTimeInterval elapsedTime;
+#else
 - (NSTimeInterval)elapsedTime;
+#endif
 
 @property (nullable, nonatomic, weak) id <UIDynamicAnimatorDelegate> delegate;
 
@@ -9662,12 +15092,17 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIDynamicAnimator: NSObject
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIDynamicAnimator.h>
+#endif
 // ==========  UIKit.framework/Headers/UIBarCommon.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIBarCommon.h>)
 //
 //  UIBarCommon.h
 //  UIKit
 //
-//  Copyright (c) 2013-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -9711,12 +15146,17 @@ typedef NS_ENUM(NSInteger, UIBarPosition) {
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIBarCommon.h>
+#endif
 // ==========  UIKit.framework/Headers/UINavigationController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UINavigationController.h>)
 //
 //  UINavigationController.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -9751,7 +15191,7 @@ typedef NS_ENUM(NSInteger, UINavigationControllerOperation) {
 
 UIKIT_EXTERN const CGFloat UINavigationControllerHideShowBarDuration;
 
-@class UIView, UINavigationBar, UINavigationItem, UIToolbar, UILayoutContainerView;
+@class UIView, UINavigationBar, UINavigationItem, UIToolbar;
 @protocol UINavigationControllerDelegate;
 
 
@@ -9783,27 +15223,27 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UINavigationController : UIViewController
 - (void)setNavigationBarHidden:(BOOL)hidden animated:(BOOL)animated; // Hide or show the navigation bar. If animated, it will transition vertically using UINavigationControllerHideShowBarDuration.
 @property(nonatomic,readonly) UINavigationBar *navigationBar; // The navigation bar managed by the controller. Pushing, popping or setting navigation items on a managed navigation bar is not supported.
 
-@property(nonatomic,getter=isToolbarHidden) BOOL toolbarHidden NS_AVAILABLE_IOS(3_0); // Defaults to YES, i.e. hidden.
-- (void)setToolbarHidden:(BOOL)hidden animated:(BOOL)animated NS_AVAILABLE_IOS(3_0); // Hide or show the toolbar at the bottom of the screen. If animated, it will transition vertically using UINavigationControllerHideShowBarDuration.
-@property(null_resettable,nonatomic,readonly) UIToolbar *toolbar NS_AVAILABLE_IOS(3_0); // For use when presenting an action sheet.
+@property(nonatomic,getter=isToolbarHidden) BOOL toolbarHidden NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED; // Defaults to YES, i.e. hidden.
+- (void)setToolbarHidden:(BOOL)hidden animated:(BOOL)animated NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED; // Hide or show the toolbar at the bottom of the screen. If animated, it will transition vertically using UINavigationControllerHideShowBarDuration.
+@property(null_resettable,nonatomic,readonly) UIToolbar *toolbar NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED; // For use when presenting an action sheet.
 
 @property(nullable, nonatomic, weak) id<UINavigationControllerDelegate> delegate;
-@property(nullable, nonatomic, readonly) UIGestureRecognizer *interactivePopGestureRecognizer NS_AVAILABLE_IOS(7_0);
+@property(nullable, nonatomic, readonly) UIGestureRecognizer *interactivePopGestureRecognizer NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
 
 - (void)showViewController:(UIViewController *)vc sender:(nullable id)sender NS_AVAILABLE_IOS(8_0); // Interpreted as pushViewController:animated:
 
 /// When the keyboard appears, the navigation controller's navigationBar toolbar will be hidden. The bars will remain hidden when the keyboard dismisses, but a tap in the content area will show them.
-@property (nonatomic, readwrite, assign) BOOL hidesBarsWhenKeyboardAppears NS_AVAILABLE_IOS(8_0);
+@property (nonatomic, readwrite, assign) BOOL hidesBarsWhenKeyboardAppears NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 /// When the user swipes, the navigation controller's navigationBar & toolbar will be hidden (on a swipe up) or shown (on a swipe down). The toolbar only participates if it has items.
-@property (nonatomic, readwrite, assign) BOOL hidesBarsOnSwipe NS_AVAILABLE_IOS(8_0);
+@property (nonatomic, readwrite, assign) BOOL hidesBarsOnSwipe NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 /// The gesture recognizer that triggers if the bars will hide or show due to a swipe. Do not change the delegate or attempt to replace this gesture by overriding this method.
-@property (nonatomic, readonly, strong) UIPanGestureRecognizer *barHideOnSwipeGestureRecognizer NS_AVAILABLE_IOS(8_0);
+@property (nonatomic, readonly, strong) UIPanGestureRecognizer *barHideOnSwipeGestureRecognizer NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 /// When the UINavigationController's vertical size class is compact, hide the UINavigationBar and UIToolbar. Unhandled taps in the regions that would normally be occupied by these bars will reveal the bars.
-@property (nonatomic, readwrite, assign) BOOL hidesBarsWhenVerticallyCompact NS_AVAILABLE_IOS(8_0);
+@property (nonatomic, readwrite, assign) BOOL hidesBarsWhenVerticallyCompact NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 /// When the user taps, the navigation controller's navigationBar & toolbar will be hidden or shown, depending on the hidden state of the navigationBar. The toolbar will only be shown if it has items to display.
-@property (nonatomic, readwrite, assign) BOOL hidesBarsOnTap NS_AVAILABLE_IOS(8_0);
+@property (nonatomic, readwrite, assign) BOOL hidesBarsOnTap NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 /// The gesture recognizer used to recognize if the bars will hide or show due to a tap in content. Do not change the delegate or attempt to replace this gesture by overriding this method.
-@property (nonatomic, readonly, assign) UITapGestureRecognizer *barHideOnTapGestureRecognizer NS_AVAILABLE_IOS(8_0);
+@property (nonatomic, readonly, assign) UITapGestureRecognizer *barHideOnTapGestureRecognizer NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 
 @end
 
@@ -9818,8 +15258,8 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UINavigationController : UIViewController
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 
-- (UIInterfaceOrientationMask)navigationControllerSupportedInterfaceOrientations:(UINavigationController *)navigationController NS_AVAILABLE_IOS(7_0);
-- (UIInterfaceOrientation)navigationControllerPreferredInterfaceOrientationForPresentation:(UINavigationController *)navigationController NS_AVAILABLE_IOS(7_0);
+- (UIInterfaceOrientationMask)navigationControllerSupportedInterfaceOrientations:(UINavigationController *)navigationController NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+- (UIInterfaceOrientation)navigationControllerPreferredInterfaceOrientationForPresentation:(UINavigationController *)navigationController NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
 
 - (nullable id <UIViewControllerInteractiveTransitioning>)navigationController:(UINavigationController *)navigationController
                           interactionControllerForAnimationController:(id <UIViewControllerAnimatedTransitioning>) animationController NS_AVAILABLE_IOS(7_0);
@@ -9834,25 +15274,30 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UINavigationController : UIViewController
 @interface UIViewController (UINavigationControllerItem)
 
 @property(nonatomic,readonly,strong) UINavigationItem *navigationItem; // Created on-demand so that a view controller may customize its navigation appearance.
-@property(nonatomic) BOOL hidesBottomBarWhenPushed; // If YES, then when this view controller is pushed into a controller hierarchy with a bottom bar (like a tab bar), the bottom bar will slide out. Default is NO.
+@property(nonatomic) BOOL hidesBottomBarWhenPushed __TVOS_PROHIBITED; // If YES, then when this view controller is pushed into a controller hierarchy with a bottom bar (like a tab bar), the bottom bar will slide out. Default is NO.
 @property(nullable, nonatomic,readonly,strong) UINavigationController *navigationController; // If this view controller has been pushed onto a navigation controller, return it.
 
 @end
 
 @interface UIViewController (UINavigationControllerContextualToolbarItems)
 
-@property (nullable, nonatomic, strong) NSArray<__kindof UIBarButtonItem *> *toolbarItems NS_AVAILABLE_IOS(3_0);
-- (void)setToolbarItems:(nullable NSArray<UIBarButtonItem *> *)toolbarItems animated:(BOOL)animated NS_AVAILABLE_IOS(3_0);
+@property (nullable, nonatomic, strong) NSArray<__kindof UIBarButtonItem *> *toolbarItems NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
+- (void)setToolbarItems:(nullable NSArray<UIBarButtonItem *> *)toolbarItems animated:(BOOL)animated NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UINavigationController.h>
+#endif
 // ==========  UIKit.framework/Headers/UITableViewCell.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITableViewCell.h>)
 //
 //  UITableViewCell.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -9876,8 +15321,8 @@ typedef NS_ENUM(NSInteger, UITableViewCellStyle) {
 typedef NS_ENUM(NSInteger, UITableViewCellSeparatorStyle) {
     UITableViewCellSeparatorStyleNone,
     UITableViewCellSeparatorStyleSingleLine,
-    UITableViewCellSeparatorStyleSingleLineEtched   // This separator style is only supported for grouped style table views currently
-};
+    UITableViewCellSeparatorStyleSingleLineEtched NS_ENUM_DEPRECATED_IOS(2_0, 11_0, "Use UITableViewCellSeparatorStyleSingleLine for a single line separator.")
+} __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UITableViewCellSelectionStyle) {
     UITableViewCellSelectionStyleNone,
@@ -9886,6 +15331,10 @@ typedef NS_ENUM(NSInteger, UITableViewCellSelectionStyle) {
     UITableViewCellSelectionStyleDefault NS_ENUM_AVAILABLE_IOS(7_0)
 };
 
+typedef NS_ENUM(NSInteger, UITableViewCellFocusStyle) {
+    UITableViewCellFocusStyleDefault,
+    UITableViewCellFocusStyleCustom
+} NS_ENUM_AVAILABLE_IOS(9_0);
 
 typedef NS_ENUM(NSInteger, UITableViewCellEditingStyle) {
     UITableViewCellEditingStyleNone,
@@ -9896,9 +15345,9 @@ typedef NS_ENUM(NSInteger, UITableViewCellEditingStyle) {
 typedef NS_ENUM(NSInteger, UITableViewCellAccessoryType) {
     UITableViewCellAccessoryNone,                                                      // don't show any accessory view
     UITableViewCellAccessoryDisclosureIndicator,                                       // regular chevron. doesn't track
-    UITableViewCellAccessoryDetailDisclosureButton,                 // info button w/ chevron. tracks
+    UITableViewCellAccessoryDetailDisclosureButton __TVOS_PROHIBITED,                 // info button w/ chevron. tracks
     UITableViewCellAccessoryCheckmark,                                                 // checkmark. doesn't track
-    UITableViewCellAccessoryDetailButton NS_ENUM_AVAILABLE_IOS(7_0) // info button. tracks
+    UITableViewCellAccessoryDetailButton NS_ENUM_AVAILABLE_IOS(7_0)  __TVOS_PROHIBITED // info button. tracks
 };
 
 typedef NS_OPTIONS(NSUInteger, UITableViewCellStateMask) {
@@ -9906,6 +15355,12 @@ typedef NS_OPTIONS(NSUInteger, UITableViewCellStateMask) {
     UITableViewCellStateShowingEditControlMask          = 1 << 0,
     UITableViewCellStateShowingDeleteConfirmationMask   = 1 << 1
 };
+
+typedef NS_ENUM(NSInteger, UITableViewCellDragState) {
+    UITableViewCellDragStateNone,
+    UITableViewCellDragStateLifting, // The cell is lifting from the table view before it joins the drag session.
+    UITableViewCellDragStateDragging // The cell is involved in a drag session.
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
 #define UITableViewCellStateEditingMask UITableViewCellStateShowingEditControlMask
 
@@ -9934,9 +15389,9 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableViewCell : UIView <NSCoding, UIGes
 @property (nonatomic, strong, nullable) UIView *multipleSelectionBackgroundView NS_AVAILABLE_IOS(5_0);
 
 @property (nonatomic, readonly, copy, nullable) NSString *reuseIdentifier;
-- (void)prepareForReuse;                                                        // if the cell is reusable (has a reuse identifier), this is called just before the cell is returned from the table view method dequeueReusableCellWithIdentifier:.  If you override, you MUST call super.
+- (void)prepareForReuse NS_REQUIRES_SUPER;                                                        // if the cell is reusable (has a reuse identifier), this is called just before the cell is returned from the table view method dequeueReusableCellWithIdentifier:.  If you override, you MUST call super.
 
-@property (nonatomic) UITableViewCellSelectionStyle   selectionStyle;             // default is UITableViewCellSelectionStyleBlue.
+@property (nonatomic) UITableViewCellSelectionStyle   selectionStyle;             // default is UITableViewCellSelectionStyleDefault.
 @property (nonatomic, getter=isSelected) BOOL         selected;                   // set selected state (title, image, background). default is NO. animated is NO
 @property (nonatomic, getter=isHighlighted) BOOL      highlighted;                // set highlighted state (title, image, background). default is NO. animated is NO
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated;                     // animate between regular and selected state
@@ -9953,13 +15408,14 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableViewCell : UIView <NSCoding, UIGes
 
 @property (nonatomic) NSInteger                       indentationLevel;           // adjust content indent. default is 0
 @property (nonatomic) CGFloat                         indentationWidth;           // width for each level. default is 10.0
-@property (nonatomic) UIEdgeInsets                    separatorInset NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR; // allows customization of the separator frame
+@property (nonatomic) UIEdgeInsets                    separatorInset NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED; // allows customization of the separator frame
 
 @property (nonatomic, getter=isEditing) BOOL          editing;                    // show appropriate edit controls (+/- & reorder). By default -setEditing: calls setEditing:animated: with NO for animated.
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated;
 
 @property(nonatomic, readonly) BOOL                   showingDeleteConfirmation;  // currently showing "Delete" button
 
+@property (nonatomic) UITableViewCellFocusStyle       focusStyle NS_AVAILABLE_IOS(9_0) UI_APPEARANCE_SELECTOR;
 
 // These methods can be used by subclasses to animate additional changes to the cell when the cell is changing state
 // Note that when the cell is swiped, the cell will be transitioned into the UITableViewCellStateShowingDeleteConfirmationMask state,
@@ -9967,42 +15423,103 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableViewCell : UIView <NSCoding, UIGes
 - (void)willTransitionToState:(UITableViewCellStateMask)state NS_AVAILABLE_IOS(3_0);
 - (void)didTransitionToState:(UITableViewCellStateMask)state NS_AVAILABLE_IOS(3_0);
 
+/* Override this method to receive notifications that the cell's drag state has changed.
+ * Call super if you want to apply the default appearance.
+ */
+- (void)dragStateDidChange:(UITableViewCellDragState)dragState API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+/* Controls whether the cell in the table view allows user interaction once it is part of a drag (UITableViewCellDragStateDragging).
+ * Default is NO.
+ */
+@property (nonatomic) BOOL userInteractionEnabledWhileDragging API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
 @end
 
 @interface UITableViewCell (UIDeprecated)
 
 // Frame is ignored.  The size will be specified by the table view width and row height.
-- (id)initWithFrame:(CGRect)frame reuseIdentifier:(nullable NSString *)reuseIdentifier NS_DEPRECATED_IOS(2_0, 3_0);
+- (id)initWithFrame:(CGRect)frame reuseIdentifier:(nullable NSString *)reuseIdentifier NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;
 
 // Content properties.  These properties were deprecated in iPhone OS 3.0.  The textLabel and imageView properties above should be used instead.
 // For selected attributes, set the highlighted attributes on the textLabel and imageView.
-@property (nonatomic, copy, nullable)   NSString *text NS_DEPRECATED_IOS(2_0, 3_0);                        // default is nil
-@property (nonatomic, strong, nullable) UIFont   *font NS_DEPRECATED_IOS(2_0, 3_0);                        // default is nil (Use default font)
-@property (nonatomic) NSTextAlignment   textAlignment NS_DEPRECATED_IOS(2_0, 3_0);               // default is UITextAlignmentLeft
-@property (nonatomic) NSLineBreakMode   lineBreakMode NS_DEPRECATED_IOS(2_0, 3_0);               // default is UILineBreakModeTailTruncation
-@property (nonatomic, strong, nullable) UIColor  *textColor NS_DEPRECATED_IOS(2_0, 3_0);                   // default is nil (text draws black)
-@property (nonatomic, strong, nullable) UIColor  *selectedTextColor NS_DEPRECATED_IOS(2_0, 3_0);           // default is nil (text draws white)
+@property (nonatomic, copy, nullable)   NSString *text NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;                        // default is nil
+@property (nonatomic, strong, nullable) UIFont   *font NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;                        // default is nil (Use default font)
+@property (nonatomic) NSTextAlignment   textAlignment NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;               // default is UITextAlignmentLeft
+@property (nonatomic) NSLineBreakMode   lineBreakMode NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;               // default is UILineBreakModeTailTruncation
+@property (nonatomic, strong, nullable) UIColor  *textColor NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;                   // default is nil (text draws black)
+@property (nonatomic, strong, nullable) UIColor  *selectedTextColor NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;           // default is nil (text draws white)
 
-@property (nonatomic, strong, nullable) UIImage  *image NS_DEPRECATED_IOS(2_0, 3_0);                       // default is nil. appears on left next to title.
-@property (nonatomic, strong, nullable) UIImage  *selectedImage NS_DEPRECATED_IOS(2_0, 3_0);               // default is nil
+@property (nonatomic, strong, nullable) UIImage  *image NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;                       // default is nil. appears on left next to title.
+@property (nonatomic, strong, nullable) UIImage  *selectedImage NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;               // default is nil
 
 // Use the new editingAccessoryType and editingAccessoryView instead
-@property (nonatomic) BOOL              hidesAccessoryWhenEditing NS_DEPRECATED_IOS(2_0, 3_0);   // default is YES
+@property (nonatomic) BOOL              hidesAccessoryWhenEditing NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;   // default is YES
 
 // Use the table view data source method -tableView:commitEditingStyle:forRowAtIndexPath: or the table view delegate method -tableView:accessoryButtonTappedForRowWithIndexPath: instead
-@property (nonatomic, assign, nullable) id        target NS_DEPRECATED_IOS(2_0, 3_0);                      // target for insert/delete/accessory clicks. default is nil (i.e. go up responder chain). weak reference
-@property (nonatomic, nullable) SEL               editAction NS_DEPRECATED_IOS(2_0, 3_0);                  // action to call on insert/delete call. set by UITableView
-@property (nonatomic, nullable) SEL               accessoryAction NS_DEPRECATED_IOS(2_0, 3_0);             // action to call on accessory view clicked. set by UITableView
+@property (nonatomic, assign, nullable) id        target NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;                      // target for insert/delete/accessory clicks. default is nil (i.e. go up responder chain). weak reference
+@property (nonatomic, nullable) SEL               editAction NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;                  // action to call on insert/delete call. set by UITableView
+@property (nonatomic, nullable) SEL               accessoryAction NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;             // action to call on accessory view clicked. set by UITableView
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITableViewCell.h>
+#endif
+// ==========  UIKit.framework/Headers/UIFocusSystem.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFocusSystem.h>)
+//
+//  UIFocusSystem.h
+//  UIKit
+//
+//  Copyright © 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIFocus.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// UIFocusSystem instances manage focus state within a part of the user interface. They are in charge of tracking the current focused item, as well as processing focus updates.
+NS_CLASS_AVAILABLE_IOS(11_0) @interface UIFocusSystem : NSObject
+
+/// The currently focused item in this focus system.
+@property (nonatomic, weak, readonly, nullable) id<UIFocusItem> focusedItem API_AVAILABLE(tvos(12.0), ios(12.0));
+
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
+
+/// Return the focus system that the provided environment is contained in. Returns nil if focus
+/// interaction is not supported, or if the environment is not associated with any focus system.
++ (nullable UIFocusSystem *)focusSystemForEnvironment:(id<UIFocusEnvironment>)environment API_AVAILABLE(tvos(12.0), ios(12.0));
+
+/// Requests a focus update to the specified environment. If accepted, the focus update will happen
+/// in the next run loop cycle.
+- (void)requestFocusUpdateToEnvironment:(id<UIFocusEnvironment>)environment API_AVAILABLE(tvos(12.0), ios(12.0));
+
+/// Forces any pending focus update to be committed immediately.
+- (void)updateFocusIfNeeded API_AVAILABLE(tvos(12.0), ios(12.0));
+
+/// Returns true if `environment` is an ancestor of `otherEnvironment`, or false if otherwise.
++ (BOOL)environment:(id<UIFocusEnvironment>)environment containsEnvironment:(id<UIFocusEnvironment>)otherEnvironment;
+
+/// Registers a sound file for a given identifier.
++ (void)registerURL:(NSURL *)soundFileURL forSoundIdentifier:(UIFocusSoundIdentifier)identifier API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios, watchos);
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIFocusSystem.h>
+#endif
 // ==========  UIKit.framework/Headers/UIApplication.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIApplication.h>)
 //
 //  UIApplication.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -10012,6 +15529,7 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIInterface.h>
 #import <UIKit/UIDevice.h>
 #import <UIKit/UIAlert.h>
+#import <UIKit/UIContentSizeCategory.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10021,13 +15539,13 @@ typedef NS_ENUM(NSInteger, UIStatusBarStyle) {
     
     UIStatusBarStyleBlackTranslucent NS_ENUM_DEPRECATED_IOS(2_0, 7_0, "Use UIStatusBarStyleLightContent") = 1,
     UIStatusBarStyleBlackOpaque      NS_ENUM_DEPRECATED_IOS(2_0, 7_0, "Use UIStatusBarStyleLightContent") = 2,
-};
+} __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIStatusBarAnimation) {
     UIStatusBarAnimationNone,
     UIStatusBarAnimationFade NS_ENUM_AVAILABLE_IOS(3_2),
     UIStatusBarAnimationSlide NS_ENUM_AVAILABLE_IOS(3_2),
-};
+} __TVOS_PROHIBITED;
 
 // Note that UIInterfaceOrientationLandscapeLeft is equal to UIDeviceOrientationLandscapeRight (and vice versa).
 // This is because rotating the device to the left requires rotating the content to the right.
@@ -10037,12 +15555,12 @@ typedef NS_ENUM(NSInteger, UIInterfaceOrientation) {
     UIInterfaceOrientationPortraitUpsideDown = UIDeviceOrientationPortraitUpsideDown,
     UIInterfaceOrientationLandscapeLeft      = UIDeviceOrientationLandscapeRight,
     UIInterfaceOrientationLandscapeRight     = UIDeviceOrientationLandscapeLeft
-};
+} __TVOS_PROHIBITED;
 
 /* This exception is raised if supportedInterfaceOrientations returns 0, or if preferredInterfaceOrientationForPresentation
    returns an orientation that is not supported.
 */
-UIKIT_EXTERN NSString *const UIApplicationInvalidInterfaceOrientationException NS_AVAILABLE_IOS(6_0);
+UIKIT_EXTERN NSExceptionName const UIApplicationInvalidInterfaceOrientationException NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
 
 typedef NS_OPTIONS(NSUInteger, UIInterfaceOrientationMask) {
     UIInterfaceOrientationMaskPortrait = (1 << UIInterfaceOrientationPortrait),
@@ -10052,15 +15570,13 @@ typedef NS_OPTIONS(NSUInteger, UIInterfaceOrientationMask) {
     UIInterfaceOrientationMaskLandscape = (UIInterfaceOrientationMaskLandscapeLeft | UIInterfaceOrientationMaskLandscapeRight),
     UIInterfaceOrientationMaskAll = (UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskLandscapeLeft | UIInterfaceOrientationMaskLandscapeRight | UIInterfaceOrientationMaskPortraitUpsideDown),
     UIInterfaceOrientationMaskAllButUpsideDown = (UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskLandscapeLeft | UIInterfaceOrientationMaskLandscapeRight),
-};
+} __TVOS_PROHIBITED;
 
-#define UIDeviceOrientationIsValidInterfaceOrientation(orientation) ((UIDeviceOrientation)(orientation) == UIDeviceOrientationPortrait || (UIDeviceOrientation)(orientation) == UIDeviceOrientationPortraitUpsideDown || (UIDeviceOrientation)(orientation) == UIDeviceOrientationLandscapeLeft || (UIDeviceOrientation)(orientation) == UIDeviceOrientationLandscapeRight)
-
-static inline BOOL UIInterfaceOrientationIsPortrait(UIInterfaceOrientation orientation) {
+static inline BOOL UIInterfaceOrientationIsPortrait(UIInterfaceOrientation orientation) __TVOS_PROHIBITED {
     return ((orientation) == UIInterfaceOrientationPortrait || (orientation) == UIInterfaceOrientationPortraitUpsideDown);
 }
 
-static inline BOOL UIInterfaceOrientationIsLandscape(UIInterfaceOrientation orientation) {
+static inline BOOL UIInterfaceOrientationIsLandscape(UIInterfaceOrientation orientation) __TVOS_PROHIBITED {
     return ((orientation) == UIInterfaceOrientationLandscapeLeft || (orientation) == UIInterfaceOrientationLandscapeRight);
 }
 
@@ -10070,7 +15586,7 @@ typedef NS_OPTIONS(NSUInteger, UIRemoteNotificationType) {
     UIRemoteNotificationTypeSound   = 1 << 1,
     UIRemoteNotificationTypeAlert   = 1 << 2,
     UIRemoteNotificationTypeNewsstandContentAvailability = 1 << 3,
-} NS_ENUM_DEPRECATED_IOS(3_0, 8_0, "Use UIUserNotificationType for user notifications and registerForRemoteNotifications for receiving remote notifications instead.");
+} NS_ENUM_DEPRECATED_IOS(3_0, 8_0, "Use UserNotifications Framework's UNAuthorizationOptions for user notifications and registerForRemoteNotifications for receiving remote notifications instead.") __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSUInteger, UIBackgroundFetchResult) {
     UIBackgroundFetchResultNewData,
@@ -10082,7 +15598,7 @@ typedef NS_ENUM(NSInteger, UIBackgroundRefreshStatus) {
     UIBackgroundRefreshStatusRestricted, //< unavailable on this system due to device configuration; the user cannot enable the feature
     UIBackgroundRefreshStatusDenied,     //< explicitly disabled by the user for this application
     UIBackgroundRefreshStatusAvailable   //< enabled for this application
-} NS_ENUM_AVAILABLE_IOS(7_0);
+} API_AVAILABLE(ios(7.0), tvos(11.0));
     
 typedef NS_ENUM(NSInteger, UIApplicationState) {
     UIApplicationStateActive,
@@ -10090,30 +15606,49 @@ typedef NS_ENUM(NSInteger, UIApplicationState) {
     UIApplicationStateBackground
 } NS_ENUM_AVAILABLE_IOS(4_0);
 
-typedef NSUInteger UIBackgroundTaskIdentifier;
+typedef NSUInteger UIBackgroundTaskIdentifier NS_TYPED_ENUM;
 UIKIT_EXTERN const UIBackgroundTaskIdentifier UIBackgroundTaskInvalid  NS_AVAILABLE_IOS(4_0);
 UIKIT_EXTERN const NSTimeInterval UIMinimumKeepAliveTimeout  NS_AVAILABLE_IOS(4_0);
-UIKIT_EXTERN const NSTimeInterval UIApplicationBackgroundFetchIntervalMinimum NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN const NSTimeInterval UIApplicationBackgroundFetchIntervalNever NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN const NSTimeInterval UIApplicationBackgroundFetchIntervalMinimum API_AVAILABLE(ios(7.0), tvos(11.0));
+UIKIT_EXTERN const NSTimeInterval UIApplicationBackgroundFetchIntervalNever API_AVAILABLE(ios(7.0), tvos(11.0));
 
+typedef NSString * UIApplicationOpenExternalURLOptionsKey NS_TYPED_ENUM;
+
+@class CKShareMetadata;
 @class UIView, UIWindow;
 @class UIStatusBar, UIStatusBarWindow, UILocalNotification;
 @protocol UIApplicationDelegate;
+@class INIntent;
+@class INIntentResponse;
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) UIApplication *sharedApplication NS_EXTENSION_UNAVAILABLE_IOS("Use view controller based solutions where appropriate instead.");
+#else
 + (UIApplication *)sharedApplication NS_EXTENSION_UNAVAILABLE_IOS("Use view controller based solutions where appropriate instead.");
+#endif
 
-@property(nullable, nonatomic,assign) id<UIApplicationDelegate> delegate;
+@property(nullable, nonatomic, assign) id<UIApplicationDelegate> delegate;
 
 - (void)beginIgnoringInteractionEvents NS_EXTENSION_UNAVAILABLE_IOS("");               // nested. set should be set during animations & transitions to ignore touch and other events
 - (void)endIgnoringInteractionEvents NS_EXTENSION_UNAVAILABLE_IOS("");
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isIgnoringInteractionEvents) BOOL ignoringInteractionEvents;                  // returns YES if we are at least one deep in ignoring events
+#else
 - (BOOL)isIgnoringInteractionEvents;                  // returns YES if we are at least one deep in ignoring events
+#endif
 
 @property(nonatomic,getter=isIdleTimerDisabled)       BOOL idleTimerDisabled;	  // default is NO
 
-- (BOOL)openURL:(NSURL*)url NS_EXTENSION_UNAVAILABLE_IOS("");
+- (BOOL)openURL:(NSURL*)url NS_DEPRECATED_IOS(2_0, 10_0, "Please use openURL:options:completionHandler: instead") NS_EXTENSION_UNAVAILABLE_IOS("");
 - (BOOL)canOpenURL:(NSURL *)url NS_AVAILABLE_IOS(3_0);
+
+// Options are specified in the section below for openURL options. An empty options dictionary will result in the same
+// behavior as the older openURL call, aside from the fact that this is asynchronous and calls the completion handler rather
+// than returning a result.
+// The completion handler is called on the main queue.
+- (void)openURL:(NSURL*)url options:(NSDictionary<UIApplicationOpenExternalURLOptionsKey, id> *)options completionHandler:(void (^ __nullable)(BOOL success))completion NS_AVAILABLE_IOS(10_0) NS_EXTENSION_UNAVAILABLE_IOS("");
 
 - (void)sendEvent:(UIEvent *)event;
 
@@ -10122,13 +15657,13 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
 
 - (BOOL)sendAction:(SEL)action to:(nullable id)target from:(nullable id)sender forEvent:(nullable UIEvent *)event;
 
-@property(nonatomic,getter=isNetworkActivityIndicatorVisible) BOOL networkActivityIndicatorVisible; // showing network spinning gear in status bar. default is NO
+@property(nonatomic,getter=isNetworkActivityIndicatorVisible) BOOL networkActivityIndicatorVisible __TVOS_PROHIBITED; // showing network spinning gear in status bar. default is NO
 
-@property(readonly, nonatomic) UIStatusBarStyle statusBarStyle; // default is UIStatusBarStyleDefault
+@property(readonly, nonatomic) UIStatusBarStyle statusBarStyle __TVOS_PROHIBITED; // default is UIStatusBarStyleDefault
 
-@property(readonly, nonatomic,getter=isStatusBarHidden) BOOL statusBarHidden;
+@property(readonly, nonatomic,getter=isStatusBarHidden) BOOL statusBarHidden __TVOS_PROHIBITED;
 
-@property(readonly, nonatomic) UIInterfaceOrientation statusBarOrientation;
+@property(readonly, nonatomic) UIInterfaceOrientation statusBarOrientation __TVOS_PROHIBITED;
 
 // The system only calls this method if the application delegate has not
 // implemented the delegate equivalent. It returns the orientations specified by
@@ -10137,14 +15672,14 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
 // UIInterfaceOrientationMaskAllButUpsideDown on a phone.  The return value
 // should be one of the UIInterfaceOrientationMask values which indicates the
 // orientations supported by this application.
-- (UIInterfaceOrientationMask)supportedInterfaceOrientationsForWindow:(nullable UIWindow *)window NS_AVAILABLE_IOS(6_0);
+- (UIInterfaceOrientationMask)supportedInterfaceOrientationsForWindow:(nullable UIWindow *)window NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
 
-@property(nonatomic,readonly) NSTimeInterval statusBarOrientationAnimationDuration; // Returns the animation duration for the status bar during a 90 degree orientation change.  It should be doubled for a 180 degree orientation change.
-@property(nonatomic,readonly) CGRect statusBarFrame; // returns CGRectZero if the status bar is hidden
+@property(nonatomic,readonly) NSTimeInterval statusBarOrientationAnimationDuration __TVOS_PROHIBITED; // Returns the animation duration for the status bar during a 90 degree orientation change.  It should be doubled for a 180 degree orientation change.
+@property(nonatomic,readonly) CGRect statusBarFrame __TVOS_PROHIBITED; // returns CGRectZero if the status bar is hidden
 
 @property(nonatomic) NSInteger applicationIconBadgeNumber;  // set to 0 to hide. default is 0. In iOS 8.0 and later, your application must register for user notifications using -[UIApplication registerUserNotificationSettings:] before being able to set the icon badge.
 
-@property(nonatomic) BOOL applicationSupportsShakeToEdit NS_AVAILABLE_IOS(3_0);
+@property(nonatomic) BOOL applicationSupportsShakeToEdit NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
 
 @property(nonatomic,readonly) UIApplicationState applicationState NS_AVAILABLE_IOS(4_0);
 @property(nonatomic,readonly) NSTimeInterval backgroundTimeRemaining NS_AVAILABLE_IOS(4_0);
@@ -10161,19 +15696,19 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
     This setter will have no effect unless your application has the "fetch" 
     UIBackgroundMode. See the UIApplicationDelegate method
     `application:performFetchWithCompletionHandler:` for more. */
-- (void)setMinimumBackgroundFetchInterval:(NSTimeInterval)minimumBackgroundFetchInterval NS_AVAILABLE_IOS(7_0);
+- (void)setMinimumBackgroundFetchInterval:(NSTimeInterval)minimumBackgroundFetchInterval API_AVAILABLE(ios(7.0), tvos(11.0));
 
 /*! When background refresh is available for an application, it may launched or resumed in the background to handle significant
     location changes, remote notifications, background fetches, etc. Observe UIApplicationBackgroundRefreshStatusDidChangeNotification to
     be notified of changes. */
-@property (nonatomic, readonly) UIBackgroundRefreshStatus backgroundRefreshStatus NS_AVAILABLE_IOS(7_0);
+@property (nonatomic, readonly) UIBackgroundRefreshStatus backgroundRefreshStatus API_AVAILABLE(ios(7.0), tvos(11.0));
 
 @property(nonatomic,readonly,getter=isProtectedDataAvailable) BOOL protectedDataAvailable NS_AVAILABLE_IOS(4_0);
 
 @property(nonatomic,readonly) UIUserInterfaceLayoutDirection userInterfaceLayoutDirection NS_AVAILABLE_IOS(5_0);
 
 // Return the size category
-@property(nonatomic,readonly) NSString *preferredContentSizeCategory NS_AVAILABLE_IOS(7_0);
+@property(nonatomic,readonly) UIContentSizeCategory preferredContentSizeCategory NS_AVAILABLE_IOS(7_0);
 
 @end
 
@@ -10185,25 +15720,29 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
 - (void)unregisterForRemoteNotifications NS_AVAILABLE_IOS(3_0);
 
 // Returns YES if the application is currently registered for remote notifications, taking into account any systemwide settings; doesn't relate to connectivity.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isRegisteredForRemoteNotifications) BOOL registeredForRemoteNotifications NS_AVAILABLE_IOS(8_0);
+#else
 - (BOOL)isRegisteredForRemoteNotifications NS_AVAILABLE_IOS(8_0);
+#endif
 
-- (void)registerForRemoteNotificationTypes:(UIRemoteNotificationType)types NS_DEPRECATED_IOS(3_0, 8_0, "Please use registerForRemoteNotifications and registerUserNotificationSettings: instead");
+- (void)registerForRemoteNotificationTypes:(UIRemoteNotificationType)types NS_DEPRECATED_IOS(3_0, 8_0, "Use -[UIApplication registerForRemoteNotifications] and UserNotifications Framework's -[UNUserNotificationCenter requestAuthorizationWithOptions:completionHandler:]") __TVOS_PROHIBITED;
 
 // Returns the enabled types, also taking into account any systemwide settings; doesn't relate to connectivity.
-- (UIRemoteNotificationType)enabledRemoteNotificationTypes NS_DEPRECATED_IOS(3_0, 8_0, "Please use -[UIApplication isRegisteredForRemoteNotifications], or -[UIApplication currentUserNotificationSettings] to retrieve user-enabled remote notification and user notification settings");
+- (UIRemoteNotificationType)enabledRemoteNotificationTypes NS_DEPRECATED_IOS(3_0, 8_0, "Use -[UIApplication isRegisteredForRemoteNotifications] and UserNotifications Framework's -[UNUserNotificationCenter getNotificationSettingsWithCompletionHandler:] to retrieve user-enabled remote notification and user notification settings") __TVOS_PROHIBITED;
 
 @end
 
 // In iOS 8.0 and later, your application must register for user notifications using -[UIApplication registerUserNotificationSettings:] before being able to schedule and present UILocalNotifications
 @interface UIApplication (UILocalNotifications)
 
-- (void)presentLocalNotificationNow:(UILocalNotification *)notification NS_AVAILABLE_IOS(4_0);
+- (void)presentLocalNotificationNow:(UILocalNotification *)notification NS_DEPRECATED_IOS(4_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenter addNotificationRequest:withCompletionHandler:]") __TVOS_PROHIBITED;
 
-- (void)scheduleLocalNotification:(UILocalNotification *)notification NS_AVAILABLE_IOS(4_0);  // copies notification
-- (void)cancelLocalNotification:(UILocalNotification *)notification NS_AVAILABLE_IOS(4_0);
-- (void)cancelAllLocalNotifications NS_AVAILABLE_IOS(4_0);
+- (void)scheduleLocalNotification:(UILocalNotification *)notification NS_DEPRECATED_IOS(4_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenter addNotificationRequest:withCompletionHandler:]") __TVOS_PROHIBITED;  // copies notification
+- (void)cancelLocalNotification:(UILocalNotification *)notification NS_DEPRECATED_IOS(4_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenter removePendingNotificationRequestsWithIdentifiers:]") __TVOS_PROHIBITED;
+- (void)cancelAllLocalNotifications NS_DEPRECATED_IOS(4_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenter removeAllPendingNotificationRequests]") __TVOS_PROHIBITED;
 
-@property(nullable,nonatomic,copy) NSArray<UILocalNotification *> *scheduledLocalNotifications NS_AVAILABLE_IOS(4_0);         // setter added in iOS 4.2
+@property(nullable,nonatomic,copy) NSArray<UILocalNotification *> *scheduledLocalNotifications NS_DEPRECATED_IOS(4_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenter getPendingNotificationRequestsWithCompletionHandler:]") __TVOS_PROHIBITED;
 
 @end
 
@@ -10211,10 +15750,14 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
 @interface UIApplication (UIUserNotificationSettings)
 
 // Registering UIUserNotificationSettings more than once results in previous settings being overwritten.
-- (void)registerUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings NS_AVAILABLE_IOS(8_0);
+- (void)registerUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings NS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenter requestAuthorizationWithOptions:completionHandler:] and -[UNUserNotificationCenter setNotificationCategories:]") __TVOS_PROHIBITED;
 
 // Returns the enabled user notification settings, also taking into account any systemwide settings.
-- (nullable UIUserNotificationSettings *)currentUserNotificationSettings NS_AVAILABLE_IOS(8_0);
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) UIUserNotificationSettings *currentUserNotificationSettings NS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenter getNotificationSettingsWithCompletionHandler:] and -[UNUserNotificationCenter getNotificationCategoriesWithCompletionHandler:]") __TVOS_PROHIBITED;
+#else
+- (nullable UIUserNotificationSettings *)currentUserNotificationSettings NS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenter getNotificationSettingsWithCompletionHandler:] and -[UNUserNotificationCenter getNotificationCategoriesWithCompletionHandler:]") __TVOS_PROHIBITED;
+#endif
 
 @end
 
@@ -10226,13 +15769,24 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
 @end
 
 @interface UIApplication (UINewsstand)
-- (void)setNewsstandIconImage:(nullable UIImage *)image NS_DEPRECATED_IOS(9_0, 9_0, "Newsstand apps now behave like normal apps on SpringBoard");
+- (void)setNewsstandIconImage:(nullable UIImage *)image NS_DEPRECATED_IOS(5_0, 9_0, "Newsstand apps now behave like normal apps on SpringBoard") __TVOS_PROHIBITED;
 @end
 
 @class UIApplicationShortcutItem;
 @interface UIApplication (UIShortcutItems)
 // Register shortcuts to display on the home screen, or retrieve currently registered shortcuts.
-@property (nullable, nonatomic, copy) NSArray<UIApplicationShortcutItem *> *shortcutItems NS_AVAILABLE_IOS(9_0);
+@property (nullable, nonatomic, copy) NSArray<UIApplicationShortcutItem *> *shortcutItems API_AVAILABLE(ios(9.0)) __TVOS_PROHIBITED API_UNAVAILABLE(macos);
+@end
+
+@interface UIApplication (UIAlternateApplicationIcons)
+// If false, alternate icons are not supported for the current process.
+@property (readonly, nonatomic) BOOL supportsAlternateIcons NS_EXTENSION_UNAVAILABLE("Extensions may not have alternate icons") API_AVAILABLE(ios(10.3), tvos(10.2));
+
+// Pass `nil` to use the primary application icon. The completion handler will be invoked asynchronously on an arbitrary background queue; be sure to dispatch back to the main queue before doing any further UI work.
+- (void)setAlternateIconName:(nullable NSString *)alternateIconName completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler NS_EXTENSION_UNAVAILABLE("Extensions may not have alternate icons") API_AVAILABLE(ios(10.3), tvos(10.2));
+
+// If `nil`, the primary application icon is being used.
+@property (nullable, readonly, nonatomic) NSString *alternateIconName NS_EXTENSION_UNAVAILABLE("Extensions may not have alternate icons") API_AVAILABLE(ios(10.3), tvos(10.2));
 @end
 
 @protocol UIStateRestoring;
@@ -10255,52 +15809,76 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
 @end
 
 
+#if UIKIT_STRING_ENUMS
+typedef NSString * UIApplicationLaunchOptionsKey NS_TYPED_ENUM;
+#else
+typedef NSString * UIApplicationLaunchOptionsKey;
+#endif
+
 @protocol UIApplicationDelegate<NSObject>
 
 @optional
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application;
+#if UIKIT_STRING_ENUMS
+- (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(nullable NSDictionary<UIApplicationLaunchOptionsKey, id> *)launchOptions NS_AVAILABLE_IOS(6_0);
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(nullable NSDictionary<UIApplicationLaunchOptionsKey, id> *)launchOptions NS_AVAILABLE_IOS(3_0);
+#else
 - (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(nullable NSDictionary *)launchOptions NS_AVAILABLE_IOS(6_0);
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(nullable NSDictionary *)launchOptions NS_AVAILABLE_IOS(3_0);
+#endif
 
 - (void)applicationDidBecomeActive:(UIApplication *)application;
 - (void)applicationWillResignActive:(UIApplication *)application;
-- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url NS_DEPRECATED_IOS(2_0, 9_0, "Please use application:openURL:options:");
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(nullable NSString *)sourceApplication annotation:(id)annotation NS_DEPRECATED_IOS(4_2, 9_0, "Please use application:openURL:options:");
-- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString*, id> *)options NS_AVAILABLE_IOS(9_0); // no equiv. notification. return NO if the application can't open for some reason
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url NS_DEPRECATED_IOS(2_0, 9_0, "Please use application:openURL:options:") __TVOS_PROHIBITED;
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(nullable NSString *)sourceApplication annotation:(id)annotation NS_DEPRECATED_IOS(4_2, 9_0, "Please use application:openURL:options:") __TVOS_PROHIBITED;
+
+
+#if UIKIT_STRING_ENUMS
+typedef NSString * UIApplicationOpenURLOptionsKey NS_TYPED_ENUM;
+#else
+typedef NSString * UIApplicationOpenURLOptionsKey;
+#endif
+
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options NS_AVAILABLE_IOS(9_0); // no equiv. notification. return NO if the application can't open for some reason
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application;      // try to clean up as much memory as possible. next step is to terminate app
 - (void)applicationWillTerminate:(UIApplication *)application;
 - (void)applicationSignificantTimeChange:(UIApplication *)application;        // midnight, carrier time update, daylight savings time change
 
-- (void)application:(UIApplication *)application willChangeStatusBarOrientation:(UIInterfaceOrientation)newStatusBarOrientation duration:(NSTimeInterval)duration;
-- (void)application:(UIApplication *)application didChangeStatusBarOrientation:(UIInterfaceOrientation)oldStatusBarOrientation;
+- (void)application:(UIApplication *)application willChangeStatusBarOrientation:(UIInterfaceOrientation)newStatusBarOrientation duration:(NSTimeInterval)duration __TVOS_PROHIBITED;
+- (void)application:(UIApplication *)application didChangeStatusBarOrientation:(UIInterfaceOrientation)oldStatusBarOrientation __TVOS_PROHIBITED;
 
-- (void)application:(UIApplication *)application willChangeStatusBarFrame:(CGRect)newStatusBarFrame;   // in screen coordinates
-- (void)application:(UIApplication *)application didChangeStatusBarFrame:(CGRect)oldStatusBarFrame;
+- (void)application:(UIApplication *)application willChangeStatusBarFrame:(CGRect)newStatusBarFrame __TVOS_PROHIBITED;   // in screen coordinates
+- (void)application:(UIApplication *)application didChangeStatusBarFrame:(CGRect)oldStatusBarFrame __TVOS_PROHIBITED;
 
 // This callback will be made upon calling -[UIApplication registerUserNotificationSettings:]. The settings the user has granted to the application will be passed in as the second argument.
- - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings NS_AVAILABLE_IOS(8_0);
+ - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings NS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenter requestAuthorizationWithOptions:completionHandler:]") __TVOS_PROHIBITED;
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken NS_AVAILABLE_IOS(3_0);
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error NS_AVAILABLE_IOS(3_0);
 
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo NS_AVAILABLE_IOS(3_0);
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo NS_DEPRECATED_IOS(3_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenterDelegate willPresentNotification:withCompletionHandler:] or -[UNUserNotificationCenterDelegate didReceiveNotificationResponse:withCompletionHandler:] for user visible notifications and -[UIApplicationDelegate application:didReceiveRemoteNotification:fetchCompletionHandler:] for silent remote notifications");
 
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification NS_AVAILABLE_IOS(4_0);
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification NS_DEPRECATED_IOS(4_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenterDelegate willPresentNotification:withCompletionHandler:] or -[UNUserNotificationCenterDelegate didReceiveNotificationResponse:withCompletionHandler:]") __TVOS_PROHIBITED;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
 // Called when your app has been activated by the user selecting an action from a local notification.
 // A nil action identifier indicates the default action.
 // You should call the completion handler as soon as you've finished handling the action.
-- (void)application:(UIApplication *)application handleActionWithIdentifier:(nullable NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void(^)())completionHandler NS_AVAILABLE_IOS(8_0);
-- (void)application:(UIApplication *)application handleActionWithIdentifier:(nullable NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void(^)())completionHandler NS_AVAILABLE_IOS(9_0);
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(nullable NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void(^)())completionHandler NS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenterDelegate didReceiveNotificationResponse:withCompletionHandler:]") __TVOS_PROHIBITED;
+
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(nullable NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void(^)())completionHandler NS_DEPRECATED_IOS(9_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenterDelegate didReceiveNotificationResponse:withCompletionHandler:]") __TVOS_PROHIBITED;
 
 // Called when your app has been activated by the user selecting an action from a remote notification.
 // A nil action identifier indicates the default action.
 // You should call the completion handler as soon as you've finished handling the action.
-- (void)application:(UIApplication *)application handleActionWithIdentifier:(nullable NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void(^)())completionHandler NS_AVAILABLE_IOS(8_0);
-- (void)application:(UIApplication *)application handleActionWithIdentifier:(nullable NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void(^)())completionHandler NS_AVAILABLE_IOS(9_0);
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(nullable NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void(^)())completionHandler NS_DEPRECATED_IOS(8_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenterDelegate didReceiveNotificationResponse:withCompletionHandler:]") __TVOS_PROHIBITED;
+
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(nullable NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void(^)())completionHandler NS_DEPRECATED_IOS(9_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenterDelegate didReceiveNotificationResponse:withCompletionHandler:]") __TVOS_PROHIBITED;
+#pragma clang diagnostic pop
 
 /*! This delegate method offers an opportunity for applications with the "remote-notification" background mode to fetch appropriate new data in response to an incoming remote notification. You should call the fetchCompletionHandler as soon as you're finished performing that operation, so the system can accurately estimate its power and data cost.
  
@@ -10308,22 +15886,24 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler NS_AVAILABLE_IOS(7_0);
 
 /// Applications with the "fetch" background mode may be given opportunities to fetch updated content in the background or when it is convenient for the system. This method will be called in these situations. You should call the fetchCompletionHandler as soon as you're finished performing that operation, so the system can accurately estimate its power and data cost.
-- (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler NS_AVAILABLE_IOS(7_0);
+- (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler API_AVAILABLE(ios(7.0), tvos(11.0));
 
 // Called when the user activates your application by selecting a shortcut on the home screen,
 // except when -application:willFinishLaunchingWithOptions: or -application:didFinishLaunchingWithOptions returns NO.
-- (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void(^)(BOOL succeeded))completionHandler NS_AVAILABLE_IOS(9_0);
+- (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void(^)(BOOL succeeded))completionHandler NS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED;
 
 // Applications using an NSURLSession with a background configuration may be launched or resumed in the background in order to handle the
 // completion of tasks in that session, or to handle authentication. This method will be called with the identifier of the session needing
 // attention. Once a session has been created from a configuration object with that identifier, the session's delegate will begin receiving
 // callbacks. If such a session has already been created (if the app is being resumed, for instance), then the delegate will start receiving
 // callbacks without any action by the application. You should call the completionHandler as soon as you're finished handling the callbacks.
-- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler NS_AVAILABLE_IOS(7_0);
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler NS_AVAILABLE_IOS(7_0);
 
 - (void)application:(UIApplication *)application handleWatchKitExtensionRequest:(nullable NSDictionary *)userInfo reply:(void(^)(NSDictionary * __nullable replyInfo))reply NS_AVAILABLE_IOS(8_2);
 
 - (void)applicationShouldRequestHealthAuthorization:(UIApplication *)application NS_AVAILABLE_IOS(9_0);
+
+- (void)application:(UIApplication *)application handleIntent:(INIntent *)intent completionHandler:(void(^)(INIntentResponse *intentResponse))completionHandler NS_AVAILABLE_IOS(11_0);
 
 - (void)applicationDidEnterBackground:(UIApplication *)application NS_AVAILABLE_IOS(4_0);
 - (void)applicationWillEnterForeground:(UIApplication *)application NS_AVAILABLE_IOS(4_0);
@@ -10333,16 +15913,22 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
 
 @property (nullable, nonatomic, strong) UIWindow *window NS_AVAILABLE_IOS(5_0);
 
-- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(nullable UIWindow *)window  NS_AVAILABLE_IOS(6_0);
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(nullable UIWindow *)window  NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+
+#if UIKIT_STRING_ENUMS
+typedef NSString * UIApplicationExtensionPointIdentifier NS_TYPED_ENUM;
+#else
+typedef NSString * UIApplicationExtensionPointIdentifier;
+#endif
 
 // Applications may reject specific types of extensions based on the extension point identifier.
 // Constants representing common extension point identifiers are provided further down.
 // If unimplemented, the default behavior is to allow the extension point identifier.
-- (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(NSString *)extensionPointIdentifier NS_AVAILABLE_IOS(8_0);
+- (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier NS_AVAILABLE_IOS(8_0);
 
 #pragma mark -- State Restoration protocol adopted by UIApplication delegate --
 
-- (nullable UIViewController *) application:(UIApplication *)application viewControllerWithRestorationIdentifierPath:(NSArray *)identifierComponents coder:(NSCoder *)coder NS_AVAILABLE_IOS(6_0);
+- (nullable UIViewController *) application:(UIApplication *)application viewControllerWithRestorationIdentifierPath:(NSArray<NSString *> *)identifierComponents coder:(NSCoder *)coder NS_AVAILABLE_IOS(6_0);
 - (BOOL) application:(UIApplication *)application shouldSaveApplicationState:(NSCoder *)coder NS_AVAILABLE_IOS(6_0);
 - (BOOL) application:(UIApplication *)application shouldRestoreApplicationState:(NSCoder *)coder NS_AVAILABLE_IOS(6_0);
 - (void) application:(UIApplication *)application willEncodeRestorableStateWithCoder:(NSCoder *)coder NS_AVAILABLE_IOS(6_0);
@@ -10360,116 +15946,144 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIApplication : UIResponder
 // You can create/fetch any restorable objects associated with the user activity, and pass them to the restorationHandler. They will then have the UIResponder restoreUserActivityState: method
 // invoked with the user activity. Invoking the restorationHandler is optional. It may be copied and invoked later, and it will bounce to the main thread to complete its work and call
 // restoreUserActivityState on all objects.
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray * __nullable restorableObjects))restorationHandler NS_AVAILABLE_IOS(8_0);
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray<id<UIUserActivityRestoring>> * __nullable restorableObjects))restorationHandler NS_AVAILABLE_IOS(8_0);
 
 // If the user activity cannot be fetched after willContinueUserActivityWithType is called, this will be called on the main thread when implemented.
 - (void)application:(UIApplication *)application didFailToContinueUserActivityWithType:(NSString *)userActivityType error:(NSError *)error NS_AVAILABLE_IOS(8_0);
 
 // This is called on the main thread when a user activity managed by UIKit has been updated. You can use this as a last chance to add additional data to the userActivity.
 - (void)application:(UIApplication *)application didUpdateUserActivity:(NSUserActivity *)userActivity NS_AVAILABLE_IOS(8_0);
+
+#pragma mark -- CloudKit Sharing Invitation Handling --
+// This will be called on the main thread after the user indicates they want to accept a CloudKit sharing invitation in your application.
+// You should use the CKShareMetadata object's shareURL and containerIdentifier to schedule a CKAcceptSharesOperation, then start using
+// the resulting CKShare and its associated record(s), which will appear in the CKContainer's shared database in a zone matching that of the record's owner.
+- (void) application:(UIApplication *)application userDidAcceptCloudKitShareWithMetadata:(CKShareMetadata *)cloudKitShareMetadata NS_AVAILABLE_IOS(10_0);
+
 @end
 
 @interface UIApplication(UIApplicationDeprecated)
 
-@property(nonatomic,getter=isProximitySensingEnabled) BOOL proximitySensingEnabled NS_DEPRECATED_IOS(2_0, 3_0); // default is NO. see UIDevice for replacement
-- (void)setStatusBarHidden:(BOOL)hidden animated:(BOOL)animated NS_DEPRECATED_IOS(2_0, 3_2); // use -setStatusBarHidden:withAnimation:
+@property(nonatomic,getter=isProximitySensingEnabled) BOOL proximitySensingEnabled NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED; // default is NO. see UIDevice for replacement
+- (void)setStatusBarHidden:(BOOL)hidden animated:(BOOL)animated NS_DEPRECATED_IOS(2_0, 3_2) __TVOS_PROHIBITED; // use -setStatusBarHidden:withAnimation:
 
 // Explicit setting of the status bar orientation is more limited in iOS 6.0 and later.
-@property(readwrite, nonatomic) UIInterfaceOrientation statusBarOrientation NS_DEPRECATED_IOS(2_0, 9_0, "Explicit setting of the status bar orientation is more limited in iOS 6.0 and later");
-- (void)setStatusBarOrientation:(UIInterfaceOrientation)interfaceOrientation animated:(BOOL)animated NS_DEPRECATED_IOS(2_0, 9_0, "Explicit setting of the status bar orientation is more limited in iOS 6.0 and later");
+@property(readwrite, nonatomic) UIInterfaceOrientation statusBarOrientation NS_DEPRECATED_IOS(2_0, 9_0, "Explicit setting of the status bar orientation is more limited in iOS 6.0 and later") __TVOS_PROHIBITED;
+- (void)setStatusBarOrientation:(UIInterfaceOrientation)interfaceOrientation animated:(BOOL)animated NS_DEPRECATED_IOS(2_0, 9_0, "Explicit setting of the status bar orientation is more limited in iOS 6.0 and later") __TVOS_PROHIBITED;
 
 // Setting the statusBarStyle does nothing if your application is using the default UIViewController-based status bar system.
-@property(readwrite, nonatomic) UIStatusBarStyle statusBarStyle NS_DEPRECATED_IOS(2_0, 9_0, "Use -[UIViewController preferredStatusBarStyle]");
-- (void)setStatusBarStyle:(UIStatusBarStyle)statusBarStyle animated:(BOOL)animated NS_DEPRECATED_IOS(2_0, 9_0, "Use -[UIViewController preferredStatusBarStyle]");
+@property(readwrite, nonatomic) UIStatusBarStyle statusBarStyle NS_DEPRECATED_IOS(2_0, 9_0, "Use -[UIViewController preferredStatusBarStyle]") __TVOS_PROHIBITED;
+- (void)setStatusBarStyle:(UIStatusBarStyle)statusBarStyle animated:(BOOL)animated NS_DEPRECATED_IOS(2_0, 9_0, "Use -[UIViewController preferredStatusBarStyle]") __TVOS_PROHIBITED;
 
 // Setting statusBarHidden does nothing if your application is using the default UIViewController-based status bar system.
-@property(readwrite, nonatomic,getter=isStatusBarHidden) BOOL statusBarHidden NS_DEPRECATED_IOS(2_0, 9_0, "Use -[UIViewController prefersStatusBarHidden]");
-- (void)setStatusBarHidden:(BOOL)hidden withAnimation:(UIStatusBarAnimation)animation NS_DEPRECATED_IOS(3_2, 9_0, "Use -[UIViewController prefersStatusBarHidden]");
+@property(readwrite, nonatomic,getter=isStatusBarHidden) BOOL statusBarHidden NS_DEPRECATED_IOS(2_0, 9_0, "Use -[UIViewController prefersStatusBarHidden]") __TVOS_PROHIBITED;
+- (void)setStatusBarHidden:(BOOL)hidden withAnimation:(UIStatusBarAnimation)animation NS_DEPRECATED_IOS(3_2, 9_0, "Use -[UIViewController prefersStatusBarHidden]") __TVOS_PROHIBITED;
 
-- (BOOL)setKeepAliveTimeout:(NSTimeInterval)timeout handler:(void(^ __nullable)(void))keepAliveHandler NS_DEPRECATED_IOS(4_0, 9_0, "Please use UIRemoteNotificationTypeVoIP remote notifications for VoIP applications");
-- (void)clearKeepAliveTimeout NS_DEPRECATED_IOS(4_0, 9_0, "Please use UIRemoteNotificationTypeVoIP remote notifications for VoIP applications");
+- (BOOL)setKeepAliveTimeout:(NSTimeInterval)timeout handler:(void(^ __nullable)(void))keepAliveHandler NS_DEPRECATED_IOS(4_0, 9_0, "Please use PushKit for VoIP applications instead of calling this method") __TVOS_PROHIBITED;
+- (void)clearKeepAliveTimeout NS_DEPRECATED_IOS(4_0, 9_0, "Please use PushKit for VoIP applications instead of calling this method") __TVOS_PROHIBITED;
 
 @end
 
 // If nil is specified for principalClassName, the value for NSPrincipalClass from the Info.plist is used. If there is no
 // NSPrincipalClass key specified, the UIApplication class is used. The delegate class will be instantiated using init.
-UIKIT_EXTERN int UIApplicationMain(int argc, char *argv[], NSString * __nullable principalClassName, NSString * __nullable delegateClassName);
+UIKIT_EXTERN int UIApplicationMain(int argc, char * _Nullable argv[_Nonnull], NSString * _Nullable principalClassName, NSString * _Nullable delegateClassName);
 
-UIKIT_EXTERN NSString *const UITrackingRunLoopMode;
+UIKIT_EXTERN NSRunLoopMode const UITrackingRunLoopMode;
 
 // These notifications are sent out after the equivalent delegate message is called
-UIKIT_EXTERN NSString *const UIApplicationDidEnterBackgroundNotification       NS_AVAILABLE_IOS(4_0);
-UIKIT_EXTERN NSString *const UIApplicationWillEnterForegroundNotification      NS_AVAILABLE_IOS(4_0);
-UIKIT_EXTERN NSString *const UIApplicationDidFinishLaunchingNotification;
-UIKIT_EXTERN NSString *const UIApplicationDidBecomeActiveNotification;
-UIKIT_EXTERN NSString *const UIApplicationWillResignActiveNotification;
-UIKIT_EXTERN NSString *const UIApplicationDidReceiveMemoryWarningNotification;
-UIKIT_EXTERN NSString *const UIApplicationWillTerminateNotification;
-UIKIT_EXTERN NSString *const UIApplicationSignificantTimeChangeNotification;
-UIKIT_EXTERN NSString *const UIApplicationWillChangeStatusBarOrientationNotification; // userInfo contains NSNumber with new orientation
-UIKIT_EXTERN NSString *const UIApplicationDidChangeStatusBarOrientationNotification;  // userInfo contains NSNumber with old orientation
-UIKIT_EXTERN NSString *const UIApplicationStatusBarOrientationUserInfoKey;            // userInfo dictionary key for status bar orientation
-UIKIT_EXTERN NSString *const UIApplicationWillChangeStatusBarFrameNotification;       // userInfo contains NSValue with new frame
-UIKIT_EXTERN NSString *const UIApplicationDidChangeStatusBarFrameNotification;        // userInfo contains NSValue with old frame
-UIKIT_EXTERN NSString *const UIApplicationStatusBarFrameUserInfoKey;                  // userInfo dictionary key for status bar frame
-UIKIT_EXTERN NSString *const UIApplicationBackgroundRefreshStatusDidChangeNotification NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsURLKey                   NS_AVAILABLE_IOS(3_0); // userInfo contains NSURL with launch URL
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsSourceApplicationKey     NS_AVAILABLE_IOS(3_0); // userInfo contains NSString with launch app bundle ID
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsRemoteNotificationKey    NS_AVAILABLE_IOS(3_0); // userInfo contains NSDictionary with payload
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsLocalNotificationKey     NS_AVAILABLE_IOS(4_0); // userInfo contains a UILocalNotification
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsAnnotationKey            NS_AVAILABLE_IOS(3_2); // userInfo contains object with annotation property list
-UIKIT_EXTERN NSString *const UIApplicationProtectedDataWillBecomeUnavailable    NS_AVAILABLE_IOS(4_0);
-UIKIT_EXTERN NSString *const UIApplicationProtectedDataDidBecomeAvailable       NS_AVAILABLE_IOS(4_0);
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsLocationKey              NS_AVAILABLE_IOS(4_0); // app was launched in response to a CoreLocation event.
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsNewsstandDownloadsKey    NS_AVAILABLE_IOS(5_0); // userInfo contains an NSArray of NKAssetDownload identifiers
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsBluetoothCentralsKey     NS_AVAILABLE_IOS(7_0); // userInfo contains an NSArray of CBCentralManager restore identifiers
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsBluetoothPeripheralsKey  NS_AVAILABLE_IOS(7_0); // userInfo contains an NSArray of CBPeripheralManager restore identifiers
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsShortcutItemKey          NS_AVAILABLE_IOS(9_0); // userInfo contains the UIApplicationShortcutItem used to launch the app.
+UIKIT_EXTERN NSNotificationName const UIApplicationDidEnterBackgroundNotification       NS_AVAILABLE_IOS(4_0);
+UIKIT_EXTERN NSNotificationName const UIApplicationWillEnterForegroundNotification      NS_AVAILABLE_IOS(4_0);
+UIKIT_EXTERN NSNotificationName const UIApplicationDidFinishLaunchingNotification;
+UIKIT_EXTERN NSNotificationName const UIApplicationDidBecomeActiveNotification;
+UIKIT_EXTERN NSNotificationName const UIApplicationWillResignActiveNotification;
+UIKIT_EXTERN NSNotificationName const UIApplicationDidReceiveMemoryWarningNotification;
+UIKIT_EXTERN NSNotificationName const UIApplicationWillTerminateNotification;
+UIKIT_EXTERN NSNotificationName const UIApplicationSignificantTimeChangeNotification;
+UIKIT_EXTERN NSNotificationName const UIApplicationWillChangeStatusBarOrientationNotification __TVOS_PROHIBITED; // userInfo contains NSNumber with new orientation
+UIKIT_EXTERN NSNotificationName const UIApplicationDidChangeStatusBarOrientationNotification __TVOS_PROHIBITED;  // userInfo contains NSNumber with old orientation
+UIKIT_EXTERN NSString *const UIApplicationStatusBarOrientationUserInfoKey __TVOS_PROHIBITED;            // userInfo dictionary key for status bar orientation
+UIKIT_EXTERN NSNotificationName const UIApplicationWillChangeStatusBarFrameNotification __TVOS_PROHIBITED;       // userInfo contains NSValue with new frame
+UIKIT_EXTERN NSNotificationName const UIApplicationDidChangeStatusBarFrameNotification __TVOS_PROHIBITED;        // userInfo contains NSValue with old frame
+UIKIT_EXTERN NSString *const UIApplicationStatusBarFrameUserInfoKey __TVOS_PROHIBITED;                  // userInfo dictionary key for status bar frame
+UIKIT_EXTERN NSNotificationName const UIApplicationBackgroundRefreshStatusDidChangeNotification API_AVAILABLE(ios(7.0), tvos(11.0));
+
+UIKIT_EXTERN NSNotificationName const UIApplicationProtectedDataWillBecomeUnavailable    NS_AVAILABLE_IOS(4_0);
+UIKIT_EXTERN NSNotificationName const UIApplicationProtectedDataDidBecomeAvailable       NS_AVAILABLE_IOS(4_0);
+
+#if UIKIT_STRING_ENUMS
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsURLKey                   NS_SWIFT_NAME(url) NS_AVAILABLE_IOS(3_0); // userInfo contains NSURL with launch URL
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsSourceApplicationKey     NS_SWIFT_NAME(sourceApplication) NS_AVAILABLE_IOS(3_0); // userInfo contains NSString with launch app bundle ID
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsRemoteNotificationKey    NS_SWIFT_NAME(remoteNotification) NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED; // userInfo contains NSDictionary with payload
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsLocalNotificationKey     NS_SWIFT_NAME(localNotification) NS_DEPRECATED_IOS(4_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenterDelegate didReceiveNotificationResponse:withCompletionHandler:]") __TVOS_PROHIBITED; // userInfo contains a UILocalNotification
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsAnnotationKey            NS_SWIFT_NAME(annotation) NS_AVAILABLE_IOS(3_2); // userInfo contains object with annotation property list
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsLocationKey              NS_SWIFT_NAME(location) NS_AVAILABLE_IOS(4_0); // app was launched in response to a CoreLocation event.
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsNewsstandDownloadsKey    NS_SWIFT_NAME(newsstandDownloads) NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED; // userInfo contains an NSArray of NKAssetDownload identifiers
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsBluetoothCentralsKey     NS_SWIFT_NAME(bluetoothCentrals) NS_AVAILABLE_IOS(7_0); // userInfo contains an NSArray of CBCentralManager restore identifiers
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsBluetoothPeripheralsKey  NS_SWIFT_NAME(bluetoothPeripherals) NS_AVAILABLE_IOS(7_0); // userInfo contains an NSArray of CBPeripheralManager restore identifiers
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsShortcutItemKey          NS_SWIFT_NAME(shortcutItem) NS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED; // userInfo contains the UIApplicationShortcutItem used to launch the app.
 
 // Key in options dict passed to application:[will | did]FinishLaunchingWithOptions and info for UIApplicationDidFinishLaunchingNotification
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsUserActivityDictionaryKey    NS_AVAILABLE_IOS(8_0); // Sub-Dictionary present in launch options when user activity is present
-UIKIT_EXTERN NSString *const UIApplicationLaunchOptionsUserActivityTypeKey          NS_AVAILABLE_IOS(8_0); // Key in user activity dictionary for the activity type
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsUserActivityDictionaryKey    NS_SWIFT_NAME(userActivityDictionary) NS_AVAILABLE_IOS(8_0); // Sub-Dictionary present in launch options when user activity is present
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsUserActivityTypeKey          NS_SWIFT_NAME(userActivityType) NS_AVAILABLE_IOS(8_0); // Key in user activity dictionary for the activity type
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsCloudKitShareMetadataKey NS_SWIFT_NAME(cloudKitShareMetadata) NS_AVAILABLE_IOS(10_0) __TVOS_PROHIBITED; // The presence of this key indicates that the app was launched in order to handle a CloudKit sharing invitation. The value of this key is a CKShareMetadata object.
+#else
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsURLKey                   NS_AVAILABLE_IOS(3_0); // userInfo contains NSURL with launch URL
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsSourceApplicationKey     NS_AVAILABLE_IOS(3_0); // userInfo contains NSString with launch app bundle ID
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsRemoteNotificationKey    NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED; // userInfo contains NSDictionary with payload
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsLocalNotificationKey     NS_DEPRECATED_IOS(4_0, 10_0, "Use UserNotifications Framework's -[UNUserNotificationCenterDelegate didReceiveNotificationResponse:withCompletionHandler:]") __TVOS_PROHIBITED; // userInfo contains a UILocalNotification
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsAnnotationKey            NS_AVAILABLE_IOS(3_2); // userInfo contains object with annotation property list
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsLocationKey              NS_AVAILABLE_IOS(4_0); // app was launched in response to a CoreLocation event.
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsNewsstandDownloadsKey    NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED; // userInfo contains an NSArray of NKAssetDownload identifiers
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsBluetoothCentralsKey     NS_AVAILABLE_IOS(7_0); // userInfo contains an NSArray of CBCentralManager restore identifiers
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsBluetoothPeripheralsKey  NS_AVAILABLE_IOS(7_0); // userInfo contains an NSArray of CBPeripheralManager restore identifiers
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsShortcutItemKey          NS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED; // userInfo contains the UIApplicationShortcutItem used to launch the app.
+// Key in options dict passed to application:[will | did]FinishLaunchingWithOptions and info for UIApplicationDidFinishLaunchingNotification
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsUserActivityDictionaryKey NS_AVAILABLE_IOS(8_0); // Sub-Dictionary present in launch options when user activity is present
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsUserActivityTypeKey NS_AVAILABLE_IOS(8_0); // Key in user activity dictionary for the activity type
+UIKIT_EXTERN UIApplicationLaunchOptionsKey const UIApplicationLaunchOptionsCloudKitShareMetadataKey NS_AVAILABLE_IOS(10_0) __TVOS_PROHIBITED; // The presence of this key indicates that the app was launched in order to handle a CloudKit sharing invitation. The value of this key is a CKShareMetadata object.
+#endif
 
 UIKIT_EXTERN NSString *const UIApplicationOpenSettingsURLString NS_AVAILABLE_IOS(8_0);
 
 // Keys for application:openURL:options:
-UIKIT_EXTERN NSString *const UIApplicationOpenURLOptionsSourceApplicationKey NS_AVAILABLE_IOS(9_0);   // value is an NSString containing the bundle ID of the originating application
-UIKIT_EXTERN NSString *const UIApplicationOpenURLOptionsAnnotationKey NS_AVAILABLE_IOS(9_0);   // value is a property-list typed object corresponding to what the originating application passed in UIDocumentInteractionController's annotation property
-UIKIT_EXTERN NSString *const UIApplicationOpenURLOptionsOpenInPlaceKey NS_AVAILABLE_IOS(9_0);   // value is a bool NSNumber, set to YES if the file needs to be copied before use
-
-// Content size category constants
-UIKIT_EXTERN NSString *const UIContentSizeCategoryExtraSmall NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIContentSizeCategorySmall NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIContentSizeCategoryMedium NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIContentSizeCategoryLarge NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIContentSizeCategoryExtraLarge NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIContentSizeCategoryExtraExtraLarge NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIContentSizeCategoryExtraExtraExtraLarge NS_AVAILABLE_IOS(7_0);
-
-// Accessibility sizes
-UIKIT_EXTERN NSString *const UIContentSizeCategoryAccessibilityMedium NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIContentSizeCategoryAccessibilityLarge NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIContentSizeCategoryAccessibilityExtraLarge NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIContentSizeCategoryAccessibilityExtraExtraLarge NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIContentSizeCategoryAccessibilityExtraExtraExtraLarge NS_AVAILABLE_IOS(7_0);
-
-// Notification is emitted when the user has changed the preferredContentSizeCategory for the system
-UIKIT_EXTERN NSString *const UIContentSizeCategoryDidChangeNotification NS_AVAILABLE_IOS(7_0); // userInfo dictionary will contain new value for UIContentSizeCategoryNewValueKey
-UIKIT_EXTERN NSString *const UIContentSizeCategoryNewValueKey NS_AVAILABLE_IOS(7_0); // NSString instance with new content size category in userInfo
+#if UIKIT_STRING_ENUMS
+UIKIT_EXTERN UIApplicationOpenURLOptionsKey const UIApplicationOpenURLOptionsSourceApplicationKey NS_SWIFT_NAME(sourceApplication) NS_AVAILABLE_IOS(9_0);   // value is an NSString containing the bundle ID of the originating application
+UIKIT_EXTERN UIApplicationOpenURLOptionsKey const UIApplicationOpenURLOptionsAnnotationKey NS_SWIFT_NAME(annotation) NS_AVAILABLE_IOS(9_0);   // value is a property-list typed object corresponding to what the originating application passed in UIDocumentInteractionController's annotation property
+UIKIT_EXTERN UIApplicationOpenURLOptionsKey const UIApplicationOpenURLOptionsOpenInPlaceKey NS_SWIFT_NAME(openInPlace) NS_AVAILABLE_IOS(9_0);   // value is a bool NSNumber. Copy the file before use if this value is NO, or is not present.
+#else
+UIKIT_EXTERN UIApplicationOpenURLOptionsKey const UIApplicationOpenURLOptionsSourceApplicationKey NS_AVAILABLE_IOS(9_0);   // value is an NSString containing the bundle ID of the originating application
+UIKIT_EXTERN UIApplicationOpenURLOptionsKey const UIApplicationOpenURLOptionsAnnotationKey NS_AVAILABLE_IOS(9_0);   // value is a property-list typed object corresponding to what the originating application passed in UIDocumentInteractionController's annotation property
+UIKIT_EXTERN UIApplicationOpenURLOptionsKey const UIApplicationOpenURLOptionsOpenInPlaceKey NS_AVAILABLE_IOS(9_0);   // value is a bool NSNumber, set to YES if the file needs to be copied before use
+#endif
 
 // This notification is posted after the user takes a screenshot (for example by pressing both the home and lock screen buttons)
-UIKIT_EXTERN NSString *const UIApplicationUserDidTakeScreenshotNotification NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN NSNotificationName const UIApplicationUserDidTakeScreenshotNotification NS_AVAILABLE_IOS(7_0);
 
 // Extension point identifier constants
-UIKIT_EXTERN NSString *const UIApplicationKeyboardExtensionPointIdentifier NS_AVAILABLE_IOS(8_0);
+#if UIKIT_STRING_ENUMS
+UIKIT_EXTERN UIApplicationExtensionPointIdentifier const UIApplicationKeyboardExtensionPointIdentifier NS_SWIFT_NAME(keyboard) NS_AVAILABLE_IOS(8_0);
+#else
+UIKIT_EXTERN UIApplicationExtensionPointIdentifier const UIApplicationKeyboardExtensionPointIdentifier NS_AVAILABLE_IOS(8_0);
+#endif
+
+#pragma mark -- openURL options --
+
+// Option for openURL:options:CompletionHandler: only open URL if it is a valid universal link with an application configured to open it
+// If there is no application configured, or the user disabled using it to open the link, completion handler called with NO
+UIKIT_EXTERN UIApplicationOpenExternalURLOptionsKey const UIApplicationOpenURLOptionUniversalLinksOnly NS_AVAILABLE_IOS(10_0);
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIApplication.h>
+#endif
 // ==========  UIKit.framework/Headers/UIGuidedAccessRestrictions.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIGuidedAccessRestrictions.h>)
 //
 //  UIGuidedAccessRestrictions.h
 //  UIKit
 //
-//  Copyright (c) 2012-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -10512,7 +16126,11 @@ NS_CLASS_AVAILABLE_IOS(7_0) @protocol UIGuidedAccessRestrictionDelegate <NSObjec
  Each restriction identifier must be unique string.
  For example: com.MyCompany.MyApp.SomeRestrictionIdentifier
  */
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) NSArray<NSString *> *guidedAccessRestrictionIdentifiers;
+#else
 - (nullable NSArray<NSString *> *)guidedAccessRestrictionIdentifiers;
+#endif
 
 // Called each time the restriction associated with the identifier changes state.
 - (void)guidedAccessRestrictionWithIdentifier:(NSString *)restrictionIdentifier didChangeState:(UIGuidedAccessRestrictionState)newRestrictionState;
@@ -10531,12 +16149,17 @@ NS_CLASS_AVAILABLE_IOS(7_0) @protocol UIGuidedAccessRestrictionDelegate <NSObjec
 UIKIT_EXTERN UIGuidedAccessRestrictionState UIGuidedAccessRestrictionStateForIdentifier(NSString *restrictionIdentifier) NS_AVAILABLE_IOS(7_0);
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIGuidedAccessRestrictions.h>
+#endif
 // ==========  UIKit.framework/Headers/UISwitch.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISwitch.h>)
 //
 //  UISwitch.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -10546,7 +16169,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UISwitch : UIControl <NSCoding>
+NS_CLASS_AVAILABLE_IOS(2_0) __TVOS_PROHIBITED @interface UISwitch : UIControl <NSCoding>
 
 @property(nullable, nonatomic, strong) UIColor *onTintColor NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 @property(null_resettable, nonatomic, strong) UIColor *tintColor NS_AVAILABLE_IOS(6_0);
@@ -10565,12 +16188,134 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UISwitch : UIControl <NSCoding>
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISwitch.h>
+#endif
+// ==========  UIKit.framework/Headers/UIAccessibilityCustomRotor.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibilityCustomRotor.h>)
+//
+//  UIAccessibilityCustomRotor.h
+//  UIKit
+//
+//  Copyright (c) 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UITextInput.h>
+
+/*
+ UIAccessibilityCustomRotor
+ 
+ Assistive technologies, like VoiceOver, use a context sensitive function to provide more power
+ and flexibility to perform actions and searches. This is called "The Rotor."
+ 
+ An element (or an element in the ancestor hierarchy) can expose an array of custom rotors
+ that a user can activate to search for other instances of like minded elements. This can also
+ be applied to ranges within elements.
+ 
+ As an example, in a magazine app, a custom rotor can be created to allow the user to find the next link or heading within an article.
+ Alternatively, in a document editor, the next misspelled word can be found by returning the next range that contains a misspelled word.
+ */
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIAccessibilityCustomRotor, UIAccessibilityCustomRotorItemResult, UIAccessibilityCustomRotorSearchPredicate;
+
+typedef NS_ENUM(NSInteger, UIAccessibilityCustomRotorDirection) {
+    UIAccessibilityCustomRotorDirectionPrevious NS_ENUM_AVAILABLE_IOS(10_0),
+    UIAccessibilityCustomRotorDirectionNext NS_ENUM_AVAILABLE_IOS(10_0),
+};
+
+/*
+ UIAccessibilityCustomSystemRotorType should be used when you want to allow searching for one of the following types.
+ This will allow VoiceOver to use appropriate gestures and keyboard commands for these specific search types.
+ */
+typedef NS_ENUM(NSInteger, UIAccessibilityCustomSystemRotorType) {
+    UIAccessibilityCustomSystemRotorTypeNone = 0,
+    UIAccessibilityCustomSystemRotorTypeLink,
+    UIAccessibilityCustomSystemRotorTypeVisitedLink,
+    UIAccessibilityCustomSystemRotorTypeHeading,
+    UIAccessibilityCustomSystemRotorTypeHeadingLevel1,
+    UIAccessibilityCustomSystemRotorTypeHeadingLevel2,
+    UIAccessibilityCustomSystemRotorTypeHeadingLevel3,
+    UIAccessibilityCustomSystemRotorTypeHeadingLevel4,
+    UIAccessibilityCustomSystemRotorTypeHeadingLevel5,
+    UIAccessibilityCustomSystemRotorTypeHeadingLevel6,
+    UIAccessibilityCustomSystemRotorTypeBoldText,
+    UIAccessibilityCustomSystemRotorTypeItalicText,
+    UIAccessibilityCustomSystemRotorTypeUnderlineText,
+    UIAccessibilityCustomSystemRotorTypeMisspelledWord,
+    UIAccessibilityCustomSystemRotorTypeImage,
+    UIAccessibilityCustomSystemRotorTypeTextField,
+    UIAccessibilityCustomSystemRotorTypeTable,
+    UIAccessibilityCustomSystemRotorTypeList,
+    UIAccessibilityCustomSystemRotorTypeLandmark,
+} NS_AVAILABLE_IOS(11_0);
+
+typedef UIAccessibilityCustomRotorItemResult *_Nullable(^UIAccessibilityCustomRotorSearch)(UIAccessibilityCustomRotorSearchPredicate *predicate);
+
+// Create the array of UIAccessibilityCustomRotors and set it on the target element or ancestor element to which it applies.
+@interface NSObject (UIAccessibilityCustomRotor)
+@property (nonatomic, retain, nullable) NSArray<UIAccessibilityCustomRotor *> *accessibilityCustomRotors NS_AVAILABLE_IOS(10_0);
+@end
+
+// UIAccessibilityCustomRotorSearchPredicate is a container for search parameters.
+// It should be examined to determine the next matching UIAccessibilityCustomRotorItemResult.
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIAccessibilityCustomRotorSearchPredicate : NSObject
+@property (nonatomic, retain) UIAccessibilityCustomRotorItemResult *currentItem;
+@property (nonatomic) UIAccessibilityCustomRotorDirection searchDirection;
+@end
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIAccessibilityCustomRotor : NSObject
+
+- (instancetype)initWithName:(NSString *)name itemSearchBlock:(UIAccessibilityCustomRotorSearch)itemSearchBlock;
+- (instancetype)initWithAttributedName:(NSAttributedString *)attributedName itemSearchBlock:(UIAccessibilityCustomRotorSearch)itemSearchBlock API_AVAILABLE(ios(11.0), tvos(11.0));
+- (instancetype)initWithSystemType:(UIAccessibilityCustomSystemRotorType)type itemSearchBlock:(UIAccessibilityCustomRotorSearch)itemSearchBlock NS_AVAILABLE_IOS(11_0);
+
+// The localized name the assistive technology will use to describe the custom rotor.
+@property (nonatomic, copy) NSString *name;
+
+// Underlying attributed version of the "name" property. Setting this property will change the
+// value of the "name" property and vice-versa.
+@property (nonatomic, copy) NSAttributedString *attributedName API_AVAILABLE(ios(11.0), tvos(11.0));
+
+// A block that takes a UIAccessibilityCustomRotorItemResult and the search direction and returns the next/previous instance of that rotor item.
+// If the currentItem is nil, that implies the first/last item should be returned.
+@property (nonatomic, copy) UIAccessibilityCustomRotorSearch itemSearchBlock;
+
+// The system rotor type that was optionally used during initialization.
+// default = UIAccessibilityCustomSystemRotorTypeNone
+@property (nonatomic, readonly) UIAccessibilityCustomSystemRotorType systemRotorType NS_AVAILABLE_IOS(11_0);
+
+@end
+
+
+NS_CLASS_AVAILABLE_IOS(10_0) @interface UIAccessibilityCustomRotorItemResult : NSObject
+
+- (instancetype)initWithTargetElement:(id<NSObject>)targetElement targetRange:(nullable UITextRange *)targetRange;
+
+// A UIAccessibilityCustomRotorItemResult references a real element that will be messaged for other accessibility properties.
+@property (nonatomic, weak) id<NSObject> targetElement;
+
+// Optionally, a target range can be used to search within an element (like a UITextView).
+// If targetRange is nil, the search should begin from the start/end of the element depending on the search direction.
+@property (nullable, nonatomic, retain) UITextRange *targetRange;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccessibilityCustomRotor.h>
+#endif
 // ==========  UIKit.framework/Headers/UIGestureRecognizer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIGestureRecognizer.h>)
 //
 //  UIGestureRecognizer.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -10580,7 +16325,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol UIGestureRecognizerDelegate;
-@class UIView, UIEvent, UITouch;
+@class UIView, UIEvent, UITouch, UIPress;
 
 typedef NS_ENUM(NSInteger, UIGestureRecognizerState) {
     UIGestureRecognizerStatePossible,   // the recognizer has not yet recognized its gesture, but may be evaluating touch events. this is the default state
@@ -10615,9 +16360,17 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UIGestureRecognizer : NSObject
 // a UIGestureRecognizer receives touches hit-tested to its view and any of that view's subviews
 @property(nullable, nonatomic,readonly) UIView *view;           // the view the gesture is attached to. set by adding the recognizer to a UIView using the addGestureRecognizer: method
 
-@property(nonatomic) BOOL cancelsTouchesInView;       // default is YES. causes touchesCancelled:withEvent: to be sent to the view for all touches recognized as part of this gesture immediately before the action method is called
-@property(nonatomic) BOOL delaysTouchesBegan;         // default is NO.  causes all touch events to be delivered to the target view only after this gesture has failed recognition. set to YES to prevent views from processing any touches that may be recognized as part of this gesture
-@property(nonatomic) BOOL delaysTouchesEnded;         // default is YES. causes touchesEnded events to be delivered to the target view only after this gesture has failed recognition. this ensures that a touch that is part of the gesture can be cancelled if the gesture is recognized
+@property(nonatomic) BOOL cancelsTouchesInView;       // default is YES. causes touchesCancelled:withEvent: or pressesCancelled:withEvent: to be sent to the view for all touches or presses recognized as part of this gesture immediately before the action method is called.
+@property(nonatomic) BOOL delaysTouchesBegan;         // default is NO.  causes all touch or press events to be delivered to the target view only after this gesture has failed recognition. set to YES to prevent views from processing any touches or presses that may be recognized as part of this gesture
+@property(nonatomic) BOOL delaysTouchesEnded;         // default is YES. causes touchesEnded or pressesEnded events to be delivered to the target view only after this gesture has failed recognition. this ensures that a touch or press that is part of the gesture can be cancelled if the gesture is recognized
+
+@property(nonatomic, copy) NSArray<NSNumber *> *allowedTouchTypes NS_AVAILABLE_IOS(9_0); // Array of UITouchTypes as NSNumbers.
+@property(nonatomic, copy) NSArray<NSNumber *> *allowedPressTypes NS_AVAILABLE_IOS(9_0); // Array of UIPressTypes as NSNumbers.
+
+// Indicates whether the gesture recognizer will consider touches of different touch types simultaneously.
+// If NO, it receives all touches that match its allowedTouchTypes.
+// If YES, once it receives a touch of a certain type, it will ignore new touches of other types, until it is reset to UIGestureRecognizerStatePossible.
+@property (nonatomic) BOOL requiresExclusiveTouchType NS_AVAILABLE_IOS(9_2); // defaults to YES
 
 // create a relationship with another gesture recognizer that will prevent this gesture's actions from being called until otherGestureRecognizer transitions to UIGestureRecognizerStateFailed
 // if otherGestureRecognizer transitions to UIGestureRecognizerStateRecognized or UIGestureRecognizerStateBegan then this recognizer will instead transition to UIGestureRecognizerStateFailed
@@ -10627,8 +16380,14 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UIGestureRecognizer : NSObject
 // individual UIGestureRecognizer subclasses may provide subclass-specific location information. see individual subclasses for details
 - (CGPoint)locationInView:(nullable UIView*)view;                                // a generic single-point location for the gesture. usually the centroid of the touches involved
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) NSUInteger numberOfTouches;                                          // number of touches involved for which locations can be queried
+#else
 - (NSUInteger)numberOfTouches;                                          // number of touches involved for which locations can be queried
+#endif
 - (CGPoint)locationOfTouch:(NSUInteger)touchIndex inView:(nullable UIView*)view; // the location of a particular touch
+
+@property (nullable, nonatomic, copy) NSString *name API_AVAILABLE(ios(11.0), tvos(11.0)); // name for debugging to appear in logging
 
 @end
 
@@ -10654,15 +16413,23 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UIGestureRecognizer : NSObject
 // called before touchesBegan:withEvent: is called on the gesture recognizer for a new touch. return NO to prevent the gesture recognizer from seeing this touch
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch;
 
+// called before pressesBegan:withEvent: is called on the gesture recognizer for a new press. return NO to prevent the gesture recognizer from seeing this press
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceivePress:(UIPress *)press;
+
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIGestureRecognizer.h>
+#endif
 // ==========  UIKit.framework/Headers/UISearchDisplayController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISearchDisplayController.h>)
 //
 //  UISearchDisplayController.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -10670,13 +16437,14 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIKitDefines.h>
 #import <UIKit/UILabel.h>
 #import <UIKit/UITableView.h>
+#import <UIKit/UINavigationBar.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class UISearchBar, UITableView, UIViewController, UIPopoverController;
 @protocol UITableViewDataSource, UITableViewDelegate, UISearchDisplayDelegate;
 
-NS_CLASS_DEPRECATED_IOS(3_0, 8_0, "UISearchDisplayController has been replaced with UISearchController")
+NS_CLASS_DEPRECATED_IOS(3_0, 8_0, "UISearchDisplayController has been replaced with UISearchController") __TVOS_PROHIBITED
 @interface UISearchDisplayController : NSObject
 
 - (instancetype)initWithSearchBar:(UISearchBar *)searchBar contentsController:(UIViewController *)viewController;
@@ -10699,7 +16467,7 @@ NS_CLASS_DEPRECATED_IOS(3_0, 8_0, "UISearchDisplayController has been replaced w
 
 @end
 
-
+__TVOS_PROHIBITED
 @protocol UISearchDisplayDelegate <NSObject>
 
 @optional
@@ -10727,26 +16495,36 @@ NS_CLASS_DEPRECATED_IOS(3_0, 8_0, "UISearchDisplayController has been replaced w
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISearchDisplayController.h>
+#endif
 // ==========  UIKit.framework/Headers/UITableView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITableView.h>)
 //
 //  UITableView.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
+#import <UIKit/NSIndexPath+UIKitAdditions.h>
 #import <UIKit/UIScrollView.h>
 #import <UIKit/UISwipeGestureRecognizer.h>
+#import <UIKit/UISwipeActionsConfiguration.h>
 #import <UIKit/UITableViewCell.h>
 #import <UIKit/UIKitDefines.h>
+#import <UIKit/UIDataSourceTranslating.h>
+#import <UIKit/UISpringLoadedInteractionSupporting.h>
+#import <UIKit/UIDropInteraction.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, UITableViewStyle) {
-    UITableViewStylePlain,                         // regular table view
-    UITableViewStyleGrouped     // preferences style table view
+    UITableViewStylePlain,          // regular table view
+    UITableViewStyleGrouped         // preferences style table view
 };
 
 typedef NS_ENUM(NSInteger, UITableViewScrollPosition) {
@@ -10769,27 +16547,27 @@ typedef NS_ENUM(NSInteger, UITableViewRowAnimation) {
 
 // Including this constant string in the array of strings returned by sectionIndexTitlesForTableView: will cause a magnifying glass icon to be displayed at that location in the index.
 // This should generally only be used as the first title in the index.
-UIKIT_EXTERN NSString *const UITableViewIndexSearch NS_AVAILABLE_IOS(3_0);
+UIKIT_EXTERN NSString *const UITableViewIndexSearch NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
 
 // Returning this value from tableView:heightForHeaderInSection: or tableView:heightForFooterInSection: results in a height that fits the value returned from
 // tableView:titleForHeaderInSection: or tableView:titleForFooterInSection: if the title is not nil.
 UIKIT_EXTERN const CGFloat UITableViewAutomaticDimension NS_AVAILABLE_IOS(5_0);
 
-@class UITableView;
-@class UINib;
-@protocol UITableViewDataSource;
-@class UILongPressGestureRecognizer;
-@class UITableViewHeaderFooterView;
-@class UIRefreshControl;
-@class UIVisualEffect;
+@class UITableView, UINib, UITableViewHeaderFooterView, UIVisualEffect;
+@protocol UITableViewDataSource, UITableViewDataSourcePrefetching;
+@class UIDragItem, UIDragPreviewParameters, UIDragPreviewTarget, UITableViewDropProposal, UITableViewPlaceholder, UITableViewDropPlaceholder;
+@protocol UISpringLoadedInteractionContext, UIDragSession, UIDropSession;
+@protocol UITableViewDragDelegate, UITableViewDropDelegate, UITableViewDropCoordinator, UITableViewDropItem, UITableViewDropPlaceholderContext;
 
 typedef NS_ENUM(NSInteger, UITableViewRowActionStyle) {
     UITableViewRowActionStyleDefault = 0,
     UITableViewRowActionStyleDestructive = UITableViewRowActionStyleDefault,
     UITableViewRowActionStyleNormal
-} NS_ENUM_AVAILABLE_IOS(8_0);
+} NS_ENUM_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
 
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UITableViewRowAction : NSObject <NSCopying>
+// Use UIContextualAction instead of this class, which will be deprecated in a future release.
+NS_CLASS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED
+@interface UITableViewRowAction : NSObject <NSCopying>
 
 + (instancetype)rowActionWithStyle:(UITableViewRowActionStyle)style title:(nullable NSString *)title handler:(void (^)(UITableViewRowAction *action, NSIndexPath *indexPath))handler;
 
@@ -10797,6 +16575,13 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UITableViewRowAction : NSObject <NSCopyin
 @property (nonatomic, copy, nullable) NSString *title;
 @property (nonatomic, copy, nullable) UIColor *backgroundColor; // default background color is dependent on style
 @property (nonatomic, copy, nullable) UIVisualEffect* backgroundEffect;
+
+@end
+
+NS_CLASS_AVAILABLE_IOS(9_0) @interface UITableViewFocusUpdateContext : UIFocusUpdateContext
+
+@property (nonatomic, strong, readonly, nullable) NSIndexPath *previouslyFocusedIndexPath;
+@property (nonatomic, strong, readonly, nullable) NSIndexPath *nextFocusedIndexPath;
 
 @end
 
@@ -10835,7 +16620,7 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UITableViewRowAction : NSObject <NSCopyin
 
 // Accessories (disclosures). 
 
-- (UITableViewCellAccessoryType)tableView:(UITableView *)tableView accessoryTypeForRowWithIndexPath:(NSIndexPath *)indexPath NS_DEPRECATED_IOS(2_0, 3_0);
+- (UITableViewCellAccessoryType)tableView:(UITableView *)tableView accessoryTypeForRowWithIndexPath:(NSIndexPath *)indexPath NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath;
 
 // Selection
@@ -10857,15 +16642,24 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UITableViewRowAction : NSObject <NSCopyin
 
 // Allows customization of the editingStyle for a particular cell located at 'indexPath'. If not implemented, all editable cells will have UITableViewCellEditingStyleDelete set for them when the table has editing property set to YES.
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath;
-- (nullable NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(3_0);
-- (nullable NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(8_0); // supercedes -tableView:titleForDeleteConfirmationButtonForRowAtIndexPath: if return value is non-nil
+- (nullable NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
+
+// Use -tableView:trailingSwipeActionsConfigurationForRowAtIndexPath: instead of this method, which will be deprecated in a future release.
+// This method supersedes -tableView:titleForDeleteConfirmationButtonForRowAtIndexPath: if return value is non-nil
+- (nullable NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED;
+
+// Swipe actions
+// These methods supersede -editActionsForRowAtIndexPath: if implemented
+// return nil to get the default swipe actions
+- (nullable UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos);
+- (nullable UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos);
 
 // Controls whether the background is indented while editing.  If not implemented, the default is YES.  This is unrelated to the indentation level below.  This method only applies to grouped style table views.
 - (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath;
 
 // The willBegin/didEnd methods are called whenever the 'editing' property is automatically changed by the table (allowing insert/delete/move). This is done by a swipe activating a single row
-- (void)tableView:(UITableView*)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath;
-- (void)tableView:(UITableView*)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath;
+- (void)tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath __TVOS_PROHIBITED;
+- (void)tableView:(UITableView *)tableView didEndEditingRowAtIndexPath:(nullable NSIndexPath *)indexPath __TVOS_PROHIBITED;
 
 // Moving/reordering
 
@@ -10882,35 +16676,59 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UITableViewRowAction : NSObject <NSCopyin
 - (BOOL)tableView:(UITableView *)tableView canPerformAction:(SEL)action forRowAtIndexPath:(NSIndexPath *)indexPath withSender:(nullable id)sender NS_AVAILABLE_IOS(5_0);
 - (void)tableView:(UITableView *)tableView performAction:(SEL)action forRowAtIndexPath:(NSIndexPath *)indexPath withSender:(nullable id)sender NS_AVAILABLE_IOS(5_0);
 
+// Focus
+
+- (BOOL)tableView:(UITableView *)tableView canFocusRowAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(9_0);
+- (BOOL)tableView:(UITableView *)tableView shouldUpdateFocusInContext:(UITableViewFocusUpdateContext *)context NS_AVAILABLE_IOS(9_0);
+- (void)tableView:(UITableView *)tableView didUpdateFocusInContext:(UITableViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator NS_AVAILABLE_IOS(9_0);
+- (nullable NSIndexPath *)indexPathForPreferredFocusedViewInTableView:(UITableView *)tableView NS_AVAILABLE_IOS(9_0);
+
+// Spring Loading
+
+// Allows opting-out of spring loading for an particular row.
+// If you want the interaction effect on a different subview of the spring loaded cell, modify the context.targetView property. The default is the cell.
+// If this method is not implemented, the default is YES except when the row is part of a drag session.
+- (BOOL)tableView:(UITableView *)tableView shouldSpringLoadRowAtIndexPath:(NSIndexPath *)indexPath withContext:(id<UISpringLoadedInteractionContext>)context API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
 @end
 
-UIKIT_EXTERN NSString *const UITableViewSelectionDidChangeNotification;
+UIKIT_EXTERN NSNotificationName const UITableViewSelectionDidChangeNotification;
+
+typedef NS_ENUM(NSInteger, UITableViewSeparatorInsetReference) {
+    // The value set to the separatorInset property is interpreted as an offset from the edges of the cell.
+    UITableViewSeparatorInsetFromCellEdges,
+    
+    // The value set to the separatorInset property is interpreted as an offset from the automatic separator insets.
+    UITableViewSeparatorInsetFromAutomaticInsets
+} API_AVAILABLE(ios(11.0), tvos(11.0));
 
 
 //_______________________________________________________________________________________________________________
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableView : UIScrollView <NSCoding>
+NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableView : UIScrollView <NSCoding, UIDataSourceTranslating>
 
 - (instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style NS_DESIGNATED_INITIALIZER; // must specify style at creation. -initWithFrame: calls this with UITableViewStylePlain
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
 @property (nonatomic, readonly) UITableViewStyle style;
+
 @property (nonatomic, weak, nullable) id <UITableViewDataSource> dataSource;
 @property (nonatomic, weak, nullable) id <UITableViewDelegate> delegate;
-@property (nonatomic) CGFloat rowHeight;             // will return the default value if unset
-@property (nonatomic) CGFloat sectionHeaderHeight;   // will return the default value if unset
-@property (nonatomic) CGFloat sectionFooterHeight;   // will return the default value if unset
-@property (nonatomic) CGFloat estimatedRowHeight NS_AVAILABLE_IOS(7_0); // default is 0, which means there is no estimate
-@property (nonatomic) CGFloat estimatedSectionHeaderHeight NS_AVAILABLE_IOS(7_0); // default is 0, which means there is no estimate
-@property (nonatomic) CGFloat estimatedSectionFooterHeight NS_AVAILABLE_IOS(7_0); // default is 0, which means there is no estimate
-@property (nonatomic) UIEdgeInsets separatorInset NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR; // allows customization of the frame of cell separators
+@property (nonatomic, weak, nullable) id <UITableViewDataSourcePrefetching> prefetchDataSource NS_AVAILABLE_IOS(10_0);
+@property (nonatomic, weak, nullable) id <UITableViewDragDelegate> dragDelegate API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+@property (nonatomic, weak, nullable) id <UITableViewDropDelegate> dropDelegate API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+@property (nonatomic) CGFloat rowHeight;             // default is UITableViewAutomaticDimension
+@property (nonatomic) CGFloat sectionHeaderHeight;   // default is UITableViewAutomaticDimension
+@property (nonatomic) CGFloat sectionFooterHeight;   // default is UITableViewAutomaticDimension
+@property (nonatomic) CGFloat estimatedRowHeight NS_AVAILABLE_IOS(7_0); // default is UITableViewAutomaticDimension, set to 0 to disable
+@property (nonatomic) CGFloat estimatedSectionHeaderHeight NS_AVAILABLE_IOS(7_0); // default is UITableViewAutomaticDimension, set to 0 to disable
+@property (nonatomic) CGFloat estimatedSectionFooterHeight NS_AVAILABLE_IOS(7_0); // default is UITableViewAutomaticDimension, set to 0 to disable
+
+@property (nonatomic) UIEdgeInsets separatorInset NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR; // allows customization of the frame of cell separators; see also the separatorInsetReference property. Use UITableViewAutomaticDimension for the automatic inset for that edge.
+@property (nonatomic) UITableViewSeparatorInsetReference separatorInsetReference API_AVAILABLE(ios(11.0), tvos(11.0)); // Changes how custom separatorInset values are interpreted. The default value is UITableViewSeparatorInsetFromCellEdges
 
 @property (nonatomic, strong, nullable) UIView *backgroundView NS_AVAILABLE_IOS(3_2); // the background view will be automatically resized to track the size of the table view.  this will be placed as a subview of the table view behind all cells and headers/footers.  default may be non-nil for some devices.
-
-// Data
-
-- (void)reloadData; // reloads everything from scratch. redisplays visible rows. because we only keep info about visible rows, this is cheap. will adjust offset if table shrinks
-- (void)reloadSectionIndexTitles NS_AVAILABLE_IOS(3_0);   // reloads the index bar.
 
 // Info
 
@@ -10936,10 +16754,14 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableView : UIScrollView <NSCoding>
 - (void)scrollToRowAtIndexPath:(NSIndexPath *)indexPath atScrollPosition:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated;
 - (void)scrollToNearestSelectedRowAtScrollPosition:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated;
 
-// Row insertion/deletion/reloading.
+// Reloading and Updating
 
-- (void)beginUpdates;   // allow multiple insert/delete of rows and sections to be animated simultaneously. Nestable
-- (void)endUpdates;     // only call insert/delete/reload calls or change the editing state inside an update block.  otherwise things like row count, etc. may be invalid.
+// Allows multiple insert/delete/reload/move calls to be animated simultaneously. Nestable.
+- (void)performBatchUpdates:(void (NS_NOESCAPE ^ _Nullable)(void))updates completion:(void (^ _Nullable)(BOOL finished))completion API_AVAILABLE(ios(11.0), tvos(11.0));
+
+// Use -performBatchUpdates:completion: instead of these methods, which will be deprecated in a future release.
+- (void)beginUpdates;
+- (void)endUpdates;
 
 - (void)insertSections:(NSIndexSet *)sections withRowAnimation:(UITableViewRowAnimation)animation;
 - (void)deleteSections:(NSIndexSet *)sections withRowAnimation:(UITableViewRowAnimation)animation;
@@ -10950,6 +16772,15 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableView : UIScrollView <NSCoding>
 - (void)deleteRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation;
 - (void)reloadRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation NS_AVAILABLE_IOS(3_0);
 - (void)moveRowAtIndexPath:(NSIndexPath *)indexPath toIndexPath:(NSIndexPath *)newIndexPath NS_AVAILABLE_IOS(5_0);
+
+// Returns YES if the table view is in the middle of reordering, is displaying a drop target gap, or has drop placeholders. If possible, avoid calling -reloadData while there are uncommitted updates to avoid interfering with user-initiated interactions that have not yet completed.
+@property (nonatomic, readonly) BOOL hasUncommittedUpdates API_AVAILABLE(ios(11.0), tvos(11.0));
+
+// Reloads everything from scratch. Redisplays visible rows. Note that this will cause any existing drop placeholder rows to be removed.
+- (void)reloadData;
+
+// Reloads the section index bar.
+- (void)reloadSectionIndexTitles NS_AVAILABLE_IOS(3_0);
 
 // Editing. When set, rows show insert/delete/reorder controls based on data source queries
 
@@ -10977,11 +16808,12 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableView : UIScrollView <NSCoding>
 @property (nonatomic, strong, nullable) UIColor *sectionIndexBackgroundColor NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR;         // the background color of the section index while not being touched
 @property (nonatomic, strong, nullable) UIColor *sectionIndexTrackingBackgroundColor NS_AVAILABLE_IOS(6_0) UI_APPEARANCE_SELECTOR; // the background color of the section index while it is being touched
 
-@property (nonatomic) UITableViewCellSeparatorStyle separatorStyle; // default is UITableViewCellSeparatorStyleSingleLine
-@property (nonatomic, strong, nullable) UIColor *separatorColor UI_APPEARANCE_SELECTOR; // default is the standard separator gray
-@property (nonatomic, copy, nullable) UIVisualEffect *separatorEffect NS_AVAILABLE_IOS(8_0) UI_APPEARANCE_SELECTOR; // effect to apply to table separators
+@property (nonatomic) UITableViewCellSeparatorStyle separatorStyle __TVOS_PROHIBITED; // default is UITableViewCellSeparatorStyleSingleLine
+@property (nonatomic, strong, nullable) UIColor *separatorColor UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED; // default is the standard separator gray
+@property (nonatomic, copy, nullable) UIVisualEffect *separatorEffect NS_AVAILABLE_IOS(8_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED; // effect to apply to table separators
 
-@property (nonatomic) BOOL cellLayoutMarginsFollowReadableWidth NS_AVAILABLE_IOS(9_0); // if cell margins are derived from the width of the readableContentGuide.
+@property (nonatomic) BOOL cellLayoutMarginsFollowReadableWidth NS_AVAILABLE_IOS(9_0); // if cell layout margins are derived from the width of the readableContentGuide. default is NO.
+@property (nonatomic) BOOL insetsContentViewsToSafeArea API_AVAILABLE(ios(11.0), tvos(11.0)); // default value is YES
 
 @property (nonatomic, strong, nullable) UIView *tableHeaderView;                           // accessory view for above row content. default is nil. not to be confused with section header
 @property (nonatomic, strong, nullable) UIView *tableFooterView;                           // accessory view below content. default is nil. not to be confused with section footer
@@ -10999,8 +16831,29 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableView : UIScrollView <NSCoding>
 - (void)registerNib:(nullable UINib *)nib forHeaderFooterViewReuseIdentifier:(NSString *)identifier NS_AVAILABLE_IOS(6_0);
 - (void)registerClass:(nullable Class)aClass forHeaderFooterViewReuseIdentifier:(NSString *)identifier NS_AVAILABLE_IOS(6_0);
 
+// Focus
+
+@property (nonatomic) BOOL remembersLastFocusedIndexPath NS_AVAILABLE_IOS(9_0); // defaults to NO. If YES, when focusing on a table view the last focused index path is focused automatically. If the table view has never been focused, then the preferred focused index path is used.
+
+// Drag & Drop
+
+// To enable intra-app drags on iPhone, set this to YES.
+// You can also force drags to be disabled for this table view by setting this to NO.
+// By default, this will return YES on iPad and NO on iPhone.
+@property (nonatomic) BOOL dragInteractionEnabled API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+// YES if a drag session is currently active. A drag session begins after rows are "lifted" from the table view.
+@property (nonatomic, readonly) BOOL hasActiveDrag API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+// YES if table view is currently tracking a drop session.
+@property (nonatomic, readonly) BOOL hasActiveDrop API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
 @end
+
+#if TARGET_OS_IOS
+@interface UITableView (UIDragAndDrop) <UISpringLoadedInteractionSupporting>
+@end
+#endif
 
 //_______________________________________________________________________________________________________________
 // this protocol represents the data model object. as such, it supplies no information about appearance (including the cells)
@@ -11035,7 +16888,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableView : UIScrollView <NSCoding>
 
 // Index
 
-- (nullable NSArray<NSString *> *)sectionIndexTitlesForTableView:(UITableView *)tableView;                                                    // return list of section titles to display in section index view (e.g. "ABCD...Z#")
+- (nullable NSArray<NSString *> *)sectionIndexTitlesForTableView:(UITableView *)tableView;                               // return list of section titles to display in section index view (e.g. "ABCD...Z#")
 - (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index;  // tell table which section corresponds to section title/index (e.g. "B",1))
 
 // Data manipulation - insert and delete support
@@ -11050,25 +16903,258 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableView : UIScrollView <NSCoding>
 
 @end
 
-//_______________________________________________________________________________________________________________
 
-// This category provides convenience methods to make it easier to use an NSIndexPath to represent a section and row
-@interface NSIndexPath (UITableView)
+// _______________________________________________________________________________________________________________
+// this protocol can provide information about cells before they are displayed on screen.
 
-+ (instancetype)indexPathForRow:(NSInteger)row inSection:(NSInteger)section;
+@protocol UITableViewDataSourcePrefetching <NSObject>
 
-@property (nonatomic, readonly) NSInteger section;
-@property (nonatomic, readonly) NSInteger row;
+@required
+
+// indexPaths are ordered ascending by geometric distance from the table view
+- (void)tableView:(UITableView *)tableView prefetchRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths;
+
+@optional
+
+// indexPaths that previously were considered as candidates for pre-fetching, but were not actually used; may be a subset of the previous call to -tableView:prefetchRowsAtIndexPaths:
+- (void)tableView:(UITableView *)tableView cancelPrefetchingForRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths;
+
+@end
+
+
+// _______________________________________________________________________________________________________________
+// Drag & Drop
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UITableViewDragDelegate <NSObject>
+
+@required
+
+// Provide items to begin a drag associated with a given index path.
+// You can use -[session locationInView:] to do additional hit testing if desired.
+// If an empty array is returned a drag session will not begin.
+- (NSArray<UIDragItem *> *)tableView:(UITableView *)tableView itemsForBeginningDragSession:(id<UIDragSession>)session atIndexPath:(NSIndexPath *)indexPath;
+
+@optional
+
+// Called to request items to add to an existing drag session in response to the add item gesture.
+// You can use the provided point (in the table view's coordinate space) to do additional hit testing if desired.
+// If not implemented, or if an empty array is returned, no items will be added to the drag and the gesture
+// will be handled normally.
+- (NSArray<UIDragItem *> *)tableView:(UITableView *)tableView itemsForAddingToDragSession:(id<UIDragSession>)session atIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point;
+
+// Allows customization of the preview used for the row when it is lifted or if the drag cancels.
+// If not implemented or if nil is returned, the entire cell will be used for the preview.
+- (nullable UIDragPreviewParameters *)tableView:(UITableView *)tableView dragPreviewParametersForRowAtIndexPath:(NSIndexPath *)indexPath;
+
+// Called after the lift animation has completed to signal the start of a drag session.
+// This call will always be balanced with a corresponding call to -tableView:dragSessionDidEnd:
+- (void)tableView:(UITableView *)tableView dragSessionWillBegin:(id<UIDragSession>)session;
+
+// Called to signal the end of the drag session.
+- (void)tableView:(UITableView *)tableView dragSessionDidEnd:(id<UIDragSession>)session;
+
+// Controls whether move operations are allowed for the drag session.
+// If not implemented, defaults to YES.
+- (BOOL)tableView:(UITableView *)tableView dragSessionAllowsMoveOperation:(id<UIDragSession>)session;
+
+// Controls whether the drag session is restricted to the source application.
+// If not implemented, defaults to NO.
+- (BOOL)tableView:(UITableView *)tableView dragSessionIsRestrictedToDraggingApplication:(id<UIDragSession>)session;
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UITableViewDropDelegate <NSObject>
+
+@required
+
+// Called when the user initiates the drop.
+// Use the drop coordinator to access the items in the drop and the final destination index path and proposal for the drop,
+// as well as specify how you wish to animate each item to its final position.
+// If your implementation of this method does nothing, default drop animations will be supplied and the table view will
+// revert back to its initial state before the drop session entered.
+- (void)tableView:(UITableView *)tableView performDropWithCoordinator:(id<UITableViewDropCoordinator>)coordinator;
+
+@optional
+
+// If NO is returned no further delegate methods will be called for this drop session.
+// If not implemented, a default value of YES is assumed.
+- (BOOL)tableView:(UITableView *)tableView canHandleDropSession:(id<UIDropSession>)session;
+
+// Called when the drop session begins tracking in the table view's coordinate space.
+- (void)tableView:(UITableView *)tableView dropSessionDidEnter:(id<UIDropSession>)session;
+
+// Called frequently while the drop session being tracked inside the table view's coordinate space.
+// When the drop is at the end of a section, the destination index path passed will be for a row that does not yet exist (equal
+// to the number of rows in that section), where an inserted row would append to the end of the section.
+// The destination index path may be nil in some circumstances (e.g. when dragging over empty space where there are no cells).
+// Note that in some cases your proposal may not be allowed and the system will enforce a different proposal.
+// You may perform your own hit testing via -[session locationInView:]
+- (UITableViewDropProposal *)tableView:(UITableView *)tableView dropSessionDidUpdate:(id<UIDropSession>)session withDestinationIndexPath:(nullable NSIndexPath *)destinationIndexPath;
+
+// Called when the drop session is no longer being tracked inside the table view's coordinate space.
+- (void)tableView:(UITableView *)tableView dropSessionDidExit:(id<UIDropSession>)session;
+
+// Called when the drop session completed, regardless of outcome. Useful for performing any cleanup.
+- (void)tableView:(UITableView *)tableView dropSessionDidEnd:(id<UIDropSession>)session;
+
+// Allows customization of the preview used when dropping to a newly inserted row.
+// If not implemented or if nil is returned, the entire cell will be used for the preview.
+- (nullable UIDragPreviewParameters *)tableView:(UITableView *)tableView dropPreviewParametersForRowAtIndexPath:(NSIndexPath *)indexPath;
+
+@end
+
+
+typedef NS_ENUM(NSInteger, UITableViewDropIntent) {
+    // Table view will accept the drop, but the location is not yet known and will be determined later.
+    // Will not open a gap. You may wish to provide some visual treatment to communicate this to the user.
+    UITableViewDropIntentUnspecified,
+    
+    // The drop will be placed in row(s) inserted at the destination index path.
+    // Opens a gap at the specified location simulating the final dropped layout.
+    UITableViewDropIntentInsertAtDestinationIndexPath,
+    
+    // The drop will be placed inside the row at the destination index path (e.g. the row is a container of other items).
+    // Will not open a gap. Table view will highlight the row at the destination index path.
+    UITableViewDropIntentInsertIntoDestinationIndexPath,
+    
+    // The table view will automatically choose between .insertAtDestinationIndexPath and
+    // .insertIntoDestinationIndexPath depending on the position of the drop. This should be used instead
+    // of .insertIntoDestinationIndexPath when the item being dropped can either be placed inside the row
+    // at the destination index path or inserted in a new row at the index path of the container row.
+    UITableViewDropIntentAutomatic
+} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@interface UITableViewDropProposal : UIDropProposal
+
+- (instancetype)initWithDropOperation:(UIDropOperation)operation intent:(UITableViewDropIntent)intent;
+
+// The default is UITableViewDropIntentUnspecified.
+@property (nonatomic, readonly) UITableViewDropIntent intent;
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UITableViewDropCoordinator <NSObject>
+
+// Ordered list of items available for this drop.
+@property (nonatomic, readonly) NSArray<id<UITableViewDropItem>> *items;
+
+// The last hit-tested index path known during the drop session.
+// When the drop is at the end of a section, this index path will be for a row that does not yet exist (equal
+// to the number of rows in that section), where an inserted row would append to the end of the section.
+// This index path may be nil in some circumstances (e.g. when dragging over empty space where there are no cells),
+// and if it is nil, the proposal's intent will always be UITableViewDropIntentUnspecified.
+@property (nonatomic, readonly, nullable) NSIndexPath *destinationIndexPath;
+
+// The current drop proposal at the time of the drop.
+@property (nonatomic, readonly) UITableViewDropProposal *proposal;
+
+// The drop session.
+@property (nonatomic, readonly) id<UIDropSession> session;
+
+// Animate the dragItem to an automatically inserted placeholder row.
+// Once the dragItem data is available, you can exchange the temporary placeholder cell with the final cell using the placeholder context
+// method -commitInsertionWithDataSourceUpdates:
+- (id<UITableViewDropPlaceholderContext>)dropItem:(UIDragItem *)dragItem toPlaceholder:(UITableViewDropPlaceholder *)placeholder;
+
+// Animate the dragItem to a row that you inserted at this index path.
+// You must call -performBatchUpdates:completion: to update your data source and insert a new row into the table view prior to calling this method.
+// If desired, use the drop delegate method -tableView:dropPreviewParametersForRowAtIndexPath: to provide preview parameters.
+- (id<UIDragAnimating>)dropItem:(UIDragItem *)dragItem toRowAtIndexPath:(NSIndexPath *)indexPath;
+
+// Animate the dragItem to a rect inside an existing row.
+// The rect is in the coordinate space of the cell at this index path.
+// The item will be animated with an aspect fit scale transform to fit inside the rect. Use a rect with zero size to shrink the item to a single point.
+- (id<UIDragAnimating>)dropItem:(UIDragItem *)dragItem intoRowAtIndexPath:(NSIndexPath *)indexPath rect:(CGRect)rect;
+
+// Animate the dragItem to a location specified by the UIDragPreviewTarget.
+// The -[UITableViewDropItem previewSize] may be helpful to compute an appropriate transform.
+- (id<UIDragAnimating>)dropItem:(UIDragItem *)dragItem toTarget:(UIDragPreviewTarget *)target;
+
+@end
+
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@interface UITableViewPlaceholder : NSObject
+
+// A placeholder cell will be dequeued for the reuse identifier and inserted at the specified index path without requiring a data source update.
+// You may use UITableViewAutomaticDimension for the rowHeight to have the placeholder cell self-size if the table view is using estimated row heights.
+- (instancetype)initWithInsertionIndexPath:(NSIndexPath *)insertionIndexPath reuseIdentifier:(NSString *)reuseIdentifier rowHeight:(CGFloat)rowHeight NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+// Called whenever the placeholder cell is visible to update the contents of the cell.
+@property (nonatomic, nullable, copy) void(^cellUpdateHandler)(__kindof UITableViewCell *);
+
+@end
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@interface UITableViewDropPlaceholder : UITableViewPlaceholder
+
+// Allows customization of the preview used when dropping to a placeholder.
+// If no block is set, or if nil is returned, the entire cell will be used for the preview.
+@property (nonatomic, nullable, copy) UIDragPreviewParameters * _Nullable (^previewParametersProvider)(__kindof UITableViewCell *);
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UITableViewDropItem <NSObject>
+
+// Retrieve drop data from the dragItem's itemProvider.
+@property (nonatomic, readonly) UIDragItem *dragItem;
+
+// If this drop item is also from this table view this index path will specify the location of the row it came from.
+// If the dragItem comes from some other source (e.g. another source inside or outside of the app), or if the source
+// table view is updated or reloaded after the drag begins, this index path will be nil.
+// This is useful for directly accessing the model object in your data source instead of using the item provider
+// to retrieve the data.
+@property (nonatomic, readonly, nullable) NSIndexPath *sourceIndexPath;
+
+// May be useful for computing the UIDragPreviewTarget transform for UITableViewDropCoordinator dropItem:toTarget:
+// Returns CGSizeZero if the dragItem does not have a visible drop preview.
+@property (nonatomic, readonly) CGSize previewSize;
+
+@end
+
+
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UITableViewDropPlaceholderContext <UIDragAnimating>
+
+// The drag item this placeholder was created for.
+@property (nonatomic, readonly) UIDragItem *dragItem;
+
+// Exchange the placeholder for the final cell.
+// You are only responsible for updating your data source inside the block using the provided insertionIndexPath.
+// If the placeholder is no longer available (e.g. -reloadData has been called) the dataSourceUpdates block
+// will not be executed and this will return NO.
+- (BOOL)commitInsertionWithDataSourceUpdates:(void(NS_NOESCAPE ^)(NSIndexPath *insertionIndexPath))dataSourceUpdates;
+
+// If the placeholder is no longer needed or you wish to manually insert a cell for the drop data, you can
+// remove the placeholder via this method.
+// If the placeholder is no longer available (e.g. -reloadData has been called) this will return NO.
+- (BOOL)deletePlaceholder;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITableView.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPasteboard.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPasteboard.h>)
 //
 //  UIPasteboard.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -11076,31 +17162,53 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-UIKIT_EXTERN NSString *const UIPasteboardNameGeneral;
-UIKIT_EXTERN NSString *const UIPasteboardNameFind;
+#if UIKIT_STRING_ENUMS
+typedef NSString * UIPasteboardName NS_TYPED_EXTENSIBLE_ENUM;
+#else
+typedef NSString * UIPasteboardName;
+#endif
+
+UIKIT_EXTERN UIPasteboardName const UIPasteboardNameGeneral __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+UIKIT_EXTERN NSString *const UIPasteboardNameFind __TVOS_PROHIBITED __WATCHOS_PROHIBITED NS_DEPRECATED_IOS(3_0, 10_0, "The Find pasteboard is no longer available.");
 
 @class UIColor, UIImage;
 
-NS_CLASS_AVAILABLE_IOS(3_0) @interface UIPasteboard : NSObject
-{
-  @private
-    NSString * __nullable _name;
-}
+NS_CLASS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED @interface UIPasteboard : NSObject
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) UIPasteboard *generalPasteboard;
+#else
 + (UIPasteboard *)generalPasteboard;
-+ (nullable UIPasteboard *)pasteboardWithName:(NSString *)pasteboardName create:(BOOL)create;
+#endif
+
++ (nullable UIPasteboard *)pasteboardWithName:(UIPasteboardName)pasteboardName create:(BOOL)create;
 + (UIPasteboard *)pasteboardWithUniqueName;
 
-@property(readonly,nonatomic) NSString *name;
+@property(readonly,nonatomic) UIPasteboardName name;
 
-+ (void)removePasteboardWithName:(NSString *)pasteboardName;
++ (void)removePasteboardWithName:(UIPasteboardName)pasteboardName;
 
-@property(getter=isPersistent,nonatomic) BOOL persistent;
+@property(readonly,getter=isPersistent,nonatomic) BOOL persistent;
+- (void)setPersistent:(BOOL)persistent NS_DEPRECATED_IOS(3_0, 10_0, "Do not set persistence on pasteboards. This property is set automatically.");
 @property(readonly,nonatomic) NSInteger changeCount;
+
+// Item provider interface
+
+@property (nonatomic, copy) NSArray<__kindof NSItemProvider *> *itemProviders API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+- (void)setItemProviders:(NSArray<NSItemProvider *> *)itemProviders localOnly:(BOOL)localOnly expirationDate:(NSDate * _Nullable)expirationDate API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+// Automatically creates item providers wrapping the objects passed in.
+- (void)setObjects:(NSArray<id<NSItemProviderWriting>> *)objects API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+- (void)setObjects:(NSArray<id<NSItemProviderWriting>> *)objects localOnly:(BOOL)localOnly expirationDate:(NSDate * _Nullable)expirationDate API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 // First item
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) NSArray<NSString *> * pasteboardTypes;
+#else
 - (NSArray<NSString *> *)pasteboardTypes;
+#endif
 - (BOOL)containsPasteboardTypes:(NSArray<NSString *> *)pasteboardTypes;
 - (nullable NSData *)dataForPasteboardType:(NSString *)pasteboardType;
 
@@ -11112,61 +17220,96 @@ NS_CLASS_AVAILABLE_IOS(3_0) @interface UIPasteboard : NSObject
 // Multiple items
 
 @property(readonly,nonatomic) NSInteger numberOfItems;
-// The next two property generics update is waiting on clang front end fix. See <rdar://problem/20824785>
-// - (nullable NSArray<NSString *> *)pasteboardTypesForItemSet:(nullable NSIndexSet*)itemSet;
-- (nullable NSArray *)pasteboardTypesForItemSet:(nullable NSIndexSet*)itemSet;
+- (nullable NSArray<NSArray<NSString *> *> *)pasteboardTypesForItemSet:(nullable NSIndexSet*)itemSet;
 
 - (BOOL)containsPasteboardTypes:(NSArray<NSString *> *)pasteboardTypes inItemSet:(nullable NSIndexSet *)itemSet;
-- (nullable NSIndexSet *)itemSetWithPasteboardTypes:(NSArray *)pasteboardTypes;
+- (nullable NSIndexSet *)itemSetWithPasteboardTypes:(NSArray<NSString *> *)pasteboardTypes;
 - (nullable NSArray *)valuesForPasteboardType:(NSString *)pasteboardType inItemSet:(nullable NSIndexSet *)itemSet;
-- (nullable NSArray *)dataForPasteboardType:(NSString *)pasteboardType inItemSet:(nullable NSIndexSet *)itemSet;
+- (nullable NSArray<NSData *> *)dataForPasteboardType:(NSString *)pasteboardType inItemSet:(nullable NSIndexSet *)itemSet;
 
 // Direct access
 
-@property(nonatomic,copy) NSArray *items;
+@property(nonatomic,copy) NSArray<NSDictionary<NSString *, id> *> *items;
 - (void)addItems:(NSArray<NSDictionary<NSString *, id> *> *)items;
+
+typedef NSString * UIPasteboardOption NS_TYPED_ENUM NS_AVAILABLE_IOS(10_0);
+
+UIKIT_EXTERN UIPasteboardOption const UIPasteboardOptionExpirationDate __TVOS_PROHIBITED __WATCHOS_PROHIBITED NS_AVAILABLE_IOS(10_0) NS_SWIFT_NAME(UIPasteboardOption.expirationDate); // Value: NSDate.
+UIKIT_EXTERN UIPasteboardOption const UIPasteboardOptionLocalOnly __TVOS_PROHIBITED __WATCHOS_PROHIBITED NS_AVAILABLE_IOS(10_0) NS_SWIFT_NAME(UIPasteboardOption.localOnly); // Value: NSNumber, boolean.
+
+- (void)setItems:(NSArray<NSDictionary<NSString *, id> *> *)items options:(NSDictionary<UIPasteboardOption, id> *)options NS_AVAILABLE_IOS(10_0);
+
+@property(nullable,nonatomic,copy) NSString *string __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+@property(nullable,nonatomic,copy) NSArray<NSString *> *strings __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+
+@property(nullable,nonatomic,copy) NSURL *URL __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+@property(nullable,nonatomic,copy) NSArray<NSURL *> *URLs __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+
+@property(nullable,nonatomic,copy) UIImage *image __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+@property(nullable,nonatomic,copy) NSArray<UIImage *> *images __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+
+@property(nullable,nonatomic,copy) UIColor *color __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+@property(nullable,nonatomic,copy) NSArray<UIColor *> *colors __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+
+// Queries
+
+@property (nonatomic, readonly) BOOL hasStrings __TVOS_PROHIBITED __WATCHOS_PROHIBITED NS_AVAILABLE_IOS(10_0);
+@property (nonatomic, readonly) BOOL hasURLs __TVOS_PROHIBITED __WATCHOS_PROHIBITED NS_AVAILABLE_IOS(10_0);
+@property (nonatomic, readonly) BOOL hasImages __TVOS_PROHIBITED __WATCHOS_PROHIBITED NS_AVAILABLE_IOS(10_0);
+@property (nonatomic, readonly) BOOL hasColors __TVOS_PROHIBITED __WATCHOS_PROHIBITED NS_AVAILABLE_IOS(10_0);
 
 @end
 
 // Notification
 
-UIKIT_EXTERN NSString *const UIPasteboardChangedNotification;
-UIKIT_EXTERN NSString *const UIPasteboardChangedTypesAddedKey;
-UIKIT_EXTERN NSString *const UIPasteboardChangedTypesRemovedKey;
+UIKIT_EXTERN NSNotificationName const UIPasteboardChangedNotification __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+UIKIT_EXTERN NSString *const UIPasteboardChangedTypesAddedKey __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+UIKIT_EXTERN NSString *const UIPasteboardChangedTypesRemovedKey __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
-UIKIT_EXTERN NSString *const UIPasteboardRemovedNotification;
+UIKIT_EXTERN NSNotificationName const UIPasteboardRemovedNotification __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
-// Extensions
+// Types
 
-UIKIT_EXTERN NSArray<NSString *> *UIPasteboardTypeListString;
-UIKIT_EXTERN NSArray<NSString *> *UIPasteboardTypeListURL;
-UIKIT_EXTERN NSArray<NSString *> *UIPasteboardTypeListImage;
-UIKIT_EXTERN NSArray<NSString *> *UIPasteboardTypeListColor;
+UIKIT_EXTERN NSArray<NSString *> *UIPasteboardTypeListString __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+UIKIT_EXTERN NSArray<NSString *> *UIPasteboardTypeListURL __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+UIKIT_EXTERN NSArray<NSString *> *UIPasteboardTypeListImage __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+UIKIT_EXTERN NSArray<NSString *> *UIPasteboardTypeListColor __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
 
-@interface UIPasteboard(UIPasteboardDataExtensions)
-
-@property(nullable,nonatomic,copy) NSString *string;
-@property(nullable,nonatomic,copy) NSArray<NSString *> *strings;
-
-@property(nullable,nonatomic,copy) NSURL *URL;
-@property(nullable,nonatomic,copy) NSArray<NSURL *> *URLs;
-
-@property(nullable,nonatomic,copy) UIImage *image;
-@property(nullable,nonatomic,copy) NSArray<UIImage *> *images;
-
-@property(nullable,nonatomic,copy) UIColor *color;
-@property(nullable,nonatomic,copy) NSArray<UIColor *> *colors;
-
-@end
+// Use the following type in setItems: or setItems:options: to automatically insert appropriate UTIs for supported types.
+// Supported types are: NSString, NSURL, UIImage, UIColor, NSAttributedString.
+UIKIT_EXTERN NSString * const UIPasteboardTypeAutomatic __TVOS_PROHIBITED __WATCHOS_PROHIBITED NS_AVAILABLE_IOS(10_0);
 
 NS_ASSUME_NONNULL_END
     
+
+#else
+#import <UIKitCore/UIPasteboard.h>
+#endif
+// ==========  UIKit.framework/Headers/UITextItemInteraction.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextItemInteraction.h>)
+//
+//  UITextItemInteraction.h
+//  UIKit
+//
+//  Copyright (c) 2016-2018 Apple Inc. All rights reserved.
+//
+
+typedef NS_ENUM(NSInteger, UITextItemInteraction) {
+    UITextItemInteractionInvokeDefaultAction,
+    UITextItemInteractionPresentActions,
+    UITextItemInteractionPreview,
+} NS_ENUM_AVAILABLE_IOS(10_0);
+
+#else
+#import <UIKitCore/UITextItemInteraction.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPopoverBackgroundView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPopoverBackgroundView.h>)
 //
 //  UIPopoverBackgroundView.h
 //  UIKit
 //
-//  Copyright (c) 2011-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -11204,18 +17347,27 @@ NS_CLASS_AVAILABLE_IOS(5_0)
 
 /* This method may be overridden to prevent the drawing of the content inset and drop shadow inside the popover. The default implementation of this method returns YES.
  */
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) BOOL wantsDefaultContentAppearance NS_AVAILABLE_IOS(6_0);
+#else
 + (BOOL)wantsDefaultContentAppearance NS_AVAILABLE_IOS(6_0);
+#endif
 
 @end
+
+#else
+#import <UIKitCore/UIPopoverBackgroundView.h>
+#endif
 // ==========  UIKit.framework/Headers/UISplitViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISplitViewController.h>)
 //
 //  UISplitViewController.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <UIKit/UIViewController.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11227,6 +17379,11 @@ typedef NS_ENUM(NSInteger, UISplitViewControllerDisplayMode) {
     UISplitViewControllerDisplayModeAllVisible,
     UISplitViewControllerDisplayModePrimaryOverlay,
 } NS_ENUM_AVAILABLE_IOS(8_0);
+
+typedef NS_ENUM(NSInteger, UISplitViewControllerPrimaryEdge) {
+    UISplitViewControllerPrimaryEdgeLeading,
+    UISplitViewControllerPrimaryEdgeTrailing,
+} API_AVAILABLE(ios(11.0), tvos(11.0));
 
 // This constant can be used with any sizing-related `UISplitViewController` properties to get the default system behavior.
 UIKIT_EXTERN CGFloat const UISplitViewControllerAutomaticDimension NS_AVAILABLE_IOS(8_0);
@@ -11249,7 +17406,11 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UISplitViewController : UIViewController
 @property (nonatomic, readonly) UISplitViewControllerDisplayMode displayMode NS_AVAILABLE_IOS(8_0);
 
 // A system bar button item whose action will change the displayMode property depending on the result of targetDisplayModeForActionInSplitViewController:. When inserted into the navigation bar of the secondary view controller it will change its appearance to match its target display mode. When the target displayMode is PrimaryHidden, this will appear as a fullscreen button, for AllVisible or PrimaryOverlay it will appear as a Back button, and when it won't cause any action it will become hidden.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property (nonatomic, readonly) UIBarButtonItem *displayModeButtonItem NS_AVAILABLE_IOS(8_0);
+#else
 - (UIBarButtonItem *)displayModeButtonItem NS_AVAILABLE_IOS(8_0);
+#endif
 
 // An animatable property that can be used to adjust the relative width of the primary view controller in the split view controller. This preferred width will be limited by the maximum and minimum properties (and potentially other system heuristics).
 @property(nonatomic, assign) CGFloat preferredPrimaryColumnWidthFraction NS_AVAILABLE_IOS(8_0); // default: UISplitViewControllerAutomaticDimension
@@ -11262,6 +17423,9 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UISplitViewController : UIViewController
 
 // The current primary view controller's column width.
 @property(nonatomic,readonly) CGFloat primaryColumnWidth NS_AVAILABLE_IOS(8_0);
+
+// The edge of the UISplitViewController where the primary view controller should be positioned
+@property(nonatomic) UISplitViewControllerPrimaryEdge primaryEdge API_AVAILABLE(ios(11.0), tvos(11.0)); // default: UISplitViewControllerPrimaryEdgeLeading
 
 // In a horizontally-regular environment this will set either the master or detail view controller depending on the original target. In a compact environment this defaults to a full screen presentation. In general the master or detail view controller will have implemented showViewController:sender: so this method would not be invoked.
 - (void)showViewController:(UIViewController *)vc sender:(nullable id)sender NS_AVAILABLE_IOS(8_0);
@@ -11313,22 +17477,22 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UISplitViewController : UIViewController
 // its default behavior.
 - (nullable UIViewController *)splitViewController:(UISplitViewController *)splitViewController separateSecondaryViewControllerFromPrimaryViewController:(UIViewController *)primaryViewController NS_AVAILABLE_IOS(8_0);
 
-- (UIInterfaceOrientationMask)splitViewControllerSupportedInterfaceOrientations:(UISplitViewController *)splitViewController NS_AVAILABLE_IOS(7_0);
-- (UIInterfaceOrientation)splitViewControllerPreferredInterfaceOrientationForPresentation:(UISplitViewController *)splitViewController NS_AVAILABLE_IOS(7_0);
+- (UIInterfaceOrientationMask)splitViewControllerSupportedInterfaceOrientations:(UISplitViewController *)splitViewController NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+- (UIInterfaceOrientation)splitViewControllerPreferredInterfaceOrientationForPresentation:(UISplitViewController *)splitViewController NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
 
 // Called when a button should be added to a toolbar for a hidden view controller.
 // Implementing this method allows the hidden view controller to be presented via a swipe gesture if 'presentsWithGesture' is 'YES' (the default).
-- (void)splitViewController:(UISplitViewController *)svc willHideViewController:(UIViewController *)aViewController withBarButtonItem:(UIBarButtonItem *)barButtonItem forPopoverController:(UIPopoverController *)pc NS_DEPRECATED_IOS(2_0, 8_0, "Use splitViewController:willChangeToDisplayMode: and displayModeButtonItem instead");
+- (void)splitViewController:(UISplitViewController *)svc willHideViewController:(UIViewController *)aViewController withBarButtonItem:(UIBarButtonItem *)barButtonItem forPopoverController:(UIPopoverController *)pc NS_DEPRECATED_IOS(2_0, 8_0, "Use splitViewController:willChangeToDisplayMode: and displayModeButtonItem instead") __TVOS_PROHIBITED;
 
 // Called when the view is shown again in the split view, invalidating the button and popover controller.
-- (void)splitViewController:(UISplitViewController *)svc willShowViewController:(UIViewController *)aViewController invalidatingBarButtonItem:(UIBarButtonItem *)barButtonItem NS_DEPRECATED_IOS(2_0, 8_0, "Use splitViewController:willChangeToDisplayMode: and displayModeButtonItem instead");
+- (void)splitViewController:(UISplitViewController *)svc willShowViewController:(UIViewController *)aViewController invalidatingBarButtonItem:(UIBarButtonItem *)barButtonItem NS_DEPRECATED_IOS(2_0, 8_0, "Use splitViewController:willChangeToDisplayMode: and displayModeButtonItem instead") __TVOS_PROHIBITED;
 
 // Called when the view controller is shown in a popover so the delegate can take action like hiding other popovers.
-- (void)splitViewController:(UISplitViewController *)svc popoverController:(UIPopoverController *)pc willPresentViewController:(UIViewController *)aViewController NS_DEPRECATED_IOS(2_0, 8_0, "Use splitViewController:willChangeToDisplayMode: instead");
+- (void)splitViewController:(UISplitViewController *)svc popoverController:(UIPopoverController *)pc willPresentViewController:(UIViewController *)aViewController NS_DEPRECATED_IOS(2_0, 8_0, "Use splitViewController:willChangeToDisplayMode: instead") __TVOS_PROHIBITED;
 
 // Returns YES if a view controller should be hidden by the split view controller in a given orientation.
 // (This method is only called on the leftmost view controller and only discriminates portrait from landscape.)
-- (BOOL)splitViewController:(UISplitViewController *)svc shouldHideViewController:(UIViewController *)vc inOrientation:(UIInterfaceOrientation)orientation  NS_DEPRECATED_IOS(5_0, 8_0, "Use preferredDisplayMode instead");
+- (BOOL)splitViewController:(UISplitViewController *)svc shouldHideViewController:(UIViewController *)vc inOrientation:(UIInterfaceOrientation)orientation  NS_DEPRECATED_IOS(5_0, 8_0, "Use preferredDisplayMode instead") __TVOS_PROHIBITED;
 
 
 @end
@@ -11347,12 +17511,65 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UISplitViewController : UIViewController
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISplitViewController.h>
+#endif
+// ==========  UIKit.framework/Headers/UIAccessibilityContentSizeCategoryImageAdjusting.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibilityContentSizeCategoryImageAdjusting.h>)
+//
+//  UIAccessibilityContentSizeCategoryImageAdjusting.h
+//  UIKit
+//
+//  Copyright (c) 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+#import <UIKit/UIImageView.h>
+#import <UIKit/UIButton.h>
+#import <UIKit/NSTextAttachment.h>
+
+// These should be used in conjunction with the "Preserve vector data" checkbox for an asset catalog asset, to allow smooth scaling of symbolic glyphs.
+
+NS_ASSUME_NONNULL_BEGIN
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0),tvos(11.0))
+@protocol UIAccessibilityContentSizeCategoryImageAdjusting <NSObject>
+
+// When this is equal to YES, the receiver's intrinsic size will increase for users who prefer an accessibility content size category.
+@property (nonatomic) BOOL adjustsImageSizeForAccessibilityContentSizeCategory;
+
+@end
+
+// If the contentMode of the UIImageView is set to a mode that scales the image (e.g. the default one), the image will be scaled for an accessibility content size category. If not, the behavior is undefined.
+@interface UIImageView (UIAccessibilityContentSizeCategoryImageAdjusting) <UIAccessibilityContentSizeCategoryImageAdjusting>
+
+@end
+
+// If applicable, the image (not the background image) will be scaled for an accessibility content size category. Image edge insets are left unchanged.
+@interface UIButton (UIAccessibilityContentSizeCategoryImageAdjusting) <UIAccessibilityContentSizeCategoryImageAdjusting>
+
+@end
+
+// If an image is set, the attachment bounds' size will increase for users who prefer an accessibility content size category.
+// This should be used in a UIContentSizeCategoryAdjusting view that responds YES to adjustsFontForContentSizeCategory and has a font that can be adjusted. If not, the behavior is undefined.
+@interface NSTextAttachment (UIAccessibilityContentSizeCategoryImageAdjusting) <UIAccessibilityContentSizeCategoryImageAdjusting>
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccessibilityContentSizeCategoryImageAdjusting.h>
+#endif
 // ==========  UIKit.framework/Headers/UIStoryboardPopoverSegue.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIStoryboardPopoverSegue.h>)
 //
 //  UIStoryboardPopoverSegue.h
 //  UIKit
 //
-//  Copyright 2011-2012 Apple Inc. All rights reserved.
+//  Copyright 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIStoryboardSegue.h>
@@ -11369,12 +17586,17 @@ NS_CLASS_DEPRECATED_IOS(5_0, 9_0, "Access destinationViewController.popoverPrese
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIStoryboardPopoverSegue.h>
+#endif
 // ==========  UIKit.framework/Headers/UITableViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITableViewController.h>)
 //
 //  UITableViewController.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 #import <Foundation/Foundation.h>
 #import <UIKit/UIViewController.h>
@@ -11397,17 +17619,148 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITableViewController : UIViewController 
 @property (nonatomic, strong, null_resettable) UITableView *tableView;
 @property (nonatomic) BOOL clearsSelectionOnViewWillAppear NS_AVAILABLE_IOS(3_2); // defaults to YES. If YES, any selection is cleared in viewWillAppear:
 
-@property (nonatomic, strong, nullable) UIRefreshControl *refreshControl NS_AVAILABLE_IOS(6_0);
+@property (nonatomic, strong, nullable) UIRefreshControl *refreshControl NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITableViewController.h>
+#endif
+// ==========  UIKit.framework/Headers/UIFocusDebugger.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFocusDebugger.h>)
+//
+//  UIFocusDebugger.h
+//  UIKit Framework
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+@protocol UIFocusDebuggerOutput, UIFocusEnvironment, UIFocusItem;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// UIFocusDebugger provides a collection of runtime utilities for debugging issues related to focus interaction.
+NS_CLASS_AVAILABLE_IOS(11_0) @interface UIFocusDebugger : NSObject
+
+/// Outputs an overview of all supported debugging utilities and other relevant information.
+///   - To use in Swift, enter `po UIFocusDebugger.help()` when paused in lldb.
+///   - To use in Objective-C, enter `po [UIFocusDebugger help]` when paused in lldb.
++ (id<UIFocusDebuggerOutput>)help;
+
+/// Outputs information for the currently focused item.
+///   - To use in Swift, enter `po UIFocusDebugger.status()` when paused in lldb.
+///   - To use in Objective-C, enter `po [UIFocusDebugger status]` when paused in lldb.
++ (id<UIFocusDebuggerOutput>)status;
+
+/// Outputs a diagnosis of the specified item's focusability, including any known issues that may be preventing focusability.
+///   - To use in Swift, enter `po UIFocusDebugger.checkFocusability(for: <item reference>)` when paused in lldb.
+///   - To use in Objective-C, enter `po [UIFocusDebugger checkFocusabilityForItem:<item reference>]` when paused in lldb.
++ (id<UIFocusDebuggerOutput>)checkFocusabilityForItem:(id<UIFocusItem>)item;
+
+/// Simulates a fake focus update requested by the specified environment (e.g. `[environment setNeedsFocusUpdate]`), outlining each step of the process for determining the next focused item.
+///   - To use in Swift, enter `po UIFocusDebugger.simulateFocusUpdateRequest(from: <environment reference>)` when paused in lldb.
+///   - To use in Objective-C, enter `po [UIFocusDebugger simulateFocusUpdateRequestFromEnvironment:<environment reference>]` when paused in lldb.
++ (id<UIFocusDebuggerOutput>)simulateFocusUpdateRequestFromEnvironment:(id<UIFocusEnvironment>)environment;
+
+@end
+
+NS_CLASS_AVAILABLE_IOS(11_0) @protocol UIFocusDebuggerOutput <NSObject>
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIFocusDebugger.h>
+#endif
+// ==========  UIKit.framework/Headers/UISearchContainerViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISearchContainerViewController.h>)
+//
+//  UISearchContainerViewController.h
+//  UIKit
+//
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIViewController.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UISearchController;
+
+// If intending to use a UISearchController in a non-presentation manner, use this container view controller.
+UIKIT_CLASS_AVAILABLE_IOS_TVOS(9_1, 9_0) @interface UISearchContainerViewController : UIViewController
+@property (nonatomic, strong, readonly) UISearchController *searchController;
+
+- (instancetype)initWithSearchController:(UISearchController *)searchController;
+
+@end
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISearchContainerViewController.h>
+#endif
+// ==========  UIKit.framework/Headers/UIPreviewInteraction.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPreviewInteraction.h>)
+//
+//  UIPreviewInteraction.h
+//  UIKit
+//
+//  Copyright (c) 2015-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+#import <UIKit/UIView.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol UIPreviewInteractionDelegate;
+
+UIKIT_CLASS_AVAILABLE_IOS_ONLY(10_0) @interface UIPreviewInteraction : NSObject
+
+- (instancetype)initWithView:(UIView *)view NS_DESIGNATED_INITIALIZER;
+@property (nonatomic, readonly, weak) UIView *view;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@property (nonatomic, nullable, weak) id <UIPreviewInteractionDelegate> delegate;
+
+- (CGPoint)locationInCoordinateSpace:(nullable id <UICoordinateSpace>)coordinateSpace; // returns the current location of the touch that started the interaction
+- (void)cancelInteraction;
+
+@end
+
+@protocol UIPreviewInteractionDelegate <NSObject>
+
+- (void)previewInteraction:(UIPreviewInteraction *)previewInteraction didUpdatePreviewTransition:(CGFloat)transitionProgress ended:(BOOL)ended UIKIT_AVAILABLE_IOS_ONLY(10_0); // transitionProgress ranges from 0 to 1
+- (void)previewInteractionDidCancel:(UIPreviewInteraction *)previewInteraction UIKIT_AVAILABLE_IOS_ONLY(10_0);
+
+@optional
+
+- (BOOL)previewInteractionShouldBegin:(UIPreviewInteraction *)previewInteraction UIKIT_AVAILABLE_IOS_ONLY(10_0);
+
+// If implemented, a preview interaction will also trigger haptic feedback when detecting a commit (pop). The provided transitionProgress ranges from 0 to 1.
+- (void)previewInteraction:(UIPreviewInteraction *)previewInteraction didUpdateCommitTransition:(CGFloat)transitionProgress ended:(BOOL)ended UIKIT_AVAILABLE_IOS_ONLY(10_0);
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPreviewInteraction.h>
+#endif
 // ==========  UIKit.framework/Headers/UIButton.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIButton.h>)
 //
 //  UIButton.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -11415,6 +17768,7 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIGeometry.h>
 #import <UIKit/UIStringDrawing.h>
 #import <UIKit/UIKitDefines.h>
+#import <UIKit/UISpringLoadedInteractionSupporting.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11429,20 +17783,22 @@ typedef NS_ENUM(NSInteger, UIButtonType) {
     UIButtonTypeInfoDark,
     UIButtonTypeContactAdd,
     
-    UIButtonTypeRoundedRect = UIButtonTypeSystem,   // Deprecated, use UIButtonTypeSystem instead
+    UIButtonTypePlain API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios, watchos), // standard system button without the blurred background view
+    
+    UIButtonTypeRoundedRect = UIButtonTypeSystem   // Deprecated, use UIButtonTypeSystem instead
 };
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UIButton : UIControl <NSCoding>
 
 + (instancetype)buttonWithType:(UIButtonType)buttonType;
 
-@property(nonatomic)          UIEdgeInsets contentEdgeInsets UI_APPEARANCE_SELECTOR; // default is UIEdgeInsetsZero
+@property(nonatomic)          UIEdgeInsets contentEdgeInsets UI_APPEARANCE_SELECTOR; // default is UIEdgeInsetsZero. On tvOS 10 or later, default is nonzero except for custom buttons.
 @property(nonatomic)          UIEdgeInsets titleEdgeInsets;                // default is UIEdgeInsetsZero
 @property(nonatomic)          BOOL         reversesTitleShadowWhenHighlighted; // default is NO. if YES, shadow reverses to shift between engrave and emboss appearance
 @property(nonatomic)          UIEdgeInsets imageEdgeInsets;                // default is UIEdgeInsetsZero
 @property(nonatomic)          BOOL         adjustsImageWhenHighlighted;    // default is YES. if YES, image is drawn darker when highlighted(pressed)
 @property(nonatomic)          BOOL         adjustsImageWhenDisabled;       // default is YES. if YES, image is drawn lighter when disabled
-@property(nonatomic)          BOOL         showsTouchWhenHighlighted;      // default is NO. if YES, show a simple feedback (currently a glow) while highlighted
+@property(nonatomic)          BOOL         showsTouchWhenHighlighted __TVOS_PROHIBITED;      // default is NO. if YES, show a simple feedback (currently a glow) while highlighted
 @property(null_resettable, nonatomic,strong)   UIColor     *tintColor NS_AVAILABLE_IOS(5_0); // The tintColor is inherited through the superview hierarchy. See UIView for more information.
 @property(nonatomic,readonly) UIButtonType buttonType;
 
@@ -11491,19 +17847,29 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIButton : UIControl <NSCoding>
 
 @interface UIButton(UIButtonDeprecated)
 
-@property(nonatomic,strong) UIFont         *font              NS_DEPRECATED_IOS(2_0, 3_0);
-@property(nonatomic)        NSLineBreakMode lineBreakMode     NS_DEPRECATED_IOS(2_0, 3_0);
-@property(nonatomic)        CGSize          titleShadowOffset NS_DEPRECATED_IOS(2_0, 3_0);
+@property(nonatomic,strong) UIFont         *font              NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;
+@property(nonatomic)        NSLineBreakMode lineBreakMode     NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;
+@property(nonatomic)        CGSize          titleShadowOffset NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;
 
 @end
 
+#if TARGET_OS_IOS
+@interface UIButton (SpringLoading) <UISpringLoadedInteractionSupporting>
+@end
+#endif
+
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIButton.h>
+#endif
 // ==========  UIKit.framework/Headers/UIBezierPath.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIBezierPath.h>)
 //
 //  UIBezierPath.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -11520,7 +17886,7 @@ typedef NS_OPTIONS(NSUInteger, UIRectCorner) {
     UIRectCornerAllCorners  = ~0UL
 };
 
-NS_CLASS_AVAILABLE_IOS(3_2) @interface UIBezierPath : NSObject<NSCopying, NSCoding>
+NS_CLASS_AVAILABLE_IOS(3_2) @interface UIBezierPath : NSObject<NSCopying, NSSecureCoding>
 
 + (instancetype)bezierPath;
 + (instancetype)bezierPathWithRect:(CGRect)rect;
@@ -11594,15 +17960,66 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UIBezierPath : NSObject<NSCopying, NSCodi
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIBezierPath.h>
+#endif
+// ==========  UIKit.framework/Headers/UIContextualAction.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIContextualAction.h>)
+//
+//  UIContextualAction.h
+//  UIKit
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+#import <UIKit/UIView.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIContextualAction;
+
+// call the completionHandler to reset the context to its normal state (e.g. when swiping, resets to unswiped state)
+// pass YES to the completionHandler if the action was actually performed, to show a visual indication of the successful completion
+typedef void (^UIContextualActionHandler)(UIContextualAction *action, __kindof UIView *sourceView, void(^completionHandler)(BOOL actionPerformed));
+
+typedef NS_ENUM(NSInteger, UIContextualActionStyle) {
+    UIContextualActionStyleNormal,
+    UIContextualActionStyleDestructive
+} NS_SWIFT_NAME(UIContextualAction.Style) API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos);
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos)
+@interface UIContextualAction : NSObject
+
++ (instancetype)contextualActionWithStyle:(UIContextualActionStyle)style title:(nullable NSString *)title handler:(UIContextualActionHandler)handler;
+
+@property (nonatomic, readonly) UIContextualActionStyle style;
+@property (nonatomic, copy, readonly) UIContextualActionHandler handler;
+
+@property (nonatomic, copy, nullable) NSString *title;
+@property (nonatomic, copy, null_resettable) UIColor *backgroundColor; // a default background color is set from the action style
+@property (nonatomic, copy, nullable) UIImage *image;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIContextualAction.h>
+#endif
 // ==========  UIKit.framework/Headers/UIView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIView.h>)
 //
 //  UIView.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIResponder.h>
 #import <UIKit/UIInterface.h>
 #import <UIKit/UIKitDefines.h>
@@ -11610,6 +18027,7 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIDynamicBehavior.h>
 #import <UIKit/NSLayoutConstraint.h>
 #import <UIKit/UITraitCollection.h>
+#import <UIKit/UIFocus.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11617,7 +18035,7 @@ typedef NS_ENUM(NSInteger, UIViewAnimationCurve) {
     UIViewAnimationCurveEaseInOut,         // slow at beginning and end
     UIViewAnimationCurveEaseIn,            // slow at beginning
     UIViewAnimationCurveEaseOut,           // slow at end
-    UIViewAnimationCurveLinear
+    UIViewAnimationCurveLinear,
 };
 
 typedef NS_ENUM(NSInteger, UIViewContentMode) {
@@ -11679,6 +18097,11 @@ typedef NS_OPTIONS(NSUInteger, UIViewAnimationOptions) {
     UIViewAnimationOptionTransitionCrossDissolve   = 5 << 20,
     UIViewAnimationOptionTransitionFlipFromTop     = 6 << 20,
     UIViewAnimationOptionTransitionFlipFromBottom  = 7 << 20,
+
+    UIViewAnimationOptionPreferredFramesPerSecondDefault     = 0 << 24,
+    UIViewAnimationOptionPreferredFramesPerSecond60          = 3 << 24,
+    UIViewAnimationOptionPreferredFramesPerSecond30          = 7 << 24,
+    
 } NS_ENUM_AVAILABLE_IOS(4_0);
 
 typedef NS_OPTIONS(NSUInteger, UIViewKeyframeAnimationOptions) {
@@ -11716,11 +18139,6 @@ typedef NS_ENUM(NSInteger, UISemanticContentAttribute) {
     UISemanticContentAttributeForceRightToLeft
 } NS_ENUM_AVAILABLE_IOS(9_0);
 
-typedef NS_ENUM(NSInteger, UIUserInterfaceLayoutDirection) {
-    UIUserInterfaceLayoutDirectionLeftToRight,
-    UIUserInterfaceLayoutDirectionRightToLeft,
-} NS_ENUM_AVAILABLE_IOS(5_0);
-
 @protocol UICoordinateSpace <NSObject>
 
 - (CGPoint)convertPoint:(CGPoint)point toCoordinateSpace:(id <UICoordinateSpace>)coordinateSpace NS_AVAILABLE_IOS(8_0);
@@ -11734,9 +18152,13 @@ typedef NS_ENUM(NSInteger, UIUserInterfaceLayoutDirection) {
 
 @class UIBezierPath, UIEvent, UIWindow, UIViewController, UIColor, UIGestureRecognizer, UIMotionEffect, CALayer, UILayoutGuide;
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UIView : UIResponder <NSCoding, UIAppearance, UIAppearanceContainer, UIDynamicItem, UITraitEnvironment, UICoordinateSpace>
+NS_CLASS_AVAILABLE_IOS(2_0) @interface UIView : UIResponder <NSCoding, UIAppearance, UIAppearanceContainer, UIDynamicItem, UITraitEnvironment, UICoordinateSpace, UIFocusItem, UIFocusItemContainer, CALayerDelegate>
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) Class layerClass;                        // default is [CALayer class]. Used when creating the underlying layer for the view.
+#else
 + (Class)layerClass;                        // default is [CALayer class]. Used when creating the underlying layer for the view.
+#endif
 
 - (instancetype)initWithFrame:(CGRect)frame NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
@@ -11745,8 +18167,24 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIView : UIResponder <NSCoding, UIAppeara
 @property(nonatomic)                                 NSInteger tag;                // default is 0
 @property(nonatomic,readonly,strong)                 CALayer  *layer;              // returns view's layer. Will always return a non-nil value. view is layer's delegate
 
-+ (UIUserInterfaceLayoutDirection)userInterfaceLayoutDirectionForSemanticContentAttribute:(UISemanticContentAttribute)attribute NS_AVAILABLE_IOS(9_0);
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic,readonly) BOOL canBecomeFocused NS_AVAILABLE_IOS(9_0); // NO by default
+#else
+- (BOOL)canBecomeFocused NS_AVAILABLE_IOS(9_0); // NO by default
+#endif
+@property (readonly, nonatomic, getter=isFocused) BOOL focused NS_AVAILABLE_IOS(9_0);
+
 @property (nonatomic) UISemanticContentAttribute semanticContentAttribute NS_AVAILABLE_IOS(9_0);
+
+// This method returns the layout direction implied by the provided semantic content attribute relative to the application-wide layout direction (as returned by UIApplication.sharedApplication.userInterfaceLayoutDirection).
++ (UIUserInterfaceLayoutDirection)userInterfaceLayoutDirectionForSemanticContentAttribute:(UISemanticContentAttribute)attribute NS_AVAILABLE_IOS(9_0);
+
+// This method returns the layout direction implied by the provided semantic content attribute relative to the provided layout direction. For example, when provided a layout direction of RightToLeft and a semantic content attribute of Playback, this method returns LeftToRight. Layout and drawing code can use this method to determine how to arrange elements, but might find it easier to query the container view’s effectiveUserInterfaceLayoutDirection property instead.
++ (UIUserInterfaceLayoutDirection)userInterfaceLayoutDirectionForSemanticContentAttribute:(UISemanticContentAttribute)semanticContentAttribute relativeToLayoutDirection:(UIUserInterfaceLayoutDirection)layoutDirection NS_AVAILABLE_IOS(10_0);
+
+// Returns the user interface layout direction appropriate for arranging the immediate content of this view. Always consult the effectiveUserInterfaceLayoutDirection of the view whose immediate content is being arranged or drawn. Do not assume that the value propagates through the view’s subtree.
+@property (readonly, nonatomic) UIUserInterfaceLayoutDirection effectiveUserInterfaceLayoutDirection NS_AVAILABLE_IOS(10_0);
+
 @end
 
 @interface UIView(UIViewGeometry)
@@ -11760,8 +18198,8 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIView : UIResponder <NSCoding, UIAppeara
 @property(nonatomic) CGAffineTransform transform;   // default is CGAffineTransformIdentity. animatable
 @property(nonatomic) CGFloat           contentScaleFactor NS_AVAILABLE_IOS(4_0);
 
-@property(nonatomic,getter=isMultipleTouchEnabled) BOOL multipleTouchEnabled;   // default is NO
-@property(nonatomic,getter=isExclusiveTouch) BOOL       exclusiveTouch;         // default is NO
+@property(nonatomic,getter=isMultipleTouchEnabled) BOOL multipleTouchEnabled __TVOS_PROHIBITED;   // default is NO
+@property(nonatomic,getter=isExclusiveTouch) BOOL       exclusiveTouch __TVOS_PROHIBITED;         // default is NO
 
 - (nullable UIView *)hitTest:(CGPoint)point withEvent:(nullable UIEvent *)event;   // recursively calls -pointInside:withEvent:. point is in the receiver's coordinate system
 - (BOOL)pointInside:(CGPoint)point withEvent:(nullable UIEvent *)event;   // default returns YES if point is in bounds
@@ -11805,7 +18243,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIView : UIResponder <NSCoding, UIAppeara
 - (void)didMoveToWindow;
 
 - (BOOL)isDescendantOfView:(UIView *)view;  // returns YES for self.
-- (nullable UIView *)viewWithTag:(NSInteger)tag;     // recursive search. includes self
+- (nullable __kindof UIView *)viewWithTag:(NSInteger)tag; // recursive search. includes self
 
 // Allows you to perform layout before the drawing cycle happens. -layoutIfNeeded forces layout early
 - (void)setNeedsLayout;
@@ -11813,14 +18251,30 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIView : UIResponder <NSCoding, UIAppeara
 
 - (void)layoutSubviews;    // override point. called by layoutIfNeeded automatically. As of iOS 6.0, when constraints-based layout is used the base implementation applies the constraints-based layout, otherwise it does nothing.
 
-/*
- -layoutMargins returns a set of insets from the edge of the view's bounds that denote a default spacing for laying out content.
- If preservesSuperviewLayoutMargins is YES, margins cascade down the view tree, adjusting for geometry offsets, so that setting the left value of layoutMargins on a superview will affect the left value of layoutMargins for subviews positioned close to the left edge of their superview's bounds
- If your view subclass uses layoutMargins in its layout or drawing, override -layoutMarginsDidChange in order to refresh your view if the margins change.
+/* -layoutMargins returns a set of insets from the edge of the view's bounds that denote a default spacing for laying out content.
+ If preservesSuperviewLayoutMargins is YES, margins cascade down the view tree, adjusting for geometry offsets, so that setting
+ the left value of layoutMargins on a superview will affect the left value of layoutMargins for subviews positioned close to the
+ left edge of their superview's bounds
+   If your view subclass uses layoutMargins in its layout or drawing, override -layoutMarginsDidChange in order to refresh your 
+ view if the margins change.
+   On iOS 11.0 and later, please support both user interface layout directions by setting the directionalLayoutMargins property
+ instead of the layoutMargins property. After setting the directionalLayoutMargins property, the values in the left and right
+ fields of the layoutMargins property will depend on the user interface layout direction.
  */
 @property (nonatomic) UIEdgeInsets layoutMargins NS_AVAILABLE_IOS(8_0);
+
+/* directionalLayoutMargins.leading is used on the left when the user interface direction is LTR and on the right for RTL.
+ Vice versa for directionalLayoutMargins.trailing.
+ */
+@property (nonatomic) NSDirectionalEdgeInsets directionalLayoutMargins API_AVAILABLE(ios(11.0),tvos(11.0));
+
 @property (nonatomic) BOOL preservesSuperviewLayoutMargins NS_AVAILABLE_IOS(8_0); // default is NO - set to enable pass-through or cascading behavior of margins from this view’s parent to its children
+@property (nonatomic) BOOL insetsLayoutMarginsFromSafeArea API_AVAILABLE(ios(11.0),tvos(11.0));  // Default: YES
+
 - (void)layoutMarginsDidChange NS_AVAILABLE_IOS(8_0);
+
+@property (nonatomic,readonly) UIEdgeInsets safeAreaInsets API_AVAILABLE(ios(11.0),tvos(11.0));
+- (void)safeAreaInsetsDidChange API_AVAILABLE(ios(11.0),tvos(11.0));
 
 /* The edges of this guide are constrained to equal the edges of the view inset by the layoutMargins
  */
@@ -11828,6 +18282,11 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIView : UIResponder <NSCoding, UIAppeara
 
 /// This content guide provides a layout area that you can use to place text and related content whose width should generally be constrained to a size that is easy for the user to read. This guide provides a centered region that you can place content within to get this behavior for this view.
 @property (nonatomic, readonly, strong) UILayoutGuide *readableContentGuide  NS_AVAILABLE_IOS(9_0);
+
+/* The top of the safeAreaLayoutGuide indicates the unobscured top edge of the view (e.g, not behind
+ the status bar or navigation bar, if present). Similarly for the other edges.
+ */
+@property(nonatomic,readonly,strong) UILayoutGuide *safeAreaLayoutGuide API_AVAILABLE(ios(11.0),tvos(11.0));
 @end
 
 @interface UIView(UIViewRendering)
@@ -11844,7 +18303,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIView : UIResponder <NSCoding, UIAppeara
 @property(nonatomic)                 BOOL              clearsContextBeforeDrawing; // default is YES. ignored for opaque views. for non-opaque views causes the active CGContext in drawRect: to be pre-filled with transparent pixels
 @property(nonatomic,getter=isHidden) BOOL              hidden;                     // default is NO. doesn't check superviews
 @property(nonatomic)                 UIViewContentMode contentMode;                // default is UIViewContentModeScaleToFill
-@property(nonatomic)                 CGRect            contentStretch NS_DEPRECATED_IOS(3_0,6_0); // animatable. default is unit rectangle {{0,0} {1,1}}. Now deprecated: please use -[UIImage resizableImageWithCapInsets:] to achieve the same effect.
+@property(nonatomic)                 CGRect            contentStretch NS_DEPRECATED_IOS(3_0,6_0) __TVOS_PROHIBITED; // animatable. default is unit rectangle {{0,0} {1,1}}. Now deprecated: please use -[UIImage resizableImageWithCapInsets:] to achieve the same effect.
 
 @property(nullable, nonatomic,strong)          UIView           *maskView NS_AVAILABLE_IOS(8_0);
 
@@ -11891,10 +18350,18 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIView : UIResponder <NSCoding, UIAppeara
 + (void)setAnimationTransition:(UIViewAnimationTransition)transition forView:(UIView *)view cache:(BOOL)cache;  // current limitation - only one per begin/commit block
 
 + (void)setAnimationsEnabled:(BOOL)enabled;                         // ignore any attribute changes while set.
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) BOOL areAnimationsEnabled;
+#else
 + (BOOL)areAnimationsEnabled;
-+ (void)performWithoutAnimation:(void (^)(void))actionsWithoutAnimation NS_AVAILABLE_IOS(7_0);
+#endif
++ (void)performWithoutAnimation:(void (NS_NOESCAPE ^)(void))actionsWithoutAnimation NS_AVAILABLE_IOS(7_0);
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) NSTimeInterval inheritedAnimationDuration NS_AVAILABLE_IOS(9_0);
+#else
 + (NSTimeInterval)inheritedAnimationDuration NS_AVAILABLE_IOS(9_0);
+#endif
 
 @end
 
@@ -11995,7 +18462,7 @@ typedef NS_ENUM(NSInteger, UILayoutConstraintAxis) {
 
 @interface UIView (UIConstraintBasedLayoutCoreMethods) 
 - (void)updateConstraintsIfNeeded NS_AVAILABLE_IOS(6_0); // Updates the constraints from the bottom up for the view hierarchy rooted at the receiver. UIWindow's implementation creates a layout engine if necessary first.
-- (void)updateConstraints NS_AVAILABLE_IOS(6_0); // Override this to adjust your special constraints during a constraints update pass
+- (void)updateConstraints NS_AVAILABLE_IOS(6_0) NS_REQUIRES_SUPER; // Override this to adjust your special constraints during a constraints update pass
 - (BOOL)needsUpdateConstraints NS_AVAILABLE_IOS(6_0);
 - (void)setNeedsUpdateConstraints NS_AVAILABLE_IOS(6_0);
 @end
@@ -12014,7 +18481,11 @@ typedef NS_ENUM(NSInteger, UILayoutConstraintAxis) {
 
 /* constraint-based layout engages lazily when someone tries to use it (e.g., adds a constraint to a view).  If you do all of your constraint set up in -updateConstraints, you might never even receive updateConstraints if no one makes a constraint.  To fix this chicken and egg problem, override this method to return YES if your view needs the window to use constraint-based layout.  
  */
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) BOOL requiresConstraintBasedLayout NS_AVAILABLE_IOS(6_0);
+#else
 + (BOOL)requiresConstraintBasedLayout NS_AVAILABLE_IOS(6_0);
+#endif
 
 @end
 
@@ -12036,9 +18507,13 @@ typedef NS_ENUM(NSInteger, UILayoutConstraintAxis) {
 
 /* override this if the alignment rect is obtained from the frame by insetting each edge by a fixed amount.  This is only called by alignmentRectForFrame: and frameForAlignmentRect:.
  */
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) UIEdgeInsets alignmentRectInsets NS_AVAILABLE_IOS(6_0);
+#else
 - (UIEdgeInsets)alignmentRectInsets NS_AVAILABLE_IOS(6_0);
+#endif
 
-- (UIView *)viewForBaselineLayout NS_DEPRECATED_IOS(6_0, 9_0, "Override -viewForFirstBaselineLayout or -viewForLastBaselineLayout as appropriate, instead");
+- (UIView *)viewForBaselineLayout NS_DEPRECATED_IOS(6_0, 9_0, "Override -viewForFirstBaselineLayout or -viewForLastBaselineLayout as appropriate, instead") __TVOS_PROHIBITED;
 
 /* -viewForFirstBaselineLayout is called by the constraints system when interpreting
  the firstBaseline attribute for a view.
@@ -12076,7 +18551,11 @@ typedef NS_ENUM(NSInteger, UILayoutConstraintAxis) {
  Note that not all views have an intrinsicContentSize.  UIView's default implementation is to return (UIViewNoIntrinsicMetric, UIViewNoIntrinsicMetric).  The _intrinsic_ content size is concerned only with data that is in the view itself, not in other views. Remember that you can also set constant width or height constraints on any view, and you don't need to override instrinsicContentSize if these dimensions won't be changing with changing view content.
  */
 UIKIT_EXTERN const CGFloat UIViewNoIntrinsicMetric NS_AVAILABLE_IOS(6_0); // -1
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) CGSize intrinsicContentSize NS_AVAILABLE_IOS(6_0);
+#else
 - (CGSize)intrinsicContentSize NS_AVAILABLE_IOS(6_0);
+#endif
 - (void)invalidateIntrinsicContentSize NS_AVAILABLE_IOS(6_0); // call this when something changes that affects the intrinsicContentSize.  Otherwise UIKit won't notice that it changed.  
 
 - (UILayoutPriority)contentHuggingPriorityForAxis:(UILayoutConstraintAxis)axis NS_AVAILABLE_IOS(6_0);
@@ -12118,18 +18597,18 @@ UIKIT_EXTERN const CGSize UILayoutFittingExpandedSize NS_AVAILABLE_IOS(6_0);
 @interface UIView (UIViewLayoutConstraintCreation)
 /* Constraint creation conveniences. See NSLayoutAnchor.h for details.
  */
-@property(readonly, strong) NSLayoutXAxisAnchor *leadingAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutXAxisAnchor *trailingAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutXAxisAnchor *leftAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutXAxisAnchor *rightAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutYAxisAnchor *topAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutYAxisAnchor *bottomAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutDimension *widthAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutDimension *heightAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutXAxisAnchor *centerXAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutYAxisAnchor *centerYAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutYAxisAnchor *firstBaselineAnchor NS_AVAILABLE_IOS(9_0);
-@property(readonly, strong) NSLayoutYAxisAnchor *lastBaselineAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutXAxisAnchor *leadingAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutXAxisAnchor *trailingAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutXAxisAnchor *leftAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutXAxisAnchor *rightAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutYAxisAnchor *topAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutYAxisAnchor *bottomAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutDimension *widthAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutDimension *heightAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutXAxisAnchor *centerXAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutYAxisAnchor *centerYAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutYAxisAnchor *firstBaselineAnchor NS_AVAILABLE_IOS(9_0);
+@property(nonatomic,readonly,strong) NSLayoutYAxisAnchor *lastBaselineAnchor NS_AVAILABLE_IOS(9_0);
 
 @end
 
@@ -12149,8 +18628,33 @@ UIKIT_EXTERN const CGSize UILayoutFittingExpandedSize NS_AVAILABLE_IOS(6_0);
  -hasAmbiguousLayout runs a check for whether there is another center and bounds the receiver could have that could also satisfy the constraints.
  -exerciseAmbiguousLayout does more.  It randomly changes the view layout to a different valid layout.  Making the UI jump back and forth can be helpful for figuring out where you're missing a constraint.  
  */
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL hasAmbiguousLayout NS_AVAILABLE_IOS(6_0);
+#else
 - (BOOL)hasAmbiguousLayout NS_AVAILABLE_IOS(6_0);
+#endif
+
 - (void)exerciseAmbiguityInLayout NS_AVAILABLE_IOS(6_0); 
+@end
+
+/* Everything in this section should be used in debugging only, never in shipping code.  These methods may not exist in the future - no promises.
+ */
+@interface UILayoutGuide (UIConstraintBasedLayoutDebugging)
+
+/* This returns a list of all the constraints that are affecting the current location of the receiver.  The constraints do not necessarily involve the receiver, they may affect the frame indirectly.
+ Pass UILayoutConstraintAxisHorizontal for the constraints affecting [self center].x and CGRectGetWidth([self bounds]), and UILayoutConstraintAxisVertical for the constraints affecting[self center].y and CGRectGetHeight([self bounds]).
+ */
+- (NSArray<__kindof NSLayoutConstraint *> *)constraintsAffectingLayoutForAxis:(UILayoutConstraintAxis)axis NS_AVAILABLE_IOS(10_0);
+
+/* If there aren't enough constraints in the system to uniquely determine layout, we say the layout is ambiguous.  For example, if the only constraint in the system was x = y + 100, then there are lots of different possible values for x and y.  This situation is not automatically detected by UIKit, due to performance considerations and details of the algorithm used for layout.
+ The symptom of ambiguity is that views sometimes jump from place to place, or possibly are just in the wrong place.
+ -hasAmbiguousLayout runs a check for whether there is another center and bounds the receiver could have that could also satisfy the constraints.
+ */
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) BOOL hasAmbiguousLayout NS_AVAILABLE_IOS(10_0);
+#else
+- (BOOL)hasAmbiguousLayout NS_AVAILABLE_IOS(10_0);
+#endif
 @end
 
 @interface UIView (UIStateRestoration)
@@ -12174,24 +18678,129 @@ UIKIT_EXTERN const CGSize UILayoutFittingExpandedSize NS_AVAILABLE_IOS(6_0);
 
 * Creating snapshots from existing snapshots (as a method to duplicate, crop or create a resizable variant) is supported. In cases where many snapshots are needed, creating a snapshot from a common superview and making subsequent snapshots from it can be more performant. Please keep in mind that if 'afterUpdates' is YES, the original snapshot is committed and any changes made to it, not the view originally snapshotted, will be included.
  */
-- (UIView *)snapshotViewAfterScreenUpdates:(BOOL)afterUpdates NS_AVAILABLE_IOS(7_0);
-- (UIView *)resizableSnapshotViewFromRect:(CGRect)rect afterScreenUpdates:(BOOL)afterUpdates withCapInsets:(UIEdgeInsets)capInsets NS_AVAILABLE_IOS(7_0);  // Resizable snapshots will default to stretching the center
+- (nullable UIView *)snapshotViewAfterScreenUpdates:(BOOL)afterUpdates NS_AVAILABLE_IOS(7_0);
+- (nullable UIView *)resizableSnapshotViewFromRect:(CGRect)rect afterScreenUpdates:(BOOL)afterUpdates withCapInsets:(UIEdgeInsets)capInsets NS_AVAILABLE_IOS(7_0);  // Resizable snapshots will default to stretching the center
 // Use this method to render a snapshot of the view hierarchy into the current context. Returns NO if the snapshot is missing image data, YES if the snapshot is complete. Calling this method from layoutSubviews while the current transaction is committing will capture what is currently displayed regardless if afterUpdates is YES.
 - (BOOL)drawViewHierarchyInRect:(CGRect)rect afterScreenUpdates:(BOOL)afterUpdates NS_AVAILABLE_IOS(7_0);
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIView.h>
+#endif
+// ==========  UIKit.framework/Headers/UIAccessibilityContainer.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibilityContainer.h>)
+//
+//  UIAccessibilityContainer.h
+//  UIKit
+//
+//  Copyright (c) 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIAccessibilityConstants.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*
+ UIAccessibilityContainer
+ 
+ UIAccessibilityContainer methods can be overridden to vend individual elements
+ that are managed by a single UIView.
+ 
+ For example, a single UIView might draw several items that (to an
+ end user) have separate meaning and functionality.  It is important to vend
+ each item as an individual accessibility element.
+ 
+ Sub-elements of a container that are not represented by concrete UIView
+ instances (perhaps painted text or icons) can be represented using instances
+ of UIAccessibilityElement class (see UIAccessibilityElement.h).
+ 
+ Accessibility containers MUST return NO to -isAccessibilityElement.
+ */
+@interface NSObject (UIAccessibilityContainer)
+
+/*
+ Returns the number of accessibility elements in the container.
+ */
+- (NSInteger)accessibilityElementCount;
+
+/*
+ Returns the accessibility element in order, based on index.
+ default == nil
+ */
+- (nullable id)accessibilityElementAtIndex:(NSInteger)index;
+
+/*
+ Returns the ordered index for an accessibility element
+ default == NSNotFound
+ */
+- (NSInteger)indexOfAccessibilityElement:(id)element;
+
+// A list of container elements managed by the receiver.
+// This can be used as an alternative to implementing the dynamic methods.
+// default == nil
+@property (nullable, nonatomic, strong) NSArray *accessibilityElements NS_AVAILABLE_IOS(8_0);
+
+// Some containers provide more context for accessibility elements, such as tables or lists.
+// Set this property so that assistive technologies can output more information.
+// default == UIAccessibilityContainerTypeNone
+@property (nonatomic) UIAccessibilityContainerType accessibilityContainerType NS_AVAILABLE_IOS(11_0);
+
+@end
+
+/* 
+ The UIAccessibilityContainerDataTable and UIAccessibilityContainerDataTableCell protocols
+ convey more information specific to tables that contain structured data.
+ */
+
+NS_CLASS_AVAILABLE_IOS(11_0) @protocol UIAccessibilityContainerDataTableCell <NSObject>
+@required
+
+// The row/column index + the row/column span.
+// default == { NSNotFound, 0 }
+- (NSRange)accessibilityRowRange;
+- (NSRange)accessibilityColumnRange;
+
+@end
+
+NS_CLASS_AVAILABLE_IOS(11_0) @protocol UIAccessibilityContainerDataTable <NSObject>
+@required
+
+// Return the cell element for a specific row/column, including elements that span rows/columns.
+// default == nil
+- (nullable id<UIAccessibilityContainerDataTableCell>)accessibilityDataTableCellElementForRow:(NSUInteger)row column:(NSUInteger)column;
+
+- (NSUInteger)accessibilityRowCount;
+- (NSUInteger)accessibilityColumnCount;
+
+@optional
+// Return header elements for a specific row or column.
+// default == nil
+- (nullable NSArray<id<UIAccessibilityContainerDataTableCell>> *)accessibilityHeaderElementsForRow:(NSUInteger)row;
+- (nullable NSArray<id<UIAccessibilityContainerDataTableCell>> *)accessibilityHeaderElementsForColumn:(NSUInteger)column;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccessibilityContainer.h>
+#endif
 // ==========  UIKit.framework/Headers/UITabBar.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITabBar.h>)
 //
 //  UITabBar.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKitDefines.h>
 #import <UIKit/UIControl.h>
+#import <UIKit/UISpringLoadedInteractionSupporting.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12207,25 +18816,31 @@ typedef NS_ENUM(NSInteger, UITabBarItemPositioning) {
 
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBar : UIView
 
-@property(nullable,nonatomic,assign) id<UITabBarDelegate> delegate;     // weak reference. default is nil
-@property(nullable,nonatomic,copy) NSArray<UITabBarItem *> *items;        // get/set visible UITabBarItems. default is nil. changes not animated. shown in order
-@property(nullable,nonatomic,assign) UITabBarItem *selectedItem; // will show feedback based on mode. default is nil
+@property(nullable, nonatomic, weak) id<UITabBarDelegate> delegate;     // weak reference. default is nil
+@property(nullable, nonatomic, copy) NSArray<UITabBarItem *> *items;        // get/set visible UITabBarItems. default is nil. changes not animated. shown in order
+@property(nullable, nonatomic, weak) UITabBarItem *selectedItem; // will show feedback based on mode. default is nil
 
 - (void)setItems:(nullable NSArray<UITabBarItem *> *)items animated:(BOOL)animated;   // will fade in or out or reorder and adjust spacing
 
 // Reorder items. This will display a sheet with all the items listed, allow the user to change/reorder items and shows a 'Done' button at the top
 
-- (void)beginCustomizingItems:(NSArray<UITabBarItem *> *)items;   // list all items that can be reordered. always animates a sheet up. visible items not listed are fixed in place
-- (BOOL)endCustomizingAnimated:(BOOL)animated;    // hide customization sheet. normally you should let the user do it. check list of items to see new layout. returns YES if layout changed
-- (BOOL)isCustomizing;
+- (void)beginCustomizingItems:(NSArray<UITabBarItem *> *)items __TVOS_PROHIBITED;   // list all items that can be reordered. always animates a sheet up. visible items not listed are fixed in place
+- (BOOL)endCustomizingAnimated:(BOOL)animated __TVOS_PROHIBITED;    // hide customization sheet. normally you should let the user do it. check list of items to see new layout. returns YES if layout changed
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, getter=isCustomizing) BOOL customizing __TVOS_PROHIBITED;
+#else
+- (BOOL)isCustomizing __TVOS_PROHIBITED;
+#endif
 
 /*
  The behavior of tintColor for bars has changed on iOS 7.0. It no longer affects the bar's background
  and behaves as described for the tintColor property added to UIView.
  To tint the bar's background, please use -barTintColor.
  */
-@property(null_resettable, nonatomic,strong) UIColor *tintColor NS_AVAILABLE_IOS(5_0);
-@property(nullable, nonatomic,strong) UIColor *barTintColor NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR;  // default is nil
+@property(null_resettable, nonatomic, strong) UIColor *tintColor NS_AVAILABLE_IOS(5_0);
+@property(nullable, nonatomic, strong) UIColor *barTintColor NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR;  // default is nil
+/// Unselected items in this tab bar will be tinted with this color. Setting this value to nil indicates that UITabBar should use its default value instead.
+@property (nonatomic, readwrite, copy, nullable) UIColor *unselectedItemTintColor NS_AVAILABLE_IOS(10_0) UI_APPEARANCE_SELECTOR;
 
 /* selectedImageTintColor will be applied to the gradient image used when creating the
  selected image. Default is nil and will result in the system bright blue for selected
@@ -12235,19 +18850,19 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBar : UIView
  Deprecated in iOS 8.0. On iOS 7.0 and later the selected image takes its color from the
  inherited tintColor of the UITabBar, which may be set separately if necessary.
  */
-@property(nullable,nonatomic,strong) UIColor *selectedImageTintColor NS_DEPRECATED_IOS(5_0,8_0,"Use tintColor") UI_APPEARANCE_SELECTOR;
+@property(nullable, nonatomic, strong) UIColor *selectedImageTintColor NS_DEPRECATED_IOS(5_0,8_0,"Use tintColor") UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
 
 /* The background image will be tiled to fit, even if it was not created via the UIImage resizableImage methods.
  */
-@property(nullable, nonatomic,strong) UIImage *backgroundImage NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+@property(nullable, nonatomic, strong) UIImage *backgroundImage NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 
 /* The selection indicator image is drawn on top of the tab bar, behind the bar item icon.
  */
-@property(nullable, nonatomic,strong) UIImage *selectionIndicatorImage NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR; 
+@property(nullable, nonatomic, strong) UIImage *selectionIndicatorImage NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 
 /* Default is nil. When non-nil, a custom shadow image to show instead of the default shadow image. For a custom shadow to be shown, a custom background image must also be set with -setBackgroundImage: (if the default background image is used, the default shadow image will be used).
  */
-@property(nullable, nonatomic,strong) UIImage *shadowImage NS_AVAILABLE_IOS(6_0) UI_APPEARANCE_SELECTOR;
+@property(nullable, nonatomic, strong) UIImage *shadowImage NS_AVAILABLE_IOS(6_0) UI_APPEARANCE_SELECTOR;
 
 /*
  Default is UITabBarItemPositioningAutomatic. The tab bar items fill horizontally
@@ -12259,7 +18874,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBar : UIView
     Use UITabBarItemPositioningCenter to force the items to center with a default
  width (or the itemWidth, if set).
  */
-@property(nonatomic) UITabBarItemPositioning itemPositioning NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR;
+@property(nonatomic) UITabBarItemPositioning itemPositioning NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
 
 /*
  Set the itemWidth to a positive value to be used as the width for tab bar items
@@ -12278,7 +18893,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBar : UIView
 /*
  Valid bar styles are UIBarStyleDefault (default) and UIBarStyleBlack.
  */
-@property(nonatomic) UIBarStyle barStyle NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR;
+@property(nonatomic) UIBarStyle barStyle NS_AVAILABLE_IOS(7_0) UI_APPEARANCE_SELECTOR __TVOS_PROHIBITED;
 
 /*
  Default is YES.
@@ -12306,20 +18921,30 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBar : UIView
  it will be set to nil.
  */
 
-- (void)tabBar:(UITabBar *)tabBar willBeginCustomizingItems:(NSArray<UITabBarItem *> *)items;                     // called before customize sheet is shown. items is current item list
-- (void)tabBar:(UITabBar *)tabBar didBeginCustomizingItems:(NSArray<UITabBarItem *> *)items;                      // called after customize sheet is shown. items is current item list
-- (void)tabBar:(UITabBar *)tabBar willEndCustomizingItems:(NSArray<UITabBarItem *> *)items changed:(BOOL)changed; // called before customize sheet is hidden. items is new item list
-- (void)tabBar:(UITabBar *)tabBar didEndCustomizingItems:(NSArray<UITabBarItem *> *)items changed:(BOOL)changed;  // called after customize sheet is hidden. items is new item list
+- (void)tabBar:(UITabBar *)tabBar willBeginCustomizingItems:(NSArray<UITabBarItem *> *)items __TVOS_PROHIBITED;                     // called before customize sheet is shown. items is current item list
+- (void)tabBar:(UITabBar *)tabBar didBeginCustomizingItems:(NSArray<UITabBarItem *> *)items __TVOS_PROHIBITED;                      // called after customize sheet is shown. items is current item list
+- (void)tabBar:(UITabBar *)tabBar willEndCustomizingItems:(NSArray<UITabBarItem *> *)items changed:(BOOL)changed __TVOS_PROHIBITED; // called before customize sheet is hidden. items is new item list
+- (void)tabBar:(UITabBar *)tabBar didEndCustomizingItems:(NSArray<UITabBarItem *> *)items changed:(BOOL)changed __TVOS_PROHIBITED;  // called after customize sheet is hidden. items is new item list
 
 @end
 
+#if TARGET_OS_IOS
+@interface UITabBar (SpringLoading) <UISpringLoadedInteractionSupporting>
+@end
+#endif
+
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITabBar.h>
+#endif
 // ==========  UIKit.framework/Headers/UIBarButtonItemGroup.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIBarButtonItemGroup.h>)
 //
 //  UIBarButtonItemGroup.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12356,12 +18981,39 @@ NS_CLASS_AVAILABLE_IOS(9_0) @interface UIBarButtonItemGroup : NSObject<NSCoding>
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIBarButtonItemGroup.h>
+#endif
+// ==========  UIKit.framework/Headers/UIVisualEffect.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIVisualEffect.h>)
+//
+//  UIVisualEffect.h
+//  UIKit
+//
+//  Copyright © 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+NS_CLASS_AVAILABLE_IOS(8_0) @interface UIVisualEffect : NSObject <NSCopying, NSSecureCoding>
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIVisualEffect.h>
+#endif
 // ==========  UIKit.framework/Headers/UIBarItem.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIBarItem.h>)
 //
 //  UIBarItem.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12382,25 +19034,35 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIBarItem : NSObject <NSCoding, UIAppeara
 @property(nonatomic,getter=isEnabled) BOOL         enabled;      // default is YES
 @property(nullable, nonatomic,copy)             NSString    *title;        // default is nil
 @property(nullable, nonatomic,strong)           UIImage     *image;        // default is nil
-@property(nullable, nonatomic,strong)           UIImage     *landscapeImagePhone NS_AVAILABLE_IOS(5_0); // default is nil
+@property(nullable, nonatomic,strong)           UIImage     *landscapeImagePhone NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED; // default is nil
+
+// Higher-resolution version of the standard image. Default is nil. Used for rendering assistive UI (e.g. for users with visual impairments who need large text). If not provided, the system may attempt to generate an image based on the standard image (for instance, by rasterizing matching PDF representations at a higher resolution).
+@property(nullable, nonatomic,strong)           UIImage     *largeContentSizeImage API_AVAILABLE(ios(11.0));
+
 @property(nonatomic)                  UIEdgeInsets imageInsets;  // default is UIEdgeInsetsZero
-@property(nonatomic)                  UIEdgeInsets landscapeImagePhoneInsets NS_AVAILABLE_IOS(5_0);  // default is UIEdgeInsetsZero. These insets apply only when the landscapeImagePhone property is set.
+@property(nonatomic)                  UIEdgeInsets landscapeImagePhoneInsets NS_AVAILABLE_IOS(5_0) __TVOS_PROHIBITED;  // default is UIEdgeInsetsZero. These insets apply only when the landscapeImagePhone property is set.
+@property(nonatomic)                  UIEdgeInsets largeContentSizeImageInsets API_AVAILABLE(ios(11.0)); // default is UIEdgeInsetsZero. These insets apply only when the largeContentSizeImage property is set.
 @property(nonatomic)                  NSInteger    tag;          // default is 0
 
 /* You may specify the font, text color, and shadow properties for the title in the text attributes dictionary, using the keys found in NSAttributedString.h.
  */
-- (void)setTitleTextAttributes:(nullable NSDictionary<NSString *,id> *)attributes forState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
-- (nullable NSDictionary<NSString *,id> *)titleTextAttributesForState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+- (void)setTitleTextAttributes:(nullable NSDictionary<NSAttributedStringKey,id> *)attributes forState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+- (nullable NSDictionary<NSAttributedStringKey,id> *)titleTextAttributesForState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIBarItem.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAlertView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAlertView.h>)
 //
 //  UIAlertView.h
 //  UIKit
 //
-//  Copyright 2010-2012 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12415,12 +19077,12 @@ typedef NS_ENUM(NSInteger, UIAlertViewStyle) {
     UIAlertViewStyleSecureTextInput,
     UIAlertViewStylePlainTextInput,
     UIAlertViewStyleLoginAndPasswordInput
-};
+} __TVOS_PROHIBITED;
 
 @protocol UIAlertViewDelegate;
 @class UILabel, UIToolbar, UITabBar, UIWindow, UIBarButtonItem, UIPopoverController;
 
-NS_CLASS_DEPRECATED_IOS(2_0, 9_0, "UIAlertView is deprecated. Use UIAlertController with a preferredStyle of UIAlertControllerStyleAlert instead")
+NS_CLASS_DEPRECATED_IOS(2_0, 9_0, "UIAlertView is deprecated. Use UIAlertController with a preferredStyle of UIAlertControllerStyleAlert instead") __TVOS_PROHIBITED
 @interface UIAlertView : UIView
 
 - (instancetype)initWithTitle:(nullable NSString *)title message:(nullable NSString *)message delegate:(nullable id /*<UIAlertViewDelegate>*/)delegate cancelButtonTitle:(nullable NSString *)cancelButtonTitle otherButtonTitles:(nullable NSString *)otherButtonTitles, ... NS_REQUIRES_NIL_TERMINATION NS_EXTENSION_UNAVAILABLE_IOS("Use UIAlertController instead.");
@@ -12460,7 +19122,7 @@ NS_CLASS_DEPRECATED_IOS(2_0, 9_0, "UIAlertView is deprecated. Use UIAlertControl
 
 @end
 
-
+__TVOS_PROHIBITED
 @protocol UIAlertViewDelegate <NSObject>
 @optional
 
@@ -12483,12 +19145,58 @@ NS_CLASS_DEPRECATED_IOS(2_0, 9_0, "UIAlertView is deprecated. Use UIAlertControl
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAlertView.h>
+#endif
+// ==========  UIKit.framework/Headers/UIFontMetrics.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFontMetrics.h>)
+//
+//  UIFontMetrics.h
+//  UIKit
+//
+//  Copyright (c) 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import <UIKit/UIKitDefines.h>
+#import <UIKit/UIFont.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0))
+@interface UIFontMetrics : NSObject
+
+@property (class, readonly, strong) UIFontMetrics *defaultMetrics;
+
++ (instancetype)metricsForTextStyle:(UIFontTextStyle)textStyle;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initForTextStyle:(UIFontTextStyle)textStyle NS_DESIGNATED_INITIALIZER;
+
+- (UIFont *)scaledFontForFont:(UIFont *)font;
+- (UIFont *)scaledFontForFont:(UIFont *)font maximumPointSize:(CGFloat)maximumPointSize;
+- (UIFont *)scaledFontForFont:(UIFont *)font compatibleWithTraitCollection:(nullable UITraitCollection *)traitCollection __WATCHOS_PROHIBITED;
+- (UIFont *)scaledFontForFont:(UIFont *)font maximumPointSize:(CGFloat)maximumPointSize compatibleWithTraitCollection:(nullable UITraitCollection *)traitCollection __WATCHOS_PROHIBITED;
+
+- (CGFloat)scaledValueForValue:(CGFloat)value;
+- (CGFloat)scaledValueForValue:(CGFloat)value compatibleWithTraitCollection:(nullable UITraitCollection *)traitCollection __WATCHOS_PROHIBITED;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIFontMetrics.h>
+#endif
 // ==========  UIKit.framework/Headers/UIActionSheet.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIActionSheet.h>)
 //
 //  UIActionSheet.h
 //  UIKit
 //
-//  Copyright 2010-2012 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12506,9 +19214,9 @@ typedef NS_ENUM(NSInteger, UIActionSheetStyle) {
     UIActionSheetStyleDefault          = UIBarStyleDefault,
     UIActionSheetStyleBlackTranslucent = UIBarStyleBlackTranslucent,
     UIActionSheetStyleBlackOpaque      = UIBarStyleBlackOpaque ,
-};
+} __TVOS_PROHIBITED;
 
-NS_CLASS_DEPRECATED_IOS(2_0, 8_3, "UIActionSheet is deprecated. Use UIAlertController with a preferredStyle of UIAlertControllerStyleActionSheet instead")
+NS_CLASS_DEPRECATED_IOS(2_0, 8_3, "UIActionSheet is deprecated. Use UIAlertController with a preferredStyle of UIAlertControllerStyleActionSheet instead") __TVOS_PROHIBITED
 @interface UIActionSheet : UIView
 
 - (instancetype)initWithTitle:(nullable NSString *)title delegate:(nullable id<UIActionSheetDelegate>)delegate cancelButtonTitle:(nullable NSString *)cancelButtonTitle destructiveButtonTitle:(nullable NSString *)destructiveButtonTitle otherButtonTitles:(nullable NSString *)otherButtonTitles, ... NS_REQUIRES_NIL_TERMINATION NS_EXTENSION_UNAVAILABLE_IOS("Use UIAlertController instead.");
@@ -12544,33 +19252,38 @@ NS_CLASS_DEPRECATED_IOS(2_0, 8_3, "UIActionSheet is deprecated. Use UIAlertContr
 @end
 
 
-
+__TVOS_PROHIBITED
 @protocol UIActionSheetDelegate <NSObject>
 @optional
 
 // Called when a button is clicked. The view will be automatically dismissed after this call returns
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex NS_DEPRECATED_IOS(2_0, 8_3);
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex NS_DEPRECATED_IOS(2_0, 8_3) __TVOS_PROHIBITED;
 
 // Called when we cancel a view (eg. the user clicks the Home button). This is not called when the user clicks the cancel button.
 // If not defined in the delegate, we simulate a click in the cancel button
-- (void)actionSheetCancel:(UIActionSheet *)actionSheet NS_DEPRECATED_IOS(2_0, 8_3);
+- (void)actionSheetCancel:(UIActionSheet *)actionSheet NS_DEPRECATED_IOS(2_0, 8_3) __TVOS_PROHIBITED;
 
-- (void)willPresentActionSheet:(UIActionSheet *)actionSheet NS_DEPRECATED_IOS(2_0, 8_3);  // before animation and showing view
-- (void)didPresentActionSheet:(UIActionSheet *)actionSheet NS_DEPRECATED_IOS(2_0, 8_3);  // after animation
+- (void)willPresentActionSheet:(UIActionSheet *)actionSheet NS_DEPRECATED_IOS(2_0, 8_3)__TVOS_PROHIBITED;  // before animation and showing view
+- (void)didPresentActionSheet:(UIActionSheet *)actionSheet NS_DEPRECATED_IOS(2_0, 8_3) __TVOS_PROHIBITED;  // after animation
 
-- (void)actionSheet:(UIActionSheet *)actionSheet willDismissWithButtonIndex:(NSInteger)buttonIndex NS_DEPRECATED_IOS(2_0, 8_3); // before animation and hiding view
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex NS_DEPRECATED_IOS(2_0, 8_3);  // after animation
+- (void)actionSheet:(UIActionSheet *)actionSheet willDismissWithButtonIndex:(NSInteger)buttonIndex NS_DEPRECATED_IOS(2_0, 8_3) __TVOS_PROHIBITED; // before animation and hiding view
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex NS_DEPRECATED_IOS(2_0, 8_3) __TVOS_PROHIBITED;  // after animation
 
 @end
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIActionSheet.h>
+#endif
 // ==========  UIKit.framework/Headers/UIGraphics.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIGraphics.h>)
 //
 //  UIGraphics.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12595,9 +19308,11 @@ UIKIT_EXTERN void UIRectClip(CGRect rect);
 
 // UIImage context
 
+// The following methods will only return a 8-bit per channel context in the DeviceRGB color space.
+// Any new bitmap drawing code is encouraged to use UIGraphicsImageRenderer in leiu of this API.
 UIKIT_EXTERN void     UIGraphicsBeginImageContext(CGSize size);
 UIKIT_EXTERN void     UIGraphicsBeginImageContextWithOptions(CGSize size, BOOL opaque, CGFloat scale) NS_AVAILABLE_IOS(4_0);
-UIKIT_EXTERN UIImage* __null_unspecified UIGraphicsGetImageFromCurrentImageContext(void);
+UIKIT_EXTERN UIImage* __nullable UIGraphicsGetImageFromCurrentImageContext(void);
 UIKIT_EXTERN void     UIGraphicsEndImageContext(void); 
 
 // PDF context
@@ -12615,12 +19330,389 @@ UIKIT_EXTERN void UIGraphicsSetPDFContextURLForRect(NSURL *url, CGRect rect) NS_
 UIKIT_EXTERN void UIGraphicsAddPDFContextDestinationAtPoint(NSString *name, CGPoint point) NS_AVAILABLE_IOS(3_2);
 UIKIT_EXTERN void UIGraphicsSetPDFContextDestinationForRect(NSString *name, CGRect rect) NS_AVAILABLE_IOS(3_2);
 
-NS_ASSUME_NONNULL_END// ==========  UIKit.framework/Headers/UIAccessibilityIdentification.h
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIGraphics.h>
+#endif
+// ==========  UIKit.framework/Headers/UIKitCore.h
+//
+//  UIKit.h
+//  UIKit
+//
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIKitDefines.h>
+
+#if __has_include(<UIKit/UIAccelerometer.h>)
+#import <UIKit/UIAccelerometer.h>
+#import <UIKit/UIAccessibility.h>
+#endif
+
+#import <UIKit/UIAccessibilityConstants.h>
+
+#if __has_include(<UIKit/UIAccessibilityContentSizeCategoryImageAdjusting.h>)
+#import <UIKit/UIAccessibilityContentSizeCategoryImageAdjusting.h>
+#endif
+
+#if __has_include(<UIKit/UIActivityIndicatorView.h>)
+#import <UIKit/UIActivityIndicatorView.h>
+#import <UIKit/UIActivity.h>
+#import <UIKit/UIActivityItemProvider.h>
+#import <UIKit/UIActivityViewController.h>
+#import <UIKit/UIActionSheet.h>
+#import <UIKit/UIAlertController.h>
+#import <UIKit/UIAlertView.h>
+#import <UIKit/UIAppearance.h>
+#import <UIKit/UIApplication.h>
+#import <UIKit/UIBarButtonItem.h>
+#import <UIKit/UIBarButtonItemGroup.h>
+#import <UIKit/UIBarItem.h>
+#endif
+
+
+#import <UIKit/UIBezierPath.h>
+
+#if __has_include(<UIKit/UIButton.h>)
+#import <UIKit/UIButton.h>
+#import <UIKit/UICollectionView.h>
+#import <UIKit/UICollectionViewCell.h>
+#import <UIKit/UICollectionViewController.h>
+#import <UIKit/UICollectionViewFlowLayout.h>
+#import <UIKit/UICollectionViewLayout.h>
+#import <UIKit/UICollectionViewTransitionLayout.h>
+#endif
+
+#import <UIKit/UIColor.h>
+
+#if __has_include(<UIKit/UIContentSizeCategoryAdjusting.h>)
+#import <UIKit/UIContentSizeCategoryAdjusting.h>
+#import <UIKit/UIContentSizeCategory.h>
+#import <UIKit/UIControl.h>
+#import <UIKit/UIDataDetectors.h>
+#import <UIKit/UIDatePicker.h>
+#import <UIKit/UIDevice.h>
+#import <UIKit/UIDocument.h>
+#import <UIKit/UIDocumentInteractionController.h>
+#import <UIKit/UIDocumentPickerViewController.h>
+#import <UIKit/UIDocumentMenuViewController.h>
+#import <UIKit/UIDocumentPickerExtensionViewController.h>
+#import <UIKit/UICloudSharingController.h>
+#import <UIKit/NSFileProviderExtension.h>
+#import <UIKit/UIVisualEffect.h>
+#import <UIKit/UIBlurEffect.h>
+#import <UIKit/UIVibrancyEffect.h>
+#import <UIKit/UIVisualEffectView.h>
+#import <UIKit/UIEvent.h>
+#endif
+
+#import <UIKit/UIFont.h>
+#import <UIKit/UIFontDescriptor.h>
+#import <UIKit/UIFontMetrics.h>
+#import <UIKit/UIGeometry.h>
+
+#if __has_include(<UIKit/UIGestureRecognizer.h>)
+#import <UIKit/UIGestureRecognizer.h>
+#endif
+
+#import <UIKit/UIGraphics.h>
+#import <UIKit/UIImage.h>
+
+#if __has_include(<UIKit/UIGraphicsRenderer.h>)
+#import <UIKit/UIGraphicsRenderer.h>
+#import <UIKit/UIGraphicsImageRenderer.h>
+#import <UIKit/UIGraphicsPDFRenderer.h>
+#endif
+
+#if __has_include(<UIKit/UIImageAsset.h>)
+#import <UIKit/UIImageAsset.h>
+#import <UIKit/NSDataAsset.h>
+#import <UIKit/UIImagePickerController.h>
+#import <UIKit/UIImageView.h>
+#import <UIKit/UIInputView.h>
+#import <UIKit/UIInputViewController.h>
+#import <UIKit/UIInterface.h>
+#import <UIKit/UILabel.h>
+#import <UIKit/UILexicon.h>
+#endif
+
+#import <UIKit/UILocalNotification.h>
+
+#if __has_include(<UIKit/UIUserNotificationSettings.h>)
+
+#import <UIKit/UIApplicationShortcutItem.h>
+#import <UIKit/UIUserNotificationSettings.h>
+#import <UIKit/UIFocus.h>
+#import <UIKit/UIFocusSystem.h>
+#import <UIKit/UIFocusGuide.h>
+#import <UIKit/UIFocusAnimationCoordinator.h>
+#import <UIKit/UIFocusDebugger.h>
+#import <UIKit/UIFocusMovementHint.h>
+#import <UIKit/UILocalizedIndexedCollation.h>
+#import <UIKit/UILongPressGestureRecognizer.h>
+#import <UIKit/UIManagedDocument.h>
+#import <UIKit/UIMenuController.h>
+#import <UIKit/UIMotionEffect.h>
+#import <UIKit/UINavigationBar.h>
+#import <UIKit/UINavigationController.h>
+#import <UIKit/UINib.h>
+#import <UIKit/UINibDeclarations.h>
+#import <UIKit/UINibLoading.h>
+#import <UIKit/UIPageControl.h>
+#import <UIKit/UIPageViewController.h>
+#import <UIKit/UIPanGestureRecognizer.h>
+#import <UIKit/UIPasteboard.h>
+#import <UIKit/UIPasteConfiguration.h>
+#import <UIKit/UIPasteConfigurationSupporting.h>
+#import <UIKit/UIPickerView.h>
+#import <UIKit/UIPinchGestureRecognizer.h>
+#import <UIKit/UIPopoverController.h>
+#import <UIKit/UIPopoverBackgroundView.h>
+#import <UIKit/UIPress.h>
+#import <UIKit/UIPressesEvent.h>
+#import <UIKit/UIPrinter.h>
+#import <UIKit/UIPrinterPickerController.h>
+#import <UIKit/UIPrintError.h>
+#import <UIKit/UIPrintFormatter.h>
+#import <UIKit/UIPrintInfo.h>
+#import <UIKit/UIPrintInteractionController.h>
+#import <UIKit/UIPrintPageRenderer.h>
+#import <UIKit/UIPrintPaper.h>
+#import <UIKit/UIProgressView.h>
+#import <UIKit/UIReferenceLibraryViewController.h>
+#import <UIKit/UIRefreshControl.h>
+#import <UIKit/UIResponder.h>
+#import <UIKit/UIRotationGestureRecognizer.h>
+#import <UIKit/UIScreen.h>
+#import <UIKit/UIScreenEdgePanGestureRecognizer.h>
+#import <UIKit/UIScreenMode.h>
+#import <UIKit/UIScrollView.h>
+#import <UIKit/UISearchBar.h>
+#import <UIKit/UISearchContainerViewController.h>
+#import <UIKit/UISearchController.h>
+#import <UIKit/UISearchDisplayController.h>
+#import <UIKit/UISegmentedControl.h>
+#import <UIKit/UISlider.h>
+#import <UIKit/UISplitViewController.h>
+#import <UIKit/UIStepper.h>
+#import <UIKit/UIStoryboard.h>
+#import <UIKit/UIStoryboardPopoverSegue.h>
+#import <UIKit/UIStoryboardSegue.h>
+#import <UIKit/UIStringDrawing.h>
+#import <UIKit/UISwipeGestureRecognizer.h>
+#import <UIKit/UISwitch.h>
+#import <UIKit/UITabBar.h>
+#import <UIKit/UITabBarController.h>
+#import <UIKit/UITabBarItem.h>
+#import <UIKit/UITableView.h>
+#import <UIKit/UITableViewHeaderFooterView.h>
+#import <UIKit/UITableViewCell.h>
+#import <UIKit/UITableViewController.h>
+#import <UIKit/UITapGestureRecognizer.h>
+#import <UIKit/UITextChecker.h>
+#import <UIKit/UITextField.h>
+#import <UIKit/UITextInput.h>
+#import <UIKit/UITextInputTraits.h>
+#import <UIKit/UITextView.h>
+#import <UIKit/UIToolbar.h>
+#import <UIKit/UITouch.h>
+#import <UIKit/UITraitCollection.h>
+#import <UIKit/UIUserActivity.h>
+#import <UIKit/UIVideoEditorController.h>
+#import <UIKit/UIView.h>
+#import <UIKit/UIViewController.h>
+#import <UIKit/UIWebView.h>
+#import <UIKit/UIWindow.h>
+
+#import <UIKit/UIDragInteraction.h>
+#import <UIKit/UIDragItem.h>
+#import <UIKit/UIDragPreview.h>
+#import <UIKit/UIDragPreviewParameters.h>
+#import <UIKit/UIDragSession.h>
+#import <UIKit/UIDropInteraction.h>
+#import <UIKit/UIInteraction.h>
+#import <UIKit/UITargetedDragPreview.h>
+#import <UIKit/UISpringLoadedInteraction.h>
+#import <UIKit/UISpringLoadedInteractionSupporting.h>
+
+#endif
+
+#import <UIKit/NSAttributedString.h>
+
+#if __has_include(<UIKit/NSItemProvider+UIKitAdditions.h>)
+#import <UIKit/NSItemProvider+UIKitAdditions.h>
+#endif
+
+#if __has_include(<UIKit/NSLayoutConstraint.h>)
+#import <UIKit/NSLayoutConstraint.h>
+#import <UIKit/NSLayoutAnchor.h>
+#import <UIKit/UILayoutGuide.h>
+#import <UIKit/UIStackView.h>
+#import <UIKit/NSLayoutManager.h>
+#endif
+
+#import <UIKit/NSParagraphStyle.h>
+
+
+#if __has_include(<UIKit/NSShadow.h>)
+#import <UIKit/NSShadow.h>
+#endif
+
+#import <UIKit/NSStringDrawing.h>
+#import <UIKit/NSText.h>
+
+#if __has_include(<UIKit/NSTextAttachment.h>)
+#import <UIKit/NSTextAttachment.h>
+#import <UIKit/NSTextContainer.h>
+#import <UIKit/NSTextStorage.h>
+#import <UIKit/UIStateRestoration.h>
+#import <UIKit/UIViewControllerTransitioning.h>
+#import <UIKit/UIViewControllerTransitionCoordinator.h>
+#import <UIKit/UIPresentationController.h>
+#import <UIKit/UIPreviewInteraction.h>
+#import <UIKit/UIPopoverPresentationController.h>
+#import <UIKit/UIDynamicAnimator.h>
+#import <UIKit/UIDynamicBehavior.h>
+#import <UIKit/UIPushBehavior.h>
+#import <UIKit/UISnapBehavior.h>
+#import <UIKit/UIDynamicItemBehavior.h>
+#import <UIKit/UIFieldBehavior.h>
+#import <UIKit/UIGravityBehavior.h>
+#import <UIKit/UIAttachmentBehavior.h>
+#import <UIKit/UICollisionBehavior.h>
+#import <UIKit/UIRegion.h>
+#endif
+
+#if __has_include(<UIKit/UITextDragging.h>)
+#import <UIKit/UITextDragging.h>
+#import <UIKit/UITextDropping.h>
+#import <UIKit/UITextDropProposal.h>
+#import <UIKit/UITextDragPreviewRenderer.h>
+#import <UIKit/UITextDragURLPreviews.h>
+#endif
+
+#if __has_include(<UIKit/UIViewPropertyAnimator.h>)
+#import <UIKit/UIViewPropertyAnimator.h>
+#endif
+
+#if __has_include(<UIKit/UIFeedbackGenerator.h>)
+#import <UIKit/UIFeedbackGenerator.h>
+#import <UIKit/UISelectionFeedbackGenerator.h>
+#import <UIKit/UIImpactFeedbackGenerator.h>
+#import <UIKit/UINotificationFeedbackGenerator.h>
+#endif
+
+#if __has_include(<UIKit/UITimingCurveProvider.h>)
+#import <UIKit/UITimingCurveProvider.h>
+#endif
+
+#if __has_include(<UIKit/NSIndexPath+UIKitAdditions.h>)
+#import <UIKit/NSIndexPath+UIKitAdditions.h>
+#endif
+
+#if __has_include(<UIKit/UIPopoverSupport.h>)
+#import <UIKit/UIPopoverSupport.h>
+#endif
+
+#if __has_include(<UIKit/UITextItemInteraction.h>)
+#import <UIKit/UITextItemInteraction.h>
+#endif
+
+#if __has_include(<UIKit/UIViewAnimating.h>)
+#import <UIKit/UIViewAnimating.h>
+#endif
+
+#if __has_include(<UIKit/UISwipeActionsConfiguration.h>)
+#import <UIKit/UISwipeActionsConfiguration.h>
+#endif
+
+#if __has_include(<UIKit/UIAccessibilityZoom.h>)
+#import <UIKit/UIAccessibilityZoom.h>
+#endif
+
+#if __has_include(<UIKit/UIAccessibilityCustomAction.h>)
+#import <UIKit/UIAccessibilityCustomAction.h>
+#endif
+
+#if __has_include(<UIKit/UIDataSourceTranslating.h>)
+#import <UIKit/UIDataSourceTranslating.h>
+#endif
+
+#if __has_include(<UIKit/UIAccessibilityElement.h>)
+#import <UIKit/UIAccessibilityElement.h>
+#endif
+
+#if __has_include(<UIKit/UITextPasteDelegate.h>)
+#import <UIKit/UITextPasteDelegate.h>
+#endif
+
+#if __has_include(<UIKit/UITextPasteConfigurationSupporting.h>)
+#import <UIKit/UITextPasteConfigurationSupporting.h>
+#endif
+
+#if __has_include(<UIKit/UIAlert.h>)
+#import <UIKit/UIAlert.h>
+#endif
+
+#if __has_include(<UIKit/UIAccessibilityLocationDescriptor.h>)
+#import <UIKit/UIAccessibilityLocationDescriptor.h>
+#endif
+
+#if __has_include(<UIKit/UINavigationItem.h>)
+#import <UIKit/UINavigationItem.h>
+#endif
+
+#if __has_include(<UIKit/UIAccessibilityAdditions.h>)
+#import <UIKit/UIAccessibilityAdditions.h>
+#endif
+
+#if __has_include(<UIKit/UITimingParameters.h>)
+#import <UIKit/UITimingParameters.h>
+#endif
+
+#if __has_include(<UIKit/UIBarCommon.h>)
+#import <UIKit/UIBarCommon.h>
+#endif
+
+#if __has_include(<UIKit/UIGuidedAccessRestrictions.h>)
+#import <UIKit/UIGuidedAccessRestrictions.h>
+#endif
+
+#if __has_include(<UIKit/UIAccessibilityCustomRotor.h>)
+#import <UIKit/UIAccessibilityCustomRotor.h>
+#endif
+
+#if __has_include(<UIKit/UIContextualAction.h>)
+#import <UIKit/UIContextualAction.h>
+#endif
+
+#if __has_include(<UIKit/UIAccessibilityContainer.h>)
+#import <UIKit/UIAccessibilityContainer.h>
+#endif
+
+#if __has_include(<UIKit/UIAccessibilityIdentification.h>)
+#import <UIKit/UIAccessibilityIdentification.h>
+#endif
+
+#if __has_include(<UIKit/UIGestureRecognizerSubclass.h>)
+#import <UIKit/UIGestureRecognizerSubclass.h>
+#endif
+
+#if __has_include(<UIKit/UIGraphicsRendererSubclass.h>)
+#import <UIKit/UIGraphicsRendererSubclass.h>
+#endif
+
+#if __has_include(<UIKit/UIFocusMovementHint.h>)
+#import <UIKit/UIFocusMovementHint.h>
+#endif
+// ==========  UIKit.framework/Headers/UIAccessibilityIdentification.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAccessibilityIdentification.h>)
 //
 //  UIAccessibilityIdentification.h
 //  UIKit
 //
-//  Copyright 2010-2012 Apple Inc. All rights reserved.
+//  Copyright 2010-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12655,16 +19747,22 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAccessibilityIdentification.h>
+#endif
 // ==========  UIKit.framework/Headers/UINib.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UINib.h>)
 //
 //  UINib.h
 //  UIKit
 //
-//  Copyright (c) 2008-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKitDefines.h>
+#import <UIKit/UINibLoading.h>
 
 NS_ASSUME_NONNULL_BEGIN
     
@@ -12681,24 +19779,29 @@ NS_CLASS_AVAILABLE_IOS(4_0) @interface UINib : NSObject
 // The owner and options parameters may both be nil.
 // If the owner parameter is nil, connections to File's Owner are not permitted.
 // Options are identical to the options specified with -[NSBundle loadNibNamed:owner:options:]
-- (NSArray *)instantiateWithOwner:(nullable id)ownerOrNil options:(nullable NSDictionary *)optionsOrNil;
+- (NSArray *)instantiateWithOwner:(nullable id)ownerOrNil options:(nullable NSDictionary<UINibOptionsKey, id> *)optionsOrNil;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UINib.h>
+#endif
 // ==========  UIKit.framework/Headers/UILexicon.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UILexicon.h>)
 //
 //  UILexicon.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UILexiconEntry : NSObject <NSCopying>
+NS_CLASS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED @interface UILexiconEntry : NSObject <NSCopying>
 // -documentText returns the intended text to be inserted into the document for a given -userInput.
 // -userInput represents the expected typed string, which need not match the actual typed string.
 // for example, if the -documentText were "iPhone", the corresponsing -userInput could be "iphone"
@@ -12707,17 +19810,56 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UILexiconEntry : NSObject <NSCopying>
 @property (nonatomic, readonly) NSString *userInput;
 @end
 
-NS_CLASS_AVAILABLE_IOS(8_0) @interface UILexicon : NSObject <NSCopying>
+NS_CLASS_AVAILABLE_IOS(8_0) __TVOS_PROHIBITED @interface UILexicon : NSObject <NSCopying>
 @property (nonatomic, readonly) NSArray<UILexiconEntry *> *entries;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UILexicon.h>
+#endif
+// ==========  UIKit.framework/Headers/UIImpactFeedbackGenerator.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIImpactFeedbackGenerator.h>)
+//
+//  UIImpactFeedbackGenerator.h
+//  UIKit
+//
+//  Copyright © 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIFeedbackGenerator.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, UIImpactFeedbackStyle) {
+    UIImpactFeedbackStyleLight,
+    UIImpactFeedbackStyleMedium,
+    UIImpactFeedbackStyleHeavy
+};
+
+// UIImpactFeedbackGenerator is used to give user feedback when an impact between UI elements occurs
+UIKIT_CLASS_AVAILABLE_IOS_ONLY(10_0) @interface UIImpactFeedbackGenerator : UIFeedbackGenerator
+
+- (instancetype)initWithStyle:(UIImpactFeedbackStyle)style;
+
+/// call when your UI element impacts something else
+- (void)impactOccurred;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIImpactFeedbackGenerator.h>
+#endif
 // ==========  UIKit.framework/Headers/UIStackView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIStackView.h>)
 //
 //  UIStackView.h
 //  UIKit
 //
-//  Copyright © 2015 Apple Inc. All rights reserved.
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIView.h>
@@ -12795,6 +19937,23 @@ typedef NS_ENUM(NSInteger, UIStackViewAlignment) {
     UIStackViewAlignmentLastBaseline, // Valid for horizontal axis only
 } NS_ENUM_AVAILABLE_IOS(9_0);
 
+/* Used when setting custom spacing after an arranged subview to indicate reverting to 
+ the value specified by the spacing property. 
+ 
+ See -setCustomSpacing:afterView:, -customSpacingAfterView:
+ */
+static const CGFloat UIStackViewSpacingUseDefault API_AVAILABLE(ios(11.0),tvos(11.0)) = FLT_MAX;
+
+/* Used when setting custom spacing after an arranged subview to request the system 
+ spacing to the neighboring view. 
+ 
+ Also used as a token for the spacing property to request system spacing between
+ arranged subviews.
+ 
+ See spacing, -setCustomSpacing:afterView:, -customSpacingAfterView:
+ */
+static const CGFloat UIStackViewSpacingUseSystem API_AVAILABLE(ios(11.0),tvos(11.0)) = FLT_MIN;
+
 /* UIStackView is a non-rendering subclass of UIView, intended for managing layout of its subviews.
  You may not override +[UIStackView layerClass], and -drawLayer:inContext: will not be sent to
  UIStackView.
@@ -12819,12 +19978,17 @@ NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_AVAILABLE_IOS(9_0)
 @interface UIStackView : UIView
 
+- (instancetype)initWithFrame:(CGRect)frame NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
+
 /* UIStackView enforces that all views in the arrangedSubviews list
  must be subviews of the UIStackView.
     Thus, when a view is added to the arrangedSubviews, UIStackView
  adds it as a subview if it isn't already. And when a view in a
  UIStackView's arrangedSubviews list receives -removeFromSuperview
  it is also removed from the arrangedSubviews.
+ 
+ Please note that this is a convenience initializer and cannot be overridden in Swift.
  */
 - (instancetype)initWithArrangedSubviews:(NSArray<__kindof UIView *> *)views; // Adds views as subviews of the receiver.
 @property(nonatomic,readonly,copy) NSArray<__kindof UIView *> *arrangedSubviews;
@@ -12870,8 +20034,38 @@ and a stack with a vertical axis is a column of arrangedSubviews.
  Used as a strict spacing for the Fill distributions, and
  as a minimum spacing for the EqualCentering and EqualSpacing
  distributions. Use negative values to allow overlap.
+ 
+ On iOS 11.0 or later, use UIStackViewSpacingUseSystem (Swift: UIStackView.spacingUseSystem) 
+ to get a system standard spacing value. Setting spacing to UIStackViewSpacingUseDefault 
+ (Swift: UIStackView.spacingUseDefault) will result in a spacing of 0.
+ 
+ System spacing between views depends on the views involved, and may vary across the 
+ stack view.
+ 
+ In vertical stack views with baselineRelativeArrangement == YES, the spacing between 
+ text-containing views (such as UILabels) will depend on the fonts involved.
  */
 @property(nonatomic) CGFloat spacing;
+
+/* Set and get custom spacing after a view. 
+ 
+ This custom spacing takes precedence over any other value that might otherwise be used 
+ for the space following the arranged subview.
+ 
+ Defaults to UIStackViewSpacingUseDefault (Swift: UIStackView.spacingUseDefault), where 
+ resolved value will match the spacing property.
+ 
+ You may also set the custom spacing to UIStackViewSpacingUseSystem (Swift: UIStackView.spacingUseSystem),
+ where the resolved value will match the system-defined value for the space to the neighboring view, 
+ independent of the spacing property.
+ 
+ Maintained when the arranged subview changes position in the stack view, but not after it
+ is removed from the arrangedSubviews list.
+ 
+ Ignored if arrangedSubview is not actually an arranged subview.
+ */
+- (void)setCustomSpacing:(CGFloat)spacing afterView:(UIView *)arrangedSubview API_AVAILABLE(ios(11.0),tvos(11.0));
+- (CGFloat)customSpacingAfterView:(UIView *)arrangedSubview API_AVAILABLE(ios(11.0),tvos(11.0));
 
 /* Baseline-to-baseline spacing in vertical stacks.
     The baselineRelativeArrangement property supports specifications of vertical 
@@ -12888,14 +20082,20 @@ and a stack with a vertical axis is a column of arrangedSubviews.
     Defaults to NO.
  */
 @property(nonatomic,getter=isLayoutMarginsRelativeArrangement) BOOL layoutMarginsRelativeArrangement;    
+
 @end
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIStackView.h>
+#endif
 // ==========  UIKit.framework/Headers/UISegmentedControl.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISegmentedControl.h>)
 //
 //  UISegmentedControl.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12905,6 +20105,8 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIApplication.h>
 #import <UIKit/UIGeometry.h>
 #import <UIKit/UIBarButtonItem.h>
+#import <UIKit/UISpringLoadedInteractionSupporting.h>
+
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12913,7 +20115,7 @@ typedef NS_ENUM(NSInteger, UISegmentedControlStyle) {
     UISegmentedControlStyleBordered,  // large bordered
     UISegmentedControlStyleBar,       // small button/nav bar style. tintable
     UISegmentedControlStyleBezeled,   // DEPRECATED. Do not use this style.
-} NS_DEPRECATED_IOS(2_0, 7_0, "The segmentedControlStyle property no longer has any effect");
+} NS_DEPRECATED_IOS(2_0, 7_0, "The segmentedControlStyle property no longer has any effect") __TVOS_PROHIBITED;
 
 enum {
     UISegmentedControlNoSegment = -1   // segment index for no selected segment
@@ -12933,7 +20135,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UISegmentedControl : UIControl <NSCoding>
 
 - (instancetype)initWithItems:(nullable NSArray *)items; // items can be NSStrings or UIImages. control is automatically sized to fit content
 
-@property(nonatomic) UISegmentedControlStyle segmentedControlStyle NS_DEPRECATED_IOS(2_0, 7_0, "The segmentedControlStyle property no longer has any effect");
+@property(nonatomic) UISegmentedControlStyle segmentedControlStyle NS_DEPRECATED_IOS(2_0, 7_0, "The segmentedControlStyle property no longer has any effect") __TVOS_PROHIBITED;
 @property(nonatomic,getter=isMomentary) BOOL momentary;             // if set, then we don't keep showing selected state after tracking ends. default is NO
 @property(nonatomic,readonly) NSUInteger numberOfSegments;
 
@@ -12984,8 +20186,8 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UISegmentedControl : UIControl <NSCoding>
 
 /* You may specify the font, text color, and shadow properties for the title in the text attributes dictionary, using the keys found in NSAttributedString.h.
  */
-- (void)setTitleTextAttributes:(nullable NSDictionary *)attributes forState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
-- (nullable NSDictionary *)titleTextAttributesForState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+- (void)setTitleTextAttributes:(nullable NSDictionary<NSAttributedStringKey,id> *)attributes forState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+- (nullable NSDictionary<NSAttributedStringKey,id> *)titleTextAttributesForState:(UIControlState)state NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 
 /* For adjusting the position of a title or image within the given segment of a segmented control.
  */
@@ -12994,215 +20196,38 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UISegmentedControl : UIControl <NSCoding>
 
 @end
 
+#if TARGET_OS_IOS
+@interface UISegmentedControl (SpringLoading) <UISpringLoadedInteractionSupporting>
+@end
+#endif
+
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UISegmentedControl.h>
+#endif
 // ==========  UIKit.framework/Headers/UIKit.h
 //
 //  UIKit.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
 //
 
-#import <UIKit/UIKitDefines.h>
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitCore.h>
 
-#if __has_include(<UIKit/UIAccelerometer.h>)
-#import <UIKit/UIAccelerometer.h>
-#import <UIKit/UIAccessibility.h>
-#endif
-
-#import <UIKit/UIAccessibilityConstants.h>
-
-#if __has_include(<UIKit/UIActivityIndicatorView.h>)
-#import <UIKit/UIActivityIndicatorView.h>
-#import <UIKit/UIActivity.h>
-#import <UIKit/UIActivityItemProvider.h>
-#import <UIKit/UIActivityViewController.h>
-#import <UIKit/UIActionSheet.h>
-#import <UIKit/UIAlertController.h>
-#import <UIKit/UIAlertView.h>
-#import <UIKit/UIAppearance.h>
-#import <UIKit/UIApplication.h>
-#import <UIKit/UIBarButtonItem.h>
-#import <UIKit/UIBarButtonItemGroup.h>
-#import <UIKit/UIBarItem.h>
-#endif
-
-
-#import <UIKit/UIBezierPath.h>
-
-#if __has_include(<UIKit/UIButton.h>)
-#import <UIKit/UIButton.h>
-#import <UIKit/UICollectionView.h>
-#import <UIKit/UICollectionViewCell.h>
-#import <UIKit/UICollectionViewController.h>
-#import <UIKit/UICollectionViewFlowLayout.h>
-#import <UIKit/UICollectionViewLayout.h>
-#import <UIKit/UICollectionViewTransitionLayout.h>
-#endif
-
-#import <UIKit/UIColor.h>
-
-#if __has_include(<UIKit/UIControl.h>)
-#import <UIKit/UIControl.h>
-#import <UIKit/UIDataDetectors.h>
-#import <UIKit/UIDatePicker.h>
-#import <UIKit/UIDevice.h>
-#import <UIKit/UIDocument.h>
-#import <UIKit/UIDocumentInteractionController.h>
-#import <UIKit/UIDocumentPickerViewController.h>
-#import <UIKit/UIDocumentMenuViewController.h>
-#import <UIKit/UIDocumentPickerExtensionViewController.h>
-#import <UIKit/NSFileProviderExtension.h>
-#import <UIKit/UIVisualEffectView.h>
-#import <UIKit/UIEvent.h>
-#endif
-
-#import <UIKit/UIFont.h>
-#import <UIKit/UIFontDescriptor.h>
-#import <UIKit/UIGeometry.h>
-
-#if __has_include(<UIKit/UIGestureRecognizer.h>)
-#import <UIKit/UIGestureRecognizer.h>
-#endif
-
-#import <UIKit/UIGraphics.h>
-#import <UIKit/UIImage.h>
-
-#if __has_include(<UIKit/UIImageAsset.h>)
-#import <UIKit/UIImageAsset.h>
-#import <UIKit/NSDataAsset.h>
-#import <UIKit/UIImagePickerController.h>
-#import <UIKit/UIImageView.h>
-#import <UIKit/UIInputView.h>
-#import <UIKit/UIInputViewController.h>
-#import <UIKit/UIInterface.h>
-#import <UIKit/UILabel.h>
-#import <UIKit/UILexicon.h>
-#endif
-
-#import <UIKit/UILocalNotification.h>
-
-#if __has_include(<UIKit/UIUserNotificationSettings.h>)
-
-#import <UIKit/UIApplicationShortcutItem.h>
-#import <UIKit/UIUserNotificationSettings.h>
-#import <UIKit/UILocalizedIndexedCollation.h>
-#import <UIKit/UILongPressGestureRecognizer.h>
-#import <UIKit/UIManagedDocument.h>
-#import <UIKit/UIMenuController.h>
-#import <UIKit/UIMotionEffect.h>
-#import <UIKit/UINavigationBar.h>
-#import <UIKit/UINavigationController.h>
-#import <UIKit/UINib.h>
-#import <UIKit/UINibDeclarations.h>
-#import <UIKit/UINibLoading.h>
-#import <UIKit/UIPageControl.h>
-#import <UIKit/UIPageViewController.h>
-#import <UIKit/UIPanGestureRecognizer.h>
-#import <UIKit/UIPasteboard.h>
-#import <UIKit/UIPickerView.h>
-#import <UIKit/UIPinchGestureRecognizer.h>
-#import <UIKit/UIPopoverController.h>
-#import <UIKit/UIPopoverBackgroundView.h>
-#import <UIKit/UIPrinter.h>
-#import <UIKit/UIPrinterPickerController.h>
-#import <UIKit/UIPrintError.h>
-#import <UIKit/UIPrintFormatter.h>
-#import <UIKit/UIPrintInfo.h>
-#import <UIKit/UIPrintInteractionController.h>
-#import <UIKit/UIPrintPageRenderer.h>
-#import <UIKit/UIPrintPaper.h>
-#import <UIKit/UIProgressView.h>
-#import <UIKit/UIReferenceLibraryViewController.h>
-#import <UIKit/UIRefreshControl.h>
-#import <UIKit/UIResponder.h>
-#import <UIKit/UIRotationGestureRecognizer.h>
-#import <UIKit/UIScreen.h>
-#import <UIKit/UIScreenEdgePanGestureRecognizer.h>
-#import <UIKit/UIScreenMode.h>
-#import <UIKit/UIScrollView.h>
-#import <UIKit/UISearchBar.h>
-#import <UIKit/UISearchController.h>
-#import <UIKit/UISearchDisplayController.h>
-#import <UIKit/UISegmentedControl.h>
-#import <UIKit/UISlider.h>
-#import <UIKit/UISplitViewController.h>
-#import <UIKit/UIStepper.h>
-#import <UIKit/UIStoryboard.h>
-#import <UIKit/UIStoryboardPopoverSegue.h>
-#import <UIKit/UIStoryboardSegue.h>
-#import <UIKit/UIStringDrawing.h>
-#import <UIKit/UISwipeGestureRecognizer.h>
-#import <UIKit/UISwitch.h>
-#import <UIKit/UITabBar.h>
-#import <UIKit/UITabBarController.h>
-#import <UIKit/UITabBarItem.h>
-#import <UIKit/UITableView.h>
-#import <UIKit/UITableViewHeaderFooterView.h>
-#import <UIKit/UITableViewCell.h>
-#import <UIKit/UITableViewController.h>
-#import <UIKit/UITapGestureRecognizer.h>
-#import <UIKit/UITextChecker.h>
-#import <UIKit/UITextField.h>
-#import <UIKit/UITextInput.h>
-#import <UIKit/UITextInputTraits.h>
-#import <UIKit/UITextView.h>
-#import <UIKit/UIToolbar.h>
-#import <UIKit/UITouch.h>
-#import <UIKit/UITraitCollection.h>
-#import <UIKit/UIVideoEditorController.h>
-#import <UIKit/UIView.h>
-#import <UIKit/UIViewController.h>
-#import <UIKit/UIWebView.h>
-#import <UIKit/UIWindow.h>
-#endif
-
-#import <UIKit/NSAttributedString.h>
-
-#if __has_include(<UIKit/NSLayoutConstraint.h>)
-#import <UIKit/NSLayoutConstraint.h>
-#import <UIKit/NSLayoutAnchor.h>
-#import <UIKit/UILayoutGuide.h>
-#import <UIKit/UIStackView.h>
-#import <UIKit/NSLayoutManager.h>
-#endif
-
-#import <UIKit/NSParagraphStyle.h>
-
-#if __has_include(<UIKit/NSShadow.h>)
-#import <UIKit/NSShadow.h>
-#endif
-
-#import <UIKit/NSStringDrawing.h>
-#import <UIKit/NSText.h>
-
-#if __has_include(<UIKit/NSTextAttachment.h>)
-#import <UIKit/NSTextAttachment.h>
-#import <UIKit/NSTextContainer.h>
-#import <UIKit/NSTextStorage.h>
-#import <UIKit/UIStateRestoration.h>
-#import <UIKit/UIViewControllerTransitioning.h>
-#import <UIKit/UIViewControllerTransitionCoordinator.h>
-#import <UIKit/UIPresentationController.h>
-#import <UIKit/UIPopoverPresentationController.h>
-#import <UIKit/UIDynamicAnimator.h>
-#import <UIKit/UIDynamicBehavior.h>
-#import <UIKit/UIPushBehavior.h>
-#import <UIKit/UISnapBehavior.h>
-#import <UIKit/UIDynamicItemBehavior.h>
-#import <UIKit/UIFieldBehavior.h>
-#import <UIKit/UIGravityBehavior.h>
-#import <UIKit/UIAttachmentBehavior.h>
-#import <UIKit/UICollisionBehavior.h>
-#import <UIKit/UIRegion.h>
+#if __has_include(<UIKit/DocumentManager.h>)
+#import <UIKit/DocumentManager.h>
 #endif
 // ==========  UIKit.framework/Headers/NSStringDrawing.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSStringDrawing.h>)
 //
 //  NSStringDrawing.h
 //  UIKit
 //
-//  Copyright (c) 2011-2015, Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018, Apple Inc. All rights reserved.
 //
 
 #import <Foundation/NSString.h>
@@ -13219,20 +20244,20 @@ NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_AVAILABLE(10_11, 6_0) @interface NSStringDrawingContext : NSObject
 
 // Minimum scale factor for drawWithRect:options:context: and boundingRectWithSize:options:context: methods. If this property is set, the extended string drawing methods will attempt to draw the attributed string in the given bounds by proportionally scaling the font(s) in the attributed string
-@property(NS_NONATOMIC_IOSONLY) CGFloat minimumScaleFactor;
+@property (NS_NONATOMIC_IOSONLY) CGFloat minimumScaleFactor;
 
 // actual scale factor used by the last drawing call where minimum scale factor was specified
-@property(readonly, NS_NONATOMIC_IOSONLY) CGFloat actualScaleFactor;
+@property (readonly, NS_NONATOMIC_IOSONLY) CGFloat actualScaleFactor;
 
 // bounds of the string drawn by the previous invocation of drawWithRect:options:context:
-@property(readonly, NS_NONATOMIC_IOSONLY) CGRect totalBounds;
+@property (readonly, NS_NONATOMIC_IOSONLY) CGRect totalBounds;
 
 @end
 
 @interface NSString(NSStringDrawing)
-- (CGSize)sizeWithAttributes:(nullable NSDictionary<NSString *, id> *)attrs NS_AVAILABLE(10_0, 7_0);
-- (void)drawAtPoint:(CGPoint)point withAttributes:(nullable NSDictionary<NSString *, id> *)attrs NS_AVAILABLE(10_0, 7_0);
-- (void)drawInRect:(CGRect)rect withAttributes:(nullable NSDictionary<NSString *, id> *)attrs NS_AVAILABLE(10_0, 7_0);
+- (CGSize)sizeWithAttributes:(nullable NSDictionary<NSAttributedStringKey, id> *)attrs NS_AVAILABLE(10_0, 7_0);
+- (void)drawAtPoint:(CGPoint)point withAttributes:(nullable NSDictionary<NSAttributedStringKey, id> *)attrs NS_AVAILABLE(10_0, 7_0);
+- (void)drawInRect:(CGRect)rect withAttributes:(nullable NSDictionary<NSAttributedStringKey, id> *)attrs NS_AVAILABLE(10_0, 7_0);
 @end
 
 @interface NSAttributedString(NSStringDrawing)
@@ -13253,8 +20278,8 @@ typedef NS_OPTIONS(NSInteger, NSStringDrawingOptions) {
 // NOTE: All of the following methods will default to drawing on a baseline, limiting drawing to a single line.
 // To correctly draw and size multi-line text, pass NSStringDrawingUsesLineFragmentOrigin in the options parameter.
 @interface NSString (NSExtendedStringDrawing)
-- (void)drawWithRect:(CGRect)rect options:(NSStringDrawingOptions)options attributes:(nullable NSDictionary<NSString *, id> *)attributes context:(nullable NSStringDrawingContext *)context NS_AVAILABLE(10_11, 7_0);
-- (CGRect)boundingRectWithSize:(CGSize)size options:(NSStringDrawingOptions)options attributes:(nullable NSDictionary<NSString *, id> *)attributes context:(nullable NSStringDrawingContext *)context NS_AVAILABLE(10_11, 7_0);
+- (void)drawWithRect:(CGRect)rect options:(NSStringDrawingOptions)options attributes:(nullable NSDictionary<NSAttributedStringKey, id> *)attributes context:(nullable NSStringDrawingContext *)context NS_AVAILABLE(10_11, 7_0);
+- (CGRect)boundingRectWithSize:(CGSize)size options:(NSStringDrawingOptions)options attributes:(nullable NSDictionary<NSAttributedStringKey, id> *)attributes context:(nullable NSStringDrawingContext *)context NS_AVAILABLE(10_11, 7_0);
 @end
 
 @interface NSAttributedString (NSExtendedStringDrawing)
@@ -13264,17 +20289,53 @@ typedef NS_OPTIONS(NSInteger, NSStringDrawingOptions) {
 
 /************************ Deprecated ************************/
 @interface NSStringDrawingContext (NSStringDrawingContextDeprecated)
-@property(nonatomic) CGFloat minimumTrackingAdjustment NS_DEPRECATED_IOS(6_0,7_0);
-@property(nonatomic, readonly) CGFloat actualTrackingAdjustment NS_DEPRECATED_IOS(6_0,7_0);
+@property (nonatomic) CGFloat minimumTrackingAdjustment NS_DEPRECATED_IOS(6_0,7_0) __TVOS_PROHIBITED API_UNAVAILABLE(macos);
+@property (nonatomic, readonly) CGFloat actualTrackingAdjustment NS_DEPRECATED_IOS(6_0,7_0) __TVOS_PROHIBITED API_UNAVAILABLE(macos);
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSStringDrawing.h>
+#endif
+// ==========  UIKit.framework/Headers/UIContentSizeCategoryAdjusting.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIContentSizeCategoryAdjusting.h>)
+//
+//  UIContentSizeCategoryAdjusting.h
+//  UIKit
+//
+//  Copyright (c) 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+NS_CLASS_AVAILABLE_IOS(10_0) @protocol UIContentSizeCategoryAdjusting <NSObject>
+
+/*
+ Indicates whether the corresponding element should automatically update its font when the device’s UIContentSizeCategory is changed.
+ For this property to take effect, the element’s font must be one of the following:
+ - a font vended using +preferredFontForTextStyle: or +preferredFontForTextStyle:compatibleWithTraitCollection: with a valid UIFontTextStyle
+ - a font vended using - [UIFontMetrics scaledFontForFont:] or one of its variants
+ */
+@property (nonatomic) BOOL adjustsFontForContentSizeCategory;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIContentSizeCategoryAdjusting.h>
+#endif
 // ==========  UIKit.framework/Headers/UITabBarController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITabBarController.h>)
 //
 //  UITabBarController.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -13282,6 +20343,11 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIViewControllerTransitioning.h>
 #import <UIKit/UIKitDefines.h>
 #import <UIKit/UITabBar.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIView, UIImage, UINavigationController, UITabBarItem;
+@protocol UITabBarControllerDelegate;
 
 /*!
  UITabBarController manages a button bar and transition view, for an application with multiple top-level modes.
@@ -13295,11 +20361,6 @@ NS_ASSUME_NONNULL_END
  UITabBarController is rotatable if all of its view controllers are rotatable.
  */
 
-NS_ASSUME_NONNULL_BEGIN
-
-@class UIView, UIImage, UINavigationController, UITabBarItem;
-@protocol UITabBarControllerDelegate;
-
 NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBarController : UIViewController <UITabBarDelegate, NSCoding>
 
 @property(nullable, nonatomic,copy) NSArray<__kindof UIViewController *> *viewControllers;
@@ -13310,8 +20371,8 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBarController : UIViewController <UI
 @property(nullable, nonatomic, assign) __kindof UIViewController *selectedViewController; // This may return the "More" navigation controller if it exists.
 @property(nonatomic) NSUInteger selectedIndex;
 
-@property(nonatomic, readonly) UINavigationController *moreNavigationController; // Returns the "More" navigation controller, creating it if it does not already exist.
-@property(nullable, nonatomic, copy) NSArray<__kindof UIViewController *> *customizableViewControllers; // If non-nil, then the "More" view will include an "Edit" button that displays customization UI for the specified controllers. By default, all view controllers are customizable.
+@property(nonatomic, readonly) UINavigationController *moreNavigationController __TVOS_PROHIBITED; // Returns the "More" navigation controller, creating it if it does not already exist.
+@property(nullable, nonatomic, copy) NSArray<__kindof UIViewController *> *customizableViewControllers __TVOS_PROHIBITED; // If non-nil, then the "More" view will include an "Edit" button that displays customization UI for the specified controllers. By default, all view controllers are customizable.
 
 @property(nonatomic,readonly) UITabBar *tabBar NS_AVAILABLE_IOS(3_0); // Provided for -[UIActionSheet showFromTabBar:]. Attempting to modify the contents of the tab bar directly will throw an exception.
 
@@ -13324,12 +20385,12 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBarController : UIViewController <UI
 - (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController NS_AVAILABLE_IOS(3_0);
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController;
 
-- (void)tabBarController:(UITabBarController *)tabBarController willBeginCustomizingViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers NS_AVAILABLE_IOS(3_0);
-- (void)tabBarController:(UITabBarController *)tabBarController willEndCustomizingViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers changed:(BOOL)changed NS_AVAILABLE_IOS(3_0);
-- (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers changed:(BOOL)changed;
+- (void)tabBarController:(UITabBarController *)tabBarController willBeginCustomizingViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
+- (void)tabBarController:(UITabBarController *)tabBarController willEndCustomizingViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers changed:(BOOL)changed NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
+- (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers changed:(BOOL)changed __TVOS_PROHIBITED;
 
-- (UIInterfaceOrientationMask)tabBarControllerSupportedInterfaceOrientations:(UITabBarController *)tabBarController NS_AVAILABLE_IOS(7_0);
-- (UIInterfaceOrientation)tabBarControllerPreferredInterfaceOrientationForPresentation:(UITabBarController *)tabBarController NS_AVAILABLE_IOS(7_0);
+- (UIInterfaceOrientationMask)tabBarControllerSupportedInterfaceOrientations:(UITabBarController *)tabBarController NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+- (UIInterfaceOrientation)tabBarControllerPreferredInterfaceOrientationForPresentation:(UITabBarController *)tabBarController NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
 
 - (nullable id <UIViewControllerInteractiveTransitioning>)tabBarController:(UITabBarController *)tabBarController
                       interactionControllerForAnimationController: (id <UIViewControllerAnimatedTransitioning>)animationController NS_AVAILABLE_IOS(7_0);
@@ -13349,12 +20410,17 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITabBarController : UIViewController <UI
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITabBarController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIActivity.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIActivity.h>)
 //
 //  UIActivity.h
 //  UIKit
 //
-//  Copyright 2012-2014 Apple Inc. All rights reserved.
+//  Copyright 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -13364,41 +20430,61 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class UIImage, UIViewController;
 
-UIKIT_EXTERN NSString *const UIActivityTypePostToFacebook     NS_AVAILABLE_IOS(6_0);
-UIKIT_EXTERN NSString *const UIActivityTypePostToTwitter      NS_AVAILABLE_IOS(6_0);
-UIKIT_EXTERN NSString *const UIActivityTypePostToWeibo        NS_AVAILABLE_IOS(6_0);    // SinaWeibo
-UIKIT_EXTERN NSString *const UIActivityTypeMessage            NS_AVAILABLE_IOS(6_0);
-UIKIT_EXTERN NSString *const UIActivityTypeMail               NS_AVAILABLE_IOS(6_0);
-UIKIT_EXTERN NSString *const UIActivityTypePrint              NS_AVAILABLE_IOS(6_0);
-UIKIT_EXTERN NSString *const UIActivityTypeCopyToPasteboard   NS_AVAILABLE_IOS(6_0);
-UIKIT_EXTERN NSString *const UIActivityTypeAssignToContact    NS_AVAILABLE_IOS(6_0);
-UIKIT_EXTERN NSString *const UIActivityTypeSaveToCameraRoll   NS_AVAILABLE_IOS(6_0);
-UIKIT_EXTERN NSString *const UIActivityTypeAddToReadingList   NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIActivityTypePostToFlickr       NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIActivityTypePostToVimeo        NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIActivityTypePostToTencentWeibo NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIActivityTypeAirDrop            NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIActivityTypeOpenInIBooks       NS_AVAILABLE_IOS(9_0);
+#if UIKIT_STRING_ENUMS
+typedef NSString * UIActivityType NS_TYPED_EXTENSIBLE_ENUM;
+#else
+typedef NSString * UIActivityType;
+#endif
+
+UIKIT_EXTERN UIActivityType const UIActivityTypePostToFacebook     NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypePostToTwitter      NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypePostToWeibo        NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;    // SinaWeibo
+UIKIT_EXTERN UIActivityType const UIActivityTypeMessage            NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypeMail               NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypePrint              NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypeCopyToPasteboard   NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypeAssignToContact    NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypeSaveToCameraRoll   NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypeAddToReadingList   NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypePostToFlickr       NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypePostToVimeo        NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypePostToTencentWeibo NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypeAirDrop            NS_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypeOpenInIBooks       NS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED;
+UIKIT_EXTERN UIActivityType const UIActivityTypeMarkupAsPDF        NS_AVAILABLE_IOS(11_0) __TVOS_PROHIBITED;
 
 typedef NS_ENUM(NSInteger, UIActivityCategory) {
     UIActivityCategoryAction,
     UIActivityCategoryShare,
-} NS_ENUM_AVAILABLE_IOS(7_0);
+} NS_ENUM_AVAILABLE_IOS(7_0) __TVOS_PROHIBITED;
 
-NS_CLASS_AVAILABLE_IOS(6_0) @interface UIActivity : NSObject
+NS_CLASS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED @interface UIActivity : NSObject
 
 // override methods
-
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) UIActivityCategory activityCategory NS_AVAILABLE_IOS(7_0); // default is UIActivityCategoryAction.
+#else
 + (UIActivityCategory)activityCategory NS_AVAILABLE_IOS(7_0); // default is UIActivityCategoryAction.
+#endif
 
-- (nullable NSString *)activityType;       // default returns nil. subclass may override to return custom activity type that is reported to completion handler
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) UIActivityType activityType;       // default returns nil. subclass may override to return custom activity type that is reported to completion handler
+@property(nonatomic, readonly, nullable) NSString *activityTitle;      // default returns nil. subclass must override and must return non-nil value
+@property(nonatomic, readonly, nullable) UIImage *activityImage;       // default returns nil. subclass must override and must return non-nil value
+#else
+- (nullable UIActivityType)activityType;       // default returns nil. subclass may override to return custom activity type that is reported to completion handler
 - (nullable NSString *)activityTitle;      // default returns nil. subclass must override and must return non-nil value
 - (nullable UIImage *)activityImage;       // default returns nil. subclass must override and must return non-nil value
+#endif
 
 - (BOOL)canPerformWithActivityItems:(NSArray *)activityItems;   // override this to return availability of activity based on items. default returns NO
 - (void)prepareWithActivityItems:(NSArray *)activityItems;      // override to extract items and set up your HI. default does nothing
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly, nullable) UIViewController *activityViewController;   // return non-nil to have view controller presented modally. call activityDidFinish at end. default returns nil
+#else
 - (nullable UIViewController *)activityViewController;   // return non-nil to have view controller presented modally. call activityDidFinish at end. default returns nil
+#endif
 - (void)performActivity;                        // if no view controller, this method is called. call activityDidFinish when done. default calls [self activityDidFinish:NO]
 
 // state method
@@ -13407,12 +20493,17 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UIActivity : NSObject
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIActivity.h>
+#endif
 // ==========  UIKit.framework/Headers/UIFieldBehavior.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFieldBehavior.h>)
 //
 //  UIFieldBehavior.h
 //  UIKit
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -13570,88 +20661,179 @@ NS_CLASS_AVAILABLE_IOS(9_0) @interface UIFieldBehavior : UIDynamicBehavior
 @end
 
 NS_ASSUME_NONNULL_END
-// ==========  UIKit.framework/Headers/NSFileProviderExtension.h
+
+#else
+#import <UIKitCore/UIFieldBehavior.h>
+#endif
+// ==========  UIKit.framework/Headers/UIPasteConfigurationSupporting.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPasteConfigurationSupporting.h>)
 //
-//  NSFileProviderExtension.h
+//  UIPasteConfigurationSupporting.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
-//
-
-#import <Foundation/Foundation.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-NS_CLASS_AVAILABLE_IOS(8_0) @interface NSFileProviderExtension : NSObject
-// You don't want to override these
-
-// metadata contains NSURLNameKey, NSURLFileSizeKey, NSURLIsPackageKey
-+ (BOOL)writePlaceholderAtURL:(NSURL *)placeholderURL withMetadata:(NSDictionary *)metadata error:(NSError **)error;
-+ (NSURL *)placeholderURLForURL:(NSURL *)url;
-
-// An identifier unique to this provider.
-// When modifying the files stored in the directory returned by documentStorageURL, you should pass this identifier
-// to your file coordinator's setPurposeIdentifier: method.
-// By default, this returns the bundle identifier of the application containing your extension. You need to make sure to use the same identifier in your containing app.
-- (NSString *)providerIdentifier;
-
-// The root URL for provided documents. This URL must be writable from your app extension, and must only be used for the extension's files or their placeholders.
-- (NSURL *)documentStorageURL;
-
-// You may want to override these.
-
-// Should return the URL corresponding to a specific identifier. Fail if it's not a subpath of documentStorageURL.
-// This is a static mapping; each identifier must always return a path corresponding to the same file.
-// By default, this returns the path relative to the path returned by documentStorageURL.
-- (nullable NSURL *)URLForItemWithPersistentIdentifier:(NSString *)identifier;
-- (nullable NSString *)persistentIdentifierForItemAtURL:(NSURL *)url;
-
-// These need to be overridden. None of them should call super.
-
-// Should call + writePlaceholderAtURL: with the placeholder URL, then call the completion handler with that URL.
-- (void)providePlaceholderAtURL:(NSURL *)url completionHandler:(void (^)(NSError * __nullable error))completionHandler;
-
-// Should ensure that the actual file is in the position returned by URLForItemWithIdentifier:, then call the completion handler
-- (void)startProvidingItemAtURL:(NSURL *)url completionHandler:(void (^)(NSError * __nullable error))completionHandler;
-
-// Called at some point after the file has changed; the provider may then trigger an upload
-- (void)itemChangedAtURL:(NSURL *)url;
-
-// Called after the last claim to the file has been released. At this point, it is safe for the file provider to remove the content file.
-// Care should be taken that the corresponding placeholder file stays behind after the content file has been deleted.
-- (void)stopProvidingItemAtURL:(NSURL *)url;
-@end
-
-NS_ASSUME_NONNULL_END
-// ==========  UIKit.framework/Headers/UINibLoading.h
-//
-//  UINibLoading.h
-//  UIKit
-//
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright © 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKitDefines.h>
 
-UIKIT_EXTERN NSString * const UINibExternalObjects NS_AVAILABLE_IOS(3_0);
+NS_ASSUME_NONNULL_BEGIN
+
+@class UIPasteConfiguration;
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos)
+@protocol UIPasteConfigurationSupporting <NSObject>
+
+@property (nonatomic, copy, nullable) UIPasteConfiguration *pasteConfiguration;
+
+@optional
+- (void)pasteItemProviders:(NSArray<NSItemProvider *> *)itemProviders;
+- (BOOL)canPasteItemProviders:(NSArray<NSItemProvider *> *)itemProviders;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPasteConfigurationSupporting.h>
+#endif
+// ==========  UIKit.framework/Headers/UITextPasteConfigurationSupporting.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextPasteConfigurationSupporting.h>)
+//
+//  UITextPasteConfigurationSupporting.h
+//  UIKit 
+//
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIPasteConfigurationSupporting.h>
+#import <UIKit/UIPasteConfiguration.h>
+#import <UIKit/UITextPasteDelegate.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+UIKIT_EXTERN API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(watchos, tvos)
+@protocol UITextPasteConfigurationSupporting <UIPasteConfigurationSupporting>
+
+@property (nonatomic, weak, nullable) id<UITextPasteDelegate> pasteDelegate;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextPasteConfigurationSupporting.h>
+#endif
+// ==========  UIKit.framework/Headers/NSFileProviderExtension.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSFileProviderExtension.h>)
+//
+//  NSFileProviderExtension.h
+//  UIKit
+//
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#if __has_include(<FileProvider/NSFileProviderExtension.h>)
+
+// NSFileProviderExtension has moved to its own framework.
+// Please modify your project to link against and include FileProvider.framework instead of UIKit.
+#import <FileProvider/NSFileProviderExtension.h>
+
+#endif
+
+#else
+#import <UIKitCore/NSFileProviderExtension.h>
+#endif
+// ==========  UIKit.framework/Headers/UIContentSizeCategory.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIContentSizeCategory.h>)
+//
+//  UIContentSizeCategory.h
+//  UIKit
+//
+//  Copyright (c) 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NSString * UIContentSizeCategory NS_TYPED_ENUM NS_AVAILABLE_IOS(7_0);
+
+// Content size category constants
+
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryUnspecified NS_AVAILABLE_IOS(10_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryExtraSmall NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategorySmall NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryMedium NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryLarge NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryExtraLarge NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryExtraExtraLarge NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryExtraExtraExtraLarge NS_AVAILABLE_IOS(7_0);
+
+// Accessibility sizes
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryAccessibilityMedium NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryAccessibilityLarge NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryAccessibilityExtraLarge NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryAccessibilityExtraExtraLarge NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIContentSizeCategory const UIContentSizeCategoryAccessibilityExtraExtraExtraLarge NS_AVAILABLE_IOS(7_0);
+
+// Notification is emitted when the user has changed the preferredContentSizeCategory for the system
+UIKIT_EXTERN NSNotificationName const UIContentSizeCategoryDidChangeNotification NS_AVAILABLE_IOS(7_0); // userInfo dictionary will contain new value for UIContentSizeCategoryNewValueKey
+UIKIT_EXTERN NSString *const UIContentSizeCategoryNewValueKey NS_AVAILABLE_IOS(7_0); // NSString instance with new content size category in userInfo
+
+UIKIT_EXTERN BOOL UIContentSizeCategoryIsAccessibilityCategory(UIContentSizeCategory category) API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0)) NS_REFINED_FOR_SWIFT;
+UIKIT_EXTERN NSComparisonResult UIContentSizeCategoryCompareToCategory(UIContentSizeCategory lhs, UIContentSizeCategory rhs) API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0)) NS_REFINED_FOR_SWIFT;
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIContentSizeCategory.h>
+#endif
+// ==========  UIKit.framework/Headers/UINibLoading.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UINibLoading.h>)
+//
+//  UINibLoading.h
+//  UIKit
+//
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NSString * UINibOptionsKey NS_TYPED_ENUM;
+
+UIKIT_EXTERN UINibOptionsKey const UINibExternalObjects NS_AVAILABLE_IOS(3_0);
 
 @interface NSBundle(UINibLoadingAdditions)
-- (NSArray *)loadNibNamed:(NSString *)name owner:(id)owner options:(NSDictionary *)options;
+- (nullable NSArray *)loadNibNamed:(NSString *)name owner:(nullable id)owner options:(nullable NSDictionary<UINibOptionsKey, id> *)options;
 @end
 
 @interface NSObject(UINibLoadingAdditions)
-- (void)awakeFromNib;
+- (void)awakeFromNib NS_REQUIRES_SUPER;
 - (void)prepareForInterfaceBuilder NS_AVAILABLE_IOS(8_0);
 @end
 
-UIKIT_EXTERN NSString * const UINibProxiedObjectsKey NS_DEPRECATED_IOS(2_0, 3_0);
+UIKIT_EXTERN NSString * const UINibProxiedObjectsKey NS_DEPRECATED_IOS(2_0, 3_0) __TVOS_PROHIBITED;
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UINibLoading.h>
+#endif
 // ==========  UIKit.framework/Headers/UILocalizedIndexedCollation.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UILocalizedIndexedCollation.h>)
 //
 //  UILocalizedIndexedCollation.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -13687,12 +20869,17 @@ NS_CLASS_AVAILABLE_IOS(3_0) @interface UILocalizedIndexedCollation : NSObject
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UILocalizedIndexedCollation.h>
+#endif
 // ==========  UIKit.framework/Headers/UIGeometry.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIGeometry.h>)
 //
 //  UIGeometry.h
 //  UIKit
 //
-//  Copyright (c) 2005-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2005-2018 Apple Inc. All rights reserved.
 //
 
 
@@ -13702,9 +20889,18 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+UIKIT_SWIFT_FORWARD_DECLARE(@class NSCoder)
+UIKIT_SWIFT_FORWARD_DECLARE(struct CGRect)
+
 typedef struct UIEdgeInsets {
     CGFloat top, left, bottom, right;  // specify amount to inset (positive) for each of the edges. values can be negative to 'outset'
 } UIEdgeInsets;
+
+/* Specifically for use in methods and functions supporting user interface layout direction
+ */
+typedef struct NSDirectionalEdgeInsets {
+    CGFloat top, leading, bottom, trailing;  // specify amount to inset (positive) for each of the edges. values can be negative to 'outset'
+} NSDirectionalEdgeInsets API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0));
 
 typedef struct UIOffset {
     CGFloat horizontal, vertical; // specify amount to offset a position, positive for right or down, negative for left or up
@@ -13721,6 +20917,12 @@ typedef NS_OPTIONS(NSUInteger, UIRectEdge) {
 
 UIKIT_STATIC_INLINE UIEdgeInsets UIEdgeInsetsMake(CGFloat top, CGFloat left, CGFloat bottom, CGFloat right) {
     UIEdgeInsets insets = {top, left, bottom, right};
+    return insets;
+}
+
+UIKIT_STATIC_INLINE NSDirectionalEdgeInsets NSDirectionalEdgeInsetsMake(CGFloat top, CGFloat leading, CGFloat bottom, CGFloat trailing) API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0))
+{
+    NSDirectionalEdgeInsets insets = {top, leading, bottom, trailing};
     return insets;
 }
 
@@ -13741,12 +20943,24 @@ UIKIT_STATIC_INLINE BOOL UIEdgeInsetsEqualToEdgeInsets(UIEdgeInsets insets1, UIE
     return insets1.left == insets2.left && insets1.top == insets2.top && insets1.right == insets2.right && insets1.bottom == insets2.bottom;
 }
 
+UIKIT_STATIC_INLINE BOOL NSDirectionalEdgeInsetsEqualToDirectionalEdgeInsets(NSDirectionalEdgeInsets insets1, NSDirectionalEdgeInsets insets2) API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0))
+{
+    return insets1.leading == insets2.leading && insets1.top == insets2.top && insets1.trailing == insets2.trailing && insets1.bottom == insets2.bottom;
+}
+
 UIKIT_STATIC_INLINE BOOL UIOffsetEqualToOffset(UIOffset offset1, UIOffset offset2) {
     return offset1.horizontal == offset2.horizontal && offset1.vertical == offset2.vertical;
 }
 
+#if UIKIT_REMOVE_ZERO_FROM_SWIFT
 UIKIT_EXTERN const UIEdgeInsets UIEdgeInsetsZero;
+UIKIT_EXTERN const NSDirectionalEdgeInsets NSDirectionalEdgeInsetsZero API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0));
 UIKIT_EXTERN const UIOffset UIOffsetZero;
+#else
+UIKIT_EXTERN const UIEdgeInsets UIEdgeInsetsZero;
+UIKIT_EXTERN const NSDirectionalEdgeInsets NSDirectionalEdgeInsetsZero;
+UIKIT_EXTERN const UIOffset UIOffsetZero;
+#endif
 
 UIKIT_EXTERN NSString *NSStringFromCGPoint(CGPoint point);
 UIKIT_EXTERN NSString *NSStringFromCGVector(CGVector vector);
@@ -13754,6 +20968,7 @@ UIKIT_EXTERN NSString *NSStringFromCGSize(CGSize size);
 UIKIT_EXTERN NSString *NSStringFromCGRect(CGRect rect);
 UIKIT_EXTERN NSString *NSStringFromCGAffineTransform(CGAffineTransform transform);
 UIKIT_EXTERN NSString *NSStringFromUIEdgeInsets(UIEdgeInsets insets);
+UIKIT_EXTERN NSString *NSStringFromDirectionalEdgeInsets(NSDirectionalEdgeInsets insets) API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0));
 UIKIT_EXTERN NSString *NSStringFromUIOffset(UIOffset offset);
 
 UIKIT_EXTERN CGPoint CGPointFromString(NSString *string);
@@ -13762,6 +20977,7 @@ UIKIT_EXTERN CGSize CGSizeFromString(NSString *string);
 UIKIT_EXTERN CGRect CGRectFromString(NSString *string);
 UIKIT_EXTERN CGAffineTransform CGAffineTransformFromString(NSString *string);
 UIKIT_EXTERN UIEdgeInsets UIEdgeInsetsFromString(NSString *string);
+UIKIT_EXTERN NSDirectionalEdgeInsets NSDirectionalEdgeInsetsFromString(NSString *string) API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0));
 UIKIT_EXTERN UIOffset UIOffsetFromString(NSString *string);
 
 @interface NSValue (NSValueUIGeometryExtensions)
@@ -13772,15 +20988,28 @@ UIKIT_EXTERN UIOffset UIOffsetFromString(NSString *string);
 + (NSValue *)valueWithCGRect:(CGRect)rect;
 + (NSValue *)valueWithCGAffineTransform:(CGAffineTransform)transform;
 + (NSValue *)valueWithUIEdgeInsets:(UIEdgeInsets)insets;
++ (NSValue *)valueWithDirectionalEdgeInsets:(NSDirectionalEdgeInsets)insets API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0));
 + (NSValue *)valueWithUIOffset:(UIOffset)insets NS_AVAILABLE_IOS(5_0);
 
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) CGPoint CGPointValue;
+@property(nonatomic, readonly) CGVector CGVectorValue;
+@property(nonatomic, readonly) CGSize CGSizeValue;
+@property(nonatomic, readonly) CGRect CGRectValue;
+@property(nonatomic, readonly) CGAffineTransform CGAffineTransformValue;
+@property(nonatomic, readonly) UIEdgeInsets UIEdgeInsetsValue;
+@property(nonatomic, readonly) NSDirectionalEdgeInsets directionalEdgeInsetsValue API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0));
+@property(nonatomic, readonly) UIOffset UIOffsetValue NS_AVAILABLE_IOS(5_0);
+#else
 - (CGPoint)CGPointValue;
 - (CGVector)CGVectorValue;
 - (CGSize)CGSizeValue;
 - (CGRect)CGRectValue;
 - (CGAffineTransform)CGAffineTransformValue;
 - (UIEdgeInsets)UIEdgeInsetsValue;
+- (NSDirectionalEdgeInsets)directionalEdgeInsetsValue API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0));
 - (UIOffset)UIOffsetValue NS_AVAILABLE_IOS(5_0);
+#endif
 
 @end
     
@@ -13792,6 +21021,7 @@ UIKIT_EXTERN UIOffset UIOffsetFromString(NSString *string);
 - (void)encodeCGRect:(CGRect)rect forKey:(NSString *)key;
 - (void)encodeCGAffineTransform:(CGAffineTransform)transform forKey:(NSString *)key;
 - (void)encodeUIEdgeInsets:(UIEdgeInsets)insets forKey:(NSString *)key;
+- (void)encodeDirectionalEdgeInsets:(NSDirectionalEdgeInsets)insets forKey:(NSString *)key API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0));
 - (void)encodeUIOffset:(UIOffset)offset forKey:(NSString *)key NS_AVAILABLE_IOS(5_0);
 
 - (CGPoint)decodeCGPointForKey:(NSString *)key;
@@ -13800,17 +21030,23 @@ UIKIT_EXTERN UIOffset UIOffsetFromString(NSString *string);
 - (CGRect)decodeCGRectForKey:(NSString *)key;
 - (CGAffineTransform)decodeCGAffineTransformForKey:(NSString *)key;
 - (UIEdgeInsets)decodeUIEdgeInsetsForKey:(NSString *)key;
+- (NSDirectionalEdgeInsets)decodeDirectionalEdgeInsetsForKey:(NSString *)key API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0));
 - (UIOffset)decodeUIOffsetForKey:(NSString *)key NS_AVAILABLE_IOS(5_0);
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIGeometry.h>
+#endif
 // ==========  UIKit.framework/Headers/UIFontDescriptor.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFontDescriptor.h>)
 //
 //  UIFontDescriptor.h
 //  UIKit
 //
-//  Copyright (c) 2013-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -13854,8 +21090,17 @@ typedef NS_OPTIONS(uint32_t, UIFontDescriptorSymbolicTraits) {
 } NS_ENUM_AVAILABLE_IOS(7_0);
 
 typedef NSUInteger UIFontDescriptorClass;
+#if UIKIT_STRING_ENUMS
+typedef NSString * UIFontTextStyle NS_TYPED_ENUM;
+#else
+typedef NSString * UIFontTextStyle;
+#endif
+typedef NSString * UIFontDescriptorAttributeName NS_TYPED_ENUM;
+typedef NSString * UIFontDescriptorTraitKey NS_TYPED_ENUM;
+typedef NSString * UIFontDescriptorFeatureKey NS_TYPED_EXTENSIBLE_ENUM;
+typedef CGFloat UIFontWeight NS_TYPED_EXTENSIBLE_ENUM;
 
-@class NSMutableDictionary, NSDictionary, NSArray, NSSet;
+@class NSMutableDictionary, NSDictionary, NSArray, NSSet, UITraitCollection;
 
 NS_CLASS_AVAILABLE_IOS(7_0) @interface UIFontDescriptor : NSObject <NSCopying, NSSecureCoding>
 
@@ -13868,102 +21113,117 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UIFontDescriptor : NSObject <NSCopying, N
 @property(nonatomic, readonly) CGAffineTransform matrix;
 @property(nonatomic, readonly) UIFontDescriptorSymbolicTraits symbolicTraits;
 
-- (nullable id)objectForKey:(NSString *)anAttribute;
+- (nullable id)objectForKey:(UIFontDescriptorAttributeName)anAttribute;
 
-- (NSDictionary<NSString *, id> *)fontAttributes;
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(nonatomic, readonly) NSDictionary<UIFontDescriptorAttributeName, id> *fontAttributes;
+#else
+- (NSDictionary<UIFontDescriptorAttributeName, id> *)fontAttributes;
+#endif
 
 // Instance conversion
 // Returns "normalized" font descriptors matching the receiver. mandatoryKeys is an NSSet instance containing keys that are required to be identical in order to be matched. mandatoryKeys can be nil.
-- (NSArray<UIFontDescriptor *> *)matchingFontDescriptorsWithMandatoryKeys:(nullable NSSet<NSString *> *)mandatoryKeys;
+- (NSArray<UIFontDescriptor *> *)matchingFontDescriptorsWithMandatoryKeys:(nullable NSSet<UIFontDescriptorAttributeName> *)mandatoryKeys;
 
 // Instantiation
-+ (UIFontDescriptor *)fontDescriptorWithFontAttributes:(NSDictionary<NSString *, id> *)attributes;
++ (UIFontDescriptor *)fontDescriptorWithFontAttributes:(NSDictionary<UIFontDescriptorAttributeName, id> *)attributes;
 + (UIFontDescriptor *)fontDescriptorWithName:(NSString *)fontName size:(CGFloat)size;
 + (UIFontDescriptor *)fontDescriptorWithName:(NSString *)fontName matrix:(CGAffineTransform)matrix;
 
 // Returns a font descriptor containing the text style and containing the user's selected content size category.
-+ (UIFontDescriptor *)preferredFontDescriptorWithTextStyle:(NSString *)style;
++ (UIFontDescriptor *)preferredFontDescriptorWithTextStyle:(UIFontTextStyle)style;
+// Returns a font descriptor containing the text style and containing the content size category defined in the trait collection.
++ (UIFontDescriptor *)preferredFontDescriptorWithTextStyle:(UIFontTextStyle)style compatibleWithTraitCollection:(nullable UITraitCollection *)traitCollection NS_AVAILABLE_IOS(10_0) __WATCHOS_PROHIBITED;
 
-- (instancetype)initWithFontAttributes:(NSDictionary<NSString *, id> *)attributes NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithFontAttributes:(NSDictionary<UIFontDescriptorAttributeName, id> *)attributes NS_DESIGNATED_INITIALIZER;
 
-- (UIFontDescriptor *)fontDescriptorByAddingAttributes:(NSDictionary<NSString *, id> *)attributes; // the new attributes take precedence over the existing ones in the receiver
-- (UIFontDescriptor *)fontDescriptorWithSymbolicTraits:(UIFontDescriptorSymbolicTraits)symbolicTraits;
+- (UIFontDescriptor *)fontDescriptorByAddingAttributes:(NSDictionary<UIFontDescriptorAttributeName, id> *)attributes; // the new attributes take precedence over the existing ones in the receiver
 - (UIFontDescriptor *)fontDescriptorWithSize:(CGFloat)newPointSize;
 - (UIFontDescriptor *)fontDescriptorWithMatrix:(CGAffineTransform)matrix;
 - (UIFontDescriptor *)fontDescriptorWithFace:(NSString *)newFace;
 - (UIFontDescriptor *)fontDescriptorWithFamily:(NSString *)newFamily;
+
+- (nullable UIFontDescriptor *)fontDescriptorWithSymbolicTraits:(UIFontDescriptorSymbolicTraits)symbolicTraits; // Returns a new font descriptor reference in the same family with the given symbolic traits, or nil if none found in the system.
+
+
 @end
 
 // Predefined font attributes not defined in NSAttributedString.h
 
-UIKIT_EXTERN NSString *const UIFontDescriptorFamilyAttribute NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIFontDescriptorNameAttribute NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIFontDescriptorFaceAttribute NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIFontDescriptorSizeAttribute NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIFontDescriptorVisibleNameAttribute NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorFamilyAttribute NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorNameAttribute NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorFaceAttribute NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorSizeAttribute NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorVisibleNameAttribute NS_AVAILABLE_IOS(7_0);
 
-UIKIT_EXTERN NSString *const UIFontDescriptorMatrixAttribute NS_AVAILABLE_IOS(7_0); // An NSValue containing a CGAffineTransform. (default: identity matrix)
-UIKIT_EXTERN NSString *const UIFontDescriptorCharacterSetAttribute NS_AVAILABLE_IOS(7_0); // An NSCharacterSet instance representing a set of Unicode characters covered by the font. (default: supplied by font)
-UIKIT_EXTERN NSString *const UIFontDescriptorCascadeListAttribute NS_AVAILABLE_IOS(7_0); // An NSArray instance. Each member of the array is a sub-descriptor. (default: the system default cascading list for user's locale)
-UIKIT_EXTERN NSString *const UIFontDescriptorTraitsAttribute NS_AVAILABLE_IOS(7_0); // An NSDictionary instance fully describing font traits. (default: supplied by font)
-UIKIT_EXTERN NSString *const UIFontDescriptorFixedAdvanceAttribute NS_AVAILABLE_IOS(7_0); // A float represented as an NSNumber. The value overrides glyph advancement specified by the font. (default: supplied by each glyph)
-UIKIT_EXTERN NSString *const UIFontDescriptorFeatureSettingsAttribute NS_AVAILABLE_IOS(7_0); // An array of dictionaries representing non-default font feature settings. Each dictionary contains UIFontFeatureTypeIdentifierKey and UIFontFeatureSelectorIdentifierKey.
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorMatrixAttribute NS_AVAILABLE_IOS(7_0); // An NSValue containing a CGAffineTransform. (default: identity matrix)
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorCharacterSetAttribute NS_AVAILABLE_IOS(7_0); // An NSCharacterSet instance representing a set of Unicode characters covered by the font. (default: supplied by font)
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorCascadeListAttribute NS_AVAILABLE_IOS(7_0); // An NSArray instance. Each member of the array is a sub-descriptor. (default: the system default cascading list for user's locale)
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorTraitsAttribute NS_AVAILABLE_IOS(7_0); // An NSDictionary instance fully describing font traits. (default: supplied by font)
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorFixedAdvanceAttribute NS_AVAILABLE_IOS(7_0); // A float represented as an NSNumber. The value overrides glyph advancement specified by the font. (default: supplied by each glyph)
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorFeatureSettingsAttribute NS_AVAILABLE_IOS(7_0); // An array of dictionaries representing non-default font feature settings. Each dictionary contains UIFontFeatureTypeIdentifierKey and UIFontFeatureSelectorIdentifierKey.
 
 // An NSString containing the desired Text Style
-UIKIT_EXTERN NSString *const UIFontDescriptorTextStyleAttribute NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorAttributeName const UIFontDescriptorTextStyleAttribute NS_AVAILABLE_IOS(7_0);
     
 // Font traits keys
 // This key is used with a trait dictionary to get the symbolic traits value as an NSNumber.
-UIKIT_EXTERN NSString *const UIFontSymbolicTrait NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorTraitKey const UIFontSymbolicTrait NS_AVAILABLE_IOS(7_0);
 
 // This key is used with a trait dictionary to get the normalized weight value as an NSNumber. The valid value range is from -1.0 to 1.0. The value of 0.0 corresponds to the regular or medium font weight.
-UIKIT_EXTERN NSString *const UIFontWeightTrait NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorTraitKey const UIFontWeightTrait NS_AVAILABLE_IOS(7_0);
 
 // This key is used with a trait dictionary to get the relative inter-glyph spacing value as an NSNumber. The valid value range is from -1.0 to 1.0. The value of 0.0 corresponds to the regular glyph spacing.
-UIKIT_EXTERN NSString *const UIFontWidthTrait NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorTraitKey const UIFontWidthTrait NS_AVAILABLE_IOS(7_0);
 
 // This key is used with a trait dictionary to get the relative slant angle value as an NSNumber. The valid value range is from -1.0 to 1.0. The value or 0.0 corresponds to 0 degree clockwise rotation from the vertical and 1.0 corresponds to 30 degrees clockwise rotation.
-UIKIT_EXTERN NSString *const UIFontSlantTrait NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorTraitKey const UIFontSlantTrait NS_AVAILABLE_IOS(7_0);
 
 // Suggested values for use with UIFontWeightTrait, and UIFont's systemFontOfSize:weight:
 // Beware that most fonts will _not_ have variants available in all these weights!
-UIKIT_EXTERN const CGFloat UIFontWeightUltraLight NS_AVAILABLE_IOS(8_2);
-UIKIT_EXTERN const CGFloat UIFontWeightThin NS_AVAILABLE_IOS(8_2);
-UIKIT_EXTERN const CGFloat UIFontWeightLight NS_AVAILABLE_IOS(8_2);
-UIKIT_EXTERN const CGFloat UIFontWeightRegular NS_AVAILABLE_IOS(8_2);
-UIKIT_EXTERN const CGFloat UIFontWeightMedium NS_AVAILABLE_IOS(8_2);
-UIKIT_EXTERN const CGFloat UIFontWeightSemibold NS_AVAILABLE_IOS(8_2);
-UIKIT_EXTERN const CGFloat UIFontWeightBold NS_AVAILABLE_IOS(8_2);
-UIKIT_EXTERN const CGFloat UIFontWeightHeavy NS_AVAILABLE_IOS(8_2);
-UIKIT_EXTERN const CGFloat UIFontWeightBlack NS_AVAILABLE_IOS(8_2);
+UIKIT_EXTERN const UIFontWeight UIFontWeightUltraLight NS_AVAILABLE_IOS(8_2);
+UIKIT_EXTERN const UIFontWeight UIFontWeightThin NS_AVAILABLE_IOS(8_2);
+UIKIT_EXTERN const UIFontWeight UIFontWeightLight NS_AVAILABLE_IOS(8_2);
+UIKIT_EXTERN const UIFontWeight UIFontWeightRegular NS_AVAILABLE_IOS(8_2);
+UIKIT_EXTERN const UIFontWeight UIFontWeightMedium NS_AVAILABLE_IOS(8_2);
+UIKIT_EXTERN const UIFontWeight UIFontWeightSemibold NS_AVAILABLE_IOS(8_2);
+UIKIT_EXTERN const UIFontWeight UIFontWeightBold NS_AVAILABLE_IOS(8_2);
+UIKIT_EXTERN const UIFontWeight UIFontWeightHeavy NS_AVAILABLE_IOS(8_2);
+UIKIT_EXTERN const UIFontWeight UIFontWeightBlack NS_AVAILABLE_IOS(8_2);
 
 // Font feature keys
 // A number object specifying font feature type such as ligature, character shape, etc.
-UIKIT_EXTERN NSString *const UIFontFeatureTypeIdentifierKey NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorFeatureKey const UIFontFeatureTypeIdentifierKey NS_AVAILABLE_IOS(7_0);
 
 // A number object specifying font feature selector such as common ligature off, traditional character shape, etc.
-UIKIT_EXTERN NSString *const UIFontFeatureSelectorIdentifierKey NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontDescriptorFeatureKey const UIFontFeatureSelectorIdentifierKey NS_AVAILABLE_IOS(7_0);
 
 // Font text styles, semantic descriptions of the intended use for a font returned by +[UIFont preferredFontForTextStyle:]
-UIKIT_EXTERN NSString *const UIFontTextStyleTitle1 NS_AVAILABLE_IOS(9_0);
-UIKIT_EXTERN NSString *const UIFontTextStyleTitle2 NS_AVAILABLE_IOS(9_0);
-UIKIT_EXTERN NSString *const UIFontTextStyleTitle3 NS_AVAILABLE_IOS(9_0);
-UIKIT_EXTERN NSString *const UIFontTextStyleHeadline NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIFontTextStyleSubheadline NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIFontTextStyleBody NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIFontTextStyleCallout NS_AVAILABLE_IOS(9_0);
-UIKIT_EXTERN NSString *const UIFontTextStyleFootnote NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIFontTextStyleCaption1 NS_AVAILABLE_IOS(7_0);
-UIKIT_EXTERN NSString *const UIFontTextStyleCaption2 NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleLargeTitle API_AVAILABLE(ios(11.0), watchos(5.0)) API_UNAVAILABLE(tvos);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleTitle1 NS_AVAILABLE_IOS(9_0);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleTitle2 NS_AVAILABLE_IOS(9_0);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleTitle3 NS_AVAILABLE_IOS(9_0);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleHeadline NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleSubheadline NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleBody NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleCallout NS_AVAILABLE_IOS(9_0);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleFootnote NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleCaption1 NS_AVAILABLE_IOS(7_0);
+UIKIT_EXTERN UIFontTextStyle const UIFontTextStyleCaption2 NS_AVAILABLE_IOS(7_0);
 
 NS_ASSUME_NONNULL_END
 
+
+#else
+#import <UIKitCore/UIFontDescriptor.h>
+#endif
 // ==========  UIKit.framework/Headers/UIAppearance.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIAppearance.h>)
 //
 //  UIAppearance.h
 //  UIKit
 //
-//  Copyright 2011-2012 Apple Inc. All rights reserved.
+//  Copyright 2011-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -14001,34 +21261,65 @@ NS_ASSUME_NONNULL_BEGIN
  
  In other words, the containment statement is treated as a partial ordering. Given a concrete ordering (actual subview hierarchy), we select the partial ordering that is the first unique match when reading the actual hierarchy from the window down.
 */
-+ (instancetype)appearanceWhenContainedIn:(nullable Class <UIAppearanceContainer>)ContainerClass, ... NS_REQUIRES_NIL_TERMINATION NS_DEPRECATED_IOS(5_0, 9_0, "Use +appearanceWhenContainedInInstancesOfClasses: instead");
++ (instancetype)appearanceWhenContainedIn:(nullable Class <UIAppearanceContainer>)ContainerClass, ... NS_REQUIRES_NIL_TERMINATION NS_DEPRECATED_IOS(5_0, 9_0, "Use +appearanceWhenContainedInInstancesOfClasses: instead") __TVOS_PROHIBITED;
 + (instancetype)appearanceWhenContainedInInstancesOfClasses:(NSArray<Class <UIAppearanceContainer>> *)containerTypes NS_AVAILABLE_IOS(9_0);
 
 + (instancetype)appearanceForTraitCollection:(UITraitCollection *)trait NS_AVAILABLE_IOS(8_0);
-+ (instancetype)appearanceForTraitCollection:(UITraitCollection *)trait whenContainedIn:(nullable Class <UIAppearanceContainer>)ContainerClass, ... NS_REQUIRES_NIL_TERMINATION NS_DEPRECATED_IOS(8_0, 9_0, "Use +appearanceForTraitCollection:whenContainedInInstancesOfClasses: instead");
++ (instancetype)appearanceForTraitCollection:(UITraitCollection *)trait whenContainedIn:(nullable Class <UIAppearanceContainer>)ContainerClass, ... NS_REQUIRES_NIL_TERMINATION NS_DEPRECATED_IOS(8_0, 9_0, "Use +appearanceForTraitCollection:whenContainedInInstancesOfClasses: instead") __TVOS_PROHIBITED;
 + (instancetype)appearanceForTraitCollection:(UITraitCollection *)trait whenContainedInInstancesOfClasses:(NSArray<Class <UIAppearanceContainer>> *)containerTypes  NS_AVAILABLE_IOS(9_0);
 
 @end
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIAppearance.h>
+#endif
+// ==========  UIKit.framework/Headers/UIUserActivity.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIUserActivity.h>)
+//
+//  UIUserActivity.h
+//  UIKit
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKitDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+UIKIT_SWIFT_FORWARD_DECLARE(@class NSUserActivity)
+
+API_AVAILABLE(ios(8.0)) @protocol UIUserActivityRestoring <NSObject>
+
+- (void)restoreUserActivityState:(NSUserActivity *)userActivity;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIUserActivity.h>
+#endif
 // ==========  UIKit.framework/Headers/UISlider.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISlider.h>)
 //
 //  UISlider.h
 //  UIKit
 //
-//  Copyright (c) 2006-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <UIKit/UIControl.h>
 #import <UIKit/UIKitDefines.h>
-#import <QuartzCore/QuartzCore.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class UIImageView, UIImage;
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UISlider : UIControl <NSCoding>
+NS_CLASS_AVAILABLE_IOS(2_0) __TVOS_PROHIBITED @interface UISlider : UIControl <NSCoding>
 
 @property(nonatomic) float value;                                 // default 0.0. this value will be pinned to min/max
 @property(nonatomic) float minimumValue;                          // default 0.0. the current value may change if outside new min value
@@ -14069,26 +21360,30 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UISlider : UIControl <NSCoding>
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISlider.h>
+#endif
 // ==========  UIKit.framework/Headers/UIActivityViewController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIActivityViewController.h>)
 //
 //  UIActivityViewController.h
 //  UIKit
 //
-//  Copyright 2012-2014 Apple Inc. All rights reserved.
+//  Copyright 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIViewController.h>
 #import <UIKit/UIKitDefines.h>
+#import <UIKit/UIActivity.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class UIActivity;
+typedef void (^UIActivityViewControllerCompletionHandler)(UIActivityType __nullable activityType, BOOL completed);
+typedef void (^UIActivityViewControllerCompletionWithItemsHandler)(UIActivityType __nullable activityType, BOOL completed, NSArray * __nullable returnedItems, NSError * __nullable activityError);
 
-typedef void (^UIActivityViewControllerCompletionHandler)(NSString * __nullable activityType, BOOL completed);
-typedef void (^UIActivityViewControllerCompletionWithItemsHandler)(NSString * __nullable activityType, BOOL completed, NSArray * __nullable returnedItems, NSError * __nullable activityError);
-
-NS_CLASS_AVAILABLE_IOS(6_0) @interface UIActivityViewController : UIViewController
+NS_CLASS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED @interface UIActivityViewController : UIViewController
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil NS_UNAVAILABLE;
@@ -14098,17 +21393,22 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UIActivityViewController : UIViewControll
 @property(nullable, nonatomic, copy) UIActivityViewControllerCompletionHandler completionHandler NS_DEPRECATED_IOS(6_0, 8_0, "Use completionWithItemsHandler instead.");  // set to nil after call
 @property(nullable, nonatomic, copy) UIActivityViewControllerCompletionWithItemsHandler completionWithItemsHandler NS_AVAILABLE_IOS(8_0); // set to nil after call
 
-@property(nullable, nonatomic, copy) NSArray<NSString *> *excludedActivityTypes; // default is nil. activity types listed will not be displayed
+@property(nullable, nonatomic, copy) NSArray<UIActivityType> *excludedActivityTypes; // default is nil. activity types listed will not be displayed
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIActivityViewController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIPopoverController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIPopoverController.h>)
 //
 //  UIPopoverController.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc. All rights reserved.
 //
 
 
@@ -14202,12 +21502,17 @@ NS_CLASS_DEPRECATED_IOS(3_2, 9_0, "UIPopoverController is deprecated. Popovers a
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIPopoverController.h>
+#endif
 // ==========  UIKit.framework/Headers/UIVideoEditorController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIVideoEditorController.h>)
 //
 //  UIVideoEditorController.h
 //  UIKit
 //
-//  Copyright (c) 2009-2014 Apple Inc.. All rights reserved.
+//  Copyright (c) 2009-2018 Apple Inc.. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -14219,7 +21524,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol UIVideoEditorControllerDelegate;
 
-NS_CLASS_AVAILABLE_IOS(3_1) @interface UIVideoEditorController : UINavigationController
+NS_CLASS_AVAILABLE_IOS(3_1) __TVOS_PROHIBITED @interface UIVideoEditorController : UINavigationController
 
 + (BOOL)canEditVideoAtPath:(NSString *)videoPath NS_AVAILABLE_IOS(3_1);
 
@@ -14231,7 +21536,7 @@ NS_CLASS_AVAILABLE_IOS(3_1) @interface UIVideoEditorController : UINavigationCon
 
 @end
 
- @protocol UIVideoEditorControllerDelegate<NSObject>
+__TVOS_PROHIBITED @protocol UIVideoEditorControllerDelegate<NSObject>
 @optional
 // The editor does not dismiss itself; the client dismisses it in these callbacks.
 // The delegate will receive exactly one of the following callbacks, depending whether the user
@@ -14243,21 +21548,31 @@ NS_CLASS_AVAILABLE_IOS(3_1) @interface UIVideoEditorController : UINavigationCon
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UIVideoEditorController.h>
+#endif
 // ==========  UIKit.framework/Headers/UITextView.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UITextView.h>)
 //
 //  UITextView.h
 //  UIKit
 //
-//  Copyright (c) 2007-2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2007-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <UIKit/UIScrollView.h>
 #import <UIKit/UIStringDrawing.h>
+#import <UIKit/UITextDragging.h>
+#import <UIKit/UITextDropping.h>
 #import <UIKit/UITextInput.h>
 #import <UIKit/UIKitDefines.h>
 #import <UIKit/UIDataDetectors.h>
+#import <UIKit/UITextItemInteraction.h>
+#import <UIKit/UIContentSizeCategoryAdjusting.h>
+#import <UIKit/UITextPasteConfigurationSupporting.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14278,26 +21593,30 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)textViewDidChangeSelection:(UITextView *)textView;
 
-- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange NS_AVAILABLE_IOS(7_0);
-- (BOOL)textView:(UITextView *)textView shouldInteractWithTextAttachment:(NSTextAttachment *)textAttachment inRange:(NSRange)characterRange NS_AVAILABLE_IOS(7_0);
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction NS_AVAILABLE_IOS(10_0);
+- (BOOL)textView:(UITextView *)textView shouldInteractWithTextAttachment:(NSTextAttachment *)textAttachment inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction NS_AVAILABLE_IOS(10_0);
+
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange NS_DEPRECATED_IOS(7_0, 10_0, "Use textView:shouldInteractWithURL:inRange:forInteractionType: instead");
+- (BOOL)textView:(UITextView *)textView shouldInteractWithTextAttachment:(NSTextAttachment *)textAttachment inRange:(NSRange)characterRange NS_DEPRECATED_IOS(7_0, 10_0, "Use textView:shouldInteractWithTextAttachment:inRange:forInteractionType: instead");
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(2_0) @interface UITextView : UIScrollView <UITextInput>
+NS_CLASS_AVAILABLE_IOS(2_0) @interface UITextView : UIScrollView <UITextInput, UIContentSizeCategoryAdjusting>
 
 @property(nullable,nonatomic,weak) id<UITextViewDelegate> delegate;
+
 @property(null_resettable,nonatomic,copy) NSString *text;
 @property(nullable,nonatomic,strong) UIFont *font;
 @property(nullable,nonatomic,strong) UIColor *textColor;
 @property(nonatomic) NSTextAlignment textAlignment;    // default is NSLeftTextAlignment
 @property(nonatomic) NSRange selectedRange;
-@property(nonatomic,getter=isEditable) BOOL editable;
-@property(nonatomic,getter=isSelectable) BOOL selectable NS_AVAILABLE_IOS(7_0); // toggle selectability, which controls the ability of the user to select content and interact with URLs & attachments
-@property(nonatomic) UIDataDetectorTypes dataDetectorTypes NS_AVAILABLE_IOS(3_0);
+@property(nonatomic,getter=isEditable) BOOL editable __TVOS_PROHIBITED;
+@property(nonatomic,getter=isSelectable) BOOL selectable NS_AVAILABLE_IOS(7_0); // toggle selectability, which controls the ability of the user to select content and interact with URLs & attachments. On tvOS this also makes the text view focusable.
+@property(nonatomic) UIDataDetectorTypes dataDetectorTypes NS_AVAILABLE_IOS(3_0) __TVOS_PROHIBITED;
 
 @property(nonatomic) BOOL allowsEditingTextAttributes NS_AVAILABLE_IOS(6_0); // defaults to NO
 @property(null_resettable,copy) NSAttributedString *attributedText NS_AVAILABLE_IOS(6_0);
-@property(nonatomic,copy) NSDictionary<NSString *, id> *typingAttributes NS_AVAILABLE_IOS(6_0); // automatically resets when the selection changes
+@property(nonatomic,copy) NSDictionary<NSAttributedStringKey, id> *typingAttributes NS_AVAILABLE_IOS(6_0); // automatically resets when the selection changes
 
 - (void)scrollRangeToVisible:(NSRange)range;
 
@@ -14323,26 +21642,38 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UITextView : UIScrollView <UITextInput>
 @property(nonatomic,readonly,strong) NSTextStorage *textStorage NS_AVAILABLE_IOS(7_0);
 
 // Style for links
-@property(null_resettable, nonatomic, copy) NSDictionary<NSString *, id> *linkTextAttributes NS_AVAILABLE_IOS(7_0);
+@property(null_resettable, nonatomic, copy) NSDictionary<NSAttributedStringKey,id> *linkTextAttributes NS_AVAILABLE_IOS(7_0);
 
 @end
 
-UIKIT_EXTERN NSString * const UITextViewTextDidBeginEditingNotification;
-UIKIT_EXTERN NSString * const UITextViewTextDidChangeNotification;
-UIKIT_EXTERN NSString * const UITextViewTextDidEndEditingNotification;
+#if TARGET_OS_IOS
+
+@interface UITextView () <UITextDraggable, UITextDroppable, UITextPasteConfigurationSupporting>
+@end
+
+#endif
+
+UIKIT_EXTERN NSNotificationName const UITextViewTextDidBeginEditingNotification;
+UIKIT_EXTERN NSNotificationName const UITextViewTextDidChangeNotification;
+UIKIT_EXTERN NSNotificationName const UITextViewTextDidEndEditingNotification;
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UITextView.h>
+#endif
 // ==========  UIKit.framework/Headers/UISearchController.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UISearchController.h>)
 //
 //  UISearchController.h
 //  UIKit
 //
-//  Copyright (c) 2014 Apple Inc. All rights reserved.
+//  Copyright (c) 2014-2018 Apple Inc. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
 #import <UIKit/UIPresentationController.h>
 #import <UIKit/UIViewControllerTransitioning.h>
+#import <UIKit/UISearchBar.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14367,7 +21698,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_CLASS_AVAILABLE_IOS(8_0) @interface UISearchController : UIViewController <UIViewControllerTransitioningDelegate, UIViewControllerAnimatedTransitioning>
-// Pass nil if you wish to display search results in the same view that you are searching.
+
+// Pass nil if you wish to display search results in the same view that you are searching. This is not supported on tvOS; please provide a results controller on tvOS.
 - (instancetype)initWithSearchResultsController:(nullable UIViewController *)searchResultsController;
 
 // The object responsible for updating the content of the searchResultsController.
@@ -14377,7 +21709,8 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UISearchController : UIViewController <UI
 @property (nonatomic, assign, getter = isActive) BOOL active;
 
 @property (nullable, nonatomic, weak) id <UISearchControllerDelegate> delegate;
-@property (nonatomic, assign) BOOL dimsBackgroundDuringPresentation;         // default is YES
+@property (nonatomic, assign) BOOL dimsBackgroundDuringPresentation __TVOS_PROHIBITED; // default is YES, and has the same behavior as obscuresBackgroundDuringPresentation.
+@property (nonatomic, assign) BOOL obscuresBackgroundDuringPresentation NS_AVAILABLE_IOS(9_1); // default is YES. On tvOS, defaults to NO when contained in UISearchContainerViewController.
 @property (nonatomic, assign) BOOL hidesNavigationBarDuringPresentation;     // default is YES
 
 @property (nullable, nonatomic, strong, readonly) UIViewController *searchResultsController;
@@ -14387,12 +21720,55 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface UISearchController : UIViewController <UI
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/UISearchController.h>
+#endif
+// ==========  UIKit.framework/Headers/UIFocusMovementHint.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/UIFocusMovementHint.h>)
+//
+//  UIFocusMovementHint.h
+//  UIKit
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIFocus.h>
+#import <QuartzCore/CATransform3D.h>
+
+/// Provides information about the current state of hinting for the focused item.
+NS_CLASS_AVAILABLE_IOS(12_0) @interface UIFocusMovementHint: NSObject <NSCopying>
+
+/// Value between {-1.0, -1.0} and {1.0, 1.0} representing how close focus is to moving in a particular direction.
+@property (nonatomic, readonly) CGVector movementDirection;
+
+/// A 3D transform representing the perspective matrix that should be applied to match the system interaction hinting. Assumes a 0..1 near/far plane.
+@property (nonatomic, readonly) CATransform3D perspectiveTransform;
+
+/// A vector representing the X and Y axis rotation expressed in radians that should be applied to match the system interaction hinting.
+@property (nonatomic, readonly) CGVector rotation;
+
+/// A vector representing the X and Y axis translation expressed in points that should be applied to match the system interaction hinting.
+@property (nonatomic, readonly) CGVector translation;
+
+/// A 3D transform that contains the combined transformations of perspective, rotation and translation.
+@property (nonatomic, readonly) CATransform3D interactionTransform;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+#else
+#import <UIKitCore/UIFocusMovementHint.h>
+#endif
 // ==========  UIKit.framework/Headers/NSTextAttachment.h
+#if USE_UIKIT_PUBLIC_HEADERS || !__has_include(<UIKitCore/NSTextAttachment.h>)
 //
 //  NSTextAttachment.h
 //  UIKit
 //
-//  Copyright (c) 2011-2015, Apple Inc. All rights reserved.
+//  Copyright (c) 2011-2018, Apple Inc. All rights reserved.
 //
 
 #import <Foundation/NSObject.h>
@@ -14437,22 +21813,22 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextAttachment : NSObject <NSTextAtta
 /**************************** Content properties ****************************/
 
 // These two properties define the contents for the text attachment.  Modifying these properties have a side effect of invalidating -image and -fileWrapper properties. -fileType is an UTI describing the format for -contents.
-@property(nullable, copy, NS_NONATOMIC_IOSONLY) NSData *contents NS_AVAILABLE(10_11, 7_0);
-@property(nullable, copy, NS_NONATOMIC_IOSONLY) NSString *fileType NS_AVAILABLE(10_11, 7_0);
+@property (nullable, copy, NS_NONATOMIC_IOSONLY) NSData *contents NS_AVAILABLE(10_11, 7_0);
+@property (nullable, copy, NS_NONATOMIC_IOSONLY) NSString *fileType NS_AVAILABLE(10_11, 7_0);
 
 /**************************** Rendering/layout properties ****************************/
 
 // Image representing the text attachment contents. Modifying this property invalidates -contents, -fileType, and -FileWrapper properties.
-@property(nullable, strong, NS_NONATOMIC_IOSONLY) UIImage *image NS_AVAILABLE(10_11, 7_0);
+@property (nullable, strong, NS_NONATOMIC_IOSONLY) UIImage *image NS_AVAILABLE(10_11, 7_0);
 
 // Defines the layout bounds of the receiver's graphical representation in the text coordinate system.  The origin is at the glyph location on the text baseline.  The default value is CGRectZero.
-@property(NS_NONATOMIC_IOSONLY) CGRect bounds NS_AVAILABLE(10_11, 7_0);
+@property (NS_NONATOMIC_IOSONLY) CGRect bounds NS_AVAILABLE(10_11, 7_0);
 #endif
 
 /**************************** Non-image contents properties ****************************/
 
 // Optionally, NSTextAttachment can be associated with a file wrapper. Modifying this property has a side effect of invalidating -image, -contents, and fileType properties.
-@property(nullable, strong, NS_NONATOMIC_IOSONLY) NSFileWrapper *fileWrapper;
+@property (nullable, strong, NS_NONATOMIC_IOSONLY) NSFileWrapper *fileWrapper;
 
 
 @end
@@ -14464,3 +21840,7 @@ NS_CLASS_AVAILABLE(10_0, 7_0) @interface NSTextAttachment : NSObject <NSTextAtta
 
 
 NS_ASSUME_NONNULL_END
+
+#else
+#import <UIKitCore/NSTextAttachment.h>
+#endif

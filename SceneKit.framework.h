@@ -1,30 +1,43 @@
 // ==========  SceneKit.framework/Headers/SCNPhysicsWorld.h
 //
 //  SCNPhysicsWorld.h
+//  SceneKit
 //
-//  Copyright (c) 2014-2015 Apple Inc. All rights reserved.
+//  Copyright © 2014-2018 Apple Inc. All rights reserved.
 //
+
+#import <SceneKit/SceneKitTypes.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SCNPhysicsBody;
+@class SCNPhysicsShape;
+@class SCNPhysicsWorld;
 @class SCNPhysicsContact;
 @class SCNPhysicsBehavior;
+@class SCNHitTestResult;
 
-//Keys for ray, contact and sweep tests
-SCN_EXTERN NSString * const SCNPhysicsTestCollisionBitMaskKey NS_AVAILABLE(10_10, 8_0); //Allows to filter the objects tested by rayTest, contactTest and convexSweep. Default is SCNPhysicsCollisionCategoryAll
-SCN_EXTERN NSString * const SCNPhysicsTestSearchModeKey NS_AVAILABLE(10_10, 8_0);       //Specifies how to perform the ray/contact/sweep test. Values are defined below. If not defined, then defaults to SCNPhysicsTestSearchModeAny
-SCN_EXTERN NSString * const SCNPhysicsTestBackfaceCullingKey NS_AVAILABLE(10_10, 8_0);  //Specifies whether the back faces should be ignored or not. Defaults to YES.
+// Keys for ray, contact and sweep tests
+typedef NSString * SCNPhysicsTestOption NS_STRING_ENUM;
+SCN_EXPORT SCNPhysicsTestOption const SCNPhysicsTestCollisionBitMaskKey API_AVAILABLE(macos(10.10)); // Allows to filter the objects tested by rayTest, contactTest and convexSweep. Default is SCNPhysicsCollisionCategoryAll
+SCN_EXPORT SCNPhysicsTestOption const SCNPhysicsTestSearchModeKey       API_AVAILABLE(macos(10.10)); // Specifies how to perform the ray/contact/sweep test. Values are defined below. If not defined, then defaults to SCNPhysicsTestSearchModeAny
+SCN_EXPORT SCNPhysicsTestOption const SCNPhysicsTestBackfaceCullingKey  API_AVAILABLE(macos(10.10)); // Specifies whether the back faces should be ignored or not. Defaults to YES.
 
-//Values for SCNPhysicsTestSearchModeKey
-SCN_EXTERN NSString * const SCNPhysicsTestSearchModeAny NS_AVAILABLE(10_10, 8_0);       //Returns the first contact found.
-SCN_EXTERN NSString * const SCNPhysicsTestSearchModeClosest NS_AVAILABLE(10_10, 8_0);   //Returns the nearest contact found only.
-SCN_EXTERN NSString * const SCNPhysicsTestSearchModeAll NS_AVAILABLE(10_10, 8_0);       //All contacts are returned.
+#define SCNPhysicsTestOptionCollisionBitMask SCNPhysicsTestCollisionBitMaskKey
+#define SCNPhysicsTestOptionSearchMode       SCNPhysicsTestSearchModeKey
+#define SCNPhysicsTestOptionBackfaceCulling  SCNPhysicsTestBackfaceCullingKey
+
+// Values for SCNPhysicsTestSearchModeKey
+typedef NSString * SCNPhysicsTestSearchMode NS_STRING_ENUM;
+SCN_EXPORT SCNPhysicsTestSearchMode const SCNPhysicsTestSearchModeAny     API_AVAILABLE(macos(10.10)); // Returns the first contact found.
+SCN_EXPORT SCNPhysicsTestSearchMode const SCNPhysicsTestSearchModeClosest API_AVAILABLE(macos(10.10)); // Returns the nearest contact found only.
+SCN_EXPORT SCNPhysicsTestSearchMode const SCNPhysicsTestSearchModeAll     API_AVAILABLE(macos(10.10)); // All contacts are returned.
 
 /*!
  @protocol SCNPhysicsContactDelegate
  @abstract The SCNPhysicsContactDelegate protocol is to be implemented by delegates that want to be notified when a contact occured.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10))
 @protocol SCNPhysicsContactDelegate <NSObject>
 @optional
 - (void)physicsWorld:(SCNPhysicsWorld *)world didBeginContact:(SCNPhysicsContact *)contact;
@@ -37,7 +50,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @abstract The SCNPhysicsWorld class describes and allows to control the physics simulation of a 3d scene.
  @discussion The SCNPhysicsWorld class should not be allocated directly but retrieved from the SCNScene class using the physicsWorld property.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsWorld : NSObject <NSSecureCoding>
 
 //A global 3D vector specifying the field force acceleration due to gravity. The unit is meter per second. Default is {0, -9.8, 0}.
@@ -51,7 +64,9 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @property(nonatomic) NSTimeInterval timeStep;
 
 //A delegate that is called when two physic bodies come in contact with each other.
-@property(atomic, assign, nullable) id <SCNPhysicsContactDelegate> contactDelegate;
+//On iOS 11 or lower the property is unsafe_unretained and it's the responsibility of the client to set it to nil before deallocating the delegate.
+//Starting in iOS12, the property is weak
+@property(atomic, weak, nullable) id <SCNPhysicsContactDelegate> contactDelegate;
 
 //Behaviors management
 - (void)addBehavior:(SCNPhysicsBehavior *)behavior;
@@ -60,12 +75,12 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @property(nonatomic, readonly) NSArray<SCNPhysicsBehavior *> *allBehaviors;
 
 //Performs a ray test on the physics bodies and their physics shapes.
-- (NSArray<SCNHitTestResult *> *)rayTestWithSegmentFromPoint:(SCNVector3)origin toPoint:(SCNVector3)dest options:(nullable NSDictionary<NSString *, id> *)options;
+- (NSArray<SCNHitTestResult *> *)rayTestWithSegmentFromPoint:(SCNVector3)origin toPoint:(SCNVector3)dest options:(nullable NSDictionary<SCNPhysicsTestOption, id> *)options;
 
 //The methods below perform contact tests.
-- (NSArray<SCNPhysicsContact *> *)contactTestBetweenBody:(SCNPhysicsBody *)bodyA andBody:(SCNPhysicsBody *)bodyB options:(nullable NSDictionary<NSString *, id> *)options;
-- (NSArray<SCNPhysicsContact *> *)contactTestWithBody:(SCNPhysicsBody *)body options:(nullable NSDictionary<NSString *, id> *)options;
-- (NSArray<SCNPhysicsContact *> *)convexSweepTestWithShape:(SCNPhysicsShape *)shape fromTransform:(SCNMatrix4)from toTransform:(SCNMatrix4)to options:(nullable NSDictionary<NSString *, id> *)options;
+- (NSArray<SCNPhysicsContact *> *)contactTestBetweenBody:(SCNPhysicsBody *)bodyA andBody:(SCNPhysicsBody *)bodyB options:(nullable NSDictionary<SCNPhysicsTestOption, id> *)options;
+- (NSArray<SCNPhysicsContact *> *)contactTestWithBody:(SCNPhysicsBody *)body options:(nullable NSDictionary<SCNPhysicsTestOption, id> *)options;
+- (NSArray<SCNPhysicsContact *> *)convexSweepTestWithShape:(SCNPhysicsShape *)shape fromTransform:(SCNMatrix4)from toTransform:(SCNMatrix4)to options:(nullable NSDictionary<SCNPhysicsTestOption, id> *)options;
 
 //Force the physics engine to re-evaluate collisions.
 //This needs to be called if kinematic are moved and the contacts are wanted before the next simulation step.
@@ -77,36 +92,40 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNParticleSystem.h
 //
 //  SCNParticleSystem.h
+//  SceneKit
 //
-//  Copyright (c) 2014-2015 Apple Inc. All rights reserved.
+//  Copyright © 2014-2018 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <SceneKit/SceneKitTypes.h>
+#import <SceneKit/SCNNode.h>
+#import <SceneKit/SCNScene.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class UIColor;
 @class SCNGeometry;
 
-// Particle Properties Name
-SCN_EXTERN NSString * const SCNParticlePropertyPosition NS_AVAILABLE(10_10, 8_0);        // float3 : {x,y,z}     controller animation type : {NSValue(SCNVector3)}
-SCN_EXTERN NSString * const SCNParticlePropertyAngle NS_AVAILABLE(10_10, 8_0);           // float                controller animation type : {NSNumber}
-SCN_EXTERN NSString * const SCNParticlePropertyRotationAxis NS_AVAILABLE(10_10, 8_0);    // float3 : {x,y,z}     controller animation type : {NSValue(SCNVector3)}
-SCN_EXTERN NSString * const SCNParticlePropertyVelocity NS_AVAILABLE(10_10, 8_0);        // float3 : {x,y,z}     controller animation type : {NSValue(SCNVector3)}
-SCN_EXTERN NSString * const SCNParticlePropertyAngularVelocity NS_AVAILABLE(10_10, 8_0); // float                controller animation type : {NSNumber}
-SCN_EXTERN NSString * const SCNParticlePropertyLife NS_AVAILABLE(10_10, 8_0);            // float                not controllable
-SCN_EXTERN NSString * const SCNParticlePropertyColor NS_AVAILABLE(10_10, 8_0);           // float4 : {r,g,b,a}   controller animation type : {UIColor}
-SCN_EXTERN NSString * const SCNParticlePropertyOpacity NS_AVAILABLE(10_10, 8_0);         // float                controller animation type : {NSNumber}
-SCN_EXTERN NSString * const SCNParticlePropertySize NS_AVAILABLE(10_10, 8_0);            // float                controller animation type : {NSNumber}
-SCN_EXTERN NSString * const SCNParticlePropertyFrame NS_AVAILABLE(10_10, 8_0);           // float                controller animation type : {NSNumber}
-SCN_EXTERN NSString * const SCNParticlePropertyFrameRate NS_AVAILABLE(10_10, 8_0);       // float                controller animation type : {NSNumber}
-SCN_EXTERN NSString * const SCNParticlePropertyBounce NS_AVAILABLE(10_10, 8_0);          // float                controller animation type : {NSNumber}
-SCN_EXTERN NSString * const SCNParticlePropertyCharge NS_AVAILABLE(10_10, 8_0);          // float                controller animation type : {NSNumber}
-SCN_EXTERN NSString * const SCNParticlePropertyFriction NS_AVAILABLE(10_10, 8_0);        // float                controller animation type : {NSNumber}
+typedef NSString * SCNParticleProperty NS_STRING_ENUM;
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyPosition API_AVAILABLE(macos(10.10));        // float3 : {x,y,z}     controller animation type : {NSValue(SCNVector3)}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyAngle API_AVAILABLE(macos(10.10));           // float                controller animation type : {NSNumber}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyRotationAxis API_AVAILABLE(macos(10.10));    // float3 : {x,y,z}     controller animation type : {NSValue(SCNVector3)}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyVelocity API_AVAILABLE(macos(10.10));        // float3 : {x,y,z}     controller animation type : {NSValue(SCNVector3)}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyAngularVelocity API_AVAILABLE(macos(10.10)); // float                controller animation type : {NSNumber}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyLife API_AVAILABLE(macos(10.10));            // float                not controllable
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyColor API_AVAILABLE(macos(10.10));           // float4 : {r,g,b,a}   controller animation type : {UIColor}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyOpacity API_AVAILABLE(macos(10.10));         // float                controller animation type : {NSNumber}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertySize API_AVAILABLE(macos(10.10));            // float                controller animation type : {NSNumber}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyFrame API_AVAILABLE(macos(10.10));           // float                controller animation type : {NSNumber}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyFrameRate API_AVAILABLE(macos(10.10));       // float                controller animation type : {NSNumber}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyBounce API_AVAILABLE(macos(10.10));          // float                controller animation type : {NSNumber}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyCharge API_AVAILABLE(macos(10.10));          // float                controller animation type : {NSNumber}
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyFriction API_AVAILABLE(macos(10.10));        // float                controller animation type : {NSNumber}
 
 // These two properties are only available when handling the events of type SCNParticleEventCollision.
 // They are read-only values.
-SCN_EXTERN NSString * const SCNParticlePropertyContactPoint NS_AVAILABLE(10_10, 8_0);    // float3               not controllable
-SCN_EXTERN NSString * const SCNParticlePropertyContactNormal NS_AVAILABLE(10_10, 8_0);   // float3               not controllable
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyContactPoint API_AVAILABLE(macos(10.10));    // float3               not controllable
+SCN_EXPORT SCNParticleProperty const SCNParticlePropertyContactNormal API_AVAILABLE(macos(10.10));   // float3               not controllable
 
 /*!
  @typedef SCNParticleEventBlock
@@ -129,7 +148,7 @@ SCN_EXTERN NSString * const SCNParticlePropertyContactNormal NS_AVAILABLE(10_10,
      }
  }];
 */
-typedef void (^SCNParticleEventBlock)(void * __nonnull * __nonnull data, size_t * __nonnull dataStride, uint32_t * __nullable indices, NSInteger count);
+typedef void (^SCNParticleEventBlock)(void * _Nonnull * _Nonnull data, size_t * _Nonnull dataStride, uint32_t * _Nullable indices, NSInteger count);
 
 /*!
  @typedef SCNParticleModifierBlock
@@ -151,7 +170,7 @@ typedef void (^SCNParticleEventBlock)(void * __nonnull * __nonnull data, size_t 
      }
  }];
 */
-typedef void (^SCNParticleModifierBlock)(void * __nonnull * __nonnull data, size_t * __nonnull dataStride, NSInteger start, NSInteger end, float deltaTime);
+typedef void (^SCNParticleModifierBlock)(void * _Nonnull * _Nonnull data, size_t * _Nonnull dataStride, NSInteger start, NSInteger end, float deltaTime);
 
 // Particle Sorting Mode
 typedef NS_ENUM(NSInteger, SCNParticleSortingMode) {
@@ -160,7 +179,7 @@ typedef NS_ENUM(NSInteger, SCNParticleSortingMode) {
 	SCNParticleSortingModeDistance,                    //particles are sorted by distance from the point of view
 	SCNParticleSortingModeOldestFirst,                 //particles are sorted by birth date - oldest first
 	SCNParticleSortingModeYoungestFirst                //particles are sorted by birth date - yougest first
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 // Particle Blend Mode
 typedef NS_ENUM(NSInteger, SCNParticleBlendMode) {
@@ -170,43 +189,43 @@ typedef NS_ENUM(NSInteger, SCNParticleBlendMode) {
 	SCNParticleBlendModeScreen,
 	SCNParticleBlendModeAlpha,
 	SCNParticleBlendModeReplace
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 // Particle Orientation Mode
 typedef NS_ENUM(NSInteger, SCNParticleOrientationMode) {
 	SCNParticleOrientationModeBillboardScreenAligned,  // particles are aligned on screen
 	SCNParticleOrientationModeBillboardViewAligned,    // particles are perpendicular with the vector from the point of view to the particle.
-	SCNParticleOrientationModeFree, 	                 // free on all axis.
+	SCNParticleOrientationModeFree, 	               // free on all axis.
     SCNParticleOrientationModeBillboardYAligned        // fixed on Y axis.
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 // Particle Birth Location
 typedef NS_ENUM(NSInteger, SCNParticleBirthLocation) {
     SCNParticleBirthLocationSurface,                   //particles are emitted on the surface of the emitter shape.
     SCNParticleBirthLocationVolume,                    //particles are emitted inside the volume of the emitter shape.
     SCNParticleBirthLocationVertex                     //particles are emitted on the vertices of the emitter shape.
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 // Particle Birth Direction
 typedef NS_ENUM(NSInteger, SCNParticleBirthDirection) {
     SCNParticleBirthDirectionConstant,                 // Z Direction of the Emitter.
-    SCNParticleBirthDirectionSurfaceNormal,	        // Use the direction induced by the shape
+    SCNParticleBirthDirectionSurfaceNormal,	           // Use the direction induced by the shape
     SCNParticleBirthDirectionRandom                    // Random direction.
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 // Texture Animation Mode
 typedef NS_ENUM(NSInteger, SCNParticleImageSequenceAnimationMode) {
     SCNParticleImageSequenceAnimationModeRepeat,             // The animation will loop.
     SCNParticleImageSequenceAnimationModeClamp,              // The animation will stop at both ends.
     SCNParticleImageSequenceAnimationModeAutoReverse         // The animation will reverse when reaching an end.
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 // Particle Variation Mode
 typedef NS_ENUM(NSInteger, SCNParticleInputMode) {
 	SCNParticleInputModeOverLife,                  // The input time for the controller animation is the current life duration of the particle
 	SCNParticleInputModeOverDistance,              // The input time for the controller animation is the distance from the variation origin node.
 	SCNParticleInputModeOverOtherProperty,         // The input time for the controller animation is the current value of another specified property.
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 // Particle Modifier Stage
 typedef NS_ENUM(NSInteger, SCNParticleModifierStage) {
@@ -214,28 +233,28 @@ typedef NS_ENUM(NSInteger, SCNParticleModifierStage) {
 	SCNParticleModifierStagePostDynamics,
 	SCNParticleModifierStagePreCollision,
 	SCNParticleModifierStagePostCollision
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 // Particle Event
 typedef NS_ENUM(NSInteger, SCNParticleEvent) {
 	SCNParticleEventBirth,                             // Event triggered when a new particle spawns.
 	SCNParticleEventDeath,                             // Event triggered when a particle dies.
 	SCNParticleEventCollision                          // Event triggered when a particle collides with a collider node.
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 /*!
  @class SCNParticlePropertyController
  @abstract The SCNParticlePropertyController class controls the variation over time or over distance of a particle property.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNParticlePropertyController: NSObject <NSSecureCoding, NSCopying>
 
 // Creates and initializes a particle property controller with the specified animation.
-+ (instancetype)controllerWithAnimation:(CAAnimation *)animation;
++ (instancetype)controllerWithAnimation:(CAAnimation *)animation API_UNAVAILABLE(watchos);
 
 // Specifies the animation to be applied on the particle system property. The type of the animation will depend of the property controlled.
 // See the documentation along property name definition.
-@property(nonatomic, retain) CAAnimation *animation;
+@property(nonatomic, retain) CAAnimation *animation API_UNAVAILABLE(watchos);
 
 // Specify the input mode of the receiver.
 // This can be over life, over distance or over the evolution of another proprety.
@@ -251,7 +270,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @property(nonatomic, weak, nullable) SCNNode *inputOrigin;
 
 // Specifies which property to use as input for the input mode "SCNParticleInputModeOverOtherProperty".
-@property(nonatomic, copy, nullable) NSString *inputProperty;
+@property(nonatomic, copy, nullable) SCNParticleProperty inputProperty;
 
 @end
 
@@ -260,7 +279,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @class SCNParticleSystem
  @abstract The SCNParticleSystem class represents a system of particles.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNParticleSystem : NSObject <NSCopying, NSSecureCoding, SCNAnimatable>
 
 // Create an instance of a particle system
@@ -281,7 +300,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 // Specifies the variation of the idle duration. Defaults to 0. Animatable.
 @property(nonatomic) CGFloat idleDurationVariation;
 
-// Specifies the looping behavior of the emission. Default to YES.
+// Specifies the looping behavior of the emission. Defaults to YES.
 @property(nonatomic) BOOL loops;
 
 // Specifies the particle rate flow, in particles per emissionDuration.
@@ -308,11 +327,14 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 // Specifies the spreading direction of newly created particles, in degrees. Not used in SCNParticleBirthDirectionRandom. Defaults to 0. Animatable.
 @property(nonatomic) CGFloat spreadingAngle;
 
-// Specifies the emitting direction of newly created particles, used in the SCNParticleBirthDirectionConstant mode. Default to {0, 0, 1}. Animatable.
+// Specifies the emitting direction of newly created particles, used in the SCNParticleBirthDirectionConstant mode. Defaults to {0, 0, 1}. Animatable.
 @property(nonatomic) SCNVector3 emittingDirection;
 
+// Specifies the orientation direction of newly created particles, used in the SCNParticleOrientationModeFree mode. The particle will rotate around this axis. Defaults to {0, 0, 0}, which means random. The particle will then rotate arbitraly. Animatable.
+@property(nonatomic) SCNVector3 orientationDirection API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 // Specifies the acceleration applied to particles, in world coordinates.
-// Allows to simulate winds or gravity. Default to {0, 0, 0}. Animatable.
+// Allows to simulate winds or gravity. Defaults to {0, 0, 0}. Animatable.
 @property(nonatomic) SCNVector3 acceleration;
 
 // Specifies the rendering and simulation type of the system.
@@ -335,10 +357,10 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @property(nonatomic) CGFloat particleVelocityVariation;
 
 // Specifies the initial angular velocity of the particles at birth,
-// in degree per second. Defaults to 0. Animatable.
+// in degrees per second. Defaults to 0. Animatable.
 @property(nonatomic) CGFloat particleAngularVelocity;
 
-// Specifies the variation of the angular velocity, in degree per second. Defaults to 0. Animatable.
+// Specifies the variation of the angular velocity, in degrees per second. Defaults to 0. Animatable.
 @property(nonatomic) CGFloat particleAngularVelocityVariation;
 
 // Specifies the life span of particles. Animatable.
@@ -347,10 +369,10 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 // Specifies the life span variation of particles. Animatable.
 @property(nonatomic) CGFloat particleLifeSpanVariation;
 
-// Specifies an optional system to spawn new particles when a particle die
+// Specifies an optional system to spawn new particles when a particle dies
 @property(nonatomic, retain, nullable) SCNParticleSystem *systemSpawnedOnDying;
 
-// Specifies an optional system to spawn new particles when a particle die
+// Specifies an optional system to spawn new particles when a particle dies
 @property(nonatomic, retain, nullable) SCNParticleSystem *systemSpawnedOnCollision;
 
 // Specifies an optional system to spawn new particles when a particle is alive
@@ -380,7 +402,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 // Specifies the texture animation frame rate variation, in frames per second. Defaults to 0. Animatable.
 @property(nonatomic) CGFloat imageSequenceFrameRateVariation;
 
-// Specifies the texture animation mode. Default to SCNTextureAnimationModeRepeat.
+// Specifies the texture animation mode. Defaults to SCNTextureAnimationModeRepeat.
 @property(nonatomic) SCNParticleImageSequenceAnimationMode imageSequenceAnimationMode;
 
 // Specifies the initial color of the particle. Animatable. Defaults to opaque white.
@@ -395,6 +417,12 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 // Specifies the initial size variation of the particle. Animatable.
 @property(nonatomic) CGFloat particleSizeVariation;
+
+// Specifies the initial intensity of the particle. Animatable.
+@property(nonatomic) CGFloat particleIntensity API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+// Specifies the initial intensity variation of the particle. Animatable.
+@property(nonatomic) CGFloat particleIntensityVariation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 // Specifies the blend mode to use to render the particle system. Defaults to SCNParticleBlendModeAdditive.
 @property(nonatomic) SCNParticleBlendMode blendMode;
@@ -466,19 +494,18 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @property(nonatomic) CGFloat fresnelExponent;
 
 // Property controllers.
-// The keys for this directionary are listed in the "Particle Properties Name" section.
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, SCNParticlePropertyController *> *propertyControllers;
+@property(nonatomic, copy, nullable) NSDictionary<SCNParticleProperty, SCNParticlePropertyController *> *propertyControllers;
 
 // Remove all the already-emitted particles and restart the simulation.
 - (void)reset;
 
 // Events handling
 // "block" will be invoked for particles that trigger the specified event, with the data and dataStride that corresponds to "properties". The block should only update the particle properties reference by the "indices" passed as argument in the block.
-- (void)handleEvent:(SCNParticleEvent)event forProperties:(NSArray<NSString *> *)properties withBlock:(SCNParticleEventBlock)block;
+- (void)handleEvent:(SCNParticleEvent)event forProperties:(NSArray<SCNParticleProperty> *)properties withBlock:(SCNParticleEventBlock)block;
 
 // Modifications handling
 // "block" will be invoked at every simulation step at the specified stage. The data and dataStride passed to the block will corresponds to the specified "properties".
-- (void)addModifierForProperties:(NSArray<NSString *> *)properties atStage:(SCNParticleModifierStage)stage withBlock:(SCNParticleModifierBlock)block;
+- (void)addModifierForProperties:(NSArray<SCNParticleProperty> *)properties atStage:(SCNParticleModifierStage)stage withBlock:(SCNParticleModifierBlock)block;
 - (void)removeModifiersOfStage:(SCNParticleModifierStage)stage;
 - (void)removeAllModifiers;
 
@@ -488,16 +515,16 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @interface SCNNode (SCNParticleSystemSupport)
 
 // Add a particle system to the receiver.
-- (void)addParticleSystem:(SCNParticleSystem *)system NS_AVAILABLE(10_10, 8_0);
+- (void)addParticleSystem:(SCNParticleSystem *)system API_AVAILABLE(macos(10.10));
 
 // Remove all particle systems of the receiver.
-- (void)removeAllParticleSystems NS_AVAILABLE(10_10, 8_0);
+- (void)removeAllParticleSystems API_AVAILABLE(macos(10.10));
 
 // Remove the specified particle system from the receiver.
-- (void)removeParticleSystem:(SCNParticleSystem *)system NS_AVAILABLE(10_10, 8_0);
+- (void)removeParticleSystem:(SCNParticleSystem *)system API_AVAILABLE(macos(10.10));
 
 // The particle systems attached to the node.
-@property(readonly, nullable) NSArray<SCNParticleSystem *> *particleSystems NS_AVAILABLE(10_10, 8_0);
+@property(readonly, nullable) NSArray<SCNParticleSystem *> *particleSystems API_AVAILABLE(macos(10.10));
 
 @end
 
@@ -505,16 +532,16 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @interface SCNScene (SCNParticleSystemSupport)
 
 // Add a particle system at the given location.
-- (void)addParticleSystem:(SCNParticleSystem *)system withTransform:(SCNMatrix4)transform NS_AVAILABLE(10_10, 8_0);
+- (void)addParticleSystem:(SCNParticleSystem *)system withTransform:(SCNMatrix4)transform API_AVAILABLE(macos(10.10));
 
-// Remove all particle systems of the receiver.
-- (void)removeAllParticleSystems NS_AVAILABLE(10_10, 8_0);
+// Remove all particle systems in the scene.
+- (void)removeAllParticleSystems API_AVAILABLE(macos(10.10));
 
 // Remove the specified particle system from the receiver.
-- (void)removeParticleSystem:(SCNParticleSystem *)system NS_AVAILABLE(10_10, 8_0);
+- (void)removeParticleSystem:(SCNParticleSystem *)system API_AVAILABLE(macos(10.10));
 
-// The particle systems attached to the scene.
-@property(readonly, nullable) NSArray<SCNParticleSystem *> *particleSystems NS_AVAILABLE(10_10, 8_0);
+// The particle systems attached to the scene that are active.
+@property(readonly, nullable) NSArray<SCNParticleSystem *> *particleSystems API_AVAILABLE(macos(10.10));
 
 @end
 
@@ -522,17 +549,15 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SceneKit.h
 //
 //  SceneKit.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
 /*! @framework SceneKit
     @abstract A high-level 3D scene framework.
     @discussion SceneKit lets you easily load, manipulate, and render 3D scenes.
  */
-
-//base
-#import <SceneKit/SCNBase.h>
 
 //types
 #import <SceneKit/SceneKitTypes.h>
@@ -572,119 +597,74 @@ NS_ASSUME_NONNULL_END
 #import <SceneKit/SCNTechnique.h>
 #import <SceneKit/SCNReferenceNode.h>
 #import <SceneKit/SCNAudioSource.h>
-
-//bridges
-#import <SceneKit/SceneKit_simd.h>
+#import <SceneKit/SCNHitTest.h>
+#import <SceneKit/SCNCameraController.h>
 
 //scripting
 #import <SceneKit/SCNJavascript.h>
-
 // ==========  SceneKit.framework/Headers/SCNSceneRenderer.h
 //
 //  SCNSceneRenderer.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
+
+#import <SceneKit/SceneKitTypes.h>
+#import <SceneKit/SCNHitTest.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SCNScene;
 @class SCNNode;
+@class SCNScene;
+@protocol SCNSceneRendererDelegate;
 @class SKScene;
 @class SKTransition;
-@protocol SCNSceneRendererDelegate;
+@class MTLRenderPassDescriptor;
 @protocol MTLRenderCommandEncoder;
 @protocol MTLCommandBuffer;
-@class MTLRenderPassDescriptor;
 @class AVAudioEngine;
 @class AVAudioEnvironmentNode;
 
-/*! @group Hit test options */
-
-/*! If set to YES, returns the first object found. This object is not necessarily the nearest. Defaults to NO. */
-SCN_EXTERN NSString * const SCNHitTestFirstFoundOnlyKey;
-/*! Determines whether the results should be sorted. If set to YES sorts nearest objects first. Defaults to YES. */
-SCN_EXTERN NSString * const SCNHitTestSortResultsKey;
-/*! If set to YES ignores the objects clipped by the zNear/zFar range of the current point of view. Defaults to YES. */
-SCN_EXTERN NSString * const SCNHitTestClipToZRangeKey;
-/*! If set to YES ignores the faces not facing to the camera. Defaults to YES. */
-SCN_EXTERN NSString * const SCNHitTestBackFaceCullingKey;
-/*!  If set to YES only tests the bounding boxes of the 3D objects. Defaults to NO. */
-SCN_EXTERN NSString * const SCNHitTestBoundingBoxOnlyKey;
-/*! Determines whether the child nodes are ignored. Defaults to NO. */
-SCN_EXTERN NSString * const SCNHitTestIgnoreChildNodesKey;
-/*! Specifies the root node to use for the hit test. Defaults to the root node of the scene. */
-SCN_EXTERN NSString * const SCNHitTestRootNodeKey;
-/*! Determines whether hidden nodes should be ignored. Defaults to YES. */
-SCN_EXTERN NSString * const SCNHitTestIgnoreHiddenNodesKey NS_AVAILABLE(10_9, 8_0);
+/*!
+ @enum SCNAntialiasingMode
+ @abstract antialiasing modes for scene renderers
+ */
+typedef NS_ENUM(NSUInteger, SCNAntialiasingMode) {
+    SCNAntialiasingModeNone,
+    SCNAntialiasingModeMultisampling2X,
+    SCNAntialiasingModeMultisampling4X
+} API_AVAILABLE(macos(10.10));
 
 /*!
  @enum SCNRenderingAPI
  @abstract rendering API used by SCNView and SCNRenderer.
- @discussion Default preferred API is SCNRenderingAPIMetal on iOS and SCNRenderingAPIOpenGLLegacy on OS X.
- If Metal is requested but not available then it fallbacks to SCNRenderingAPIOpenGLES2 on iOS and to SCNRenderingAPIOpenGLLegacy on OS X.
+ @discussion Default preferred API is SCNRenderingAPIMetal on iOS and it depends on the configuration on macOS.
+ If Metal is requested but not available then it fallbacks to SCNRenderingAPIOpenGLES2 on iOS and to SCNRenderingAPIOpenGLLegacy on macOS.
  */
 typedef NS_ENUM(NSUInteger, SCNRenderingAPI) {
     SCNRenderingAPIMetal,
     SCNRenderingAPIOpenGLES2
-} NS_ENUM_AVAILABLE(10_11, 9_0);
+} API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @enum SCNDebugOptions
  @abstract Debug options.
  */
 typedef NS_OPTIONS(NSUInteger, SCNDebugOptions) {
-    SCNDebugOptionNone = 0,
-    SCNDebugOptionShowPhysicsShapes   = 1 << 0,
-    SCNDebugOptionShowBoundingBoxes   = 1 << 1,
-    SCNDebugOptionShowLightInfluences = 1 << 2,
-    SCNDebugOptionShowLightExtents    = 1 << 3,
-    SCNDebugOptionShowPhysicsFields   = 1 << 4,
-    SCNDebugOptionShowWireframe       = 1 << 5
-} NS_ENUM_AVAILABLE(10_11, 9_0);
-
-
-/*! @class SCNHitTestResult
-    @abstract Results returned by the hit test methods.
- */
-
-NS_CLASS_AVAILABLE(10_8, 8_0)
-@interface SCNHitTestResult : NSObject
-
-/*! The node hit. */
-@property(nonatomic, readonly) SCNNode *node;
-
-/*! Index of the geometry hit. */
-@property(nonatomic, readonly) NSInteger geometryIndex;
-
-/*! Index of the face hit. */
-@property(nonatomic, readonly) NSInteger faceIndex;
-
-/*! Intersection point in the node local coordinate system. */
-@property(nonatomic, readonly) SCNVector3 localCoordinates;
-
-/*! Intersection point in the world coordinate system. */
-@property(nonatomic, readonly) SCNVector3 worldCoordinates;
-
-/*! Intersection normal in the node local coordinate system. */
-@property(nonatomic, readonly) SCNVector3 localNormal;
-
-/*! Intersection normal in the world coordinate system. */
-@property(nonatomic, readonly) SCNVector3 worldNormal;
-
-/*! World transform of the node intersected. */
-@property(nonatomic, readonly) SCNMatrix4 modelTransform;
-
-/*! 
- @method textureCoordinatesWithMappingChannel:
- @abstract Returns the texture coordinates at the point of intersection, for a given mapping channel.
- @param channel The texture coordinates source index of the geometry to use. The channel must exists on the geometry otherwise {0,0} will be returned.
- */
-- (CGPoint)textureCoordinatesWithMappingChannel:(NSInteger)channel;
-
-@end
-
-
+    SCNDebugOptionNone                                                                               = 0,
+    SCNDebugOptionShowPhysicsShapes                                                                  = 1 << 0, //show physics shape
+    SCNDebugOptionShowBoundingBoxes                                                                  = 1 << 1, //show object bounding boxes
+    SCNDebugOptionShowLightInfluences                                                                = 1 << 2, //show objects's light influences
+    SCNDebugOptionShowLightExtents                                                                   = 1 << 3, //show light extents
+    SCNDebugOptionShowPhysicsFields                                                                  = 1 << 4, //show SCNPhysicsFields forces and extents
+    SCNDebugOptionShowWireframe                                                                      = 1 << 5, //show wireframe on top of objects
+    SCNDebugOptionRenderAsWireframe API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = 1 << 6, //render objects as wireframe
+    SCNDebugOptionShowSkeletons     API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = 1 << 7, //show skinning bones
+    SCNDebugOptionShowCreases       API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = 1 << 8, //show subdivision creases
+    SCNDebugOptionShowConstraints   API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = 1 << 9, //show slider constraint
+    SCNDebugOptionShowCameras       API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = 1 << 10, //show cameras
+} API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*! @protocol SCNSceneRenderer
     @abstract Protocol adopted by the various renderers (SCNView, SCNLayer, SCNRenderer)
@@ -706,20 +686,20 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param pointOfView the point of view to use to render the new scene.
  @param completionHandler the block invoked on completion.
  */
-- (void)presentScene:(SCNScene *)scene withTransition:(SKTransition *)transition incomingPointOfView:(nullable SCNNode *)pointOfView completionHandler:(nullable void (^)())completionHandler NS_AVAILABLE(10_11, 9_0);
+- (void)presentScene:(SCNScene *)scene withTransition:(SKTransition *)transition incomingPointOfView:(nullable SCNNode *)pointOfView completionHandler:(nullable void (^)(void))completionHandler API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property sceneTime
  @abstract Specifies the current "scene time" to display the scene.
  @discussion The scene time only affect scene time based animations (see SCNAnimation.h "usesSceneTimeBase" and SCNSceneSource.h "SCNSceneSourceAnimationImportPolicyKey" for how to create scene time based animations). Scene time based animations and this property are typically used by tools and viewer to ease seeking in time while previewing a scene.
  */
-@property(nonatomic) NSTimeInterval sceneTime NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) NSTimeInterval sceneTime API_AVAILABLE(macos(10.10));
 
 /*! 
  @property delegate
  @abstract Specifies the renderer delegate.
  */
-@property(nonatomic, assign, nullable) id <SCNSceneRendererDelegate> delegate;
+@property(nonatomic, weak, nullable) id <SCNSceneRendererDelegate> delegate;
 
 /*!
  @method hitTest:options:
@@ -727,7 +707,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param point A point in the coordinate system of the receiver.
  @param options Optional parameters (see the "Hit test options" group for the available options).
  */
-- (NSArray<SCNHitTestResult *> *)hitTest:(CGPoint)point options:(nullable NSDictionary<NSString *, id> *)options;
+- (NSArray<SCNHitTestResult *> *)hitTest:(CGPoint)point options:(nullable NSDictionary<SCNHitTestOption, id> *)options;
 
 /*!
  @method isNodeInsideFrustum:withPointOfView:
@@ -736,15 +716,15 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param pointOfView The point of view used to test the visibility.
  @discussion Return YES if the node is inside or intersects the clipping planes of the point of view. This method doesn't test if 'node' is occluded by another node.
  */
-- (BOOL)isNodeInsideFrustum:(SCNNode *)node withPointOfView:(SCNNode *)pointOfView NS_AVAILABLE(10_9, 8_0);
+- (BOOL)isNodeInsideFrustum:(SCNNode *)node withPointOfView:(SCNNode *)pointOfView API_AVAILABLE(macos(10.9));
 
 /*!
  @method nodesInsideFrustumWithPointOfView:
  @abstract Returns an array containing the nodes visible from the specified point of view.
  @param pointOfView The point of view used to test the visibility.
- @discussion Returns an array of all the nodes that are inside or intersects the clipping planes of the point of view.
+ @discussion Returns an array of all the nodes that are inside or intersects the clipping planes of the point of view. Starting in macOS10.13/iOS11 this method work with the presentation tree.
  */
-- (NSArray<SCNNode *> *)nodesInsideFrustumWithPointOfView:(SCNNode *)pointOfView NS_AVAILABLE(10_11, 9_0);
+- (NSArray<SCNNode *> *)nodesInsideFrustumWithPointOfView:(SCNNode *)pointOfView API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @method projectPoint
@@ -752,7 +732,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param point The world position to be projected.
  @discussion A point projected from the near (resp. far) clip plane will have a z component of 0 (resp. 1).
  */
-- (SCNVector3)projectPoint:(SCNVector3)point NS_AVAILABLE(10_9, 8_0);
+- (SCNVector3)projectPoint:(SCNVector3)point API_AVAILABLE(macos(10.9));
 
 /*!
  @method unprojectPoint
@@ -760,7 +740,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param point The screenspace position to be unprojected.
  @discussion A point whose z component is 0 (resp. 1) is unprojected on the near (resp. far) clip plane.
  */
-- (SCNVector3)unprojectPoint:(SCNVector3)point NS_AVAILABLE(10_9, 8_0);
+- (SCNVector3)unprojectPoint:(SCNVector3)point API_AVAILABLE(macos(10.9));
 
 /*! 
  @property playing
@@ -803,7 +783,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param block This block will be called repeatedly while the object is prepared. Return YES if you want the operation to abort.
  @discussion Returns YES if the object was prepared successfully, NO if it was canceled. This method may be triggered from a secondary thread. This method is observable using NSProgress.
  */
-- (BOOL)prepareObject:(id)object shouldAbortBlock:(nullable BOOL (^)())block NS_AVAILABLE(10_9, 8_0);
+- (BOOL)prepareObject:(id)object shouldAbortBlock:(nullable NS_NOESCAPE BOOL (^)(void))block API_AVAILABLE(macos(10.9));
 
 /*!
  @method prepareObjects:withCompletionHandler:
@@ -812,37 +792,37 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param completionHandler This block will be called when all objects has been prepared, or on failure.
  @discussion This method is observable using NSProgress.
  */
-- (void)prepareObjects:(NSArray *)objects withCompletionHandler:(nullable void (^)(BOOL success))completionHandler NS_AVAILABLE(10_10, 8_0);
+- (void)prepareObjects:(NSArray *)objects withCompletionHandler:(nullable void (^)(BOOL success))completionHandler API_AVAILABLE(macos(10.10));
 
 /*!
  @property showsStatistics
  @abstract Determines whether the receiver should display statistics info like FPS. Defaults to NO.
  @discussion  When set to YES, statistics are displayed in a overlay on top of the rendered scene.
  */
-@property(nonatomic) BOOL showsStatistics NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) BOOL showsStatistics API_AVAILABLE(macos(10.9));
 
 /*!
  @property debugOptions
  @abstract Specifies the debug options of the receiver. Defaults to SCNDebugOptionNone.
  */
-@property(nonatomic) SCNDebugOptions debugOptions NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic) SCNDebugOptions debugOptions API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property overlaySKScene
  @abstract Specifies the overlay of the receiver as a SpriteKit scene instance. Defaults to nil.
  */
-@property(nonatomic, retain, nullable) SKScene *overlaySKScene NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, retain, nullable) SKScene *overlaySKScene API_AVAILABLE(macos(10.10));
 
 /*!
  @property renderingAPI
  @abstract Specifies the rendering API associated to the receiver.
  @discussion This is the rendering API effectively used by the receiver. You can specify a preferred rendering API when initializing a view programmatically (see SCNPreferredRenderingAPI in SCNSceneRenderer.h) or using Interface Builder's SCNView inspector.
  */
-@property(nonatomic, readonly) SCNRenderingAPI renderingAPI NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly) SCNRenderingAPI renderingAPI API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property context
- @abstract A Core OpenGL render context that is used as the render target (a CGLContextObj on OS X, an EAGLContext on iOS).
+ @abstract A Core OpenGL render context that is used as the render target (a CGLContextObj on macOS, an EAGLContext on iOS).
  */
 @property(nonatomic, readonly, nullable) void *context;
 
@@ -852,37 +832,37 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @property currentRenderCommandEncoder
  @abstract The current render command encoder if any. This property is only valid within the SCNSceneRendererDelegate methods and when renderering with Metal. Otherwise it is set to nil.
  */
-@property(nonatomic, readonly, nullable) id <MTLRenderCommandEncoder> currentRenderCommandEncoder NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly, nullable) id <MTLRenderCommandEncoder> currentRenderCommandEncoder API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property device
  @abstract The metal device of the renderer. This property is only valid on a renderer created with a Metal device. Otherwise it is set to nil.
  */
-@property(nonatomic, readonly, nullable) id <MTLDevice> device NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly, nullable) id <MTLDevice> device API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property colorPixelFormat
  @abstract The pixel format of the color attachment 0 of the renderer. This property is only valid on a renderer created with a Metal device.
  */
-@property(nonatomic, readonly) MTLPixelFormat colorPixelFormat NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly) MTLPixelFormat colorPixelFormat API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property depthPixelFormat
  @abstract The pixel format of the depth attachment of the renderer. This property is only valid on a renderer created with a Metal device.
  */
-@property(nonatomic, readonly) MTLPixelFormat depthPixelFormat NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly) MTLPixelFormat depthPixelFormat API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property stencilPixelFormat
  @abstract The pixel format of the stencil attachment of the renderer. This property is only valid on a renderer created with a Metal device.
  */
-@property(nonatomic, readonly) MTLPixelFormat stencilPixelFormat NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly) MTLPixelFormat stencilPixelFormat API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property commandQueue
  @abstract The command queue of the renderer. This property is only valid on a renderer created with a Metal device. Otherwise it is set to nil.
  */
-@property(nonatomic, readonly, nullable) id <MTLCommandQueue> commandQueue NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly, nullable) id <MTLCommandQueue> commandQueue API_AVAILABLE(macos(10.11), ios(9.0));
 
 #endif
 
@@ -891,19 +871,19 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Contains the instance of audio engine used by the scene.
  @discussion The audio engine can be used to add custom nodes to the audio graph.
  */
-@property(nonatomic, readonly) AVAudioEngine *audioEngine NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly) AVAudioEngine *audioEngine API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property audioEnvironmentNode
  @abstract Contains the instance of audio environment node used by the scene to spacialize sounds.
  */
-@property(nonatomic, readonly) AVAudioEnvironmentNode *audioEnvironmentNode NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly) AVAudioEnvironmentNode *audioEnvironmentNode API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property audioListener
  @abstract Use this property to set the audio node to use as the listener position and orientation when rendering positional audio for this scene. The default is nil which means that the current point of view will be used dynamically.
  */
-@property(nonatomic, retain, nullable) SCNNode *audioListener NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, retain, nullable) SCNNode *audioListener API_AVAILABLE(macos(10.11), ios(9.0));
 
 
 
@@ -921,34 +901,43 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 /*!
  @method renderer:updateAtTime:
  @abstract Implement this to perform per-frame game logic. Called exactly once per frame before any animation and actions are evaluated and any physics are simulated.
- @param aRenderer The renderer that will render the scene.
+ @param renderer The renderer that will render the scene.
  @param time The time at which to update the scene.
  @discussion All modifications done within this method don't go through the transaction model, they are directly applied on the presentation tree.
  */
-- (void)renderer:(id <SCNSceneRenderer>)renderer updateAtTime:(NSTimeInterval)time NS_AVAILABLE(10_10, 8_0);
+- (void)renderer:(id <SCNSceneRenderer>)renderer updateAtTime:(NSTimeInterval)time API_AVAILABLE(macos(10.10));
 
 /*!
  @method renderer:didApplyAnimationsAtTime:
  @abstract Invoked on the delegate once the scene renderer did apply the animations.
- @param aRenderer The renderer that did render the scene.
+ @param renderer The renderer that did render the scene.
  @param time The time at which the animations were applied.
  @discussion All modifications done within this method don't go through the transaction model, they are directly applied on the presentation tree.
  */
-- (void)renderer:(id <SCNSceneRenderer>)renderer didApplyAnimationsAtTime:(NSTimeInterval)time NS_AVAILABLE(10_10, 8_0);
+- (void)renderer:(id <SCNSceneRenderer>)renderer didApplyAnimationsAtTime:(NSTimeInterval)time API_AVAILABLE(macos(10.10));
 
 /*!
  @method renderer:didSimulatePhysicsAtTime:
  @abstract Invoked on the delegate once the scene renderer did simulate the physics.
- @param aRenderer The renderer that did render the scene.
+ @param renderer The renderer that did render the scene.
  @param time The time at which the physics were simulated.
  @discussion All modifications done within this method don't go through the transaction model, they are directly applied on the presentation tree.
  */
-- (void)renderer:(id <SCNSceneRenderer>)renderer didSimulatePhysicsAtTime:(NSTimeInterval)time NS_AVAILABLE(10_10, 8_0);
+- (void)renderer:(id <SCNSceneRenderer>)renderer didSimulatePhysicsAtTime:(NSTimeInterval)time API_AVAILABLE(macos(10.10));
+
+/*!
+ @method renderer:didApplyConstraintsAtTime:
+ @abstract Invoked on the delegate once the scene renderer did apply the constraints.
+ @param renderer The renderer that did render the scene.
+ @param time The time at which the constraints were simulated.
+ @discussion All modifications done within this method don't go through the transaction model, they are directly applied on the presentation tree.
+ */
+- (void)renderer:(id <SCNSceneRenderer>)renderer didApplyConstraintsAtTime:(NSTimeInterval)time API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @method renderer:willRenderScene:atTime:
  @abstract Invoked on the delegate before the scene renderer renders the scene. At this point the openGL context and the destination framebuffer are bound.
- @param aRenderer The renderer that will render the scene.
+ @param renderer The renderer that will render the scene.
  @param scene The scene to be rendered.
  @param time The time at which the scene is to be rendered.
  @discussion Starting in 10.10 all modifications done within this method don't go through the transaction model, they are directly applied on the presentation tree.
@@ -958,7 +947,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 /*!
  @method renderer:didRenderScene:atTime:
  @abstract Invoked on the delegate once the scene renderer did render the scene.
- @param aRenderer The renderer that did render the scene.
+ @param renderer The renderer that did render the scene.
  @param scene The rendered scene.
  @param time The time at which the scene was rendered.
  @discussion Starting in 10.10 all modifications done within this method don't go through the transaction model, they are directly applied on the presentation tree.
@@ -971,8 +960,9 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNLight.h
 //
 //  SCNLight.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -981,39 +971,39 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SCNMaterialProperty;
+
 /*!
  @group Light Types
  @abstract Describes the various light types available.
  */
 
-/*! @constant SCNLightTypeAmbient Ambient light */
-SCN_EXTERN NSString * const SCNLightTypeAmbient;
-/*! @constant SCNLightTypeOmni Omnidirectional light */
-SCN_EXTERN NSString * const SCNLightTypeOmni;
-/*! @constant SCNLightTypeDirectional Directional light */
-SCN_EXTERN NSString * const SCNLightTypeDirectional;
-/*! @constant SCNLightTypeSpot Spot light */
-SCN_EXTERN NSString * const SCNLightTypeSpot;
-
+typedef NSString * SCNLightType NS_STRING_ENUM;
+SCN_EXPORT SCNLightType const SCNLightTypeAmbient;                                                                // Ambient light
+SCN_EXPORT SCNLightType const SCNLightTypeOmni;                                                                   // Omnidirectional light
+SCN_EXPORT SCNLightType const SCNLightTypeDirectional;                                                            // Directional light
+SCN_EXPORT SCNLightType const SCNLightTypeSpot;                                                                   // Spot light
+SCN_EXPORT SCNLightType const SCNLightTypeIES   API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));               // IES light
+SCN_EXPORT SCNLightType const SCNLightTypeProbe API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));               // Light probe
 
 /*! @enum SCNShadowMode
  @abstract The different modes available to compute shadows.
  @discussion When the shadow mode is set to SCNShadowModeForward, shadows are computed while computing the lighting. In this mode only the alpha component of the shadow color is used to alter the lighting contribution.
- When the shadow mode is set to SCNShadowModeDeferred shadows are applied as a post process. Shadows are blend over the final image and can therefor be of any arbitrary color. However it is most of the time less effiscient as SCNShadowModeForward, except when a scene has a lot of overdraw.
- When the shadow mode is set to SCNShadowModeModulated the light doesn't illuminate the scene anymore, it only casts shadows. Therefor setting the light color has no effect. In this mode gobos act as a shadow projector: the gobo image is modulated with the shadow receiver's fragments. The typical usage is to use an image of a radial gradient (black to white) that is projected under a character (and use the categoryBitMask of the light and nodes to exclude the character from the shadow receiver).
+ When the shadow mode is set to SCNShadowModeDeferred shadows are applied as a post process. Shadows are blend over the final image and can therefor be of any arbitrary color. However it is most of the time less efficient than SCNShadowModeForward, except when a scene has a lot of overdraw.
+ When the shadow mode is set to SCNShadowModeModulated the light doesn't illuminate the scene anymore, it only casts shadows. Therefore setting the light color has no effect. In this mode gobos act as a shadow projector: the gobo image is modulated with the shadow receiver's fragments. The typical usage is to use an image of a radial gradient (black to white) that is projected under a character (and use the categoryBitMask of the light and nodes to exclude the character from the shadow receiver).
  */
 typedef NS_ENUM(NSInteger, SCNShadowMode) {
     SCNShadowModeForward   = 0,
     SCNShadowModeDeferred  = 1,
     SCNShadowModeModulated = 2
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 /*!
  @class SCNLight
  @abstract SCNLight represents a light that can be attached to a SCNNode. 
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNLight : NSObject <SCNAnimatable, SCNTechniqueSupport, NSCopying, NSSecureCoding>
 
 /*! 
@@ -1025,16 +1015,30 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 /*! 
  @property type
  @abstract Specifies the receiver's type.
- @discussion A light type can be one of the "Light Types" constants. Defaults to SCNLightTypeOmni on iOS 8 and later, and on OSX 10.10 and later (otherwise defaults to SCNLightTypeAmbient).
+ @discussion Defaults to SCNLightTypeOmni on iOS 8 and later, and on macOS 10.10 and later (otherwise defaults to SCNLightTypeAmbient).
  */
-@property(nonatomic, copy) NSString *type;
+@property(nonatomic, copy) SCNLightType type;
 
 /*! 
  @property color
  @abstract Specifies the receiver's color (NSColor or CGColorRef). Animatable. Defaults to white.
- @discussion The initial value is a NSColor.
+ @discussion The initial value is a NSColor. The renderer multiplies the light's color is by the color derived from the light's temperature.
  */
 @property(nonatomic, retain) id color;
+
+/*!
+ @property temperature
+ @abstract Specifies the receiver's temperature.
+ @discussion This specifies the temperature of the light in Kelvin. The renderer multiplies the light's color by the color derived from the light's temperature. Defaults to 6500 (pure white). Animatable.
+ */
+@property(nonatomic) CGFloat temperature API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property intensity
+ @abstract Specifies the receiver's intensity.
+ @discussion This intensity is used to modulate the light color. When used with a physically-based material, this corresponds to the luminous flux of the light, expressed in lumens (lm). Defaults to 1000. Animatable.
+ */
+@property(nonatomic) CGFloat intensity API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 
 /*!
  @property name
@@ -1054,7 +1058,8 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 
 /*! 
  @property shadowColor
- @abstract Specifies the color (CGColorRef or NSColor) of the shadow casted by the receiver. Default is 50% transparent black. Animatable.
+ @abstract Specifies the color (CGColorRef or NSColor) of the shadow casted by the receiver. Defaults to black. Animatable.
+ @discussion On iOS 9 or earlier and macOS 10.11 or earlier, this defaults to black 50% transparent.
  */
 @property(nonatomic, retain) id shadowColor;
 
@@ -1069,25 +1074,64 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Specifies the size of the shadow map.
  @discussion The larger the shadow map is the more precise the shadows are but the slower the computation is. If set to {0,0} the size of the shadow map is automatically chosen. Defaults to {0,0}.
  */
-@property(nonatomic) CGSize shadowMapSize NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGSize shadowMapSize API_AVAILABLE(macos(10.10));
 
 /*!
  @property shadowSampleCount
- @abstract Specifies the number of sample per fragment to compute the shadow map. Defaults to 1.
+ @abstract Specifies the number of sample per fragment to compute the shadow map. Defaults to 0.
+ @discussion On macOS 10.11 or earlier, the shadowSampleCount defaults to 16. On iOS 9 or earlier it defaults to 1.0.
+ On macOS 10.12, iOS 10 and greater, when the shadowSampleCount is set to 0, a default sample count is chosen depending on the platform.
  */
-@property(nonatomic) NSUInteger shadowSampleCount NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) NSUInteger shadowSampleCount API_AVAILABLE(macos(10.10));
 
 /*!
  @property shadowMode
  @abstract Specified the mode to use to cast shadows. See above for the available modes and their description. Defaults to SCNShadowModeForward.
  */
-@property(nonatomic) SCNShadowMode shadowMode NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) SCNShadowMode shadowMode API_AVAILABLE(macos(10.10));
 
 /*!
  @property shadowBias
- @abstrat Specifies the correction to apply to the shadow map to correct acne artefacts. It is multiplied by an implementation-specific value to create a constant depth offset. Defaults to 1.0
+ @abstract Specifies the correction to apply to the shadow map to correct acne artefacts. It is multiplied by an implementation-specific value to create a constant depth offset. Defaults to 1.0
  */
-@property(nonatomic) CGFloat shadowBias NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat shadowBias API_AVAILABLE(macos(10.10));
+
+/*!
+ @property automaticallyAdjustsShadowProjection
+ @abstract Specifies if the shadow map projection should be done automatically or manually by the user. Defaults to YES.
+ */
+@property(nonatomic) BOOL automaticallyAdjustsShadowProjection API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property maximumShadowDistance
+ @abstract Specifies the maximum distance from the viewpoint from which the shadows for the receiver light won't be computed. Defaults to 100.0.
+ */
+@property(nonatomic) CGFloat maximumShadowDistance API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property forcesBackFaceCasters
+ @abstract Render only back faces of the shadow caster when enabled. Defaults to NO.
+ This is a behavior change from previous releases.
+ */
+@property(nonatomic) BOOL forcesBackFaceCasters API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property sampleDistributedShadowMaps
+ @abstract Use the sample distribution of the main rendering to better fit the shadow frusta. Defaults to NO.
+ */
+@property(nonatomic) BOOL sampleDistributedShadowMaps API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property shadowCascadeCount
+ @abstract Specifies the number of distinct shadow maps that will be computed for the receiver light. Defaults to 1. Maximum is 4.
+ */
+@property(nonatomic) NSUInteger shadowCascadeCount API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property shadowCascadeSplittingFactor
+ @abstract Specifies a factor to interpolate between linear splitting (0) and logarithmic splitting (1). Defaults to 0.15.
+ */
+@property(nonatomic) CGFloat shadowCascadeSplittingFactor API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 
 #pragma mark - Light projection settings for shadows
@@ -1097,19 +1141,19 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Specifies the orthographic scale used to render from the directional light into the shadow map. Defaults to 1.
  @discussion This is only applicable for directional lights.
  */
-@property(nonatomic) CGFloat orthographicScale NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat orthographicScale API_AVAILABLE(macos(10.10));
 
 /*!
  @property zNear
- @abstract Specifies the minimal distance between the light and the surface to cast shadow on.  If a surface is closer to the light than this minimal distance, then the surface won't be shadowed. The near value must be different than zero. Animatable. Defaults to 1.
+ @abstract Specifies the minimal distance between the light and the surface to cast shadow on. If a surface is closer to the light than this minimal distance, then the surface won't be shadowed. The near value must be different than zero. Animatable. Defaults to 1.
  */
-@property(nonatomic) CGFloat zNear NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat zNear API_AVAILABLE(macos(10.10));
 
 /*!
  @property zFar
  @abstract Specifies the maximal distance between the light and a visible surface to cast shadow on. If a surface is further from the light than this maximal distance, then the surface won't be shadowed. Animatable. Defaults to 100.
  */
-@property(nonatomic) CGFloat zFar NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat zFar API_AVAILABLE(macos(10.10));
 
 
 #pragma mark - Attenuation
@@ -1118,34 +1162,53 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @property attenuationStartDistance
  @abstract The distance at which the attenuation starts (Omni or Spot light types only). Animatable. Defaults to 0.
  */
-@property(nonatomic) CGFloat attenuationStartDistance NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat attenuationStartDistance API_AVAILABLE(macos(10.10));
 
 /*!
  @property attenuationEndDistance
  @abstract The distance at which the attenuation ends (Omni or Spot light types only). Animatable. Defaults to 0.
  */
-@property(nonatomic) CGFloat attenuationEndDistance NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat attenuationEndDistance API_AVAILABLE(macos(10.10));
 
 /*!
  @property attenuationFalloffExponent
  @abstract Specifies the attenuation between the start and end attenuation distances. 0 means a constant attenuation, 1 a linear attenuation and 2 a quadratic attenuation, but any positive value will work (Omni or Spot light types only). Animatable. Defaults to 2.
  */
-@property(nonatomic) CGFloat attenuationFalloffExponent NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat attenuationFalloffExponent API_AVAILABLE(macos(10.10));
 
 
-#pragma mark - Spot parameters
+#pragma mark - Spot light parameters
 
 /*!
  @property spotInnerAngle
  @abstract The angle in degrees between the spot direction and the lit element below which the lighting is at full strength. Animatable. Defaults to 0.
  */
-@property(nonatomic) CGFloat spotInnerAngle  NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat spotInnerAngle API_AVAILABLE(macos(10.10));
 
 /*!
  @property spotOuterAngle
  @abstract The angle in degrees between the spot direction and the lit element after which the lighting is at zero strength. Animatable. Defaults to 45 degrees.
  */
-@property(nonatomic) CGFloat spotOuterAngle  NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat spotOuterAngle API_AVAILABLE(macos(10.10));
+
+
+#pragma mark - IES light parameters
+
+/*!
+ @property IESProfileURL
+ @abstract Specifies the IES file from which the shape, direction, and intensity of illumination is determined. Defaults to nil.
+ */
+@property(nonatomic, retain, nullable) NSURL *IESProfileURL API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+
+#pragma mark - Light probes parameters
+
+/*!
+ @property sphericalHarmonicsCoefficients
+ @abstract The receiver's spherical harmonics coefficients.
+ @discussion Currently spherical harmonics are only supported by light probes (SCNLightTypeProbe). The data is an array of 27 32-bit floating-point values, containing three non-interleaved data sets corresponding to the red, green, and blue sets of coefficients.
+ */
+@property(nonatomic, copy, readonly) NSData *sphericalHarmonicsCoefficients API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 
 #pragma mark - Other
@@ -1155,13 +1218,14 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Specifies the gobo (or "cookie") of the light, used to control the shape of emitted light. Defaults to nil.
  @discussion Gobos are only supported by spot lights.
  */
-@property(nonatomic, readonly, nullable) SCNMaterialProperty *gobo NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic, readonly, nullable) SCNMaterialProperty *gobo API_AVAILABLE(macos(10.9));
 
 /*!
  @property categoryBitMask
  @abstract Determines the node categories that will be lit by the receiver. Defaults to all bit set.
  */
-@property(nonatomic) NSUInteger categoryBitMask NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) NSUInteger categoryBitMask API_AVAILABLE(macos(10.10));
+
 
 
 @end
@@ -1171,9 +1235,12 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNBoundingVolume.h
 //
 //  SCNBoundingVolume.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
+
+#import <SceneKit/SceneKitTypes.h>
 
 /*!
  @protocol SCNBoundingVolume
@@ -1191,25 +1258,152 @@ NS_ASSUME_NONNULL_BEGIN
  @abstract Fill the min and max vectors with the min and max vertex of the bounding box.
  @param min A pointer to a SCNVector3 to store the min vertex of the bounding box into.
  @param max A pointer to a SCNVector3 to store the max vertex of the bounding box into.
+ @discussion the returned bounding box is in local space of the receiver.
  */
-- (BOOL)getBoundingBoxMin:(nullable SCNVector3 *)min max:(nullable SCNVector3 *)max;
+- (BOOL)getBoundingBoxMin:(nullable SCNVector3 *)min max:(nullable SCNVector3 *)max NS_REFINED_FOR_SWIFT;
+
+/*!
+ @method setBoundingBoxMin:max:
+ @abstract Override the receiver bounding box with the min and max vectors provided (in local space of the receiver).
+ @param min A pointer to a SCNVector3 representing the min vertex of the desired bounding box.
+ @param max A pointer to a SCNVector3 representing the max vertex of the desired bounding box.
+ @discussion Passing nil as arguments will recompute the original bounding box of the receiver.
+ */
+- (void)setBoundingBoxMin:(nullable SCNVector3 *)min max:(nullable SCNVector3 *)max API_AVAILABLE(macos(10.9)) NS_REFINED_FOR_SWIFT;
 
 /*!
  @method getBoundingSphereCenter:radius:
  @abstract Fill the center vector with the center of the bounding sphere and store the radius of the bounding sphere in 'radius'.
  @param center A pointer to a SCNVector3 to store the center of the bounding sphere into.
  @param radius A pointer to a CGFloat to store the radius of the bounding sphere into.
+ @discussion the returned bounding sphere is in local space of the receiver.
  */
-- (BOOL)getBoundingSphereCenter:(nullable SCNVector3 *)center radius:(nullable CGFloat *)radius;
+- (BOOL)getBoundingSphereCenter:(nullable SCNVector3 *)center radius:(nullable CGFloat *)radius NS_REFINED_FOR_SWIFT;
 
-/*!
- @method setBoundingBoxMin:max:
- @abstract Override the receiver bounding box with the min and max vectors provided.
- @param min A pointer to a SCNVector3 representing the min vertex of the desired bounding box.
- @param max A pointer to a SCNVector3 representing the max vertex of the desired bounding box.
- @discussion Passing nil as arguments will recompute the original bounding box of the receiver.
- */
-- (void)setBoundingBoxMin:(nullable SCNVector3 *)min max:(nullable SCNVector3 *)max NS_AVAILABLE(10_9, 8_0);
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  SceneKit.framework/Headers/SCNCameraController.h
+//
+//  SCNCameraController.h
+//  SceneKit
+//
+//  Copyright (c) 2017-2018 Apple Inc. All rights reserved.
+//
+
+#import <SceneKit/SceneKitTypes.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class SCNNode;
+@class SCNCameraController;
+
+// SCNInteractionMode specify the behavior of the camera relative to
+// screen space interactions.
+typedef NS_ENUM(NSInteger, SCNInteractionMode) {
+    // Relative to up vector.
+    SCNInteractionModeFly,
+    SCNInteractionModeOrbitTurntable,            // rotate around target with absolute orientation from angles accumulation.
+    // Up vector not taken into account.
+    SCNInteractionModeOrbitAngleMapping,         // rotate around target by mapping 2D screen coordinates to spherical coordinates.
+    SCNInteractionModeOrbitCenteredArcball,
+    SCNInteractionModeOrbitArcball,              // rotate around target by mapping 2D screen coordinates to an half sphere.
+    SCNInteractionModePan,                       // camera space translation on X/Y
+    SCNInteractionModeTruck,                     // camera space translation on X/Z
+} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@protocol SCNCameraControllerDelegate <NSObject>
+
+@optional
+- (void)cameraInertiaWillStartForController:(SCNCameraController *)cameraController;
+- (void)cameraInertiaDidEndForController:(SCNCameraController *)cameraController;
+
+@end
+
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@interface SCNCameraController : NSObject
+
+@property(nonatomic, assign, nullable) id <SCNCameraControllerDelegate> delegate;
+
+@property(nonatomic, retain, nullable) SCNNode *pointOfView;
+@property(nonatomic) SCNInteractionMode interactionMode;
+
+// The camera target in world space for orbit rotation.
+@property(nonatomic) SCNVector3 target;
+
+// Automatically update the target in beginInteraction
+// Defaults to NO
+@property(nonatomic) BOOL automaticTarget;
+
+// The up vector in world space used as reference for SCNInteractionModeFly and SCNInteractionModeOrbitTurntable camera modes.
+// Defaults to (0, 1, 0).
+@property(nonatomic) SCNVector3 worldUp;
+
+// Set to YES to enable inertia on endInteraction.
+// Defaults to NO.
+@property(nonatomic) BOOL inertiaEnabled;
+
+// The friction coefficient applied to the inertia.
+// Defaults to 0.05.
+@property(nonatomic) float inertiaFriction;
+
+// Returns YES if inertia is running.
+@property(nonatomic, readonly, getter=isInertiaRunning) BOOL inertiaRunning;
+
+// Minimum and maximum vertical view angles in degrees for SCNInteractionModeFly and SCNInteractionModeOrbitTurntable.
+// The angle constraints is not enforced if both vertical angle properties values are set to 0.
+// The angle constraints will not be enforced if the initial orientation is outside the given range.
+// The minimum angle must be inferior to the maximum angle.
+// Angles are in world space and within the range [-90, 90].
+// Defaults to 0.0.
+// For example: set to minimum to 0 and maximum to 90 to only allow orbit around the top hemisphere.
+@property(nonatomic) float minimumVerticalAngle;
+@property(nonatomic) float maximumVerticalAngle;
+
+// Minimum and maximum horizontal view angles in degrees for SCNInteractionModeFly and SCNInteractionModeOrbitTurntable.
+// The angle constraints is not enforced if both horizontal angle properties values are set to 0.
+// The angle constraints will not be enforced if the initial orientation is outside the given range.
+// The minimum angle must be inferior to the maximum angle.
+// Angles are in world space and within the range [-180, 180].
+// Defaults to 0.0.
+@property(nonatomic) float minimumHorizontalAngle;
+@property(nonatomic) float maximumHorizontalAngle;
+
+// Translate the camera along the local X/Y/Z axis.
+- (void)translateInCameraSpaceByX:(float)deltaX Y:(float)deltaY Z:(float)deltaX;
+
+// Move the camera to a position where the bounding sphere of all nodes is fully visible.
+// Also set the camera target as the center of the bounding sphere.
+- (void)frameNodes:(NSArray<SCNNode *> *)nodes;
+
+// Rotate delta is in degrees.
+- (void)rotateByX:(float)deltaX Y:(float)deltaY;
+
+// Rotate the camera around the given screen space point. Delta is in degrees.
+- (void)rollBy:(float)delta aroundScreenPoint:(CGPoint)point viewport:(CGSize)viewport;
+
+// Zoom by moving the camera along the axis by a screen space point.
+- (void)dollyBy:(float)delta onScreenPoint:(CGPoint)point viewport:(CGSize)viewport;
+
+// Rotate the camera around the axis from the camera position to the target.
+// Delta is in degrees.
+- (void)rollAroundTarget:(float)delta;
+
+// Zoom by moving the camera along the axis from the camera position to the target.
+- (void)dollyToTarget:(float)delta;
+
+// clear the camera roll if any
+- (void)clearRoll;
+
+// Stop current inertia.
+- (void)stopInertia;
+
+// Begin/Continue/End interaction using an input location relative to viewport.
+// The behavior depends on the current interactionMode.
+- (void)beginInteraction:(CGPoint)location withViewport:(CGSize)viewport;
+- (void)continueInteraction:(CGPoint)location withViewport:(CGSize)viewport sensitivity:(CGFloat)sensitivity;
+- (void)endInteraction:(CGPoint)location withViewport:(CGSize)viewport velocity:(CGPoint)velocity;
 
 @end
 
@@ -1217,11 +1411,12 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNAudioSource.h
 //
 //  SCNAudioSource.h
+//  SceneKit
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <SceneKit/SCNNode.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1231,7 +1426,7 @@ NS_ASSUME_NONNULL_BEGIN
  @class SCNAudioSource
  @abstract The SCNAudioSource class represents an audio source that can be added to a SCNNode.
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+SCN_EXPORT API_AVAILABLE(macos(10.11), ios(9.0))
 @interface SCNAudioSource : NSObject <NSCopying, NSSecureCoding>
 
 /*!
@@ -1255,6 +1450,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 /*!
  @property positional
  @abstract Marks the audio source as positional so that the audio mix considers relative position and velocity with regards to the SCNSceneRenderer's current listener node. Defaults to YES.
+ @discussion shouldStream must be set to false in order to get positional audio (see shouldStream).
  @see SCNSceneRenderer audioListener.
  */
 @property(nonatomic, getter=isPositional) BOOL positional;
@@ -1279,13 +1475,13 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 /*!
  @property loops
- @abstract Specifies whether the audio source should loop or not. Default to NO.
+ @abstract Specifies whether the audio source should loop or not. Defaults to NO.
  */
 @property(nonatomic) BOOL loops;
 
 /*!
  @property shouldStream
- @abstract Specifies whether the audio source should be streamed or not. Default to NO.
+ @abstract Specifies whether the audio source should be streamed or not. Defaults to NO.
  */
 @property(nonatomic) BOOL shouldStream;
 
@@ -1298,7 +1494,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+SCN_EXPORT API_AVAILABLE(macos(10.11), ios(9.0))
 @interface SCNAudioPlayer : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -1331,13 +1527,13 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  @property playbackStarted
  @abstract This block is called when the playback starts in case a valid audio source is present.
  */
-@property(nonatomic, copy, nullable) void (^willStartPlayback)();
+@property(nonatomic, copy, nullable) void (^willStartPlayback)(void);
 
 /*!
  @property playbackFinished
  @abstract This block is called when the playback stops in case a valid audio source is present.
  */
-@property(nonatomic, copy, nullable) void (^didFinishPlayback)();
+@property(nonatomic, copy, nullable) void (^didFinishPlayback)(void);
 
 /*!
  @property audioNode
@@ -1360,25 +1556,25 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  @method addAudioPlayer:
  @abstract Add an audio player to the node and starts playing it right away.
  */
-- (void)addAudioPlayer:(SCNAudioPlayer *)player NS_AVAILABLE(10_11, 9_0);
+- (void)addAudioPlayer:(SCNAudioPlayer *)player API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @method removeAllAudioPlayers
  @abstract Remove all audio players from this node and stop playing them.
  */
-- (void)removeAllAudioPlayers NS_AVAILABLE(10_11, 9_0);
+- (void)removeAllAudioPlayers API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @method removeAudioPlayer:
  @abstract Remove the given audio player from this node and stop playing it.
  */
-- (void)removeAudioPlayer:(SCNAudioPlayer *)player NS_AVAILABLE(10_11, 9_0);
+- (void)removeAudioPlayer:(SCNAudioPlayer *)player API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property audioPlayers
  @abstract Get an array with all the audio players connected and playing on this node.
  */
-@property(nonatomic, readonly) NSArray<SCNAudioPlayer *> *audioPlayers NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly) NSArray<SCNAudioPlayer *> *audioPlayers API_AVAILABLE(macos(10.11), ios(9.0));
 
 @end
 
@@ -1386,52 +1582,61 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNAnimation.h
 //
 //  SCNAnimation.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
+
+#import <SceneKit/SceneKitTypes.h>
 
 #import <QuartzCore/QuartzCore.h>
 
+@class SCNAnimation, SCNAnimationEvent, SCNAnimationPlayer;
+@protocol SCNAnimatable;
+
+@protocol SCNAnimation <NSObject>
+@end
+
+#import <SceneKit/SCNCAAnimationExtensions.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
-/*!
- @typedef SCNAnimationEventBlock
- @discussion Signature for the block executed when the animation event is triggered.
- */
-typedef void (^SCNAnimationEventBlock)(CAAnimation *animation, id animatedObject, BOOL playingBackward);
+typedef void (^SCNAnimationDidStartBlock)(SCNAnimation *animation, id <SCNAnimatable> receiver);
+typedef void (^SCNAnimationDidStopBlock)(SCNAnimation *animation, id <SCNAnimatable> receiver, BOOL completed);
 
-/*!
- @class SCNAnimationEvent
- @abstract SCNAnimationEvent encapsulate a block to trigger at a specific time.
- */
-
-NS_CLASS_AVAILABLE(10_9, 8_0)
-@interface SCNAnimationEvent : NSObject
-
-/*!
- @method animationEventWithKeyTime:block:
- @abstract Returns an animation event instance
- @param time The relative time to trigger the event.
- @param eventBlock The block to call when the event is triggered.
- @discussion "time" is relative to animation duration and therefor it has to be a value in the range [0,1].
- */
-+ (instancetype)animationEventWithKeyTime:(CGFloat)time block:(SCNAnimationEventBlock)eventBlock;
-
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@interface SCNTimingFunction : NSObject <NSSecureCoding>
++ (SCNTimingFunction *)functionWithTimingMode:(SCNActionTimingMode)timingMode;
++ (SCNTimingFunction *)functionWithCAMediaTimingFunction:(CAMediaTimingFunction *)caTimingFunction;
 @end
 
 /*!
  @protocol SCNAnimatable
  @abstract The SCNAnimatable protocol defines an animatable property. Objects that implement this protocol can be animated through these methods.
-*/
+ */
 @protocol SCNAnimatable <NSObject>
 
 /*!
  @method addAnimation:forKey:
- @abstract Add an animation.
+ @abstract Adds and runs an animation
  @param animation Added animation.
  @param key May be any string such that only one animation per unique key is added per animatable object.
+ @discussion Only SCNAnimation (preferred), CABasicAnimation, CAKeyframeAnimation and CAAnimationGroup are supported.
+ The animation starts playing right away. The animation is automatically removed on completion unless if removedOnCompletion is explicitly set to NO. 
+ @seealso -[id <SCNAnimation> removedOnCompletion]
  */
-- (void)addAnimation:(CAAnimation *)animation forKey:(nullable NSString *)key;
+- (void)addAnimation:(id <SCNAnimation>)animation forKey:(nullable NSString *)key;
+
+/*!
+ @method addAnimationPlayer:forKey:
+ @abstract Add an animation player.
+ @param player Added animation player.
+ @param key May be any string such that only one animation per unique key is added per animatable object.
+ @discussion The animation player is not removed automatically on completion.
+ The animation doesn't start playing immediatelly. Call "play" on the player to start playing it.
+ @seealso -[SCNAnimationPlayer play]
+ */
+- (void)addAnimationPlayer:(SCNAnimationPlayer *)player forKey:(nullable NSString *)key API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @method removeAllAnimations
@@ -1447,40 +1652,28 @@ NS_CLASS_AVAILABLE(10_9, 8_0)
 - (void)removeAnimationForKey:(NSString *)key;
 
 /*!
- @method animationKeys
+ @property animationKeys
  @abstract Returns an array containing the keys of all animations currently attached to the receiver.
  */
 @property(readonly) NSArray<NSString *> *animationKeys;
 
 /*!
- @method animationForKey:
- @abstract Returns the animation with the given identifier
- @param key The identifier for the animation to retrieve.
- @discussion This will return nil if no such animation exists.
-			 Attempting to modify any properties of the returned object will result in undefined behavior.
+ @method animationPlayerForKey:
+ @abstract Returns the animation player with the given identifier
+ @param key The identifier for the animation player to retrieve.
+ @discussion This will return nil if no such animation player exists.
  */
-- (nullable CAAnimation *)animationForKey:(NSString *)key;
+- (nullable SCNAnimationPlayer *)animationPlayerForKey:(NSString *)key API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
- @method pauseAnimationForKey:
- @abstract Pause the animation with the given identifier.
- @param key The identifier for the animation to pause.
+ @abstract Smoothly remove the animation with the given identifier.
+ @param key The identifier for the animation to remove.
+ @param duration The blend out duration used to remove the animation.
  */
-- (void)pauseAnimationForKey:(NSString *)key NS_AVAILABLE(10_9, 8_0);
+- (void)removeAnimationForKey:(NSString *)key blendOutDuration:(CGFloat)duration API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
-/*!
- @method resumeAnimationForKey:
- @abstract Resume the animation with the given identifier.
- @param key The identifier for the animation to resume.
- */
-- (void)resumeAnimationForKey:(NSString *)key NS_AVAILABLE(10_9, 8_0);
 
-/*!
- @method isAnimationForKeyPaused:
- @abstract Returns whether the animation for the specified identifier is paused.
- @param key The identifier for the animation to query.
- */
-- (BOOL)isAnimationForKeyPaused:(NSString *)key NS_AVAILABLE(10_9, 8_0);
+// Deprecated
 
 /*!
  @method removeAnimationForKey:fadeOutDuration:
@@ -1488,42 +1681,321 @@ NS_CLASS_AVAILABLE(10_9, 8_0)
  @param key The identifier for the animation to remove.
  @param duration The fade out duration used to remove the animation.
  */
-- (void)removeAnimationForKey:(NSString *)key fadeOutDuration:(CGFloat)duration NS_AVAILABLE(10_10, 8_0);
+- (void)removeAnimationForKey:(NSString *)key fadeOutDuration:(CGFloat)duration API_DEPRECATED_WITH_REPLACEMENT("-removeAnimationForKey:blendOutDuration:", macos(10.10, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @method animationForKey:
+ @abstract Returns the animation with the given identifier
+ @param key The identifier for the animation to retrieve.
+ @discussion This will return nil if no such animation exists.
+ Attempting to modify any properties of the returned object will result in undefined behavior.
+ */
+- (nullable CAAnimation *)animationForKey:(NSString *)key API_DEPRECATED_WITH_REPLACEMENT("-animationPlayerForKey:", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0));
+
+/*!
+ @method pauseAnimationForKey:
+ @abstract Pause the animation with the given identifier.
+ @param key The identifier for the animation to pause.
+ */
+- (void)pauseAnimationForKey:(NSString *)key API_DEPRECATED("Use -[SCNAnimationPlayer setPaused:] instead", macos(10.9, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @method resumeAnimationForKey:
+ @abstract Resume the animation with the given identifier.
+ @param key The identifier for the animation to resume.
+ */
+- (void)resumeAnimationForKey:(NSString *)key API_DEPRECATED("Use -[SCNAnimationPlayer setPaused:] instead", macos(10.9, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @method setSpeed:forAnimationKey:
+ @abstract Update the animation speed of the animation with the given identifier.
+ @param speed The new speed of the animation.
+ @param key The identifier for the animation to update.
+ */
+- (void)setSpeed:(CGFloat)speed forAnimationKey:(NSString *)key API_DEPRECATED("Use -[SCNAnimationPlayer setSpeed:] instead", macos(10.12, 10.13), ios(10.0, 11.0), tvos(10.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @method isAnimationForKeyPaused:
+ @abstract Returns whether the animation for the specified identifier is paused.
+ @param key The identifier for the animation to query.
+ */
+- (BOOL)isAnimationForKeyPaused:(NSString *)key API_DEPRECATED("Use -[SCNAnimationPlayer paused] instead", macos(10.9, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
 
 @end
 
-/*!
- @category CAAnimation (CAAnimation)
- @abstract Extends the CAAnimation class for SceneKit explicit animations.
+
+
+/**
+ SCNAnimation represents an animation that targets a specific key path.
  */
-@interface CAAnimation (SceneKitAdditions)
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@interface SCNAnimation : NSObject <SCNAnimation, NSCopying, NSSecureCoding>
+
 
 /*!
- @property usesSceneTimeBase
- @abstract Determines whether the receiver is evaluated using the scene time or the system time. Defaults to NO.
- @discussion A scene-time based animation is evaluated using the "sceneTime" value of the renderer that renders the scene.
+ Initializers
  */
-@property BOOL usesSceneTimeBase;
 
-/*!
- @property fadeInDuration
- @abstract Determines the receiver's fade-in duration.
- @discussion When the fadeInDuration is greater than zero, the effect of the animation progressively increase from 0% to 100% during the specified duration.
- */
-@property CGFloat fadeInDuration NS_AVAILABLE(10_9, 8_0);
+/**
+ Loads and returns an animation loaded from the specified URL.
  
-/*!
- @property fadeOutDuration
- @abstract Determines the receiver's fade-out duration.
- @discussion When the fadeOutDuration is greater than zero, the effect of the animation progressively decrease from 100% to 0% at the end of the animation duration.
+ @param animationUrl The url to load.
  */
-@property CGFloat fadeOutDuration NS_AVAILABLE(10_9, 8_0);
++ (SCNAnimation *)animationWithContentsOfURL:(NSURL *)animationUrl;
+
+/**
+ Loads and returns the animation with the specified name in the current application bundle.
+
+ @param animationName The name of the animation to load.
+ */
++ (SCNAnimation *)animationNamed:(NSString *)animationName;
+
+// bridge with Core Animation
+/**
+ Returns a SCNAnimation initialized from a CAAnimation.
+
+ @param caAnimation The CAAnimation to initialize from.
+ @discussion Only CABasicAnimation, CAKeyframeAnimation and CAAnimationGroup are currently supported.
+ */
++ (SCNAnimation *)animationWithCAAnimation:(CAAnimation *)caAnimation;
+
+
 
 /*!
- @property animationEvents
- @abstract Specifies the animation events attached to the receiver.
+ Basic properties
  */
-@property(nonatomic, copy, nullable) NSArray<SCNAnimationEvent *> *animationEvents NS_AVAILABLE(10_9, 8_0);
+
+/**
+ The duration of the animation in seconds. Defaults to 0.
+ */
+@property(nonatomic) NSTimeInterval duration;
+
+/**
+ The key-path describing the property to be animated for single-property animations, nil for animations targetting multiple nodes. defaults to nil.
+ The key-path uses the KVC syntax. It's also possible to target a specific sub-node with the following syntax:
+    /<node-name>.property1.property2.field    (field is optional, <node-name> is the name of the targeted node).
+ */
+@property(nonatomic, copy, nullable) NSString *keyPath;
+
+/**
+ A timing function defining the pacing of the animation. Defaults to nil indicating linear pacing.
+ */
+@property(nonatomic, retain) SCNTimingFunction *timingFunction;
+
+
+
+/*!
+ Blending
+ */
+
+/**
+ Determines the receiver's blend-in duration.
+ @discussion When the blendInDuration is greater than zero, the effect of the animation progressively increase from 0% to 100% during the specified duration.
+ */
+@property(nonatomic) NSTimeInterval blendInDuration;
+
+/**
+ Determines the receiver's blend-out duration.
+ @discussion When the blendOutDuration is greater than zero, the effect of the animation progressively decrease from 100% to 0% at the end of the animation duration.
+ */
+@property(nonatomic) NSTimeInterval blendOutDuration;
+
+
+
+/*!
+ Animation behaviors
+ */
+
+/**
+ When true, the animation is removed from the render tree once its active duration has passed. Defaults to YES. 
+ */
+@property(nonatomic, getter=isRemovedOnCompletion) BOOL removedOnCompletion;
+
+/**
+ When true, the animation is applied to the model tree once its active duration has passed. Defaults to NO.
+ */
+@property(nonatomic, getter=isAppliedOnCompletion) BOOL appliedOnCompletion;
+
+
+
+/*!
+ Repeat
+ */
+
+/**
+ The repeat count of the object. May be fractional. Defaults to 0.
+ */
+@property(nonatomic) CGFloat repeatCount;
+/**
+ When true, the object plays backwards after playing forwards. Defaults to NO.
+ */
+@property(nonatomic) BOOL autoreverses;
+
+
+
+/*!
+ Delay and offset
+ */
+
+/**
+ The relative delay to start the animation, in relation to its parent animation if applicable. Defaults to 0.
+ @discussion This property is bridged with CoreAnimations's beginTime. However, for top level animations, startDelay relative to the current time (unlike CAAnimation's beginTime that is absolute). So if a CAAnimation has a non-zero beginTime, startDelay is initialized as caAnimation.beginTime - CACurrentMediaTime().
+ */
+@property(nonatomic) NSTimeInterval startDelay;
+
+/**
+ Additional offset in active local time. i.e. to convert from parent
+ time tp to active local time t: t = (tp - begin) * speed + offset.
+ Defaults to 0.
+ */
+@property(nonatomic) NSTimeInterval timeOffset;
+
+
+
+/*!
+ Fill mode
+ */
+
+/**
+ When true, the animation remains active after its active duration and evaluates to its end value. Defaults to NO.
+ */
+@property(nonatomic) BOOL fillsForward;
+
+/**
+ When true, the animation is active before its active duration and evaluates to its start value. Defaults to NO.
+ */
+@property(nonatomic) BOOL fillsBackward;
+
+/**
+ Determines whether the receiver is evaluated using the scene time or the system time. Defaults to NO.
+ @discussion A scene-time based animation is evaluated using the "sceneTime" value of the renderer that renders the scene.
+ The "sceneTime" base is typically used by players or editors that need to preview, edit and being able to change the evaluation time.
+ @see SCNSceneSourceAnimationImportPolicyKey
+ */
+@property(nonatomic) BOOL usesSceneTimeBase;
+
+
+/*!
+ Notifications & events
+ */
+
+/**
+ Called when the animation starts.
+ */
+@property(nonatomic, copy, nullable) SCNAnimationDidStartBlock animationDidStart;
+
+/**
+ Called when the animation either completes its active duration or
+ is removed from the object it is attached to (i.e. the layer). The 'completed' argument of SCNAnimationDidStopBlock
+ is true if the animation reached the end of its active duration without being removed.
+ */
+@property(nonatomic, copy, nullable) SCNAnimationDidStopBlock animationDidStop;
+
+/**
+ Specifies the animation events attached to the receiver.
+ @see SCNAnimationEvent
+ */
+@property(nonatomic, copy, nullable) NSArray<SCNAnimationEvent *> *animationEvents;
+
+/*!
+ Additive and cumulative
+ */
+
+/**
+ When true the value specified by the animation will be "added" to
+ the current presentation value of the property to produce the new
+ presentation value. The addition function is type-dependent, e.g.
+ for affine transforms the two matrices are concatenated. Defaults to
+ NO. */
+@property(nonatomic, getter=isAdditive) BOOL additive;
+
+/**
+ The `cumulative' property affects how repeating animations produce
+ their result. If true then the current value of the animation is the
+ value at the end of the previous repeat cycle, plus the value of the
+ current repeat cycle. If false, the value is simply the value
+ calculated for the current repeat cycle. Defaults to NO. 
+ */
+@property(nonatomic, getter=isCumulative) BOOL cumulative;
+
+@end
+
+
+
+/**
+ SCNAnimationPlayer let you control when and how to play and blend an animation
+ */
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@interface SCNAnimationPlayer : NSObject  <SCNAnimatable, NSCopying, NSSecureCoding>
+
+/**
+ Initialize an animation player with an animation
+ @param animation The animation to play
+ */
++ (SCNAnimationPlayer *)animationPlayerWithAnimation:(SCNAnimation *)animation;
+
+/**
+ The played animation
+ */
+@property(nonatomic, readonly) SCNAnimation *animation;
+
+/**
+ The speed to play the animation at. Defaults to 1.0. Animatable
+ */
+@property(nonatomic) CGFloat speed;
+
+/**
+ Controls the influence of the played animation. When set to 1 the animation is applied without any blending. When set to less than 1, the animation value is blent with the current presentation value of the animated property. Defaults to 1.0. Animatable.
+ */
+@property(nonatomic) CGFloat blendFactor;
+
+/**
+ Specifies if the animation is paused. Defaults to NO.
+ */
+@property(nonatomic) BOOL paused;
+
+/*!
+ Actions
+ */
+
+/**
+ Set paused to NO and restart playing from the beginning of the animation.
+ */
+- (void)play;
+
+/**
+ Stop the animation.
+ */
+- (void)stop;
+
+/**
+ Stop the animation and smoothly blend out the animation over the specified duration.
+ */
+- (void)stopWithBlendOutDuration:(NSTimeInterval)duration;
+
+@end
+
+
+/**
+ Signature for the block executed when the animation event is triggered.
+ */
+typedef void (^SCNAnimationEventBlock)(id <SCNAnimation> animation, id animatedObject, BOOL playingBackward);
+
+
+/**
+ SCNAnimationEvent encapsulates a block to trigger at a specific time.
+ */
+SCN_EXPORT API_AVAILABLE(macos(10.9))
+@interface SCNAnimationEvent : NSObject
+
+/*!
+ @method animationEventWithKeyTime:block:
+ @abstract Returns an animation event instance
+ @param time The relative time to trigger the event.
+ @param eventBlock The block to call when the event is triggered.
+ @discussion "time" is relative to animation duration and therefor it has to be a value in the range [0,1].
+ */
++ (instancetype)animationEventWithKeyTime:(CGFloat)time block:(SCNAnimationEventBlock)eventBlock;
 
 @end
 
@@ -1531,8 +2003,9 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNLevelOfDetail.h
 //
 //  SCNLevelOfDetail.h
+//  SceneKit
 //
-//  Copyright (c) 2013-2015 Apple Inc. All rights reserved.
+//  Copyright © 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1544,7 +2017,7 @@ NS_ASSUME_NONNULL_BEGIN
  @class SCNLevelOfDetail
  @abstract SCNLevelOfDetail represents a level of detail of a geometry.
  */
-NS_CLASS_AVAILABLE(10_9, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.9))
 @interface SCNLevelOfDetail : NSObject <NSCopying, NSSecureCoding>
 
 /*!
@@ -1587,17 +2060,23 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNPhysicsBehavior.h
 //
 //  SCNPhysicsBehavior.h
+//  SceneKit
 //
-//  Copyright (c) 2014-2015 Apple Inc. All rights reserved.
+//  Copyright © 2014-2018 Apple Inc. All rights reserved.
 //
 
+#import <SceneKit/SceneKitTypes.h>
+
 NS_ASSUME_NONNULL_BEGIN
+
+@class SCNNode;
+@class SCNPhysicsBody;
 
 /*!
  @class SCNPhysicsBehavior
  @abstract SCNPhysicsBehavior is an abstract class that represents a behavior in the physics world.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsBehavior : NSObject <NSSecureCoding>
 @end
 
@@ -1605,7 +2084,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @class SCNPhysicsHingeJoint
  @abstract SCNPhysicsHingeJoint makes two bodies to move like they are connected by a hinge. It is for example suitable for doors, chains...
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsHingeJoint : SCNPhysicsBehavior
 
 //Initializes and returns a physics hinge joint.
@@ -1630,7 +2109,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @class SCNPhysicsBallSocketJoint
  @abstract SCNPhysicsBallSocketJoint makes two bodies to move like they are connected by a ball-and-socket joint (i.e it allows rotations around all axes).
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsBallSocketJoint : SCNPhysicsBehavior
 
 //Initializes and returns a physics ball-and-socket joint.
@@ -1653,7 +2132,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @class SCNPhysicsSliderJoint
  @abstract SCNPhysicsSliderJoint provides a linear sliding joint between two bodies.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsSliderJoint : SCNPhysicsBehavior
 
 //Initializes and returns a physics slider joint.
@@ -1688,12 +2167,40 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 @end
 
+/*!
+ @class SCNPhysicsConeTwistJoint
+ */
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@interface SCNPhysicsConeTwistJoint : SCNPhysicsBehavior
+
+//Initializes and returns a physics cone-twist joint.
+//The joint attaches bodyA and bodyB on frameA and frameB respectively.
++ (instancetype)jointWithBodyA:(SCNPhysicsBody *)bodyA frameA:(SCNMatrix4)frameA bodyB:(SCNPhysicsBody *)bodyB frameB:(SCNMatrix4)frameB;
+
+//Initializes and returns a physics cone-twist joint.
+//The joint attaches "body" to the 3d location specified by "frame" and relative to the node that owns the body.
++ (instancetype)jointWithBody:(SCNPhysicsBody *)body frame:(SCNMatrix4)frame;
+
+@property(nonatomic, readonly) SCNPhysicsBody *bodyA; //the first body attached to the slider joint
+@property(nonatomic) SCNMatrix4 frameA;
+
+@property(nonatomic, readonly, nullable) SCNPhysicsBody *bodyB; //the second body attached to the slider joint
+@property(nonatomic) SCNMatrix4 frameB;
+
+//The maximum angular limits in radians in each cone tangent directions
+@property(nonatomic) CGFloat maximumAngularLimit1;
+@property(nonatomic) CGFloat maximumAngularLimit2;
+
+//Maximum twist angle alon the cone axis
+@property(nonatomic) CGFloat maximumTwistAngle;
+
+@end
 
 /*!
  @class SCNPhysicsVehicleWheel
  @abstract SCNPhysicsVehicleWheel represents a wheel that can be attached to a SCNPhysicsVehicle instance.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsVehicleWheel : NSObject <NSCopying, NSSecureCoding>
 
 //Initializes and returns a wheel.
@@ -1741,7 +2248,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @class SCNPhysicsVehicle
  @abstract SCNPhysicsVehicle provides a vehicle behavior.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsVehicle : SCNPhysicsBehavior
 
 // Initializes and returns a physics vehicle that applies on the physics body "chassisBody" with the given wheels.
@@ -1773,11 +2280,12 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNTechnique.h
 //
 //  SCNTechnique.h
+//  SceneKit
 //
-//  Copyright (c) 2014-2015 Apple Inc. All rights reserved.
+//  Copyright © 2014-2018 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <SceneKit/SCNShadable.h>
 #import <SceneKit/SCNAnimation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -1787,7 +2295,7 @@ NS_ASSUME_NONNULL_BEGIN
  @abstract SCNTechnique represents a rendering process that may require multiple passes.
  @discussion A technique is generally initialized from a Property List file. It can be set to any object that conforms to the SCNTechniqueSupport protocol.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNTechnique : NSObject <SCNAnimatable, NSCopying, NSSecureCoding>
 
 /*!
@@ -1885,7 +2393,7 @@ The values can be a single string referencing a symbol or a semantic or a target
 <color states>
  A dictionary with the following optional keys:
  "clear" a boolean specifying whether the color target should be cleared or not
- "clearColor" a string specifying the clear color as 4 float (red, green, blue, alpha), or the string "sceneBackground" to clear with the scene background color.
+ "clearColor" a string specifying the clear color as 4 float ("red green blue alpha"), or the string "sceneBackground" to clear with the scene background color.
  
 <depth states>
  A dictionary with the following optional keys:
@@ -1955,23 +2463,33 @@ The values can be a single string referencing a symbol or a semantic or a target
 <symbol description>
  A dictionary with the following optional keys and their possible associated values:
  
- semantic: vertex, normal, color, texcoord, time, modelViewProjectionTransform, modelViewTransform, modelTransform, viewTransform, projectionTransform, normalTransform, modelViewProjectionInverseTransform, modelViewInverseTransform, modelInverseTransform, viewInverseTransform, projectionInverseTransform, normalInverseTransform
+ semantic: vertex, normal, color, texcoord, tangent, time, modelViewProjectionTransform, modelViewTransform, modelTransform, viewTransform, projectionTransform, normalTransform, modelViewProjectionInverseTransform, modelViewInverseTransform, modelInverseTransform, viewInverseTransform, projectionInverseTransform, normalInverseTransform
  
  type: float, vec2, vec3, vec4, mat4, int, ivec2, ivec3, ivec4, mat3, sampler2D, none. Every types can also be an array of the given type by adding [N] where N is the number of elements in the array.
  
  image: name of an image located in the application bundle. (only valid when type is sampler2D)
  
  if a semantic is set, no type is required.
+ Note that with Metal shaders you should not provide any semantic. Instead simply declare a struct in you shader and add the members you need named as specified in SceneKit/scn_metal.
+ 
+ For example for a per-node semantic:
+ 
+ struct MyStruct
+ {
+ float4x4 modelTransform;
+ float4x4 modelViewProjectionTransform;
+ };
+ then in your function add an argument that must be named “scn_node” to get the members automatically filed with node semantics (see the documentation in scn_metal).
  
 <target description>
  A dictionary with the following optional keys and their possible associated values:
  
  type: a string specifying the type of the render target. It can be one of the following: color, depth, stencil
  format: a string specifying the format of the render target. It can be:
- - for color targets: rgba32f, r8, r16, rgba(default)
+ - for color targets: rgba32f, r8, r16f, rg16 or rgba. If not specified defaults to the framebuffer's pixel format.
  - for depth targets: depth24, depth24stencil8
  - for stencil targets: depth24stencil8
- scaleFactor: a float value (encapsulated in a NSNumber) that controls the size of the render target. default to 1, which means 1x the size of the main viewport.
+ scaleFactor: a float value (encapsulated in a NSNumber) that controls the size of the render target. Defaults to 1, which means 1x the size of the main viewport.
  size: a string with the format %dx%d that controls the size of the render target.
  persistent: a boolean that tells if this target should persist from one frame to the next. It permits to create temporal effects suchs as motion blur. Defaults to NO.
  */
@@ -2017,12 +2535,12 @@ The values can be a single string referencing a symbol or a semantic or a target
  vec4          | SCNVector4
  mat4, mat44   | SCNMatrix4
  
- On OS X 10.11 or later and iOS 9 or later you can also use the object subscripting syntax to set values to uniforms.
+ On macOS 10.11 or later and iOS 9 or later you can also use the object subscripting syntax to set values to uniforms.
  For example:
  myTechnique[@"myAmplitude"] = aValue;
  */
-- (nullable id)objectForKeyedSubscript:(id)key NS_AVAILABLE(10_11, 9_0);
-- (void)setObject:(nullable id)obj forKeyedSubscript:(id <NSCopying>)key NS_AVAILABLE(10_11, 9_0);
+- (nullable id)objectForKeyedSubscript:(id)key API_AVAILABLE(macos(10.11), ios(9.0));
+- (void)setObject:(nullable id)obj forKeyedSubscript:(id <NSCopying>)key API_AVAILABLE(macos(10.11), ios(9.0));
 
 @end
 
@@ -2038,7 +2556,7 @@ The values can be a single string referencing a symbol or a semantic or a target
  @property technique
  @abstract Specifies the technique of the receiver. Defaults to nil.
  */
-@property(nonatomic, copy, nullable) SCNTechnique *technique NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, copy, nullable) SCNTechnique *technique API_AVAILABLE(macos(10.10));
 
 @end
 
@@ -2046,9 +2564,12 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNPhysicsBody.h
 //
 //  SCNPhysicsBody.h
+//  SceneKit
 //
-//  Copyright (c) 2014-2015 Apple Inc. All rights reserved.
+//  Copyright © 2014-2018 Apple Inc. All rights reserved.
 //
+
+#import <SceneKit/SceneKitTypes.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -2059,20 +2580,20 @@ typedef NS_ENUM(NSInteger, SCNPhysicsBodyType) {
 	SCNPhysicsBodyTypeStatic,
 	SCNPhysicsBodyTypeDynamic,
 	SCNPhysicsBodyTypeKinematic
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 //Collision default category
 typedef NS_OPTIONS(NSUInteger, SCNPhysicsCollisionCategory) {
 	SCNPhysicsCollisionCategoryDefault = 1 << 0,    // default collision group for dynamic and kinematic objects
 	SCNPhysicsCollisionCategoryStatic  = 1 << 1,    // default collision group for static objects
 	SCNPhysicsCollisionCategoryAll     = ~0UL       // default for collision mask
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 /*!
  @class SCNPhysicsBody
  @abstract The SCNPhysicsBody class describes the physics properties (such as mass, friction...) of a node.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsBody : NSObject <NSCopying, NSSecureCoding>
 
 //Creates an instance of a static body with default properties.
@@ -2094,10 +2615,10 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @property(nonatomic) CGFloat mass;
 
 //Specifies the moment of inertia of the body as a vector in 3D. Disable usesDefaultMomentOfInertia for this value to be used instead of the default moment of inertia that is calculated from the shape geometry.
-@property(nonatomic) SCNVector3 momentOfInertia NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic) SCNVector3 momentOfInertia API_AVAILABLE(macos(10.11), ios(9.0));
 
 //Permits to disable the use of the default moment of inertia in favor of the one stored in momentOfInertia.
-@property(nonatomic) BOOL usesDefaultMomentOfInertia NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic) BOOL usesDefaultMomentOfInertia API_AVAILABLE(macos(10.11), ios(9.0));
 
 // Specifies the charge on the body. Charge determines the degree to which a body is affected by
 // electric and magnetic fields. Note that this is a unitless quantity, it is up to the developer to
@@ -2142,18 +2663,18 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 //Defines what logical 'categories' this body belongs too.
 //Defaults to SCNPhysicsCollisionCategoryStatic for static bodies and SCNPhysicsCollisionCategoryDefault for the other body types.
-//limited to the first 15 bits on OS X 10.10 and iOS 8.
+//limited to the first 15 bits on macOS 10.10 and iOS 8.
 @property(nonatomic) NSUInteger categoryBitMask;
 
 //Defines what logical 'categories' of bodies this body responds to collisions with. Defaults to all bits set (all categories).
 @property(nonatomic) NSUInteger collisionBitMask;
 
 //A mask that defines which categories of bodies cause intersection notifications with this physics body. Defaults to 0.
-//On iOS 8 and OS X 10.10 and lower the intersection notifications are always sent when a collision occurs.
-@property(nonatomic) NSUInteger contactTestBitMask NS_AVAILABLE(10_11, 9_0);
+//On iOS 8 and macOS 10.10 and lower the intersection notifications are always sent when a collision occurs.
+@property(nonatomic) NSUInteger contactTestBitMask API_AVAILABLE(macos(10.11), ios(9.0));
 
 //If set to YES this node will be affected by gravity. The default is YES.
-@property(nonatomic, getter=isAffectedByGravity) BOOL affectedByGravity NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, getter=isAffectedByGravity) BOOL affectedByGravity API_AVAILABLE(macos(10.11), ios(9.0));
 
 //Applies a linear force in the specified direction. The linear force is applied on the center of mass of the receiver. If impulse is set to YES then the force is applied for just one frame, otherwise it applies a continuous force.
 - (void)applyForce:(SCNVector3)direction impulse:(BOOL)impulse;
@@ -2161,7 +2682,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 //Applies a linear force with the specified position and direction. The position is relative to the node that owns the physics body.
 - (void)applyForce:(SCNVector3)direction atPosition:(SCNVector3)position impulse:(BOOL)impulse;
 
-//Applies an angular force (torque). If impulse is set to YES then the force is applied for just one frame, otherwise it applies a continuous force.
+//Applies an angular force (torque). If impulse is set to YES then the force is applied for just one frame, otherwise it applies a continuous force. The torque is specified as an axis angle.
 - (void)applyTorque:(SCNVector4)torque impulse:(BOOL)impulse;
 
 //Clears the forces applied one the receiver.
@@ -2170,14 +2691,31 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 //Reset the physical transform to the node's model transform.
 - (void)resetTransform;
 
+// Sets a physics body at rest (or not)
+- (void)setResting:(BOOL)resting API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
+
+// Use discrete collision detection if the body’s distance traveled in one step is at or below this threshold, or continuous collision detection otherwise. Defaults to zero, indicating that continuous collision detection is always disabled.
+@property (nonatomic) CGFloat continuousCollisionDetectionThreshold API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
+
+// Specifies an offset for the center of mass of the body. Defaults to (0,0,0).
+@property(nonatomic) SCNVector3 centerOfMassOffset API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
+
+// Linear velocity threshold under which the body may be considered resting. Defaults to 0.1.
+@property (nonatomic) CGFloat linearRestingThreshold API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
+
+// Angular velocity threshold under which the body may be considered resting. Defaults to 0.1.
+@property (nonatomic) CGFloat angularRestingThreshold API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
+
+
 @end
     
 NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNShadable.h
 //
 //  SCNShadable.h
+//  SceneKit
 //
-//  Copyright (c) 2013-2015 Apple Inc. All rights reserved.
+//  Copyright © 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2192,7 +2730,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SCNProgramDelegate;
 @protocol SCNShadable;
 
-
+typedef NSString * SCNShaderModifierEntryPoint NS_STRING_ENUM;
 
 /*! @enum SCNBufferFrequency
  @abstract The frequency at which the custom program input should be updated.
@@ -2204,7 +2742,7 @@ typedef NS_ENUM(NSInteger, SCNBufferFrequency) {
     SCNBufferFrequencyPerFrame    = 0,
     SCNBufferFrequencyPerNode     = 1,
     SCNBufferFrequencyPerShadable = 2 // SCNMaterial or SCNGeometry
-} NS_ENUM_AVAILABLE(10_11, 9_0);
+} API_AVAILABLE(macos(10.11), ios(9.0));
 
 @protocol SCNBufferStream <NSObject>
 - (void)writeBytes:(void *)bytes length:(NSUInteger)length;
@@ -2228,7 +2766,7 @@ typedef void (^SCNBufferBindingBlock)(id <SCNBufferStream> buffer, SCNNode *node
  @param renderedNode The node currently being rendered.
  @param renderer The renderer that is currently rendering the scene.
  */
-typedef void (^SCNBindingBlock)(unsigned int programID, unsigned int location, SCNNode *renderedNode, SCNRenderer *renderer);
+typedef void (^SCNBindingBlock)(unsigned int programID, unsigned int location, SCNNode * _Nullable renderedNode, SCNRenderer *renderer);
 
 
 /*!
@@ -2243,7 +2781,7 @@ typedef void (^SCNBindingBlock)(unsigned int programID, unsigned int location, S
  @abstract Specifies a custom program used to render the receiver.
  @discussion When a program is set, it overrides all the rendering parameters such as material settings and shaderModifiers.
  */
-@property(nonatomic, retain, nullable) SCNProgram *program;
+@property(nonatomic, retain, nullable) SCNProgram *program API_UNAVAILABLE(watchos);
 
 /*!
  @method handleBindingOfSymbol:usingBlock:
@@ -2252,7 +2790,7 @@ typedef void (^SCNBindingBlock)(unsigned int programID, unsigned int location, S
  @param block The block to call to bind the specified symbol.
  @discussion This method can only be used with OpenGL and OpenGLES based programs.
  */
-- (void)handleBindingOfSymbol:(NSString *)symbol usingBlock:(nullable SCNBindingBlock)block NS_AVAILABLE(10_9, 8_0);
+- (void)handleBindingOfSymbol:(NSString *)symbol usingBlock:(nullable SCNBindingBlock)block API_AVAILABLE(macos(10.9)) API_UNAVAILABLE(watchos);
 
 /*!
  @method handleUnbindingOfSymbol:usingBlock:
@@ -2261,99 +2799,140 @@ typedef void (^SCNBindingBlock)(unsigned int programID, unsigned int location, S
  @param block The block to call to unbind the specified symbol.
  @discussion This method can only be used with OpenGL and OpenGLES based programs.
  */
-- (void)handleUnbindingOfSymbol:(NSString *)symbol usingBlock:(nullable SCNBindingBlock)block NS_AVAILABLE(10_9, 8_0);
+- (void)handleUnbindingOfSymbol:(NSString *)symbol usingBlock:(nullable SCNBindingBlock)block API_AVAILABLE(macos(10.9)) API_UNAVAILABLE(watchos);
 
 /*!
  @property shaderModifiers
  @abstract Dictionary of shader modifiers snippets, targeting entry points. The valid keys are the entry points described in the "Shader Modifier Entry Point" constants. The values are the code snippets formatted as described below.
  @discussion Shader modifiers allow you to inject shader code in the standard shaders of SceneKit. This injection is allowed in few controlled entry points, allowing specific kind of tasks in specific context. Each modifier can operate on specific structures along with access to global uniforms, that could be the standard SceneKit uniforms or its own declared uniforms.
  
- The structure of a shader modifier is:
- 
- | // Custom uniforms declarations of the form:
- | // for GLSL: [uniform type uniformName [= defaultValue]]
- | uniform float myGrayAmount = 3.0;
- |
- | //for Metal a pragma is required and arguments have the form [type name]
- | #pragma arguments
- | float myGrayAmount;
- |
- | // Optional global function definitions (for Metal: references to arguments from global functions are not supported).
- | float mySin(float t) {
- |    return sin(t);
- | }
- |
- | [#pragma transparent | opaque]
- | [#pragma body]
- |
- | // the shader modifier code snippet itself
- | vec3 myColor = vec3(myGrayAmount);
- | _output.color.rgb += myColor;
- 
- The `#pragma body` directive
- Is only needed if you declared functions that must not be included in the shader code itself.
- 
- The `#pragma transparent` directive
- Forces the rendering to be blended using the following equation:
- _output.color.rgb + (1 - _output.color.a) * dst.rgb;
- where `dst` represents the current fragment color. The rgb components must be premultiplied.
- 
- The `#pragma opaque` directive
- Forces the rendering to be opaque. It then ignores the alpha component of the fragment.
- 
- The SCNGeometry and SCNMaterial classes are key-value coding compliant classes, which means that you can set values for arbitrary keys. Even if the key `myAmplitude` is not a declared property of the class, you can still set a value for it.
- Declaring a `myAmplitude` uniform in the shader modifier makes SceneKit observe the reveiver's `myAmplitude` key. Any change to that key will make SceneKit bind the uniform with the new value.
- 
- Custom uniforms can be animated using explicit animations.
- 
- The following GLSL types (and Objective-C counterparts) can be used to declare (and bind) custom uniforms:
- Example: uniform float myAmplitude = 0.5;
- 
- GLSL types    | Objective-C types
- --------------------------------------
- int           | NSNumber, NSInteger, int
- float         | NSNumber, CGFloat, float, double
- vec2          | CGPoint
- vec3          | SCNVector3
- vec4          | SCNVector4
- mat4, mat44   | SCNMatrix4
- sampler2D     | SCNMaterialProperty
- samplerCube   | SCNMaterialProperty (with a cube map)
- 
- The following prefixes are reserved by SceneKit and should not be used in custom names:
- u_
- a_
- v_
- 
- SceneKit declares the following built-in uniforms:
- float u_time;                               // The current time, in seconds
- vec2  u_inverseResolution;                 // 1./screen size (available on iOS 9 and OS X 10.11)
- -------------------------------------------------------------------------------------
- mat4  u_modelTransform                      // See SCNModelTransform
- mat4  u_viewTransform                       // See SCNViewTransform
- mat4  u_projectionTransform                 // See SCNProjectionTransform
- mat4  u_normalTransform                     // See SCNNormalTransform
- mat4  u_modelViewTransform                  // See SCNModelViewTransform
- mat4  u_modelViewProjectionTransform        // See SCNModelViewProjectionTransform
- -------------------------------------------------------------------------------------
- mat4  u_inverseModelTransform               // The inverse matrix of u_modelTransform
- mat4  u_inverseViewTransform                // The inverse matrix of u_viewTransform
- mat4  u_inverseProjectionTransform          // The inverse matrix of u_projectionTransform
- mat4  u_inverseModelViewTransform           // The inverse matrix of u_modelViewTransform
- mat4  u_inverseModelViewProjectionTransform // The inverse matrix of u_modelViewProjectionTransform
- -------------------------------------------------------------------------------------
- mat2x3 u_boundingBox;                       // The bounding box of the current geometry, in model space, u_boundingBox[0].xyz and u_boundingBox[1].xyz being respectively the minimum and maximum corner of the box.
- 
  Shader modifiers can be used to tweak SceneKit rendering by adding custom code at the following entry points:
- 1. vertex
- 2. surface
- 3. lighting
- 4. fragment
+     1. vertex   (SCNShaderModifierEntryPointGeometry)
+     2. surface  (SCNShaderModifierEntryPointSurface)
+     3. lighting (SCNShaderModifierEntryPointLightingModel)
+     4. fragment (SCNShaderModifierEntryPointFragment)
  See below for a detailed explanation of these entry points and the context they provide.
  
- Shader modifiers can be written in GLSL or Metal. Metal shaders won't run on iOS8 and OS X 10.10 or below.
+ Shader modifiers can be written in either GLSL or the Metal Shading Language. Metal shaders won't run on iOS 8 and macOS 10.10 or earlier.
+ 
+ The structure of a shader modifier is:
+ 
+     GLSL
+     | uniform float myGrayAmount = 3.0; // Custom GLSL uniforms declarations are of the form `[uniform type uniformName [= defaultValue]]`
+     |
+     | // Optional global function definitions (for Metal: references to uniforms in global functions are not supported).
+     | float mySin(float t) {
+     |    return sin(t);
+     | }
+     |
+     | [#pragma transparent | opaque]
+     | [#pragma body]
+     |
+     | // the shader modifier code snippet itself
+     | vec3 myColor = myGrayAmount;
+     | _output.color.rgb += myColor;
+ 
+     Metal Shading Language
+     | #pragma arguments
+     | float myGrayAmount; // Custom Metal uniforms declarations require a #pragma and are of the form `[type name]`
+     |
+     | // Optional global function definitions (for Metal: references to uniforms in global functions are not supported).
+     | float mySin(float t) {
+     |    return sin(t);
+     | }
+     |
+     | [#pragma transparent | opaque]
+     | [#pragma body]
+     |
+     | // the shader modifier code snippet itself
+     | float3 myColor = myGrayAmount;
+     | _output.color.rgb += myColor;
+ 
+ The `#pragma body` directive
+     Is only needed if you declared functions that must not be included in the shader code itself.
+ 
+ The `#pragma transparent` directive
+     Forces the rendering to be blended using the following equation:
+         _output.color.rgb + (1 - _output.color.a) * dst.rgb;
+     where `dst` represents the current fragment color. The rgb components must be premultiplied.
+ 
+ The `#pragma opaque` directive
+     Forces the rendering to be opaque. It then ignores the alpha component of the fragment.
+ 
+ When using Metal, you can also transfer varying values from the vertex shader (geometry shader modifier) to the fragment shader (surface and/or fragment shader modifier):
+     1. Start by declaring the varying values in at least one of the shader modifiers:
+ 
+         Metal Shading Language
+         | #pragma varyings
+         | half3 myVec;
+ 
+     2. Then write the varying values from the vertex shader (geometry shader modifier):
+ 
+         Metal Shading Language
+         | #pragma body
+         | out.myVec = _geometry.normal.xyz * 0.5h + 0.5h;
+ 
+     3. Finally read the varying values from the fragment shader (surface and/or fragment shader modifier):
+ 
+         Metal Shading Language
+         | _output.color.rgb = saturate(in.myVec);
+ 
+  SceneKit declares the following built-in uniforms:
+ 
+     GLSL                                        | Metal Shading Language                                |
+     --------------------------------------------┼-------------------------------------------------------┤
+     float u_time                                | float    scn_frame.time                               | The current time, in seconds
+     vec2  u_inverseResolution                   | float2   scn_frame.inverseResolution                  | 1.0 / screen size
+     --------------------------------------------┼-------------------------------------------------------┤
+     mat4  u_viewTransform                       | float4x4 scn_frame.viewTransform                      | See SCNViewTransform
+     mat4  u_inverseViewTransform                | float4x4 scn_frame.inverseViewTransform               |
+     mat4  u_projectionTransform                 | float4x4 scn_frame.projectionTransform                | See SCNProjectionTransform
+     mat4  u_inverseProjectionTransform          | float4x4 scn_frame.inverseProjectionTransform         |
+     --------------------------------------------┼-------------------------------------------------------┤
+     mat4  u_normalTransform                     | float4x4 scn_node.normalTransform                     | See SCNNormalTransform
+     mat4  u_modelTransform                      | float4x4 scn_node.modelTransform                      | See SCNModelTransform
+     mat4  u_inverseModelTransform               | float4x4 scn_node.inverseModelTransform               |
+     mat4  u_modelViewTransform                  | float4x4 scn_node.modelViewTransform                  | See SCNModelViewTransform
+     mat4  u_inverseModelViewTransform           | float4x4 scn_node.inverseModelViewTransform           |
+     mat4  u_modelViewProjectionTransform        | float4x4 scn_node.modelViewProjectionTransform        | See SCNModelViewProjectionTransform
+     mat4  u_inverseModelViewProjectionTransform | float4x4 scn_node.inverseModelViewProjectionTransform |
+     --------------------------------------------┼-------------------------------------------------------┤
+     mat2x3 u_boundingBox;                       | float2x3 scn_node.boundingBox                         | The bounding box of the current geometry, in model space, u_boundingBox[0].xyz and u_boundingBox[1].xyz being respectively the minimum and maximum corner of the box.
+     mat2x3 u_worldBoundingBox;                  | float2x3 scn_node.worldBoundingBox                    | The bounding box of the current geometry, in world space.
+
+     When writing shaders using the Metal Shading Language a complete description of the type of the scn_frame variable (SCNSceneBuffer) can be found in the <SceneKit/scn_metal> header file.
+     The type of the scn_node variable is generated at compile time and there's no corresponding header file in the framework.
+ 
+ In addition to these built-in uniforms, it is possible to use custom uniforms:
+ 
+     The SCNGeometry and SCNMaterial classes are key-value coding compliant classes, which means that you can set values for arbitrary keys. Even if the key `myAmplitude` is not a declared property of the class, you can still set a value for it.
+     Declaring a `myAmplitude` uniform in the shader modifier makes SceneKit observe the reveiver's `myAmplitude` key. Any change to that key will make SceneKit bind the uniform with the new value.
+
+     The following GLSL and Metal Shading Language types (and their Objective-C counterparts) can be used to declare (and bind) custom uniforms:
+ 
+        GLSL        | Metal Shading Language | Objective-C                           |
+        ------------┼------------------------┼---------------------------------------┤
+        int         | int                    | NSNumber, NSInteger, int              |
+        float       | float                  | NSNumber, CGFloat, float, double      |
+        vec2        | float2                 | CGPoint                               |
+        vec3        | float3                 | SCNVector3                            |
+        vec4        | float4                 | SCNVector4                            |
+        mat4, mat44 | float4x4               | SCNMatrix4                            |
+        sampler2D   | texture2d              | SCNMaterialProperty                   |
+        samplerCube | texturecube            | SCNMaterialProperty (with a cube map) |
+        -           | device const T*        | MTLBuffer                             | Feature introduced in macOS 10.13, iOS 11.0 and tvOS 11.0
+        -           | struct {...}           | NSData                                | The entire struct can be set using NSData but it is also possible to set individual members using the member's name as a key and a value compatible with the member's type
+ 
+     Common scalar types wrapped into a NSValue are also supported.
+ 
+     The following prefixes are reserved by SceneKit and should not be used in custom names:
+         1. u_
+         2. a_
+         3. v_
+ 
+     Custom uniforms can be animated using explicit animations.
  */
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> *shaderModifiers NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic, copy, nullable) NSDictionary<SCNShaderModifierEntryPoint, NSString *> *shaderModifiers API_AVAILABLE(macos(10.9));
 
 @end
 
@@ -2362,13 +2941,14 @@ typedef void (^SCNBindingBlock)(unsigned int programID, unsigned int location, S
  @group Semantic options
  @abstract Valid keys for the option parameter of setSemantic:forSymbol:options:
  */
-SCN_EXTERN NSString * const SCNProgramMappingChannelKey;  /* This key is optional and may be used in association with the SCNGeometrySourceSemanticTexcoord semantic. It allows to associate a mapping channel from the geometry to a symbol from the program source code. The mapping channel allows to plug programs that work with multiple texture coordinates. The associated value must be a NSNumber(integer) greater than zero. */
+SCN_EXPORT NSString * const SCNProgramMappingChannelKey API_UNAVAILABLE(watchos); /* This key is optional and may be used in association with the SCNGeometrySourceSemanticTexcoord semantic. It allows to associate a mapping channel from the geometry to a symbol from the program source code. The mapping channel allows to plug programs that work with multiple texture coordinates. The associated value must be a NSNumber(integer) greater than zero. */
 
 /*!
  @class SCNProgram
  @abstract A SCNProgram lets you specify custom shaders to use when rendering materials.
  */
-NS_CLASS_AVAILABLE(10_8, 8_0)
+API_UNAVAILABLE(watchos)
+SCN_EXPORT
 @interface SCNProgram : NSObject <NSCopying, NSSecureCoding>
 
 /*!
@@ -2395,14 +2975,14 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Determines the receiver's vertex function name.
  @discussion The name of the vertex function (for Metal programs).
  */
-@property(nonatomic, copy, nullable) NSString *vertexFunctionName NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, copy, nullable) NSString *vertexFunctionName API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property fragmentFunctionName
  @abstract Determines the receiver's fragment function name.
  @discussion The name of the fragment function (for Metal programs).
  */
-@property(nonatomic, copy, nullable) NSString *fragmentFunctionName NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, copy, nullable) NSString *fragmentFunctionName API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @method handleBindingOfBufferNamed:frequency:usingBlock:
@@ -2412,14 +2992,14 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param block The block that binds the buffer.
  @discussion This method can only be used with Metal based programs.
  */
-- (void)handleBindingOfBufferNamed:(NSString *)name frequency:(SCNBufferFrequency)frequency usingBlock:(SCNBufferBindingBlock)block NS_AVAILABLE(10_11, 9_0);
+- (void)handleBindingOfBufferNamed:(NSString *)name frequency:(SCNBufferFrequency)frequency usingBlock:(SCNBufferBindingBlock)block API_AVAILABLE(macos(10.11), ios(9.0));
 
 
 /*!
  @property opaque
  @abstract Determines the receiver's fragment are opaque or not. Defaults to YES.
  */
-@property(nonatomic, getter=isOpaque) BOOL opaque NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, getter=isOpaque) BOOL opaque API_AVAILABLE(macos(10.10));
 
 /*!
  @method setSemantic:forSymbol:options:
@@ -2445,11 +3025,11 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 @property(nonatomic, assign, nullable) id <SCNProgramDelegate> delegate;
 
 /*!
- @method library
+ @property library
  @abstract Specifies the metal library to use to locate the function names specified above. 
  @discussion If set to nil the default library is used. Defaults to nil.
  */
-@property(nonatomic, retain, nullable) id <MTLLibrary> library NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic, retain, nullable) id <MTLLibrary> library API_AVAILABLE(macos(10.11), ios(9.0));
 
 @end
 
@@ -2457,6 +3037,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @protocol SCNProgramDelegate
  @abstract The SCNProgramDelegate protocol declares the methods that an instance of SCNProgram invokes to delegate the binding of parameters.
  */
+API_UNAVAILABLE(watchos)
 @protocol SCNProgramDelegate <NSObject>
 
 @optional
@@ -2475,7 +3056,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param program The queried program.
  @discussion This is deprecated. Use SCNProgram's opaque property instead.
  */
-- (BOOL)programIsOpaque:(SCNProgram *)program NS_DEPRECATED(10_8, 10_10, NA, NA);
+- (BOOL)programIsOpaque:(SCNProgram *)program API_DEPRECATED("Use SCNProgram.opaque instead", macos(10.8, 10.10)) API_UNAVAILABLE(ios, tvos, watchos);
 
 @end
 
@@ -2483,19 +3064,20 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @group Shader Modifier Entry Point
  @abstract Entry points designing the insertion point of the shader code snippet of a shader modifiers dictionary.
  */
+
 /*!
  @constant SCNShaderModifierEntryPointGeometry
  @abstract This is the entry point to operate on the geometry vertices, for example deforming them.
  @discussion It operates entirely in the vertex shader stage. It's input is the geometry structure:
  
- Structures available from this entry point:
+ Structures available from the SCNShaderModifierEntryPointGeometry entry point:
  
  | struct SCNShaderGeometry {
- |    vec4 position;
- |    vec3 normal;
- |    vec4 tangent;
- |    vec4 color;
- |    vec2 texcoords[kSCNTexcoordCount];
+ |    float4 position;
+ |    float3 normal;
+ |    float4 tangent;
+ |    float4 color;
+ |    float2 texcoords[kSCNTexcoordCount];
  | } _geometry;
  |
  | Access: ReadWrite
@@ -2509,39 +3091,56 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  
  Example: Simple sinusoidal deformation
  
- uniform float Amplitude = 0.1
- _geometry.position.xyz += _geometry.normal * (Amplitude*_geometry.position.y*_geometry.position.x) * sin(u_time);
+     GLSL
+     | uniform Amplitude = 0.1;
+     |
+     | _geometry.position.xyz += _geometry.normal * (Amplitude * _geometry.position.y * _geometry.position.x) * sin(u_time);
+ 
+     Metal Shading Language
+     | #pragma arguments
+     | float Amplitude;
+     |
+     | _geometry.position.xyz += _geometry.normal * (Amplitude * _geometry.position.y * _geometry.position.x) * sin(u_time);
+ 
  */
-SCN_EXTERN NSString * const SCNShaderModifierEntryPointGeometry NS_AVAILABLE(10_9, 8_0);
+SCN_EXPORT SCNShaderModifierEntryPoint const SCNShaderModifierEntryPointGeometry API_AVAILABLE(macos(10.9));
 
 /*!
  @constant SCNShaderModifierEntryPointSurface
  @abstract This is the entry point to alter the surface representation of the material, before the lighting has taken place.
- @discussion
  
- Structures available from this entry point:
+ Structures available from the SCNShaderModifierEntryPointSurface entry point:
  
  | struct SCNShaderSurface {
- |    vec3 view;                // Direction from the point on the surface toward the camera (V)
- |    vec3 position;            // Position of the fragment
- |    vec3 normal;              // Normal of the fragment (N)
- |    vec3 tangent;             // Tangent of the fragment
- |    vec3 bitangent;           // Bitangent of the fragment
- |    vec4 ambient;             // Ambient property of the fragment
- |    vec2 ambientTexcoord;     // Ambient texture coordinates
- |    vec4 diffuse;             // Diffuse property of the fragment. Alpha contains the opacity.
- |    vec2 diffuseTexcoord;     // Diffuse texture coordinates
- |    vec4 specular;            // Specular property of the fragment
- |    vec2 specularTexcoord;    // Specular texture coordinates
- |    vec4 emission;            // Emission property of the fragment
- |    vec2 emissionTexcoord;    // Emission texture coordinates
- |    vec4 multiply;            // Multiply property of the fragment
- |    vec2 multiplyTexcoord;    // Multiply texture coordinates
- |    vec4 transparent;         // Transparent property of the fragment
- |    vec2 transparentTexcoord; // Transparent texture coordinates
- |    vec4 reflective;          // Reflective property of the fragment
- |    float shininess;          // Shininess property of the fragment.
- |    float fresnel;            // Fresnel property of the fragment.
+ |    float3 view;                     // Direction from the point on the surface toward the camera (V)
+ |    float3 position;                 // Position of the fragment
+ |    float3 normal;                   // Normal of the fragment (N)
+ |    float3 geometryNormal;           // Geometric normal of the fragment (normal map is ignored)
+ |    float3 tangent;                  // Tangent of the fragment
+ |    float3 bitangent;                // Bitangent of the fragment
+ |    float4 ambient;                  // Ambient property of the fragment
+ |    float2 ambientTexcoord;          // Ambient texture coordinates
+ |    float4 diffuse;                  // Diffuse property of the fragment. Alpha contains the opacity.
+ |    float2 diffuseTexcoord;          // Diffuse texture coordinates
+ |    float4 specular;                 // Specular property of the fragment
+ |    float2 specularTexcoord;         // Specular texture coordinates
+ |    float4 emission;                 // Emission property of the fragment
+ |    float2 emissionTexcoord;         // Emission texture coordinates
+ |    float4 multiply;                 // Multiply property of the fragment
+ |    float2 multiplyTexcoord;         // Multiply texture coordinates
+ |    float4 transparent;              // Transparent property of the fragment
+ |    float2 transparentTexcoord;      // Transparent texture coordinates
+ |    float4 reflective;               // Reflective property of the fragment
+ |    float  metalness;                // Metalness property of the fragment
+ |    float2 metalnessTexcoord;        // Metalness texture coordinates
+ |    float  roughness;                // Roughness property of the fragment
+ |    float2 roughnessTexcoord;        // Roughness texture coordinates
+ |    float4 selfIllumination;         // Self Illumination property of the fragment. Available since macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `emission` in previous versions.
+ |    float2 selfIlluminationTexcoord; // Self Illumination texture coordinates. Available since macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `emissionTexcoord` in previous versions.
+ |    float  ambientOcclusion;         // Ambient Occlusion property of the fragment. Available macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `multiply` in previous versions.
+ |    float2 ambientOcclusionTexcoord; // Ambient Occlusion texture coordinates. Available since macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `multiplyTexcoord` in previous versions.
+ |    float  shininess;                // Shininess property of the fragment
+ |    float  fresnel;                  // Fresnel property of the fragment
  | } _surface;
  |
  | Access: ReadWrite
@@ -2554,25 +3153,40 @@ SCN_EXTERN NSString * const SCNShaderModifierEntryPointGeometry NS_AVAILABLE(10_
  
  Example: Procedural black and white stripes
  
- uniform float Scale = 12.0;
- uniform float Width = 0.25;
- uniform float Blend = 0.3;
- vec2 position = fract(_surface.diffuseTexcoord * Scale);
- float f1 = clamp(position.y / Blend, 0.0, 1.0);
- float f2 = clamp((position.y - Width) / Blend, 0.0, 1.0);
- f1 = f1 * (1.0 - f2);
- f1 = f1 * f1 * 2.0 * (3. * 2. * f1);
- _surface.diffuse = mix(vec4(1.0), vec4(0.0), f1);
+     GLSL
+     | uniform float Scale = 12.0;
+     | uniform float Width = 0.25;
+     | uniform float Blend = 0.3;
+     |
+     | vec2 position = fract(_surface.diffuseTexcoord * Scale);
+     | float f1 = clamp(position.y / Blend, 0.0, 1.0);
+     | float f2 = clamp((position.y - Width) / Blend, 0.0, 1.0);
+     | f1 = f1 * (1.0 - f2);
+     | f1 = f1 * f1 * 2.0 * (3. * 2. * f1);
+     | _surface.diffuse = mix(vec4(1.0), vec4(0.0), f1);
+ 
+     Metal Shading Language
+     | #pragma arguments
+     | float Scale;
+     | float Width;
+     | float Blend;
+     |
+     | float2 position = fract(_surface.diffuseTexcoord * Scale);
+     | float f1 = clamp(position.y / Blend, 0.0, 1.0);
+     | float f2 = clamp((position.y - Width) / Blend, 0.0, 1.0);
+     | f1 = f1 * (1.0 - f2);
+     | f1 = f1 * f1 * 2.0 * (3. * 2. * f1);
+     | _surface.diffuse = mix(float4(1.0), float4(0.0), f1);
+ 
  */
-SCN_EXTERN NSString * const SCNShaderModifierEntryPointSurface NS_AVAILABLE(10_9, 8_0);
+SCN_EXPORT SCNShaderModifierEntryPoint const SCNShaderModifierEntryPointSurface API_AVAILABLE(macos(10.9));
 
 /*!
  @constant SCNShaderModifierEntryPointLightingModel
  @abstract This is the entry point to provide custom lighting equation. The fragment will be called for each active light
  of the scene and will need to accumulate lighting contribution for the vertex or the fragment in the _lightingContribution structure, using the light structure given.
- @discussion
  
- Structures available from the this entry point:
+ Structures available from the SCNShaderModifierEntryPointLightingModel entry point:
  
  | All the structures available from the SCNShaderModifierEntryPointSurface entry point
  |
@@ -2580,39 +3194,51 @@ SCN_EXTERN NSString * const SCNShaderModifierEntryPointSurface NS_AVAILABLE(10_9
  | Stages: Vertex shader and fragment shader
  
  | struct SCNShaderLightingContribution {
- |    vec3 ambient;
- |    vec3 diffuse;
- |    vec3 specular;
+ |    float3 ambient;
+ |    float3 diffuse;
+ |    float3 specular;
  | } _lightingContribution;
  |
  | Access: ReadWrite
  | Stages: Vertex shader and fragment shader
  
  | struct SCNShaderLight {
- |    vec4 intensity;
- |    vec3 direction; // Direction from the point on the surface toward the light (L)
+ |    float4 intensity;
+ |    float3 direction; // Direction from the point on the surface toward the light (L)
  | } _light;
  |
  | Access: ReadOnly
  | Stages: Vertex shader and fragment shader
  
- Example: wrap diffuse lighting
+ Example: Wrap diffuse lighting
  
- uniform float WrapFactor = 0.5;
- float dotProduct = (WrapFactor + max(0.0, dot(_surface.normal,_light.direction))) / (1 + WrapFactor);
- _lightingContribution.diffuse += (dotProduct * _light.intensity.rgb);
- vec3 halfVector = normalize(_light.direction + _surface.view);
- dotProduct = max(0.0, pow(max(0.0, dot(_surface.normal, halfVector)), _surface.shininess));
- _lightingContribution.specular += (dotProduct * _light.intensity.rgb);
+     GLSL
+     | uniform float WrapFactor = 0.5;
+     |
+     | float dotProduct = (WrapFactor + max(0.0, dot(_surface.normal,_light.direction))) / (1 + WrapFactor);
+     | _lightingContribution.diffuse += (dotProduct * _light.intensity.rgb);
+     | vec3 halfVector = normalize(_light.direction + _surface.view);
+     | dotProduct = max(0.0, pow(max(0.0, dot(_surface.normal, halfVector)), _surface.shininess));
+     | _lightingContribution.specular += (dotProduct * _light.intensity.rgb);
+ 
+     Metal Shading Language
+     | #pragma arguments
+     | float WrapFactor;
+     |
+     | float dotProduct = (WrapFactor + max(0.0, dot(_surface.normal,_light.direction))) / (1 + WrapFactor);
+     | _lightingContribution.diffuse += (dotProduct * _light.intensity.rgb);
+     | float3 halfVector = normalize(_light.direction + _surface.view);
+     | dotProduct = max(0.0, pow(max(0.0, dot(_surface.normal, halfVector)), _surface.shininess));
+     | _lightingContribution.specular += (dotProduct * _light.intensity.rgb);
  */
-SCN_EXTERN NSString * const SCNShaderModifierEntryPointLightingModel NS_AVAILABLE(10_9, 8_0);
+SCN_EXPORT SCNShaderModifierEntryPoint const SCNShaderModifierEntryPointLightingModel API_AVAILABLE(macos(10.9));
 
 /*!
  @constant SCNShaderModifierEntryPointFragment
  @abstract This is the last entry point in the fragment shader, where you can alter the final color returned by the shader.
  @discussion You can alter the final color by reading and writing to the output color via the output structure below.
  
- Structures available from the this entry point:
+ Structures available from the SCNShaderModifierEntryPointFragment entry point:
  
  | All the structures available from the SCNShaderModifierEntryPointSurface entry point
  |
@@ -2620,27 +3246,90 @@ SCN_EXTERN NSString * const SCNShaderModifierEntryPointLightingModel NS_AVAILABL
  | Stages: Fragment shader only
  
  | struct SCNShaderOutput {
- |    vec4 color;
+ |    float4 color;
  | } _output;
  |
  | Access: ReadWrite
  | Stages: Fragment shader only
  
- Example: inverse final color
+ Example: Inverse final color
  
- _output.color.rgb = vec3(1.0) - _output.color.rgb;
+     GLSL
+     | _output.color.rgb = vec3(1.0) - _output.color.rgb;
+ 
+     Metal Shading Language
+     | _output.color.rgb = 1.0 - _output.color.rgb;
  */
-SCN_EXTERN NSString * const SCNShaderModifierEntryPointFragment NS_AVAILABLE(10_9, 8_0);
+SCN_EXPORT SCNShaderModifierEntryPoint const SCNShaderModifierEntryPointFragment API_AVAILABLE(macos(10.9));
+
+NS_ASSUME_NONNULL_END
+// ==========  SceneKit.framework/Headers/SCNCAAnimationExtensions.h
+//
+//  SCNCAAnimationExtensions.h
+//  SceneKit
+//
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//
+
+#import <SceneKit/SCNAnimation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface CAAnimation (SCNAnimation) <SCNAnimation>
+@end
+
+/*!
+ @category CAAnimation (SceneKitAdditions)
+ @abstract Extends the CAAnimation class for SceneKit explicit animations.
+ */
+@interface CAAnimation (SceneKitAdditions)
+
+/*! 
+ Bridge with SCNAnimation
+*/
+/**
+ Initializes a CoreAnimation animation from a SCNAnimation
+ */
++ (CAAnimation *)animationWithSCNAnimation:(SCNAnimation *)animation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+/*!
+ @property usesSceneTimeBase
+ @abstract Determines whether the receiver is evaluated using the scene time or the system time. Defaults to NO.
+ @discussion A scene-time based animation is evaluated using the "sceneTime" value of the renderer that renders the scene.
+ */
+@property BOOL usesSceneTimeBase;
+
+/*!
+ @property fadeInDuration
+ @abstract Determines the receiver's fade-in duration.
+ @discussion When the fadeInDuration is greater than zero, the effect of the animation progressively increase from 0% to 100% during the specified duration.
+ */
+@property CGFloat fadeInDuration API_AVAILABLE(macos(10.9));
+ 
+/*!
+ @property fadeOutDuration
+ @abstract Determines the receiver's fade-out duration.
+ @discussion When the fadeOutDuration is greater than zero, the effect of the animation progressively decrease from 100% to 0% at the end of the animation duration.
+ */
+@property CGFloat fadeOutDuration API_AVAILABLE(macos(10.9));
+
+/*!
+ @property animationEvents
+ @abstract Specifies the animation events attached to the receiver.
+ */
+@property(nonatomic, copy, nullable) NSArray<SCNAnimationEvent *> *animationEvents API_AVAILABLE(macos(10.9));
+
+@end
 
 NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNGeometry.h
 //
 //  SCNGeometry.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <SceneKit/SceneKitTypes.h>
 #import <SceneKit/SCNAnimation.h>
 #import <SceneKit/SCNBoundingVolume.h>
@@ -2650,31 +3339,38 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SCNGeometrySource;
 @class SCNGeometryElement;
+@class SCNGeometryTessellator;
 @class SCNLevelOfDetail;
 @protocol MTLBuffer;
 
 typedef NS_ENUM(NSInteger, SCNGeometryPrimitiveType) {
-	SCNGeometryPrimitiveTypeTriangles     = 0,
-	SCNGeometryPrimitiveTypeTriangleStrip = 1,
-	SCNGeometryPrimitiveTypeLine          = 2,
-	SCNGeometryPrimitiveTypePoint         = 3
+	SCNGeometryPrimitiveTypeTriangles                                                  = 0,
+	SCNGeometryPrimitiveTypeTriangleStrip                                              = 1,
+	SCNGeometryPrimitiveTypeLine                                                       = 2,
+	SCNGeometryPrimitiveTypePoint                                                      = 3,
+    SCNGeometryPrimitiveTypePolygon API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) = 4
 };
 
-SCN_EXTERN NSString * const SCNGeometrySourceSemanticVertex;
-SCN_EXTERN NSString * const SCNGeometrySourceSemanticNormal;
-SCN_EXTERN NSString * const SCNGeometrySourceSemanticColor;
-SCN_EXTERN NSString * const SCNGeometrySourceSemanticTexcoord;
-SCN_EXTERN NSString * const SCNGeometrySourceSemanticVertexCrease NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN NSString * const SCNGeometrySourceSemanticEdgeCrease NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN NSString * const SCNGeometrySourceSemanticBoneWeights NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN NSString * const SCNGeometrySourceSemanticBoneIndices NS_AVAILABLE(10_10, 8_0);
+typedef NSString * SCNGeometrySourceSemantic NS_EXTENSIBLE_STRING_ENUM;
+
+SCN_EXPORT SCNGeometrySourceSemantic const SCNGeometrySourceSemanticVertex;
+SCN_EXPORT SCNGeometrySourceSemantic const SCNGeometrySourceSemanticNormal;
+SCN_EXPORT SCNGeometrySourceSemantic const SCNGeometrySourceSemanticColor;
+SCN_EXPORT SCNGeometrySourceSemantic const SCNGeometrySourceSemanticTexcoord;
+SCN_EXPORT SCNGeometrySourceSemantic const SCNGeometrySourceSemanticTangent API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+SCN_EXPORT SCNGeometrySourceSemantic const SCNGeometrySourceSemanticVertexCrease API_AVAILABLE(macos(10.10));
+SCN_EXPORT SCNGeometrySourceSemantic const SCNGeometrySourceSemanticEdgeCrease API_AVAILABLE(macos(10.10));
+SCN_EXPORT SCNGeometrySourceSemantic const SCNGeometrySourceSemanticBoneWeights API_AVAILABLE(macos(10.10));
+SCN_EXPORT SCNGeometrySourceSemantic const SCNGeometrySourceSemanticBoneIndices API_AVAILABLE(macos(10.10));
+
+// MARK: -
 
 /*!
  @class SCNGeometry
  @abstract SCNGeometry is an abstract class that represents the geometry that can be attached to a SCNNode. 
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNGeometry : NSObject <SCNAnimatable, SCNBoundingVolume, SCNShadable, NSCopying, NSSecureCoding>
 
 /*!
@@ -2682,7 +3378,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Creates and returns an empty geometry object.
  @discussion An empty geometry may be used as the lowest level of detail of a geometry.
  */
-+ (instancetype)geometry NS_AVAILABLE(10_9, 8_0);
++ (instancetype)geometry API_AVAILABLE(macos(10.9));
 
 /*!
  @property name
@@ -2741,13 +3437,13 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param elements An array of geometry elements. The sort order in the array determines the mapping between materials and geometry elements.
  @discussion A geometry is made of geometry sources (at least vertices) and at least one geometry element. Multiple sources for texture coordinates are accepted. In that case the mappingChannel is implicitly set based on the order of the texture sources, starting at index 0.
 */
-+ (instancetype)geometryWithSources:(NSArray<SCNGeometrySource *> *)sources elements:(NSArray<SCNGeometryElement *> *)elements;
++ (instancetype)geometryWithSources:(NSArray<SCNGeometrySource *> *)sources elements:(nullable NSArray<SCNGeometryElement *> *)elements;
 
 /*!
  @property geometrySources
  @abstract The array of geometry sources of the receiver.
  */
-@property(nonatomic, readonly) NSArray<SCNGeometrySource *> *geometrySources NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, readonly) NSArray<SCNGeometrySource *> *geometrySources API_AVAILABLE(macos(10.10));
 
 /*! 
  @method geometrySourcesForSemantic:
@@ -2755,13 +3451,13 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param semantic The semantic of the geometry sources that should be retrieved.
  @discussion Returns nil if no geometry source is found for the given semantic. May return more than one source, typically for multiple texture coordinate sources.
  */
-- (NSArray<SCNGeometrySource *> *)geometrySourcesForSemantic:(NSString *)semantic;
+- (NSArray<SCNGeometrySource *> *)geometrySourcesForSemantic:(SCNGeometrySourceSemantic)semantic;
 
 /*!
  @property geometryElements
  @abstract The array of geometry elements of the receiver.
  */
-@property(nonatomic, readonly) NSArray<SCNGeometryElement *> *geometryElements NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, readonly) NSArray<SCNGeometryElement *> *geometryElements API_AVAILABLE(macos(10.10));
 
 /*!
  @property geometryElementCount
@@ -2780,38 +3476,54 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @property levelsOfDetail
  @abstract Determines the receiver's levels of detail. Defaults to nil.
  */
-@property(nonatomic, copy, nullable) NSArray<SCNLevelOfDetail *> *levelsOfDetail NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic, copy, nullable) NSArray<SCNLevelOfDetail *> *levelsOfDetail API_AVAILABLE(macos(10.9));
+
+/*!
+ @property tessellator
+ @abstract Specifies how the geometry should be tessellated at render time on the GPU. Defaults to nil.
+ */
+#if SCN_ENABLE_METAL
+@property(nonatomic, retain, nullable) SCNGeometryTessellator *tessellator API_AVAILABLE(macos(10.13), ios(11.0), tvos(12.0)) API_UNAVAILABLE(watchos);
+#endif
 
 /*!
  @property subdivisionLevel
  @abstract Specifies the subdivision level of the receiver. Defaults to 0.
- @discussion A subdivision level of 0 means no subdivision.
+ @discussion A subdivision level of 0 means no subdivision. When the `tessellator` property of the receiver is not nil, the refinement is done on the GPU.
  */
-@property(nonatomic) NSUInteger subdivisionLevel NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) NSUInteger subdivisionLevel API_AVAILABLE(macos(10.10));
+
+/*!
+ @property wantsAdaptiveSubdivision
+ @abstract Specifies if the subdivision is adaptive or uniform. Defaults to YES.
+ @discussion Adaptive subdivision requires that the `tessellator` property of the receiver is not nil.
+ */
+@property(nonatomic) BOOL wantsAdaptiveSubdivision API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @property edgeCreasesElement
  @abstract Specifies the edges creases that control the subdivision. Defaults to nil.
  @discussion The primitive type of this geometry element must be SCNGeometryPrimitiveTypeLine. See subdivisionLevel above to control the level of subdivision. See edgeCreasesElement above to specify edges for edge creases.
  */
-@property(nonatomic, retain, nullable) SCNGeometryElement *edgeCreasesElement NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, retain, nullable) SCNGeometryElement *edgeCreasesElement API_AVAILABLE(macos(10.10));
 
 /*!
  @property edgeCreasesSource
  @abstract Specifies the crease value of the edges specified by edgeCreasesElement. Defaults to nil.
  @discussion The semantic of this geometry source must be "SCNGeometrySourceSemanticEdgeCrease". The creases values are floating values between 0 and 10, where 0 means smooth and 10 means infinitely sharp. See subdivisionLevel above to control the level of subdivision. See edgeCreasesElement above to specify edges for edge creases.
  */
-@property(nonatomic, retain, nullable) SCNGeometrySource *edgeCreasesSource NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, retain, nullable) SCNGeometrySource *edgeCreasesSource API_AVAILABLE(macos(10.10));
 
 @end
 
+// MARK: -
 
 /*!
  @class SCNGeometrySource
  @abstract A geometry source contains geometry data for a specific semantic. The data format is described by properties.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNGeometrySource : NSObject <NSSecureCoding>
 
 /*! 
@@ -2826,7 +3538,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param offset The offset from the beginning of the data. In bytes.
  @param stride The number of bytes from a vector to the next one in the data.
  */
-+ (instancetype)geometrySourceWithData:(NSData *)data semantic:(NSString *)semantic vectorCount:(NSInteger)vectorCount floatComponents:(BOOL)floatComponents componentsPerVector:(NSInteger)componentsPerVector bytesPerComponent:(NSInteger)bytesPerComponent dataOffset:(NSInteger)offset dataStride:(NSInteger)stride;
++ (instancetype)geometrySourceWithData:(NSData *)data semantic:(SCNGeometrySourceSemantic)semantic vectorCount:(NSInteger)vectorCount floatComponents:(BOOL)floatComponents componentsPerVector:(NSInteger)componentsPerVector bytesPerComponent:(NSInteger)bytesPerComponent dataOffset:(NSInteger)offset dataStride:(NSInteger)stride;
 
 /*!
  @method geometrySourceWithVertices:count:
@@ -2859,7 +3571,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 /*!
  @method geometrySourceWithBuffer:semantic:vectorCount:floatComponents:componentsPerVector:bytesPerComponent:dataOffset:dataStride:
  @abstract Creates and returns a geometry source from the given data and parameters.
- @param buffer A metal buffer.
+ @param mtlBuffer A metal buffer.
  @param vertexFormat The vertex format.
  @param semantic The semantic of the geometry source.
  @param vertexCount The number of vertex.
@@ -2871,7 +3583,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  - (void)renderer:(id <SCNSceneRenderer>)aRenderer willRenderScene:(SCNScene *)scene atTime:(NSTimeInterval)time
  {
      // ask for a new command buffer
-     id<MTLCommandBuffer> myCommandBuffer = [aRenderer.commandQueue commandBuffer];
+     id <MTLCommandBuffer> myCommandBuffer = [aRenderer.commandQueue commandBuffer];
 
      // get a compute command encoder
      id <MTLComputeCommandEncoder> myComputeCommandEncoder = [myCommandBuffer computeCommandEncoder];
@@ -2887,7 +3599,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  }
  
  */
-+ (instancetype)geometrySourceWithBuffer:(id <MTLBuffer>)mtlBuffer vertexFormat:(MTLVertexFormat)vertexFormat semantic:(NSString *)semantic vertexCount:(NSInteger)vertexCount dataOffset:(NSInteger)offset dataStride:(NSInteger)stride NS_AVAILABLE(10_11, 9_0);
++ (instancetype)geometrySourceWithBuffer:(id <MTLBuffer>)mtlBuffer vertexFormat:(MTLVertexFormat)vertexFormat semantic:(SCNGeometrySourceSemantic)semantic vertexCount:(NSInteger)vertexCount dataOffset:(NSInteger)offset dataStride:(NSInteger)stride API_AVAILABLE(macos(10.11), ios(9.0));
 #endif
 
 /*! 
@@ -2900,7 +3612,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @property semantic
  @abstract The semantic of the geometry source
  */
-@property(nonatomic, readonly) NSString *semantic;
+@property(nonatomic, readonly) SCNGeometrySourceSemantic semantic;
 
 /*! 
  @property vectorCount
@@ -2940,13 +3652,14 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 
 @end
 
+// MARK: -
 
 /*!
  @class SCNGeometryElement
  @abstract A geometry element describes how vertices from a geometry source are connected together.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNGeometryElement : NSObject <NSSecureCoding>
 
 /*!
@@ -2978,54 +3691,127 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 @property(nonatomic, readonly) NSInteger primitiveCount;
 
 /*!
+ @property primitiveRange
+ @abstract Specifies the subrange of primitves to render within NSMakeRange(0, primitiveCount). Defaults to NSMakeRange(NSNotFound, 0).
+ @discussion When the location of the range is set to NSNotFound, the entire geometry element is rendered.
+ */
+@property(nonatomic) NSRange primitiveRange API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
  @property bytesPerIndex
  @abstract The number of bytes that represent an index value
  */
 @property(nonatomic, readonly) NSInteger bytesPerIndex;
 
+/*!
+ @property pointSize
+ @abstract Specifies the size of the point in local space. Defaults to 1
+ */
+@property(nonatomic) CGFloat pointSize API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property minimumPointScreenSpaceRadius
+ @abstract Specifies the minimum size in screen-space (in pixel). Defaults to 1
+ */
+@property(nonatomic) CGFloat minimumPointScreenSpaceRadius API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property maximumPointScreenSpaceRadius
+ @abstract Specifies the maximum size in screen-space (in pixel). Defaults to 1
+ */
+@property(nonatomic) CGFloat maximumPointScreenSpaceRadius API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 @end
 
-NS_ASSUME_NONNULL_END
-// ==========  SceneKit.framework/Headers/SCNBase.h
-//
-//  SCNBase.h
-//
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
-//
+// MARK: -
 
-/*! @header SCNBase
-    @abstract Various defines used throughout SceneKit
+#if SCN_ENABLE_METAL
+
+typedef NS_ENUM(NSInteger, SCNTessellationSmoothingMode) {
+    SCNTessellationSmoothingModeNone = 0,
+    SCNTessellationSmoothingModePNTriangles,
+    SCNTessellationSmoothingModePhong
+} API_AVAILABLE(macos(10.13), ios(11.0), tvos(12.0)) API_UNAVAILABLE(watchos);
+
+/*!
+ @class SCNGeometryTessellator
+ @abstract A geometry tessellator describes how a more detailed surface is calculated from the geometry's initial surface.
  */
 
-#define SCN_EXTERN FOUNDATION_EXTERN
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(12.0)) API_UNAVAILABLE(watchos)
+@interface SCNGeometryTessellator : NSObject <NSCopying, NSSecureCoding>
 
-#ifndef __has_feature      // Optional.
-#define __has_feature(x) 0 // Compatibility with non-clang compilers.
+/*!
+ @property tessellationFactorScale
+ @abstract Specifies the scale factor applied to the per-patch tessellation factors. Defaults to 1.
+ */
+@property(nonatomic) CGFloat tessellationFactorScale;
+
+/*!
+ @property tessellationPartitionMode
+ @abstract Specifies the tessellation partition mode. Defaults to MTLTessellationPartitionModeInteger.
+ */
+@property(nonatomic) MTLTessellationPartitionMode tessellationPartitionMode;
+
+/*!
+ @property adaptive
+ @abstract Specifies if the tessellation should be uniform or adaptive. Defaults to NO.
+ */
+@property(nonatomic, getter=isAdaptive) BOOL adaptive;
+
+/*!
+ @property screenspace
+ @abstract Specifies if the level of tessellation should be adapted in screenSpace. Defaults to NO.
+ */
+@property(nonatomic, getter=isScreenSpace) BOOL screenSpace;
+
+/*!
+ @property edgeTessellationFactor
+ @abstract Specifies the edge tessellation factor. Defaults to 1.
+ @discussion This has no effect for adaptive subdivision
+ */
+@property(nonatomic) CGFloat edgeTessellationFactor;
+
+/*!
+ @property insideTessellationFactor
+ @abstract Specifies the inside tessellation factor. Defaults to 1.
+ @discussion This has no effect for adaptive subdivision
+ */
+@property(nonatomic) CGFloat insideTessellationFactor;
+
+/*!
+ @property maximumEdgeLength
+ @abstract Specifies the maximum edge length. Defaults to 1.
+ @discussion This has no effect for non-adaptive subdivision
+ */
+@property(nonatomic) CGFloat maximumEdgeLength;
+
+/*!
+ @property smoothingMode
+ @abstract Defaults to SCNTessellationSmoothingModeNone.
+ */
+@property(nonatomic) SCNTessellationSmoothingMode smoothingMode;
+
+@end
+
 #endif
+
+NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNAction.h
 //
 //  SCNAction.h
+//  SceneKit
 //
-//  Copyright (c) 2014-2015 Apple, Inc. All rights reserved.
+//  Copyright © 2014-2017 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <SceneKit/SceneKitTypes.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SCNNode;
 @class SCNAction;
 @class SCNAudioSource;
-
-/*! @enum SCNActionTimingMode
- @abstract The modes that an action can use to adjust the apparent timing of the action.
- */
-typedef NS_ENUM(NSInteger, SCNActionTimingMode) {
-    SCNActionTimingModeLinear,
-    SCNActionTimingModeEaseIn,
-    SCNActionTimingModeEaseOut,
-    SCNActionTimingModeEaseInEaseOut
-} NS_ENUM_AVAILABLE(10_10, 8_0);
 
 /**
  A custom timing function for SCNActions. Input time will be between 0.0 and 1.0
@@ -3040,60 +3826,60 @@ typedef float (^SCNActionTimingFunction)(float time);
  @method runAction:
  @abstract Adds an action to the list of actions executed by the node.
  */
-- (void)runAction:(SCNAction *)action NS_AVAILABLE(10_10, 8_0);
+- (void)runAction:(SCNAction *)action API_AVAILABLE(macos(10.10));
 
 /*!
  @method runAction:completionHandler:
  @abstract Adds an action to the list of actions executed by the node. Your block is called when the action completes.
  */
-- (void)runAction:(SCNAction *)action completionHandler:(nullable void (^)())block NS_AVAILABLE(10_10, 8_0);
+- (void)runAction:(SCNAction *)action completionHandler:(nullable void (^)(void))block API_AVAILABLE(macos(10.10));
 
 /*!
  @method runAction:forKey:
  @abstract Adds an identifiable action to the list of actions executed by the node.
  */
-- (void)runAction:(SCNAction *)action forKey:(nullable NSString *)key NS_AVAILABLE(10_10, 8_0);
+- (void)runAction:(SCNAction *)action forKey:(nullable NSString *)key API_AVAILABLE(macos(10.10));
 
 /*!
  @method runAction:forKey:completionHandler:
  @abstract Adds an identifiable action to the list of actions executed by the node. Your block is called when the action completes.
  */
-- (void)runAction:(SCNAction *)action forKey:(nullable NSString *)key completionHandler:(nullable void (^)())block NS_AVAILABLE(10_10, 8_0);
+- (void)runAction:(SCNAction *)action forKey:(nullable NSString *)key completionHandler:(nullable void (^)(void))block API_AVAILABLE(macos(10.10));
 
 /*!
- @method hasActions
+ @property hasActions
  @abstract Returns a Boolean value that indicates whether the node is executing actions.
  */
-@property(nonatomic, readonly) BOOL hasActions NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, readonly) BOOL hasActions API_AVAILABLE(macos(10.10));
 
 /*!
  @method actionForKey:
  @abstract Returns an action associated with a specific key.
  */
-- (nullable SCNAction *)actionForKey:(NSString *)key NS_AVAILABLE(10_10, 8_0);
+- (nullable SCNAction *)actionForKey:(NSString *)key API_AVAILABLE(macos(10.10));
 
 /*!
  @method removeActionForKey:
  @abstract Removes an action associated with a specific key.
  */
-- (void)removeActionForKey:(NSString *)key NS_AVAILABLE(10_10, 8_0);
+- (void)removeActionForKey:(NSString *)key API_AVAILABLE(macos(10.10));
 
 /*!
  @method removeAllActions
  @abstract Ends and removes all actions from the node.
  */
-- (void)removeAllActions NS_AVAILABLE(10_10, 8_0);
+- (void)removeAllActions API_AVAILABLE(macos(10.10));
 
 /*!
- @method actionKeys
+ @property actionKeys
  @abstract Returns an array containing the keys of all actions currently attached to the receiver.
  */
-@property(nonatomic, readonly) NSArray<NSString *> *actionKeys NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, readonly) NSArray<NSString *> *actionKeys API_AVAILABLE(macos(10.10));
 
 @end
 
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNAction : NSObject <NSCopying, NSSecureCoding>
 
 /*!
@@ -3133,14 +3919,14 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 //Creates an action that moves a node to a new position.
 + (SCNAction *)moveTo:(SCNVector3)location duration:(NSTimeInterval)duration;
 
-//Creates an action that rotates the node by a relative value.
+//Creates an action that rotates the node by a relative value in radian.
 + (SCNAction *)rotateByX:(CGFloat)xAngle y:(CGFloat)yAngle z:(CGFloat)zAngle duration:(NSTimeInterval)duration;
 
-//Creates an action that rotates the node to an absolute angle.
+//Creates an action that rotates the node to an absolute angle in radian.
 + (SCNAction *)rotateToX:(CGFloat)xAngle y:(CGFloat)yAngle z:(CGFloat)zAngle duration:(NSTimeInterval)duration;
 + (SCNAction *)rotateToX:(CGFloat)xAngle y:(CGFloat)yAngle z:(CGFloat)zAngle duration:(NSTimeInterval)duration shortestUnitArc:(BOOL)shortestUnitArc;
 
-//Creates an action that rotates the node arond an axis by the specified angle
+//Creates an action that rotates the node arond an axis by the specified angle in radian
 + (SCNAction *)rotateByAngle:(CGFloat)angle aroundAxis:(SCNVector3)axis duration:(NSTimeInterval)duration;
 + (SCNAction *)rotateToAxisAngle:(SCNVector4)axisAngle duration:(NSTimeInterval)duration;
 
@@ -3175,10 +3961,10 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 + (SCNAction *)fadeOpacityTo:(CGFloat)opacity duration:(NSTimeInterval)sec;
 
 //Creates an action that hides a node
-+ (SCNAction *)hide NS_AVAILABLE(10_11, 9_0);
++ (SCNAction *)hide API_AVAILABLE(macos(10.11), ios(9.0));
 
 //Creates an action that unhides a node
-+ (SCNAction *)unhide NS_AVAILABLE(10_11, 9_0);
++ (SCNAction *)unhide API_AVAILABLE(macos(10.11), ios(9.0));
 
 //Creates an action that idles for a specified period of time.
 + (SCNAction *)waitForDuration:(NSTimeInterval)sec;
@@ -3201,10 +3987,10 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 /** Creates an action that plays a sound
  @param source The audio source to play (see SCNAudioSource.h)
- @param waitForCompletion If YES, then the duration of this action is the same
+ @param wait If YES, then the duration of this action is the same
  as the length of the audio playback. If NO, the action is considered
  to have completed immediately.*/
-+ (SCNAction *)playAudioSource:(SCNAudioSource *)source waitForCompletion:(BOOL)wait NS_AVAILABLE(10_11, 9_0);
++ (SCNAction *)playAudioSource:(SCNAudioSource *)source waitForCompletion:(BOOL)wait API_AVAILABLE(macos(10.11), ios(9.0));
 
 @end
 
@@ -3212,19 +3998,22 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNTransaction.h
 //
 //  SCNTransaction.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class CAMediaTimingFunction;
+
 /* Transactions are SceneKit's mechanism for batching multiple scene graph
  * operations into atomic updates. Every
  * modification to the scene graph requires a transaction to be part of. */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNTransaction : NSObject
 
 /* Begin a new transaction for the current thread; nests. */
@@ -3243,30 +4032,24 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 
 /* Accessors for the "animationDuration" per-thread transaction
  * property. Defines the default duration of animations. Defaults to 1/4s for explicit transactions, 0s for implicit transactions. */
-+ (CFTimeInterval)animationDuration;
-+ (void)setAnimationDuration:(CFTimeInterval)duration;
+@property(class, nonatomic) CFTimeInterval animationDuration;
 
 /* Accessors for the "animationTimingFunction" per-thread transaction
  * property. The default value is nil, when set to a non-nil value any
  * animations added to scene graph will have this value set as their
  * "timingFunction" property. */
-+ (nullable CAMediaTimingFunction *)animationTimingFunction;
-+ (void)setAnimationTimingFunction:(nullable CAMediaTimingFunction *)animationTimingFunction;
+@property(class, nonatomic, copy, nullable) CAMediaTimingFunction *animationTimingFunction API_UNAVAILABLE(watchos);
 
 /* Accessors for the "disableActions" per-thread transaction property.
  * Defines whether or not the implicit animations are performed. 
  * Defaults to NO, i.e. implicit animations enabled. */
-+ (BOOL)disableActions;
-+ (void)setDisableActions:(BOOL)flag;
+@property(class, nonatomic) BOOL disableActions;
 
 /* Accessors for the "completionBlock" per-thread transaction property.
  * Once set to a non-nil value the block is guaranteed to be called (on
  * the main thread) as soon as all animations subsequently added by
  * this transaction group have completed (or been removed). */
-#if __BLOCKS__
-+ (nullable void (^)(void))completionBlock;
-+ (void)setCompletionBlock:(nullable void (^)(void))block;
-#endif
+@property(class, nonatomic, copy, nullable) void (^completionBlock)(void);
 
 /* Associate arbitrary keyed-data with the current transaction (i.e.
  * with the current thread).
@@ -3280,9 +4063,12 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNPhysicsField.h
 //
 //  SCNPhysicsField.h
+//  SceneKit
 //
-//  Copyright (c) 2014-2015 Apple Inc. All rights reserved.
+//  Copyright © 2014-2018 Apple Inc. All rights reserved.
 //
+
+#import <SceneKit/SceneKitTypes.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -3295,17 +4081,17 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, SCNPhysicsFieldScope) {
     SCNPhysicsFieldScopeInsideExtent,
     SCNPhysicsFieldScopeOutsideExtent,
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+} API_AVAILABLE(macos(10.10));
 
 /*!
  @class SCNPhysicsField
  @abstract SCNPhysicsField is an abstract class that describes a force field that applies in the physics world.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsField : NSObject <NSCopying, NSSecureCoding>
 
 // The following properties control the behavior of the field
-@property(nonatomic) CGFloat strength;                               // The strength factor of the force field. default 1.0.
+@property(nonatomic) CGFloat strength;                               // The strength factor of the force field. Defaults to 1.0.
 @property(nonatomic) CGFloat falloffExponent;                        // Changes the power of the force based on the distance from the center of the field (1 / distance ^ falloffExponent). Defaults to 0.0.
 @property(nonatomic) CGFloat minimumDistance;                        // Distance from the center of the field where the effect is at full strength. Defaults to 1e-6.
 
@@ -3313,18 +4099,18 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @property(nonatomic, getter=isExclusive) BOOL exclusive;             // If YES, it suppresses any other field in its area. Defaults to NO.
 
 // The following properties control the area of effect
-@property(nonatomic) SCNVector3 halfExtent;                          // Specifies the half extent of the area of effect. default is FLT_MAX.
+@property(nonatomic) SCNVector3 halfExtent;                          // Specifies the half extent of the area of effect. Defaults to FLT_MAX.
 @property(nonatomic) BOOL usesEllipsoidalExtent;                     // YES means that the area of effect is rounded within the extent. Defaults to NO.
 @property(nonatomic) SCNPhysicsFieldScope scope;                     // Controls whether the force field should apply inside or outside of the area. Defaults to inside.
 
-@property(nonatomic) SCNVector3 offset;                              // Offset of origin effect within the area
-@property(nonatomic) SCNVector3 direction;                           // Direction of the field. Only applies to linear gravity and vortex fields. Defaults to (0,-1,0)
+@property(nonatomic) SCNVector3 offset;                              // Offset of origin effect within the area.
+@property(nonatomic) SCNVector3 direction;                           // Direction of the field. Only applies to linear gravity and vortex fields. Defaults to (0,-1,0).
 
 /*!
  @property categoryBitMask
- @abstract Determines the node categories that will be influenced by the receiver. Defaults to all bit set.
+ @abstract Determines the node physicsBody's categories that will be influenced by the receiver. Defaults to all bit set.
  */
-@property(nonatomic) NSUInteger categoryBitMask NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) NSUInteger categoryBitMask API_AVAILABLE(macos(10.10));
 
 
 /**
@@ -3402,11 +4188,19 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/ModelIO.h
 //
 //  ModelIO.h
+//  SceneKit
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
 //
 
 #import <ModelIO/ModelIO.h>
+
+#import <SceneKit/SCNNode.h>
+#import <SceneKit/SCNScene.h>
+#import <SceneKit/SCNLight.h>
+#import <SceneKit/SCNCamera.h>
+#import <SceneKit/SCNGeometry.h>
+#import <SceneKit/SCNMaterial.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -3416,67 +4210,72 @@ NS_ASSUME_NONNULL_BEGIN
  */
 
 @interface SCNScene (SCNModelIO)
-+ (instancetype)sceneWithMDLAsset:(MDLAsset *)mdlAsset NS_AVAILABLE(10_11, 9_0);
++ (instancetype)sceneWithMDLAsset:(MDLAsset *)mdlAsset API_AVAILABLE(macos(10.11), ios(9.0));
 @end
 
 @interface MDLAsset (SCNModelIO)
-+ (instancetype)assetWithSCNScene:(SCNScene *)scnScene NS_AVAILABLE(10_11, 9_0);
++ (instancetype)assetWithSCNScene:(SCNScene *)scnScene API_AVAILABLE(macos(10.11), ios(9.0));
++ (instancetype)assetWithSCNScene:(SCNScene *)scnScene bufferAllocator:(nullable id <MDLMeshBufferAllocator>)bufferAllocator API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 @end
 
 @interface SCNNode (SCNModelIO)
-+ (instancetype)nodeWithMDLObject:(MDLObject *)mdlObject NS_AVAILABLE(10_11, 9_0);
++ (instancetype)nodeWithMDLObject:(MDLObject *)mdlObject API_AVAILABLE(macos(10.11), ios(9.0));
 @end
 
 @interface MDLObject (SCNModelIO)
-+ (instancetype)objectWithSCNNode:(SCNNode *)scnNode NS_AVAILABLE(10_11, 9_0);
++ (instancetype)objectWithSCNNode:(SCNNode *)scnNode API_AVAILABLE(macos(10.11), ios(9.0));
++ (instancetype)objectWithSCNNode:(SCNNode *)scnNode bufferAllocator:(nullable id <MDLMeshBufferAllocator>)bufferAllocator API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 @end
 
 @interface SCNGeometry (SCNModelIO)
-+ (instancetype)geometryWithMDLMesh:(MDLMesh *)mdlMesh NS_AVAILABLE(10_11, 9_0);
++ (instancetype)geometryWithMDLMesh:(MDLMesh *)mdlMesh API_AVAILABLE(macos(10.11), ios(9.0));
 @end
 
 @interface MDLMesh (SCNModelIO)
-+ (instancetype)meshWithSCNGeometry:(SCNGeometry *)scnGeometry NS_AVAILABLE(10_11, 9_0);
++ (instancetype)meshWithSCNGeometry:(SCNGeometry *)scnGeometry API_AVAILABLE(macos(10.11), ios(9.0));
++ (instancetype)meshWithSCNGeometry:(SCNGeometry *)scnGeometry bufferAllocator:(nullable id <MDLMeshBufferAllocator>)bufferAllocator API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 @end
 
 @interface SCNGeometryElement (SCNModelIO)
-+ (instancetype)geometryElementWithMDLSubmesh:(MDLSubmesh *)mdlSubMesh NS_AVAILABLE(10_11, 9_0);
++ (instancetype)geometryElementWithMDLSubmesh:(MDLSubmesh *)mdlSubMesh API_AVAILABLE(macos(10.11), ios(9.0));
 @end
 
 @interface MDLSubmesh (SCNModelIO)
-+ (instancetype)submeshWithSCNGeometryElement:(SCNGeometryElement *)scnGeometryElement NS_AVAILABLE(10_11, 9_0);
++ (instancetype)submeshWithSCNGeometryElement:(SCNGeometryElement *)scnGeometryElement API_AVAILABLE(macos(10.11), ios(9.0));
++ (instancetype)submeshWithSCNGeometryElement:(SCNGeometryElement *)scnGeometryElement bufferAllocator:(nullable id <MDLMeshBufferAllocator>)bufferAllocator API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 @end
 
 @interface SCNMaterial (SCNModelIO)
-+ (instancetype)materialWithMDLMaterial:(MDLMaterial *)mdlMaterial NS_AVAILABLE(10_11, 9_0);
++ (instancetype)materialWithMDLMaterial:(MDLMaterial *)mdlMaterial API_AVAILABLE(macos(10.11), ios(9.0));
 @end
 
 @interface MDLMaterial (SCNModelIO)
-+ (instancetype)materialWithSCNMaterial:(SCNMaterial *)scnMaterial NS_AVAILABLE(10_11, 9_0);
++ (instancetype)materialWithSCNMaterial:(SCNMaterial *)scnMaterial API_AVAILABLE(macos(10.11), ios(9.0));
 @end
 
 @interface SCNLight (SCNModelIO)
-+ (instancetype)lightWithMDLLight:(MDLLight *)mdlLight NS_AVAILABLE(10_11, 9_0);
++ (instancetype)lightWithMDLLight:(MDLLight *)mdlLight API_AVAILABLE(macos(10.11), ios(9.0));
 @end
 
 @interface MDLLight (SCNModelIO)
-+ (instancetype)lightWithSCNLight:(SCNLight *)scnLight NS_AVAILABLE(10_11, 9_0);
++ (instancetype)lightWithSCNLight:(SCNLight *)scnLight API_AVAILABLE(macos(10.11), ios(9.0));
 @end
 
 @interface SCNCamera (SCNModelIO)
-+ (instancetype)cameraWithMDLCamera:(MDLCamera *)mdlCamera NS_AVAILABLE(10_11, 9_0);
++ (instancetype)cameraWithMDLCamera:(MDLCamera *)mdlCamera API_AVAILABLE(macos(10.11), ios(9.0));
 @end
 
 @interface MDLCamera (SCNModelIO)
-+ (instancetype)cameraWithSCNCamera:(SCNCamera *)scnCamera NS_AVAILABLE(10_11, 9_0);
++ (instancetype)cameraWithSCNCamera:(SCNCamera *)scnCamera API_AVAILABLE(macos(10.11), ios(9.0));
 @end
 
 NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNMorpher.h
 //
 //  SCNMorpher.h
+//  SceneKit
 //
-//  Copyright (c) 2013-2015 Apple Inc. All rights reserved.
+//  Copyright © 2013-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3484,17 +4283,18 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SCNGeometry;
+
+typedef NS_ENUM(NSInteger, SCNMorpherCalculationMode) {
+    SCNMorpherCalculationModeNormalized = 0, // (1 - w0 - w1 - ...) * BaseMesh + w0 * Target0 + w1 * Target1 + ...
+    SCNMorpherCalculationModeAdditive   = 1  // BaseMesh + w0 * Target0 + w1 * Target1 + ...
+};
+
 /*!
  @class SCNMorpher
  @abstract SCNMorpher controls the deformation of morphed geometries
  */
-
-typedef NS_ENUM(NSInteger, SCNMorpherCalculationMode) {
-    SCNMorpherCalculationModeNormalized, // (1 - w0 - w1 - ...) * BaseMesh + w0 * Target0 + w1 * Target1 + ...
-    SCNMorpherCalculationModeAdditive    // BaseMesh + w0 * Target0 + w1 * Target1 + ...
-};
-
-NS_CLASS_AVAILABLE(10_9, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.9))
 @interface SCNMorpher : NSObject <SCNAnimatable, NSSecureCoding>
 
 /*!
@@ -3505,8 +4305,14 @@ NS_CLASS_AVAILABLE(10_9, 8_0)
 @property(nonatomic, copy) NSArray<SCNGeometry *> *targets;
 
 /*!
+ @property weights
+ @abstract Access to all the weights of all the targets.
+ */
+@property(nonatomic, retain) NSArray<NSNumber *> *weights API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
  @method setWeight:forTargetAtIndex:
- @abstract Sets the weight for the target at the specified index. Animatable implicitly or explicitly with the keyPath "weights[index]".
+ @abstract Sets the weight for the target at the specified index. Animatable implicitly or explicitly with the keyPath "weights[index]" or "weights["targetName"]" (targetName is the name of the target geometry).
  */
 - (void)setWeight:(CGFloat)weight forTargetAtIndex:(NSUInteger)targetIndex;
 
@@ -3515,79 +4321,60 @@ NS_CLASS_AVAILABLE(10_9, 8_0)
  @abstract Retrieves the weight for the target at the specified index.
  */
 - (CGFloat)weightForTargetAtIndex:(NSUInteger)targetIndex;
-
+    
+/*!
+ @method setWeight:forTargetNamed:
+ @abstract Sets the weight for the target with the specified name (targetName is the name of the target geometry).
+ */
+- (void)setWeight:(CGFloat)weight forTargetNamed:(NSString *)targetName API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+    
+/*!
+ @method weightForTargetNamed:
+ @abstract Retrieves the weight for the target with the specified name (targetName is the name of the target geometry).
+ */
+- (CGFloat)weightForTargetNamed:(NSString *)targetName API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+    
 /*!
  @property calculationMode
  @abstract Specifies how the morph result is calculated by the receiver. Defaults to SCNMorpherCalculationModeNormalized.
  */
 @property(nonatomic) SCNMorpherCalculationMode calculationMode;
 
+
+/*!
+ @property unifiesNormals
+ @abstract When set to YES the normals are not morphed but are recomputed after morphing the vertex instead. When set to NO, the morpher will morph the normals if the geometry targets have normals. Defaults to NO.
+ */
+@property BOOL unifiesNormals API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+    
 @end
 
 NS_ASSUME_NONNULL_END
-// ==========  SceneKit.framework/Headers/SceneKit_simd.h
+// ==========  SceneKit.framework/Headers/SceneKitAvailability.h
 //
-//  SceneKit_simd.h
+//  SceneKitAvailability.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
-//
-
-#import <simd/simd.h>
-
-/*! @header SceneKit_simd.h
-    @abstract Bridge with the SIMD math library
- */
-
-/* vector_ext bridge */
-NS_INLINE vector_float3 SCNVector3ToFloat3(SCNVector3 v) {
-    vector_float3 vec = {(float)v.x, (float)v.y, (float)v.z};
-    return vec;
-}
-
-NS_INLINE vector_float4 SCNVector4ToFloat4(SCNVector4 v) {
-    vector_float4 vec = {(float)v.x, (float)v.y, (float)v.z, (float)v.w};
-    return vec;
-}
-
-NS_INLINE matrix_float4x4 SCNMatrix4ToMat4(SCNMatrix4 m) {
-    matrix_float4x4 mat;
-    mat.columns[0] = (vector_float4){(float)m.m11, (float)m.m12, (float)m.m13, (float)m.m14};
-    mat.columns[1] = (vector_float4){(float)m.m21, (float)m.m22, (float)m.m23, (float)m.m24};
-    mat.columns[2] = (vector_float4){(float)m.m31, (float)m.m32, (float)m.m33, (float)m.m34};
-    mat.columns[3] = (vector_float4){(float)m.m41, (float)m.m42, (float)m.m43, (float)m.m44};
-    return mat;
-}
-    
-NS_INLINE SCNVector3 SCNVector3FromFloat3(vector_float3 v) {
-    SCNVector3 vec = {v.x, v.y, v.z } ;
-    return vec;
-}
-
-NS_INLINE SCNVector4 SCNVector4FromFloat4(vector_float4 v) {
-    SCNVector4 vec = {v.x, v.y, v.z, v.z } ;
-    return vec;
-}
-
-NS_INLINE SCNMatrix4 SCNMatrix4FromMat4(matrix_float4x4 m) {
-    SCNMatrix4 mat;
-    mat.m11 = m.columns[0].x; mat.m12 = m.columns[0].y; mat.m13 = m.columns[0].z; mat.m14 = m.columns[0].w;
-    mat.m21 = m.columns[1].x; mat.m22 = m.columns[1].y; mat.m23 = m.columns[1].z; mat.m24 = m.columns[1].w;
-    mat.m31 = m.columns[2].x; mat.m32 = m.columns[2].y; mat.m33 = m.columns[2].z; mat.m34 = m.columns[2].w;
-    mat.m41 = m.columns[3].x; mat.m42 = m.columns[3].y; mat.m43 = m.columns[3].z; mat.m44 = m.columns[3].w;
-    return mat;
-}
-
-// ==========  SceneKit.framework/Headers/SCNParametricGeometry.h
-//
-//  SCNParametricGeometry.h
-//
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2017-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
+#define SCN_EXPORT __attribute__((visibility("default"))) FOUNDATION_EXTERN
+// ==========  SceneKit.framework/Headers/SCNParametricGeometry.h
+//
+//  SCNParametricGeometry.h
+//  SceneKit
+//
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//
+
+#import <SceneKit/SCNGeometry.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
+@class UIFont;
+@class UIBezierPath;
 @class SCNGeometry;
 
 /*!
@@ -3595,7 +4382,7 @@ NS_ASSUME_NONNULL_BEGIN
  @abstract SCNPlane represents a rectangle with controllable width and height. The plane has one visible side.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNPlane : SCNGeometry
 
 /*!
@@ -3639,14 +4426,14 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract The corner radius. Animatable.
  @discussion If the value is strictly less than 0, the geometry is empty. The default value is 0.
  */
-@property(nonatomic) CGFloat cornerRadius NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) CGFloat cornerRadius API_AVAILABLE(macos(10.9));
 
 /*!
  @property cornerSegmentCount
  @abstract The number of subdivisions for the rounded corners. Animatable.
  @discussion If the value is less than 1, the behavior is undefined. The default value is 10.
  */
-@property(nonatomic) NSInteger cornerSegmentCount NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) NSInteger cornerSegmentCount API_AVAILABLE(macos(10.9));
 
 @end
 
@@ -3656,7 +4443,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract SCNBox represents a box with rectangular sides and optional chamfers.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNBox : SCNGeometry
 
 /*!
@@ -3733,7 +4520,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract SCNPyramid represents a right pyramid with a rectangular base.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNPyramid : SCNGeometry
 
 /*!
@@ -3795,7 +4582,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract SCNSphere represents a sphere with controllable radius
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNSphere : SCNGeometry
 
 /*!
@@ -3834,7 +4621,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract SCNCylinder represents a cylinder with controllable height and radius.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNCylinder : SCNGeometry
 
 /*!
@@ -3881,7 +4668,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract SCNCone represents a cone with controllable height, top radius and bottom radius.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNCone : SCNGeometry
 
 /*!
@@ -3936,7 +4723,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract SCNTube represents a tube with controllable height, inner radius and outer radius.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNTube : SCNGeometry
 
 /*!
@@ -3991,7 +4778,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract SCNCapsule represents a capsule with controllable height and cap radius.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNCapsule : SCNGeometry
 
 /*!
@@ -4045,7 +4832,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract SCNTorus represents a torus with controllable ring radius and pipe radius.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNTorus : SCNGeometry
 
 /*!
@@ -4092,7 +4879,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract SCNFloor represents an infinite plane geometry. 
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNFloor : SCNGeometry 
 
 /*!
@@ -4124,11 +4911,33 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 @property(nonatomic) CGFloat reflectionFalloffEnd;
 
 /*!
+ @property reflectionCategoryBitMask
+ @abstract Determines the node categories to reflect. Defaults to all bits set.
+ */
+@property(nonatomic) NSUInteger reflectionCategoryBitMask API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property width
+ @abstract The floor extent along the X axis. Animatable.
+ @discussion If the value is equal to 0, the floor is infinite on the X axis. The default value is 0.
+ */
+@property(nonatomic) CGFloat width API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property length
+ @abstract The floor extent along the Z axis. Animatable.
+ @discussion If the value is equal to 0, the floor is infinite on the Z axis. The default value is 0.
+ */
+@property(nonatomic) CGFloat length API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+
+/*!
  @property reflectionResolutionScaleFactor
  @abstract Specifies the resolution scale factor of the buffer used to render the reflection.
  @discussion Defaults to 0.5.
+#endif
 */
-@property(nonatomic) CGFloat reflectionResolutionScaleFactor NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat reflectionResolutionScaleFactor API_AVAILABLE(macos(10.10));
 
 @end
 
@@ -4137,7 +4946,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract SCNText represents a block of text that has been extruded
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNText : SCNGeometry 
 
 /*!
@@ -4162,10 +4971,10 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  */
 @property(nonatomic, copy, nullable) id string;
 
-/*! 
+/*!
  @property font
  @abstract The font used to represent the text.
- @discussion The font property is only used when the string property is not an NSAttributedString. The default value is Helvetica size 36.
+ @discussion The font property is only used when the string property is not an NSAttributedString. Defaults to Helvetica 36 point.
  */
 @property(nonatomic, retain, null_resettable) UIFont *font;
 
@@ -4216,22 +5025,22 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Specifies the accuracy (or smoothness) with which fonts are rendered.
  @discussion Smaller numbers give smoother curves at the expense of more computation and heavier geometries in terms of vertices. The default value is 1.0, which yields smooth curves.
  */
-@property(nonatomic) CGFloat flatness NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) CGFloat flatness API_AVAILABLE(macos(10.9));
 
 @end
 
-/*!
- @class SCNShape
- @abstract SCNShape represents a 2D shape (cubic Bezier spline) than can be extruded.
- */
 
 typedef NS_ENUM(NSInteger, SCNChamferMode) {
     SCNChamferModeBoth,
     SCNChamferModeFront,
     SCNChamferModeBack
-} NS_ENUM_AVAILABLE(10_9, 8_0);
+} API_AVAILABLE(macos(10.9));
 
-NS_CLASS_AVAILABLE(10_9, 8_0)
+/*!
+ @class SCNShape
+ @abstract SCNShape represents a 2D shape (cubic Bezier spline) than can be extruded.
+ */
+SCN_EXPORT API_AVAILABLE(macos(10.9))
 @interface SCNShape : SCNGeometry
 
 /*!
@@ -4283,9 +5092,12 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNReferenceNode.h
 //
 //  SCNReferenceNode.h
+//  SceneKit
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright © 2015-2018 Apple Inc. All rights reserved.
 //
+
+#import <SceneKit/SCNNode.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -4297,13 +5109,13 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, SCNReferenceLoadingPolicy) {
     SCNReferenceLoadingPolicyImmediate = 0,
     SCNReferenceLoadingPolicyOnDemand  = 1
-} NS_ENUM_AVAILABLE(10_11, 9_0);
+} API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @class SCNReferenceNode
  @abstract Node that references an external file.
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+SCN_EXPORT API_AVAILABLE(macos(10.11), ios(9.0))
 @interface SCNReferenceNode : SCNNode
 
 /*!
@@ -4361,15 +5173,23 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNCamera.h
 //
 //  SCNCamera.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <SceneKit/SceneKitTypes.h>
 #import <SceneKit/SCNAnimation.h>
 #import <SceneKit/SCNTechnique.h>
 
+typedef NS_ENUM(NSInteger, SCNCameraProjectionDirection) {
+    SCNCameraProjectionDirectionVertical   = 0,
+    SCNCameraProjectionDirectionHorizontal = 1,
+} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 NS_ASSUME_NONNULL_BEGIN
+
+@class SCNMaterialProperty;
 
 /*!
  @class SCNCamera
@@ -4377,7 +5197,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion A node with a camera can be used as a point of view to visualize a 3D scene.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNCamera : NSObject <SCNAnimatable, SCNTechniqueSupport, NSCopying, NSSecureCoding>
 
 /*! 
@@ -4392,19 +5212,32 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  */
 @property(nonatomic, copy, nullable) NSString *name;
 
-/*! 
- @property xFov
- @abstract Determines the receiver's field of view on the X axis (in degree). Animatable.
- @discussion When both xFov and yFov are null an yFov of 60° is used. When both are set, the one that best fits the renderer's aspect ratio is used. When only one is set, it is used. Defaults to 0.
+/*!
+ @property fieldOfView
+ @abstract Determines the receiver's field of view (in degree). Defaults to 60°. Animatable.
+ @discussion The fieldOfView is automatically updated when the sensorHeight or focalLength are set. Setting the fieldOfView will update the focalLength according to the new fieldOfView and the current sensorHeight.
  */
-@property(nonatomic) double xFov;
+@property(nonatomic) CGFloat fieldOfView API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
-/*! 
- @property yFov
- @abstract Determines the receiver's field of view on the Y axis (in degree). Animatable.
- @discussion When both xFov and yFov are null an yFov of 60° is used. When both are set, the one that best fits the renderer's aspect ratio is used. When only one is set, it is used. Defaults to 0.
+/*!
+ @property projectionDirection
+ @abstract Determines whether the fieldOfView (or orthographicScale) is vertical or horizontal. Defaults to vertical.
  */
-@property(nonatomic) double yFov;
+@property(nonatomic) SCNCameraProjectionDirection projectionDirection API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property focalLength
+ @abstract Determines the receiver's focal length in millimeter. Defaults to 50mm. Animatable.
+ @discussion The focalLength is automatically updated when the sensorHeight or fieldOfView are set. Setting the focalLength will update the fieldOfView according to the new focalLength and the current sensorHeight.
+ */
+@property(nonatomic) CGFloat focalLength API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property sensorHeight
+ @abstract Determines the vertical size of the sensor in millimeter. Defaults to 24mm. Animatable.
+ @discussion Setting the sensorHeight will automatically update the fieldOfView according to the new sensorHeight and the current focalLength.
+ */
+@property(nonatomic) CGFloat sensorHeight API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*! 
  @property zNear
@@ -4422,10 +5255,10 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 
 /*!
  @property automaticallyAdjustsZRange
- @abstract Determines whether the receiver automatically adjusts the zNear and zFar values. Defaults to NO.
- @discussion When set to YES, the near and far planes are automatically set to fit the bounding box of the entire scene at render time. Setting the property zNear or zFar automatically resets this property to NO.
+ @abstract Determines whether the receiver automatically adjusts the zFar value. Defaults to NO.
+ @discussion When set to YES, the near and far planes are automatically set to fit the bounding box of the entire scene at render time. 
  */
-@property(nonatomic) BOOL automaticallyAdjustsZRange NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) BOOL automaticallyAdjustsZRange API_AVAILABLE(macos(10.9));
 
 /*! 
  @property usesOrthographicProjection
@@ -4438,51 +5271,259 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Determines the receiver's orthographic scale value. Animatable. Defaults to 1.
  @discussion This setting determines the size of the camera's visible area. This is only enabled when usesOrthographicProjection is set to YES.
  */
-@property(nonatomic) double orthographicScale NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) double orthographicScale API_AVAILABLE(macos(10.9));
 
 /*!
- @method projectionTransform
+ @property projectionTransform
  @abstract Determines the projection transform used by the camera to project the world onscreen. 
  */
-- (SCNMatrix4)projectionTransform;
-- (void)setProjectionTransform:(SCNMatrix4)projectionTransform NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) SCNMatrix4 projectionTransform;
+
+// MARK: Depth of Field
 
 /*!
- @functiongroup Depth of field
+ @property wantsDepthOfField
+ @abstract Determines if the receiver has depth of field. Defaults to NO.
  */
-/*!
- @property focalDistance
- @abstract Determines the receiver's focal distance. Animatable.
- @discussion When non zero, the focal distance determines how the camera focuses the objects in the 3d scene. Defaults to 10.0
- */
-@property(nonatomic) CGFloat focalDistance NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) BOOL wantsDepthOfField API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
- @property focalSize
- @abstract Determines the receiver's focal size. Animatable.
- @discussion Determines the size of the area around focalDistance where the objects are in focus. Defaults to 0.
+ @property focusDistance
+ @abstract Determines the receiver's focus distance. Animatable.
+ @discussion Defaults to 2.5
  */
-@property(nonatomic) CGFloat focalSize NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) CGFloat focusDistance API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property focalBlurSampleCount
+ @abstract Determines the receiver's sample count for depth of field effect.
+ @discussion Defaults to 25.
+ */
+@property(nonatomic) NSInteger focalBlurSampleCount API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property fStop
+ @abstract Determines the receiver's fstop. Animatable.
+ @discussion Defaults to 5.6.
+ */
+@property(nonatomic) CGFloat fStop API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property apertureBladeCount
+ @abstract Determines the receiver's blade count of the aperture.
+ @discussion Defaults to 6.
+ */
+@property(nonatomic) NSInteger apertureBladeCount API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property motionBlurIntensity
+ @abstract Determines the intensity of the motion blur. Animatable. Defaults to 0.
+ @discussion An intensity of zero means no motion blur. The intensity should not exceeed 1.
+ */
+@property(nonatomic) CGFloat motionBlurIntensity API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+// MARK: Screen Space Ambient Occlusion
+
+/*!
+ @property screenSpaceAmbientOcclusionIntensity
+ @abstract Determines the intensity of the screen space ambient occlusion. Animatable.
+ @discussion defaults to 0.
+ */
+@property(nonatomic) CGFloat screenSpaceAmbientOcclusionIntensity API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property screenSpaceAmbientOcclusionRadius
+ @abstract Determines the screen space ambient occlusion radius in scene unit. Animatable.
+ @discussion defaults to 5.
+ */
+@property(nonatomic) CGFloat screenSpaceAmbientOcclusionRadius API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property screenSpaceAmbientOcclusionBias
+ @abstract Determines self occlusion bias in scene unit.
+ @discussion defaults to 0.03.
+ */
+@property(nonatomic) CGFloat screenSpaceAmbientOcclusionBias API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property screenSpaceAmbientOcclusionDepthThreshold
+ @abstract Determines the depth blur threshold in scene unit.
+ @discussion defaults to 0.2.
+ */
+@property(nonatomic) CGFloat screenSpaceAmbientOcclusionDepthThreshold API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property screenSpaceAmbientOcclusionNormalThreshold
+ @abstract Determines the normal blur threshold.
+ @discussion defaults to 0.3.
+ */
+@property(nonatomic) CGFloat screenSpaceAmbientOcclusionNormalThreshold API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+// MARK: High Dynamic Range
+
+/*!
+ @property wantsHDR
+ @abstract Determines if the receiver has a high dynamic range. Defaults to NO.
+ */
+@property(nonatomic) BOOL wantsHDR API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property exposureOffset
+ @abstract Determines the logarithimc exposure biasing, in EV. Defaults to 0.
+ */
+@property(nonatomic) CGFloat exposureOffset API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property averageGray
+ @abstract Determines the average gray level desired in the final image. Defaults to 0.18.
+ */
+@property(nonatomic) CGFloat averageGray API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property whitePoint
+ @abstract Determines the smallest luminance level that will be mapped to white in the final image. Defaults to 1.
+ */
+@property(nonatomic) CGFloat whitePoint API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property wantsExposureAdaptation
+ @abstract Determines if the receiver should simulate an eye and continuously adjust to luminance. Defaults to YES.
+ */
+@property(nonatomic) BOOL wantsExposureAdaptation API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property exposureAdaptationBrighteningSpeedFactor
+ @abstract Determines the exposure adaptation speed when going from bright areas to dark areas. Defaults to 0.4.
+ */
+@property(nonatomic) CGFloat exposureAdaptationBrighteningSpeedFactor API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property exposureAdaptationBrighteningSpeedFactor
+ @abstract Determines the exposure adaptation speed when going from dark areas to bright areas. Defaults to 0.6.
+ */
+@property(nonatomic) CGFloat exposureAdaptationDarkeningSpeedFactor API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property minimumExposure
+ @abstract Determines the minimum exposure offset of the adaptation, in EV. Defaults to -15.
+ */
+@property(nonatomic) CGFloat minimumExposure API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property maximumExposure
+ @abstract Determines the maximum exposure offset of the adaptation, in EV. Defaults to -15.
+ */
+@property(nonatomic) CGFloat maximumExposure API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property bloomThreshold
+ @abstract Determines the luminance threshold for the bloom effect. Animatable. Defaults to 1.
+ */
+@property(nonatomic) CGFloat bloomThreshold API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property bloomIntensity
+ @abstract Determines the intensity of the bloom effect. Animatable. Defaults to 0 (no effect).
+ */
+@property(nonatomic) CGFloat bloomIntensity API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property bloomBlurRadius
+ @abstract Determines the radius of the bloom effect in points. Animatable. Defaults to 4.
+ */
+@property(nonatomic) CGFloat bloomBlurRadius API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property vignettingPower
+ @abstract Controls the shape of the vignetting effect. Defaults to 0 (no effect).
+ */
+@property(nonatomic) CGFloat vignettingPower API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property vignettingIntensity
+ @abstract Controls the intensity of the vignetting effect. Defaults to 0 (no effect).
+ */
+@property(nonatomic) CGFloat vignettingIntensity API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property colorFringeStrength
+ @abstract Controls the strength of the color shift effect. Defaults to 0 (no effect).
+ */
+@property(nonatomic) CGFloat colorFringeStrength API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property colorFringeIntensity
+ @abstract Controls the intensity of the color shift effect. Defaults to 1.
+ */
+@property(nonatomic) CGFloat colorFringeIntensity API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property saturation
+ @abstract Controls the overall saturation of the scene. Defaults to 1 (no effect).
+ */
+@property(nonatomic) CGFloat saturation API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property contrast
+ @abstract Controls the overall contrast of the scene. Defaults to 0 (no effect).
+ */
+@property(nonatomic) CGFloat contrast API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property colorGrading
+ @abstract Specifies a lookup texture to apply color grading. The contents must a 2D image representing `n` slices of a unit color cube texture, arranged in an horizontal row of `n` images. For instance, a color cube of dimension 16x16x16 should be provided as an image of size 256x16.
+ */
+@property(nonatomic, readonly) SCNMaterialProperty *colorGrading API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property categoryBitMask
+ @abstract Determines the node categories that are visible from the receiver. Defaults to all bits set.
+ */
+@property(nonatomic) NSUInteger categoryBitMask API_AVAILABLE(macos(10.10));
+
+// MARK: - Deprecated APIs
 
 /*!
  @property focalBlurRadius
  @abstract Determines the receiver's focal radius. Animatable.
  @discussion Determines the maximum amount of blur for objects out of focus. Defaults to 0.
  */
-@property(nonatomic) CGFloat focalBlurRadius NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) CGFloat focalBlurRadius API_DEPRECATED("Use fStop instead", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @property xFov
+ @abstract Determines the receiver's field of view on the X axis (in degree). Animatable.
+ @discussion When both xFov and yFov are null an yFov of 60° is used. When both are set, the one that best fits the renderer's aspect ratio is used. When only one is set, it is used. Defaults to 0.
+ */
+@property(nonatomic) double xFov API_DEPRECATED("Use -[SCNCamera fieldOfView] or -[SCNCamera focalLength] instead", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @property yFov
+ @abstract Determines the receiver's field of view on the Y axis (in degree). Animatable.
+ @discussion When both xFov and yFov are null an yFov of 60° is used. When both are set, the one that best fits the renderer's aspect ratio is used. When only one is set, it is used. Defaults to 0.
+ */
+@property(nonatomic) double yFov API_DEPRECATED("Use -[SCNCamera fieldOfView] or -[SCNCamera focalLength] instead", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
 
 /*!
  @property aperture
  @abstract Determines the receiver's aperture. Animatable.
- @discussion Determines how fast the transition between in-focus and out-of-focus areas is. The greater the aperture is the faster the transition is. Defaults to 1/8.
+ @discussion Defaults to 1/8.0.
  */
-@property(nonatomic) CGFloat aperture NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) CGFloat aperture API_DEPRECATED("Use -[SCNCamera fStop] instead with fStop = sensorHeight / aperture.", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
 
 /*!
- @property categoryBitMask
- @abstract Determines the node categories that are visible from the receiver. Defaults to all bits set.
+ @property focalSize
+ @abstract Determines the receiver's focal size. Animatable.
+ @discussion Determines the size of the area around focalDistance where the objects are in focus. Defaults to 0.
  */
-@property(nonatomic) NSUInteger categoryBitMask NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat focalSize API_DEPRECATED_WITH_REPLACEMENT("-focusDistance", macos(10.9, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @property focalDistance
+ @abstract Determines the receiver's focal distance. Animatable.
+ @discussion When non zero, the focal distance determines how the camera focuses the objects in the 3d scene. Defaults to 10.0 prior to macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Defaults to 2.5 otherwise.
+ */
+@property(nonatomic) CGFloat focalDistance API_DEPRECATED_WITH_REPLACEMENT("-focusDistance", macos(10.9, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
 
 @end
 
@@ -4490,17 +5531,22 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNPhysicsContact.h
 //
 //  SCNPhysicsContact.h
+//  SceneKit
 //
-//  Copyright (c) 2014-2015 Apple Inc. All rights reserved.
+//  Copyright © 2014-2018 Apple Inc. All rights reserved.
 //
 
+#import <SceneKit/SceneKitTypes.h>
+
 NS_ASSUME_NONNULL_BEGIN
+
+@class SCNNode;
 
 /*!
  @class SCNPhysicsContact
  @abstract SCNPhysicsContact contains information about a physics contact.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsContact : NSObject
 
 //The two nodes in contact
@@ -4511,7 +5557,8 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @property(nonatomic, readonly) SCNVector3 contactPoint;
 @property(nonatomic, readonly) SCNVector3 contactNormal;
 @property(nonatomic, readonly) CGFloat    collisionImpulse; // the collision impulse on nodeA
-@property(nonatomic, readonly) CGFloat    penetrationDistance; 
+@property(nonatomic, readonly) CGFloat    penetrationDistance;
+@property(nonatomic, readonly) CGFloat    sweepTestFraction API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)); // Value between 0 and 1 giving the relative position of the physic shape when performing a convex sweep test.
 
 @end
 
@@ -4519,11 +5566,13 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNMaterialProperty.h
 //
 //  SCNMaterialProperty.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <SceneKit/SceneKitTypes.h>
+#import <SceneKit/SCNAnimation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -4531,40 +5580,44 @@ NS_ASSUME_NONNULL_BEGIN
     @abstract Filtering modes
 */
 typedef NS_ENUM(NSInteger, SCNFilterMode) {
-    SCNFilterModeNone    NS_ENUM_AVAILABLE(10_9, 8_0) = 0,
-    SCNFilterModeNearest NS_ENUM_AVAILABLE(10_9, 8_0) = 1,
-    SCNFilterModeLinear  NS_ENUM_AVAILABLE(10_9, 8_0) = 2
-};
+    SCNFilterModeNone    = 0,
+    SCNFilterModeNearest = 1,
+    SCNFilterModeLinear  = 2
+} API_AVAILABLE(macos(10.9));
 
 /*! @enum SCNWrapeMode
  @abstract Wrap modes
  */
 typedef NS_ENUM(NSInteger, SCNWrapMode) {
-    SCNWrapModeClamp NS_ENUM_AVAILABLE(10_9, 8_0) = 1,
-    SCNWrapModeRepeat NS_ENUM_AVAILABLE(10_9, 8_0) = 2,
-    SCNWrapModeClampToBorder NS_ENUM_AVAILABLE(10_9, 9_0) = 3,
-    SCNWrapModeMirror NS_ENUM_AVAILABLE(10_9, 8_0) = 4,
-};
+    SCNWrapModeClamp         = 1,
+    SCNWrapModeRepeat        = 2,
+    SCNWrapModeClampToBorder = 3,
+    SCNWrapModeMirror        = 4
+} API_AVAILABLE(macos(10.9));
 
 /*! @class SCNMaterialProperty
     @abstract The contents of a SCNMaterial slot
     @discussion This can be used to specify the various properties of SCNMaterial slots such as diffuse, ambient, etc.
 */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNMaterialProperty : NSObject <SCNAnimatable, NSSecureCoding>
 
 /*!
  @method materialPropertyWithContents:
  @abstract Creates and initialize a property instance with the specified contents.
  */
-+ (instancetype)materialPropertyWithContents:(id)contents NS_AVAILABLE(10_9, 8_0);
++ (instancetype)materialPropertyWithContents:(id)contents API_AVAILABLE(macos(10.9));
 
 /*! 
  @property contents
- @abstract Specifies the receiver's contents. This can be a color (NSColor/UIColor), an image (NSImage/CGImageRef), a layer (CALayer), a path (NSString or NSURL), a SpriteKit scene (SKScene) or a texture (SKTexture, id<MTLTexture> or GLKTextureInfo). Animatable when set to a color.
- @discussion CGColorRef and CGImageRef can also be set. An array (NSArray) of 6 images is allowed for cube maps, only for reflective property. This array must contain images of the exact same dimensions, in the following order, in a left-handed coordinate system : +X, -X, +Y, -Y, +Z, -Z or if you prefer Right, Left, Top, Bottom, Front, Back. 
-     Setting the contents to an instance of SKTexture will automatically update the wrapS, wrapT, contentsTransform, minification, magnification and mip filters according to the SKTexture settings.
+ @abstract Specifies the receiver's contents. This can be a color (NSColor, UIColor, CGColorRef), an image (NSImage, UIImage, CGImageRef), a layer (CALayer), a path (NSString or NSURL), a SpriteKit scene (SKScene), a texture (SKTexture, id<MTLTexture> or GLKTextureInfo), or a floating value between 0 and 1 (NSNumber) for metalness and roughness properties. AVCaptureDevice is supported on iOS 11 and AVPlayer is supported on macOS 10.13, iOS 11 and tvOS 11. Animatable when set to a color.
+ @discussion Setting the contents to an instance of SKTexture will automatically update the wrapS, wrapT, contentsTransform, minification, magnification and mip filters according to the SKTexture settings.
+             When a cube map is expected (e.g. SCNMaterial.reflective, SCNScene.background, SCNScene.lightingEnvironment) you can use
+               1. A horizontal strip image                          where `6 * image.height ==     image.width`
+               2. A vertical strip image                            where `    image.height == 6 * image.width`
+               3. A spherical projection image (latitude/longitude) where `2 * image.height ==     image.width`
+               4. A NSArray of 6 images. This array must contain images of the exact same dimensions, in the following order, in a left-handed coordinate system: +X, -X, +Y, -Y, +Z, -Z (or Right, Left, Top, Bottom, Front, Back).
  */
 @property(nonatomic, retain, nullable) id contents;
 
@@ -4574,7 +5627,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  It dims the diffuse, specular and emission properties, it varies the bumpiness of the normal property and the
  filter property is blended with white. Default value is 1.0. Animatable.
  */
-@property(nonatomic) CGFloat intensity NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) CGFloat intensity API_AVAILABLE(macos(10.9));
 
 /*! 
  @property minificationFilter
@@ -4593,7 +5646,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 /*! 
  @property mipFilter
  @abstract Specifies the mipmap filter to use during minification.
- @discussion Defaults to SCNFilterModeNone.
+ @discussion Defaults to SCNFilterModeNone on macOS 10.11 or earlier and iOS 9 or earlier, SCNFilterModeNearest starting in macOS 10.12 and iOS 10.
  */
 @property(nonatomic) SCNFilterMode mipFilter;
 
@@ -4620,7 +5673,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Determines the receiver's border color (CGColorRef or UIColor). Animatable.
  @discussion The border color is ignored on iOS and is always considered as clear color (0,0,0,0) when the texture has an alpha channel and opaque back (0,0,0,1) otherwise.
  */
-@property(nonatomic, retain, nullable) id borderColor;
+@property(nonatomic, retain, nullable) id borderColor API_DEPRECATED("Deprecated", macos(10.8, 10.12), ios(8.0, 10.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*! 
  @property mappingChannel
@@ -4630,11 +5683,19 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 @property(nonatomic) NSInteger mappingChannel;      
 
 /*!
+ @property textureComponents
+ @abstract Specifies the texture components to sample in the shader. Defaults to SCNColorMaskRed for displacement property, and to SCNColorMaskAll for other properties.
+ @discussion Use this property to when using a texture that combine multiple informations in the different texture components. For example if you pack the roughness in red and metalness in blue etc... You can specify what component to use from the texture for this given material property. This property is only supported by Metal renderers.
+ */
+@property(nonatomic) SCNColorMask textureComponents API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+
+/*!
  @property maxAnisotropy
  @abstract Specifies the receiver's max anisotropy. Defaults to 1.0.
  @discussion Anisotropic filtering reduces blur and preserves detail at extreme viewing angles.
  */
-@property(nonatomic) CGFloat maxAnisotropy NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) CGFloat maxAnisotropy API_AVAILABLE(macos(10.9));
 
 @end
     
@@ -4642,54 +5703,149 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNPhysicsShape.h
 //
 //  SCNPhysicsShape.h
+//  SceneKit
 //
-//  Copyright (c) 2014-2015 Apple Inc. All rights reserved.
+//  Copyright © 2014-2018 Apple Inc. All rights reserved.
 //
+
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SCNGeometry;
 @class SCNNode;
 
-//Type of the physics shape. Default is SCNPhysicsShapeTypeConvexHull.
-//See below for the list of shape types.
-SCN_EXTERN NSString * const SCNPhysicsShapeTypeKey NS_AVAILABLE(10_10, 8_0);
+typedef NSString * SCNPhysicsShapeOption NS_STRING_ENUM;
+SCN_EXPORT SCNPhysicsShapeOption const SCNPhysicsShapeTypeKey               API_AVAILABLE(macos(10.10));                        // Type of the physics shape. Default is SCNPhysicsShapeTypeConvexHull. See below for the list of shape types.
+SCN_EXPORT SCNPhysicsShapeOption const SCNPhysicsShapeKeepAsCompoundKey     API_AVAILABLE(macos(10.10));                        // A boolean to decide if a hierarchy is kept as a compound of shapes or flattened as one single volume. Default is true.
+SCN_EXPORT SCNPhysicsShapeOption const SCNPhysicsShapeScaleKey              API_AVAILABLE(macos(10.10));                        // Local scaling of the physics shape (as an SCNVector3 wrapped in a NSValue)
+SCN_EXPORT SCNPhysicsShapeOption const SCNPhysicsShapeOptionCollisionMargin API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)); // Collision margin of the physics shape (as an NSNumber)
 
-//The possible values for the key SCNPhysicsShapeGeometryTypeKey
-SCN_EXTERN NSString * const SCNPhysicsShapeTypeBoundingBox NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN NSString * const SCNPhysicsShapeTypeConvexHull NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN NSString * const SCNPhysicsShapeTypeConcavePolyhedron NS_AVAILABLE(10_10, 8_0);
+#define SCNPhysicsShapeOptionType           SCNPhysicsShapeTypeKey
+#define SCNPhysicsShapeOptionKeepAsCompound SCNPhysicsShapeKeepAsCompoundKey
+#define SCNPhysicsShapeOptionScale          SCNPhysicsShapeScaleKey
 
-//A boolean to decide if a hierarchy is kept as a compound of shapes or flattened as one single volume. Default is true.
-SCN_EXTERN NSString * const SCNPhysicsShapeKeepAsCompoundKey NS_AVAILABLE(10_10, 8_0);
-
-//Local scaling of the physics shape (as an SCNVector3 wrapped in a NSValue)
-SCN_EXTERN NSString * const SCNPhysicsShapeScaleKey NS_AVAILABLE(10_10, 8_0);
+// Values for SCNPhysicsShapeOptionType
+typedef NSString * SCNPhysicsShapeType NS_STRING_ENUM;
+SCN_EXPORT SCNPhysicsShapeType const SCNPhysicsShapeTypeBoundingBox API_AVAILABLE(macos(10.10));
+SCN_EXPORT SCNPhysicsShapeType const SCNPhysicsShapeTypeConvexHull API_AVAILABLE(macos(10.10));
+SCN_EXPORT SCNPhysicsShapeType const SCNPhysicsShapeTypeConcavePolyhedron API_AVAILABLE(macos(10.10));
 
 /*!
  @class SCNPhysicsShape
  @abstract SCNPhysicsShape represents the shape of a physics body.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNPhysicsShape : NSObject <NSCopying, NSSecureCoding>
 
 //Creates an instance of a physics shape based on a geometry. see above for the possible options.
-+ (instancetype)shapeWithGeometry:(SCNGeometry *)geometry options:(nullable NSDictionary<NSString *, id> *)options;
++ (instancetype)shapeWithGeometry:(SCNGeometry *)geometry options:(nullable NSDictionary<SCNPhysicsShapeOption, id> *)options;
 
 //Creates an instance of a physics shape based on a node hierachy. The hierarchy must contain geometries at some point to create a valid shape. see above for the possible options.
-+ (instancetype)shapeWithNode:(SCNNode *)node options:(nullable NSDictionary<NSString *, id> *)options;
++ (instancetype)shapeWithNode:(SCNNode *)node options:(nullable NSDictionary<SCNPhysicsShapeOption, id> *)options;
 
 //Creates an instance of a physics shape based on several sub shapes, associated with transforms. The transforms are to be passed as an array of NSValue wrapping SCNMatrix4
 + (instancetype)shapeWithShapes:(NSArray<SCNPhysicsShape *> *)shapes transforms:(nullable NSArray<NSValue *> *)transforms;
 
 // Returns the options requested at init time
-@property(readonly, nonatomic, nullable) NSDictionary<NSString *, id> *options NS_AVAILABLE(10_11, 9_0);
+@property(readonly, nonatomic, nullable) NSDictionary<SCNPhysicsShapeOption, id> *options API_AVAILABLE(macos(10.11), ios(9.0));
 
 // Returns the object from which this physics shape was created. It can be an SCNGeometry*, an SCNNode* or in NSArray* of subshapes.
-@property(readonly, nonatomic) id sourceObject NS_AVAILABLE(10_11, 9_0);
+@property(readonly, nonatomic) id sourceObject API_AVAILABLE(macos(10.11), ios(9.0));
 
 // If the physics shape was created from an array of sub shapes, transforms contains the associated transforms as SCNMatrix4 wrapped in NSValue.
-@property(readonly, nonatomic, nullable) NSArray<NSValue *> *transforms NS_AVAILABLE(10_11, 9_0);
+@property(readonly, nonatomic, nullable) NSArray<NSValue *> *transforms API_AVAILABLE(macos(10.11), ios(9.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  SceneKit.framework/Headers/SCNHitTest.h
+//
+//  SCNHitTest.h
+//  SceneKit
+//
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//
+
+#import <SceneKit/SceneKitTypes.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class SCNNode;
+
+/*! @enum SCNHitTestSearchMode
+ @abstract hit test modes
+ */
+typedef NS_ENUM(NSInteger, SCNHitTestSearchMode) {
+    SCNHitTestSearchModeClosest = 0, // The closest object found.
+    SCNHitTestSearchModeAll     = 1, // All found objects sorted from nearest to farthest.
+    SCNHitTestSearchModeAny     = 2  // The first object found. This object is not necessarily the nearest.
+} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*! @group Hit-test options */
+
+typedef NSString * SCNHitTestOption NS_STRING_ENUM;
+SCN_EXPORT SCNHitTestOption const SCNHitTestClipToZRangeKey;                                                                        // If set to YES ignores the objects clipped by the zNear/zFar range of the current point of view. Defaults to YES.
+SCN_EXPORT SCNHitTestOption const SCNHitTestBackFaceCullingKey;                                                                     // If set to YES ignores the faces not facing to the camera. Defaults to YES.
+SCN_EXPORT SCNHitTestOption const SCNHitTestBoundingBoxOnlyKey;                                                                     // If set to YES only tests the bounding boxes of the 3D objects. Defaults to NO.
+SCN_EXPORT SCNHitTestOption const SCNHitTestIgnoreChildNodesKey;                                                                    // Determines whether the child nodes are ignored. Defaults to NO.
+SCN_EXPORT SCNHitTestOption const SCNHitTestRootNodeKey;                                                                            // Specifies the root node to use for the hit test. Defaults to the root node of the scene.
+SCN_EXPORT SCNHitTestOption const SCNHitTestIgnoreHiddenNodesKey  API_AVAILABLE(macos(10.9));                                       // Determines whether hidden nodes should be ignored. Defaults to YES.
+SCN_EXPORT SCNHitTestOption const SCNHitTestOptionCategoryBitMask API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));               // Determines the node categories to test. Defaults to all bits set.
+SCN_EXPORT SCNHitTestOption const SCNHitTestOptionSearchMode      API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)); // Determines whether the search should be exhaustive. Defaults to SCNHitTestSearchModeClosest.
+
+SCN_EXPORT SCNHitTestOption const SCNHitTestFirstFoundOnlyKey;                                                                      // Deprecated, use SCNHitTestSearchModeAny for the SCNHitTestOptionSearchMode option instead
+SCN_EXPORT SCNHitTestOption const SCNHitTestSortResultsKey;                                                                         // Deprecated, use SCNHitTestSearchModeAll for the SCNHitTestOptionSearchMode option instead
+
+#define SCNHitTestOptionFirstFoundOnly    SCNHitTestFirstFoundOnlyKey
+#define SCNHitTestOptionSortResults       SCNHitTestSortResultsKey
+#define SCNHitTestOptionClipToZRange      SCNHitTestClipToZRangeKey
+#define SCNHitTestOptionBackFaceCulling   SCNHitTestBackFaceCullingKey
+#define SCNHitTestOptionBoundingBoxOnly   SCNHitTestBoundingBoxOnlyKey
+#define SCNHitTestOptionIgnoreChildNodes  SCNHitTestIgnoreChildNodesKey
+#define SCNHitTestOptionRootNode          SCNHitTestRootNodeKey
+#define SCNHitTestOptionIgnoreHiddenNodes SCNHitTestIgnoreHiddenNodesKey
+
+/*! @class SCNHitTestResult
+ @abstract Results returned by the hit-test methods.
+ */
+
+SCN_EXPORT
+@interface SCNHitTestResult : NSObject
+
+/*! The hit node. */
+@property(nonatomic, readonly) SCNNode *node;
+
+/*! Index of the hit geometry element. */
+@property(nonatomic, readonly) NSInteger geometryIndex;
+
+/*! Index of the hit primitive of the geometry element. */
+@property(nonatomic, readonly) NSInteger faceIndex;
+
+/*! Intersection point in the node's local coordinate system. */
+@property(nonatomic, readonly) SCNVector3 localCoordinates;
+
+/*! Intersection point in the world coordinate system. */
+@property(nonatomic, readonly) SCNVector3 worldCoordinates;
+
+/*! Intersection normal in the node's local coordinate system. */
+@property(nonatomic, readonly) SCNVector3 localNormal;
+
+/*! Intersection normal in the world coordinate system. */
+@property(nonatomic, readonly) SCNVector3 worldNormal;
+
+/*! World transform of the hit node. */
+@property(nonatomic, readonly) SCNMatrix4 modelTransform;
+
+/*! The hit bone. Only available if the node hit has a SCNSkinner attached. */
+@property(nonatomic, readonly, nullable) SCNNode *boneNode API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @method textureCoordinatesWithMappingChannel:
+ @abstract Returns the texture coordinates at the point of intersection, for a given mapping channel.
+ @param channel The texture coordinates source index of the geometry to use. The channel must exists on the geometry otherwise {0,0} will be returned.
+ */
+- (CGPoint)textureCoordinatesWithMappingChannel:(NSInteger)channel;
 
 @end
 
@@ -4697,23 +5853,55 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SceneKitTypes.h
 //
 //  SceneKitTypes.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
+
+#import <SceneKit/SceneKitAvailability.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import <simd/simd.h>
 
 #import <QuartzCore/QuartzCore.h>
 #import <GLKit/GLKMathTypes.h>
-
 
 /*! @header SceneKitTypes
  @abstract Various types and utility functions used throughout SceneKit
  */
 
-#define SCN_ENABLE_METAL (!TARGET_IPHONE_SIMULATOR)
+#define SCN_ENABLE_METAL (!TARGET_OS_SIMULATOR)
 
 #if SCN_ENABLE_METAL
 #import <Metal/Metal.h>
 #endif
+
+
+// Color
+#define SCNColor UIColor
+
+/*! @enum SCNActionTimingMode
+ @abstract The modes that an action can use to adjust the apparent timing of the action.
+ */
+typedef NS_ENUM(NSInteger, SCNActionTimingMode) {
+    SCNActionTimingModeLinear,
+    SCNActionTimingModeEaseIn,
+    SCNActionTimingModeEaseOut,
+    SCNActionTimingModeEaseInEaseOut
+} API_AVAILABLE(macos(10.10), ios(8.0));
+
+/*! @enum SCNColorComponent
+ @abstract Color components
+ */
+typedef NS_OPTIONS(NSInteger, SCNColorMask) {
+    SCNColorMaskNone   = 0,
+    SCNColorMaskRed    = 0x1 << 3,
+    SCNColorMaskGreen  = 0x1 << 2,
+    SCNColorMaskBlue   = 0x1 << 1,
+    SCNColorMaskAlpha  = 0x1 << 0,
+    SCNColorMaskAll    = 0xf
+} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+#pragma mark - Vectors
 
 typedef struct SCNVector3 {
     float x, y, z;
@@ -4723,6 +5911,36 @@ typedef struct SCNVector4 {
     float x, y, z, w;
 } SCNVector4;
 
+/* The null vector: [0 0 0]. */
+SCN_EXPORT const SCNVector3 SCNVector3Zero API_AVAILABLE(macos(10.10));
+
+/* The null vector: [0 0 0 0]. */
+SCN_EXPORT const SCNVector4 SCNVector4Zero API_AVAILABLE(macos(10.10));
+
+/* Returns true if 'a' is exactly equal to 'b'. */
+SCN_EXPORT bool SCNVector3EqualToVector3 (SCNVector3 a, SCNVector3 b);
+
+/* Returns true if 'a' is exactly equal to 'b'. */
+SCN_EXPORT bool SCNVector4EqualToVector4 (SCNVector4 a, SCNVector4 b);
+
+/* Returns an initialized SCNVector3 */
+NS_INLINE SCNVector3 SCNVector3Make(float x, float y, float z) {
+    return (SCNVector3){x, y, z};
+}
+
+/* Returns an initialized SCNVector4 */
+NS_INLINE SCNVector4 SCNVector4Make(float x, float y, float z, float w) {
+    return (SCNVector4){x, y, z, w};
+}
+
+
+#pragma mark - Quaternions
+
+typedef SCNVector4 SCNQuaternion;
+
+
+#pragma mark - Matrices
+
 typedef struct SCNMatrix4 {
     float m11, m12, m13, m14;
     float m21, m22, m23, m24;
@@ -4730,88 +5948,119 @@ typedef struct SCNMatrix4 {
     float m41, m42, m43, m44;
 } SCNMatrix4;
 
-typedef SCNVector4 SCNQuaternion;
+/* The identity matrix: [1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]. */
+SCN_EXPORT const SCNMatrix4 SCNMatrix4Identity API_AVAILABLE(macos(10.10));
 
-SCN_EXTERN const SCNMatrix4 SCNMatrix4Identity NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN const SCNVector3 SCNVector3Zero NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN const SCNVector4 SCNVector4Zero NS_AVAILABLE(10_10, 8_0);
+/* Returns true if 'm' is the identity matrix. */
+SCN_EXPORT bool SCNMatrix4IsIdentity(SCNMatrix4 m) API_AVAILABLE(macos(10.10));
 
-/*! Returns true if 'a' is exactly equal to 'b'. */
-SCN_EXTERN bool SCNVector3EqualToVector3 (SCNVector3 a, SCNVector3 b);
+/* Returns true if 'a' is exactly equal to 'b'. */
+SCN_EXPORT bool SCNMatrix4EqualToMatrix4(SCNMatrix4 a, SCNMatrix4 b) API_AVAILABLE(macos(10.10));
 
-/*! Returns true if 'a' is exactly equal to 'b'. */
-SCN_EXTERN bool SCNVector4EqualToVector4 (SCNVector4 a, SCNVector4 b);
-
-/*! Returns an initialized SCNVector3 */
-NS_INLINE SCNVector3 SCNVector3Make(float x, float y, float z) {
-    SCNVector3 v = {x, y, z};
-    return v;
+/* Returns a transform that translates by '(tx, ty, tz)':
+ * m' =  [1 0 0 0; 0 1 0 0; 0 0 1 0; tx ty tz 1]. */
+NS_INLINE SCNMatrix4 SCNMatrix4MakeTranslation(float tx, float ty, float tz) {
+    return (SCNMatrix4){
+        .m11 = 1.f, .m12 = 0.f, .m13 = 0.f, .m14 = 0.f,
+        .m21 = 0.f, .m22 = 1.f, .m23 = 0.f, .m24 = 0.f,
+        .m31 = 0.f, .m32 = 0.f, .m33 = 1.f, .m34 = 0.f,
+        .m41 =  tx, .m42 =  ty, .m43 =  tz, .m44 = 1.f
+    };
 }
 
-/*! Returns an initialized SCNVector4 */
-NS_INLINE SCNVector4 SCNVector4Make(float x, float y, float z, float w) {
-    SCNVector4 v = {x, y, z, w};
-    return v;
-}
-
-NS_INLINE SCNMatrix4 SCNMatrix4MakeTranslation(float x, float y, float z) {
-    SCNMatrix4 m = SCNMatrix4Identity;
-    m.m41 = x;
-    m.m42 = y;
-    m.m43 = z;
-    return m;
-}
-
+/* Returns a transform that scales by '(sx, sy, sz)':
+ * m' = [sx 0 0 0; 0 sy 0 0; 0 0 sz 0; 0 0 0 1]. */
 NS_INLINE SCNMatrix4 SCNMatrix4MakeScale(float sx, float sy, float sz) {
-    SCNMatrix4 m = SCNMatrix4Identity;
-    m.m11 = sx;
-    m.m22 = sy;
-    m.m33 = sz;
+    return (SCNMatrix4){
+        .m11 =  sx, .m12 = 0.f, .m13 = 0.f, .m14 = 0.f,
+        .m21 = 0.f, .m22 =  sy, .m23 = 0.f, .m24 = 0.f,
+        .m31 = 0.f, .m32 = 0.f, .m33 =  sz, .m34 = 0.f,
+        .m41 = 0.f, .m42 = 0.f, .m43 = 0.f, .m44 = 1.f
+    };
+}
+
+/* Returns a matrix that rotates by 'angle' radians about the vector '(x, y, z)'. */
+SCN_EXPORT SCNMatrix4 SCNMatrix4MakeRotation(float angle, float x, float y, float z) API_AVAILABLE(macos(10.10));
+
+/* Translate 'm' by '(tx, ty, tz)' and return the result:
+ * m' = translate(tx, ty, tz) * m. */
+NS_INLINE SCNMatrix4 SCNMatrix4Translate(SCNMatrix4 m, float tx, float ty, float tz) {
+    m.m41 += tx;
+    m.m42 += ty;
+    m.m43 += tz;
     return m;
 }
 
-NS_INLINE SCNMatrix4 SCNMatrix4Translate(SCNMatrix4 mat, float x, float y, float z) {
-    mat.m41 += x;
-    mat.m42 += y;
-    mat.m43 += z;
-    return mat;
-}
+/* Scale 'm' by '(sx, sy, sz)' and return the result:
+ * m' = scale(sx, sy, sz) * m. */
+SCN_EXPORT SCNMatrix4 SCNMatrix4Scale(SCNMatrix4 m, float sx, float sy, float sz) API_AVAILABLE(macos(10.10));
 
-SCN_EXTERN SCNMatrix4 SCNMatrix4MakeRotation(float angle, float x, float y, float z) NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN SCNMatrix4 SCNMatrix4Scale(SCNMatrix4 mat, float x, float y, float z) NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN SCNMatrix4 SCNMatrix4Rotate(SCNMatrix4 mat, float angle, float x, float y, float z) NS_AVAILABLE(10_10, 8_0);
+/* Rotate 'm' by 'angle' radians about the vector '(x, y, z)' and return the result:
+ * m' = rotation(angle, x, y, z) * m. */
+SCN_EXPORT SCNMatrix4 SCNMatrix4Rotate(SCNMatrix4 m, float angle, float x, float y, float z) API_AVAILABLE(macos(10.10));
 
-SCN_EXTERN SCNMatrix4 SCNMatrix4Invert(SCNMatrix4 mat) NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN SCNMatrix4 SCNMatrix4Mult(SCNMatrix4 matA, SCNMatrix4 matB) NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN bool       SCNMatrix4IsIdentity(SCNMatrix4 mat) NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN bool       SCNMatrix4EqualToMatrix4(SCNMatrix4 matA, SCNMatrix4 matB) NS_AVAILABLE(10_10, 8_0);
+/* Invert 'm' and return the result. */
+SCN_EXPORT SCNMatrix4 SCNMatrix4Invert(SCNMatrix4 m) API_AVAILABLE(macos(10.10));
 
-/* GLKit bridge */
+/* Concatenate 'b' to 'a' and return the result: m' = a * b. */
+SCN_EXPORT SCNMatrix4 SCNMatrix4Mult(SCNMatrix4 a, SCNMatrix4 b) API_AVAILABLE(macos(10.10));
+
+
+#pragma mark - GLKit Bridge
+
 NS_INLINE SCNVector3 SCNVector3FromGLKVector3(GLKVector3 vector) {
-    SCNVector3 v = (SCNVector3){vector.v[0], vector.v[1], vector.v[2]};
-    return v;
+    return (SCNVector3){vector.v[0], vector.v[1], vector.v[2]};
 }
 
 NS_INLINE GLKVector3 SCNVector3ToGLKVector3(SCNVector3 vector) {
-    GLKVector3 v = {{(float)vector.x, (float)vector.y, (float)vector.z}};
-    return v;
+    return *(GLKVector3 *)&vector;
 }
 
 NS_INLINE SCNVector4 SCNVector4FromGLKVector4(GLKVector4 vector) {
-    SCNVector4 v = (SCNVector4){vector.v[0], vector.v[1], vector.v[2], vector.v[3]};
-    return v;
+    return *(SCNVector4 *)&vector;
 }
 
 NS_INLINE GLKVector4 SCNVector4ToGLKVector4(SCNVector4 vector) {
-    GLKVector4 v = {{vector.x, vector.y, vector.z, vector.w}};
-    return v;
+    return *(GLKVector4 *)&vector;
 }
 
-SCN_EXTERN GLKMatrix4 SCNMatrix4ToGLKMatrix4(SCNMatrix4 mat) NS_AVAILABLE(10_10, 8_0);
-SCN_EXTERN SCNMatrix4 SCNMatrix4FromGLKMatrix4(GLKMatrix4 mat) NS_AVAILABLE(10_10, 8_0);
+SCN_EXPORT GLKMatrix4 SCNMatrix4ToGLKMatrix4(SCNMatrix4 mat) API_AVAILABLE(macos(10.10));
+SCN_EXPORT SCNMatrix4 SCNMatrix4FromGLKMatrix4(GLKMatrix4 mat) API_AVAILABLE(macos(10.10));
+
+
+#pragma mark - SIMD Bridge
     
-//SIMD bridge
-#import <SceneKit/SceneKit_simd.h>
+NS_INLINE simd_float3 SCNVector3ToFloat3(SCNVector3 v) {
+    return simd_make_float3(v.x, v.y, v.z);
+}
+
+NS_INLINE simd_float4 SCNVector4ToFloat4(SCNVector4 v) {
+    return simd_make_float4(v.x, v.y, v.z, v.w);
+}
+
+NS_INLINE simd_float4x4 SCNMatrix4ToMat4(SCNMatrix4 m) {
+    return (simd_float4x4){
+        .columns[0] = simd_make_float4(m.m11, m.m12, m.m13, m.m14),
+        .columns[1] = simd_make_float4(m.m21, m.m22, m.m23, m.m24),
+        .columns[2] = simd_make_float4(m.m31, m.m32, m.m33, m.m34),
+        .columns[3] = simd_make_float4(m.m41, m.m42, m.m43, m.m44)
+    };
+}
+
+NS_INLINE SCNVector3 SCNVector3FromFloat3(simd_float3 v) {
+    return (SCNVector3){v.x, v.y, v.z};
+}
+
+NS_INLINE SCNVector4 SCNVector4FromFloat4(simd_float4 v) {
+    return (SCNVector4){v.x, v.y, v.z, v.w};
+}
+
+NS_INLINE SCNMatrix4 SCNMatrix4FromMat4(simd_float4x4 m) {
+    return *(SCNMatrix4 *)&m;
+}
+
+
+#pragma mark - NSValue Additions
     
 #ifdef __OBJC__
     
@@ -4821,20 +6070,24 @@ NS_ASSUME_NONNULL_BEGIN
  @abstract Adds methods to wrap vectors in NSValue objects.
  */
 
+SCN_EXPORT
 @interface NSValue (SceneKitAdditions)
 
 + (NSValue *)valueWithSCNVector3:(SCNVector3)v;
 + (NSValue *)valueWithSCNVector4:(SCNVector4)v;
-+ (NSValue *)valueWithSCNMatrix4:(SCNMatrix4)v NS_AVAILABLE(10_10, 8_0);
++ (NSValue *)valueWithSCNMatrix4:(SCNMatrix4)v API_AVAILABLE(macos(10.10));
 
 @property(nonatomic, readonly) SCNVector3 SCNVector3Value;
 @property(nonatomic, readonly) SCNVector4 SCNVector4Value;
-@property(nonatomic, readonly) SCNMatrix4 SCNMatrix4Value NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, readonly) SCNMatrix4 SCNMatrix4Value API_AVAILABLE(macos(10.10));
 
 @end
 
+
+#pragma mark - Errors
+
 //domain for errors from SceneKit API.
-SCN_EXTERN NSString * const SCNErrorDomain;
+SCN_EXPORT NSString * const SCNErrorDomain;
 
 // NSError codes in SCNErrorDomain.
 enum {
@@ -4847,8 +6100,9 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNRenderer.h
 //
 //  SCNRenderer.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SCNSceneRenderer.h>
@@ -4856,6 +6110,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class UIImage;
 @protocol MTLDevice;
 @protocol MTLCommandQueue;
 @protocol MTLRenderCommandEncoder;
@@ -4864,7 +6119,8 @@ NS_ASSUME_NONNULL_BEGIN
 /*! @class SCNRenderer
 	@abstract SCNRenderer lets you use the SceneKit renderer in an OpenGL context or Metal render pass descriptor of your own.
  */
-NS_CLASS_AVAILABLE(10_8, 8_0)
+API_UNAVAILABLE(watchos)
+SCN_EXPORT
 @interface SCNRenderer : NSObject <SCNSceneRenderer, SCNTechniqueSupport>
 
 /*! 
@@ -4873,7 +6129,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param context The context to render into.
  @param options An optional dictionary for future extensions.
  */
-+ (instancetype)rendererWithContext:(EAGLContext *)context options:(nullable NSDictionary *)options;
++ (instancetype)rendererWithContext:(nullable EAGLContext *)context options:(nullable NSDictionary *)options;
 
 /*!
  @method rendererWithDevice:options:
@@ -4881,7 +6137,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param device The metal device to use. Pass nil to let SceneKit choose a default device.
  @param options An optional dictionary for future extensions.
  */
-+ (instancetype)rendererWithDevice:(nullable id <MTLDevice>)device options:(nullable NSDictionary *)options NS_AVAILABLE(10_11, 9_0);
++ (instancetype)rendererWithDevice:(nullable id <MTLDevice>)device options:(nullable NSDictionary *)options API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*! 
  @property scene
@@ -4890,31 +6146,61 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 @property(nonatomic, retain, nullable) SCNScene *scene;
 
 /*!
- @method renderAtTime:
- @abstract renders the receiver's scene at the specified time (system time).
- @discussion This method only work if the receiver was allocated with an OpenGL context. Use renderAtTime:withEncoder:pass:commandQueue: to render with Metal.
- */
-- (void)renderAtTime:(CFTimeInterval)time NS_AVAILABLE(10_10, 8_0);
-
-/*!
  @method renderAtTime:viewport:commandBuffer:passDescriptor:
- @abstract renders the receiver's scene at the specified time (system time) viewport, metal command buffer and pass descriptor.
+ @abstract updates and renders the receiver's scene at the specified time (system time) viewport, Metal command buffer and pass descriptor.
  @discussion Use this method to render using Metal.
  */
-- (void)renderAtTime:(CFTimeInterval)time viewport:(CGRect)viewport commandBuffer:(id <MTLCommandBuffer>)commandBuffer passDescriptor:(MTLRenderPassDescriptor *)renderPassDescriptor NS_AVAILABLE(10_11, 9_0);
+- (void)renderAtTime:(CFTimeInterval)time viewport:(CGRect)viewport commandBuffer:(id <MTLCommandBuffer>)commandBuffer passDescriptor:(MTLRenderPassDescriptor *)renderPassDescriptor API_AVAILABLE(macos(10.11), ios(9.0));
+
+/*!
+ @method renderAtTime:
+ @abstract updates and renders the receiver's scene at the specified time (system time).
+ @discussion This method only work if the receiver was allocated with an OpenGL context. Use renderAtTime:withEncoder:pass:commandQueue: to render with Metal.
+ */
+- (void)renderAtTime:(CFTimeInterval)time API_AVAILABLE(macos(10.10));
+
+/*!
+ @method updateAtTime:
+ @abstract updates the receiver's scene at the specified time (system time).
+ */
+- (void)updateAtTime:(CFTimeInterval)time API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @method renderWithViewport:viewport:commandBuffer:passDescriptor:
+ @abstract renders the receiver's scene with the specified viewport, Metal command buffer and pass descriptor.
+ @discussion Use this method to render using Metal. This method doesn't update the scene's animations, physics, particles etc... It's up to you to call "updateAtTime:" to update the scene.
+ */
+- (void)renderWithViewport:(CGRect)viewport commandBuffer:(id <MTLCommandBuffer>)commandBuffer passDescriptor:(MTLRenderPassDescriptor *)renderPassDescriptor API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @property nextFrameTime
  @abstract Returns the time at which the next update should happen. If infinite no update needs to be scheduled yet. If the current frame time, a continuous animation is running and an update should be scheduled after a "natural" delay.
  */
-@property(nonatomic, readonly) CFTimeInterval nextFrameTime NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, readonly) CFTimeInterval nextFrameTime API_AVAILABLE(macos(10.10));
 
+/*!
+ @method snapshotAtTime:withSize:antialiasingMode:
+ @abstract renders the receiver's scene at the specified time (system time) into an image.
+ */
+- (UIImage *)snapshotAtTime:(CFTimeInterval)time withSize:(CGSize)size antialiasingMode:(SCNAntialiasingMode)antialiasingMode API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @method updateProbes:atTime:
+ @abstract Update the specified probes by computing their incoming irradiance in the receiver's scene at the specified time.
+ @param lightProbes An array of nodes that must have a light probe attached.
+ @param time The time used to render the scene when computing the light probes irradiance.
+ @discussion Light probes are only supported with Metal. This method is observable using NSProgress.
+ */
+- (void)updateProbes:(NSArray<SCNNode*> *)lightProbes atTime:(CFTimeInterval)time API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+
+// Deprecated
 /*!
  @method render
  @abstract renders the receiver's scene at the current system time.
- @discussion This method only work if the receiver was allocated with an OpenGL context and it is deprecated (use renderAtIme: instead). Use renderAtTime:withEncoder:pass:commandQueue: to render with Metal.
+ @discussion This method only work if the receiver was allocated with an OpenGL context and it is deprecated (use renderAtTime: instead). Use renderAtTime:withEncoder:pass:commandQueue: to render with Metal.
  */
-- (void)render NS_DEPRECATED(10_8, 10_11, 8_0, 9_0);
+- (void)render API_DEPRECATED_WITH_REPLACEMENT("-renderAtTime:withEncoder:pass:commandQueue:", macos(10.8, 10.11), ios(8.0, 9.0)) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
@@ -4922,11 +6208,12 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNMaterial.h
 //
 //  SCNMaterial.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <SceneKit/SceneKitTypes.h>
 #import <SceneKit/SCNAnimation.h>
 #import <SceneKit/SCNShadable.h>
 
@@ -4947,7 +6234,7 @@ NS_ASSUME_NONNULL_BEGIN
  SCNLightingModelPhong:
    Produces a specularly shaded surface where the specular reflection is shaded according the Phong BRDF approximation.
    The reflected color is calculated as:
-     color = <ambient> * al + <diffuse> * max(N . L, 0) + <specular> * pow(max(R . E, 0), <shininess>)
+     color = <ambient> * al + <diffuse> * max(N ⋅ L, 0) + <specular> * pow(max(R ⋅ E, 0), <shininess>)
    where
      al — Sum of all ambient lights currently active (visible) in the scene
      N — Normal vector
@@ -4963,7 +6250,7 @@ NS_ASSUME_NONNULL_BEGIN
  SCNLightingModelBlinn:
    Produces a specularly shaded surface with a Blinn BRDF approximation.
    The reflected color is calculated as:
-     color = <ambient> * al + <diffuse> * max(N . L, 0) + <specular> * pow(max(H . N, 0), <shininess>)
+     color = <ambient> * al + <diffuse> * max(N ⋅ L, 0) + <specular> * pow(max(H ⋅ N, 0), <shininess>)
    where
      al — Sum of all ambient lights currently active (visible) in the scene
      N — Normal vector
@@ -4980,7 +6267,7 @@ NS_ASSUME_NONNULL_BEGIN
    Produces a diffuse shaded surface with no specular reflection.
    The result is based on Lambert’s Law, which states that when light hits a rough surface, the light is reflected in all directions equally.
    The reflected color is calculated as:
-     color = <ambient> * al + <diffuse> * max(N . L, 0)
+     color = <ambient> * al + <diffuse> * max(N ⋅ L, 0)
    where
      al — Sum of all ambient lights currently active (visible) in the scene
      N — Normal vector
@@ -5000,19 +6287,32 @@ NS_ASSUME_NONNULL_BEGIN
      <diffuse> — The 'diffuse' property of the SCNMaterial instance
  */
 
-SCN_EXTERN NSString * const SCNLightingModelPhong;
-SCN_EXTERN NSString * const SCNLightingModelBlinn;
-SCN_EXTERN NSString * const SCNLightingModelLambert;
-SCN_EXTERN NSString * const SCNLightingModelConstant;
+typedef NSString * SCNLightingModel NS_STRING_ENUM;
+SCN_EXPORT SCNLightingModel const SCNLightingModelPhong;
+SCN_EXPORT SCNLightingModel const SCNLightingModelBlinn;
+SCN_EXPORT SCNLightingModel const SCNLightingModelLambert;
+SCN_EXPORT SCNLightingModel const SCNLightingModelConstant;
+SCN_EXPORT SCNLightingModel const SCNLightingModelPhysicallyBased API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+typedef NS_ENUM(NSUInteger, SCNFillMode) {
+    SCNFillModeFill  = 0,
+    SCNFillModeLines = 1
+} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 typedef NS_ENUM(NSInteger, SCNCullMode) {
-	SCNCullBack  = 0,
-	SCNCullFront = 1,
+	SCNCullModeBack  = 0,
+	SCNCullModeFront = 1
 };
 
+#define SCNCullBack  SCNCullModeBack
+#define SCNCullFront SCNCullModeFront
+
 typedef NS_ENUM(NSInteger, SCNTransparencyMode) {
-	SCNTransparencyModeAOne    = 0, 
-	SCNTransparencyModeRGBZero = 1, 
+    SCNTransparencyModeAOne                                                                         = 0, // Takes the transparency information from the alpha channel. The value 1.0 is opaque.
+    SCNTransparencyModeRGBZero                                                                      = 1, // Ignores the alpha channel and takes the transparency information from the luminance of the red, green, and blue channels. The value 0.0 is opaque.
+    SCNTransparencyModeSingleLayer API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = 2, // Ensures that one layer of transparency is draw correctly.
+    SCNTransparencyModeDualLayer   API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = 3, // Ensures that two layers of transparency are ordered and drawn correctly. This should be used for transparent convex objects like cubes and spheres, when you want to see both front and back faces.
+    SCNTransparencyModeDefault     API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = SCNTransparencyModeAOne
 };
 
 /*! 
@@ -5020,13 +6320,14 @@ typedef NS_ENUM(NSInteger, SCNTransparencyMode) {
  @abstract  Blend modes that SCNMaterial uses to compose with the framebuffer to produce blended colors.
  */
 typedef NS_ENUM(NSInteger, SCNBlendMode) {
-    SCNBlendModeAlpha        = 0, // Blends the source and destination colors by adding the source multiplied by source alpha and the destination multiplied by one minus source alpha.
-    SCNBlendModeAdd          = 1, // Blends the source and destination colors by adding them up.
-    SCNBlendModeSubtract     = 2, // Blends the source and destination colors by subtracting the source from the destination.
-    SCNBlendModeMultiply     = 3, // Blends the source and destination colors by multiplying them.
-    SCNBlendModeScreen       = 4, // Blends the source and destination colors by multiplying one minus the source with the destination and adding the source.
-    SCNBlendModeReplace      = 5  // Replaces the destination with the source (ignores alpha).
-} NS_ENUM_AVAILABLE(10_11, 9_0);
+    SCNBlendModeAlpha                                                                     = 0, // Blends the source and destination colors by adding the source multiplied by source alpha and the destination multiplied by one minus source alpha.
+    SCNBlendModeAdd                                                                       = 1, // Blends the source and destination colors by adding them up.
+    SCNBlendModeSubtract                                                                  = 2, // Blends the source and destination colors by subtracting the source from the destination.
+    SCNBlendModeMultiply                                                                  = 3, // Blends the source and destination colors by multiplying them.
+    SCNBlendModeScreen                                                                    = 4, // Blends the source and destination colors by multiplying one minus the source with the destination and adding the source.
+    SCNBlendModeReplace                                                                   = 5, // Replaces the destination with the source (ignores alpha).
+    SCNBlendModeMax      API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = 6  // Max the destination with the source (ignores alpha).
+} API_AVAILABLE(macos(10.11), ios(9.0));
 
 @class SCNMaterialProperty;
 @class SCNProgram;
@@ -5038,7 +6339,7 @@ typedef NS_ENUM(NSInteger, SCNBlendMode) {
  @abstract A SCNMaterial determines how a geometry is rendered. It encapsulates the colors and textures that define the appearance of 3d geometries.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNMaterial : NSObject <SCNAnimatable, SCNShadable, NSCopying, NSSecureCoding>
 
 /*! 
@@ -5052,6 +6353,8 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Determines the name of the receiver.
  */
 @property(nonatomic, copy, nullable) NSString *name;
+
+// MARK: - Material Properties
 
 /*! 
  @property diffuse
@@ -5106,16 +6409,37 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 @property(nonatomic, readonly) SCNMaterialProperty *normal;
 
 /*!
+ @property displacement
+ @abstract The displacement property specifies how vertex are translated in tangent space.
+ @discussion Pass a grayscale image for a simple 'elevation' or rgb image for a vector displacement.
+ */
+@property(nonatomic, readonly) SCNMaterialProperty *displacement API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
  @property ambientOcclusion
  @abstract The ambientOcclusion property specifies the ambient occlusion of the surface. The ambient occlusion is multiplied with the ambient light, then the result is added to the lighting contribution. This property has no visual impact on scenes that have no ambient light. When an ambient occlusion map is set, the ambient property is ignored.
  */
-@property(nonatomic, readonly) SCNMaterialProperty *ambientOcclusion NS_ENUM_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly) SCNMaterialProperty *ambientOcclusion API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @property selfIllumination
  @abstract The selfIllumination property specifies a texture or a color that is added to the lighting contribution of the surface. When a selfIllumination is set, the emission property is ignored.
  */
-@property(nonatomic, readonly) SCNMaterialProperty *selfIllumination NS_ENUM_AVAILABLE(10_11, 9_0);
+@property(nonatomic, readonly) SCNMaterialProperty *selfIllumination API_AVAILABLE(macos(10.11), ios(9.0));
+
+/*!
+ @property metalness
+ @abstract The metalness property specifies how metallic the material's surface appears. Lower values (darker colors) cause the material to appear more like a dielectric surface. Higher values (brighter colors) cause the surface to appear more metallic. This property is only used when 'lightingModelName' is 'SCNLightingModelPhysicallyBased'.
+ */
+@property(nonatomic, readonly) SCNMaterialProperty *metalness API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property roughness
+ @abstract The roughness property specifies the apparent smoothness of the surface. Lower values (darker colors) cause the material to appear shiny, with well-defined specular highlights. Higher values (brighter colors) cause specular highlights to spread out and the diffuse property of the material to become more retroreflective. This property is only used when 'lightingModelName' is 'SCNLightingModelPhysicallyBased'.
+ */
+@property(nonatomic, readonly) SCNMaterialProperty *roughness API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+// MARK: -
 
 /*! 
  @property shininess
@@ -5130,11 +6454,11 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  */
 @property(nonatomic) CGFloat transparency;
 
-/*! 
+/*!
  @property lightingModelName
  @abstract Determines the receiver's lighting model. See above for the list of lighting models. Defaults to SCNLightingModelBlinn.
  */
-@property(nonatomic, copy) NSString *lightingModelName;
+@property(nonatomic, copy) SCNLightingModel lightingModelName;
 
 /*! 
  @property litPerPixel
@@ -5148,6 +6472,12 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  */
 @property(nonatomic, getter=isDoubleSided) BOOL doubleSided;
 
+/*!
+ @property fillMode
+ @abstract Determines of to how to rasterize the receiver's primitives. Defaults to SCNFillModeFill.
+ */
+@property(nonatomic) SCNFillMode fillMode API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 /*! 
  @property cullMode
  @abstract Determines the culling mode of the receiver. Defaults to SCNCullBack. Animatable.
@@ -5156,9 +6486,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 
 /*! 
  @property transparencyMode
- @abstract Determines the transparency mode of the receiver. See above for the transparency modes. Defaults to SCNTransparencyModeAOne.
- @discussion SCNTransparencyModeAOne takes the transparency information from the color's alpha channel. The value 1.0 is opaque. 
- SCNTransparencyModeRGBZero takes the transparency information from the color's red, green, and blue channels. The value 0.0 is opaque, with each channel modulated independently. With SCNTransparencyModeRGBZero, the alpha value of the transparent property is ignored.
+ @abstract Determines the transparency mode of the receiver. See above for the transparency modes. Defaults to SCNTransparencyModeDefault.
  */
 @property(nonatomic) SCNTransparencyMode transparencyMode;
 
@@ -5175,23 +6503,28 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 @property(nonatomic) BOOL writesToDepthBuffer;
 
 /*!
+ @abstract Determines whether the receiver writes to the color buffer when rendered. Defaults to SCNColorMaskAll.
+ */
+@property(nonatomic) SCNColorMask colorBufferWriteMask API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
  @property readsFromDepthBuffer
  @abstract Determines whether the receiver reads from the depth buffer when rendered. Defaults to YES.
  */
-@property(nonatomic) BOOL readsFromDepthBuffer NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) BOOL readsFromDepthBuffer API_AVAILABLE(macos(10.9));
 
 /*!
  @property fresnelExponent
  @abstract Specifies the receiver's fresnel exponent value. Defaults to 0.0. Animatable.
  @discussion The effect of the reflectivity property is modulated by this property. The fresnelExponent changes the exponent of the reflectance. The bigger the exponent, the more concentrated the reflection is around the edges.
  */
-@property(nonatomic) CGFloat fresnelExponent NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic) CGFloat fresnelExponent API_AVAILABLE(macos(10.9));
 
 /*!
  @property blendMode
  @abstract Specifies the receiver's blend mode. Defaults to SCNBlendModeAlpha.
  */
-@property(nonatomic) SCNBlendMode blendMode NS_AVAILABLE(10_11, 9_0);
+@property(nonatomic) SCNBlendMode blendMode API_AVAILABLE(macos(10.11), ios(9.0));
 
 @end
     
@@ -5199,16 +6532,16 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNJavascript.h
 //
 //  SCNJavascript.h
+//  SceneKit
 //
-//  Copyright (c) 2014-2015 Apple Inc. All rights reserved.
+//  Copyright © 2014-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
-#import <JavaScriptCore/JavaScriptCore.h>
+
+@class JSContext;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#if JSC_OBJC_API_ENABLED
 
 /*
  @function SCNExportJavaScriptModule
@@ -5252,20 +6585,20 @@ NS_ASSUME_NONNULL_BEGIN
  aNode.transform = {m11:1, m12:0, m13:0 ... m44:1};
  */
 
-SCN_EXTERN void SCNExportJavaScriptModule(JSContext *context) NS_AVAILABLE(10_10, 8_0);
-
-#endif
+SCN_EXPORT void SCNExportJavaScriptModule(JSContext *context) API_AVAILABLE(macos(10.10));
 
 NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNScene.h
 //
 //  SCNScene.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <SceneKit/SCNAnimation.h>
+#import <SceneKit/SCNSceneSource.h>
 #import <SceneKit/SCNMaterialProperty.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -5281,7 +6614,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param error Will contain information about the failure if any.
  @param stop Set *stop to YES if you want to abort the operation.
  */
-typedef void (^SCNSceneExportProgressHandler)(float totalProgress, NSError * __nullable error, BOOL *stop);
+typedef void (^SCNSceneExportProgressHandler)(float totalProgress, NSError * _Nullable error, BOOL *stop);
 
 
 /*! @group Scene writing options */
@@ -5290,28 +6623,30 @@ typedef void (^SCNSceneExportProgressHandler)(float totalProgress, NSError * __n
  @abstract Specifies the final destination (as a NSURL) of the scene being exported.
  @discussion The destination URL is required if the scene is exported to a temporary directory and then moved to a final destination. This enables the exported document to get correct relative paths to referenced images.
  */
-SCN_EXTERN NSString * const SCNSceneExportDestinationURL NS_AVAILABLE(10_9, 8_0);
+SCN_EXPORT NSString * const SCNSceneExportDestinationURL API_AVAILABLE(macos(10.9));
 
 
 /*! @group Scene attributes
     @abstract These keys can be used with the -[SCNScene attributeForKey:] method.
  */
 
-/*! A floating point value, encapsulated in a NSNumber, containing the start time of the scene. */
-SCN_EXTERN NSString * const SCNSceneStartTimeAttributeKey;
-/*! A floating point value, encapsulated in a NSNumber, containing the end time of the scene. */
-SCN_EXTERN NSString * const SCNSceneEndTimeAttributeKey;
-/*! A floating point value, encapsulated in a NSNumber, containing the framerate of the scene. */
-SCN_EXTERN NSString * const SCNSceneFrameRateAttributeKey;
-/*! A vector3 value, encapsulated in a NSValue, containing the up axis of the scene. This is just for information, setting the up axis as no effect */
-SCN_EXTERN NSString * const SCNSceneUpAxisAttributeKey NS_AVAILABLE(10_10, 8_0);
+typedef NSString * SCNSceneAttribute NS_STRING_ENUM;
+SCN_EXPORT SCNSceneAttribute const SCNSceneStartTimeAttributeKey;                          // A floating point value, encapsulated in a NSNumber, containing the start time of the scene.
+SCN_EXPORT SCNSceneAttribute const SCNSceneEndTimeAttributeKey;                            // A floating point value, encapsulated in a NSNumber, containing the end time of the scene.
+SCN_EXPORT SCNSceneAttribute const SCNSceneFrameRateAttributeKey;                          // A floating point value, encapsulated in a NSNumber, containing the framerate of the scene.
+SCN_EXPORT SCNSceneAttribute const SCNSceneUpAxisAttributeKey API_AVAILABLE(macos(10.10)); // A vector3 value, encapsulated in a NSValue, containing the up axis of the scene. This is just for information, setting the up axis as no effect.
+
+#define SCNSceneAttributeStartTime SCNSceneStartTimeAttributeKey
+#define SCNSceneAttributeEndTime   SCNSceneEndTimeAttributeKey
+#define SCNSceneAttributeFrameRate SCNSceneFrameRateAttributeKey
+#define SCNSceneAttributeUpAxis    SCNSceneUpAxisAttributeKey
 
 /*!
  @class SCNScene
  @abstract SCNScene is the class that describes a 3d scene. It encapsulates a node hierarchy.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNScene : NSObject <NSSecureCoding>
 
 + (instancetype)scene;
@@ -5330,7 +6665,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Specifies the physics world of the receiver.
  @discussion Every scene automatically creates a physics world object to simulate physics on nodes in the scene. You use this property to access the scene’s global physics properties, such as gravity. To add physics to a particular node, see physicsBody.
  */
-@property(nonatomic, readonly) SCNPhysicsWorld *physicsWorld NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, readonly) SCNPhysicsWorld *physicsWorld API_AVAILABLE(macos(10.10));
 
 /*!
  @method attributeForKey:
@@ -5352,9 +6687,20 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 /*!
  @property background
  @abstract Specifies the background of the receiver.
- @discussion The background is rendered before the rest of the scene. The background can be rendered as a skybox by setting a NSArray of six images to its contents (see SCNMaterialProperty.h). Setting a color will have no effect (use SCNView's backgroundColor instead).
+ @discussion The background is rendered before the rest of the scene.
+             The background can be rendered as a skybox by setting a cube map as described in SCNMaterialProperty.h
+             Colors are supported starting in macOS 10.12 and iOS 10. Prior to that you can use SCNView.backgroundColor.
+             MDLSkyCubeTexture is supported starting in macOS 10.13 and iOS 11.
  */
-@property(nonatomic, readonly) SCNMaterialProperty *background NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic, readonly) SCNMaterialProperty *background API_AVAILABLE(macos(10.9));
+
+/*!
+ @property lightingEnvironment
+ @abstract Specifies the receiver's environment for image-based lighting (IBL).
+ @discussion The environment should be a cube map as described in SCNMaterialProperty.h.
+             MDLSkyCubeTexture is supported starting in macOS 10.13 and iOS 11.
+ */
+@property(nonatomic, readonly) SCNMaterialProperty *lightingEnvironment API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 
 
 #pragma mark - Loading
@@ -5365,7 +6711,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param name The name of the file. The method looks for a file with the specified name in the application’s main bundle.
  @discussion This method initializes with no options and does not check for errors. The resulting object is not cached.
  */
-+ (nullable instancetype)sceneNamed:(NSString *)name NS_AVAILABLE(10_9, 8_0);
++ (nullable instancetype)sceneNamed:(NSString *)name API_AVAILABLE(macos(10.9));
 
 /*!
  @method sceneNamed:options:
@@ -5375,7 +6721,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param options An options dictionary. The relevant keys are documented in the SCNSceneSource class.
  @discussion This method initializes with no options and does not check for errors. The resulting object is not cached.
  */
-+ (nullable instancetype)sceneNamed:(NSString *)name inDirectory:(nullable NSString *)directory options:(nullable NSDictionary<NSString *, id> *)options NS_AVAILABLE(10_10, 8_0);
++ (nullable instancetype)sceneNamed:(NSString *)name inDirectory:(nullable NSString *)directory options:(nullable NSDictionary<SCNSceneSourceLoadingOption, id> *)options API_AVAILABLE(macos(10.10));
 
 /*!
  @method sceneWithURL:options:error:
@@ -5386,8 +6732,24 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @discussion This method is here for convenience. It is equivalent to initializing a SCNSceneSource with the specified
  url and options, and asking it for its scene with the same options.
  */
-+ (nullable instancetype)sceneWithURL:(NSURL *)url options:(nullable NSDictionary<NSString *, id> *)options error:(NSError **)error;
++ (nullable instancetype)sceneWithURL:(NSURL *)url options:(nullable NSDictionary<SCNSceneSourceLoadingOption, id> *)options error:(NSError **)error;
 
+#pragma mark - Writing
+
+/*!
+ @method writeToURL:options:delegate:progressHandler:
+ @abstract write the scene to the specified url.
+ @param url the destination url to write the scene to.
+ @param options A dictionary of options. The valid keys are described in the "Scene writing options" section.
+ @param delegate an optional delegate to manage external references such as images.
+ @param progressHandler an optional block to handle the progress of the operation.
+ @return Returns YES if the operation succeeded, NO otherwise. Errors checking can be done via the "error"
+ parameter of the 'progressHandler'.
+ @discussion macOS 10.10 and lower only supports exporting to .dae files.
+             Starting macOS 10.11 exporting supports .dae, .scn as well as file all formats supported by Model I/O.
+             Starting iOS 10 exporting supports .scn as well as all file formats supported by Model I/O.
+ */
+- (BOOL)writeToURL:(NSURL *)url options:(nullable NSDictionary<NSString *, id> *)options delegate:(nullable id <SCNSceneExportDelegate>)delegate progressHandler:(nullable SCNSceneExportProgressHandler)progressHandler API_AVAILABLE(macos(10.9), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
 
 #pragma mark - Fog
 
@@ -5395,27 +6757,27 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @property fogStartDistance
  @abstract Specifies the receiver's fog start distance. Animatable. Defaults to 0.
  */
-@property(nonatomic) CGFloat fogStartDistance NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat fogStartDistance API_AVAILABLE(macos(10.10));
 
 /*!
  @property fogEndDistance
  @abstract Specifies the receiver's fog end distance. Animatable. Defaults to 0.
  */
-@property(nonatomic) CGFloat fogEndDistance NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat fogEndDistance API_AVAILABLE(macos(10.10));
 
 /*!
  @property fogDensityExponent
  @abstract Specifies the receiver's fog power exponent. Animatable. Defaults to 1.
  @discussion Controls the attenuation between the start and end fog distances. 0 means a constant fog, 1 a linear fog and 2 a quadratic fog, but any positive value will work.
  */
-@property(nonatomic) CGFloat fogDensityExponent NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat fogDensityExponent API_AVAILABLE(macos(10.10));
 
 /*!
  @property fogColor
  @abstract Specifies the receiver's fog color (NSColor or CGColorRef). Animatable. Defaults to white.
  @discussion The initial value is a NSColor.
  */
-@property(nonatomic, retain) id fogColor NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, retain) id fogColor API_AVAILABLE(macos(10.10));
 
 
 #pragma mark - Pause
@@ -5425,29 +6787,48 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Controls whether or not the scene is paused. Defaults to NO.
  @discussion Pausing a scene will pause animations, actions, particles and physics.
  */
-@property(nonatomic, getter=isPaused) BOOL paused NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, getter=isPaused) BOOL paused API_AVAILABLE(macos(10.10));
 
 
 @end
 
+API_AVAILABLE(macos(10.9), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos)
+@protocol SCNSceneExportDelegate <NSObject>
+@optional
+/*!
+ @method writeImage:withSceneDocumentURL:originalImageURL:
+ @abstract Invoked on the delegate to write the referenced image and return the destination url.
+ @param image The image to write.
+ @param documentURL The url where the scene is currently exported to.
+ @param originalImageURL The original url for the image. May be nil if the image was not previously loaded from a url.
+ @return The delegate must returns the url of the image that was exported or nil if it didn't export any image. If the returned value is nil, the image will be exported to a default destination in a default format.
+ */
+- (nullable NSURL *)writeImage:(UIImage *)image withSceneDocumentURL:(NSURL *)documentURL originalImageURL:(nullable NSURL *)originalImageURL API_AVAILABLE(macos(10.9), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+
+@end
 
 NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNSkinner.h
 //
 //  SCNSkinner.h
+//  SceneKit
 //
-//  Copyright (c) 2013-2015 Apple Inc. All rights reserved.
+//  Copyright © 2013-2018 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <SceneKit/SceneKitTypes.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+@class SCNNode;
+@class SCNGeometry;
+@class SCNGeometrySource;
 
 /*!
  @class SCNSkinner
  @abstract SCNSkinner controls the deformation of skinned geometries */
 
-NS_CLASS_AVAILABLE(10_9, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.9))
 @interface SCNSkinner : NSObject <NSSecureCoding>
 
 /*!
@@ -5455,7 +6836,7 @@ NS_CLASS_AVAILABLE(10_9, 8_0)
  @abstract Specifies the skeleton of the receiver.
  @discussion When setting a new skeleton, the new skeleton must have the same hierarchy of joints.
  */
-@property(nonatomic, retain, nullable) SCNNode *skeleton;
+@property(nonatomic, weak, nullable) SCNNode *skeleton;
 
 /*!
  @method skinnerWithBaseGeometry:bones:boneInverseBindTransforms:boneWeights:boneIndices:
@@ -5466,7 +6847,7 @@ NS_CLASS_AVAILABLE(10_9, 8_0)
  @param boneWeights A buffer of weights. This contains the weights of every influence of every vertex. The number of influence per vertex is controlled by the number of component in the geometry source.
  @param boneIndices A buffer of bone indexes. This buffer contains the corresponding index in the bones array for every weight in the weights buffer.
  */
-+ (instancetype)skinnerWithBaseGeometry:(nullable SCNGeometry *)baseGeometry bones:(NSArray<SCNNode *> *)bones boneInverseBindTransforms:(nullable NSArray<NSValue *> *)boneInverseBindTransforms boneWeights:(SCNGeometrySource *)boneWeights boneIndices:(SCNGeometrySource *)boneIndices NS_AVAILABLE(10_10, 8_0);
++ (instancetype)skinnerWithBaseGeometry:(nullable SCNGeometry *)baseGeometry bones:(NSArray<SCNNode *> *)bones boneInverseBindTransforms:(nullable NSArray<NSValue *> *)boneInverseBindTransforms boneWeights:(SCNGeometrySource *)boneWeights boneIndices:(SCNGeometrySource *)boneIndices API_AVAILABLE(macos(10.10));
 
 /*!
  @property baseGeometry
@@ -5476,38 +6857,38 @@ NS_CLASS_AVAILABLE(10_9, 8_0)
  Access this property if you want a whole new geometry (which will necessarily be shared among the skinner instances), with
  different sources, for instance.
  */
-@property(retain, nonatomic, nullable) SCNGeometry *baseGeometry NS_AVAILABLE(10_9, 8_0);
+@property(retain, nonatomic, nullable) SCNGeometry *baseGeometry API_AVAILABLE(macos(10.9));
 
 /*!
  @property baseGeometryBindTransform
  @abstract Specifies the transform of the baseGeometry at the time when the mesh was bound to a skeleton. This transforms the baseGeometry from object space to a space on which the skinning then applies.
  */
-@property(nonatomic) SCNMatrix4 baseGeometryBindTransform NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) SCNMatrix4 baseGeometryBindTransform API_AVAILABLE(macos(10.10));
 
 /*!
  @property boneInverseBindTransforms
  @abstract The inverse of the bone’s bind-space transformation matrix at the time the bind shape was bound to this bone.
  @discussion boneInverseBindTransforms is an array of SCNMatrix4 wrapped into instances of NSValue.
  */
-@property(readonly, nonatomic, nullable) NSArray<NSValue *> *boneInverseBindTransforms NS_AVAILABLE(10_10, 8_0);
+@property(readonly, nonatomic, nullable) NSArray<NSValue *> *boneInverseBindTransforms API_AVAILABLE(macos(10.10));
 
 /*!
  @property bones
  @abstract The bones of the skinner.
  */
-@property(readonly, nonatomic) NSArray<SCNNode *> *bones NS_AVAILABLE(10_10, 8_0);
+@property(readonly, nonatomic) NSArray<SCNNode *> *bones API_AVAILABLE(macos(10.10));
 
 /*!
  @property boneWeights
  @abstract The bone weights of the receiver.
  */
-@property(readonly, nonatomic) SCNGeometrySource *boneWeights NS_AVAILABLE(10_10, 8_0);
+@property(readonly, nonatomic) SCNGeometrySource *boneWeights API_AVAILABLE(macos(10.10));
 
 /*!
  @property boneIndices
  @abstract The bone indices of the receiver.
  */
-@property(readonly, nonatomic) SCNGeometrySource *boneIndices NS_AVAILABLE(10_10, 8_0);
+@property(readonly, nonatomic) SCNGeometrySource *boneIndices API_AVAILABLE(macos(10.10));
 
 @end
 
@@ -5515,34 +6896,54 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNConstraint.h
 //
 //  SCNConstraint.h
+//  SceneKit
 //
-//  Copyright (c) 2013-2015 Apple Inc. All rights reserved.
+//  Copyright © 2013-2018 Apple Inc. All rights reserved.
 //
 
+#import <SceneKit/SceneKitTypes.h>
+#import <SceneKit/SCNAnimation.h>
+
 NS_ASSUME_NONNULL_BEGIN
+
+@class SCNNode;
 
 /*!
  @class SCNConstraint
  @abstract A SCNConstraint is an abstract class that represents a single constraint that can be applied to a node.
  */
 
-NS_CLASS_AVAILABLE(10_9, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.9))
 @interface SCNConstraint : NSObject <NSCopying, NSSecureCoding, SCNAnimatable>
+
+/*!
+ @property enable
+ @abstract Determines whether the constraint is enabled or not. Defaults to YES.
+ */
+@property(nonatomic, getter = isEnabled) BOOL enabled API_AVAILABLE(macos(10.10));
 
 /*!
  @property influenceFactor
  @abstract Specifies the inflence factor of the receiver. Defaults to 1. Animatable
  */
-@property(nonatomic) CGFloat influenceFactor NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) CGFloat influenceFactor API_AVAILABLE(macos(10.10));
+
+/*!
+ @property incremental
+ @abstract Specifies whether or not the contraint should applies incrementally and have it's effect being cumulated over the rendered frames. Defaults to YES on macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Defaults to NO in earlier versions.
+ */
+@property(nonatomic, getter=isIncremental) BOOL incremental API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 @end
+
+// MARK: -
 
 /*!
  @class SCNLookAtConstraint
  @abstract A SCNLookAtConstraint applies on a node's orientation so that it always look at another node.
  */
 
-NS_CLASS_AVAILABLE(10_9, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.9))
 @interface SCNLookAtConstraint : SCNConstraint
 
 /*!
@@ -5550,13 +6951,34 @@ NS_CLASS_AVAILABLE(10_9, 8_0)
  @abstract Creates and returns a SCNLookAtConstraint object with the specified target.
  @param target The target node to look at.
  */
-+ (instancetype)lookAtConstraintWithTarget:(SCNNode *)target;
++ (instancetype)lookAtConstraintWithTarget:(nullable SCNNode *)target;
 
 /*!
  @property target
  @abstract Defines the target node to look at.
  */
-@property(nonatomic, readonly) SCNNode *target;
+@property(nonatomic, retain, nullable) SCNNode *target;
+- (nullable SCNNode *)target;
+- (void)setTarget:(nullable SCNNode *)target API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*!
+ @property targetOffset
+ @abstract Offset look at position in target space. Defaults to zero. Animatable
+ */
+@property(nonatomic, assign) SCNVector3 targetOffset API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property targetOffset
+ @abstract Front direction in the constraint owner local space. Defaults to -[SCNNode localFront]. Animatable
+ */
+@property(nonatomic, assign) SCNVector3 localFront API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property worldUp
+ @abstract Up reference direction in world space. Defaults to -[SCNNode localUp]. Animatable
+ */
+@property(nonatomic, assign) SCNVector3 worldUp API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 
 /*!
  @property gimbalLockEnabled
@@ -5567,6 +6989,8 @@ NS_CLASS_AVAILABLE(10_9, 8_0)
 
 @end
 
+// MARK: -
+
 typedef NS_OPTIONS(NSUInteger, SCNBillboardAxis) {
     SCNBillboardAxisX = 0x1 << 0,
     SCNBillboardAxisY = 0x1 << 1,
@@ -5574,7 +6998,7 @@ typedef NS_OPTIONS(NSUInteger, SCNBillboardAxis) {
     SCNBillboardAxisAll = SCNBillboardAxisX | SCNBillboardAxisY | SCNBillboardAxisZ
 };
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+SCN_EXPORT API_AVAILABLE(macos(10.11), ios(9.0))
 @interface SCNBillboardConstraint : SCNConstraint
 
 /*!
@@ -5592,11 +7016,13 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 @end
 
+// MARK: -
+
 /*!
  @class SCNTransformConstraint
  @abstract A SCNTransformConstraint applies on the transform of a node via a custom block.
  */
-NS_CLASS_AVAILABLE(10_9, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.9))
 @interface SCNTransformConstraint : SCNConstraint
 
 /*!
@@ -5608,14 +7034,33 @@ NS_CLASS_AVAILABLE(10_9, 8_0)
  */
 + (instancetype)transformConstraintInWorldSpace:(BOOL)world withBlock:(SCNMatrix4 (^)(SCNNode *node, SCNMatrix4 transform))block;
 
+/*!
+ @method positionConstraintInWorldSpace:withBlock:
+ @abstract Creates and returns a SCNTransformConstraint object with the specified parameters.
+ @param world Determines whether the constraint is evaluated in world or local space.
+ @param block The custom block to call to evaluate the constraint.
+ @discussion The node and its position are passed to the block. The position returned by the block will be used to render the node.
+ */
++ (instancetype)positionConstraintInWorldSpace:(BOOL)world withBlock:(SCNVector3 (^)(SCNNode *node, SCNVector3 position))block API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @method orientationConstraintInWorldSpace:withBlock:
+ @abstract Creates and returns a SCNTransformConstraint object with the specified parameters.
+ @param world Determines whether the constraint is evaluated in world or local space.
+ @param block The custom block to call to evaluate the constraint.
+ @discussion The node and its quaternion are passed to the block. The quaternion returned by the block will be used to render the node.
+ */
++ (instancetype)orientationConstraintInWorldSpace:(BOOL)world withBlock:(SCNQuaternion (^)(SCNNode *node, SCNQuaternion quaternion))block API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 @end
 
+// MARK: -
 
 /*!
  @class SCNIKConstraint
  @abstract A SCNIKConstraint applies an inverse kinematics constraint
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+SCN_EXPORT API_AVAILABLE(macos(10.10))
 @interface SCNIKConstraint : SCNConstraint
 
 /*!
@@ -5624,7 +7069,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
  @param chainRootNode The root node of the kinematic chain.
  @discussion "chainRootNode" must be an ancestor of the node on which the constraint is applied.
  */
-- (instancetype)initWithChainRootNode:(SCNNode *)chainRootNode NS_AVAILABLE(10_11, 9_0);
+- (instancetype)initWithChainRootNode:(SCNNode *)chainRootNode API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
  @method inverseKinematicsConstraintWithChainRootNode:
@@ -5655,22 +7100,247 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 @end
 
+// MARK: -
+
+/*!
+ @class SCNDistanceConstraint
+ @abstract A SCNDistanceConstraint ensure a minimum/maximum distance with a target node.
+ */
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@interface SCNDistanceConstraint : SCNConstraint
+
+/*!
+ @method distanceConstraintWithTarget
+ @abstract Creates and returns a SCNDistanceConstraint constraint.
+ */
++ (instancetype)distanceConstraintWithTarget:(nullable SCNNode *)target;
+
+/*!
+ @property target
+ @abstract Defines the target node to keep distance with.
+ */
+@property(nonatomic, retain, nullable) SCNNode *target;
+
+/*!
+ @property minimumDistance
+ @abstract The minimum distance. Defaults to 0. Animatable.
+ */
+@property(nonatomic, assign) CGFloat minimumDistance;
+
+/*!
+ @property maximumDistance
+ @abstract The minimum distance. Defaults to MAXFLOAT. Animatable.
+ */
+@property(nonatomic, assign) CGFloat maximumDistance;
+
+@end
+
+// MARK: -
+
+/*!
+ @class SCNReplicatorConstraint
+ @abstract A SCNReplicatorConstraint replicates the position/orientation/scale of a target node
+ */
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@interface SCNReplicatorConstraint : SCNConstraint
+
+/*!
+ @method replicatorWithTargetNode
+ @abstract Creates and returns a SCNReplicatorConstraint constraint.
+ */
++ (instancetype)replicatorConstraintWithTarget:(nullable SCNNode *)target;
+
+/*!
+ @property target
+ @abstract Defines the target node to replicate
+ */
+@property(nonatomic, retain, nullable) SCNNode *target;
+
+/*!
+ @property replicatesOrientation
+ @abstract Defines whether or not the constraint should replicate the target orientation. Defaults to YES.
+ */
+@property(nonatomic, assign) BOOL replicatesOrientation;
+
+/*!
+ @property replicatesPosition
+ @abstract Defines whether or not the constraint should replicate the target position. Defaults to YES.
+ */
+@property(nonatomic, assign) BOOL replicatesPosition;
+
+/*!
+ @property replicatesScale
+ @abstract Defines whether or not the constraint should replicate the target scale. Defaults to YES.
+ */
+@property(nonatomic, assign) BOOL replicatesScale;
+
+/*!
+ @property orientationOffset
+ @abstract Defines an addition orientation offset. Defaults to no offset. Animatable.
+ */
+@property(nonatomic, assign) SCNQuaternion orientationOffset;
+
+/*!
+ @property positionOffset
+ @abstract Defines an addition orientation offset. Defaults to no offset. Animatable.
+ */
+@property(nonatomic, assign) SCNVector3 positionOffset;
+
+/*!
+ @property scaleOffset
+ @abstract Defines an addition scale offset. Defaults to no offset. Animatable.
+ */
+@property(nonatomic, assign) SCNVector3 scaleOffset;
+
+@end
+
+// MARK: -
+
+/*!
+ @class SCNAccelerationConstraint
+ @abstract A SCNAccelerationConstraint caps the acceleration and velocity of a node
+ */
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@interface SCNAccelerationConstraint : SCNConstraint
+
+/*!
+ @method accelerationConstraint
+ @abstract Creates and returns a SCNAccelerationConstraint object.
+ */
++ (instancetype)accelerationConstraint;
+
+/*!
+ @property maximumLinearAcceleration
+ @abstract Controls the maximum linear acceleration. Defaults to MAXFLOAT. Animatable.
+ @discussion The maximum linear acceleration is in m.s^-2
+ */
+@property(nonatomic, assign) CGFloat maximumLinearAcceleration;
+
+/*!
+ @property maximumLinearVelocity
+ @abstract Controls the maximum linear velocity. Defaults to MAXFLOAT. Animatable.
+ @discussion The maximum linear velocity is in m.s
+ */
+@property(nonatomic, assign) CGFloat maximumLinearVelocity;
+
+/*!
+ @property decelerationDistance
+ @abstract Controls the distance at which the node should start decelerating. Defaults to 0. Animatable.
+ */
+@property(nonatomic, assign) CGFloat decelerationDistance;
+
+/*!
+ @property damping
+ @abstract Specifies the damping factor of the receiver. Optionally reduce the body's linear velocity each frame to simulate fluid/air friction. Value should be zero or greater. Defaults to 0.1. Animatable.
+ */
+@property(nonatomic, assign) CGFloat damping;
+
+@end
+
+// MARK: -
+
+/*!
+ @class SCNSliderConstraint
+ @abstract A SCNSliderConstraint constraint makes a node to collide and slide against a category of nodes
+ */
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@interface SCNSliderConstraint : SCNConstraint
+
+/*!
+ @method accelerationConstraint
+ @abstract Creates and returns a SCNSliderConstraint object.
+ */
++ (instancetype)sliderConstraint;
+
+/*!
+ @property collisionCategoryBitMask
+ @abstract Defines the category of node to collide against. Defaults to 0.
+ */
+@property(nonatomic, assign) NSUInteger collisionCategoryBitMask;
+
+/*!
+ @property radius
+ @abstract Defines the radius of the slider. Defaults to 1.
+ */
+@property(nonatomic, assign) CGFloat radius;
+
+/*!
+ @property offset
+ @abstract Defines the offset of the slider. Defaults to (0,0,0). 
+ */
+@property(nonatomic, assign) SCNVector3 offset;
+
+@end
+
+// MARK: -
+
+@class SCNAvoidOccluderConstraint;
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@protocol SCNAvoidOccluderConstraintDelegate <NSObject>
+@optional
+- (BOOL)avoidOccluderConstraint:(SCNAvoidOccluderConstraint *)constraint shouldAvoidOccluder:(SCNNode *)occluder forNode:(SCNNode *)node;
+- (void)avoidOccluderConstraint:(SCNAvoidOccluderConstraint *)constraint didAvoidOccluder:(SCNNode *)occluder forNode:(SCNNode *)node;
+@end
+
+/*!
+ @class SCNAvoidOccluderConstraint
+ @abstract A SCNAvoidOccluderConstraint constraints place the receiver at a position that prevent nodes with the specified category to occlude the target.
+ @discussion The target node and it's children are ignored as potential occluders.
+ */
+SCN_EXPORT API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@interface SCNAvoidOccluderConstraint : SCNConstraint
+
+/*!
+ @method avoidOccluderConstraintWithTarget
+ @abstract Creates and returns a SCNAvoidOccluderConstraint object.
+ */
++ (instancetype)avoidOccluderConstraintWithTarget:(nullable SCNNode *)target;
+
+/*!
+ @property delegate
+ @abstract The receiver's delegate
+ */
+@property(nonatomic, assign) id <SCNAvoidOccluderConstraintDelegate> delegate;
+
+/*!
+ @property target
+ @abstract Defines the target node
+ */
+@property(nonatomic, retain, nullable) SCNNode *target;
+
+/*!
+ @property occluderCategoryBitMask
+ @abstract Defines the category of node to consider as occluder. Defaults to 1.
+ */
+@property(nonatomic, assign) NSUInteger occluderCategoryBitMask;
+
+/*!
+ @property bias
+ @abstract Defines the bias the apply after moving the receiver to avoid occluders. Defaults to 10e-5.
+ @discussion A positive bias will move the receiver closer to the target.
+ */
+@property(nonatomic, assign) CGFloat bias;
+
+@end
+
 NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNNode.h
 //
 //  SCNNode.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <QuartzCore/QuartzCore.h>
 #import <SceneKit/SCNAnimation.h>
 #import <SceneKit/SCNBoundingVolume.h>
 #import <SceneKit/SCNAction.h>
+#import <AvailabilityMacros.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class CIFilter;
 @class SCNLight;
 @class SCNCamera;
 @class SCNGeometry;
@@ -5680,20 +7350,38 @@ NS_ASSUME_NONNULL_BEGIN
 @class SCNPhysicsBody;
 @class SCNPhysicsField;
 @class SCNPhysicsBody;
-
+@class SCNHitTestResult;
+@class SCNRenderer;
 @protocol SCNNodeRendererDelegate;
 
 /*! @group Rendering arguments
-    @discussion These keys are used in the 'arguments' dictionary of renderNode:renderer:arguments:
-				and in the 'semantic' argument of -[SCNProgram setSemantic:forSymbol:options:].
+    @discussion These keys are used for the 'semantic' argument of -[SCNProgram setSemantic:forSymbol:options:]
                 Transforms are SCNMatrix4 wrapped in NSValues.
  */
-SCN_EXTERN NSString * const SCNModelTransform;
-SCN_EXTERN NSString * const SCNViewTransform;
-SCN_EXTERN NSString * const SCNProjectionTransform;
-SCN_EXTERN NSString * const SCNNormalTransform;
-SCN_EXTERN NSString * const SCNModelViewTransform;
-SCN_EXTERN NSString * const SCNModelViewProjectionTransform;
+SCN_EXPORT NSString * const SCNModelTransform;
+SCN_EXPORT NSString * const SCNViewTransform;
+SCN_EXPORT NSString * const SCNProjectionTransform;
+SCN_EXPORT NSString * const SCNNormalTransform;
+SCN_EXPORT NSString * const SCNModelViewTransform;
+SCN_EXPORT NSString * const SCNModelViewProjectionTransform;
+
+/*! @enum SCNMovabilityHint
+ @abstract The available modes of movability.
+ @discussion Movable nodes are not captured when computing light probes.
+ */
+typedef NS_ENUM(NSInteger, SCNMovabilityHint) {
+    SCNMovabilityHintFixed,
+    SCNMovabilityHintMovable,
+} API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+/*! @enum SCNNodeFocusBehavior
+ @abstract Control the focus (UIFocus) behavior.
+ */
+typedef NS_ENUM(NSInteger, SCNNodeFocusBehavior) {
+    SCNNodeFocusBehaviorNone = 0,    // Not focusable and node has no impact on other nodes that have focus interaction enabled.
+    SCNNodeFocusBehaviorOccluding,   // Not focusable, but will prevent other focusable nodes that this node visually obscures from being focusable.
+    SCNNodeFocusBehaviorFocusable    // Focusable and will also prevent other focusable nodes that this node visually obscures from being focusable.
+} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @class SCNNode
@@ -5701,9 +7389,8 @@ SCN_EXTERN NSString * const SCNModelViewProjectionTransform;
  @discussion It encapsulates the position, rotations, and other transforms of a node, which define a coordinate system.
 		     The coordinate systems of all the sub-nodes are relative to the one of their parent node.
  */
-
-NS_CLASS_AVAILABLE(10_8, 8_0)
-@interface SCNNode : NSObject <NSCopying, NSSecureCoding, SCNAnimatable, SCNActionable, SCNBoundingVolume>
+SCN_EXPORT
+@interface SCNNode : NSObject <NSCopying, NSSecureCoding, SCNAnimatable, SCNActionable, SCNBoundingVolume, UIFocusItem>
 
 #pragma mark - Creating a Node
 
@@ -5739,7 +7426,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @abstract Returns a clone of the node containing a geometry that concatenates all the geometries contained in the node hierarchy.
  The returned clone is autoreleased.
  */
-- (instancetype)flattenedClone NS_AVAILABLE(10_9, 8_0);
+- (instancetype)flattenedClone API_AVAILABLE(macos(10.9));
 
 
 
@@ -5774,17 +7461,17 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @property skinner
  @abstract Returns the skinner attached to the receiver.
  */
-@property(nonatomic, retain, nullable) SCNSkinner *skinner NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic, retain, nullable) SCNSkinner *skinner API_AVAILABLE(macos(10.9));
 
 /*!
  @property morpher
  @abstract Returns the morpher attached to the receiver.
  */
-@property(nonatomic, retain, nullable) SCNMorpher *morpher NS_AVAILABLE(10_9, 8_0);
+@property(nonatomic, retain, nullable) SCNMorpher *morpher API_AVAILABLE(macos(10.9));
 
 
 
-#pragma mark - Modifying the Node's Transform
+#pragma mark - Modifying the Node′s Transform
 
 /*! 
  @property transform
@@ -5793,11 +7480,24 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  */
 @property(nonatomic) SCNMatrix4 transform;
 
+/*!
+ @property worldTransform
+ @abstract Determines the receiver's transform in world space (relative to the scene's root node). Animatable.
+ */
+@property(nonatomic, readonly) SCNMatrix4 worldTransform;
+- (void)setWorldTransform:(SCNMatrix4)worldTransform API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 /*! 
  @property position
  @abstract Determines the receiver's position. Animatable.
  */
 @property(nonatomic) SCNVector3 position;
+
+/*!
+ @property worldPosition
+ @abstract Determines the receiver's position in world space (relative to the scene's root node).
+ */
+@property(nonatomic) SCNVector3 worldPosition API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*! 
  @property rotation
@@ -5810,14 +7510,28 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @property orientation
  @abstract Determines the receiver's orientation as a unit quaternion. Animatable.
  */
-@property(nonatomic) SCNQuaternion orientation NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) SCNQuaternion orientation API_AVAILABLE(macos(10.10));
+
+/*!
+ @property worldOrientation
+ @abstract Determines the receiver's orientation in world space (relative to the scene's root node). Animatable.
+ */
+@property(nonatomic) SCNQuaternion worldOrientation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 
 /*!
  @property eulerAngles
  @abstract Determines the receiver's euler angles. Animatable.
- @dicussion Specify the intrinsic euler angles (in radians). It represents a sequence of 3 rotations about the x, y, and z axis with the following order: z, y, x (or roll, yaw, pitch).
+ @dicussion The order of components in this vector matches the axes of rotation:
+               1. Pitch (the x component) is the rotation about the node's x-axis (in radians)
+               2. Yaw   (the y component) is the rotation about the node's y-axis (in radians)
+               3. Roll  (the z component) is the rotation about the node's z-axis (in radians)
+            SceneKit applies these rotations in the reverse order of the components:
+               1. first roll
+               2. then yaw
+               3. then pitch
  */
-@property(nonatomic) SCNVector3 eulerAngles NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) SCNVector3 eulerAngles API_AVAILABLE(macos(10.10));
 
 /*! 
  @property scale
@@ -5831,16 +7545,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  */
 @property(nonatomic) SCNMatrix4 pivot;
 
-/*! 
- @property worldTransform
- @abstract Returns the receiver's world transform.
- @discussion A world transform is the transform relative to the scene. 
- */
-@property(nonatomic, readonly) SCNMatrix4 worldTransform;
-
-
-
-#pragma mark - Modifying the Node's Visibility
+#pragma mark - Modifying the Node′s Visibility
 
 /*! 
  @property hidden
@@ -5865,7 +7570,13 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @property castsShadow
  @abstract Determines if the node is rendered in shadow maps. Defaults to YES.
  */
-@property(nonatomic) BOOL castsShadow NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) BOOL castsShadow API_AVAILABLE(macos(10.10));
+
+/*!
+ @property movabilityHint
+ @abstract Communicates to SceneKit’s rendering system about how you want to move content in your scene; it does not affect your ability to change the node’s position or add animations or physics to the node. Defaults to SCNMovabilityHintFixed.
+ */
+@property(nonatomic) SCNMovabilityHint movabilityHint API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 
 
 #pragma mark - Managing the Node Hierarchy
@@ -5931,15 +7642,23 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @discussion The search is recursive and uses a pre-order tree traversal.
  @param predicate The block to apply to child nodes of the receiver. The block takes two arguments: "child" is a child node and "stop" is a reference to a Boolean value. The block can set the value to YES to stop further processing of the node hierarchy. The stop argument is an out-only argument. You should only ever set this Boolean to YES within the Block. The Block returns a Boolean value that indicates whether "child" passed the test.
  */
-- (NSArray<SCNNode *> *)childNodesPassingTest:(BOOL (^)(SCNNode *child, BOOL *stop))predicate;
+- (NSArray<SCNNode *> *)childNodesPassingTest:(NS_NOESCAPE BOOL (^)(SCNNode *child, BOOL *stop))predicate;
 
 /*!
  @method enumerateChildNodesUsingBlock:
- @abstract Executes a given block using each child node under the receiver.
+ @abstract Executes a given block on each child node under the receiver.
  @discussion The search is recursive and uses a pre-order tree traversal.
  @param block The block to apply to child nodes of the receiver. The block takes two arguments: "child" is a child node and "stop" is a reference to a Boolean value. The block can set the value to YES to stop further processing of the node hierarchy. The stop argument is an out-only argument. You should only ever set this Boolean to YES within the Block.
  */
-- (void)enumerateChildNodesUsingBlock:(void (^)(SCNNode *child, BOOL *stop))block NS_AVAILABLE(10_10, 8_0);
+- (void)enumerateChildNodesUsingBlock:(NS_NOESCAPE void (^)(SCNNode *child, BOOL *stop))block API_AVAILABLE(macos(10.10));
+
+/*!
+ @method enumerateHierarchyUsingBlock:
+ @abstract Executes a given block on the receiver and its child nodes.
+ @discussion The search is recursive and uses a pre-order tree traversal.
+ @param block The block to apply to the receiver and its child nodes. The block takes two arguments: "node" is a node in the hierarchy of the receiver (including the receiver) and "stop" is a reference to a Boolean value. The block can set the value to YES to stop further processing of the node hierarchy. The stop argument is an out-only argument. You should only ever set this Boolean to YES within the Block.
+ */
+- (void)enumerateHierarchyUsingBlock:(NS_NOESCAPE void (^)(SCNNode *node, BOOL *stop))block API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 
 
 #pragma mark - Converting Between Node Coordinate Systems
@@ -5950,7 +7669,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param position A position specified in the local coordinate system of the receiver.
  @param node The node into whose coordinate system "position" is to be converted. If "node" is nil, this method instead converts to world coordinates.
  */
-- (SCNVector3)convertPosition:(SCNVector3)position toNode:(nullable SCNNode *)node NS_AVAILABLE(10_9, 8_0);
+- (SCNVector3)convertPosition:(SCNVector3)position toNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.9));
 
 /*!
  @method convertPosition:fromNode:
@@ -5958,7 +7677,30 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param position A position specified in the local coordinate system of "node".
  @param node The node from whose coordinate system "position" is to be converted. If "node" is nil, this method instead converts from world coordinates.
  */
-- (SCNVector3)convertPosition:(SCNVector3)position fromNode:(nullable SCNNode *)node NS_AVAILABLE(10_9, 8_0);
+- (SCNVector3)convertPosition:(SCNVector3)position fromNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.9));
+
+
+/**
+ @abstract Converts a vector from the coordinate system of a given node to that of the receiver.
+
+ @param vector A vector specified in the local coordinate system the receiver.
+ @param node The node defining the space from which the vector should be transformed. If "node" is nil, this method instead converts from world coordinates.
+
+ @return vector transformed from receiver local space to node local space.
+ */
+- (SCNVector3)convertVector:(SCNVector3)vector toNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+
+/**
+ @abstract Converts a vector from the coordinate system of a given node to that of the receiver.
+
+ @param vector A vector specified in the local coordinate system of "node".
+ @param node The node defining the space to which the vector should be transformed to. If "node" is nil, this method instead converts from world coordinates.
+
+ @return vector transformed from node space to reveiver local space.
+ */
+- (SCNVector3)convertVector:(SCNVector3)vector fromNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 
 /*!
  @method convertTransform:toNode:
@@ -5966,7 +7708,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param transform A transform specified in the local coordinate system of the receiver.
  @param node The node into whose coordinate system "transform" is to be converted. If "node" is nil, this method instead converts to world coordinates.
  */
-- (SCNMatrix4)convertTransform:(SCNMatrix4)transform toNode:(nullable SCNNode *)node NS_AVAILABLE(10_9, 8_0);
+- (SCNMatrix4)convertTransform:(SCNMatrix4)transform toNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.9));
 
 /*!
  @method convertTransform:fromNode:
@@ -5974,55 +7716,53 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param transform A transform specified in the local coordinate system of "node".
  @param node The node from whose coordinate system "transform" is to be converted. If "node" is nil, this method instead converts from world coordinates.
  */
-- (SCNMatrix4)convertTransform:(SCNMatrix4)transform fromNode:(nullable SCNNode *)node NS_AVAILABLE(10_9, 8_0);
+- (SCNMatrix4)convertTransform:(SCNMatrix4)transform fromNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.9));
 
 
-#pragma mark - Managing the SCNNode's physics body
+#pragma mark - Managing the SCNNode′s physics body
 
 /*!
  @property physicsBody
  @abstract The description of the physics body of the receiver.
  @discussion Default is nil.
  */
-@property(nonatomic, retain, nullable) SCNPhysicsBody *physicsBody NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, retain, nullable) SCNPhysicsBody *physicsBody API_AVAILABLE(macos(10.10));
 
 
-#pragma mark - Managing the Node's Physics Field
+#pragma mark - Managing the Node′s Physics Field
 
 /*!
  @property physicsField
  @abstract The description of the physics field of the receiver.
  @discussion Default is nil.
  */
-@property(nonatomic, retain, nullable) SCNPhysicsField *physicsField NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, retain, nullable) SCNPhysicsField *physicsField API_AVAILABLE(macos(10.10));
 
 
-#pragma mark - Managing the Node's Constraints
+#pragma mark - Managing the Node′s Constraints
 
 /*!
  @property constraints
  @abstract An array of SCNConstraint that are applied to the receiver.
  @discussion Adding or removing a constraint can be implicitly animated based on the current transaction.
  */
-@property(copy, nullable) NSArray<SCNConstraint *> *constraints NS_AVAILABLE(10_9, 8_0);
+@property(copy, nullable) NSArray<SCNConstraint *> *constraints API_AVAILABLE(macos(10.9));
 
 
-
-#pragma mark - Accessing the Node's Filters
+#pragma mark - Accessing the Node′s Filters
 
 /*!
  @property filters
  @abstract An array of Core Image filters that are applied to the rendering of the receiver and its child nodes. Animatable.
  @discussion Defaults to nil. Filter properties should be modified by calling setValue:forKeyPath: on each node that the filter is attached to. If the inputs of the filter are modified directly after the filter is attached to a node, the behavior is undefined.
  */
-@property(nonatomic, copy, nullable) NSArray<CIFilter *> *filters NS_AVAILABLE(10_9, 8_0);
-
+@property(nonatomic, copy, nullable) NSArray<CIFilter *> *filters API_AVAILABLE(macos(10.9)) API_UNAVAILABLE(watchos);
 
 
 #pragma mark - Accessing the Presentation Node
 
 /*!
- @method presentationNode
+ @property presentationNode
  @abstract Returns the presentation node.
  @discussion Returns a copy of the node containing all the properties as they were at the start of the current transaction, with any active animations applied.
              This gives a close approximation to the version of the node that is currently displayed.
@@ -6037,7 +7777,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @property paused
  @abstract Controls whether or not the node's actions and animations are updated or paused. Defaults to NO.
  */
-@property(nonatomic, getter=isPaused) BOOL paused NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic, getter=isPaused) BOOL paused API_AVAILABLE(macos(10.10));
 
 
 #pragma mark - Overriding the Rendering with Custom OpenGL Code
@@ -6063,7 +7803,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param options Optional parameters (see the "Hit test options" section in SCNSceneRenderer.h for the available options).
  @discussion See SCNSceneRenderer.h for a screen-space hit testing method.
  */
-- (NSArray<SCNHitTestResult *> *)hitTestWithSegmentFromPoint:(SCNVector3)pointA toPoint:(SCNVector3)pointB options:(nullable NSDictionary<NSString *, id> *)options NS_AVAILABLE(10_9, 8_0);
+- (NSArray<SCNHitTestResult *> *)hitTestWithSegmentFromPoint:(SCNVector3)pointA toPoint:(SCNVector3)pointB options:(nullable NSDictionary<NSString *, id> *)options API_AVAILABLE(macos(10.9));
 
 
 #pragma mark - Categories
@@ -6071,13 +7811,102 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 /*!
  @property categoryBitMask
  @abstract Defines what logical 'categories' the receiver belongs too. Defaults to 1.
- @discussion Categories can be used to exclude nodes from the influence of a given light (see SCNLight's categoryBitMask). It can also be used to include/exclude nodes from render passes (see SCNTechnique.h).
+ @discussion Categories can be used to
+                1. exclude nodes from the influence of a given light (see SCNLight.categoryBitMask)
+                2. include/exclude nodes from render passes (see SCNTechnique.h)
+                3. specify which nodes to use when hit-testing (see SCNHitTestOptionCategoryBitMask)
  */
-@property(nonatomic) NSUInteger categoryBitMask NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) NSUInteger categoryBitMask API_AVAILABLE(macos(10.10));
+
+#pragma mark - UIFocus support
+
+/*!
+ @property focusBehavior
+ @abstract Controls the behavior of the receiver regarding the UIFocus system. Defaults to SCNNodeFocusBehaviorNone.
+ */
+@property(nonatomic) SCNNodeFocusBehavior focusBehavior API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 @end
 
+@interface SCNNode (Transforms)
 
+/*!
+ @property localUp
+ @abstract The local unit Y axis (0, 1, 0).
+ */
+@property(class, readonly, nonatomic) SCNVector3 localUp API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property localRight
+ @abstract The local unit X axis (1, 0, 0).
+ */
+@property(class, readonly, nonatomic) SCNVector3 localRight API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property localFront
+ @abstract The local unit -Z axis (0, 0, -1).
+ */
+@property(class, readonly, nonatomic) SCNVector3 localFront API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property worldUp
+ @abstract The local unit Y axis (0, 1, 0) in world space.
+ */
+@property(readonly, nonatomic) SCNVector3 worldUp API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property worldRight
+ @abstract The local unit X axis (1, 0, 0) in world space.
+ */
+@property(readonly, nonatomic) SCNVector3 worldRight API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property worldFront
+ @abstract The local unit -Z axis (0, 0, -1) in world space.
+ */
+@property(readonly, nonatomic) SCNVector3 worldFront API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/**
+ Convenience for calling lookAt:up:localFront: with worldUp set to `self.worldUp`
+ and localFront [SCNNode localFront].
+ @param worldTarget target position in world space.
+ */
+- (void)lookAt:(SCNVector3)worldTarget API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/**
+ Set the orientation of the node so its front vector is pointing toward a given
+ target. Using a reference up vector in world space and a front vector in
+ local space.
+
+ @param worldTarget position in world space.
+ @param worldUp the up vector in world space.
+ @param localFront the front vector in local space.
+ */
+- (void)lookAt:(SCNVector3)worldTarget up:(SCNVector3)worldUp localFront:(SCNVector3)localFront API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/**
+ Translate the current node position along the given vector in local space.
+
+ @param translation the translation in local space.
+ */
+- (void)localTranslateBy:(SCNVector3)translation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/**
+ Apply a the given rotation to the current one.
+
+ @param rotation rotation in local space.
+ */
+- (void)localRotateBy:(SCNQuaternion)rotation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/**
+ Apply a rotation relative to a target point in parent space.
+
+ @param worldRotation rotation to apply in world space.
+ @param worldTarget position of the target in world space.
+ */
+- (void)rotateBy:(SCNQuaternion)worldRotation aroundTarget:(SCNVector3)worldTarget API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+@end
 
 /*!
  @category NSObject (SCNNodeRendererDelegate)
@@ -6094,9 +7923,97 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
              Only drawing calls and the means to achieve them are supposed to be performed during the renderer delegate callback, any changes in the model (nodes, geometry...) would involve unexpected results.
  @param node The node to render.
  @param renderer The scene renderer to render into.
- @param arguments A dictionary that can have any of the entries described at the beginning of this file.
+ @param arguments A dictionary whose values are SCNMatrix4 matrices wrapped in NSValue objects.
  */
-- (void)renderNode:(SCNNode *)node renderer:(SCNRenderer *)renderer arguments:(NSDictionary<NSString *, NSValue *> *)arguments;
+- (void)renderNode:(SCNNode *)node renderer:(SCNRenderer *)renderer arguments:(NSDictionary<NSString *, id> *)arguments;
+
+@end
+
+@interface SCNNode (SIMD)
+
+/*!
+ @abstract Determines the receiver's transform. Animatable.
+ @discussion The transform is the combination of the position, rotation and scale defined below. So when the transform is set, the receiver's position, rotation and scale are changed to match the new transform.
+ */
+@property(nonatomic) simd_float4x4 simdTransform API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @abstract Determines the receiver's position. Animatable.
+ */
+@property(nonatomic) simd_float3 simdPosition API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @abstract Determines the receiver's rotation. Animatable.
+ @discussion The rotation is axis angle rotation. The three first components are the axis, the fourth one is the rotation (in radian).
+ */
+@property(nonatomic) simd_float4 simdRotation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @abstract Determines the receiver's orientation as a unit quaternion. Animatable.
+ */
+@property(nonatomic) simd_quatf simdOrientation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @abstract Determines the receiver's euler angles. Animatable.
+ @dicussion The order of components in this vector matches the axes of rotation:
+ 1. Pitch (the x component) is the rotation about the node's x-axis (in radians)
+ 2. Yaw   (the y component) is the rotation about the node's y-axis (in radians)
+ 3. Roll  (the z component) is the rotation about the node's z-axis (in radians)
+ SceneKit applies these rotations in the reverse order of the components:
+ 1. first roll
+ 2. then yaw
+ 3. then pitch
+ */
+@property(nonatomic) simd_float3 simdEulerAngles API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @abstract Determines the receiver's scale. Animatable.
+ */
+@property(nonatomic) simd_float3 simdScale API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @abstract Determines the receiver's pivot. Animatable.
+ */
+@property(nonatomic) simd_float4x4 simdPivot API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @abstract Determines the receiver's position in world space (relative to the scene's root node).
+ */
+@property(nonatomic) simd_float3 simdWorldPosition API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @abstract Determines the receiver's orientation in world space (relative to the scene's root node). Animatable.
+ */
+@property(nonatomic) simd_quatf simdWorldOrientation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @abstract Determines the receiver's transform in world space (relative to the scene's root node). Animatable.
+ */
+@property(nonatomic) simd_float4x4 simdWorldTransform API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+- (simd_float3)simdConvertPosition:(simd_float3)position toNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+- (simd_float3)simdConvertPosition:(simd_float3)position fromNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+- (simd_float3)simdConvertVector:(simd_float3)vector toNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+- (simd_float3)simdConvertVector:(simd_float3)vector fromNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+- (simd_float4x4)simdConvertTransform:(simd_float4x4)transform toNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+- (simd_float4x4)simdConvertTransform:(simd_float4x4)transform fromNode:(nullable SCNNode *)node API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+@property(class, readonly, nonatomic) simd_float3 simdLocalUp API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+@property(class, readonly, nonatomic) simd_float3 simdLocalRight API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+@property(class, readonly, nonatomic) simd_float3 simdLocalFront API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+@property(readonly, nonatomic) simd_float3 simdWorldUp API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+@property(readonly, nonatomic) simd_float3 simdWorldRight API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+@property(readonly, nonatomic) simd_float3 simdWorldFront API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+- (void)simdLookAt:(simd_float3)worldTarget API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+- (void)simdLookAt:(simd_float3)worldTarget up:(simd_float3)worldUp localFront:(simd_float3)localFront API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+- (void)simdLocalTranslateBy:(simd_float3)translation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+- (void)simdLocalRotateBy:(simd_quatf)rotation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+- (void)simdRotateBy:(simd_quatf)worldRotation aroundTarget:(simd_float3)worldTarget API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 @end
 
@@ -6104,8 +8021,9 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNSceneSource.h
 //
 //  SCNSceneSource.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6116,35 +8034,36 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*! @group Scene source properties */
 /*! File contributors. The values are dictionaries populated with keys documented in the "Contributor dictionary keys" group. */
-SCN_EXTERN NSString * const SCNSceneSourceAssetContributorsKey;
+SCN_EXPORT NSString * const SCNSceneSourceAssetContributorsKey;
 /*! When the file was created. The value is a NSDate instance. */
-SCN_EXTERN NSString * const SCNSceneSourceAssetCreatedDateKey;
+SCN_EXPORT NSString * const SCNSceneSourceAssetCreatedDateKey;
 /*! When the file was last modified. The value is a NSDate instance. */
-SCN_EXTERN NSString * const SCNSceneSourceAssetModifiedDateKey;
+SCN_EXPORT NSString * const SCNSceneSourceAssetModifiedDateKey;
 /*! The up axis of the file. If the file is oriented Y-up, for example, then this is the string \@"0.0 1.0 0.0" */
-SCN_EXTERN NSString * const SCNSceneSourceAssetUpAxisKey;
+SCN_EXPORT NSString * const SCNSceneSourceAssetUpAxisKey;
 /*! The unit used in the file. The value is a dictionary populated with keys documented in the "Unit dictionary keys" group. */
-SCN_EXTERN NSString * const SCNSceneSourceAssetUnitKey;
+SCN_EXPORT NSString * const SCNSceneSourceAssetUnitKey;
 
 /*! @group Contributor dictionary keys */
 /*! Authoring tool used to create the file. The corresponding value is an NSString. */
-SCN_EXTERN NSString * const SCNSceneSourceAssetAuthoringToolKey;
+SCN_EXPORT NSString * const SCNSceneSourceAssetAuthoringToolKey;
 /*! The file's author. The corresponding value is an NSString. */
-SCN_EXTERN NSString * const SCNSceneSourceAssetAuthorKey;
+SCN_EXPORT NSString * const SCNSceneSourceAssetAuthorKey;
 
 /*! @group Unit dictionary keys */
 /*! The name (NSString) of the unit */
-SCN_EXTERN NSString * const SCNSceneSourceAssetUnitNameKey;
+SCN_EXPORT NSString * const SCNSceneSourceAssetUnitNameKey;
 /*! A NSNumber encapsulating a floating-point value indicating how many meters the unit is. For example, if the name is \@"centimeter", then this will be 0.01. */
-SCN_EXTERN NSString * const SCNSceneSourceAssetUnitMeterKey;
+SCN_EXPORT NSString * const SCNSceneSourceAssetUnitMeterKey;
 
 /*! @group Scene loading options */
+typedef NSString * SCNSceneSourceLoadingOption NS_STRING_ENUM;
 
 /*! @constant SCNSceneSourceCreateNormalsIfAbsentKey
 	@abstract Enable to try to guess acceptable normals for the vertices if none are given in the file
     @discussion Use this with a boolean value encapsulated in a NSNumber. The default value is NO.
  */
-SCN_EXTERN NSString * const SCNSceneSourceCreateNormalsIfAbsentKey;
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceCreateNormalsIfAbsentKey;
 
 /*!
  @constant SCNSceneSourceCheckConsistencyKey
@@ -6155,7 +8074,7 @@ SCN_EXTERN NSString * const SCNSceneSourceCreateNormalsIfAbsentKey;
  If the document doesn't pass the consistency check it is then not loaded and an error is returned.
  This is slower, but for security reasons it should be set to YES if you are not sure the files you load are valid and have not been tampered with. 
  */
-SCN_EXTERN NSString * const SCNSceneSourceCheckConsistencyKey;
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceCheckConsistencyKey;
 
 /*!
  @constant SCNSceneSourceFlattenSceneKey
@@ -6165,7 +8084,7 @@ SCN_EXTERN NSString * const SCNSceneSourceCheckConsistencyKey;
  SceneKit will attempt to reduce the scene graph by merging the geometries.
  This option is suitable to preview a 3D scene efficiently and when manipulating the scene graph is not needed.
  */
-SCN_EXTERN NSString * const SCNSceneSourceFlattenSceneKey;
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceFlattenSceneKey;
 
 /*!
  @constant SCNSceneSourceUseSafeModeKey
@@ -6175,7 +8094,7 @@ SCN_EXTERN NSString * const SCNSceneSourceFlattenSceneKey;
  SceneKit will forbid network accesses, prevent the loading of resources from arbitrary directories, and will not execute
  any code present in the loaded files.
  */
-SCN_EXTERN NSString * const SCNSceneSourceUseSafeModeKey;
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceUseSafeModeKey API_DEPRECATED("No longer supported", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
 
 /*!
  @constant SCNSceneSourceAssetDirectoryURLsKey
@@ -6185,7 +8104,7 @@ SCN_EXTERN NSString * const SCNSceneSourceUseSafeModeKey;
  This is recommended if you want to construct your scene source from a data object, not from an URL,
  and need to load resources whose paths are not absolute.
  */
-SCN_EXTERN NSString * const SCNSceneSourceAssetDirectoryURLsKey;
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceAssetDirectoryURLsKey;
 
 /*!
  @constant SCNSceneSourceOverrideAssetURLsKey
@@ -6194,7 +8113,7 @@ SCN_EXTERN NSString * const SCNSceneSourceAssetDirectoryURLsKey;
  You can force SceneKit to only search for extern resources within the directories specified by the SCNSceneSourceAssetDirectoryURLsKey key.
  This can be useful to load a file and its resources from a specific bundle for instance.
  */
-SCN_EXTERN NSString * const SCNSceneSourceOverrideAssetURLsKey;
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceOverrideAssetURLsKey;
 
 /*!
  @constant SCNSceneSourceStrictConformanceKey
@@ -6203,53 +8122,77 @@ SCN_EXTERN NSString * const SCNSceneSourceOverrideAssetURLsKey;
 			 enable additional features and make the rendering as close as possible to the original intent. If you pass YES,
              SceneKit will instead only consider features which are part of the file format specification.
  */
-SCN_EXTERN NSString * const SCNSceneSourceStrictConformanceKey;
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceStrictConformanceKey;
 
 /*!
  @constant SCNSceneSourceConvertUnitsToMetersKey
  @abstract Pass the units you want the scene to be converted to (in meter).
  @discussion Use this with a floating value encapsulated in a NSNumber. The default value is nil which means no conversion done. Passing a non-zero value will convert the scene coordinates so that 1 unit corresponds to N meters. For example pass 0.01 for 1 unit == 1 centimeter, pass 0.3048 for 1 unit == 1 foot...
      For better physics simulation it is recommended to use 1 unit equals to 1 meter.
-     This option has no effect if the asset is already compressed by Xcode (use the compression options instead).
+     This option has no effect for SCN files or if the asset is already compressed by Xcode (use the compression options instead).
  */
-SCN_EXTERN NSString * const SCNSceneSourceConvertUnitsToMetersKey NS_AVAILABLE(10_10, NA);
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceConvertUnitsToMetersKey API_AVAILABLE(macos(10.10), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @constant SCNSceneSourceConvertToYUpKey
  @abstract Pass YES if a scene should be converted to Y up if it currently has a different up axis.
  @discussion Use this with a boolean value encapsulated in a NSNumber. The default value is NO.
- This option has no effect if the asset is already compressed by Xcode (use the compression options instead).
+ This option has no effect for SCN files or if the asset is already compressed by Xcode (use the compression options instead).
  */
-SCN_EXTERN NSString * const SCNSceneSourceConvertToYUpKey NS_AVAILABLE(10_10, NA);
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceConvertToYUpKey API_AVAILABLE(macos(10.10), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @constant SCNSceneSourceAnimationImportPolicyKey
  @abstract Pass one of the value below to specify what to do with loaded animations.
  @discussion See below for the description of each individual key. Defaults to SCNSceneSourceAnimationImportPolicyPlayRepeatedly. On 10.9 and before the behavior is SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase. For compatibility reason if the application was built on 10.9 or before the default behavior is SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase.
  */
-SCN_EXTERN NSString * const SCNSceneSourceAnimationImportPolicyKey NS_AVAILABLE(10_10, 8_0);
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceAnimationImportPolicyKey API_AVAILABLE(macos(10.10));
 
-/* values for SCNSceneSourceAnimationImportPolicyKey */
+/*!
+ @constant SCNSceneSourceLoadingOptionPreserveOriginalTopology
+ @abstract Pass YES to make SceneKit preserve the original topology instead of triangulating at load time.
+ This can be useful to get better results when subdividing a geometry. Defaults to NO.
+ */
+SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceLoadingOptionPreserveOriginalTopology API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
+
+#define SCNSceneSourceLoadingOptionCreateNormalsIfAbsent    SCNSceneSourceCreateNormalsIfAbsentKey
+#define SCNSceneSourceLoadingOptionCheckConsistency         SCNSceneSourceCheckConsistencyKey
+#define SCNSceneSourceLoadingOptionFlattenScene             SCNSceneSourceFlattenSceneKey
+#define SCNSceneSourceLoadingOptionUseSafeMode              SCNSceneSourceUseSafeModeKey
+#define SCNSceneSourceLoadingOptionAssetDirectoryURLs       SCNSceneSourceAssetDirectoryURLsKey
+#define SCNSceneSourceLoadingOptionOverrideAssetURLs        SCNSceneSourceOverrideAssetURLsKey
+#define SCNSceneSourceLoadingOptionStrictConformance        SCNSceneSourceStrictConformanceKey
+#define SCNSceneSourceLoadingOptionConvertUnitsToMeters     SCNSceneSourceConvertUnitsToMetersKey
+#define SCNSceneSourceLoadingOptionConvertToYUp             SCNSceneSourceConvertToYUpKey
+#define SCNSceneSourceLoadingOptionAnimationImportPolicy    SCNSceneSourceAnimationImportPolicyKey
+
+/* Values for SCNSceneSourceLoadingOptionAnimationImportPolicy */
+typedef NSString * SCNSceneSourceAnimationImportPolicy NS_STRING_ENUM;
+
 /*!
  @constant SCNSceneSourceAnimationImportPolicyPlay
  @abstract Add animations to the scene and play them once (repeatCount set to 1).
  */
-SCN_EXTERN NSString * const SCNSceneSourceAnimationImportPolicyPlay NS_AVAILABLE(10_10, 8_0);
+SCN_EXPORT SCNSceneSourceAnimationImportPolicy const SCNSceneSourceAnimationImportPolicyPlay API_AVAILABLE(macos(10.10));
+
 /*!
  @constant SCNSceneSourceAnimationImportPolicyPlayRepeatedly
  @abstract Add animations to the scene and play them repeatedly (repeatCount set to infinity).
  */
-SCN_EXTERN NSString * const SCNSceneSourceAnimationImportPolicyPlayRepeatedly NS_AVAILABLE(10_10, 8_0);
+SCN_EXPORT SCNSceneSourceAnimationImportPolicy const SCNSceneSourceAnimationImportPolicyPlayRepeatedly API_AVAILABLE(macos(10.10));
+
 /*!
  @constant SCNSceneSourceAnimationImportPolicyDoNotPlay
  @abstract Only keep animations in the SCNSceneSource and don't add to the animatable elements of the scene.
  */
-SCN_EXTERN NSString * const SCNSceneSourceAnimationImportPolicyDoNotPlay NS_AVAILABLE(10_10, 8_0);
+SCN_EXPORT SCNSceneSourceAnimationImportPolicy const SCNSceneSourceAnimationImportPolicyDoNotPlay API_AVAILABLE(macos(10.10));
+
 /*!
  @constant SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase
  @abstract Add animations to the scene and play them using the SCNView/SCNRenderer's scene time (usesSceneTimeBase set to YES)
  */
-SCN_EXTERN NSString * const SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase NS_AVAILABLE(10_10, 8_0);
+SCN_EXPORT SCNSceneSourceAnimationImportPolicy const SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase API_AVAILABLE(macos(10.10));
+
 
 /*!
  @constant SCNDetailedErrorsKey
@@ -6260,7 +8203,7 @@ SCN_EXTERN NSString * const SCNSceneSourceAnimationImportPolicyPlayUsingSceneTim
              in their user info dictionary using the other keys (SCNConsistency*) defined in this file.
  */
 
-SCN_EXTERN NSString * const SCNDetailedErrorsKey;
+SCN_EXPORT NSString * const SCNDetailedErrorsKey;
 
 /*!
  @constant SCNConsistencyElementIDErrorKey
@@ -6268,21 +8211,21 @@ SCN_EXTERN NSString * const SCNDetailedErrorsKey;
  @discussion When the element does not have an ID, the ID of the closest parent element which has one is returned.
  */
 
-SCN_EXTERN NSString * const SCNConsistencyElementIDErrorKey;
+SCN_EXPORT NSString * const SCNConsistencyElementIDErrorKey;
 
 /*!
  @constant SCNConsistencyElementTypeErrorKey
  @abstract For XML-based formats, the tag name of the element where the error occurred.
  */
 
-SCN_EXTERN NSString * const SCNConsistencyElementTypeErrorKey;
+SCN_EXPORT NSString * const SCNConsistencyElementTypeErrorKey;
 
 /*!
  @constant SCNConsistencyLineNumberErrorKey
  @abstract For text-based formats, the line number where an error occurred.
  */
 
-SCN_EXTERN NSString * const SCNConsistencyLineNumberErrorKey;
+SCN_EXPORT NSString * const SCNConsistencyLineNumberErrorKey;
 
 /*!
  @enum SCNConsistencyErrorCode
@@ -6312,7 +8255,7 @@ typedef NS_ENUM(NSInteger, SCNSceneSourceStatus) {
 	SCNSceneSourceStatusComplete   = 16
 };
 
-typedef void (^SCNSceneSourceStatusHandler)(float totalProgress, SCNSceneSourceStatus status, NSError * __nullable error, BOOL *stop);
+typedef void (^SCNSceneSourceStatusHandler)(float totalProgress, SCNSceneSourceStatus status, NSError * _Nullable error, BOOL *stop);
 
 
 /*!
@@ -6321,7 +8264,7 @@ typedef void (^SCNSceneSourceStatusHandler)(float totalProgress, SCNSceneSourceS
  After creating a SCNSceneSource object for the appropriate source, you can obtain scenes using SCNSceneSource methods.
  */
 
-NS_CLASS_AVAILABLE(10_8, 8_0)
+SCN_EXPORT
 @interface SCNSceneSource : NSObject 
 
 /*!
@@ -6330,7 +8273,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param url The URL to read scenes from.
  @param options An optional dictionary for future extensions. 
  */
-+ (nullable instancetype)sceneSourceWithURL:(NSURL *)url options:(nullable NSDictionary<NSString *, id> *)options;
++ (nullable instancetype)sceneSourceWithURL:(NSURL *)url options:(nullable NSDictionary<SCNSceneSourceLoadingOption, id> *)options;
 
 /*!
  @method sceneSourceWithData:options:
@@ -6338,7 +8281,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param data The scene data.
  @param options An optional dictionary for future extensions. 
  */
-+ (nullable instancetype)sceneSourceWithData:(NSData *)data options:(nullable NSDictionary<NSString *, id> *)options;
++ (nullable instancetype)sceneSourceWithData:(NSData *)data options:(nullable NSDictionary<SCNSceneSourceLoadingOption, id> *)options;
 
 /*!
  @method initWithURL:options:
@@ -6346,7 +8289,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param url The URL to read scenes from.
  @param options An optional dictionary for future extensions. 
  */
-- (nullable instancetype)initWithURL:(NSURL *)url options:(nullable NSDictionary<NSString *, id> *)options;
+- (nullable instancetype)initWithURL:(NSURL *)url options:(nullable NSDictionary<SCNSceneSourceLoadingOption, id> *)options;
 
 /*!
  @method initWithData:options:
@@ -6354,7 +8297,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param data The data to read scenes from.
  @param options An optional dictionary for future extensions. 
  */
-- (nullable instancetype)initWithData:(NSData *)data options:(nullable NSDictionary<NSString *, id> *)options;
+- (nullable instancetype)initWithData:(NSData *)data options:(nullable NSDictionary<SCNSceneSourceLoadingOption, id> *)options;
 
 /*!
  @property url
@@ -6378,7 +8321,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
 					  - If status == SCNSceneStatusError, then error will contain more information about the failure, and the method will return nil after having called the block. Otherwise error will be nil.
 					  - Set *stop to YES if you want the source to abort the loading operation.
  */
-- (nullable SCNScene *)sceneWithOptions:(nullable NSDictionary<NSString *, id> *)options statusHandler:(nullable SCNSceneSourceStatusHandler)statusHandler;
+- (nullable SCNScene *)sceneWithOptions:(nullable NSDictionary<SCNSceneSourceLoadingOption, id> *)options statusHandler:(nullable SCNSceneSourceStatusHandler)statusHandler;
 
 /*!
  @method sceneWithOptions:error:
@@ -6388,7 +8331,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @discussion This simpler version is equivalent to providing a block to sceneWithOptions:statusHandler: and checking the "error"
  parameter of the block if the status is SCNSceneStatusError.
  */
-- (nullable SCNScene *)sceneWithOptions:(nullable NSDictionary<NSString *, id> *)options error:(NSError **)error;
+- (nullable SCNScene *)sceneWithOptions:(nullable NSDictionary<SCNSceneSourceLoadingOption, id> *)options error:(NSError **)error;
 
 /*!
  @method propertyForKey:
@@ -6404,11 +8347,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param entryClass Specifies the type of the object to be returned. It can be one of the following classes: SCNMaterial, SCNGeometry, SCNScene, SCNNode, CAAnimation, SCNLight, SCNCamera, SCNSkinner, SCNMorpher, NSImage
  @discussion Returns NULL if the receiver's library doesn't contains such an uid for the specified type.
  */
-#if defined(SWIFT_SDK_OVERLAY2_SCENEKIT_EPOCH) && SWIFT_SDK_OVERLAY2_SCENEKIT_EPOCH >= 1
 - (nullable id)entryWithIdentifier:(NSString *)uid withClass:(Class)entryClass NS_REFINED_FOR_SWIFT;
-#else
-- (nullable id)entryWithIdentifier:(NSString *)uid withClass:(Class)entryClass;
-#endif
 
 /*!
  @method identifiersOfEntriesWithClass:
@@ -6423,7 +8362,7 @@ NS_CLASS_AVAILABLE(10_8, 8_0)
  @param predicate The block to apply to entries in the library. The block takes three arguments: "entry" is an entry in the library, "identifier" is the ID of this entry and "stop" is a reference to a Boolean value. The block can set the value to YES to stop further processing of the library. The stop argument is an out-only argument. You should only ever set this Boolean to YES within the Block. The Block returns a Boolean value that indicates whether "entry" passed the test.
  @discussion The entry is an instance of one of following classes: SCNMaterial, SCNScene, SCNGeometry, SCNNode, CAAnimation, SCNLight, SCNCamera, SCNSkinner, SCNMorpher, NSImage.
  */
-- (NSArray<id> *)entriesPassingTest:(BOOL (^)(id entry, NSString *identifier, BOOL *stop))predicate NS_AVAILABLE(10_9, 8_0);
+- (NSArray<id> *)entriesPassingTest:(NS_NOESCAPE BOOL (^)(id entry, NSString *identifier, BOOL *stop))predicate API_AVAILABLE(macos(10.9));
 
 @end
 
@@ -6431,8 +8370,9 @@ NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNView.h
 //
 //  SCNView.h
+//  SceneKit
 //
-//  Copyright (c) 2012-2015 Apple Inc. All rights reserved.
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -6440,42 +8380,53 @@ NS_ASSUME_NONNULL_END
 #import <SceneKit/SCNSceneRenderer.h>
 #import <SceneKit/SCNTechnique.h>
 
+@class SCNCameraController;
+
 NS_ASSUME_NONNULL_BEGIN
 
-/*! 
- @enum SCNAntialiasingMode
- @abstract antialiasing modes for SCNView
- */
-typedef NS_ENUM(NSUInteger, SCNAntialiasingMode) {
-    SCNAntialiasingModeNone,
-    SCNAntialiasingModeMultisampling2X,
-    SCNAntialiasingModeMultisampling4X
-} NS_ENUM_AVAILABLE(10_10, 8_0);
+typedef NSString * SCNViewOption NS_STRING_ENUM;
 
-/*! @group View initialization options
- @constant SCNPreferredRenderingAPIKey Specifies the preferred rendering API to be used by the renderer.
+/*!
+ @constant SCNViewOptionPreferredRenderingAPI Specifies the preferred rendering API to be used by the renderer.
  @discussion Pass it as the key in the options dictionary given to initWithFrame:options:. The value is a NSNumber wrapping a SCNRenderingAPI. You can also select the preferred rendering API directly from the SCNView inspector in InterfaceBuilder.
  */
-SCN_EXTERN NSString * const SCNPreferredRenderingAPIKey NS_AVAILABLE(10_11, 9_0);
+SCN_EXPORT SCNViewOption const SCNPreferredRenderingAPIKey API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
- @constant SCNPreferredDeviceKey Specifies the preferred metal device to be used by the renderer.
+ @constant SCNViewOptionPreferredDevice Specifies the preferred metal device to be used by the renderer.
  @discussion The value is directly a id <MTLDevice>.
  */
-SCN_EXTERN NSString * const SCNPreferredDeviceKey NS_AVAILABLE(10_11, 9_0);
+SCN_EXPORT SCNViewOption const SCNPreferredDeviceKey API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
- @constant SCNPreferLowPowerDeviceKey Specifies if the renderer should prefer a low power metal device.
+ @constant SCNViewOptionPreferLowPowerDevice Specifies if the renderer should prefer a low power metal device.
  @discussion The value is a NSNumber wrapping a BOOL. Defaults to NO.
  */
-SCN_EXTERN NSString * const SCNPreferLowPowerDeviceKey NS_AVAILABLE(10_11, 9_0);
+SCN_EXPORT SCNViewOption const SCNPreferLowPowerDeviceKey API_AVAILABLE(macos(10.11), ios(9.0));
+
+#define SCNViewOptionPreferredRenderingAPI SCNPreferredRenderingAPIKey
+#define SCNViewOptionPreferredDevice       SCNPreferredDeviceKey
+#define SCNViewOptionPreferLowPowerDevice  SCNPreferLowPowerDeviceKey
+
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
+@protocol SCNCameraControlConfiguration <NSObject>
+
+@property(nonatomic, assign) BOOL autoSwitchToFreeCamera;
+@property(nonatomic, assign) BOOL allowsTranslation;
+@property(nonatomic, assign) CGFloat flyModeVelocity; // in m/s
+@property(nonatomic, assign) CGFloat panSensitivity;
+@property(nonatomic, assign) CGFloat truckSensitivity;
+@property(nonatomic, assign) CGFloat rotationSensitivity;
+
+@end
 
 /*!
  @class SCNView
  @abstract A SCNView is a subclass of NSView that can display a SCNScene
  */
+API_UNAVAILABLE(watchos)
+SCN_EXPORT
 @interface SCNView : UIView <SCNSceneRenderer, SCNTechniqueSupport>
-
 
 /*! 
  @method initWithFrame:options:
@@ -6491,12 +8442,18 @@ SCN_EXTERN NSString * const SCNPreferLowPowerDeviceKey NS_AVAILABLE(10_11, 9_0);
  */
 @property(nonatomic, retain, nullable) SCNScene *scene;
 
+/*!
+ @property rendersContinuously
+ @abstract When set to YES, the view continously redraw at the display link frame rate. When set to NO the view will only redraw when something change or animates in the receiver's scene. Defaults to NO.
+ */
+@property(nonatomic, assign) BOOL rendersContinuously;
+
 
 /*! 
  @property allowsCameraControl
  @abstract A Boolean value that determines whether the user can manipulate the point of view used to render the scene. 
- @discussion  When set to YES, the user can manipulate the current point of view with the mouse or the trackpad. The scene graph and existing cameras won't be modified by this action. The default value of this property is NO.
-     Note that the primary purpose of this property is to aid in debugging your application. You may want to implement you own camera controller suitable for your application.
+ @discussion  When set to YES, a defaultCameraController is created and the view will handle UI events to pilot it so the user can manipulate the current point of view with the mouse or the trackpad. The scene graph and existing cameras won't be modified by this action. The default value of this property is NO.
+     Note that the default event handling provided by the view may not suite your needs. You may want to implement you own evnet handler.
      The built-in camera controller let you:
        - pan with 1 finger to rotate the camera around the scene.
        - pan with 2 fingers to translate the camera on its local X,Y plan.
@@ -6507,17 +8464,27 @@ SCN_EXTERN NSString * const SCNPreferLowPowerDeviceKey NS_AVAILABLE(10_11, 9_0);
  */
 @property(nonatomic) BOOL allowsCameraControl;
 
+/*! 
+ @property cameraControlConfiguration
+ @abstract An object describing the current configuration of the event handler which pilot the default camera controller.
+ @discussion This object will be used to configure the event handler when allowCameraControl is set to YES.
+ */
+@property(nonatomic, readonly) id <SCNCameraControlConfiguration> cameraControlConfiguration API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+/*!
+ @property defaultCameraController
+ @abstract Returns the default SCNCameraController used to drive the current point of view when allowCameraController is set to YES.
+ */
+@property(nonnull, nonatomic, readonly) SCNCameraController* defaultCameraController API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 /*!
  @property snapshot
  @abstract Draws the contents of the view and returns them as a new image object
  @discussion This method is thread-safe and may be called at any time.
  */
-- (UIImage *)snapshot NS_AVAILABLE(10_10, 8_0);
+- (UIImage *)snapshot API_AVAILABLE(macos(10.10));
 
-/*! 
- @functiongroup Actions
- */
-/*! 
+/*!
  @method play:
  @abstract This action method begins playing the scene at its current location.
  @param sender The object (such as a button or menu item) sending the message to play the scene.
@@ -6544,9 +8511,9 @@ SCN_EXTERN NSString * const SCNPreferLowPowerDeviceKey NS_AVAILABLE(10_11, 9_0);
  @property preferredFramesPerSecond
  @abstract The rate you want the view to redraw its contents.
  @discussion When your application sets its preferred frame rate, the view chooses a frame rate as close to that as possible based on the capabilities of the screen the view is displayed on. The actual frame rate chosen is usually a factor of the maximum refresh rate of the screen to provide a consistent frame rate. For example, if the maximum refresh rate of the screen is 60 frames per second, that is also the highest frame rate the view sets as the actual frame rate. However, if you ask for a lower frame rate, it might choose 30, 20, 15 or some other factor to be the actual frame rate. Your application should choose a frame rate that it can consistently maintain.
- The default value is 60 frames per second.
+     The default value is 0 which means the display link will fire at the native cadence of the display hardware.
  */
-@property(nonatomic) NSInteger preferredFramesPerSecond;
+@property(nonatomic) NSInteger preferredFramesPerSecond API_AVAILABLE(macos(10.12));
 
 /*!
  @property eaglContext
@@ -6555,12 +8522,12 @@ SCN_EXTERN NSString * const SCNPreferLowPowerDeviceKey NS_AVAILABLE(10_11, 9_0);
  */
 @property(nonatomic, retain, nullable) EAGLContext *eaglContext;
 
-
 /*!
  @property antialiasingMode
- @abstract Defaults to SCNAntialiasingModeMultisampling4X on OSX and SCNAntialiasingModeNone on iOS.
+ @abstract Defaults to SCNAntialiasingModeMultisampling4X on macOS and SCNAntialiasingModeNone on iOS.
  */
-@property(nonatomic) SCNAntialiasingMode antialiasingMode NS_AVAILABLE(10_10, 8_0);
+@property(nonatomic) SCNAntialiasingMode antialiasingMode API_AVAILABLE(macos(10.10));
+
 
 
 @end

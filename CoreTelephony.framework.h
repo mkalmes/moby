@@ -16,13 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 CORETELEPHONY_CLASS_DEPRECATED(4_0, 10_0, "Replaced by CXCallObserver from CallKit.framework")
 @interface CTCallCenter : NSObject
-{
-@private
-    void *_server;
-
-    NSSet *_currentCalls;
-    void (^_callEventHandler)(CTCall *);
-}
 
 /*
  * currentCalls
@@ -30,9 +23,9 @@ CORETELEPHONY_CLASS_DEPRECATED(4_0, 10_0, "Replaced by CXCallObserver from CallK
  * Discussion:
  *   An array containing CTCall objects for all calls that are currently
  *   in progress. If no calls are active, this will be nil.
- *   
+ *
  */
-@property(readonly, retain, nullable) NSSet<CTCall*> *currentCalls __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+@property(readonly, retain, nullable) NSSet<CTCall*> *currentCalls __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_10_0, "Replaced by <CallKit/CXCallObserver.h>");
 
 /*
  * callEventHandler
@@ -42,7 +35,7 @@ CORETELEPHONY_CLASS_DEPRECATED(4_0, 10_0, "Replaced by CXCallObserver from CallK
  *   queue when a new call event occurs. Set this property to a block
  *   that is defined in your application to handle call events.
  */
-@property(nonatomic, copy, nullable) void (^callEventHandler)(CTCall*) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+@property(nonatomic, copy, nullable) void (^callEventHandler)(CTCall*) __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_10_0, "Replaced by <CallKit/CXCallObserver.h>");
 
 @end
 
@@ -52,7 +45,7 @@ NS_ASSUME_NONNULL_END
  *  CTTelephonyNetworkInfo.h
  *  CoreTelephony
  *
- *  Copyright 2009 Apple, Inc. All rights reserved.
+ *  Copyright 2009 Apple Inc. All rights reserved.
  *
  */
 
@@ -63,12 +56,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /*
+ * CTServiceRadioAccessTechnologyDataTechnologyDidChangeNotification
+ *
+ * Description:
+ *     A NSNotification broadcast when radio access technology changes for one of the services.  Only an object is sent with
+ *     this notfication.  The object is an NSString that represents the service identifier of the service whose radio access
+ *     technology has changed.  This NSString should be used as the key in serviceCurrentRadioAccessTechnology to get the
+ *     value of the new radio access technology for the service.
+ */
+CORETELEPHONY_EXTERN NSString * const CTServiceRadioAccessTechnologyDidChangeNotification API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macos, tvos);
+
+/*
  * CTRadioAccessTechnologyDataTechnologyDidChangeNotification
  *
  * Description:
  *     A NSNotification broadcast when radio access technology changes
  */
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyDidChangeNotification __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyDidChangeNotification __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA,
+    __IPHONE_7_0, __IPHONE_12_0, "Replaced by CTServiceRadioAccessTechnologyDidChangeNotification");
 
 
 /*
@@ -99,33 +104,67 @@ CORETELEPHONY_CLASS_AVAILABLE(4_0)
 
 
 /*
+ * serviceSubscriberCellularProviders
+ *
+ * Discussion:
+ *   A dictionary containing CTCarrier objects for each service that contains information about the subscriber's
+ *   home cellular service provider.  The key to the dictionary is an NSString representing the service.
+ */
+@property(readonly, retain, nullable) NSDictionary<NSString *, CTCarrier *> *serviceSubscriberCellularProviders API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macos, tvos);
+
+/*
  * subscriberCellularProvider
  *
  * Discussion:
  *   A CTCarrier object that contains information about the subscriber's
- *   home cellular service provider.
+ *   home cellular service provider for the service.
  */
-@property(readonly, retain, nullable) CTCarrier *subscriberCellularProvider __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+@property(readonly, retain, nullable) CTCarrier *subscriberCellularProvider __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_12_0,
+	"Replaced by serviceSubscriberCellularProviders");
+
+/*
+ * serviceSubscriberCellularProvidersDidUpdateNotifier
+ *
+ * Discussion:
+ *   A block that will be dispatched on the default priority global dispatch
+ *   queue when the subscriber's cellular provider information updates for any service. Set
+ *   this property to a block that is defined in your application to receive the newly
+ *   updated information.  The NSString will contain the service identifier of the service
+ *   whose information has changed.  This can be used as the key into serviceSubscriberCellularProvider
+ *   to obtain the new information.
+ */
+@property(nonatomic, copy, nullable) void (^serviceSubscriberCellularProvidersDidUpdateNotifier)(NSString*) API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macos, tvos);
 
 /*
  * subscriberCellularProviderDidUpdateNotifier
  *
  * Discussion:
- *   A block that will be dispatched on the default priority global dispatch
- *   queue when the subscriber's cellular provider information updates. Set
- *   this property to a block that is defined in your application to
- *   receive the newly updated information.
+ *   A block that will be dispatched on the default priority global dispatch queue when
+ *   the subscriber's cellular provider information updates for the service. Set this
+ *   property to a block that is defined in your application to receive the newly
+ *   updated information.
  */
-@property(nonatomic, copy, nullable) void (^subscriberCellularProviderDidUpdateNotifier)(CTCarrier*) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+@property(nonatomic, copy, nullable) void (^subscriberCellularProviderDidUpdateNotifier)(CTCarrier*) __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_12_0,
+	"Replaced by serviceSubscriberCellularProvidersDidUpdateNotifier");
+
+/*
+ * serviceCurrentRadioAccessTechnology
+ *
+ * Discussion:
+ *   A dictionary containing the current radio access technology each service is registered. The key to the dictionary
+ *   is an NSString representing the service.  An entry may be nil if the service is not registered on any network.
+ */
+@property (nonatomic, readonly, retain, nullable) NSDictionary<NSString *, NSString *> * serviceCurrentRadioAccessTechnology API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macos, tvos);
 
 /*
  * currentRadioAccessTechnology
  *
  * Discussion:
- *   The current radio access technology the device is registered with. May be NULL
- *   if device is not registered on any network.
+ *   The current radio access technology for each service of the device is registered with. May be nil
+ *   if the device is not registered on any network.
  */
-@property (nonatomic, readonly, retain, nullable) NSString* currentRadioAccessTechnology __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+@property (nonatomic, readonly, retain, nullable) NSString* currentRadioAccessTechnology __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_7_0, __IPHONE_12_0,
+	"Replaced by serviceCurrentRadioAccessTechnology");
 
 
 @end
@@ -167,6 +206,35 @@ CORETELEPHONY_CLASS_AVAILABLE(9_0)
 @end
 
 NS_ASSUME_NONNULL_END
+
+// ==========  CoreTelephony.framework/Headers/CTCellularPlanProvisioningRequest.h
+//
+//  CTCellularPlanProvisioningRequest.h
+//  CFTelephony
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <CoreTelephony/CoreTelephonyDefines.h>
+
+typedef NS_ENUM(NSUInteger, CTCellularPlanProvisioningAddPlanResult) {
+	CTCellularPlanProvisioningAddPlanResultUnknown,
+	CTCellularPlanProvisioningAddPlanResultFail,
+	CTCellularPlanProvisioningAddPlanResultSuccess
+};
+
+CORETELEPHONY_EXTERN_CLASS
+@interface CTCellularPlanProvisioningRequest : NSObject<NSSecureCoding>
+
+@property (nonatomic, strong, nonnull)  NSString *address;
+@property (nonatomic, strong, nullable) NSString *matchingID;
+@property (nonatomic, strong, nullable) NSString *OID;
+@property (nonatomic, strong, nullable) NSString *confirmationCode;
+@property (nonatomic, strong, nullable) NSString *ICCID;
+@property (nonatomic, strong, nullable) NSString *EID;
+
+@end
 
 // ==========  CoreTelephony.framework/Headers/CoreTelephonyDefines.h
 /*
@@ -283,10 +351,10 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CORETELEPHONY_EXTERN NSString * const CTCallStateDialing  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-CORETELEPHONY_EXTERN NSString * const CTCallStateIncoming  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-CORETELEPHONY_EXTERN NSString * const CTCallStateConnected  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
-CORETELEPHONY_EXTERN NSString * const CTCallStateDisconnected  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+CORETELEPHONY_EXTERN NSString * const CTCallStateDialing  __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_10_0, "Replaced by <CallKit/CXCall.h> properties");
+CORETELEPHONY_EXTERN NSString * const CTCallStateIncoming  __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_10_0, "Replaced by <CallKit/CXCall.h> properties");
+CORETELEPHONY_EXTERN NSString * const CTCallStateConnected  __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_10_0, "Replaced by <CallKit/CXCall.h> properties");
+CORETELEPHONY_EXTERN NSString * const CTCallStateDisconnected  __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_10_0, "Replaced by <CallKit/CXCall.h> properties");
 
 CORETELEPHONY_CLASS_AVAILABLE(4_0)
 @interface CTCall : NSObject
@@ -305,7 +373,7 @@ CORETELEPHONY_CLASS_AVAILABLE(4_0)
  *     to CTCallStateConnected when the call is established with all parties 
  *     involved and will move to CTCallStateDisconnected when this call is terminated.
  */
-@property(nonatomic, readonly, copy) NSString *callState  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+@property(nonatomic, readonly, copy) NSString *callState  __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_10_0, "Replaced by <CallKit/CXCall.h> properties");
 
 /*
  * callID
@@ -314,7 +382,7 @@ CORETELEPHONY_CLASS_AVAILABLE(4_0)
  *     A unique identifier for this call to be used by clients to differentiate
  *     multiple active calls.
  */
-@property(nonatomic, readonly, copy) NSString *callID  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_4_0);
+@property(nonatomic, readonly, copy) NSString *callID  __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_10_0, "Replaced by <CallKit/CXCall.h> properties");
 
 @end
 
@@ -387,3 +455,26 @@ CORETELEPHONY_CLASS_AVAILABLE(4_0)
 
 NS_ASSUME_NONNULL_END
 
+// ==========  CoreTelephony.framework/Headers/CTCellularPlanProvisioning.h
+//
+//  CTCellularPlanProvisioning.h
+//  CoreTelephony
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+
+#import <Foundation/Foundation.h>
+#import <CoreTelephony/CoreTelephonyDefines.h>
+#import <CoreTelephony/CTCellularPlanProvisioningRequest.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+CORETELEPHONY_CLASS_AVAILABLE(12_0)
+@interface CTCellularPlanProvisioning : NSObject
+
+- (BOOL)supportsCellularPlan   __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_12_0);
+
+- (void)addPlanWith:(CTCellularPlanProvisioningRequest *)request completionHandler:(void (^)(CTCellularPlanProvisioningAddPlanResult result))completionHandler   __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_12_0);
+
+@end
+
+NS_ASSUME_NONNULL_END

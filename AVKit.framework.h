@@ -4,15 +4,15 @@
 	
 	Framework:  AVKit
 	
-	Copyright 2014-2015 Apple Inc. All rights reserved.
+	Copyright © 2014-2017 Apple Inc. All rights reserved.
 	
  */
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class AVPlayer;
 @protocol AVPlayerViewControllerDelegate;
 
 /*!
@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 	@abstract	AVPlayerViewController is a subclass of UIViewController that can be used to display the visual content of an AVPlayer object and the standard playback controls.
  */
 
-NS_CLASS_AVAILABLE_IOS(8_0)
+API_AVAILABLE(ios(8.0))
 @interface AVPlayerViewController : UIViewController
 
 /*!
@@ -33,7 +33,6 @@ NS_CLASS_AVAILABLE_IOS(8_0)
 	@property	showsPlaybackControls
 	@abstract	Whether or not the receiver shows playback controls. Default is YES.
 	@discussion	Clients can set this property to NO when they don't want to have any playback controls on top of the visual content (e.g. for a game splash screen).
-				This property should not be used to temporarily change the visibility of the playback controls since it will create or destroy UI elements.
  */
 @property (nonatomic) BOOL showsPlaybackControls;
 
@@ -66,13 +65,33 @@ NS_CLASS_AVAILABLE_IOS(8_0)
 	@property	allowsPictureInPicturePlayback
 	@abstract	Whether or not the receiver allows Picture in Picture playback. Default is YES.
  */
-@property (nonatomic) BOOL allowsPictureInPicturePlayback NS_AVAILABLE_IOS(9_0);
+@property (nonatomic) BOOL allowsPictureInPicturePlayback API_AVAILABLE(ios(9.0));
+
+/*!
+	@property	updatesNowPlayingInfoCenter
+	@abstract	Whether or not the now playing info center should be updated. Default is YES.
+ */
+@property (nonatomic) BOOL updatesNowPlayingInfoCenter API_AVAILABLE(ios(10.0));
+
+/*!
+	@property	entersFullScreenWhenPlaybackBegins
+	@abstract	Whether or not the receiver automatically enters full screen when the play button is tapped. Default is NO.
+	@discussion	If YES, the receiver will show a user interface tailored to this behavior.
+ */
+@property (nonatomic) BOOL entersFullScreenWhenPlaybackBegins API_AVAILABLE(ios(11.0));
+
+/*!
+	@property	exitsFullScreenWhenPlaybackEnds
+	@abstract	Whether or not the receiver automatically exits full screen when playback ends. Default is NO.
+	@discussion	If multiple player items have been enqueued, the receiver exits fullscreen once no more items are remaining in the queue.
+ */
+@property (nonatomic) BOOL exitsFullScreenWhenPlaybackEnds API_AVAILABLE(ios(11.0));
 
 /*!
 	@property	delegate
 	@abstract	The receiver's delegate.
  */
-@property (nonatomic, weak, nullable) id <AVPlayerViewControllerDelegate> delegate NS_AVAILABLE_IOS(9_0);
+@property (nonatomic, weak, nullable) id <AVPlayerViewControllerDelegate> delegate API_AVAILABLE(ios(9.0));
 
 @end
 
@@ -154,7 +173,7 @@ NS_ASSUME_NONNULL_END
 	
 	Framework:  AVKit
 	
-	Copyright 2013-2015 Apple Inc. All rights reserved.
+	Copyright © 2013-2016 Apple Inc. All rights reserved.
 	
 	To report bugs, go to:  http://developer.apple.com/bugreporter/
 	
@@ -166,17 +185,100 @@ NS_ASSUME_NONNULL_END
 #import <AVKit/AVError.h>
 #import <AVKit/AVPictureInPictureController.h>
 #import <AVKit/AVPlayerViewController.h>
+#import <AVKit/AVRoutePickerView.h>
 #else
 #import <AVKit/AVCaptureView.h>
 #import <AVKit/AVPlayerView.h>
 #endif // TARGET_OS_IPHONE
+// ==========  AVKit.framework/Headers/AVRoutePickerView.h
+/*
+	File:  AVRoutePickerView.h
+ 
+	Framework:  AVKit
+ 
+	Copyright © 2017 Apple Inc. All rights reserved.
+ 
+ */
+
+#import <UIKit/UIKit.h>
+
+@protocol AVRoutePickerViewDelegate;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+	@class		AVRoutePickerView
+	@abstract	AVRoutePickerView is a subclass of UIView that displays controls for picking playback routes.
+ */
+
+API_AVAILABLE(ios(11.0), tvos(11.0))
+@interface AVRoutePickerView : UIView
+
+/*!
+	@property	delegate
+	@abstract	The route picker view's delegate.
+ */
+@property (nonatomic, weak, nullable) id<AVRoutePickerViewDelegate> delegate;
+
+/*!
+	@property	activeTintColor
+	@abstract	The view's tint color when AirPlay is active.
+ */
+@property (nonatomic, strong, null_resettable) UIColor *activeTintColor;
+
+/*!
+	@constant	AVRoutePickerViewButtonStyleSystem
+				A system style for the route picker button.
+	@constant	AVRoutePickerViewButtonStylePlain
+				A plain style for the route picker button, which has the same appearance as the system style without the blurred background view.
+	@constant	AVRoutePickerViewButtonStyleCustom
+				A custom style for the route picker button, which allows customizing the background view and focused appearance.
+ */
+typedef NS_ENUM(NSInteger, AVRoutePickerViewButtonStyle) {
+	AVRoutePickerViewButtonStyleSystem,
+	AVRoutePickerViewButtonStylePlain,
+	AVRoutePickerViewButtonStyleCustom
+} API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios);
+
+/*!
+	@property	routePickerButtonStyle
+	@abstract	The route picker button style.
+ */
+@property (nonatomic) AVRoutePickerViewButtonStyle routePickerButtonStyle API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios);
+
+@end
+
+
+/*!
+	@protocol	AVRoutePickerViewDelegate
+	@abstract	Defines an interface for delegates of AVRoutePickerView.
+ */
+
+@protocol AVRoutePickerViewDelegate <NSObject>
+@optional
+
+/*!
+	@method		routePickerViewWillBeginPresentingRoutes:
+	@abstract	Informs the delegate that the route picker view will start presenting routes to the user.
+ */
+- (void)routePickerViewWillBeginPresentingRoutes:(AVRoutePickerView *)routePickerView;
+
+/*!
+	@method		routePickerViewDidEndPresentingRoutes:
+	@abstract	Informs the delegate that the route picker view finished presenting routes to the user.
+ */
+- (void)routePickerViewDidEndPresentingRoutes:(AVRoutePickerView *)routePickerView;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  AVKit.framework/Headers/AVError.h
 /*
 	File:  AVError.h
 	
 	Framework:  AVKit
 	
-	Copyright 2015 Apple Inc. All rights reserved.
+	Copyright © 2015-2016 Apple Inc. All rights reserved.
 	
  */
 
@@ -188,26 +290,26 @@ NS_ASSUME_NONNULL_END
 	@constant	AVKitErrorDomain
 	@abstract	Domain for errors from AVKit APIs.
  */
-AVKIT_EXTERN NSString * const AVKitErrorDomain NS_AVAILABLE_IOS(9_0);
+AVKIT_EXTERN NSString * const AVKitErrorDomain API_AVAILABLE(ios(9.0));
 
 
 /*!
 	@constant	AVKitErrorUnknown
-	@abstract	Unknown error.
+				Unknown error.
 	@constant	AVKitErrorPictureInPictureStartFailed
-	@abstract	Failed to start Picture in Picture.
+				Failed to start Picture in Picture.
  */
 typedef NS_ENUM(NSInteger, AVKitError) {
 	AVKitErrorUnknown						= -1000,
 	AVKitErrorPictureInPictureStartFailed	= -1001
-} NS_ENUM_AVAILABLE_IOS(9_0);
+} API_AVAILABLE(ios(9.0));
 // ==========  AVKit.framework/Headers/AVKitDefines.h
 /*
 	File:  AVKitDefines.h
 	
 	Framework:  AVKit
 	
-	Copyright 2014-2015 Apple Inc. All rights reserved.
+	Copyright © 2014-2016 Apple Inc. All rights reserved.
 	
  */
 
@@ -225,17 +327,17 @@ typedef NS_ENUM(NSInteger, AVKitError) {
 	
 	Framework:  AVKit
 	
-	Copyright 2015 Apple Inc. All rights reserved.
+	Copyright © 2015-2017 Apple Inc. All rights reserved.
 	
  */
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 
 #import <AVKit/AVKitDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class AVPlayerLayer;
 @class UIImage;
 @class UITraitCollection;
 @protocol AVPictureInPictureControllerDelegate;
@@ -245,7 +347,7 @@ NS_ASSUME_NONNULL_BEGIN
 	@abstract	AVPictureInPictureController is a subclass of NSObject that can be used to present the contents of an AVPlayerLayer floating on top of applications.
  */
 
-NS_CLASS_AVAILABLE_IOS(9_0)
+API_AVAILABLE(ios(9.0))
 @interface AVPictureInPictureController : NSObject
 
 /*!

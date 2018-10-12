@@ -51,12 +51,7 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVBufferTimeScaleKey __OSX_AVAILABLE_STA
 
 #pragma mark CVBufferRef
 
-typedef uint32_t CVAttachmentMode;
-#if COREVIDEO_USE_DERIVED_ENUMS_FOR_CONSTANTS
-enum : CVAttachmentMode
-#else
-enum
-#endif
+typedef CF_ENUM(uint32_t, CVAttachmentMode)
 {
 	kCVAttachmentMode_ShouldNotPropagate    = 0,
 	kCVAttachmentMode_ShouldPropagate       = 1
@@ -136,7 +131,7 @@ CV_EXPORT void	CVBufferRemoveAllAttachments( CVBufferRef CV_NONNULL buffer ) __O
     @result     A CFDictionary with all buffer attachments identified by there keys. If no attachment is present, the dictionary is empty.  Returns NULL
 		for invalid attachment mode.
 */
-CV_EXPORT CFDictionaryRef CV_NULLABLE CVBufferGetAttachments( CVBufferRef CV_NONNULL buffer, CVAttachmentMode attachmentMode ) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
+CV_EXPORT CFDictionaryRef CF_RETURNS_NOT_RETAINED CV_NULLABLE CVBufferGetAttachments( CVBufferRef CV_NONNULL buffer, CVAttachmentMode attachmentMode ) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
 /*!
     @function   CVBufferSetAttachments
@@ -213,13 +208,13 @@ typedef void *CVEAGLContext;
 // By default, textures will age out after one second.  Setting a maximum
 // texture age of zero will disable the age-out mechanism completely.
 // CVOpenGLESTextureCacheFlush() can be used to force eviction in either case.
-
-CV_EXPORT const CFStringRef CV_NONNULL kCVOpenGLESTextureCacheMaximumTextureAgeKey __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+	
+CV_EXPORT const CFStringRef CV_NONNULL kCVOpenGLESTextureCacheMaximumTextureAgeKey COREVIDEO_GL_DEPRECATED(ios, 5.0, 12.0) COREVIDEO_GL_DEPRECATED(tvos, 9.0, 12.0) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 //
 // textureAttributes - reserved for future use
-
-CV_EXPORT CFTypeID CVOpenGLESTextureCacheGetTypeID(void) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+	
+CV_EXPORT CFTypeID CVOpenGLESTextureCacheGetTypeID(void) COREVIDEO_GL_DEPRECATED(ios, 5.0, 12.0) COREVIDEO_GL_DEPRECATED(tvos, 9.0, 12.0) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVOpenGLESTextureCacheCreate
@@ -236,7 +231,7 @@ CV_EXPORT CVReturn CVOpenGLESTextureCacheCreate(
     CFDictionaryRef CV_NULLABLE cacheAttributes,
     CVEAGLContext CV_NONNULL eaglContext,
     CFDictionaryRef CV_NULLABLE textureAttributes,
-    CV_RETURNS_RETAINED_PARAMETER CVOpenGLESTextureCacheRef CV_NULLABLE * CV_NONNULL cacheOut) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+    CV_RETURNS_RETAINED_PARAMETER CVOpenGLESTextureCacheRef CV_NULLABLE * CV_NONNULL cacheOut) COREVIDEO_GL_DEPRECATED(ios, 5.0, 12.0) COREVIDEO_GL_DEPRECATED(tvos, 9.0, 12.0) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVOpenGLESTextureCacheCreateTextureFromImage
@@ -246,7 +241,7 @@ CV_EXPORT CVReturn CVOpenGLESTextureCacheCreate(
     @param      sourceImage The CVImageBuffer that you want to create a CVOpenGLESTexture from.
     @param      textureAttributes A CFDictionaryRef containing attributes to be used for creating the CVOpenGLESTexture objects.  May be NULL.
     @param      target Specifies the target texture.  GL_TEXTURE_2D and GL_RENDERBUFFER are the only targets currently supported.
-    @param      internalFormat Specifies the number of color components in the texture.  Examples are GL_RGBA, GL_LUMINANCE, GL_RGBA8_OES, GL_RED, and GL_RG.
+    @param      internalFormat Specifies the number of color components in the texture.  Examples are GL_RGBA, GL_LUMINANCE, GL_RGBA8_OES, GL_RG, and GL_RED (NOTE: On GLES3 use GL_R8 instead of GL_RED).
     @param      width Specifies the width of the texture image.
     @param      height Specifies the height of the texture image.
     @param      format Specifies the format of the pixel data.  Examples are GL_RGBA and GL_LUMINANCE.
@@ -290,7 +285,7 @@ CV_EXPORT CVReturn CVOpenGLESTextureCacheCreateTextureFromImage(
     GLenum format,
     GLenum type,
     size_t planeIndex,
-    CV_RETURNS_RETAINED_PARAMETER CVOpenGLESTextureRef CV_NULLABLE * CV_NONNULL textureOut ) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+    CV_RETURNS_RETAINED_PARAMETER CVOpenGLESTextureRef CV_NULLABLE * CV_NONNULL textureOut ) COREVIDEO_GL_DEPRECATED(ios, 5.0, 12.0) COREVIDEO_GL_DEPRECATED(tvos, 9.0, 12.0) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVOpenGLESTextureCacheFlush
@@ -301,7 +296,7 @@ CV_EXPORT CVReturn CVOpenGLESTextureCacheCreateTextureFromImage(
     @param      textureCache The texture cache object to flush
     @param      options Currently unused, set to 0.
 */
-CV_EXPORT void CVOpenGLESTextureCacheFlush( CVOpenGLESTextureCacheRef CV_NONNULL textureCache, CVOptionFlags options ) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+CV_EXPORT void CVOpenGLESTextureCacheFlush( CVOpenGLESTextureCacheRef CV_NONNULL textureCache, CVOptionFlags options ) COREVIDEO_GL_DEPRECATED(ios, 5.0, 12.0) COREVIDEO_GL_DEPRECATED(tvos, 9.0, 12.0) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 #if defined(__cplusplus)
 }
@@ -313,12 +308,12 @@ CV_EXPORT void CVOpenGLESTextureCacheFlush( CVOpenGLESTextureCacheRef CV_NONNULL
  *  CVBase.h
  *  CoreVideo
  *
- *  Copyright (c) 2004-2015 Apple Inc. All rights reserved.
+ *  Copyright (c) 2004-2017 Apple Inc. All rights reserved.
  *
  */
  
  /*! @header CVBase.h
-	@copyright 2004-2015 Apple Inc. All rights reserved.
+	@copyright 2004-2017 Apple Inc. All rights reserved.
 	@availability Mac OS X 10.4 or later, and iOS 4.0 or later
     @discussion Here you can find the type declarations for CoreVideo. CoreVideo uses a CVTimeStamp structure to store video display time stamps.
 */
@@ -333,6 +328,26 @@ CV_EXPORT void CVOpenGLESTextureCacheFlush( CVOpenGLESTextureCacheRef CV_NONNULL
 
 #if TARGET_OS_WIN32
 #pragma warning (disable: 4068)		// ignore unknown pragmas
+#endif
+
+#ifndef API_AVAILABLE
+#define API_AVAILABLE(...)
+#endif
+
+#ifndef API_UNAVAILABLE
+#define API_UNAVAILABLE(...)
+#endif
+
+#ifndef __IOS_PROHIBITED
+#define __IOS_PROHIBITED
+#endif
+
+#ifndef __TVOS_PROHIBITED
+#define __TVOS_PROHIBITED
+#endif
+
+#ifndef __WATCHOS_PROHIBITED
+#define __WATCHOS_PROHIBITED
 #endif
 
 #ifndef AVAILABLE_MAC_OS_X_VERSION_10_6_AND_LATER
@@ -363,8 +378,24 @@ CV_EXPORT void CVOpenGLESTextureCacheFlush( CVOpenGLESTextureCacheRef CV_NONNULL
 #define __AVAILABILITY_INTERNAL__MAC_10_11        __AVAILABILITY_INTERNAL_WEAK_IMPORT
 #endif
 
+#ifndef __AVAILABILITY_INTERNAL__MAC_10_12
+#define __AVAILABILITY_INTERNAL__MAC_10_12        __AVAILABILITY_INTERNAL_WEAK_IMPORT
+#endif
+
+#ifndef __AVAILABILITY_INTERNAL__MAC_10_13
+#define __AVAILABILITY_INTERNAL__MAC_10_13        __AVAILABILITY_INTERNAL_WEAK_IMPORT
+#endif
+
 #ifndef __AVAILABILITY_INTERNAL__IPHONE_9_0
 #define __AVAILABILITY_INTERNAL__IPHONE_9_0        __AVAILABILITY_INTERNAL_WEAK_IMPORT
+#endif
+
+#ifndef __AVAILABILITY_INTERNAL__IPHONE_10_0
+#define __AVAILABILITY_INTERNAL__IPHONE_10_0        __AVAILABILITY_INTERNAL_WEAK_IMPORT
+#endif
+
+#ifndef __AVAILABILITY_INTERNAL__IPHONE_11_0
+#define __AVAILABILITY_INTERNAL__IPHONE_11_0        __AVAILABILITY_INTERNAL_WEAK_IMPORT
 #endif
 
 #include <CoreFoundation/CFBase.h>
@@ -372,20 +403,83 @@ CV_EXPORT void CVOpenGLESTextureCacheFlush( CVOpenGLESTextureCacheRef CV_NONNULL
 #if defined(__cplusplus)
 extern "C" {
 #endif
+#define COREVIDEO_TRUE (1 && 1)
+#define COREVIDEO_FALSE (0 && 1)
 
-#define COREVIDEO_SUPPORTS_DIRECT3D 	(TARGET_OS_WIN32)
-#define COREVIDEO_SUPPORTS_OPENGL 		(TARGET_OS_MAC && ! TARGET_OS_IPHONE)
-#define COREVIDEO_SUPPORTS_OPENGLES		(TARGET_OS_MAC && TARGET_OS_IPHONE)
-#define COREVIDEO_SUPPORTS_COLORSPACE 	((TARGET_OS_MAC && ! TARGET_OS_IPHONE) || (TARGET_OS_WIN32))
-#define COREVIDEO_SUPPORTS_DISPLAYLINK 	(TARGET_OS_MAC && ! TARGET_OS_IPHONE)
-#define COREVIDEO_SUPPORTS_IOSURFACE	(TARGET_OS_IPHONE ? TARGET_OS_EMBEDDED : (TARGET_OS_MAC && ((MAC_OS_X_VERSION_MAX_ALLOWED >= 1060))))
-#define COREVIDEO_SUPPORTS_IOSURFACE_PREFETCH    (TARGET_OS_EMBEDDED && (__IPHONE_OS_VERSION_MIN_REQUIRED >= 80300))
-#define COREVIDEO_SUPPORTS_METAL        (COREVIDEO_SUPPORTS_IOSURFACE && (TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MIN_REQUIRED >= 101100)) && (! TARGET_OS_WATCH))
+#if TARGET_OS_WIN32
+	#define COREVIDEO_SUPPORTS_DIRECT3D 	COREVIDEO_TRUE
+#else
+	#define COREVIDEO_SUPPORTS_DIRECT3D 	COREVIDEO_FALSE
+#endif
 
-#define COREVIDEO_USE_DERIVED_ENUMS_FOR_CONSTANTS	(__cplusplus && __cplusplus >= 201103L && (__has_extension(cxx_strong_enums) || __has_feature(objc_fixed_enum))) || (!__cplusplus && __has_feature(objc_fixed_enum))
+
+#if TARGET_OS_OSX
+	#define COREVIDEO_SUPPORTS_OPENGL 		COREVIDEO_TRUE
+#else
+	#define COREVIDEO_SUPPORTS_OPENGL 		COREVIDEO_FALSE
+#endif
+
+#if TARGET_OS_MAC && TARGET_OS_IPHONE
+	#define COREVIDEO_SUPPORTS_OPENGLES		COREVIDEO_TRUE
+#else
+	#define COREVIDEO_SUPPORTS_OPENGLES		COREVIDEO_FALSE
+#endif
+
+
+#if ((TARGET_OS_MAC && ! TARGET_OS_IPHONE) || (TARGET_OS_WIN32))
+	#define COREVIDEO_SUPPORTS_COLORSPACE 	COREVIDEO_TRUE
+#else
+	#define COREVIDEO_SUPPORTS_COLORSPACE 	COREVIDEO_FALSE
+#endif
+
+#if (TARGET_OS_MAC && ! TARGET_OS_IPHONE)
+	#define COREVIDEO_SUPPORTS_DISPLAYLINK 	COREVIDEO_TRUE
+#else
+	#define COREVIDEO_SUPPORTS_DISPLAYLINK 	COREVIDEO_FALSE
+#endif
+
+#if TARGET_OS_IPHONE
+	#if TARGET_OS_EMBEDDED
+		#define COREVIDEO_SUPPORTS_IOSURFACE COREVIDEO_TRUE
+	#else
+		#define COREVIDEO_SUPPORTS_IOSURFACE COREVIDEO_FALSE
+	#endif
+#else
+	#if TARGET_OS_MAC && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1060)
+		#define COREVIDEO_SUPPORTS_IOSURFACE COREVIDEO_TRUE
+	#else
+		#define COREVIDEO_SUPPORTS_IOSURFACE COREVIDEO_FALSE
+	#endif
+#endif
+
+#if TARGET_OS_EMBEDDED && (__IPHONE_OS_VERSION_MIN_REQUIRED >= 80300)
+	#define COREVIDEO_SUPPORTS_IOSURFACE_PREFETCH    COREVIDEO_TRUE
+#else
+	#define COREVIDEO_SUPPORTS_IOSURFACE_PREFETCH    COREVIDEO_FALSE
+#endif
+
+#if TARGET_OS_IPHONE
+	#define COREVIDEO_USE_IOSURFACEREF		COREVIDEO_TRUE
+#else
+	#define COREVIDEO_USE_IOSURFACEREF		COREVIDEO_FALSE
+#endif
+
+#if COREVIDEO_SUPPORTS_IOSURFACE && (TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MIN_REQUIRED >= 101100)) && (! TARGET_OS_WATCH)
+	#define COREVIDEO_SUPPORTS_METAL        COREVIDEO_TRUE
+#else
+	#define COREVIDEO_SUPPORTS_METAL        COREVIDEO_FALSE
+#endif
+
+#if (__cplusplus && __cplusplus >= 201103L && (__has_extension(cxx_strong_enums) || __has_feature(objc_fixed_enum))) || (!__cplusplus && __has_feature(objc_fixed_enum))
+#define COREVIDEO_USE_DERIVED_ENUMS_FOR_CONSTANTS	COREVIDEO_TRUE
+#else
+#define COREVIDEO_USE_DERIVED_ENUMS_FOR_CONSTANTS	COREVIDEO_FALSE
+#endif
 
 #if (TARGET_OS_IPHONE || TARGET_OS_MAC) && defined(__has_feature) && __has_feature(nullability)
-	#define COREVIDEO_DECLARE_NULLABILITY 1
+	#define COREVIDEO_DECLARE_NULLABILITY COREVIDEO_TRUE
+#else
+	#define COREVIDEO_DECLARE_NULLABILITY COREVIDEO_FALSE
 #endif
 
 #if (TARGET_OS_IPHONE || TARGET_OS_MAC) && defined(__has_feature) && __has_feature(attribute_cf_returns_on_parameters)
@@ -414,6 +508,8 @@ extern "C" {
 #define CV_NULLABLE
 #define CV_NONNULL
 #endif
+	
+#define CV_INTERNAL __attribute__((visibility("hidden")))
 
 #if TARGET_OS_WIN32 && defined(CV_BUILDING_CV) && defined(__cplusplus)
 #define CV_EXPORT extern "C" __declspec(dllexport) 
@@ -424,7 +520,7 @@ extern "C" {
 #elif TARGET_OS_WIN32
 #define CV_EXPORT extern __declspec(dllimport) 
 #else
-#define CV_EXPORT CF_EXPORT 
+#define CV_EXPORT __attribute__((visibility("default"))) CF_EXPORT 
 #endif
 
 #define CV_INLINE CF_INLINE
@@ -435,6 +531,14 @@ extern "C" {
 #define CVDIRECT3DSURFACE LPDIRECT3DSURFACE9
 #define CVDIRECT3D LPDIRECT3D9
 #endif //COREVIDEO_SUPPORTS_DIRECT3D
+
+#if defined(COREVIDEO_SILENCE_GL_DEPRECATION) || \
+	defined(GL_SILENCE_DEPRECATION) || \
+	defined(GLES_SILENCE_DEPRECATION)
+	#define COREVIDEO_GL_DEPRECATED(platform, from, to) API_AVAILABLE(platform(from))
+#else
+	#define COREVIDEO_GL_DEPRECATED(platform, from, to) API_DEPRECATED("OpenGL/OpenGLES is no longer supported. Use Metal APIs instead. (Define COREVIDEO_SILENCE_GL_DEPRECATION to silence these warnings)", platform(from, to))
+#endif // COREVIDEO_SILENCE_GL_DEPRECATION
 
 /*!
     @typedef	CVOptionFlags
@@ -499,7 +603,7 @@ typedef struct CVSMPTETime    CVSMPTETime;
     @constant       kCVSMPTETimeType5994
                         59.94 Frame
 */
-enum
+typedef CF_ENUM(uint32_t, CVSMPTETimeType)
 {
     kCVSMPTETimeType24        = 0,
     kCVSMPTETimeType25        = 1,
@@ -519,14 +623,14 @@ enum
     @constant       kCVSMPTETimeRunning
                         Time is running.
 */
-enum
+typedef CF_OPTIONS(uint32_t, CVSMPTETimeFlags)
 {
     kCVSMPTETimeValid     = (1L << 0),
     kCVSMPTETimeRunning   = (1L << 1)
 };
 
 
-enum {
+typedef CF_OPTIONS(int32_t, CVTimeFlags) {
     kCVTimeIsIndefinite = 1 << 0
 };
 
@@ -578,7 +682,7 @@ typedef struct
 } CVTimeStamp; 
 
 // Flags for the CVTimeStamp structure
-enum
+typedef CF_OPTIONS(uint64_t, CVTimeStampFlags)
 {
     kCVTimeStampVideoTimeValid              = (1L << 0),
     kCVTimeStampHostTimeValid               = (1L << 1),
@@ -588,14 +692,11 @@ enum
     
     // There are flags for each field to make it easier to detect interlaced vs progressive output
     kCVTimeStampTopField                    = (1L << 16),
-    kCVTimeStampBottomField                 = (1L << 17)
-};
+    kCVTimeStampBottomField                 = (1L << 17),
 
-//	Some commonly used combinations of timestamp flags
-enum
-{
-    kCVTimeStampVideoHostTimeValid   = (kCVTimeStampVideoTimeValid | kCVTimeStampHostTimeValid),
-    kCVTimeStampIsInterlaced	     = (kCVTimeStampTopField | kCVTimeStampBottomField)
+    // Some commonly used combinations of timestamp flags
+    kCVTimeStampVideoHostTimeValid          = (kCVTimeStampVideoTimeValid | kCVTimeStampHostTimeValid),
+    kCVTimeStampIsInterlaced                = (kCVTimeStampTopField | kCVTimeStampBottomField)
 };
 
 CV_EXPORT const CVTime kCVZeroTime;
@@ -630,11 +731,16 @@ CV_EXPORT const CVTime kCVIndefiniteTime;
 #include <Availability.h>
 #include <AvailabilityMacros.h>
 
+// For legacy reasons CVImageBuffer.h includes CoreGraphics.h and ApplicationServices.h
 #if TARGET_OS_IPHONE || TARGET_OS_WIN32
 #include <CoreGraphics/CoreGraphics.h>
 #else
 #include <ApplicationServices/ApplicationServices.h>
 #endif
+
+#include <CoreGraphics/CGColorSpace.h>
+#include <CoreGraphics/CGGeometry.h>
+
 #include <CoreVideo/CVBuffer.h>
 
 #if defined(__cplusplus)
@@ -694,8 +800,13 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_SMPTE_240M
 CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_UseGamma __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_4_0);
 CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_EBU_3213 __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_5,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);			// Should not be used.
 CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_SMPTE_C __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_5,__MAC_10_6,__IPHONE_NA,__IPHONE_NA);			// Should not be used.
-CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_ITU_R_2020 __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0);
-
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_sRGB __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);			// IEC 61966-2-1 sRGB or sYCC
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_ITU_R_2020 __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_9_0); // note: kCVImageBufferTransferFunction_ITU_R_709_2 is equivalent, and preferred
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_SMPTE_ST_428_1 __OSX_AVAILABLE_STARTING(__MAC_10_12,__IPHONE_10_0);
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_SMPTE_ST_2084_PQ __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_ITU_R_2100_HLG __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferTransferFunction_Linear __OSX_AVAILABLE_STARTING(__MAC_10_14,__IPHONE_12_0);
+	
 /* Chroma siting information. For progressive images, only the TopField value is used. */
 CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferChromaLocationTopFieldKey __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_4_0);			// CFString with one of the following CFString values
 CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferChromaLocationBottomFieldKey __OSX_AVAILABLE_STARTING(__MAC_10_5,__IPHONE_4_0);		// CFString with one of the following CFString values
@@ -716,7 +827,21 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferChromaSubsampling_411 __OSX
 
 // Can be set to kCFBooleanTrue as a hint that the alpha channel is fully opaque.  Not used if the pixel format type has no alpha channel.
 CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferAlphaChannelIsOpaque __OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
-	
+
+// Returns the standard integer code point corresponding to a given CoreVideo YCbCrMatrix constant string (in the kCVImageBufferYCbCrMatrix_... family).  Returns 2 (the code point for "unknown") if the string is NULL or not recognized.
+CV_EXPORT int CVYCbCrMatrixGetIntegerCodePointForString( CV_NULLABLE CFStringRef yCbCrMatrixString ) API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+// Returns the standard integer code point corresponding to a given CoreVideo ColorPrimaries constant string (in the kCVImageBufferColorPrimaries_... family).  Returns 2 (the code point for "unknown") if the string is NULL or not recognized.
+CV_EXPORT int CVColorPrimariesGetIntegerCodePointForString( CV_NULLABLE CFStringRef colorPrimariesString ) API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+// Returns the standard integer code point corresponding to a given CoreVideo TransferFunction constant string (in the kCVImageBufferTransferFunction_... family).  Returns 2 (the code point for "unknown") if the string is NULL or not recognized.
+CV_EXPORT int CVTransferFunctionGetIntegerCodePointForString( CV_NULLABLE CFStringRef transferFunctionString ) API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
+// Returns the CoreVideo YCbCrMatrix constant string (in the kCVImageBufferYCbCrMatrix_... family) corresponding to a given standard integer code point.  Returns NULL if the code point is not recognized, or if it is 2 (the code point for "unknown").
+CV_EXPORT CV_NULLABLE CFStringRef CVYCbCrMatrixGetStringForIntegerCodePoint( int yCbCrMatrixCodePoint ) API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+// Returns the CoreVideo ColorPrimaries constant string (in the kCVImageBufferColorPrimaries_... family) corresponding to a given standard integer code point.  Returns NULL if the code point is not recognized, or if it is 2 (the code point for "unknown").
+CV_EXPORT CV_NULLABLE CFStringRef CVColorPrimariesGetStringForIntegerCodePoint( int colorPrimariesCodePoint ) API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+// Returns the CoreVideo TransferFunction constant string (in the kCVImageBufferTransferFunction_... family) corresponding to a given standard integer code point.  Returns NULL if the code point is not recognized, or if it is 2 (the code point for "unknown").
+CV_EXPORT CV_NULLABLE CFStringRef CVTransferFunctionGetStringForIntegerCodePoint( int transferFunctionCodePoint ) API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0), watchos(4.0));
+
 #pragma mark CVImageBufferRef
 
 /*!
@@ -776,6 +901,8 @@ CV_EXPORT Boolean CVImageBufferIsFlipped( CVImageBufferRef CV_NONNULL imageBuffe
 		Returns NULL if called with a non-CVImageBufferRef type or NULL.
 */
 CV_EXPORT CGColorSpaceRef CV_NULLABLE CVImageBufferGetColorSpace( CVImageBufferRef CV_NONNULL imageBuffer ) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
+	
+#endif
 
 /*!
    @function   CVImageBufferCreateColorSpaceFromAttachments
@@ -790,9 +917,13 @@ CV_EXPORT CGColorSpaceRef CV_NULLABLE CVImageBufferGetColorSpace( CVImageBufferR
 	The client is responsible for releasing the CGColorSpaceRef when it is done with it (CGColorSpaceRelease() or CFRelease())
 		
 */
-CV_EXPORT CGColorSpaceRef CV_NULLABLE CVImageBufferCreateColorSpaceFromAttachments( CFDictionaryRef CV_NONNULL attachments ) __OSX_AVAILABLE_STARTING(__MAC_10_8,__IPHONE_NA);
+CV_EXPORT CGColorSpaceRef CV_NULLABLE CVImageBufferCreateColorSpaceFromAttachments( CFDictionaryRef CV_NONNULL attachments ) __OSX_AVAILABLE_STARTING(__MAC_10_8,__IPHONE_10_0);
+	
+// CFData (24 bytes) containing big-endian data matching payload of ISO/IEC 23008-2:2015(E), D.2.28 Mastering display colour volume SEI message
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferMasteringDisplayColorVolumeKey __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
 
-#endif
+	// CFData (4 bytes) containing big-endian data matching payload of Content Light Level Information SEI message
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferContentLightLevelInfoKey __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_11_0);
 
 #if defined(__cplusplus)
 }
@@ -878,7 +1009,7 @@ CV_EXPORT CVReturn CVPixelBufferPoolCreate(
     @param      pool  The CVPixelBufferPoolRef to retrieve the attributes from
     @result     Returns the pool attributes dictionary, or NULL on failure.
 */
-CV_EXPORT CFDictionaryRef CV_NULLABLE CVPixelBufferPoolGetAttributes( CVPixelBufferPoolRef CV_NONNULL pool ) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
+CV_EXPORT CFDictionaryRef CF_RETURNS_NOT_RETAINED CV_NULLABLE CVPixelBufferPoolGetAttributes( CVPixelBufferPoolRef CV_NONNULL pool ) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
 /*!
     @function   CVPixelBufferPoolGetPixelBufferAttributes
@@ -888,7 +1019,7 @@ CV_EXPORT CFDictionaryRef CV_NULLABLE CVPixelBufferPoolGetAttributes( CVPixelBuf
     @param      pool  The CVPixelBufferPoolRef to retrieve the attributes from
     @result     Returns the pixel buffer attributes dictionary, or NULL on failure.
 */
-CV_EXPORT CFDictionaryRef CV_NULLABLE CVPixelBufferPoolGetPixelBufferAttributes( CVPixelBufferPoolRef CV_NONNULL pool ) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
+CV_EXPORT CFDictionaryRef CF_RETURNS_NOT_RETAINED CV_NULLABLE CVPixelBufferPoolGetPixelBufferAttributes( CVPixelBufferPoolRef CV_NONNULL pool ) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
 /*!
     @function   CVPixelBufferPoolCreatePixelBuffer
@@ -944,12 +1075,7 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferPoolFreeBufferNotification 
 		This flag will cause CVPixelBufferPoolFlush to flush all unused buffers regardless of age.
 */
 
-typedef CVOptionFlags CVPixelBufferPoolFlushFlags;
-#if COREVIDEO_USE_DERIVED_ENUMS_FOR_CONSTANTS
-enum : CVPixelBufferPoolFlushFlags
-#else
-enum
-#endif
+typedef CF_OPTIONS(CVOptionFlags,CVPixelBufferPoolFlushFlags)
 {
 	kCVPixelBufferPoolFlushExcessBuffers = 1,
 };
@@ -1020,6 +1146,9 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatContainsYCbCr __OSX_AVAILAB
 /* kCFBooleanTrue indicates that the format contains RGB data; */
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatContainsRGB __OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
 
+/* kCFBooleanTrue indicates that the format contains Grayscale data; */
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatContainsGrayscale __OSX_AVAILABLE_STARTING(__MAC_10_14,__IPHONE_12_0);
+
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatComponentRange __OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_9_0);
 
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatComponentRange_VideoRange __OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_9_0);
@@ -1079,11 +1208,11 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatOpenGLInternalFormat __OSX_
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatCGBitmapInfo __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
 /* Pixel format compatibility flags */
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatQDCompatibility __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatCGBitmapContextCompatibility __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatCGImageCompatibility __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatOpenGLCompatibility __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatOpenGLESCompatibility __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatQDCompatibility API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatCGBitmapContextCompatibility API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatCGImageCompatibility API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatOpenGLCompatibility API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatOpenGLESCompatibility API_AVAILABLE(ios(5.0), tvos(9.0)) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
     
 /* This callback routine implements code to handle the functionality of CVPixelBufferFillExtendedPixels.  
    For custom pixel formats where you will never need to use that call, this is not required. */
@@ -1098,10 +1227,10 @@ typedef struct {
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatFillExtendedPixelsCallback __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
 /* Create a description of a pixel format from a provided OSType */
-CV_EXPORT CFDictionaryRef CV_NULLABLE CVPixelFormatDescriptionCreateWithPixelFormatType(CFAllocatorRef CV_NULLABLE allocator, OSType pixelFormat) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
+CV_EXPORT CFDictionaryRef CF_RETURNS_RETAINED CV_NULLABLE CVPixelFormatDescriptionCreateWithPixelFormatType(CFAllocatorRef CV_NULLABLE allocator, OSType pixelFormat) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
 /* Get a CFArray of CFNumbers containing all known pixel formats as OSTypes */
-CV_EXPORT CFArrayRef CV_NULLABLE CVPixelFormatDescriptionArrayCreateWithAllPixelFormatTypes(CFAllocatorRef CV_NULLABLE allocator) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
+CV_EXPORT CFArrayRef CF_RETURNS_RETAINED CV_NULLABLE CVPixelFormatDescriptionArrayCreateWithAllPixelFormatTypes(CFAllocatorRef CV_NULLABLE allocator) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
 /* Register a new pixel format with CoreVideo */
 CV_EXPORT void CVPixelFormatDescriptionRegisterDescriptionWithPixelFormatType(CFDictionaryRef CV_NONNULL description, OSType pixelFormat) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
@@ -1201,12 +1330,28 @@ enum
   kCVPixelFormatType_422YpCbCr8FullRange = 'yuvf', /* Component Y'CbCr 8-bit 4:2:2, full range, ordered Y'0 Cb Y'1 Cr */
   kCVPixelFormatType_OneComponent8  = 'L008',     /* 8 bit one component, black is zero */
   kCVPixelFormatType_TwoComponent8  = '2C08',     /* 8 bit two component, black is zero */
+  kCVPixelFormatType_30RGBLEPackedWideGamut = 'w30r', /* little-endian RGB101010, 2 MSB are zero, wide-gamut (384-895) */
+  kCVPixelFormatType_ARGB2101010LEPacked = 'l10r',     /* little-endian ARGB2101010 full-range ARGB */
   kCVPixelFormatType_OneComponent16Half  = 'L00h',     /* 16 bit one component IEEE half-precision float, 16-bit little-endian samples */
   kCVPixelFormatType_OneComponent32Float = 'L00f',     /* 32 bit one component IEEE float, 32-bit little-endian samples */
   kCVPixelFormatType_TwoComponent16Half  = '2C0h',     /* 16 bit two component IEEE half-precision float, 16-bit little-endian samples */
   kCVPixelFormatType_TwoComponent32Float = '2C0f',     /* 32 bit two component IEEE float, 32-bit little-endian samples */
   kCVPixelFormatType_64RGBAHalf          = 'RGhA',     /* 64 bit RGBA IEEE half-precision float, 16-bit little-endian samples */
   kCVPixelFormatType_128RGBAFloat        = 'RGfA',     /* 128 bit RGBA IEEE float, 32-bit little-endian samples */
+  kCVPixelFormatType_14Bayer_GRBG        = 'grb4',     /* Bayer 14-bit Little-Endian, packed in 16-bits, ordered G R G R... alternating with B G B G... */
+  kCVPixelFormatType_14Bayer_RGGB        = 'rgg4',     /* Bayer 14-bit Little-Endian, packed in 16-bits, ordered R G R G... alternating with G B G B... */
+  kCVPixelFormatType_14Bayer_BGGR        = 'bgg4',     /* Bayer 14-bit Little-Endian, packed in 16-bits, ordered B G B G... alternating with G R G R... */
+  kCVPixelFormatType_14Bayer_GBRG        = 'gbr4',     /* Bayer 14-bit Little-Endian, packed in 16-bits, ordered G B G B... alternating with R G R G... */
+  kCVPixelFormatType_DisparityFloat16	 = 'hdis',     /* IEEE754-2008 binary16 (half float), describing the normalized shift when comparing two images. Units are 1/meters: ( pixelShift / (pixelFocalLength * baselineInMeters) ) */
+  kCVPixelFormatType_DisparityFloat32	 = 'fdis',     /* IEEE754-2008 binary32 float, describing the normalized shift when comparing two images. Units are 1/meters: ( pixelShift / (pixelFocalLength * baselineInMeters) ) */
+  kCVPixelFormatType_DepthFloat16	     = 'hdep',     /* IEEE754-2008 binary16 (half float), describing the depth (distance to an object) in meters */
+  kCVPixelFormatType_DepthFloat32	     = 'fdep',     /* IEEE754-2008 binary32 float, describing the depth (distance to an object) in meters */
+  kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange = 'x420', /* 2 plane YCbCr10 4:2:0, each 10 bits in the MSBs of 16bits, video-range (luma=[64,940] chroma=[64,960]) */
+  kCVPixelFormatType_422YpCbCr10BiPlanarVideoRange = 'x422', /* 2 plane YCbCr10 4:2:2, each 10 bits in the MSBs of 16bits, video-range (luma=[64,940] chroma=[64,960]) */
+  kCVPixelFormatType_444YpCbCr10BiPlanarVideoRange = 'x444', /* 2 plane YCbCr10 4:4:4, each 10 bits in the MSBs of 16bits, video-range (luma=[64,940] chroma=[64,960]) */
+  kCVPixelFormatType_420YpCbCr10BiPlanarFullRange  = 'xf20', /* 2 plane YCbCr10 4:2:0, each 10 bits in the MSBs of 16bits, full-range (Y range 0-1023) */
+  kCVPixelFormatType_422YpCbCr10BiPlanarFullRange  = 'xf22', /* 2 plane YCbCr10 4:2:2, each 10 bits in the MSBs of 16bits, full-range (Y range 0-1023) */
+  kCVPixelFormatType_444YpCbCr10BiPlanarFullRange  = 'xf44', /* 2 plane YCbCr10 4:4:4, each 10 bits in the MSBs of 16bits, full-range (Y range 0-1023) */
 };
 
 	
@@ -1219,12 +1364,7 @@ enum
 		should be passed both to the lock and unlock functions.  Non-symmetrical usage of this
 		flag will result in undefined behavior.
 */
-typedef CVOptionFlags CVPixelBufferLockFlags;
-#if COREVIDEO_USE_DERIVED_ENUMS_FOR_CONSTANTS
-enum : CVPixelBufferLockFlags
-#else
-enum
-#endif
+typedef CF_OPTIONS(CVOptionFlags, CVPixelBufferLockFlags)
 {
 	kCVPixelBufferLock_ReadOnly = 0x00000001,
 };
@@ -1256,24 +1396,24 @@ struct CVPlanarPixelBufferInfo_YCbCrBiPlanar {
 typedef struct CVPlanarPixelBufferInfo_YCbCrBiPlanar   CVPlanarPixelBufferInfo_YCbCrBiPlanar;
 
 #pragma mark BufferAttributeKeys
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferPixelFormatTypeKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);		    // A single CFNumber or a CFArray of CFNumbers (OSTypes)
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferMemoryAllocatorKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);		    // CFAllocatorRef
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferWidthKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);			    // CFNumber
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferHeightKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);			    // CFNumber
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferExtendedPixelsLeftKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);	    // CFNumber
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferExtendedPixelsTopKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);		    // CFNumber
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferExtendedPixelsRightKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);	    // CFNumber
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferExtendedPixelsBottomKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);	    // CFNumber
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferBytesPerRowAlignmentKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);	    // CFNumber
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferCGBitmapContextCompatibilityKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);  // CFBoolean
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferCGImageCompatibilityKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);	    // CFBoolean
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLCompatibilityKey __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);	    // CFBoolean
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferPlaneAlignmentKey __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_4_0);		    // CFNumber
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfacePropertiesKey __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_4_0);     // CFDictionary; presence requests buffer allocation via IOSurface
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLESCompatibilityKey __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);	    // CFBoolean
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferMetalCompatibilityKey __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_8_0);	    // CFBoolean
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLTextureCacheCompatibilityKey __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_NA);
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLESTextureCacheCompatibilityKey __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_9_0);    
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferPixelFormatTypeKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));		    // A single CFNumber or a CFArray of CFNumbers (OSTypes)
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferMemoryAllocatorKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));		    // CFAllocatorRef
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferWidthKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));			    // CFNumber
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferHeightKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));			    // CFNumber
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferExtendedPixelsLeftKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));	    // CFNumber
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferExtendedPixelsTopKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));		    // CFNumber
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferExtendedPixelsRightKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));	    // CFNumber
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferExtendedPixelsBottomKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));	    // CFNumber
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferBytesPerRowAlignmentKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));	    // CFNumber
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferCGBitmapContextCompatibilityKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));  // CFBoolean
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferCGImageCompatibilityKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));	    // CFBoolean
+	CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLCompatibilityKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));   // CFBoolean
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferPlaneAlignmentKey API_AVAILABLE(macosx(10.6), ios(4.0), tvos(9.0), watchos(4.0));		    // CFNumber
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfacePropertiesKey API_AVAILABLE(macosx(10.6), ios(4.0), tvos(9.0), watchos(4.0));     // CFDictionary; presence requests buffer allocation via IOSurface
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLESCompatibilityKey API_AVAILABLE(ios(6.0), tvos(9.0)) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;	    // CFBoolean
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferMetalCompatibilityKey API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0), watchos(4.0));	    // CFBoolean
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLTextureCacheCompatibilityKey API_AVAILABLE(macosx(10.11)) API_UNAVAILABLE(ios, tvos, watchos);
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLESTextureCacheCompatibilityKey API_AVAILABLE(ios(9.0), tvos(9.0)) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 /*!
     @typedef	CVPixelBufferRef
@@ -1567,8 +1707,100 @@ CV_EXPORT CVReturn CVPixelBufferFillExtendedPixels( CVPixelBufferRef CV_NONNULL 
 }
 #endif
 
-#if (COREVIDEO_SUPPORTS_IOSURFACE && ! TARGET_OS_IPHONE && ! TARGET_OS_EMBEDDED)
+#if COREVIDEO_SUPPORTS_IOSURFACE
+#if __has_include(<CoreVideo/CVPixelBufferIOSurface.h>)
 #include <CoreVideo/CVPixelBufferIOSurface.h>
+#endif
+#endif
+
+#endif
+// ==========  CoreVideo.framework/Headers/CVPixelBufferIOSurface.h
+/*
+ *  CVPixelBufferIOSurface.h
+ *  CoreVideo
+ *
+ *  Copyright (c) 2010-2017 Apple Inc. All rights reserved.
+ *
+ */
+ 
+  /*! @header CVPixelBufferIOSurface.h
+	@copyright 2010-2017 Apple Inc. All rights reserved.
+	@availability Mac OS X 10.4 or later; iOS 11 or later
+    @discussion routines for accessing and manipulating IOSurface backings for CVPixelBuffers
+		   
+*/
+
+#if !defined(__COREVIDEO_CVPIXELBUFFERIOSURFACE_H__)
+#define __COREVIDEO_CVPIXELBUFFERIOSURFACE_H__ 1
+
+#include <TargetConditionals.h>
+#include <CoreVideo/CVBase.h>
+#include <CoreVideo/CVPixelBuffer.h>
+
+#if COREVIDEO_SUPPORTS_IOSURFACE
+#if COREVIDEO_USE_IOSURFACEREF
+#if __has_include(<IOSurface/IOSurfaceRef.h>)
+#include <IOSurface/IOSurfaceRef.h>
+#endif
+#else
+#if __has_include(<IOSurface/IOSurface.h>)
+#include <IOSurface/IOSurface.h>
+#endif
+#endif
+#endif // COREVIDEO_SUPPORTS_IOSURFACE
+
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+// Ensures that CGLTexImageIOSurface2D() will succeed in creating a valid texture object from the CVPixelBuffer's IOSurface.
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceOpenGLTextureCompatibilityKey API_AVAILABLE(macosx(10.6)) __IOS_PROHIBITED __TVOS_PROHIBITED __WATCHOS_PROHIBITED;	// CFBoolean
+// Ensures that CGLTexImageIOSurface2D() will succeed in creating a valid texture object from the CVPixelBuffer's IOSurface AND that the resulting texture may be used as a color buffer attachment to a OpenGL frame buffer object.
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceOpenGLFBOCompatibilityKey API_AVAILABLE(macosx(10.6)) __IOS_PROHIBITED __TVOS_PROHIBITED __WATCHOS_PROHIBITED;	// CFBoolean
+// Ensures that the CVPixelBuffer's IOSurfaceRef can be displayed in an CoreAnimation CALayer.
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceCoreAnimationCompatibilityKey AVAILABLE_MAC_OS_X_VERSION_10_6_AND_LATER;	// CFBoolean
+
+// Ensures that OpenGLES can create a valid texture object from IOSurface-backed CVPixelBuffers.
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceOpenGLESTextureCompatibilityKey API_AVAILABLE(ios(5.0), tvos(9.0)) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;	// CFBoolean
+// Ensures that OpenGLES can create a valid texture object from IOSurface-backed CVPixelBuffers AND that the resulting texture may be used as a color buffer attachment to a OpenGLES frame buffer object.
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceOpenGLESFBOCompatibilityKey API_AVAILABLE(ios(5.0), tvos(9.0)) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;	// CFBoolean
+    
+#if COREVIDEO_SUPPORTS_IOSURFACE
+
+/*!
+	@function   CVPixelBufferGetIOSurface
+	@abstract   Returns the IOSurface backing the pixel buffer, or NULL if it is not backed by an IOSurface.
+	@param      pixelBuffer Target PixelBuffer.
+*/
+CV_EXPORT IOSurfaceRef CV_NULLABLE CVPixelBufferGetIOSurface(CVPixelBufferRef CV_NULLABLE pixelBuffer) API_AVAILABLE(macosx(10.6), ios(4.0), tvos(9.0), watchos(4.0));
+
+/*!
+    @function   CVPixelBufferCreateWithIOSurface
+    @abstract   Call to create a single CVPixelBuffer for a passed-in IOSurface.
+    @discussion The CVPixelBuffer will retain the IOSurface.
+    	IMPORTANT NOTE: If you are using IOSurface to share CVPixelBuffers between processes
+    	and those CVPixelBuffers are allocated via a CVPixelBufferPool, it is important
+    	that the CVPixelBufferPool does not reuse CVPixelBuffers whose IOSurfaces are still
+    	in use in other processes.  
+    	CoreVideo and IOSurface will take care of this for if you use IOSurfaceCreateMachPort 
+    	and IOSurfaceLookupFromMachPort, but NOT if you pass IOSurfaceIDs.
+    @param      surface		            The IOSurface to wrap.
+    @param      pixelBufferAttributes   A dictionary with additional attributes for a a pixel buffer. This parameter is optional. See PixelBufferAttributes for more details.
+    @param      pixelBufferOut          The new pixel buffer will be returned here
+    @result     returns kCVReturnSuccess on success.
+*/
+CV_EXPORT CVReturn CVPixelBufferCreateWithIOSurface(
+		CFAllocatorRef CV_NULLABLE allocator,
+		IOSurfaceRef CV_NONNULL surface,
+		CFDictionaryRef CV_NULLABLE pixelBufferAttributes,
+		CVPixelBufferRef CV_NULLABLE * CV_NONNULL pixelBufferOut) __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_4_0);
+
+#endif // COREVIDEO_SUPPORTS_IOSURFACE
+
+
+#if defined(__cplusplus)
+}
 #endif
 
 #endif
@@ -1611,8 +1843,8 @@ extern "C" {
 
 */
 typedef CVImageBufferRef CVOpenGLESTextureRef;
-
-CV_EXPORT CFTypeID CVOpenGLESTextureGetTypeID(void) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+	
+CV_EXPORT CFTypeID CVOpenGLESTextureGetTypeID(void) COREVIDEO_GL_DEPRECATED(ios, 5.0, 12.0) COREVIDEO_GL_DEPRECATED(tvos, 9.0, 12.0) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVOpenGLESTextureGetTarget
@@ -1620,7 +1852,8 @@ CV_EXPORT CFTypeID CVOpenGLESTextureGetTypeID(void) __OSX_AVAILABLE_STARTING(__M
     @param      image Target CVOpenGLESTexture
     @result     OpenGLES texture target
 */
-CV_EXPORT GLenum CVOpenGLESTextureGetTarget( CVOpenGLESTextureRef CV_NONNULL image ) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+	
+CV_EXPORT GLenum CVOpenGLESTextureGetTarget( CVOpenGLESTextureRef CV_NONNULL image ) COREVIDEO_GL_DEPRECATED(ios, 5.0, 12.0) COREVIDEO_GL_DEPRECATED(tvos, 9.0, 12.0) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVOpenGLESTextureGetName
@@ -1628,7 +1861,7 @@ CV_EXPORT GLenum CVOpenGLESTextureGetTarget( CVOpenGLESTextureRef CV_NONNULL ima
     @param      image Target CVOpenGLESTexture
     @result     OpenGLES texture target name
 */
-CV_EXPORT GLuint CVOpenGLESTextureGetName( CVOpenGLESTextureRef CV_NONNULL image ) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+CV_EXPORT GLuint CVOpenGLESTextureGetName( CVOpenGLESTextureRef CV_NONNULL image ) COREVIDEO_GL_DEPRECATED(ios, 5.0, 12.0) COREVIDEO_GL_DEPRECATED(tvos, 9.0, 12.0) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVOpenGLESTextureIsFlipped
@@ -1636,7 +1869,7 @@ CV_EXPORT GLuint CVOpenGLESTextureGetName( CVOpenGLESTextureRef CV_NONNULL image
     @param      image Target CVOpenGLESTexture
     @result     True if 0,0 in the texture is upper left, false if 0,0 is lower left
 */
-CV_EXPORT Boolean CVOpenGLESTextureIsFlipped( CVOpenGLESTextureRef CV_NONNULL image ) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+CV_EXPORT Boolean CVOpenGLESTextureIsFlipped( CVOpenGLESTextureRef CV_NONNULL image ) COREVIDEO_GL_DEPRECATED(ios, 5.0, 12.0) COREVIDEO_GL_DEPRECATED(tvos, 9.0, 12.0) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVOpenGLESTextureGetCleanTexCoords 
@@ -1648,11 +1881,11 @@ CV_EXPORT Boolean CVOpenGLESTextureIsFlipped( CVOpenGLESTextureRef CV_NONNULL im
     @param      upperRight - array of two GLfloats where the s and t normalized texture coordinates of the upper right corner of the image will be stored
     @param      upperLeft  - array of two GLfloats where the s and t normalized texture coordinates of the upper right corner of the image will be stored
 */
-CV_EXPORT void CVOpenGLESTextureGetCleanTexCoords( CVOpenGLESTextureRef CV_NONNULL image, 
-                                                   GLfloat lowerLeft[2], 
-                                                   GLfloat lowerRight[2], 
-                                                   GLfloat upperRight[2],
-                                                   GLfloat upperLeft[2] ) __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_5_0);
+CV_EXPORT void CVOpenGLESTextureGetCleanTexCoords( CVOpenGLESTextureRef CV_NONNULL image,
+                                                   GLfloat lowerLeft[CV_NONNULL 2],
+                                                   GLfloat lowerRight[CV_NONNULL 2],
+                                                   GLfloat upperRight[CV_NONNULL 2],
+                                                   GLfloat upperLeft[CV_NONNULL 2] ) COREVIDEO_GL_DEPRECATED(ios, 5.0, 12.0) COREVIDEO_GL_DEPRECATED(tvos, 9.0, 12.0) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
 
 #if defined(__cplusplus)
 }
@@ -1697,9 +1930,11 @@ CV_EXPORT void CVOpenGLESTextureGetCleanTexCoords( CVOpenGLESTextureRef CV_NONNU
 #include <CoreVideo/CVOpenGLTexture.h>
 #include <CoreVideo/CVOpenGLTextureCache.h>
 #endif // COREVIDEO_SUPPORTS_OPENGL
-#if COREVIDEO_SUPPORTS_OPENGLES
+#if COREVIDEO_SUPPORTS_OPENGLES || TARGET_OS_WATCH
+#if __has_include(<OpenGLES/gltypes.h>)
 #include <CoreVideo/CVOpenGLESTexture.h>
 #include <CoreVideo/CVOpenGLESTextureCache.h>
+#endif
 #endif // COREVIDEO_SUPPORTS_OPENGLES
 #include <CoreVideo/CVPixelFormatDescription.h>
 
@@ -1710,7 +1945,7 @@ CV_EXPORT void CVOpenGLESTextureGetCleanTexCoords( CVOpenGLESTextureRef CV_NONNU
 #include <CoreVideo/CVDirect3DTextureCache.h>
 #endif
 
-#if COREVIDEO_SUPPORTS_METAL
+#if TARGET_OS_MAC
 #include <CoreVideo/CVMetalTexture.h>
 #include <CoreVideo/CVMetalTextureCache.h>
 #endif
@@ -1745,7 +1980,8 @@ extern "C" {
 #endif
     
 /* CVMetalTextureRef is only available to Objective C code */
-#if defined(__OBJC__) && COREVIDEO_SUPPORTS_METAL
+#if COREVIDEO_SUPPORTS_METAL
+#if defined(__OBJC__)
 @protocol MTLTexture;
     
 #pragma mark CVMetalTexture
@@ -1756,8 +1992,8 @@ extern "C" {
 
 */
 typedef CVImageBufferRef CVMetalTextureRef;
-
-CV_EXPORT CFTypeID CVMetalTextureGetTypeID(void) __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_8_0);
+	
+CV_EXPORT CFTypeID CVMetalTextureGetTypeID(void) API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVMetalTextureGetTexture
@@ -1765,7 +2001,7 @@ CV_EXPORT CFTypeID CVMetalTextureGetTypeID(void) __OSX_AVAILABLE_STARTING(__MAC_
     @param      image Target CVMetalTexture
     @result     Metal texture
 */
-CV_EXPORT id <MTLTexture> CV_NULLABLE CVMetalTextureGetTexture( CVMetalTextureRef CV_NONNULL image ) __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_8_0);
+CV_EXPORT id <MTLTexture> CV_NULLABLE CVMetalTextureGetTexture( CVMetalTextureRef CV_NONNULL image ) API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVMetalTextureIsFlipped
@@ -1773,7 +2009,7 @@ CV_EXPORT id <MTLTexture> CV_NULLABLE CVMetalTextureGetTexture( CVMetalTextureRe
     @param      image Target CVMetalTexture
     @result     True if 0,0 in the texture is upper left, false if 0,0 is lower left
 */
-CV_EXPORT Boolean CVMetalTextureIsFlipped( CVMetalTextureRef CV_NONNULL image ) __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_8_0);
+CV_EXPORT Boolean CVMetalTextureIsFlipped( CVMetalTextureRef CV_NONNULL image ) API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVMetalTextureGetCleanTexCoords 
@@ -1789,10 +2025,16 @@ CV_EXPORT void CVMetalTextureGetCleanTexCoords( CVMetalTextureRef CV_NONNULL ima
                                                    float lowerLeft[2],
                                                    float lowerRight[2],
                                                    float upperRight[2],
-                                                   float upperLeft[2] ) __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_8_0);
-    
-#endif
-    
+                                                   float upperLeft[2] ) API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
+#endif // defined(__OBJC__)
+	
+/*!
+    @discussion kCVMetalTextureUsage is a property that can be placed on a CVMetalTextureCache to instruct the MTLTextureUsage of the created MTLTexture. Values for this can can be read from MTLTexture.h
+ */
+CV_EXPORT const CFStringRef CV_NONNULL kCVMetalTextureUsage API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+
+#endif // COREVIDEO_SUPPORTS_METAL
+	
 #if defined(__cplusplus)
 }
 #endif
@@ -1849,6 +2091,7 @@ extern "C" {
     @constant   kCVReturnWouldExceedAllocationThreshold The allocation request failed because it would have exceeded a specified allocation threshold (see kCVPixelBufferPoolAllocationThresholdKey).
     @constant   kCVReturnPoolAllocationFailed The allocation for the buffer pool failed. Most likely because of lack of resources. Check if your parameters are in range.
     @constant   kCVReturnInvalidPoolAttributes A CVBufferPool cannot be created with the given attributes.
+    @constant   kCVReturnRetry a scan hasn't completely traversed the CVBufferPool due to a concurrent operation. The client can retry the scan.
 */
 
 typedef int32_t CVReturn;
@@ -1884,6 +2127,7 @@ enum _CVReturn
     kCVReturnWouldExceedAllocationThreshold  = -6689,
     kCVReturnPoolAllocationFailed            = -6690,
     kCVReturnInvalidPoolAttributes           = -6691,
+    kCVReturnRetry                           = -6692,
 	
     kCVReturnLast                            = -6699
     
@@ -1900,6 +2144,10 @@ enum _CVReturn
  *  CoreVideo
  *
  *  Copyright (c) 2004-2014 Apple Inc. All rights reserved.
+ 
+ $ManualLog$
+	13jan2017 aballow
+	[28840287] Added CoreVideo Support for TiledCompressed IOSurfaces. <jsam>
  *
  */
  
@@ -1986,8 +2234,7 @@ extern "C" {
 // By default, textures will age out after one second.  Setting a maximum
 // texture age of zero will disable the age-out mechanism completely.
 // CVMetalTextureCacheFlush() can be used to force eviction in either case.
-
-CV_EXPORT const CFStringRef CV_NONNULL kCVMetalTextureCacheMaximumTextureAgeKey __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_8_0);
+CV_EXPORT const CFStringRef CV_NONNULL kCVMetalTextureCacheMaximumTextureAgeKey API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
 
 //
 // textureAttributes - reserved for future use
@@ -2004,9 +2251,8 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVMetalTextureCacheMaximumTextureAgeKey 
 
 */
 typedef struct CV_BRIDGED_TYPE(id) __CVMetalTextureCache *CVMetalTextureCacheRef;
-
-
-CV_EXPORT CFTypeID CVMetalTextureCacheGetTypeID(void) __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_8_0);
+	
+CV_EXPORT CFTypeID CVMetalTextureCacheGetTypeID(void) API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVMetalTextureCacheCreate
@@ -2023,7 +2269,7 @@ CV_EXPORT CVReturn CVMetalTextureCacheCreate(
 					CFDictionaryRef CV_NULLABLE cacheAttributes,
 					id <MTLDevice> CV_NONNULL metalDevice,
 					CFDictionaryRef CV_NULLABLE textureAttributes,
-					CVMetalTextureCacheRef CV_NULLABLE * CV_NONNULL cacheOut ) __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_8_0);
+					CV_RETURNS_RETAINED_PARAMETER CVMetalTextureCacheRef CV_NULLABLE * CV_NONNULL cacheOut ) API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVMetalTextureCacheCreateTextureFromImage
@@ -2070,7 +2316,7 @@ CV_EXPORT CVReturn CVMetalTextureCacheCreateTextureFromImage(
 								       size_t width,
 								       size_t height,
 								       size_t planeIndex,
-									   CVMetalTextureRef CV_NULLABLE * CV_NONNULL textureOut ) __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_8_0);
+									   CV_RETURNS_RETAINED_PARAMETER CVMetalTextureRef CV_NULLABLE * CV_NONNULL textureOut ) API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
 
 /*!
     @function   CVMetalTextureCacheFlush
@@ -2079,7 +2325,7 @@ CV_EXPORT CVReturn CVMetalTextureCacheCreateTextureFromImage(
     @param      textureCache The texture cache object to flush
     @param      options Currently unused, set to 0.
 */
-CV_EXPORT void CVMetalTextureCacheFlush(CVMetalTextureCacheRef CV_NONNULL textureCache, CVOptionFlags options) __OSX_AVAILABLE_STARTING(__MAC_10_11,__IPHONE_8_0);
+CV_EXPORT void CVMetalTextureCacheFlush(CVMetalTextureCacheRef CV_NONNULL textureCache, CVOptionFlags options) API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
     
 #endif
     

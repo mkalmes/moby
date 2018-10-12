@@ -1,7 +1,7 @@
 // ==========  QuartzCore.framework/Headers/CATransformLayer.h
 /* CoreAnimation - CATransformLayer.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CALayer.h>
@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * their sublayers, applying the effects of the transform layer's
  * geometry when hit-testing each sublayer. */
 
+API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0))
 @interface CATransformLayer : CALayer
 @end
 
@@ -37,7 +38,7 @@ NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/QuartzCore.h
 /* QuartzCore.h
 
-   Copyright (c) 2004-2015, Apple Inc.
+   Copyright (c) 2004-2018, Apple Inc.
    All rights reserved. */
 
 #ifndef QUARTZCORE_H
@@ -49,13 +50,16 @@ NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAScrollLayer.h
 /* CoreAnimation - CAScrollLayer.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CALayer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NSString * CAScrollLayerScrollMode NS_STRING_ENUM;
+
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CAScrollLayer : CALayer
 
 /* Changes the origin of the layer to point 'p'. */
@@ -69,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 /* Defines the axes in which the layer may be scrolled. Possible values
  * are `none', `vertically', `horizontally' or `both' (the default). */
 
-@property(copy) NSString *scrollMode;
+@property(copy) CAScrollLayerScrollMode scrollMode;
 
 @end
 
@@ -94,20 +98,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* `scrollMode' values. */
 
-CA_EXTERN NSString * const kCAScrollNone
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAScrollVertically
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAScrollHorizontally
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAScrollBoth
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+CA_EXTERN CAScrollLayerScrollMode const kCAScrollNone
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAScrollLayerScrollMode const kCAScrollVertically
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAScrollLayerScrollMode const kCAScrollHorizontally
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAScrollLayerScrollMode const kCAScrollBoth
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CALayer.h
 /* CoreAnimation - CALayer.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CAMediaTiming.h>
@@ -118,9 +122,13 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/NSDictionary.h>
 
 @class NSEnumerator, CAAnimation, CALayerArray;
-@protocol CAAction;
+@protocol CAAction, CALayerDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
+
+typedef NSString * CALayerContentsGravity NS_STRING_ENUM;
+typedef NSString * CALayerContentsFormat NS_STRING_ENUM;
+typedef NSString * CALayerContentsFilter NS_STRING_ENUM;
 
 /* Bit definitions for `edgeAntialiasingMask' property. */
 
@@ -132,9 +140,20 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
   kCALayerTopEdge       = 1U << 3,      /* Maximum Y edge. */
 };
 
+/* Bit definitions for `maskedCorners' property. */
+
+typedef NS_OPTIONS (NSUInteger, CACornerMask)
+{
+  kCALayerMinXMinYCorner = 1U << 0,
+  kCALayerMaxXMinYCorner = 1U << 1,
+  kCALayerMinXMaxYCorner = 1U << 2,
+  kCALayerMaxXMaxYCorner = 1U << 3,
+};
+
 /** The base layer class. **/
 
-@interface CALayer : NSObject <NSCoding, CAMediaTiming>
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+@interface CALayer : NSObject <NSSecureCoding, CAMediaTiming>
 {
 @private
   struct _CALayerIvars {
@@ -142,7 +161,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
     uint32_t magic;
     void *layer;
 #if TARGET_OS_MAC && !TARGET_RT_64_BIT
-    void *unused1[8];
+    void * _Nonnull unused1[8];
 #endif
   } _attr;
 }
@@ -178,7 +197,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * on the result of the -presentationLayer will query the presentation
  * values of the layer tree. */
 
-- (nullable id)presentationLayer;
+- (nullable instancetype)presentationLayer;
 
 /* When called on the result of the -presentationLayer method, returns
  * the underlying layer with the current model values. When called on a
@@ -186,7 +205,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * this method after the transaction that produced the presentation
  * layer has completed is undefined. */
 
-- (id)modelLayer;
+- (instancetype)modelLayer;
 
 /** Property methods. **/
 
@@ -204,7 +223,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  *      CGPoint                 NSValue
  *      CGSize                  NSValue
  *      CGRect                  NSValue
- *      CGAffineTransform       NSAffineTransform
+ *      CGAffineTransform       NSValue
  *      CATransform3D           NSValue  */
 
 /* Returns the default value of the named property, or nil if no
@@ -323,7 +342,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * the behavior is undefined. Note that the returned array is not
  * guaranteed to retain its elements. */
 
-@property(nullable, copy) NSArray<CALayer *> *sublayers;
+@property(nullable, copy) NSArray<__kindof CALayer *> *sublayers;
 
 /* Add 'layer' to the end of the receiver's sublayers array. If 'layer'
  * already has a superlayer, it will be removed before being added. */
@@ -343,11 +362,11 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
 - (void)insertSublayer:(CALayer *)layer below:(nullable CALayer *)sibling;
 - (void)insertSublayer:(CALayer *)layer above:(nullable CALayer *)sibling;
 
-/* Remove 'layer' from the sublayers array of the receiver and insert
- * 'layer2' if non-nil in its position. If the superlayer of 'layer'
+/* Remove 'oldLayer' from the sublayers array of the receiver and insert
+ * 'newLayer' if non-nil in its position. If the superlayer of 'oldLayer'
  * is not the receiver, the behavior is undefined. */
 
-- (void)replaceSublayer:(CALayer *)layer with:(CALayer *)layer2;
+- (void)replaceSublayer:(CALayer *)oldLayer with:(CALayer *)newLayer;
 
 /* A transform applied to each member of the `sublayers' array while
  * rendering its contents into the receiver's output. Typically used as
@@ -365,7 +384,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * undefined. Nested masks (mask layers with their own masks) are
  * unsupported. */
 
-@property(nullable, strong) CALayer *mask;
+@property(nullable, strong) __kindof CALayer *mask;
 
 /* When true an implicit mask matching the layer bounds is applied to
  * the layer (including the effects of the `cornerRadius' property). If
@@ -393,7 +412,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * isn't a CATransformLayer (transform layers don't have a 2D
  * coordinate space in which the point could be specified). */
 
-- (nullable CALayer *)hitTest:(CGPoint)p;
+- (nullable __kindof CALayer *)hitTest:(CGPoint)p;
 
 /* Returns true if the bounds of the layer contains point 'p'. */
 
@@ -424,7 +443,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * `resize'. Note that "bottom" always means "Minimum Y" and "top"
  * always means "Maximum Y". */
 
-@property(copy) NSString *contentsGravity;
+@property(copy) CALayerContentsGravity contentsGravity;
 
 /* Defines the scale factor applied to the contents of the layer. If
  * the physical size of the contents is '(w, h)' then the logical size
@@ -435,7 +454,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * as large as the layer bounds). Defaults to one. Animatable. */
 
 @property CGFloat contentsScale
-  __OSX_AVAILABLE_STARTING (__MAC_10_7, __IPHONE_4_0);
+  API_AVAILABLE(macos(10.7), ios(4.0), watchos(2.0), tvos(9.0));
 
 /* A rectangle in normalized image coordinates defining the scaled
  * center part of the `contents' image.
@@ -458,14 +477,21 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
 
 @property CGRect contentsCenter;
 
+/* A hint for the desired storage format of the layer contents provided by
+ * -drawLayerInContext. Defaults to kCAContentsFormatRGBA8Uint. Note that this
+ * does not affect the interpretation of the `contents' property directly. */
+
+@property(copy) CALayerContentsFormat contentsFormat
+  API_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+
 /* The filter types to use when rendering the `contents' property of
  * the layer. The minification filter is used when to reduce the size
  * of image data, the magnification filter to increase the size of
  * image data. Currently the allowed values are `nearest' and `linear'.
  * Both properties default to `linear'. */
 
-@property(copy) NSString *minificationFilter;
-@property(copy) NSString *magnificationFilter;
+@property(copy) CALayerContentsFilter minificationFilter;
+@property(copy) CALayerContentsFilter magnificationFilter;
 
 /* The bias factor added when determining which levels of detail to use
  * when minifying using trilinear filtering. The default value is 0.
@@ -513,7 +539,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * default value is NO. */
 
 @property BOOL drawsAsynchronously
-  __OSX_AVAILABLE_STARTING (__MAC_10_8, __IPHONE_6_0);
+  API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 /* Called via the -display method when the `contents' property is being
  * updated. Default implementation does nothing. The context may be
@@ -549,7 +575,8 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * property in the main bundle's Info.plist. If no value is found in
  * the Info.plist the default value is NO. */
 
-@property BOOL allowsEdgeAntialiasing;
+@property BOOL allowsEdgeAntialiasing
+    API_AVAILABLE(macos(10.10), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* The background color of the layer. Default value is nil. Colors
  * created from tiled patterns are supported. Animatable. */
@@ -561,6 +588,12 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * `masksToBounds' property. Defaults to zero. Animatable. */
 
 @property CGFloat cornerRadius;
+
+/* Defines which of the four corners receives the masking when using
+ * `cornerRadius' property. Defaults to all four corners. */
+
+@property CACornerMask maskedCorners
+  API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
 
 /* The width of the layer's border, inset from the layer bounds. The
  * border is composited above the layer's content and sublayers and
@@ -591,7 +624,8 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * applications linked against the iOS 7 SDK or later and NO for
  * applications linked against an earlier SDK. */
 
-@property BOOL allowsGroupOpacity;
+@property BOOL allowsGroupOpacity
+    API_AVAILABLE(macos(10.10), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* A filter object used to composite the layer with its (possibly
  * filtered) background. Default value is nil, which implies source-
@@ -805,7 +839,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * if no such animation exists. Attempting to modify any properties of
  * the returned object will result in undefined behavior. */
 
-- (nullable CAAnimation *)animationForKey:(NSString *)key;
+- (nullable __kindof CAAnimation *)animationForKey:(NSString *)key;
 
 
 /** Miscellaneous properties. **/
@@ -818,7 +852,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * below (for those that it implements). The value of this property is
  * not retained. Default value is nil. */
 
-@property(nullable, weak) id delegate;
+@property(nullable, weak) id <CALayerDelegate> delegate;
 
 /* When non-nil, a dictionary dereferenced to find property values that
  * aren't explicitly defined by the layer. (This dictionary may in turn
@@ -856,7 +890,8 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
 
 /** Delegate methods. **/
 
-@interface NSObject (CALayerDelegate)
+@protocol CALayerDelegate <NSObject>
+@optional
 
 /* If defined, called by the default implementation of the -display
  * method, in which case it should implement the entire display
@@ -868,6 +903,14 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
 
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 
+/* If defined, called by the default implementation of the -display method.
+ * Allows the delegate to configure any layer state affecting contents prior
+ * to -drawLayer:InContext: such as `contentsFormat' and `opaque'. It will not
+ * be called if the delegate implements -displayLayer. */
+
+- (void)layerWillDraw:(CALayer *)layer
+  API_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+
 /* Called by the default -layoutSublayers implementation before the layout
  * manager is checked. Note that if the delegate method is invoked, the
  * layout manager will be ignored. */
@@ -875,7 +918,7 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
 - (void)layoutSublayersOfLayer:(CALayer *)layer;
 
 /* If defined, called by the default implementation of the
- * -actionForKey: method. Should return an object implementating the
+ * -actionForKey: method. Should return an object implementing the
  * CAAction protocol. May return 'nil' if the delegate doesn't specify
  * a behavior for the current event. Returning the null object (i.e.
  * '[NSNull null]') explicitly forces no further search. (I.e. the
@@ -887,62 +930,71 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
 
 /** Layer `contentsGravity' values. **/
 
-CA_EXTERN NSString * const kCAGravityCenter
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityTop
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityBottom
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityLeft
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityRight
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityTopLeft
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityTopRight
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityBottomLeft
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityBottomRight
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityResize
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityResizeAspect
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAGravityResizeAspectFill
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+CA_EXTERN CALayerContentsGravity const kCAGravityCenter
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityTop
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityBottom
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityLeft
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityRight
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityTopLeft
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityTopRight
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityBottomLeft
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityBottomRight
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityResize
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityResizeAspect
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsGravity const kCAGravityResizeAspectFill
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+
+/** Layer `contentsFormat` values. **/
+
+CA_EXTERN CALayerContentsFormat const kCAContentsFormatRGBA8Uint /* RGBA UInt8 per component */
+  API_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+CA_EXTERN CALayerContentsFormat const kCAContentsFormatRGBA16Float /* RGBA half-float 16-bit per component */
+  API_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+CA_EXTERN CALayerContentsFormat const kCAContentsFormatGray8Uint /* Grayscale with alpha (if not opaque) UInt8 per component */
+  API_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 /** Contents filter names. **/
 
-CA_EXTERN NSString * const kCAFilterNearest
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAFilterLinear
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+CA_EXTERN CALayerContentsFilter const kCAFilterNearest
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CALayerContentsFilter const kCAFilterLinear
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Trilinear minification filter. Enables mipmap generation. Some
  * renderers may ignore this, or impose additional restrictions, such
  * as source images requiring power-of-two dimensions. */
 
-CA_EXTERN NSString * const kCAFilterTrilinear
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CALayerContentsFilter const kCAFilterTrilinear
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
 /** Layer event names. **/
 
 CA_EXTERN NSString * const kCAOnOrderIn
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 CA_EXTERN NSString * const kCAOnOrderOut
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /** The animation key used for transitions. **/
 
 CA_EXTERN NSString * const kCATransition
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAMediaTimingFunction.h
 /* CoreAnimation - CAMediaTimingFunction.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CAMediaTiming.h>
@@ -952,13 +1004,16 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NSString * CAMediaTimingFunctionName NS_STRING_ENUM;
+
 /* Represents one segment of a function describing a timing curve. The
  * function maps an input time normalized to the range [0,1] to an
  * output time also in the range [0,1]. E.g. these functions are used
  * to define the pacing of an animation over its duration (or over the
  * duration of one keyframe). */
 
-@interface CAMediaTimingFunction : NSObject <NSCoding>
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+@interface CAMediaTimingFunction : NSObject <NSSecureCoding>
 {
 @private
   struct CAMediaTimingFunctionPrivate *_priv;
@@ -969,7 +1024,7 @@ NS_ASSUME_NONNULL_BEGIN
  * `easeInEaseOut' and `default' (the curve used by implicit animations
  * created by Core Animation). */
 
-+ (instancetype)functionWithName:(NSString *)name;
++ (instancetype)functionWithName:(CAMediaTimingFunctionName)name;
 
 /* Creates a timing function modelled on a cubic Bezier curve. The end
  * points of the curve are at (0,0) and (1,1), the two points 'c1' and
@@ -982,28 +1037,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* 'idx' is a value from 0 to 3 inclusive. */
 
-- (void)getControlPointAtIndex:(size_t)idx values:(float[2])ptr;
+- (void)getControlPointAtIndex:(size_t)idx values:(float[_Nonnull 2])ptr;
 
 @end
 
 /** Timing function names. **/
 
-CA_EXTERN NSString * const kCAMediaTimingFunctionLinear
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAMediaTimingFunctionEaseIn
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAMediaTimingFunctionEaseOut
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAMediaTimingFunctionEaseInEaseOut
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAMediaTimingFunctionDefault
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CAMediaTimingFunctionName const kCAMediaTimingFunctionLinear
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAMediaTimingFunctionName const kCAMediaTimingFunctionEaseIn
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAMediaTimingFunctionName const kCAMediaTimingFunctionEaseOut
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAMediaTimingFunctionName const kCAMediaTimingFunctionEaseInEaseOut
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAMediaTimingFunctionName const kCAMediaTimingFunctionDefault
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAReplicatorLayer.h
 /* CoreAnimation - CAReplicatorLayer.h
 
-   Copyright (c) 2008-2015, Apple Inc.
+   Copyright (c) 2008-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CALayer.h>
@@ -1018,6 +1073,7 @@ NS_ASSUME_NONNULL_BEGIN
  * instance of z replicator layer's sublayers. This may change in the
  * future. */
 
+API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0))
 @interface CAReplicatorLayer : CALayer
 
 /* The number of copies to create, including the source object.
@@ -1064,7 +1120,7 @@ NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CATextLayer.h
 /* CoreAnimation - CATextLayer.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CALayer.h>
@@ -1075,6 +1131,10 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NSString * CATextLayerTruncationMode NS_STRING_ENUM;
+typedef NSString * CATextLayerAlignmentMode NS_STRING_ENUM;
+
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CATextLayer : CALayer
 {
 @private
@@ -1112,13 +1172,13 @@ NS_ASSUME_NONNULL_BEGIN
  * bounds. The possible options are `none', `start', `middle' and
  * `end'. Defaults to `none'. */
 
-@property(copy) NSString *truncationMode;
+@property(copy) CATextLayerTruncationMode truncationMode;
 
 /* Describes how individual lines of text are aligned within the layer
  * bounds. The possible options are `natural', `left', `right',
  * `center' and `justified'. Defaults to `natural'. */
 
-@property(copy) NSString *alignmentMode;
+@property(copy) CATextLayerAlignmentMode alignmentMode;
 
 /* Sets allowsFontSubpixelQuantization parameter of CGContextRef
  * passed to the -drawInContext: method. Defaults to NO. */
@@ -1129,33 +1189,33 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* Truncation modes. */
 
-CA_EXTERN NSString * const kCATruncationNone
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_3_2);
-CA_EXTERN NSString * const kCATruncationStart
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_3_2);
-CA_EXTERN NSString * const kCATruncationEnd
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_3_2);
-CA_EXTERN NSString * const kCATruncationMiddle
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_3_2);
+CA_EXTERN CATextLayerTruncationMode const kCATruncationNone
+    API_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
+CA_EXTERN CATextLayerTruncationMode const kCATruncationStart
+    API_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
+CA_EXTERN CATextLayerTruncationMode const kCATruncationEnd
+    API_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
+CA_EXTERN CATextLayerTruncationMode const kCATruncationMiddle
+    API_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /* Alignment modes. */
 
-CA_EXTERN NSString * const kCAAlignmentNatural
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_3_2);
-CA_EXTERN NSString * const kCAAlignmentLeft
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_3_2);
-CA_EXTERN NSString * const kCAAlignmentRight
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_3_2);
-CA_EXTERN NSString * const kCAAlignmentCenter
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_3_2);
-CA_EXTERN NSString * const kCAAlignmentJustified
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_3_2);
+CA_EXTERN CATextLayerAlignmentMode const kCAAlignmentNatural
+    API_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
+CA_EXTERN CATextLayerAlignmentMode const kCAAlignmentLeft
+    API_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
+CA_EXTERN CATextLayerAlignmentMode const kCAAlignmentRight
+    API_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
+CA_EXTERN CATextLayerAlignmentMode const kCAAlignmentCenter
+    API_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
+CA_EXTERN CATextLayerAlignmentMode const kCAAlignmentJustified
+    API_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CATiledLayer.h
 /* CoreAnimation - CATiledLayer.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 /* This is a subclass of CALayer providing a way to asynchronously
@@ -1181,6 +1241,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CATiledLayer : CALayer
 
 /* The time in seconds that newly added images take to "fade-in" to the
@@ -1218,7 +1279,7 @@ NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAEmitterLayer.h
 /* CoreAnimation - CAEmitterLayer.h
 
-   Copyright (c) 2007-2015, Apple Inc.
+   Copyright (c) 2007-2018, Apple Inc.
    All rights reserved. */
 
 /* Particle emitter layer.
@@ -1234,10 +1295,15 @@ NS_ASSUME_NONNULL_END
 
 #import <QuartzCore/CALayer.h>
 
+typedef NSString * CAEmitterLayerEmitterShape NS_STRING_ENUM;
+typedef NSString * CAEmitterLayerEmitterMode NS_STRING_ENUM;
+typedef NSString * CAEmitterLayerRenderMode NS_STRING_ENUM;
+
 @class CAEmitterCell;
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0))
 @interface CAEmitterLayer : CALayer
 
 /* The array of emitter cells attached to the layer. Each object must
@@ -1272,13 +1338,13 @@ NS_ASSUME_NONNULL_BEGIN
  * `point' (the default), `line', `rectangle', `circle', `cuboid' and
  * `sphere'. */
 
-@property(copy) NSString *emitterShape;
+@property(copy) CAEmitterLayerEmitterShape emitterShape;
 
 /* A string defining how particles are created relative to the emission
  * shape. Current options are `points', `outline', `surface' and
  * `volume' (the default). */
 
-@property(copy) NSString *emitterMode;
+@property(copy) CAEmitterLayerEmitterMode emitterMode;
 
 /* A string defining how particles are composited into the layer's
  * image. Current options are `unordered' (the default), `oldestFirst',
@@ -1286,7 +1352,7 @@ NS_ASSUME_NONNULL_BEGIN
  * `additive'. The first four use source-over compositing, the last
  * uses additive compositing. */
 
-@property(copy) NSString *renderMode;
+@property(copy) CAEmitterLayerRenderMode renderMode;
 
 /* When true the particles are rendered as if they directly inhabit the
  * three dimensional coordinate space of the layer's superlayer, rather
@@ -1320,48 +1386,48 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** `emitterShape' values. **/
 
-CA_EXTERN NSString * const kCAEmitterLayerPoint
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerLine
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerRectangle
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerCuboid
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerCircle
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerSphere
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
+CA_EXTERN CAEmitterLayerEmitterShape const kCAEmitterLayerPoint
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerEmitterShape const kCAEmitterLayerLine
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerEmitterShape const kCAEmitterLayerRectangle
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerEmitterShape const kCAEmitterLayerCuboid
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerEmitterShape const kCAEmitterLayerCircle
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerEmitterShape const kCAEmitterLayerSphere
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
 
 /** `emitterMode' values. **/
 
-CA_EXTERN NSString * const kCAEmitterLayerPoints
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerOutline
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerSurface
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerVolume
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
+CA_EXTERN CAEmitterLayerEmitterMode const kCAEmitterLayerPoints
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerEmitterMode const kCAEmitterLayerOutline
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerEmitterMode const kCAEmitterLayerSurface
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerEmitterMode const kCAEmitterLayerVolume
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
 
 /** `renderMode' values. **/
 
-CA_EXTERN NSString * const kCAEmitterLayerUnordered
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerOldestFirst
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerOldestLast
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerBackToFront
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
-CA_EXTERN NSString * const kCAEmitterLayerAdditive
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_5_0);
+CA_EXTERN CAEmitterLayerRenderMode const kCAEmitterLayerUnordered
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerRenderMode const kCAEmitterLayerOldestFirst
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerRenderMode const kCAEmitterLayerOldestLast
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerRenderMode const kCAEmitterLayerBackToFront
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAEmitterLayerRenderMode const kCAEmitterLayerAdditive
+    API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CADisplayLink.h
 /* CoreAnimation - CADisplayLink.h
 
-   Copyright (c) 2009-2015, Apple Inc.
+   Copyright (c) 2009-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CABase.h>
@@ -1373,6 +1439,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Class representing a timer bound to the display vsync. **/
 
+API_AVAILABLE(macos(10.14), ios(3.1), watchos(2.0), tvos(9.0))
 @interface CADisplayLink : NSObject
 {
 @private
@@ -1390,13 +1457,13 @@ NS_ASSUME_NONNULL_BEGIN
  * to a single run-loop, but it may be added in multiple modes at once.
  * While added to a run-loop it will implicitly be retained. */
 
-- (void)addToRunLoop:(NSRunLoop *)runloop forMode:(NSString *)mode;
+- (void)addToRunLoop:(NSRunLoop *)runloop forMode:(NSRunLoopMode)mode;
 
 /* Removes the receiver from the given mode of the runloop. This will
  * implicitly release it when removed from the last mode it has been
  * registered for. */
 
-- (void)removeFromRunLoop:(NSRunLoop *)runloop forMode:(NSString *)mode;
+- (void)removeFromRunLoop:(NSRunLoop *)runloop forMode:(NSRunLoopMode)mode;
 
 /* Removes the object from all runloop modes (releasing the receiver if
  * it has been implicitly retained) and releases the 'target' object. */
@@ -1411,6 +1478,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly, nonatomic) CFTimeInterval timestamp;
 @property(readonly, nonatomic) CFTimeInterval duration;
 
+/* The next timestamp that the client should target their render for. */
+
+@property(readonly, nonatomic) CFTimeInterval targetTimestamp
+    API_AVAILABLE(macos(10.14), ios(10.0), watchos(3.0), tvos(10.0));
+
 /* When true the object is prevented from firing. Initial state is
  * false. */
 
@@ -1420,9 +1492,20 @@ NS_ASSUME_NONNULL_BEGIN
  * display link fires. Default value is one, which means the display
  * link will fire for every display frame. Setting the interval to two
  * will cause the display link to fire every other display frame, and
- * so on. The behavior when using values less than one is undefined. */
+ * so on. The behavior when using values less than one is undefined.
+ * DEPRECATED - use preferredFramesPerSecond. */
 
-@property(nonatomic) NSInteger frameInterval;
+@property(nonatomic) NSInteger frameInterval
+  API_DEPRECATED("preferredFramesPerSecond", ios(3.1, 10.0), 
+                 watchos(2.0, 3.0), tvos(9.0, 10.0));
+
+/* Defines the desired callback rate in frames-per-second for this display
+ * link. If set to zero, the default value, the display link will fire at the
+ * native cadence of the display hardware. The display link will make a
+ * best-effort attempt at issuing callbacks at the requested rate. */
+
+@property(nonatomic) NSInteger preferredFramesPerSecond
+    API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0));
 
 @end
 
@@ -1430,7 +1513,7 @@ NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAMediaTiming.h
 /* CoreAnimation - CAMediaTiming.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CABase.h>
@@ -1456,6 +1539,8 @@ NS_ASSUME_NONNULL_END
  * and optionally to play backwards before repeating. */
 
 @class NSString;
+
+typedef NSString * CAMediaTimingFillMode NS_STRING_ENUM;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1502,26 +1587,26 @@ NS_ASSUME_NONNULL_BEGIN
  * are `backwards', `forwards', `both' and `removed'. Defaults to
  * `removed'. */
 
-@property(copy) NSString *fillMode;
+@property(copy) CAMediaTimingFillMode fillMode;
 
 @end
 
 /* `fillMode' options. */
 
-CA_EXTERN NSString * const kCAFillModeForwards
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAFillModeBackwards
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAFillModeBoth
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAFillModeRemoved
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+CA_EXTERN CAMediaTimingFillMode const kCAFillModeForwards
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAMediaTimingFillMode const kCAFillModeBackwards
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAMediaTimingFillMode const kCAFillModeBoth
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAMediaTimingFillMode const kCAFillModeRemoved
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAEAGLLayer.h
 /* CoreAnimation - CAEAGLLayer.h
 
-   Copyright (c) 2007-2015, Apple Inc.
+   Copyright (c) 2007-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CALayer.h>
@@ -1534,6 +1619,13 @@ NS_ASSUME_NONNULL_BEGIN
  * `drawableProperties' property defined by the protocol to configure
  * the created surface. */
 
+#ifndef GLES_SILENCE_DEPRECATION
+API_DEPRECATED("OpenGLES is deprecated",
+               ios(2.0, 12.0), watchos(2.0, 5.0), tvos(9.0, 12.0))
+#else
+API_AVAILABLE(ios(2.0), watchos(2.0), tvos(9.0))
+#endif
+API_UNAVAILABLE(macos)
 @interface CAEAGLLayer : CALayer <EAGLDrawable>
 {
 @private
@@ -1545,7 +1637,7 @@ NS_ASSUME_NONNULL_BEGIN
  * changes to the GLES content are sent to the screen via the standard
  * CATransaction mechanisms. */
 
-@property BOOL presentsWithTransaction NS_AVAILABLE_IOS(9_0);
+@property BOOL presentsWithTransaction API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0));
 
 /* Note: the default value of the `opaque' property in this class is true,
  * not false as in CALayer. */
@@ -1556,7 +1648,7 @@ NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CoreAnimation.h
 /* CoreAnimation - CoreAnimation.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #ifndef COREANIMATION_H
@@ -1571,7 +1663,6 @@ NS_ASSUME_NONNULL_END
 #import <QuartzCore/CADisplayLink.h>
 #import <QuartzCore/CAEAGLLayer.h>
 #import <QuartzCore/CAMetalLayer.h>
-#import <QuartzCore/CAEmitterBehavior.h>
 #import <QuartzCore/CAEmitterCell.h>
 #import <QuartzCore/CAEmitterLayer.h>
 #import <QuartzCore/CAGradientLayer.h>
@@ -1584,144 +1675,16 @@ NS_ASSUME_NONNULL_END
 #import <QuartzCore/CATextLayer.h>
 #import <QuartzCore/CATiledLayer.h>
 #import <QuartzCore/CATransaction.h>
+#import <QuartzCore/CATransform3D.h>
 #import <QuartzCore/CATransformLayer.h>
 #import <QuartzCore/CAValueFunction.h>
 #endif
 
 #endif /* COREANIMATION_H */
-// ==========  QuartzCore.framework/Headers/CAEmitterBehavior.h
-/* CoreAnimation - CAEmitterBehavior.h
-
-   Copyright (c) 2013-2015, Apple Inc.
-   All rights reserved. */
-
-#import <QuartzCore/CALayer.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface CAEmitterBehavior : NSObject <NSCoding>
-{
-@private
-  unsigned int _type;
-  NSString *_name;
-  void *_attr;
-  void *_cache;
-  uint32_t _flags;
-}
-
-+ (NSArray<NSString *> *)behaviorTypes;
-
-+ (CAEmitterBehavior *)behaviorWithType:(NSString *)type;
-- (id)initWithType:(NSString *)type;
-
-@property(readonly) NSString *type;
-
-@property(nullable, copy) NSString *name;
-
-@property(getter=isEnabled) BOOL enabled;
-
-@end
-
-/** Behavior types. **/
-
-/* `wave': Adds a force vector to each particle, modulating the
- * force value by a time-based wave function.
- *
- * CAPoint3D force: force vector [X Y Z].
- *
- * CGFloat frequency: oscillation frequency. The actual modulation
- * value is a triangular wave of the specified frequency composed with
- * a quadratic smoothstep function. */
-
-CA_EXTERN NSString * const kCAEmitterBehaviorWave;
-
-/* `drag': Adds a constant drag force to each particle.
- *
- * CGFloat drag: slowing amount, the force on the particle is
- * calculated as "V * -drag" where "V" is the particle's current
- * velocity. */
-
-CA_EXTERN NSString * const kCAEmitterBehaviorDrag;
-
-/* `alignToMotion': Aligns the particle image's Y axis to its velocity
- * vector.
- *
- * CGFloat rotation: angle in rotations to apply in addition to
- * orientation of the velocity vector.
- *
- * BOOL preservesDepth: if true will operate in 3D, i.e. by picking
- * an axis orthogonal to the required rotation. If false (the default)
- * operates in 2D by rotating about the Z axis. Note that only `plane'
- * type particles support a 3D orientation. */
-
-CA_EXTERN NSString * const kCAEmitterBehaviorAlignToMotion;
-
-/* `valueOverLife': Defines a particle property as a function of
- * their current time.
- *
- * NSString *keyPath: name of the property to change.
- * NSArray<NSNumber> *values: array of numeric values.
- * NSArray<NSNumber> *locations: optional array of stop-locations.
- *
- * The particles current time is divided by its lifetime to give a
- * value in the [0,1] range, which is then interpolated into the values
- * array. The property is then replaced by the color from the gradient.
- *
- * Supported property names include: `position.x', `position.y',
- * `position.z', `velocity.x', `velocity.y', `velocity.z', `mass',
- * `rotation', `spin', scale', `scaleSpeed', `color.red',
- * `color.green', `color.blue', `color.alpha'. */
-
-CA_EXTERN NSString * const kCAEmitterBehaviorValueOverLife;
-
-/* `colorOverLife': Defines the color of each particle as a function
- * of their current time.
- *
- * NSArray<CGColorRef> *colors: array of gradient color stops.
- * NSArray<NSNumber> *locations: optional array of stop-locations.
- *
- * The particles current time is divided by its lifetime to give a
- * value in the [0,1] range, which is then interpolated into the
- * gradient. The particle's color is then replaced by the color from
- * the gradient. */
-
-CA_EXTERN NSString * const kCAEmitterBehaviorColorOverLife;
-
-/* `light': Three-dimensional lighting.
- *
- * CGColorRef color: the light's color, alpha is ignored.
- * CGPoint position: the light's 2D position.
- * CGFloat zPosition: the light's position on Z axis.
- * NSNumber falloff, falloffDistance: falloff values.
- * NSNumber spot: if true, light is a spot-light.
- * NSNumber appliesAlpha: if true, lit object's alpha is also affected.
- *
- * For spot-lights:
- *   NSNumber directionLatitude, directionLongitude: the light's direction.
- *   NSNumber coneAngle, coneEdgeSoftness: the spot's lighting cone.
- *
- * See CALight.h for more description of the lighting behavior. */
-
-CA_EXTERN NSString * const kCAEmitterBehaviorLight;
-
-/* `attractor': force field.
- *
- * NSString attractorType: "radial" (default), "axial" or "planar".
- * NSNumber stiffness: the spring stiffness.
- * NSNumber radius: attractor radius, no effect inside.
- * CGPoint position: the attractor's 2D position.
- * CGFloat zPosition: the attractor's position on Z axis.
- * NSNumber orientationLatitude, orientationLongitude: the orientation
- * used as the axis of axial attractors or normal of planar attractors.
- * NSNumber falloff, falloffDistance: falloff values. */
-
-CA_EXTERN NSString * const kCAEmitterBehaviorAttractor;
-
-NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CATransform3D.h
 /* CoreAnimation - CATransform3D.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #ifndef CATRANSFORM_H
@@ -1743,39 +1706,39 @@ struct CATransform3D
   CGFloat m41, m42, m43, m44;
 };
 
-typedef struct CATransform3D CATransform3D;
+typedef struct CA_BOXABLE CATransform3D CATransform3D;
 
 CA_EXTERN_C_BEGIN
 
 /* The identity transform: [1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]. */
 
 CA_EXTERN const CATransform3D CATransform3DIdentity
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Returns true if 't' is the identity transform. */
 
 CA_EXTERN bool CATransform3DIsIdentity (CATransform3D t)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Returns true if 'a' is exactly equal to 'b'. */
 
 CA_EXTERN bool CATransform3DEqualToTransform (CATransform3D a,
     CATransform3D b)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Returns a transform that translates by '(tx, ty, tz)':
  * t' =  [1 0 0 0; 0 1 0 0; 0 0 1 0; tx ty tz 1]. */
 
 CA_EXTERN CATransform3D CATransform3DMakeTranslation (CGFloat tx,
     CGFloat ty, CGFloat tz)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Returns a transform that scales by `(sx, sy, sz)':
  * t' = [sx 0 0 0; 0 sy 0 0; 0 0 sz 0; 0 0 0 1]. */
 
 CA_EXTERN CATransform3D CATransform3DMakeScale (CGFloat sx, CGFloat sy,
     CGFloat sz)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Returns a transform that rotates by 'angle' radians about the vector
  * '(x, y, z)'. If the vector has length zero the identity transform is
@@ -1783,21 +1746,21 @@ CA_EXTERN CATransform3D CATransform3DMakeScale (CGFloat sx, CGFloat sy,
 
 CA_EXTERN CATransform3D CATransform3DMakeRotation (CGFloat angle, CGFloat x,
     CGFloat y, CGFloat z)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Translate 't' by '(tx, ty, tz)' and return the result:
  * t' = translate(tx, ty, tz) * t. */
 
 CA_EXTERN CATransform3D CATransform3DTranslate (CATransform3D t, CGFloat tx,
     CGFloat ty, CGFloat tz)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Scale 't' by '(sx, sy, sz)' and return the result:
  * t' = scale(sx, sy, sz) * t. */
 
 CA_EXTERN CATransform3D CATransform3DScale (CATransform3D t, CGFloat sx,
     CGFloat sy, CGFloat sz)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Rotate 't' by 'angle' radians about the vector '(x, y, z)' and return
  * the result. If the vector has zero length the behavior is undefined:
@@ -1805,35 +1768,35 @@ CA_EXTERN CATransform3D CATransform3DScale (CATransform3D t, CGFloat sx,
 
 CA_EXTERN CATransform3D CATransform3DRotate (CATransform3D t, CGFloat angle,
     CGFloat x, CGFloat y, CGFloat z)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Concatenate 'b' to 'a' and return the result: t' = a * b. */
 
 CA_EXTERN CATransform3D CATransform3DConcat (CATransform3D a, CATransform3D b)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Invert 't' and return the result. Returns the original matrix if 't'
  * has no inverse. */
 
 CA_EXTERN CATransform3D CATransform3DInvert (CATransform3D t)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Return a transform with the same effect as affine transform 'm'. */
 
 CA_EXTERN CATransform3D CATransform3DMakeAffineTransform (CGAffineTransform m)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Returns true if 't' can be represented exactly by an affine transform. */
 
 CA_EXTERN bool CATransform3DIsAffine (CATransform3D t)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Returns the affine transform represented by 't'. If 't' can not be
  * represented exactly by an affine transform the returned value is
  * undefined. */
 
 CA_EXTERN CGAffineTransform CATransform3DGetAffineTransform (CATransform3D t)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 CA_EXTERN_C_END
 
@@ -1859,14 +1822,15 @@ NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAEmitterCell.h
 /* CoreAnimation - CAEmitterCell.h
 
-   Copyright (c) 2007-2015, Apple Inc.
+   Copyright (c) 2007-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CALayer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CAEmitterCell : NSObject <NSCoding, CAMediaTiming>
+API_AVAILABLE(macos(10.6), ios(5.0), watchos(2.0), tvos(9.0))
+@interface CAEmitterCell : NSObject <NSSecureCoding, CAMediaTiming>
 {
 @private
   void *_attr[2];
@@ -2008,12 +1972,16 @@ NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAShapeLayer.h
 /* CoreAnimation - CAShapeLayer.h
 
-   Copyright (c) 2008-2015, Apple Inc.
+   Copyright (c) 2008-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CALayer.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+typedef NSString * CAShapeLayerFillRule NS_STRING_ENUM;
+typedef NSString * CAShapeLayerLineJoin NS_STRING_ENUM;
+typedef NSString * CAShapeLayerLineCap NS_STRING_ENUM;
 
 /* The shape layer draws a cubic Bezier spline in its coordinate space.
  *
@@ -2038,6 +2006,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Note: rasterization may favor speed over accuracy, e.g. pixels with
  * multiple intersecting path segments may not give exact results. */
 
+API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0))
 @interface CAShapeLayer : CALayer
 
 /* The path defining the shape to be rendered. If the path extends
@@ -2057,7 +2026,7 @@ NS_ASSUME_NONNULL_BEGIN
 /* The fill rule used when filling the path. Options are `non-zero' and
  * `even-odd'. Defaults to `non-zero'. */
 
-@property(copy) NSString *fillRule;
+@property(copy) CAShapeLayerFillRule fillRule;
 
 /* The color to fill the path's stroked outline, or nil for no stroking.
  * Defaults to nil. Animatable. */
@@ -2087,12 +2056,12 @@ NS_ASSUME_NONNULL_BEGIN
 /* The cap style used when stroking the path. Options are `butt', `round'
  * and `square'. Defaults to `butt'. */
 
-@property(copy) NSString *lineCap;
+@property(copy) CAShapeLayerLineCap lineCap;
 
 /* The join style used when stroking the path. Options are `miter', `round'
  * and `bevel'. Defaults to `miter'. */
 
-@property(copy) NSString *lineJoin;
+@property(copy) CAShapeLayerLineJoin lineJoin;
 
 /* The phase of the dashing pattern applied when creating the stroke.
  * Defaults to zero. Animatable. */
@@ -2108,51 +2077,54 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* `fillRule' values. */
 
-CA_EXTERN NSString *const kCAFillRuleNonZero
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString *const kCAFillRuleEvenOdd
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CAShapeLayerFillRule const kCAFillRuleNonZero
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAShapeLayerFillRule const kCAFillRuleEvenOdd
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
 /* `lineJoin' values. */
 
-CA_EXTERN NSString *const kCALineJoinMiter
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString *const kCALineJoinRound
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString *const kCALineJoinBevel
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CAShapeLayerLineJoin const kCALineJoinMiter
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAShapeLayerLineJoin const kCALineJoinRound
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAShapeLayerLineJoin const kCALineJoinBevel
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
 /* `lineCap' values. */
 
-CA_EXTERN NSString *const kCALineCapButt
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString *const kCALineCapRound
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString *const kCALineCapSquare
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CAShapeLayerLineCap const kCALineCapButt
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAShapeLayerLineCap const kCALineCapRound
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAShapeLayerLineCap const kCALineCapSquare
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAValueFunction.h
 /* CoreAnimation - CAValueFunction.h
 
-   Copyright (c) 2008-2015, Apple Inc.
+   Copyright (c) 2008-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CABase.h>
 #import <Foundation/NSObject.h>
 
+typedef NSString * CAValueFunctionName NS_STRING_ENUM;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CAValueFunction : NSObject <NSCoding>
+API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0))
+@interface CAValueFunction : NSObject <NSSecureCoding>
 {
 @protected
   NSString *_string;
   void *_impl;
 }
 
-+ (nullable instancetype)functionWithName:(NSString *)name;
++ (nullable instancetype)functionWithName:(CAValueFunctionName)name;
 
-@property(readonly) NSString *name;
+@property(readonly) CAValueFunctionName name;
 
 @end
 
@@ -2162,52 +2134,52 @@ NS_ASSUME_NONNULL_BEGIN
  * value in radians, and construct a 4x4 matrix representing the
  * corresponding rotation matrix. */
 
-CA_EXTERN NSString * const kCAValueFunctionRotateX
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString * const kCAValueFunctionRotateY
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString * const kCAValueFunctionRotateZ
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CAValueFunctionName const kCAValueFunctionRotateX
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAValueFunctionName const kCAValueFunctionRotateY
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAValueFunctionName const kCAValueFunctionRotateZ
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
 /* The `scale' function takes three input values and constructs a
  * 4x4 matrix representing the corresponding scale matrix. */
 
-CA_EXTERN NSString * const kCAValueFunctionScale
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CAValueFunctionName const kCAValueFunctionScale
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
 /* The `scaleX', `scaleY', `scaleZ' functions take a single input value
  * and construct a 4x4 matrix representing the corresponding scaling
  * matrix. */
 
-CA_EXTERN NSString * const kCAValueFunctionScaleX
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString * const kCAValueFunctionScaleY
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString * const kCAValueFunctionScaleZ
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CAValueFunctionName const kCAValueFunctionScaleX
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAValueFunctionName const kCAValueFunctionScaleY
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAValueFunctionName const kCAValueFunctionScaleZ
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
 /* The `translate' function takes three input values and constructs a
  * 4x4 matrix representing the corresponding scale matrix. */
 
-CA_EXTERN NSString * const kCAValueFunctionTranslate
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CAValueFunctionName const kCAValueFunctionTranslate
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
 /* The `translateX', `translateY', `translateZ' functions take a single
  * input value and construct a 4x4 matrix representing the corresponding
  * translation matrix. */
 
-CA_EXTERN NSString * const kCAValueFunctionTranslateX
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString * const kCAValueFunctionTranslateY
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
-CA_EXTERN NSString * const kCAValueFunctionTranslateZ
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CAValueFunctionName const kCAValueFunctionTranslateX
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAValueFunctionName const kCAValueFunctionTranslateY
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAValueFunctionName const kCAValueFunctionTranslateZ
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAMetalLayer.h
 /* CoreAnimation - CAMetalLayer.h
 
-   Copyright (c) 2013-2015, Apple Inc.
+   Copyright (c) 2013-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CALayer.h>
@@ -2247,7 +2219,7 @@ NS_ASSUME_NONNULL_BEGIN
 /* Note: The default value of the `opaque' property for CAMetalLayer
  * instances is true. */
 
-NS_CLASS_AVAILABLE(10_11, 8_0)
+API_AVAILABLE(macos(10.11), ios(8.0), watchos(2.0), tvos(9.0))
 @interface CAMetalLayer : CALayer
 {
 @private
@@ -2284,10 +2256,19 @@ NS_CLASS_AVAILABLE(10_11, 8_0)
 
 @property CGSize drawableSize;
 
-/* Returns a drawable. This will return nil if the layer has an invalid
- * combination of drawable properties. */
+/* Get the swap queue's next available drawable. Always blocks until a drawable is available.
+ * Can return nil under the following conditions:
+ *     1) The layer has an invalid combination of drawable properties.
+ *     2) All drawables in the swap queue are in-use and the 1 second timeout has elapsed.
+ *        (except when `allowsNextDrawableTimeout' is set to NO)
+ *     3) Process is out of memory. */
 
 - (nullable id <CAMetalDrawable>)nextDrawable;
+
+/* Controls the number maximum number of drawables in the swap queue. The default value is 3.
+ * Values set outside of range [2, 3] are ignored and an exception will be thrown. */
+
+@property NSUInteger maximumDrawableCount API_AVAILABLE(macos(10.13.2), ios(11.2), watchos(4.2), tvos(11.2));
 
 /* When false (the default value) changes to the layer's render buffer
  * appear on-screen asynchronously to normal layer updates. When true,
@@ -2298,13 +2279,20 @@ NS_CLASS_AVAILABLE(10_11, 8_0)
 
 
 
+
+/* Controls if `-nextDrawable' is allowed to timeout after 1 second and return nil if
+ * the system does not have a free drawable available. The default value is YES.
+ * If set to NO, then `-nextDrawable' will block forever until a free drawable is available. */
+
+@property BOOL allowsNextDrawableTimeout API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CATransaction.h
 /* CoreAnimation - CATransaction.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CABase.h>
@@ -2332,6 +2320,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CATransaction : NSObject
 
 /* Begin a new transaction for the current thread; nests. */
@@ -2415,19 +2404,19 @@ NS_ASSUME_NONNULL_BEGIN
 /** Transaction property ids. **/
 
 CA_EXTERN NSString * const kCATransactionAnimationDuration
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 CA_EXTERN NSString * const kCATransactionDisableActions
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 CA_EXTERN NSString * const kCATransactionAnimationTimingFunction
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 CA_EXTERN NSString * const kCATransactionCompletionBlock
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_4_0);
+    API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CABase.h
 /* CoreAnimation - CABase.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #ifndef CABASE_H
@@ -2441,63 +2430,36 @@ NS_ASSUME_NONNULL_END
 #include <float.h>
 
 #include <CoreFoundation/CoreFoundation.h>
-#include <CoreGraphics/CoreGraphics.h>
 
-#include <Availability.h>
+#if TARGET_OS_MAC
+#include <CoreGraphics/CoreGraphics.h>
+#endif
+
+#include <os/availability.h>
 #include <TargetConditionals.h>
 
-/* The earliest Mac SDK we support is 10.9 */
-
-#ifndef __MAC_10_10
-# define __MAC_10_10    101000
-#endif
-#ifndef __MAC_10_10_2
-# define __MAC_10_10_2  101002
-#endif
-#ifndef __MAC_10_10_3
-# define __MAC_10_10_3  101003
-#endif
-#ifndef __MAC_10_11
-# define __MAC_10_11    101100
-#endif
-
-/* The earliest iOS SDK we support is 7.0 */
-
-#ifndef __IPHONE_7_1
-# define __IPHONE_7_1   70100
-#endif
-#ifndef __IPHONE_8_0
-# define __IPHONE_8_0   80000
-#endif
-#ifndef __IPHONE_8_1
-# define __IPHONE_8_1   80100
-#endif
-#ifndef __IPHONE_8_2
-# define __IPHONE_8_2   80200
-#endif
-#ifndef __IPHONE_8_3
-# define __IPHONE_8_3   80300
-#endif
-#ifndef __IPHONE_8_4
-# define __IPHONE_8_4   80400
-#endif
-#ifndef __IPHONE_9_0
-# define __IPHONE_9_0   90000
-#endif
-
-#ifdef CA_BUILDING_CA
-# undef __OSX_AVAILABLE_STARTING
-# undef __OSX_AVAILABLE_BUT_DEPRECATED
-#endif
-#ifndef __OSX_AVAILABLE_STARTING
-# define __OSX_AVAILABLE_STARTING(m,i)
-# define __OSX_AVAILABLE_BUT_DEPRECATED(m0,m1,i0,i1)
-#endif
-
-#if !TARGET_OS_IPHONE
-#define CA_OS_VERSION(m, i) ((m) > 0 && MAC_OS_X_VERSION_MIN_REQUIRED >= (m))
+#if TARGET_OS_OSX
+# define CA_OSX_VERSION(v) ((v) > 0 && MAC_OS_X_VERSION_MIN_REQUIRED >= (v))
 #else
-#define CA_OS_VERSION(m, i) ((i) > 0 && __IPHONE_OS_VERSION_MIN_REQUIRED >= (i))
+# define CA_OSX_VERSION(v) (0)
+#endif
+
+#if TARGET_OS_IPHONE
+# define CA_IOS_VERSION(v) ((v) > 0 && __IPHONE_OS_VERSION_MIN_REQUIRED >= (v))
+#else
+# define CA_IOS_VERSION(v) (0)
+#endif
+
+#if TARGET_OS_TV
+# define CA_TV_VERSION(v) ((v) > 0 && __TV_OS_VERSION_MIN_REQUIRED >= (v))
+#else
+# define CA_TV_VERSION(v) (0)
+#endif
+
+#if TARGET_OS_WATCH
+# define CA_WATCH_VERSION(v) ((v) > 0 && __WATCH_OS_VERSION_MIN_REQUIRED >= (v))
+#else
+# define CA_WATCH_VERSION(v) (0)
 #endif
 
 #ifdef __cplusplus
@@ -2516,7 +2478,7 @@ NS_ASSUME_NONNULL_END
 #endif
 
 #ifndef CA_EXTERN
-# define CA_EXTERN extern
+# define CA_EXTERN extern __attribute__((visibility("default")))
 #endif
 
 #ifndef CA_INLINE
@@ -2537,6 +2499,14 @@ NS_ASSUME_NONNULL_END
 # else
 #  define CA_HIDDEN /* no hidden */
 # endif
+#endif
+
+#ifdef CA_BUILD_TESTABLE
+#  define CA_TESTABLE CA_EXTERN
+#  define CA_TESTABLE_CLASS __attribute__((visibility("default")))
+#else
+#  define CA_TESTABLE CA_HIDDEN
+#  define CA_TESTABLE_CLASS CA_HIDDEN
 #endif
 
 #ifndef CA_PURE
@@ -2591,13 +2561,19 @@ NS_ASSUME_NONNULL_END
 # endif
 #endif
 
+#if defined(__has_attribute) && __has_attribute(objc_boxable)
+# define CA_BOXABLE __attribute__((objc_boxable))
+#else
+# define CA_BOXABLE
+#endif
+
 CA_EXTERN_C_BEGIN
 
 /* Returns the current CoreAnimation absolute time. This is the result of
  * calling mach_absolute_time () and converting the units to seconds. */
 
 CA_EXTERN CFTimeInterval CACurrentMediaTime (void)
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+    API_AVAILABLE (macos(10.5), ios(2.0));
 
 CA_EXTERN_C_END
 
@@ -2605,17 +2581,21 @@ CA_EXTERN_C_END
 // ==========  QuartzCore.framework/Headers/CAGradientLayer.h
 /* CoreAnimation - CAGradientLayer.h
 
-   Copyright (c) 2008-2015, Apple Inc.
+   Copyright (c) 2008-2018, Apple Inc.
    All rights reserved. */
 
 /* The gradient layer draws a color gradient over its background color,
  * filling the shape of the layer (i.e. including rounded corners). */
 
 #import <QuartzCore/CALayer.h>
+#import <QuartzCore/CAMediaTimingFunction.h>
 #import <Foundation/NSArray.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NSString * CAGradientLayerType NS_STRING_ENUM;
+
+API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0))
 @interface CAGradientLayer : CALayer
 
 /* The array of CGColorRef objects defining the color of each gradient
@@ -2643,36 +2623,60 @@ NS_ASSUME_NONNULL_BEGIN
 @property CGPoint startPoint;
 @property CGPoint endPoint;
 
-/* The kind of gradient that will be drawn. Currently the only allowed
- * value is `axial' (the default value). */
+/* The kind of gradient that will be drawn. Currently, the only allowed
+ * values are `axial' (the default value), `radial', and `conic'. */
 
-@property(copy) NSString *type;
+@property(copy) CAGradientLayerType type;
 
 @end
 
 /** `type' values. **/
 
-CA_EXTERN NSString * const kCAGradientLayerAxial
-    __OSX_AVAILABLE_STARTING (__MAC_10_6, __IPHONE_3_0);
+CA_EXTERN CAGradientLayerType const kCAGradientLayerAxial
+    API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
+
+/* Radial gradient. The gradient is defined as an ellipse with its
+ * center at 'startPoint' and its width and height defined by
+ * '(endPoint.x - startPoint.x) * 2' and '(endPoint.y - startPoint.y) *
+ * 2' respectively. */
+
+CA_EXTERN CAGradientLayerType const kCAGradientLayerRadial
+    API_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
+
+/* Conic gradient. The gradient is centered at 'startPoint' and its 0-degrees
+ * direction is defined by a vector spanned between 'startPoint' and
+ * 'endPoint'. When 'startPoint' and 'endPoint' overlap the results are
+ * undefined. The gradient's angle increases in the direction of rotation of
+ * positive x-axis towards positive y-axis. */
+
+CA_EXTERN CAGradientLayerType const kCAGradientLayerConic
+    API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  QuartzCore.framework/Headers/CAAnimation.h
 /* CoreAnimation - CAAnimation.h
 
-   Copyright (c) 2006-2015, Apple Inc.
+   Copyright (c) 2006-2018, Apple Inc.
    All rights reserved. */
 
 #import <QuartzCore/CALayer.h>
 #import <Foundation/NSObject.h>
 
 @class NSArray, NSString, CAMediaTimingFunction, CAValueFunction;
+@protocol CAAnimationDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NSString * CAAnimationCalculationMode NS_STRING_ENUM;
+typedef NSString * CAAnimationRotationMode NS_STRING_ENUM;
+typedef NSString * CATransitionType NS_STRING_ENUM;
+typedef NSString * CATransitionSubtype NS_STRING_ENUM;
+
 /** The base animation class. **/
 
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CAAnimation : NSObject
-    <NSCoding, NSCopying, CAMediaTiming, CAAction>
+    <NSSecureCoding, NSCopying, CAMediaTiming, CAAction>
 {
 @private
   void *_attr;
@@ -2698,7 +2702,7 @@ NS_ASSUME_NONNULL_BEGIN
  * lifetime of the animation object. Defaults to nil. See below for the
  * supported delegate methods. */
 
-@property(nullable, strong) id delegate;
+@property(nullable, strong) id <CAAnimationDelegate> delegate;
 
 /* When true, the animation is removed from the render tree once its
  * active duration has passed. Defaults to YES. */
@@ -2709,7 +2713,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* Delegate methods for CAAnimation. */
 
-@interface NSObject (CAAnimationDelegate)
+@protocol CAAnimationDelegate <NSObject>
+@optional
 
 /* Called when the animation begins its active duration. */
 
@@ -2727,6 +2732,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Subclass for property-based animations. **/
 
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CAPropertyAnimation : CAAnimation
 
 /* Creates a new animation object with its `keyPath' property set to
@@ -2765,6 +2771,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Subclass for basic (single-keyframe) animations. **/
 
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CABasicAnimation : CAPropertyAnimation
 
 /* The objects defining the property values being interpolated between.
@@ -2800,6 +2807,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** General keyframe animation class. **/
 
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CAKeyframeAnimation : CAPropertyAnimation
 
 /* An array of objects providing the value of the animation function for
@@ -2836,7 +2844,7 @@ NS_ASSUME_NONNULL_BEGIN
  * `paced' or `cubicPaced' the `keyTimes' and `timingFunctions'
  * properties of the animation are ignored and calculated implicitly. */
 
-@property(copy) NSString *calculationMode;
+@property(copy) CAAnimationCalculationMode calculationMode;
 
 /* For animations with the cubic calculation modes, these properties
  * provide control over the interpolation scheme. Each keyframe may
@@ -2866,32 +2874,33 @@ NS_ASSUME_NONNULL_BEGIN
  * no path object is supplied is undefined. `autoReverse' rotates to
  * match the tangent plus 180 degrees. */
 
-@property(nullable, copy) NSString *rotationMode;
+@property(nullable, copy) CAAnimationRotationMode rotationMode;
 
 @end
 
 /* `calculationMode' strings. */
 
-CA_EXTERN NSString * const kCAAnimationLinear
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAAnimationDiscrete
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAAnimationPaced
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAAnimationCubic
-    __OSX_AVAILABLE_STARTING (__MAC_10_7, __IPHONE_4_0);
-CA_EXTERN NSString * const kCAAnimationCubicPaced
-    __OSX_AVAILABLE_STARTING (__MAC_10_7, __IPHONE_4_0);
+CA_EXTERN CAAnimationCalculationMode const kCAAnimationLinear
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAAnimationCalculationMode const kCAAnimationDiscrete
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAAnimationCalculationMode const kCAAnimationPaced
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAAnimationCalculationMode const kCAAnimationCubic
+    API_AVAILABLE(macos(10.7), ios(4.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAAnimationCalculationMode const kCAAnimationCubicPaced
+    API_AVAILABLE(macos(10.7), ios(4.0), watchos(2.0), tvos(9.0));
 
 /* `rotationMode' strings. */
 
-CA_EXTERN NSString * const kCAAnimationRotateAuto
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCAAnimationRotateAutoReverse
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+CA_EXTERN CAAnimationRotationMode const kCAAnimationRotateAuto
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CAAnimationRotationMode const kCAAnimationRotateAutoReverse
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /** Subclass for mass-spring animations. */
 
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface CASpringAnimation : CABasicAnimation
 
 /* The mass of the object attached to the end of the spring. Must be greater
@@ -2927,19 +2936,20 @@ CA_EXTERN NSString * const kCAAnimationRotateAutoReverse
 
 /** Transition animation subclass. **/
 
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CATransition : CAAnimation
 
 /* The name of the transition. Current legal transition types include
  * `fade', `moveIn', `push' and `reveal'. Defaults to `fade'. */
 
-@property(copy) NSString *type;
+@property(copy) CATransitionType type;
 
 /* An optional subtype for the transition. E.g. used to specify the
  * transition direction for motion-based transitions, in which case
  * the legal values are `fromLeft', `fromRight', `fromTop' and
  * `fromBottom'. */
 
-@property(nullable, copy) NSString *subtype;
+@property(nullable, copy) CATransitionSubtype subtype;
 
 /* The amount of progress through to the transition at which to begin
  * and end execution. Legal values are numbers in the range [0,1].
@@ -2949,42 +2959,34 @@ CA_EXTERN NSString * const kCAAnimationRotateAutoReverse
 @property float startProgress;
 @property float endProgress;
 
-/* An optional filter object implementing the transition. When set the
- * `type' and `subtype' properties are ignored. The filter must
- * implement `inputImage', `inputTargetImage' and `inputTime' input
- * keys, and the `outputImage' output key. Optionally it may support
- * the `inputExtent' key, which will be set to a rectangle describing
- * the region in which the transition should run. Defaults to nil. */
-
-@property(nullable, strong) id filter;
-
 @end
 
 /* Common transition types. */
 
-CA_EXTERN NSString * const kCATransitionFade
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCATransitionMoveIn
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCATransitionPush
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCATransitionReveal
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+CA_EXTERN CATransitionType const kCATransitionFade
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CATransitionType const kCATransitionMoveIn
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CATransitionType const kCATransitionPush
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CATransitionType const kCATransitionReveal
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 /* Common transition subtypes. */
 
-CA_EXTERN NSString * const kCATransitionFromRight
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCATransitionFromLeft
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCATransitionFromTop
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
-CA_EXTERN NSString * const kCATransitionFromBottom
-    __OSX_AVAILABLE_STARTING (__MAC_10_5, __IPHONE_2_0);
+CA_EXTERN CATransitionSubtype const kCATransitionFromRight
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CATransitionSubtype const kCATransitionFromLeft
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CATransitionSubtype const kCATransitionFromTop
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+CA_EXTERN CATransitionSubtype const kCATransitionFromBottom
+    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 
 /** Animation subclass for grouped animations. **/
 
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CAAnimationGroup : CAAnimation
 
 /* An array of CAAnimation objects. Each member of the array will run

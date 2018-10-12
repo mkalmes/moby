@@ -175,8 +175,7 @@ API_UNAVAILABLE(macos)
 - (void)deleteDrawable;
 
 /*
- Returns a UIImage of the resulting draw. Snapshot should never be called from within the draw method or from a
- thread other than the main thread.
+ Returns a UIImage of the resulting draw. Snapshot should never be called from within the draw method.
  */
 @property (readonly, strong) UIImage *snapshot;
 
@@ -320,7 +319,7 @@ GLK_INLINE GLKMatrix3 GLKMatrix3RotateZ(GLKMatrix3 matrix, float radians);
 
 GLK_INLINE GLKVector3 GLKMatrix3MultiplyVector3(GLKMatrix3 matrixLeft, GLKVector3 vectorRight);
 
-GLK_INLINE void GLKMatrix3MultiplyVector3Array(GLKMatrix3 matrix, GLKVector3 *vectors, size_t vectorCount);
+GLK_INLINE void GLKMatrix3MultiplyVector3Array(GLKMatrix3 matrix, GLKVector3 *__nonnull vectors, size_t vectorCount);
 
 #pragma mark -
 #pragma mark Implementations
@@ -737,7 +736,7 @@ GLK_INLINE GLKVector3 GLKMatrix3MultiplyVector3(GLKMatrix3 matrixLeft, GLKVector
     return v;
 }
 
-GLK_INLINE void GLKMatrix3MultiplyVector3Array(GLKMatrix3 matrix, GLKVector3 *vectors, size_t vectorCount)
+GLK_INLINE void GLKMatrix3MultiplyVector3Array(GLKMatrix3 matrix, GLKVector3 *__nonnull vectors, size_t vectorCount)
 {
     int i;
     for (i=0; i < vectorCount; i++)
@@ -1392,6 +1391,7 @@ NS_ASSUME_NONNULL_END
 #include <arm_neon.h>
 #endif
 
+
 #include <GLKit/GLKMathTypes.h>
 #include <GLKit/GLKVector3.h>
 #include <GLKit/GLKVector4.h>
@@ -1521,8 +1521,8 @@ GLK_INLINE GLKMatrix4 GLKMatrix4SetColumn(GLKMatrix4 matrix, int column, GLKVect
     
 GLK_INLINE GLKMatrix4 GLKMatrix4Transpose(GLKMatrix4 matrix);
     
-GLKMatrix4 GLKMatrix4Invert(GLKMatrix4 matrix, bool *isInvertible);
-GLKMatrix4 GLKMatrix4InvertAndTranspose(GLKMatrix4 matrix, bool *isInvertible);
+GLKMatrix4 GLKMatrix4Invert(GLKMatrix4 matrix, bool * __nullable isInvertible);
+GLKMatrix4 GLKMatrix4InvertAndTranspose(GLKMatrix4 matrix, bool * __nullable isInvertible);
 
 GLK_INLINE GLKMatrix4 GLKMatrix4Multiply(GLKMatrix4 matrixLeft, GLKMatrix4 matrixRight);
 
@@ -1570,19 +1570,19 @@ GLK_INLINE GLKVector3 GLKMatrix4MultiplyAndProjectVector3(GLKMatrix4 matrixLeft,
 /*
  Assumes 0 in the w component.
  */
-GLK_INLINE void GLKMatrix4MultiplyVector3Array(GLKMatrix4 matrix, GLKVector3 *vectors, size_t vectorCount);
+GLK_INLINE void GLKMatrix4MultiplyVector3Array(GLKMatrix4 matrix, GLKVector3 *__nonnull vectors, size_t vectorCount);
 /*
  Assumes 1 in the w component.
  */
-GLK_INLINE void GLKMatrix4MultiplyVector3ArrayWithTranslation(GLKMatrix4 matrix, GLKVector3 *vectors, size_t vectorCount);
+GLK_INLINE void GLKMatrix4MultiplyVector3ArrayWithTranslation(GLKMatrix4 matrix, GLKVector3 *__nonnull vectors, size_t vectorCount);
 /*
  Assumes 1 in the w component and divides the resulting vector by w before returning.
  */
-GLK_INLINE void GLKMatrix4MultiplyAndProjectVector3Array(GLKMatrix4 matrix, GLKVector3 *vectors, size_t vectorCount);
+GLK_INLINE void GLKMatrix4MultiplyAndProjectVector3Array(GLKMatrix4 matrix, GLKVector3 *__nonnull vectors, size_t vectorCount);
     
 GLK_INLINE GLKVector4 GLKMatrix4MultiplyVector4(GLKMatrix4 matrixLeft, GLKVector4 vectorRight);
 
-GLK_INLINE void GLKMatrix4MultiplyVector4Array(GLKMatrix4 matrix, GLKVector4 *vectors, size_t vectorCount);
+GLK_INLINE void GLKMatrix4MultiplyVector4Array(GLKMatrix4 matrix, GLKVector4 *__nonnull vectors, size_t vectorCount);
 
 #pragma mark -
 #pragma mark Implementations
@@ -2315,21 +2315,21 @@ GLK_INLINE GLKVector3 GLKMatrix4MultiplyAndProjectVector3(GLKMatrix4 matrixLeft,
     return GLKVector3MultiplyScalar(GLKVector3Make(v4.v[0], v4.v[1], v4.v[2]), 1.0f / v4.v[3]);
 }
 
-GLK_INLINE void GLKMatrix4MultiplyVector3Array(GLKMatrix4 matrix, GLKVector3 *vectors, size_t vectorCount)
+GLK_INLINE void GLKMatrix4MultiplyVector3Array(GLKMatrix4 matrix, GLKVector3 *__nonnull vectors, size_t vectorCount)
 {
     int i;
     for (i=0; i < vectorCount; i++)
         vectors[i] = GLKMatrix4MultiplyVector3(matrix, vectors[i]);
 }
 
-GLK_INLINE void GLKMatrix4MultiplyVector3ArrayWithTranslation(GLKMatrix4 matrix, GLKVector3 *vectors, size_t vectorCount)
+GLK_INLINE void GLKMatrix4MultiplyVector3ArrayWithTranslation(GLKMatrix4 matrix, GLKVector3 *__nonnull vectors, size_t vectorCount)
 {
     int i;
     for (i=0; i < vectorCount; i++)
         vectors[i] = GLKMatrix4MultiplyVector3WithTranslation(matrix, vectors[i]);
 }
     
-GLK_INLINE void GLKMatrix4MultiplyAndProjectVector3Array(GLKMatrix4 matrix, GLKVector3 *vectors, size_t vectorCount)
+GLK_INLINE void GLKMatrix4MultiplyAndProjectVector3Array(GLKMatrix4 matrix, GLKVector3 *__nonnull vectors, size_t vectorCount)
 {
     int i;
     for (i=0; i < vectorCount; i++)
@@ -2373,7 +2373,7 @@ GLK_INLINE GLKVector4 GLKMatrix4MultiplyVector4(GLKMatrix4 matrixLeft, GLKVector
 #endif
 }
 
-GLK_INLINE void GLKMatrix4MultiplyVector4Array(GLKMatrix4 matrix, GLKVector4 *vectors, size_t vectorCount)
+GLK_INLINE void GLKMatrix4MultiplyVector4Array(GLKMatrix4 matrix, GLKVector4 *__nonnull vectors, size_t vectorCount)
 {
     int i;
     for (i=0; i < vectorCount; i++)
@@ -2762,7 +2762,7 @@ GLK_INLINE GLKVector4 GLKVector4Minimum(GLKVector4 vectorLeft, GLKVector4 vector
    
 GLK_INLINE bool GLKVector4AllEqualToVector4(GLKVector4 vectorLeft, GLKVector4 vectorRight)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x4_t v1 = *(float32x4_t *)&vectorLeft;
     float32x4_t v2 = *(float32x4_t *)&vectorRight;
     uint32x4_t vCmp = vceqq_f32(v1, v2);
@@ -2785,7 +2785,7 @@ GLK_INLINE bool GLKVector4AllEqualToVector4(GLKVector4 vectorLeft, GLKVector4 ve
 
 GLK_INLINE bool GLKVector4AllEqualToScalar(GLKVector4 vector, float value)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x4_t v1 = *(float32x4_t *)&vector;
     float32x4_t v2 = vdupq_n_f32(value);
     uint32x4_t vCmp = vceqq_f32(v1, v2);
@@ -2808,7 +2808,7 @@ GLK_INLINE bool GLKVector4AllEqualToScalar(GLKVector4 vector, float value)
 
 GLK_INLINE bool GLKVector4AllGreaterThanVector4(GLKVector4 vectorLeft, GLKVector4 vectorRight)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x4_t v1 = *(float32x4_t *)&vectorLeft;
     float32x4_t v2 = *(float32x4_t *)&vectorRight;
     uint32x4_t vCmp = vcgtq_f32(v1, v2);
@@ -2831,7 +2831,7 @@ GLK_INLINE bool GLKVector4AllGreaterThanVector4(GLKVector4 vectorLeft, GLKVector
     
 GLK_INLINE bool GLKVector4AllGreaterThanScalar(GLKVector4 vector, float value)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x4_t v1 = *(float32x4_t *)&vector;
     float32x4_t v2 = vdupq_n_f32(value);
     uint32x4_t vCmp = vcgtq_f32(v1, v2);
@@ -2854,7 +2854,7 @@ GLK_INLINE bool GLKVector4AllGreaterThanScalar(GLKVector4 vector, float value)
 
 GLK_INLINE bool GLKVector4AllGreaterThanOrEqualToVector4(GLKVector4 vectorLeft, GLKVector4 vectorRight)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x4_t v1 = *(float32x4_t *)&vectorLeft;
     float32x4_t v2 = *(float32x4_t *)&vectorRight;
     uint32x4_t vCmp = vcgeq_f32(v1, v2);
@@ -2877,7 +2877,7 @@ GLK_INLINE bool GLKVector4AllGreaterThanOrEqualToVector4(GLKVector4 vectorLeft, 
 
 GLK_INLINE bool GLKVector4AllGreaterThanOrEqualToScalar(GLKVector4 vector, float value)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x4_t v1 = *(float32x4_t *)&vector;
     float32x4_t v2 = vdupq_n_f32(value);
     uint32x4_t vCmp = vcgeq_f32(v1, v2);
@@ -3170,13 +3170,13 @@ GLK_INLINE GLKQuaternion GLKQuaternionInvert(GLKQuaternion quaternion);
 GLK_INLINE GLKQuaternion GLKQuaternionNormalize(GLKQuaternion quaternion);
 
 GLK_INLINE GLKVector3 GLKQuaternionRotateVector3(GLKQuaternion quaternion, GLKVector3 vector);
-void GLKQuaternionRotateVector3Array(GLKQuaternion quaternion, GLKVector3 *vectors, size_t vectorCount);
+void GLKQuaternionRotateVector3Array(GLKQuaternion quaternion, GLKVector3 *__nonnull vectors, size_t vectorCount);
     
 /*
  The fourth component of the vector is ignored when calculating the rotation.
  */
 GLK_INLINE GLKVector4 GLKQuaternionRotateVector4(GLKQuaternion quaternion, GLKVector4 vector);
-void GLKQuaternionRotateVector4Array(GLKQuaternion quaternion, GLKVector4 *vectors, size_t vectorCount);
+void GLKQuaternionRotateVector4Array(GLKQuaternion quaternion, GLKVector4 *__nonnull vectors, size_t vectorCount);
     
 #pragma mark -
 #pragma mark Implementations
@@ -4044,7 +4044,8 @@ typedef NS_ENUM(GLuint, GLKTextureLoaderError)
     GLKTextureLoaderErrorReorientationFailure = 15,
     GLKTextureLoaderErrorAlphaPremultiplicationFailure = 16,
     GLKTextureLoaderErrorInvalidEAGLContext = 17,
-    GLKTextureLoaderErrorIncompatibleFormatSRGB = 18
+    GLKTextureLoaderErrorIncompatibleFormatSRGB = 18,
+    GLKTextureLoaderErrorUnsupportedTextureTarget = 19,
 } NS_ENUM_AVAILABLE(10_8, 5_0);
 
 #pragma mark -
@@ -4083,18 +4084,24 @@ OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
     GLenum                      target;
     GLuint                      width;
     GLuint                      height;
+    GLuint                      depth;
     GLKTextureInfoAlphaState    alphaState;
     GLKTextureInfoOrigin        textureOrigin;
     BOOL                        containsMipmaps;
+    GLuint                      mimapLevelCount;
+    GLuint                      arrayLength;
 }
 
 @property (readonly) GLuint                     name;
 @property (readonly) GLenum                     target;
 @property (readonly) GLuint                     width;
 @property (readonly) GLuint                     height;
+@property (readonly) GLuint                     depth;
 @property (readonly) GLKTextureInfoAlphaState   alphaState;
 @property (readonly) GLKTextureInfoOrigin       textureOrigin;
 @property (readonly) BOOL                       containsMipmaps;
+@property (readonly) GLuint                     mimapLevelCount;
+@property (readonly) GLuint                     arrayLength;
 
 @end
 
@@ -4125,6 +4132,17 @@ OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
 + (nullable GLKTextureInfo *)textureWithContentsOfURL:(NSURL *)url                                           /* The URL from which to read. */
                                               options:(nullable NSDictionary<NSString*, NSNumber*> *)options /* Options that control how the image is loaded. */
                                                 error:(NSError * __nullable * __nullable)outError;           /* Error description. */
+
+/*
+ Synchronously load a named texture asset from a given bundled into an OpenGL texture
+ Returns the generated texture object when the operation is complete, or the operation terminates with an error (returning nil).
+ Returned error can be queried via 'error', which is nil otherwise.
+ */
++ (nullable GLKTextureInfo *)textureWithName:(NSString *)name                                       /* The asset name */
+                                 scaleFactor:(CGFloat)scaleFactor                                   /* scale factor of asset to be retrieved */
+                                      bundle:(nullable NSBundle*)bundle                             /* The bundle where the named texture is located */
+                                     options:(nullable NSDictionary<NSString*, NSNumber*> *)options /* Options that control how the image is loaded. */
+                                       error:(NSError * __nullable * __nullable)outError;           /* Error description. */
 
 /*
  Synchronously create a texture from data residing in memory.
@@ -4198,6 +4216,17 @@ OPENGL_DEPRECATED(10.8,10.14) OPENGLES_DEPRECATED(ios(5.0,12.0), tvos(9.0,12.0))
                          options:(nullable NSDictionary<NSString*, NSNumber*> *)options /* Options that control how the image is loaded. */
                            queue:(nullable dispatch_queue_t)queue                       /* Dispatch queue, or NULL to use the main queue. */
                completionHandler:(GLKTextureLoaderCallback)block;                       /* Block to be invoked on the above dispatch queue. */
+
+/*
+ Asynchronously load a named texture asset from a given bundled into an OpenGL texture
+ Invokes the block on the provided queue when the operation is complete. If queue is NULL, the main queue will be used.
+ */
+- (void)textureWithName:(NSString *)name                                       /* The asset name */
+            scaleFactor:(CGFloat)scaleFactor                                   /* scale factor of asset to be retrieved */
+                 bundle:(nullable NSBundle*)bundle                             /* The bundle where the named texture is located */
+                options:(nullable NSDictionary<NSString*, NSNumber*> *)options /* Options that control how the image is loaded. */
+                  queue:(nullable dispatch_queue_t)queue                       /* Dispatch queue, or NULL to use the main queue. */
+      completionHandler:(GLKTextureLoaderCallback)block;                       /* Block to be invoked on the above dispatch queue. */
 
 /*
  Asynchronously create a texture from data residing in memory.
@@ -4566,7 +4595,7 @@ GLK_INLINE GLKVector2 GLKVector2Minimum(GLKVector2 vectorLeft, GLKVector2 vector
    
 GLK_INLINE bool GLKVector2AllEqualToVector2(GLKVector2 vectorLeft, GLKVector2 vectorRight)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x2_t v1 = *(float32x2_t *)&vectorLeft;
     float32x2_t v2 = *(float32x2_t *)&vectorRight;
     uint32x2_t vCmp = vceq_f32(v1, v2);
@@ -4584,7 +4613,7 @@ GLK_INLINE bool GLKVector2AllEqualToVector2(GLKVector2 vectorLeft, GLKVector2 ve
 
 GLK_INLINE bool GLKVector2AllEqualToScalar(GLKVector2 vector, float value)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x2_t v1 = *(float32x2_t *)&vector;
     float32x2_t v2 = vdup_n_f32(value);
     uint32x2_t vCmp = vceq_f32(v1, v2);
@@ -4602,7 +4631,7 @@ GLK_INLINE bool GLKVector2AllEqualToScalar(GLKVector2 vector, float value)
 
 GLK_INLINE bool GLKVector2AllGreaterThanVector2(GLKVector2 vectorLeft, GLKVector2 vectorRight)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x2_t v1 = *(float32x2_t *)&vectorLeft;
     float32x2_t v2 = *(float32x2_t *)&vectorRight;
     uint32x2_t vCmp = vcgt_f32(v1, v2);
@@ -4620,7 +4649,7 @@ GLK_INLINE bool GLKVector2AllGreaterThanVector2(GLKVector2 vectorLeft, GLKVector
 
 GLK_INLINE bool GLKVector2AllGreaterThanScalar(GLKVector2 vector, float value)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x2_t v1 = *(float32x2_t *)&vector;
     float32x2_t v2 = vdup_n_f32(value);
     uint32x2_t vCmp = vcgt_f32(v1, v2);
@@ -4638,7 +4667,7 @@ GLK_INLINE bool GLKVector2AllGreaterThanScalar(GLKVector2 vector, float value)
 
 GLK_INLINE bool GLKVector2AllGreaterThanOrEqualToVector2(GLKVector2 vectorLeft, GLKVector2 vectorRight)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x2_t v1 = *(float32x2_t *)&vectorLeft;
     float32x2_t v2 = *(float32x2_t *)&vectorRight;
     uint32x2_t vCmp = vcge_f32(v1, v2);
@@ -4656,7 +4685,7 @@ GLK_INLINE bool GLKVector2AllGreaterThanOrEqualToVector2(GLKVector2 vectorLeft, 
 
 GLK_INLINE bool GLKVector2AllGreaterThanOrEqualToScalar(GLKVector2 vector, float value)
 {
-#if defined(__ARM_NEON_)
+#if defined(__ARM_NEON__)
     float32x2_t v1 = *(float32x2_t *)&vector;
     float32x2_t v2 = vdup_n_f32(value);
     uint32x2_t vCmp = vcge_f32(v1, v2);
@@ -5254,7 +5283,7 @@ GLK_INLINE float GLKMathDegreesToRadians(float degrees) { return degrees * (M_PI
 GLK_INLINE float GLKMathRadiansToDegrees(float radians) { return radians * (180 / M_PI); };
     
 GLKVector3 GLKMathProject(GLKVector3 object, GLKMatrix4 model, GLKMatrix4 projection, int *viewport);
-GLKVector3 GLKMathUnproject(GLKVector3 window, GLKMatrix4 model, GLKMatrix4 projection, int *viewport, bool *success);
+GLKVector3 GLKMathUnproject(GLKVector3 window, GLKMatrix4 model, GLKMatrix4 projection, int *viewport, bool  * __nullable success);
 
 #ifdef __OBJC__
 NSString * NSStringFromGLKMatrix2(GLKMatrix2 matrix);
