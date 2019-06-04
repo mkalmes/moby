@@ -6,11 +6,15 @@
  *  @copyright Copyright (c) 2015 Apple Inc. All rights reserved.
  */
 
+#ifndef MetalPerformanceShaders_h
+#define MetalPerformanceShaders_h 1
+
 #ifndef __METAL_VERSION__
 #import <MPSCore/MPSCore.h>
 #import <MPSImage/MPSImage.h>
 #import <MPSMatrix/MPSMatrix.h>
 #import <MPSNeuralNetwork/MPSNeuralNetwork.h>
+#import <MPSNDArray/MPSNDArray.h>
 #endif
 #import <MPSRayIntersector/MPSRayIntersector.h>
 
@@ -27,7 +31,7 @@ extern "C" {
  *  @return     YES             The device is supported.
  *              NO              The device is not supported
  */
-BOOL    MPSSupportsMTLDevice( __nullable id <MTLDevice> device )  MPS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0));
+BOOL    MPSSupportsMTLDevice( __nullable id <MTLDevice> device )  MPS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0));
 
     
 /*! @abstract Hint to MPS how much memory your application expects to need for the command buffer
@@ -104,6 +108,47 @@ void    MPSHintTemporaryMemoryHighWaterMark( __nonnull id <MTLCommandBuffer> cmd
 void    MPSSetHeapCacheDuration( __nonnull id <MTLCommandBuffer> cmdBuf,
                                  double seconds );
 
+#if defined(DOXYGEN)
+    typedef enum MPSDeviceOptions
+#else
+    typedef NS_OPTIONS( NSUInteger, MPSDeviceOptions )
+#endif
+{
+    /*! Use default options */
+    MPSDeviceOptionsDefault         MPS_ENUM_AVAILABLE_STARTING( macos(10.14.4), ios(12.2), uikitformac(13.0), tvos(12.2)) MPS_SWIFT_NAME(Default) = 0UL,
+
+    /*! Prefer a low power device */
+    MPSDeviceOptionsLowPower        MPS_ENUM_AVAILABLE_STARTING( macos(10.14.4), ios(12.2), uikitformac(13.0), tvos(12.2)) = 1,
+
+    /*! Skip removable devices */
+    MPSDeviceOptionsSkipRemovable   MPS_ENUM_AVAILABLE_STARTING( macos(10.14.4), ios(12.2), uikitformac(13.0), tvos(12.2)) = 2,
+};
+    
+/*! @abstract   Identify the preferred device for MPS computation
+ *  @discussion This method identifies a suitable device for MPS operation. By
+ *              default, it prefers a headless high performance GPU. Your application
+ *              may use the options parameter to adjust this behavior.  If your application
+ *              needs a particular device, for example one attached to the display on
+ *              which a view resides, then please see:
+ *
+ *                  https://developer.apple.com/documentation/metal/choosing_gpus_on_mac/device_selection_and_fallback_for_graphics_rendering
+ *
+ *              ...for preferred methods to get that device.
+ *
+ *              The choice made by MPSGetPreferredDevice can be overridden by setting the
+ *              MPS_PREFERED_DEVICE environment variable to the index of the desired device.
+ *              Expprt MPS_PREFERRED_DEVICE=-1 to print a list of devices to stderr.
+ *
+ *              Your application is welcome to use any MTLDevice with MPS so long as
+ *              MPSSupportsMTLDevice(device) returns YES. This convenience function is provided
+ *              to simplify device selection for common cases.
+ *
+ *  @param      options Customimze the display selection
+ *                      If a matching device can not be found, another device will be returned, if available.
+ *  @return     A valid MTLDevice supported by MPS or nil if none are available. */
+__nullable id <MTLDevice> MPSGetPreferredDevice( MPSDeviceOptions options ) MPS_AVAILABLE_STARTING(macos(10.14.4), ios(12.2), uikitformac(13.0), tvos(12.2));
+
+    
 //
 //  These headers contain doxygen formatted documentation. They are human readable as is,
 //  but can be processed as such to make something a bit nicer looking.  Our version of
@@ -1244,6 +1289,93 @@ void    MPSSetHeapCacheDuration( __nonnull id <MTLCommandBuffer> cmdBuf,
  *  [MPSNNFilterNode gradientFilterWithSources:], so it is recommended that when possible,
  *  you use that instead to help make sure everything is wired up correctly.
  *
+ *  @section troubleshooting    Troubleshooting FAQ
+ *  Q: My application memory size quickly grows huge, but leaks shows no leaks. What is wrong?
+ *  A: Make sure there is a autoreleasepool bracketing the MTLCommandBuffer lifespan. If there isn't one
+ *     or it doesn't get drained often enough then the MTLCommandBuffer doesn't get released and consequently
+ *     the MPS heap associated with each MTLCommandBuffer doesn't get released.  This will happen even
+ *     when ARC is enabled. Usually, the autoreleasepool should be popped or drained after each command
+ *     buffer completes.
+ *
+ *  Q: I'm getting unexpected results out of the MPSNNGraph. How do I debug?
+ *  A: (1) You can look at the intermediate results node by node by turning on MPSNNImageNode.exportFromGraph
+ *         for each node in turn. Perhaps one layer is misconfigured. Note: exporting all nodes at the same
+ *         time might cause a memory usage to grow become high, and typically should be avoided. Also, turning
+ *         MPSNNImageNode.exportFromGraph on may change how the graph optimizes its structure. Intermediate
+ *         images that normally would be folded away by node fusion can't be folded away if MPSNNImageNode.exportFromGraph
+ *         is turned on for the image. When this option is on, impact on graph internal structure should be examined.
+ *     (2) You can cause the MPSNNGraph to show the internal graph representation and what optimizations it
+ *         has done by exporting the MPS_LOG_INFO environment variable. This will cause each graph to emit quite
+ *         a lot of information, but may be well worth wading through.
+ *     (3) MPSNNGraph.debugDescription (or po <graphPtr> in lldb) will emit *even more* information down to the
+ *         finest detail about every filter in the graph.
+ *
+ *  Q: My code is asserting because some readCount isn't right?
+ *  A: Generally speaking, if a MPSKernel reads from a temporary MPSImage, MPSVector, MPSState or MPSMatrix
+ *     it will decrement the read count. This may include some filters that do not seem like they would read
+ *     from it, or may read from it more than once (e.g. the batch normalization cluster of kernels which are
+ *     used to implement the batch normalization node, which may read more than once depending on whether
+ *     training is enabled or statistics calculations are turned on).  Some states are both read from and
+ *     written to by the kernel.  Your own custom kernels should operate in the same way. Individual filters
+ *     should only decrement the readcount once, even if they touch the data in multiple passes. Some graph
+ *     nodes are implemented using multiple MPSKernels and may decrement more than once.
+ *
+ *     Use [MPSNNGraph readCountForSourceImageAtIndex:] and [MPSNNGraph readCountForSourceStateAtIndex:] to
+ *     find out how much the readCount property on each image and state passed into the graph will be decremented.
+ *
+ *     When the readCount reaches 0, the data storage backing the object is returned to the MPS heap for reuse,
+ *     even if the object that used to own it is still alive. The memory can not be reclaimed by that object. If
+ *     the Metal debug layer is on, it should assert when a MPS resource object is released with a non-zero
+ *     readcount or is used with a 0 readCount.
+ *
+ *     BUG: We have forgotten to decrement the readCount on one or two MPSKernels previously. These were fixed
+ *          in a later OS revision. Applications that support older operating systems may need to work around
+ *          these cases if they are encountered.
+ *
+ *  Q: Why does my MPS workload take longer the first time I run it?
+ *  A: Frequently, many GPU kernels need to be compiled first before they can be used. Compilers can be expensive.
+ *     Metal keeps a cache of compiled kernels for the lifetime of your application, so this penalty should
+ *     disappear with continued use.
+ *
+ *     In addition, MPS may allocate a heap on your behalf. Sometimes these heaps can be quite large, a gigabyte
+ *     or more! There is a caching mechanism at work in MPS to recycle the heaps between command buffers so that the
+ *     cost does not have to paid for every time. By default, cached heaps no longer in use are freed after a few
+ *     seconds.
+ *
+ *  Q: Why am I not getting the expected performance?
+ *  A: Often this comes down to energy saving optimizations on the GPU, CPU or both.  When either processing unit
+ *     is not in use, the clock speed may be reduced to save energy and reduce heat production. When the procesing
+ *     unit is needed again, its clock speed will ramp up again. This is not an instantaneous process. If your
+ *     work units are small enough, the CPU and/or GPU may never reach peak clock speed before they run out of
+ *     work and clock down again.  Workloads that bounce back and forth between the GPU and CPU, each leaving the
+ *     other idle, commonly encounter this behavior.  Typically, the solution is to double buffer the work load such
+ *     that the CPU can be encoding the next batch of work while the GPU is working on the previous batch of work.
+ *     The command buffer containing the next batch of work should be committed to the GPU before the GPU finishes
+ *     the previous batch so that the GPU can start working on it immediately upon completion of the previous batch.
+ *     This will keep the GPU busy and thereby avoid problems with the GPU clock slowing down.  This effect is frequently
+ *     large, a factor of 2-4 in performance.
+ *
+ *     MPS tunes its CPU code to keep the CPU cost quite low. This will help keep the GPU busy. If the CPU is busy
+ *     all the time, you may need to do some CPU side tuning to make sure that the CPU is able to keep the GPU properly
+ *     fed.
+ *
+ *  Q: There are too many MPS neural networking kernels. How can I reduce the amount of code I write?
+ *  A: Please look at MPSNNGraph.h and MPSNNGraphNodes.h for a higher level interface into the neural networking
+ *     stack. The MPSNNGraph will handle a number of difficult details for you like image concatenation, node fusion,
+ *     heap size estimation, coordinating read counts, padding computation, and more. The MPSNNGraph is intended
+ *     to be used in a similar amount of code to programming with popular python based neural networking frameworks.
+ *     It can also autogenerate a training graph for you once you have constructed the graph representation for
+ *     the inference passes.
+ *
+ *  Q: Unexpected behavior / crashing is occurring
+ *  A: Make sure the Metal Debug layer is on. That may allow some MPS debug code to identify the problem early for you.
+ *      Edit the application scheme in Xcode. Enable Run : Options : Metal API Validation
+ *
+ *     You may also try turning on the usual debugging tools such as Malloc Scribble, Malloc Guard Edges, NSZombies
+ *     and various compiler sanitizers. Try also exporting the MPS_LOG_INFO environment variable.
+ *
+ *     If all else fails, a bug report with a reproducible test case attached should reach the MPS team in a day or two.
+ *
  *  @section release_notes   MPS Release Notes
  *  @subsection macosX_13_4    macOS X.13.4  iOS/tvOS 11.3
  *  A preview for neural network training support is provided in macOS X.13.4.
@@ -1309,6 +1441,8 @@ void    MPSSetHeapCacheDuration( __nonnull id <MTLCommandBuffer> cmdBuf,
 }
 #endif
 
+
+#endif  /* MetalPerformanceShaders_h*/
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSRayIntersector.framework/Headers/MPSRayIntersectorTypes.h
 /*!
  *  @header MPSRayIntersectorTypes.h
@@ -1431,6 +1565,26 @@ typedef struct {
 } MPSRayOriginDirection;
 
 /**
+ * @brief Represents a 3D ray with an origin and a direction
+ *
+ * @discussion This type is available from the Metal Shading Language by including the
+ * MetalPerformanceShaders/MetalPerformanceShaders.h header.
+ */
+typedef struct {
+    /**
+     * @brief Ray origin. The intersection test will be skipped if the origin contains NaNs
+     * or infinities.
+     */
+    MPSPackedFloat3 origin;
+
+    /**
+     * @brief Ray direction. Does not need to be normalized. The intersection test will be
+     * skipped if the direction has length zero or contains NaNs or infinities.
+     */
+    MPSPackedFloat3 direction;
+} MPSRayPackedOriginDirection;
+
+/**
  * @brief Represents a 3D ray with an origin, a direction, and an intersection
  * distance range from the origin
  *
@@ -1540,7 +1694,7 @@ typedef struct {
 
 /**
  * @brief Intersection result which contains the distance from the ray origin to the intersection
- * point, the index of the intersected primitive, and the first two barycentric coordinates of
+ * point, the index of the intersected primitive, and the two dimensional parameterization of
  * the intersection point.
  *
  * @discussion This type is available from the Metal Shading Language by including the
@@ -1562,9 +1716,42 @@ typedef struct {
     unsigned int primitiveIndex;
 
     /**
-     * @brief The first two barycentric coordinates U and V of the intersection point. The
-     * third coordinate W = 1 - U - V. Undefined if the ray does not intersect a primitive
-     * or if the intersection type is MPSIntersectionTypeAny.
+     * @brief A two dimensional coordinate representing the intersection point according to the
+     * primitive's parameterization.
+     *
+     * For triangle primitives, these are the first two barycentric coordinates U and V of the
+     * intersection point. The third coordinate W = 1 - U - V. If the triangle has vertices v0, v1,
+     * and v2, the position of the intersection point (and other per-vertex attributes) can be
+     * interpolated as follows:
+     *
+     *     @code
+     *     float3 v_interpolated = U * v0 + V * v1 + W * v2;
+     *     @endcode
+     *
+     * Quadrilateral primitives are treated as two triangles internally. If the quadrilateral has
+     * vertices v0, v1, v2, and v3, the two triangles will have vertices v0, v1, v2 and v0, v2, v3.
+     * The coordinates will still be the first two barycentric coordinates of the intersected
+     * triangle, but they will be subtracted from one for the second triangle. In that case, the
+     * third coordinate W = 1 - U - V will be less than zero. This can be used to interpolate per-
+     * vertex attributes as follows:
+     *
+     *     @code
+     *     float W = 1 - U - V;
+     *     float3 v_interpolated;
+     *
+     *     if (W < 0.0f) {
+     *         U = 1 - U;
+     *         V = 1 - V;
+     *         W = 1 - U - V;
+     *         v_interpolated = U * v0 + V * v2 + W * v3;
+     *     }
+     *     else {
+     *         v_interpolated = U * v0 + V * v1 + W * v2;
+     *     }
+     *     @endcode
+     *
+     * This value is undefined if the ray does not intersect a primitive or if the intersection
+     * type is MPSIntersectionTypeAny.
      */
     vector_float2 coordinates;
 } MPSIntersectionDistancePrimitiveIndexCoordinates;
@@ -1602,7 +1789,7 @@ typedef struct {
 /**
  * @brief Intersection result which contains the distance from the ray origin to the intersection
  * point, the index of the intersected primitive, the index of the intersected instance, and the
- * first two barycentric coordinates of the intersection point.
+ * two dimensional parameterization of the intersection point.
  *
  * @discussion This type is available from the Metal Shading Language by including the
  * MetalPerformanceShaders/MetalPerformanceShaders.h header.
@@ -1630,12 +1817,232 @@ typedef struct {
     unsigned int instanceIndex;
 
     /**
-     * @brief The first two barycentric coordinates U and V of the intersection point. The
-     * third coordinate W = 1 - U - V. Undefined if the ray does not intersect a primitive
-     * or if the intersection type is MPSIntersectionTypeAny.
+     * @brief A two dimensional coordinate representing the intersection point according to the
+     * primitive's parameterization.
+     *
+     * For triangle primitives, these are the first two barycentric coordinates U and V of the
+     * intersection point. The third coordinate W = 1 - U - V. If the triangle has vertices v0, v1,
+     * and v2, the position of the intersection point (and other per-vertex attributes) can be
+     * interpolated as follows:
+     *
+     *     @code
+     *     float3 v_interpolated = U * v0 + V * v1 + W * v2;
+     *     @endcode
+     *
+     * Quadrilateral primitives are treated as two triangles internally. If the quadrilateral has
+     * vertices v0, v1, v2, and v3, the two triangles will have vertices v0, v1, v2 and v0, v2, v3.
+     * The coordinates will still be the first two barycentric coordinates of the intersected
+     * triangle, but they will be subtracted from one for the second triangle. In that case, the
+     * third coordinate W = 1 - U - V will be less than zero. This can be used to interpolate per-
+     * vertex attributes as follows:
+     *
+     *     @code
+     *     float W = 1 - U - V;
+     *     float3 v_interpolated;
+     *
+     *     if (W < 0.0f) {
+     *         U = 1 - U;
+     *         V = 1 - V;
+     *         W = 1 - U - V;
+     *         v_interpolated = U * v0 + V * v2 + W * v3;
+     *     }
+     *     else {
+     *         v_interpolated = U * v0 + V * v1 + W * v2;
+     *     }
+     *     @endcode
+     *
+     * This value is undefined if the ray does not intersect a primitive or if the intersection
+     * type is MPSIntersectionTypeAny.
      */
     vector_float2 coordinates;
 } MPSIntersectionDistancePrimitiveIndexInstanceIndexCoordinates;
+
+#endif
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSRayIntersector.framework/Headers/MPSTemporalAA.h
+/*!
+ *  @header MPSTemporalAA.h
+ *  @framework MPSRayIntersector
+ *  @description  MPS noise reduction filter interface.
+ *
+ *  @copyright Copyright (c) 2018 Apple Inc. All rights reserved.
+ */
+
+#ifndef MPSTemporalAA_h
+#define MPSTemporalAA_h
+
+#import <MPSCore/MPSCoreTypes.h>
+#import <MPSCore/MPSKernel.h>
+
+/**
+ * @brief Reduces aliasing in an image by accumulating samples over multiple frames
+ *
+ * @discussion The color for the previous frame will be sampled using the provided motion vector
+ * texture and blended with the current frame according to the blendFactor property. The colors
+ * from the previous frame will be clamped to the color-space bounding box formed by the center
+ * pixel's neighbors to avoid reprojection artifacts, and the motion vector texture will be
+ * dilated to avoid aliased silhouette edges under motion.
+ *
+ * For the best result, the sample positions produced by the renderer should be jittered every
+ * frame, ideally using a low discrepency sequence. This will ensure that different sample
+ * positions along edges will be visited over time even if the camera is not moving. This will
+ * also reduce aliasing due to textures and high-frequency shading.
+ *
+ * For reference, see "High-Quality Temporal Supersampling" by Karis.
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSTemporalAA : MPSKernel <NSSecureCoding, NSCopying>
+
+/**
+ * @brief How much to blend the current frame with the previous frame during temporal antialiasing.
+ * The final value is given by
+ * current * blendFactor + previous * (1 - blendFactor). Must be between zero
+ * and one, inclusive. Defaults to 0.1.
+ */
+@property (nonatomic) float blendFactor;
+
+- (nonnull instancetype)initWithDevice:(nonnull id <MTLDevice>)device NS_DESIGNATED_INITIALIZER;
+
+- (nullable instancetype)initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>)device NS_DESIGNATED_INITIALIZER;
+
+- (nonnull instancetype)copyWithZone:(nullable NSZone *)zone
+                              device:(nullable id <MTLDevice>)device;
+
+- (void)encodeWithCoder:(NSCoder * __nonnull)coder;
+
+/**
+ * @brief Encode temporal antialiasing a command buffer
+ *
+ * @discussion The motion vector texture must be at least a two channel texture representing how
+ * many texels each texel in the source image(s) have moved since the previous frame. The remaining
+ * channels will be ignored if present. This texture may be nil, in which case the motion vector is
+ * assumed to be zero, which is suitable for static images.
+ *
+ * The depth texture must contain the depth values for directly visible geometry for the current
+ * frame for each pixel. The first channel must store the depth value from zero to infinity.
+ * The depth texture may be nil, but this will prevent motion vectors from being dilated and
+ * may introduce aliasing along silhouette edges.
+ *
+ * The destination texture should be used as the previous texture in the next frame.
+ *
+ * @param commandBuffer       Command buffer to encode into
+ * @param sourceTexture       Current frame to denoise
+ * @param previousTexture     Previous denoised frame to reproject into current
+ *                            frame
+ * @param destinationTexture  Output blended image
+ * @param motionVectorTexture Motion vector texture
+ * @param depthTexture        The depth values for the current frame
+ */
+- (void)encodeToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+                sourceTexture:(nonnull id <MTLTexture>)sourceTexture
+              previousTexture:(nonnull id <MTLTexture>)previousTexture
+           destinationTexture:(nonnull id <MTLTexture>)destinationTexture
+          motionVectorTexture:(nullable id <MTLTexture>)motionVectorTexture
+                 depthTexture:(nullable id <MTLTexture>)depthTexture;
+
+@end
+
+#endif
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSRayIntersector.framework/Headers/MPSPolygonBuffer.h
+/*!
+ *  @header MPSPolygonBuffer.h
+ *  @framework MPSRayIntersector
+ *  @description  MPSRayIntersector polygon buffer interface.
+ *
+ *  @copyright Copyright (c) 2018 Apple Inc. All rights reserved.
+ */
+
+#ifndef MPSPolygonBuffer_h
+#define MPSPolygonBuffer_h
+
+#import <MPSRayIntersector/MPSAccelerationStructure.h>
+
+/**
+ * @brief A vertex buffer and optional index and mask buffer for a set of polygons
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSPolygonBuffer : NSObject <NSCopying, NSSecureCoding>
+
+/**
+ * @brief Initialize the polygon buffer
+ */
+- (nonnull instancetype)init NS_DESIGNATED_INITIALIZER;
+
+/**
+ * @brief Initialize the polygon buffer with an NSCoder. Buffer properties such as the vertex
+ * buffer, instance buffer, etc. are set to nil. Encode and decode these buffers along with the
+ * polygon buffer instead.
+ */
+- (nullable instancetype)initWithCoder:(NSCoder * __nonnull)aDecoder NS_DESIGNATED_INITIALIZER;
+
++ (nonnull instancetype)polygonBuffer;
+
+/**
+ * @brief Create a a copy of this polygon buffer
+ *
+ * @discussion Buffer properties of the polygon buffer such as the vertex buffer, instance, buffer,
+ * etc. are set to nil. Copy these buffers and assign them to the new polygon buffer or reassign
+ * the existing buffers to the new polygon buffer.
+ *
+ * @param zone This parameter is ignored. Memory zones are no longer used by Objective-C.
+ */
+- (nonnull instancetype)copyWithZone:(nullable NSZone *)zone;
+
+/**
+ * @brief Vertex buffer containing vertex data encoded as three 32 bit floats per vertex. Note
+ * that by default each vertex is aligned to the alignment of the vector_float3 type: 16 bytes.
+ * This can be changed using the vertexStride property. A vertex buffer must be provided before
+ * the acceleration structure is built.
+ *
+ * When using triangle polygons, degenerate (zero or negative area) triangles are ignored
+ * during acceleration structure construction. This can be used to pad triangle indices if needed.
+ *
+ * Quadrilateral polygons are internally treated as two triangles. If the quadrilateral has
+ * vertices v0, v1, v2, and v3, the two triangles will have vertices v0, v1, v2 and v0, v2, v3.
+ * A quadrilateral may be used to represent a triangle by repeating the last vertex. If the first
+ * triangle is degenerate (zero or negative area), the entire quadrilateral will be ignored. This
+ * can be used to pad quadrilateral indices if needed. All four vertices of a quadrilateral must
+ * be coplanar and the quadrilateral must be convex.
+ */
+@property (nonatomic, retain) id <MTLBuffer> _Nullable vertexBuffer;
+
+/**
+ * @brief Offset, in bytes, into the vertex buffer. Defaults to 0 bytes. Must be aligned to 4
+ * bytes.
+ */
+@property (nonatomic) NSUInteger vertexBufferOffset;
+
+/**
+ * @brief Index buffer containing index data. Each index references a vertex in the vertex buffer.
+ * May be nil.
+ */
+@property (nonatomic, retain) id <MTLBuffer> _Nullable indexBuffer;
+
+/**
+ * @brief Offset, in bytes, into the index buffer. Defaults to 0 bytes. Must be aligned to a
+ * multiple of the index type. Changes to this property require rebuilding the acceleration
+ * structure.
+ */
+@property (nonatomic) NSUInteger indexBufferOffset;
+
+/**
+ * @brief Mask buffer containing one uint32_t mask per polygon. May be nil. Otherwise, the mask
+ * type must be specified on the MPSRayIntersector with which it is used.
+ */
+@property (nonatomic, retain) id <MTLBuffer> _Nullable maskBuffer;
+
+/**
+ * @brief Offset, in bytes, into the mask buffer. Defaults to 0 bytes. Must be aligned to 4 bytes.
+ */
+@property (nonatomic) NSUInteger maskBufferOffset;
+
+/**
+ * @brief Number of polygons. Changes to this property require rebuilding the acceleration
+ * structure.
+ */
+@property (nonatomic) NSUInteger polygonCount;
+
+@end
 
 #endif
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSRayIntersector.framework/Headers/MPSAccelerationStructureGroup.h
@@ -1663,7 +2070,7 @@ typedef struct {
  * limited by the Metal device's buffer size limits. Therefore, do not group acceleration
  * structures unless they are likely to be used in the same instance acceleration structure.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSAccelerationStructureGroup : NSObject
 
 /**
@@ -1701,7 +2108,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
 /**
  * @brief A block of code invoked when an operation on an MPSAccelerationStructure is completed
  */
-MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 typedef void (^MPSAccelerationStructureCompletionHandler)(MPSAccelerationStructure * _Nullable);
 
 /**
@@ -1729,7 +2136,23 @@ typedef NS_OPTIONS(NSUInteger, MPSAccelerationStructureUsage) {
      * is interactively editing a live view of the scene.
      */
     MPSAccelerationStructureUsageFrequentRebuild = 2,
-} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+
+    /**
+     * @brief Prefer building the acceleration structure on the GPU. By default, the acceleration
+     * structure will be built on the GPU when possible. However, in some cases such as very small
+     * triangle counts, the acceleration structure may be built on the CPU. This option will force
+     * the acceleration structure to be always be built on the GPU whenever possible.
+     */
+    MPSAccelerationStructureUsagePreferGPUBuild MPS_ENUM_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0)) = 4,
+
+    /**
+     * @brief Prefer building the acceleration structure on the CPU. By default, the acceleration
+     * structure will be built on the GPU when possible, which is typically much faster than
+     * building on the CPU. However, in some cases it may be preferable to build on the CPU such as
+     * to avoid framerate hitches when the GPU is rendering the user interface.
+     */
+    MPSAccelerationStructureUsagePreferCPUBuild  MPS_ENUM_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0)) = 8,
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /**
  * @brief Possible values of the acceleration structure status property
@@ -1744,10 +2167,10 @@ typedef NS_ENUM(NSUInteger, MPSAccelerationStructureStatus) {
      * @brief The acceleration structure has finished building
      */
     MPSAccelerationStructureStatusBuilt = 1
-} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /**
- * @brief A data structure built over geometry used to acceleration ray tracing
+ * @brief A data structure built over geometry used to accelerate ray tracing
  *
  * @discussion Do not use this base class directly. Use one of the derived classes instead.
  * The general pattern for creating an acceleration structure is as follows. First, create the
@@ -1971,12 +2394,20 @@ typedef NS_ENUM(NSUInteger, MPSAccelerationStructureStatus) {
  *     - When running in Xcode, disable "Enable Backtrace Recording" in your scheme settings.
  *       Enabling this setting can significantly increase acceleration structure build time.
  *
+ *     - Consider using quadrilaterals instead of triangles to represent your geometry.
+ *       The cost of intersecting a quadrilateral is typically less than the cost of intersecting
+ *       two triangles, so quadrilaterals can improve performance. Quadrilaterals also typically
+ *       require 30-40% less memory than triangles including vertex data and internal buffers
+ *       allocated by the acceleration structure. Whether quadrilaterals improve or hurt
+ *       performance can depend on the geometry and ray distribution, so you should choose
+ *       whichever performs better for your application.
+ *
  * Thread Safety: MPSAccelerationStructures are generally not thread safe. Changing properties
  * and rebuilding acceleration structures from multiple threads result in undefined behavior.
  * However, it is safe to encode intersection tests with a single acceleration structure
  * from multiple threads as long as each thread uses its own MPSRayIntersector.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSAccelerationStructure : MPSKernel <NSSecureCoding, NSCopying>
 
 /**
@@ -2087,7 +2518,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  *
  * Until the command buffer has completed, the acceleration structure cannot be copied,
  * encoded with NSSecureCoding, or rebuilt. Changes to properties such as the triangle count or
- * instance might not be reflected. These changes require that the acceleration structure be
+ * instance count might not be reflected. These changes require that the acceleration structure be
  * rebuilt instead. The acceleration structure must be rebuilt at least once before this method can
  * be called.
  */
@@ -2099,7 +2530,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  *
  * @discussion The acceleration structure may be copied to a different Metal device. Buffer
  * properties of the acceleration structure such as the vertex buffer, instance, buffer, etc. are
- * set to nil. Copy these buffers to new Metal device and assign them to the new acceleration
+ * set to nil. Copy these buffers to the new Metal device and assign them to the new acceleration
  * structure instead. Do not copy the acceleration structure until any prior refit or rebuild
  * operations have completed.
  *
@@ -2138,6 +2569,169 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
 @end
 
 #endif
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSRayIntersector.framework/Headers/MPSPolygonAccelerationStructure.h
+/*!
+ *  @header MPSPolygonAccelerationStructure.h
+ *  @framework MPSRayIntersector
+ *  @description  MPSRayIntersector polygon acceleration structure interface.
+ *
+ *  @copyright Copyright (c) 2018 Apple Inc. All rights reserved.
+ */
+
+#ifndef MPSPolygonAccelerationStructure_h
+#define MPSPolygonAccelerationStructure_h
+
+#import <MPSRayIntersector/MPSAccelerationStructure.h>
+#import <MPSRayIntersector/MPSPolygonBuffer.h>
+
+typedef NS_ENUM(NSUInteger, MPSPolygonType) {
+    /**
+     * @brief Triangles with three vertices
+     */
+    MPSPolygonTypeTriangle = 0,
+
+    /**
+     * @brief Quadrilaterals with four vertices
+     */
+    MPSPolygonTypeQuadrilateral = 1,
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
+/**
+ * @brief An acceleration structure built over polygonal shapes
+ *
+ * @discussion See MPSAccelerationStructure for more information
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSPolygonAccelerationStructure : MPSAccelerationStructure
+
+/**
+ * @brief The type of polygon. Defaults to MPSPolygonTypeTriangle. Changes to this property require
+ * rebuilding the acceleration structure.
+ */
+@property (nonatomic) MPSPolygonType polygonType;
+
+/**
+ * @brief Offset, in bytes, between consecutive vertices in the vertex buffer. Defaults to 0 bytes,
+ * indicating that the vertices are packed according to the natural alignment of the vector_float3
+ * type: 16 bytes.
+ *
+ * @discussion This can be used to skip past any additional per-vertex data which may be stored
+ * alongside the position such as the vertex normal and texture coordinates. Must be a multiple of
+ * 4 bytes, and must be at least 12 bytes. Changes to this property require rebuilding the
+ * acceleration structure.
+ */
+@property (nonatomic) NSUInteger vertexStride;
+
+/**
+ * @brief Index type. Defaults to MPSDataTypeUInt32. Only MPSDataTypeUInt16 and MPSDataTypeUInt32
+ * are supported.
+ */
+@property (nonatomic) MPSDataType indexType;
+
+/**
+ * @brief Vertex buffer containing vertex data encoded as three 32 bit floats per vertex. Note
+ * that by default each vertex is aligned to the alignment of the vector_float3 type: 16 bytes.
+ * This can be changed using the vertexStride property. A vertex buffer must be provided before
+ * the acceleration structure is built.
+ *
+ * When using triangle polygons, degenerate (zero or negative area) triangles are ignored
+ * during acceleration structure construction. This can be used to pad triangle indices if needed.
+ *
+ * Quadrilateral polygons are internally treated as two triangles. If the quadrilateral has
+ * vertices v0, v1, v2, and v3, the two triangles will have vertices v0, v1, v2 and v0, v2, v3.
+ * A quadrilateral may be used to represent a triangle by repeating the last vertex. If the first
+ * triangle is degenerate (zero or negative area), the entire quadrilateral will be ignored. This
+ * can be used to pad quadrilateral indices if needed. All four vertices of a quadrilateral must
+ * be coplanar and the quadrilateral must be convex.
+ *
+ * This is an alias for polygonBuffers[0].vertexBuffer. There must be exactly one polygon buffer
+ * to use this property, or the polygonBuffers property must be nil, in which case an
+ * MPSPolygonBuffer will be created automatically.
+ */
+@property (nonatomic, retain) id <MTLBuffer> _Nullable vertexBuffer;
+
+/**
+ * @brief Offset, in bytes, into the vertex buffer. Defaults to 0 bytes. Must be aligned to 4
+ * bytes.
+ *
+ * This is an alias for polygonBuffers[0].vertexBufferOffset. There must be exactly one polygon
+ * buffer to use this property, or the polygonBuffers property must be nil, in which case an
+ * MPSPolygonBuffer will be created automatically.
+ */
+@property (nonatomic) NSUInteger vertexBufferOffset;
+
+/**
+ * @brief Index buffer containing index data. Each index references a vertex in the vertex buffer.
+ * May be nil.
+ *
+ * This is an alias for polygonBuffers[0].indexBuffer. There must be exactly one polygon buffer
+ * to use this property, or the polygonBuffers property must be nil, in which case an
+ * MPSPolygonBuffer will be created automatically.
+ */
+@property (nonatomic, retain) id <MTLBuffer> _Nullable indexBuffer;
+
+/**
+ * @brief Offset, in bytes, into the index buffer. Defaults to 0 bytes. Must be aligned to a
+ * multiple of the index type. Changes to this property require rebuilding the acceleration
+ * structure.
+ *
+ * This is an alias for polygonBuffers[0].indexBufferOffset. There must be exactly one polygon
+ * buffer to use this property, or the polygonBuffers property must be nil, in which case an
+ * MPSPolygonBuffer will be created automatically.
+ */
+@property (nonatomic) NSUInteger indexBufferOffset;
+
+/**
+ * @brief Mask buffer containing one uint32_t mask per polygon. May be nil. Otherwise, the mask
+ * type must be specified on the MPSRayIntersector with which it is used.
+ *
+ * This is an alias for polygonBuffers[0].maskBuffer. There must be exactly one polygon buffer
+ * to use this property, or the polygonBuffers property must be nil, in which case an
+ * MPSPolygonBuffer will be created automatically.
+ */
+@property (nonatomic, retain) id <MTLBuffer> _Nullable maskBuffer;
+
+/**
+ * @brief Offset, in bytes, into the mask buffer. Defaults to 0 bytes. Must be aligned to 4 bytes.
+ *
+ * This is an alias for polygonBuffers[0].maskBufferOffset. There must be exactly one polygon
+ * buffer to use this property, or the polygonBuffers property must be nil, in which case an
+ * MPSPolygonBuffer will be created automatically.
+ */
+@property (nonatomic) NSUInteger maskBufferOffset;
+
+/**
+ * @brief Number of polygons. Changes to this property require rebuilding the acceleration
+ * structure.
+ *
+ * This is an alias for polygonBuffers[0].polygonCount. There must be exactly one polygon buffer
+ * to use this property, or the polygonBuffers property must be nil, in which case an
+ * MPSPolygonBuffer will be created automatically.
+ */
+@property (nonatomic) NSUInteger polygonCount;
+
+/**
+ * @brief Array of polygon buffers. Each buffer contains a vertex buffer and optional index and
+ * mask buffer for an array of polygons. Changing the length of this array requires rebuilding the
+ * acceleration structure.
+ *
+ * Using more than one MPSPolygonBuffer will reduce performance. It is better to concatenate
+ * these buffers into a single vertex buffer, index buffer, and mask buffer and use a single
+ * MPSPolygonBuffer if possible. This also applies when using an MPSInstanceAccelerationStructure:
+ * each instance or subclass of MPSPolygonAccelerationStructure in an instance hierarchy should use
+ * the same vertex buffer, index buffer, and mask buffer, although each acceleration structure
+ * may use different offsets into these buffers. This allows for the vertex, index, and mask
+ * buffers to be bound directly instead of indirectly through an argument buffer.
+ *
+ * There must be at least one MPSPolygonBuffer. On argument buffer tier 1 devices, there must be
+ * be exactly one MPSPolygonBuffer. Use the argumentBuffersSupport property of the MTLDevice to
+ * check for support.
+ */
+@property (nonatomic, retain) NSArray <MPSPolygonBuffer *> * _Nullable polygonBuffers;
+
+@end
+
+#endif
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSRayIntersector.framework/Headers/MPSInstanceAccelerationStructure.h
 /*!
  *  @header MPSInstanceAccelerationStructure.h
@@ -2153,7 +2747,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
 #import <MPSRayIntersector/MPSAccelerationStructure.h>
 
 @class MPSAccelerationStructureGroup;
-@class MPSTriangleAccelerationStructure;
+@class MPSPolygonAccelerationStructure;
 
 /**
  * @brief Instance transformation type options
@@ -2167,13 +2761,13 @@ typedef NS_ENUM(NSUInteger, MPSTransformType) {
 
     /**
      * @brief All instances have the identity transformation (no transformation). This can be used
-     * to compose multiple triangle acceleration structures in an instance acceleration structure
+     * to compose multiple polygon acceleration structures in an instance acceleration structure
      * without the cost of transforming instances. For example, geometry can be divided into
-     * static and dynamic triangle acceleration structures which can be rebuilt and refit
+     * static and dynamic polygon acceleration structures which can be rebuilt and refit
      * independently.
      */
     MPSTransformTypeIdentity = 1
-} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /**
  * @brief An acceleration structure built over instances of other acceleration structures
@@ -2282,7 +2876,7 @@ typedef NS_ENUM(NSUInteger, MPSTransformType) {
  *
  * See MPSAccelerationStructure for more information
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSInstanceAccelerationStructure : MPSAccelerationStructure
 
 /**
@@ -2291,10 +2885,10 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  * transformation matrix in the transform buffer. All acceleration structures must share a single
  * vertex buffer, optional index buffer, and optional mask buffer, though they may have different
  * offsets within each buffer, and all acceleration structures must share the same acceleration
- * structure group. If a triangle acceleration structure is rebuilt or refit, the instance
+ * structure group. If a polygon acceleration structure is rebuilt or refit, the instance
  * acceleration structure must subsequently be rebuilt or refit.
  */
-@property (nonatomic, retain) NSArray <MPSTriangleAccelerationStructure *> * _Nullable accelerationStructures;
+@property (nonatomic, retain) NSArray <MPSPolygonAccelerationStructure *> * _Nullable accelerationStructures;
 
 /**
  * @brief Buffer containing the 32 bit unsigned integer index into the acceleration structure array
@@ -2344,6 +2938,851 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
 @end
 
 #endif
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSRayIntersector.framework/Headers/MPSQuadrilateralAccelerationStructure.h
+/*!
+ *  @header MPSQuadrilateralAccelerationStructure.h
+ *  @framework MPSRayIntersector
+ *  @description  MPSRayIntersector quadrilateral acceleration structure interface.
+ *
+ *  @copyright Copyright (c) 2018 Apple Inc. All rights reserved.
+ */
+
+#ifndef MPSQuadrilateralAccelerationStructure_h
+#define MPSQuadrilateralAccelerationStructure_h
+
+#import <MPSRayIntersector/MPSPolygonAccelerationStructure.h>
+
+/**
+ * @brief An acceleration structure built over quadrilaterals
+ *
+ * @discussion See MPSPolygonAccelerationStructure for more information
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), tvos(13.0))
+@interface MPSQuadrilateralAccelerationStructure : MPSPolygonAccelerationStructure
+
+/**
+ * @brief Number of quads. Changes to this property require rebuilding the acceleration
+ * structure. This is an alias for the polygonCount property.
+ */
+@property (nonatomic) NSUInteger quadrilateralCount;
+
+@end
+
+#endif
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSRayIntersector.framework/Headers/MPSSVGF.h
+/*!
+ *  @header MPSSVGF.h
+ *  @framework MPSRayIntersector
+ *  @description  MPS noise reduction filter interface.
+ *
+ *  @copyright Copyright (c) 2018 Apple Inc. All rights reserved.
+ */
+
+#ifndef MPSSVGF_h
+#define MPSSVGF_h
+
+#import <MPSCore/MPSCoreTypes.h>
+#import <MPSCore/MPSKernel.h>
+
+/**
+ * @brief Controls how samples are weighted over time
+ */
+typedef NS_ENUM(NSUInteger, MPSTemporalWeighting) {
+    /**
+     * @brief Compute an average of all samples. This will fully utilize all samples but may lead
+     * to excessive ghosting artifacts under motion. Therefore, this is best for static images.
+     */
+    MPSTemporalWeightingAverage = 0,
+
+    /**
+     * @brief Compute an exponential moving average by blending linearly between the previous
+     * accumulated samples and the current sample according to the temporalReprojectionBlendFactor
+     * property. This will cause older samples to lose their contribution over time, which will
+     * prevent ghosting artifacts but will also never converge to a stable value. Therefore, this
+     * is best for images with motion.
+     */
+    MPSTemporalWeightingExponentialMovingAverage = 1,
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
+/**
+ * @brief Reduces noise in images rendered with Monte Carlo ray tracing methods
+ *
+ * @discussion This filter uses temporal reprojection to accumulate samples over time, followed by
+ * an edge-avoiding blur to smooth out the noise. It uses depth and surface normal textures to
+ * detect edges in the image(s) to be denoised. The filter also computes an estimate of the
+ * luminance variance of the accumulated samples for each pixel to reject neighboring pixels whose
+ * luminance is too dissimilar while blurring.
+ *
+ * This filter requires noise-free depth and normal textures, so it is not compatible with
+ * stochastic visibility effects such as depth of field, motion blur, or pixel subsampling. These
+ * effects need to be applied as a post-process instead. Furthermore, because the depth and normal
+ * textures can only represent directly visible geometry, the filter may over-blur reflections.
+ * The use of temporal reprojection may introduce artifacts such as ghosting or streaking, as well
+ * as a temporal lag for changes in luminance such as moving shadows. However, the filter is
+ * relatively fast as it is intended for realtime use. Slower but higher quality filters are
+ * available in the literature.
+ * 
+ * This filter can process up to two images simultaneously assuming they share the same depth and
+ * normal textures. This is typically faster than processing the two images independently because
+ * memory bandwidth spent fetching depth and normal values and ALU time spent computing various
+ * weighting functions can be shared by both images. This is useful if e.g. you want to denoise
+ * direct and indirect lighting terms separately to avoid mixing the two terms. The filter is also
+ * optimized for processing single-channel images for effects such as shadows and ambient
+ * occlusion. Denoising these images can be much faster than denoising a full RGB image, so it may
+ * be useful to separate out these terms and denoise them specifically.
+ *
+ * This filter operates in three stages: temporal reprojection, variance estimation, and finally a
+ * series of edge-avoiding bilateral blurs. The temporal reprojection stage accepts the image to
+ * be denoised for the current frame and the denoised image from the previous frame, the depth and
+ * normal textures from the current and previous frame and, finally, a motion vector texture. It
+ * uses the motion vector texture to look up the accumulated samples from the previous frame. It
+ * then compares the depth and normals to determine if those samples are consistent with the
+ * current frame. If so, the previous frame is blended with the current frame. This stage also
+ * accumulates the first and second moments of the sample luminance which is used to compute the
+ * luminance variance in the next stage.
+ *
+ * The variance estimation stage computes an estimate of the variance of the luminance of the
+ * accumulated samples for each pixel. This stage may fall back to a spatial estimate if not enough
+ * samples have been accumulated. The luminance variance is used in the final stage to reject
+ * outlying neighboring pixels while blurring to avoid blurring across luminance discontinuities
+ * such as shadow boundaries.
+ *
+ * The final stage performs consecutive edge-avoiding bilateral blurs to smooth out noise in the
+ * image. The blurs are dilated with increasing power of two step distances starting from 1,
+ * which cheaply approximates a very large radius bilateral blur. Each iteration blurs both the
+ * input image and the variance image as variance is reduced after each iteration. It is
+ * recommended that the output of the first iteration be used as the input to the next frame's
+ * reprojection stage to further reduce noise.
+ *
+ * Tips:
+ *
+ * - It may be helpful to further divide out texture details such as surface albedo before
+ *   denoising to avoid blurring texture detail and to preserve any careful texture filtering that
+ *   may have been performed. The albedo can be reapplied after denoising.
+ * - High frequency geometry and normal maps may cause excessive disocclusions during reprojection
+ *   manifesting as noise.
+ * - Jittering sample positions from frame to frame for temporal antialiasing may also cause
+ *   disocclusions. However, this can be partially hidden by the temporal antialiasing algorithm
+ *   itself.
+ * - This kernel, like many convolutions, requires quite a bit of bandwidth. Use the texture pixel
+ *   formats with the smallest number of bits-per-pixel and the lowest resolution possible for the
+ *   required quality level. Lower resolution images can be combined with a bilateral upsampling
+ *   filter, especially if the image being denoised is mostly low frequency lighting or ambient
+ *   occlusion.
+ * - The increasing dilation during the bilateral blurring stage can introduce ringing artifacts
+ *   around geometric discontinuities. These can be partially hidden at the cost of potentially
+ *   increased noise by reducing the bilateral blur's sigma value slightly after each iteration.
+ * - Use lower precision pixel formats if possible to reduce memory bandwidth.
+ *
+ * Refer to "Spatiotemporal Variance-Guided Filtering: Real-Time Reconstruction for Path-Traced
+ * Global Illumination" for more information.
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSSVGF : MPSKernel <NSSecureCoding, NSCopying>
+
+/**
+ * @brief Controls how samples' depths are compared during reprojection, variance estimation, and
+ * bilateral filtering. The final weight is given by exp(-abs(Z1 - Z2) / depthWeight). Must be
+ * greater than zero. Defaults to 1.0.
+ */
+@property (nonatomic) float depthWeight;
+
+/**
+ * @brief Controls how samples' normals are compared during reprojection, variance estimation, and
+ * bilateral filtering. The final weight is given by pow(max(dot(N1, N2)), normalWeight). Must be
+ * greater than or equal to zero. Defaults to 128.
+ */
+@property (nonatomic) float normalWeight;
+
+/**
+ * @brief Controls how samples' luminance values are compared during bilateral filtering. The final
+ * weight is given by exp(-abs(L1 - L2) / (luminanceWeight * luminanceVariance + EPSILON)). Must be
+ * greater than or equal to zero. Defaults to 4.
+ */
+@property (nonatomic) float luminanceWeight;
+
+/**
+ * @brief How to weight samples during temporal reprojection. Defaults to
+ * MPSTemporalWeightingAverage.
+ */
+@property (nonatomic) MPSTemporalWeighting temporalWeighting;
+
+/**
+ * @brief When using MPSTemporalWeightingExponentialMovingAverage, how much to blend
+ * the current frame with the previous frame during reprojection. The final value is given by
+ * current * temporalReprojectionBlendFactor + previous * (1 - temporalReprojectionBlendFactor).
+ * Must be between zero and one, inclusive. Defaults to 0.2.
+ */
+@property (nonatomic) float temporalReprojectionBlendFactor;
+
+/**
+ * @brief During reprojection, minimum combined depth and normal weight needed to consider a pixel
+ * from the previous frame consistent with a pixel from the current frame. Must be greater than or
+ * equal to zero. Defaults to 0.01.
+ */
+@property (nonatomic) float reprojectionThreshold;
+
+/**
+ * @brief The minimum number of frames which must be accumulated before variance can be computed
+ * directly from the accumulated luminance moments. If enough frames have not been accumulated,
+ * variance will be estimated with a spatial filter instead. Defaults to 4.
+ */
+@property (nonatomic) NSUInteger minimumFramesForVarianceEstimation;
+
+/**
+ * @brief The radius of the spatial filter used when not enough frames have been accumulated to
+ * compute variance from accumulated luminance moments. Defaults to 3 resulting in a 7x7 filter.
+ */
+@property (nonatomic) NSUInteger varianceEstimationRadius;
+
+/**
+ * @brief The sigma value of the Gaussian function used by the spatial filter used when not enough
+ * frames have been accumulated to compute variance from accumulated luminance moments. Must be
+ * greater than zero. Defaults to 2.0.
+ */
+@property (nonatomic) float varianceEstimationSigma;
+
+/**
+ * @brief The sigma value of the Gaussian function used by the variance pre-filter of the
+ * bilateral filter. Must be greater than zero. Defaults to 1.33.
+ */
+@property (nonatomic) float variancePrefilterSigma;
+
+/**
+ * @brief The radius of the variance pre-filter of the bilateral filter. Defaults to 1 resulting in
+ * a 3x3 filter.
+ */
+@property (nonatomic) NSUInteger variancePrefilterRadius;
+
+/**
+ * @brief The sigma value of the Gaussian function used by the bilateral filter. Must be greater
+ * than zero. Defaults to 1.2.
+ */
+@property (nonatomic) float bilateralFilterSigma;
+
+/**
+ * @brief The radius of the bilateral filter. Defaults to 2 resulting in a 5x5 filter.
+ */
+@property (nonatomic) NSUInteger bilateralFilterRadius;
+
+/**
+ * @brief The number of channels to filter in the source image. Must be at least one and at most
+ * three. Defaults to 3.
+ */
+@property (nonatomic) NSUInteger channelCount;
+
+/**
+ * @brief The number of channels to filter in the second source image. Must be at least one and at
+ * most three. Defaults to 3.
+ */
+@property (nonatomic) NSUInteger channelCount2;
+
+- (nonnull instancetype)initWithDevice:(nonnull id <MTLDevice>)device NS_DESIGNATED_INITIALIZER;
+
+- (nullable instancetype)initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>)device NS_DESIGNATED_INITIALIZER;
+
+- (nonnull instancetype)copyWithZone:(nullable NSZone *)zone
+                              device:(nullable id <MTLDevice>)device;
+
+- (void)encodeWithCoder:(NSCoder * __nonnull)coder;
+
+/**
+ * @brief Encode reprojection into a command buffer
+ *
+ * @discussion Normal and depth values from the previous frame will be compared with normal and
+ * depth values from the current frame to determine if they are similar enough to reproject into
+ * the current frame. These values are weighted by the depthWeight and normalWeight properties.
+ * If the combined weight exceeds the reprojectionThreshold property's value, the previous frame
+ * will be blended with the current frame according to the temporalWeighting and
+ * temporalReprojectionBlendFactor properties.
+ *
+ * The reprojection kernel can operate on two sets of source and destination textures
+ * simultaneously to share costs such as loading depth and normal values from memory, computing
+ * various weights, etc. The second set of textures may be nil. The two images are assumed to share
+ * the same depth and normal values.
+ *
+ * The number of channels in the source image(s), previous frame's image(s), and destination
+ * image(s) are given by the channelCount and channelCount2 properties. These images must have at
+ * least as many channels as given by these properties. Channels beyond the required number are
+ * ignored when reading from source images and set to zero when writing to the destination images,
+ * except the alpha channel which will be set to one if present. The previous frame's image will
+ * be ignored on the first frame.
+ *
+ * The source and destination luminance moments textures must be at least two-channel textures,
+ * which will be set to the accumulated first and second moments of luminance. Channels beyond the
+ * first two will be ignored when reading from the previous frame's texture and set to zero when
+ * writing to the destination texture. The previous frame's luminance moments will be ignored on
+ * the first frame.
+ *
+ * The frame count textures track the number of accumulated frames and must be at least R32Uint
+ * textures. The remaining channels will be ignored when reading from the source texture and set to
+ * zero when writing to the destination texture, if present. The previous frame count texture must
+ * be cleared to zero on the first frame or to reset the accumulated images to the current frame's
+ * image.
+ *
+ * The motion vector texture must be at least a two channel texture representing how many texels
+ * each texel in the source image(s) have moved since the previous frame. The remaining channels
+ * will be ignored if present. This texture may be nil, in which case the motion vector is assumed
+ * to be zero, which is suitable for static images.
+ *
+ * The depth/normal texture must contain the depth and normal values for directly visible geometry
+ * for the current frame for each pixel. These values are packed into a four channel texture to
+ * reduce the number of texture sampling instructions required to load them. The first channel must
+ * store the depth value from zero to infinity. The normals must be stored in the last three
+ * channels as the three signed X, Y, and z components each between negative one and one. 
+ * The depth and normal values are not required if the motion vector texture is nil.
+ *
+ * The destination texture, destination luminance moments texture, and destination frame count
+ * texture are used by subsequent stages of the denoising filter. The destination frame count
+ * texture is also used as the source frame count texture the reprojection kernel in the next
+ * frame.
+ *
+ * @param commandBuffer                       Command buffer to encode into
+ * @param sourceTexture                       Current frame to denoise
+ * @param previousTexture                     Previous denoised frame to reproject into current
+ *                                            frame
+ * @param destinationTexture                  Output blended image
+ * @param previousLuminanceMomentsTexture     Previous accumulated luminance moments image
+ * @param destinationLuminanceMomentsTexture  Output accumulated luminance moments image
+ * @param previousFrameCountTexture           The number of frames accumulated in the previous
+ *                                            source image
+ * @param destinationFrameCountTexture        The number of frames accumulated in the destination
+ *                                            texture(s) including the current frame
+ * @param motionVectorTexture                 Motion vector texture
+ * @param depthNormalTexture                  The depth and normal values for the current frame
+ * @param previousDepthNormalTexture          The depth and normal values for the previous frame
+ */
+- (void)encodeReprojectionToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+                            sourceTexture:(nonnull id <MTLTexture>)sourceTexture
+                          previousTexture:(nonnull id <MTLTexture>)previousTexture
+                       destinationTexture:(nonnull id <MTLTexture>)destinationTexture
+          previousLuminanceMomentsTexture:(nonnull id <MTLTexture>)previousLuminanceMomentsTexture
+       destinationLuminanceMomentsTexture:(nonnull id <MTLTexture>)destinationLuminanceMomentsTexture
+                previousFrameCountTexture:(nonnull id <MTLTexture>)previousFrameCountTexture
+             destinationFrameCountTexture:(nonnull id <MTLTexture>)destinationFrameCountTexture
+                      motionVectorTexture:(nullable id <MTLTexture>)motionVectorTexture
+                       depthNormalTexture:(nullable id <MTLTexture>)depthNormalTexture
+               previousDepthNormalTexture:(nullable id <MTLTexture>)previousDepthNormalTexture;
+
+/**
+ * @brief Encode reprojection into a command buffer
+ *
+ * @discussion Normal and depth values from the previous frame will be compared with normal and
+ * depth values from the current frame to determine if they are similar enough to reproject into
+ * the current frame. These values are weighted by the depthWeight and normalWeight properties.
+ * If the combined weight exceeds the reprojectionThreshold property's value, the previous frame
+ * will be blended with the current frame according to the temporalWeighting and
+ * temporalReprojectionBlendFactor properties.
+ *
+ * The reprojection kernel can operate on two sets of source and destination textures
+ * simultaneously to share costs such as loading depth and normal values from memory, computing
+ * various weights, etc. The second set of textures may be nil. The two images are assumed to share
+ * the same depth and normal values.
+ *
+ * The number of channels in the source image(s), previous frame's image(s), and destination
+ * image(s) are given by the channelCount and channelCount2 properties. These images must have at
+ * least as many channels as given by these properties. Channels beyond the required number are
+ * ignored when reading from source images and set to zero when writing to the destination images,
+ * except the alpha channel which will be set to one if present. The previous frame's image will
+ * be ignored on the first frame.
+ *
+ * The source and destination luminance moments textures must be at least two-channel textures,
+ * which will be set to the accumulated first and second moments of luminance. Channels beyond the
+ * first two will be ignored when reading from the previous frame's texture and set to zero when
+ * writing to the destination texture. The previous frame's luminance moments will be ignored on
+ * the first frame.
+ *
+ * The frame count textures track the number of accumulated frames and must be at least R32Uint
+ * textures. The remaining channels will be ignored when reading from the source texture and set to
+ * zero when writing to the destination texture, if present. The previous frame count texture must
+ * be cleared to zero on the first frame or to reset the accumulated images to the current frame's
+ * image.
+ *
+ * The motion vector texture must be at least a two channel texture representing how many texels
+ * each texel in the source image(s) have moved since the previous frame. The remaining channels
+ * will be ignored if present. This texture may be nil, in which case the motion vector is assumed
+ * to be zero, which is suitable for static images.
+ *
+ * The depth/normal texture must contain the depth and normal values for directly visible geometry
+ * for the current frame for each pixel. These values are packed into a four channel texture to
+ * reduce the number of texture sampling instructions required to load them. The first channel must
+ * store the depth value from zero to infinity. The normals must be stored in the last three
+ * channels as the three signed X, Y, and z components each between negative one and one. 
+ * The depth and normal values are not required if the motion vector texture is nil.
+ *
+ * The destination texture, destination luminance moments texture, and destination frame count
+ * texture are used by subsequent stages of the denoising filter. The destination frame count
+ * texture is also used as the source frame count texture the reprojection kernel in the next
+ * frame.
+ *
+ * @param commandBuffer                       Command buffer to encode into
+ * @param sourceTexture                       Current frame to denoise
+ * @param previousTexture                     Previous denoised frame to reproject into current
+ *                                            frame
+ * @param destinationTexture                  Output blended image
+ * @param previousLuminanceMomentsTexture     Previous accumulated luminance moments image
+ * @param destinationLuminanceMomentsTexture  Output accumulated luminance moments image
+ * @param sourceTexture2                      Second source image
+ * @param previousTexture2                    Second previous image
+ * @param destinationTexture2                 Second destination image
+ * @param previousLuminanceMomentsTexture2    Second previous luminance moments texture
+ * @param destinationLuminanceMomentsTexture2 Second destination luminance moments texture
+ * @param previousFrameCountTexture           The number of frames accumulated in the previous
+ *                                            source image
+ * @param destinationFrameCountTexture        The number of frames accumulated in the destination
+ *                                            texture(s) including the current frame
+ * @param motionVectorTexture                 Motion vector texture
+ * @param depthNormalTexture                  The depth and normal values for the current frame
+ * @param previousDepthNormalTexture          The depth and normal values for the previous frame
+ */
+- (void)encodeReprojectionToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+                            sourceTexture:(nonnull id <MTLTexture>)sourceTexture
+                          previousTexture:(nonnull id <MTLTexture>)previousTexture
+                       destinationTexture:(nonnull id <MTLTexture>)destinationTexture
+          previousLuminanceMomentsTexture:(nonnull id <MTLTexture>)previousLuminanceMomentsTexture
+       destinationLuminanceMomentsTexture:(nonnull id <MTLTexture>)destinationLuminanceMomentsTexture
+                           sourceTexture2:(nullable id <MTLTexture>)sourceTexture2
+                         previousTexture2:(nullable id <MTLTexture>)previousTexture2
+                      destinationTexture2:(nullable id <MTLTexture>)destinationTexture2
+         previousLuminanceMomentsTexture2:(nullable id <MTLTexture>)previousLuminanceMomentsTexture2
+      destinationLuminanceMomentsTexture2:(nullable id <MTLTexture>)destinationLuminanceMomentsTexture2
+                previousFrameCountTexture:(nonnull id <MTLTexture>)previousFrameCountTexture
+             destinationFrameCountTexture:(nonnull id <MTLTexture>)destinationFrameCountTexture
+                      motionVectorTexture:(nullable id <MTLTexture>)motionVectorTexture
+                       depthNormalTexture:(nullable id <MTLTexture>)depthNormalTexture
+               previousDepthNormalTexture:(nullable id <MTLTexture>)previousDepthNormalTexture;
+
+/**
+ * @brief Encode variance estimation into a command buffer
+ *
+ * @discussion Variance is computed from the accumulated first and second luminance moments. If the
+ * number of accumulated frames is below the minimumFramesForVarianceEstimation property, the
+ * luminance variance will be computed using a spatial estimate instead. The spatial estimate is
+ * computed using a bilateral filter with radius given by the varianceEstimationRadius property.
+ * Neighboring samples will be weighted according to a gaussian function with sigma given by the
+ * varianceEstimationSigma property. Normal and depth values from neighboring pixels will be
+ * compared with depth and normal values of the center pixel to determine if they are similar
+ * enough to include in the spatial blur. These values are weighted by the depthWeight and
+ * normalWeight properties.
+ *
+ * The variance kernel can operate on two sets of source and destination textures
+ * simultaneously to share costs such as loading depth and normal values from memory, computing
+ * various weights, etc. The second set of textures may be nil. The two images are assumed to share
+ * the same depth and normal values.
+ *
+ * The reprojected source texture, luminance moments texture and frame count texture are computed
+ * by the reprojection kernel.
+ *
+ * The computed variance will be stored in the last channel of the destination image, while the
+ * source image will be copied into the previous channels, to reduce the number of texture sample
+ * instructured required by the bilateral filter in the final stage of the denoising kernel. The
+ * number of channels in the source image(s) are given by the channelCount and channelCount2
+ * properties. Therefore, the destination image(s) must have at least channelCount + 1 and
+ * channelCount2 + 1 channels and the source image(s) must have at least channelCount and
+ * channelCount2 channels. Channels beyond the required number are ignored when reading from
+ * source textures and set to zero when writing to destination textures.
+ *
+ * The depth/normal texture must contain the depth and normal values for directly visible geometry
+ * for the current frame for each pixel. These values are packed into a four channel texture to
+ * reduce the number of texture sampling instructions required to load them. The first channel must
+ * store the depth value from zero to infinity. The normals must be stored in the last three
+ * channels as the three signed X, Y, and z components each between negative one and one.
+ * If the minimumFramesForVarianceEstimation property is less than or equal to one, variance will
+ * be estimated directly from the accumulated luminance moments so the depth/normal texture may be
+ * nil.
+ *
+ * @param commandBuffer            Command buffer to encode into
+ * @param sourceTexture            Current reprojected frame to denoise
+ * @param luminanceMomentsTexture  Luminance moments texture
+ * @param destinationTexture       Output packed color and variance image
+ * @param frameCountTexture        Number of frames accumulated into the source image
+ * @param depthNormalTexture       The depth and normal values for the current frame
+ */
+- (void)encodeVarianceEstimationToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+                                  sourceTexture:(nonnull id <MTLTexture>)sourceTexture
+                        luminanceMomentsTexture:(nonnull id <MTLTexture>)luminanceMomentsTexture
+                             destinationTexture:(nonnull id <MTLTexture>)destinationTexture
+                              frameCountTexture:(nonnull id <MTLTexture>)frameCountTexture
+                             depthNormalTexture:(nullable id <MTLTexture>)depthNormalTexture;
+
+/**
+ * @brief Encode variance estimation into a command buffer
+ *
+ * @discussion Variance is computed from the accumulated first and second luminance moments. If the
+ * number of accumulated frames is below the minimumFramesForVarianceEstimation property, the
+ * luminance variance will be computed using a spatial estimate instead. The spatial estimate is
+ * computed using a bilateral filter with radius given by the varianceEstimationRadius property.
+ * Neighboring samples will be weighted according to a gaussian function with sigma given by the
+ * varianceEstimationSigma property. Normal and depth values from neighboring pixels will be
+ * compared with depth and normal values of the center pixel to determine if they are similar
+ * enough to include in the spatial blur. These values are weighted by the depthWeight and
+ * normalWeight properties.
+ *
+ * The variance kernel can operate on two sets of source and destination textures
+ * simultaneously to share costs such as loading depth and normal values from memory, computing
+ * various weights, etc. The second set of textures may be nil. The two images are assumed to share
+ * the same depth and normal values.
+ *
+ * The reprojected source texture, luminance moments texture and frame count texture are computed
+ * by the reprojection kernel.
+ *
+ * The computed variance will be stored in the last channel of the destination image, while the
+ * source image will be copied into the previous channels, to reduce the number of texture sample
+ * instructured required by the bilateral filter in the final stage of the denoising kernel. The
+ * number of channels in the source image(s) are given by the channelCount and channelCount2
+ * properties. Therefore, the destination image(s) must have at least channelCount + 1 and
+ * channelCount2 + 1 channels and the source image(s) must have at least channelCount and
+ * channelCount2 channels. Channels beyond the required number are ignored when reading from
+ * source textures and set to zero when writing to destination textures.
+ *
+ * The depth/normal texture must contain the depth and normal values for directly visible geometry
+ * for the current frame for each pixel. These values are packed into a four channel texture to
+ * reduce the number of texture sampling instructions required to load them. The first channel must
+ * store the depth value from zero to infinity. The normals must be stored in the last three
+ * channels as the three signed X, Y, and z components each between negative one and one.
+ * If the minimumFramesForVarianceEstimation property is less than or equal to one, variance will
+ * be estimated directly from the accumulated luminance moments so the depth/normal texture may be
+ * nil.
+ *
+ * @param commandBuffer            Command buffer to encode into
+ * @param sourceTexture            Current reprojected frame to denoise
+ * @param luminanceMomentsTexture  Luminance moments texture
+ * @param destinationTexture       Output packed color and variance image
+ * @param sourceTexture2           Second source image
+ * @param luminanceMomentsTexture2 Second luminance moments image
+ * @param destinationTexture2      Second destination image
+ * @param frameCountTexture        Number of frames accumulated into the source image
+ * @param depthNormalTexture       The depth and normal values for the current frame
+ */
+- (void)encodeVarianceEstimationToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+                                  sourceTexture:(nonnull id <MTLTexture>)sourceTexture
+                        luminanceMomentsTexture:(nonnull id <MTLTexture>)luminanceMomentsTexture
+                             destinationTexture:(nonnull id <MTLTexture>)destinationTexture
+                                 sourceTexture2:(nullable id <MTLTexture>)sourceTexture2
+                       luminanceMomentsTexture2:(nullable id <MTLTexture>)luminanceMomentsTexture2
+                            destinationTexture2:(nullable id <MTLTexture>)destinationTexture2
+                              frameCountTexture:(nonnull id <MTLTexture>)frameCountTexture
+                             depthNormalTexture:(nullable id <MTLTexture>)depthNormalTexture;
+
+/**
+ * @brief Encode bilateral filter into a command buffer
+ *
+ * @discussion Performs an edge avoiding blur with radius given by the bilateraFilterRadius
+ * property with sampling weighted by a Gaussian filter with sigma given by the bilteralFilterSigma
+ * property. Normal and depth values from neighboring pixels will be compared with depth and normal
+ * values of the center pixel to determine if they are similar enough to include in the blur. These
+ * values are weighted by the depthWeight, normalWeight, and luminanceWeight properties.
+ *
+ * Before the variance values are used for luminance weighting, the variance is prefiltered with a
+ * small Gaussian blur with radius given by the variancePrefilterRadius property and sigma given by
+ * the variancePrefilterSigma property.
+ *
+ * This kernel should be run multiple times with a step distance of pow(2, i), starting with i = 0.
+ * It is recommended that the output of the first iteration be used as the image to be reprojected
+ * in the next frame. Then several more iterations should be run to compute the denoised image for
+ * the current frame. 5 total iterations is reasonable.
+ *
+ * The bilateral filter can operate on two sets of source and destination textures simultaneously
+ * to share costs such as loading depth and normal values from memory, computing various weights,
+ * etc. The second set of textures may be nil. The two images are assumed to share the same normal
+ * and depth values.
+ *
+ * The number of channels to filter in the source image(s) are given by the channelCount and
+ * channelCount2 properties. Furthermore, the luminance variance is packed into the final channel
+ * of the source image(s) to reduce the number of texture sample instructions required. The
+ * filtered color and variance values are packed the same way in the destination image(s).
+ * Therefore, the source and destination images must have at least channelCount + 1 and
+ * channelCount2 + 1 channels. Channels beyond the required number are ignored when reading from
+ * source images and set to zero when writing to destination images. The source image should be
+ * produced by either the variance estimation kernel or a previous iteration of the bilateral
+ * filter.
+ *
+ * The depth/normal texture must contain the depth and normal values for directly visible geometry
+ * for the current frame for each pixel. These values are packed into a four channel texture to
+ * reduce the number of texture sampling instructions required to load them. The first channel must
+ * store the depth value from zero to infinity. The normals must be stored in the last three
+ * channels as the three signed X, Y, and z components each between negative one and one. 
+ *
+ * @param commandBuffer       Command buffer to encode into
+ * @param stepDistance        Number of pixels to skip between samples
+ * @param sourceTexture       Source packed color and variance texture
+ * @param destinationTexture  Destination packed color and variance texture
+ * @param depthNormalTexture  The depth and normal values for the current frame
+ */
+- (void)encodeBilateralFilterToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+                                stepDistance:(NSUInteger)stepDistance
+                               sourceTexture:(nonnull id <MTLTexture>)sourceTexture
+                          destinationTexture:(nonnull id <MTLTexture>)destinationTexture
+                          depthNormalTexture:(nonnull id <MTLTexture>)depthNormalTexture;
+
+/**
+ * @brief Encode bilateral filter into a command buffer
+ *
+ * @discussion Performs an edge avoiding blur with radius given by the bilateraFilterRadius
+ * property with sampling weighted by a Gaussian filter with sigma given by the bilteralFilterSigma
+ * property. Normal and depth values from neighboring pixels will be compared with depth and normal
+ * values of the center pixel to determine if they are similar enough to include in the blur. These
+ * values are weighted by the depthWeight, normalWeight, and luminanceWeight properties.
+ *
+ * Before the variance values are used for luminance weighting, the variance is prefiltered with a
+ * small Gaussian blur with radius given by the variancePrefilterRadius property and sigma given by
+ * the variancePrefilterSigma property.
+ *
+ * This kernel should be run multiple times with a step distance of pow(2, i), starting with i = 0.
+ * It is recommended that the output of the first iteration be used as the image to be reprojected
+ * in the next frame. Then several more iterations should be run to compute the denoised image for
+ * the current frame. 5 total iterations is reasonable.
+ *
+ * The bilateral filter can operate on two sets of source and destination textures simultaneously
+ * to share costs such as loading depth and normal values from memory, computing various weights,
+ * etc. The second set of textures may be nil. The two images are assumed to share the same normal
+ * and depth values.
+ *
+ * The number of channels to filter in the source image(s) are given by the channelCount and
+ * channelCount2 properties. Furthermore, the luminance variance is packed into the final channel
+ * of the source image(s) to reduce the number of texture sample instructions required. The
+ * filtered color and variance values are packed the same way in the destination image(s).
+ * Therefore, the source and destination images must have at least channelCount + 1 and
+ * channelCount2 + 1 channels. Channels beyond the required number are ignored when reading from
+ * source images and set to zero when writing to destination images. The source image should be
+ * produced by either the variance estimation kernel or a previous iteration of the bilateral
+ * filter.
+ *
+ * The depth/normal texture must contain the depth and normal values for directly visible geometry
+ * for the current frame for each pixel. These values are packed into a four channel texture to
+ * reduce the number of texture sampling instructions required to load them. The first channel must
+ * store the depth value from zero to infinity. The normals must be stored in the last three
+ * channels as the three signed X, Y, and z components each between negative one and one. 
+ *
+ * @param commandBuffer       Command buffer to encode into
+ * @param stepDistance        Number of pixels to skip between samples
+ * @param sourceTexture       Source packed color and variance texture
+ * @param destinationTexture  Destination packed color and variance texture
+ * @param sourceTexture2      Second source image
+ * @param destinationTexture2 Second destination image
+ * @param depthNormalTexture  The depth and normal values for the current frame
+ */
+- (void)encodeBilateralFilterToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+                                stepDistance:(NSUInteger)stepDistance
+                               sourceTexture:(nonnull id <MTLTexture>)sourceTexture
+                          destinationTexture:(nonnull id <MTLTexture>)destinationTexture
+                              sourceTexture2:(nullable id <MTLTexture>)sourceTexture2
+                         destinationTexture2:(nullable id <MTLTexture>)destinationTexture2
+                          depthNormalTexture:(nonnull id <MTLTexture>)depthNormalTexture;
+
+@end
+
+/**
+ * @brief Protocol dictating how texture allocator objects should operate so that they can be used
+ * by an MPSSVGFDenoiser object to allocate and reuse intermediate and output textures during the
+ * denoising process.
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@protocol MPSSVGFTextureAllocator <NSObject>
+
+/**
+ * @brief Returns an autoreleased Metal 2D texture with a matching pixel format, width, and height.
+ */
+- (nullable id <MTLTexture>)textureWithPixelFormat:(MTLPixelFormat)pixelFormat
+                                             width:(NSUInteger)width
+                                            height:(NSUInteger)height;
+
+/**
+ * @brief Return a texture to the allocator. The allocator operate in such a way as to reduce the
+ * allocation cost should another texture be requested with the same width, height, and pixel
+ * format.
+ */
+- (void)returnTexture:(nonnull id <MTLTexture>)texture;
+
+@end
+
+/**
+ * @brief A default implementation of the MPSSVGFTextureAllocator protocol. Maintains a cache of
+ * textures which is checked first when a texture is requested. If there is no suitable texture in
+ * the cache, allocates a texture directly from the Metal device.
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSSVGFDefaultTextureAllocator : NSObject <MPSSVGFTextureAllocator>
+
+/**
+ * @brief Metal device this object was allocated from
+ */
+@property (nonatomic, readonly) id <MTLDevice> _Nonnull device;
+
+/**
+ * @brief The number of textures which have been allocated from this allocator
+ */
+@property (nonatomic, readonly) NSUInteger allocatedTextureCount;
+
+/**
+ * @brief Initialize the MPSSVGFDefaultTextureAllocator with a Metal device
+ */
+- (nonnull instancetype)initWithDevice:(nonnull id <MTLDevice>)device;
+
+- (nullable id <MTLTexture>)textureWithPixelFormat:(MTLPixelFormat)pixelFormat
+                                             width:(NSUInteger)width
+                                            height:(NSUInteger)height;
+
+- (void)returnTexture:(nonnull id <MTLTexture>)texture;
+
+/**
+ * @brief Remove all textures from the cache
+ */
+- (void)reset;
+
+@end
+
+/**
+ * @brief A convenience object which uses an MPSSVGF object to manage the denoising process
+ *
+ * @discussion The MPSSVGF object can also be used directly to customize the denoising process.
+ * This object keeps track of auxilary textures used by the MPSSVGF object, manages a temporal
+ * history, and encodes the entire denoising process into a command buffer.
+ *
+ * To use this class, first create and customize an MPSSVGF object. This object allows you to tweak
+ * various aspect of the denoising process such as temporal reprojection and bilateral blur settings.
+ * Then create a texture allocator object which will allocate temporary textures during denoising.
+ * This can either be an object conforming to the MPSSVGFTextureAllocator protocol or an instance of
+ * the MPSSVGFDefaultTextureAllocator class. Next, create an MPSSVGFDenoiser object. To perform
+ * denoising, assign inputs textures to the denoiser object's properties and call
+ * encodeToCommandBuffer:. Finally, read the output from the destinationTexture property. Note that
+ * this class can denoise up to two independent textures simultaneously, e.g. specular and diffuse,
+ * direct and indirect lighting, shadows and AO, etc.
+ *
+ *     @code
+ *     MPSSVGF *svgf = [[MPSSVGF alloc] initWithDevice:device];
+ *
+ *     // configure svgf properties
+ *
+ *     MPSSVGFDefaultTextureAllocator *allocator =
+ *         [[MPSSVGFDefaultTextureAllocator alloc] initWithDevice:device];
+ *
+ *     MPSSVGFDenoiser *denoiser = [[MPSSVGFDenoiser alloc] initWithSVGF:svgf
+ *                                                      textureAllocator:allocator];
+ *
+ *     // configure denoiser properties
+ *
+ *     denoiser.sourceTexture = noisyTexture;
+ *     denoiser.depthNormalTexture = depthNormalTexture;
+ *     denoiser.previousDepthNormalTexture = depthNormalTextureFromPreviousFrame;
+ *     denoiser.motionVectorTexture = motionVectorTexture;
+ *
+ *     [denoiser encodeToCommandBuffer:commandBuffer];
+ *
+ *     id <MTLTexture> cleanTexture = denoiser.destinationTexture;
+ *     @endcode
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSSVGFDenoiser : NSObject
+
+/**
+ * @brief The underlying MPSSVGF kernels object which will be used for denoising. Use this object
+ * to customize the denoising process.
+ */
+@property (nonatomic, readonly) MPSSVGF * _Nonnull svgf;
+
+/**
+ * @brief The object which will be used to allocate intermediate and output textures.
+ */
+@property (nonatomic, readonly) id <MPSSVGFTextureAllocator> _Nonnull textureAllocator;
+
+/**
+ * @brief The number of bilateral filter iterations to run. More iterations will improve quality at
+ * the cost of performance. Defaults to 5. Must be at least 1.
+ */
+@property (nonatomic) NSUInteger bilateralFilterIterations;
+
+/**
+ * @brief Source image to denoiser
+ */
+@property (nonatomic, retain) id <MTLTexture> _Nullable sourceTexture;
+
+/**
+ * @brief Optional second source image to denoise
+ */
+@property (nonatomic, retain) id <MTLTexture> _Nullable sourceTexture2;
+
+/**
+ * @brief Motion vector texture describing how much each texel has moved, in texels, since the previous
+ * frame. See the MPSSVGF object for more details.
+ */
+@property (nonatomic, retain) id <MTLTexture> _Nullable motionVectorTexture;
+
+/**
+ * @brief Texture containing linear depth in the X component and signed normals in the YZW components.
+ * See the MPSSVGF object for more details.
+ */
+@property (nonatomic, retain) id <MTLTexture> _Nullable depthNormalTexture;
+
+/**
+ * @brief Depth/normal texture from the previous frame. See the MPSSVGF object for more details.
+ */
+@property (nonatomic, retain) id <MTLTexture> _Nullable previousDepthNormalTexture;
+
+/**
+ * @brief Denoised output image. This image will be valid after a call to encodeToCommandBuffer: and
+ * before the next call to encodeToCommandBuffer:.
+ */
+@property (nonatomic, readonly) id <MTLTexture> _Nullable destinationTexture;
+
+/**
+ * @brief Denoised second output image, if there is a second source image. This image will be valid after
+ * a call to encodeToCommandBuffer: and before the next call to encodeToCommandBuffer:.
+ */
+@property (nonatomic, readonly) id <MTLTexture> _Nullable destinationTexture2;
+
+/**
+ * @brief Initialize the MPSSVGFDenoiser object
+ *
+ * @parameter svgf             MPSSVGF kernels to use for denoising. This object can be used to
+ *                             configure temporal reprojection, bilateral blur settings, etc.
+ * @parameter textureAllocator An object conforming to the MPSSVGFTextureAllocator protocol. This
+ *                             object will be used to allocate temporary intermediate and output
+ *                             textures. This can be a custom object or an instance of the
+ *                             MPSSVGFDefaultTextureAllocator class.
+ */
+- (nonnull instancetype)initWithSVGF:(nonnull MPSSVGF *)svgf
+                    textureAllocator:(nonnull id <MPSSVGFTextureAllocator>)textureAllocator
+    MPS_SWIFT_NAME(init(SVGF:textureAllocator:));
+
+/**
+ * @brief Clear the temporal history. Reprojection and temporal accumulation will restart on the
+ * next call to encodeToCommandBuffer:
+ */
+- (void)clearTemporalHistory;
+
+/**
+ * @brief Return any temporary textures to the texture allocator. Also clears the temporal history.
+ * This should be called before resizing the source texture(s).
+ */
+- (void)releaseTemporaryTextures;
+
+/**
+ * @brief Encode denoising kernels to a command buffer
+ *
+ * @discussion Simultaneously removes noise from the textures assigned to the sourceTexture and
+ * (optional) sourceTexture2 properties, using the additional data in the textures assigned to the
+ * motionVectorTexture, depthNormalTexture, and previousDepthNormalTexture properties. Returns
+ * the result through the destinationTexture and destinationTexture2 properties. The destination
+ * textures will be valid until the next call to encodeToCommandBuffer:. After calling this method,
+ * the texture assigned to the depthNormalTexture property should be assigned to the
+ * previousDepthNormalTexture property. This method will also update an internally managed temporal
+ * history to aid the denoising process. To reset this history, call the clearTemporalHistory method.
+ * This method will allocate and return several textures from and to the texture allocator the
+ * MPSSVGFDenoiser was initialized with. The number of iterations of the bilateral filter is controlled
+ * by the bilateralFilterIterations property. Larger numbers of iterations will improve the quality
+ * but reduce performance. To configure other parameters of the denoising process, modify the properties
+ * of the MPSSVGF object the MPSSVGFDenoiser was initialized with.
+ *
+ * @parameter commandBuffer Command buffer to encode into
+ */
+- (void)encodeToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+    MPS_SWIFT_NAME(encode(commandBuffer:));
+
+@end
+
+#endif
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSRayIntersector.framework/Headers/MPSTriangleAccelerationStructure.h
 /*!
  *  @header MPSTriangleAccelerationStructure.h
@@ -2356,76 +3795,21 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
 #ifndef MPSTriangleAccelerationStructure_h
 #define MPSTriangleAccelerationStructure_h
 
-#import <MPSRayIntersector/MPSAccelerationStructure.h>
+#import <MPSRayIntersector/MPSPolygonAccelerationStructure.h>
 
 /**
  * @brief An acceleration structure built over triangles
  *
- * @discussion See MPSAccelerationStructure for more information
+ * @discussion See MPSPolygonAccelerationStructure for more information
  */
 MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
-@interface MPSTriangleAccelerationStructure : MPSAccelerationStructure
-
-/**
- * @brief Vertex buffer containing vertex data encoded as three 32 bit floats per vertex. Note
- * that by default each vertex is aligned to the alignment of the vector_float3 type: 16 bytes.
- * This can be changed using the vertexStride property. A vertex buffer must be provided before
- * the acceleration structure is built. Degenerate (zero or negative area) triangles are ignored
- * during acceleration structure construction. This can be used to pad triangle indices if needed.
- */
-@property (nonatomic, retain) id <MTLBuffer> _Nullable vertexBuffer;
-
-/**
- * @brief Offset, in bytes, into the vertex buffer. Defaults to 0 bytes. Must be aligned to 4
- * bytes.
- */
-@property (nonatomic) NSUInteger vertexBufferOffset;
-
-/**
- * @brief Offset, in bytes, between consecutive vertices in the vertex buffer. Defaults to 0 bytes,
- * indicating that the vertices are packed according to the natural alignment of the vector_float3
- * type: 16 bytes.
- *
- * @discussion This can be used to skip past any additional per-vertex data which may be stored
- * alongside the position such as the vertex normal and texture coordinates. Must be a multiple of
- * 4 bytes, and must be at least 12 bytes. Changes to this property require rebuilding the
- * acceleration structure.
- */
-@property (nonatomic) NSUInteger vertexStride;
-
-/**
- * @brief Index buffer containing index data encoded as uint32_t per index. Each index references
- * a vertex in the vertex buffer. May be nil.
- */
-@property (nonatomic, retain) id <MTLBuffer> _Nullable indexBuffer;
-
-/**
- * @brief Index type. Defaults to MPSDataTypeUInt32. Only MPSDataTypeUInt16 and MPSDataTypeUInt32
- * are supported.
- */
-@property (nonatomic) MPSDataType indexType;
-
-/**
- * @brief Offset, in bytes, into the index buffer. Defaults to 0 bytes. Must be aligned to a
- * multiple of the index type. Changes to this property require rebuilding the acceleration
- * structure.
- */
-@property (nonatomic) NSUInteger indexBufferOffset;
-
-/**
- * @brief Mask buffer containing one uint32_t mask per triangle. May be nil. Otherwise, the mask
- * type must be specified on the MPSRayIntersector with which it is used.
- */
-@property (nonatomic, retain) id <MTLBuffer> _Nullable maskBuffer;
-
-/**
- * @brief Offset, in bytes, into the mask buffer. Defaults to 0 bytes. Must be aligned to 4 bytes.
- */
-@property (nonatomic) NSUInteger maskBufferOffset;
+@interface MPSTriangleAccelerationStructure : MPSPolygonAccelerationStructure
 
 /**
  * @brief Number of triangles. Changes to this property require rebuilding the acceleration
  * structure.
+ *
+ * Note that this property is an alias for the polygonCount property.
  */
 @property (nonatomic) NSUInteger triangleCount;
 
@@ -2452,7 +3836,10 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
 #ifndef __METAL_VERSION__
 #import <MPSRayIntersector/MPSAccelerationStructureGroup.h>
 #import <MPSRayIntersector/MPSTriangleAccelerationStructure.h>
+#import <MPSRayIntersector/MPSQuadrilateralAccelerationStructure.h>
 #import <MPSRayIntersector/MPSInstanceAccelerationStructure.h>
+#import <MPSRayIntersector/MPSSVGF.h>
+#import <MPSRayIntersector/MPSTemporalAA.h>
 
 /**
  * @brief Options for the MPSRayIntersector intersection type property
@@ -2470,7 +3857,7 @@ typedef NS_ENUM(NSUInteger, MPSIntersectionType) {
      * MPSIntersectionTypeNearest and is well suited to shadow and occlusion rays.
      */
     MPSIntersectionTypeAny = 1,
-} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /**
  * @brief Options for the MPSRayIntersector triangle intersection test type property
@@ -2487,29 +3874,45 @@ typedef NS_ENUM(NSUInteger, MPSTriangleIntersectionTestType) {
      * than MPSTriangleIntersectionTestTypeDefault.
      */
     MPSTriangleIntersectionTestTypeWatertight = 1,
-} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /**
  * @brief Options for the MPSRayIntersector bounding box intersection test type property
  */
 typedef NS_ENUM(NSUInteger, MPSBoundingBoxIntersectionTestType) {
     /**
-     * @brief Use the default ray/bounding box intersection test
+     * @brief Use the default MPSBoundingBoxIntersectionTestTypeAxisAligned ray/bounding box
+     * intersection test.
+     *
+     * Note: this option was equivalent to MPSBoundingBoxIntersectionTestTypeFast in
+     * macOS 10.14/iOS 12.0. This option was changed in macOS 10.15/iOS 13.0 to handle axis-aligned
+     * rays correctly by default. The old behavior can be restored by explicitly setting the
+     * intersection test type to MPSBoundingBoxIntersectionTestTypeFast on macOS 10.15/iOS 13.0
+     * and above.
      */
     MPSBoundingBoxIntersectionTestTypeDefault = 0,
 
     /**
-     * @brief The default ray/bounding box intersection test can generate false negatives for
+     * @brief This intersection test is potentially slower than
+     * MPSBoundingBoxIntersectionTestTypeFast but does not generate false negatives for
      * axis aligned rays (i.e. rays which have one or more components of their direction set to
      * zero). These rays often do not come up in practice due to perspective projections and
      * randomized ray distributions. However, synthetic ray distributions or orthographic
-     * projections can generate these rays. This intersection test properly reports intersections
-     * between axis aligned rays and bounding boxes, but may be slower than
-     * MPSBoundingBoxIntersectionTestTypeDefault. It may be faster to slightly perturb the ray
-     * direction and use the default intersection test type.
+     * projections can generate these rays. It may be faster to slightly perturb the ray
+     * direction and use the fast intersection test type.
      */
     MPSBoundingBoxIntersectionTestTypeAxisAligned = 1,
-} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+
+    /**
+     * @brief This intersection test is potentially faster than
+     * MPSBoundingBoxIntersectionTestTypeAxisAligned but can generate false negatives for
+     * axis aligned rays (i.e. rays which have one or more components of their direction set to
+     * zero). These rays often do not come up in practice due to perspective projections and
+     * randomized ray distributions. However, synthetic ray distributions or orthographic
+     * projections can generate these rays.
+     */
+    MPSBoundingBoxIntersectionTestTypeFast MPS_ENUM_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0)) = 2,
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /**
  * @brief Options for the MPSRayIntersector ray mask options property
@@ -2529,7 +3932,7 @@ typedef NS_OPTIONS(NSUInteger, MPSRayMaskOptions) {
      * @brief Enable instance masks
      */
     MPSRayMaskOptionInstance = 2,
-} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /**
  * @brief Options for the MPSRayIntersector ray data type property
@@ -2549,7 +3952,12 @@ typedef NS_ENUM(NSUInteger, MPSRayDataType) {
      * @brief Use the MPSRayOriginMaxDistanceDirectionMask struct type
      */
     MPSRayDataTypeOriginMaskDirectionMaxDistance = 2,
-} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+
+    /**
+     * @brief Use the MPSPackedRayOriginDirection struct type
+     */
+    MPSRayDataTypePackedOriginDirection MPS_ENUM_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0)) = 3,
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /**
  * @brief Intersection data type options
@@ -2579,7 +3987,64 @@ typedef NS_ENUM(NSUInteger, MPSIntersectionDataType) {
      * @brief Use the DistancePrimitiveIndexInstanceIndexCoordinates struct type
      */
     MPSIntersectionDataTypeDistancePrimitiveIndexInstanceIndexCoordinates = 4,
-} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
+
+/**
+ * @brief Options for the MPSRayIntersector ray mask operator property
+ */
+typedef NS_ENUM(NSUInteger, MPSRayMaskOperator) {
+    /**
+     * @brief Accept the intersection if (primitive mask & ray mask) != 0.
+     */
+    MPSRayMaskOperatorAnd = 0,
+
+    /**
+     * @brief Accept the intersection if ~(primitive mask & ray mask) != 0.
+     */
+    MPSRayMaskOperatorNotAnd = 1,
+
+    /**
+     * @brief Accept the intersection if (primitive mask | ray mask) != 0.
+     */
+    MPSRayMaskOperatorOr = 2,
+
+    /**
+     * @brief Accept the intersection if ~(primitive mask | ray mask) != 0.
+     */
+    MPSRayMaskOperatorNotOr = 3,
+
+    /**
+     * @brief Accept the intersection if (primitive mask ^ ray mask) != 0. Note that this is
+     * equivalent to the "!=" operator.
+     */
+    MPSRayMaskOperatorXor = 4,
+
+    /**
+     * @brief Accept the intersection if ~(primitive mask ^ ray mask) != 0. Note that this is
+     * equivalent to the "==" operator.
+     */
+    MPSRayMaskOperatorNotXor = 5,
+
+    /**
+     * @brief Accept the intersection if (primitive mask < ray mask) != 0.
+     */
+    MPSRayMaskOperatorLessThan = 6,
+
+    /**
+     * @brief Accept the intersection if (primitive mask <= ray mask) != 0.
+     */
+    MPSRayMaskOperatorLessThanOrEqualTo = 7,
+
+    /**
+     * @brief Accept the intersection if (primitive mask > ray mask) != 0.
+     */
+    MPSRayMaskOperatorGreaterThan = 8,
+
+    /**
+     * @brief Accept the intersection if (primitive mask >= ray mask) != 0.
+     */
+    MPSRayMaskOperatorGreaterThanOrEqualTo = 9,
+} MPS_ENUM_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
 
 /**
  * @class MPSRayIntersector
@@ -2931,12 +4396,12 @@ typedef NS_ENUM(NSUInteger, MPSIntersectionDataType) {
  *       MPSKernelOptionsSkipAPIValidation.
  *
  *     - Choose the minimal ray and intersection data types for your use case. Loading and storing
- *       extra values such as ray masks or triangle indices can reduce raytracing performance, so
+ *       extra values such as ray masks or primitive indices can reduce raytracing performance, so
  *       use a simpler data type if they are not needed. For example, camera rays typically have no
  *       need for a maximum distance field, while shadow rays do.
  *
- *     - Use MPSTriangleIntersectionTestTypeAny when possible: this is typically much faster than
- *       MPSTriangleIntersectionTestTypeNearest and can be used when you only need to check for
+ *     - Use MPSIntersectionTestTypeAny when possible: this is typically much faster than
+ *       MPSIntersectionTestTypeNearest and can be used when you only need to check for
  *       binary visibility between two points such as shadow and ambient occlusion rays. Combine
  *       this with MPSRayDataTypeDistance to minimize memory bandwidth usage.
  *
@@ -2967,38 +4432,41 @@ typedef NS_ENUM(NSUInteger, MPSIntersectionDataType) {
  * intersection tests from multiple threads result in undefined behavior. Instead, multiple
  * threads should copy or create their own MPSRayIntersectors.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSRayIntersector : MPSKernel <NSSecureCoding, NSCopying>
 
 /**
- * @brief Whether to ignore intersections between rays and back-facing or front-facing triangles.
- * Defaults to MTLCullModeNone.
+ * @brief Whether to ignore intersections between rays and back-facing or front-facing triangles
+ * or quadrilaterals. Defaults to MTLCullModeNone.
  *
- * @discussion A triangle is back-facing if its normal points in the same direction as a ray and
- * front-facing if its normal points in the opposite direction as a ray. If the cull mode is set to
- * MTLCullModeBack, then back-facing triangles which be ignored. If the cull mode is set to
- * MTLCullModeFront, then front-facing triangles will be ignored. Otherwise, if the cull mode is
- * set to MTLCullModeNone, no triangles will be ignored. The front and back faces can be swapped
- * using the frontFacingWinding property.
+ * @discussion A triangle or quadrilateral is back-facing if its normal points in the same
+ * direction as a ray and front-facing if its normal points in the opposite direction as a ray. If
+ * the cull mode is set to MTLCullModeBack, then back-facing triangles and quadrilaterals will be
+ * ignored. If the cull mode is set to MTLCullModeFront, then front-facing triangles and
+ * quadrilaterals will be ignored. Otherwise, if the cull mode is set to MTLCullModeNone, no
+ * triangles or quadrilaterals will be ignored. The front and back faces can be swapped using the
+ * frontFacingWinding property.
  *
  * Backface culling is necessary for some scenes but can reduce raytracing performance.
  */
 @property (nonatomic) MTLCullMode cullMode;
 
 /**
- * @brief Winding order used to determine which direction a triangle's normal points when back face
- * or front face culling is enabled. Defaults to MTLWindingClockwise.
+ * @brief Winding order used to determine which direction a triangle or quadrilateral's normal
+ * points when back face or front face culling is enabled. Defaults to MTLWindingClockwise.
  *
- * @discussion If the front face winding is set to MTLWindingClockwise, the triangle normal is
- * considered to point towards the direction where the vertices are in clockwise order when
- * viewed from that direction. Otherwise, if the front facing winding is set to
- * MTLWindingCounterClockwise, the triangle normal is considered to point in the opposite
- * direction.
+ * @discussion If the front face winding is set to MTLWindingClockwise, the triangle or
+ * quadrilateral normal is considered to point towards the direction where the vertices are in
+ * clockwise order when viewed from that direction. Otherwise, if the front facing winding is set
+ * to MTLWindingCounterClockwise, the triangle or quadrilateral normal is considered to point in
+ * the opposite direction.
  */
 @property (nonatomic) MTLWinding frontFacingWinding;
 
 /**
  * @brief Ray/triangle intersection test type. Defaults to MPSTriangleIntersectionTestTypeDefault.
+ * Quads are broken into two triangles for intersection testing, so this property also applies to
+ * quadrilateral intersections.
  */
 @property (nonatomic) MPSTriangleIntersectionTestType triangleIntersectionTestType;
 
@@ -3014,7 +4482,8 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  * @discussion If MPSRayMaskOptionPrimitive or MPSRayMaskOptionInstance is enabled, each ray and
  * primitive and/or instance is associated with a 32 bit unsigned integer mask. Before checking
  * for intersection between a ray and a primitive or instance, the corresponding masks are
- * logically AND-ed together. If the result is zero, the intersection is skipped.
+ * compared using the ray mask operator defined by the rayMaskOperator property. If the result is
+ * zero, the intersection is skipped.
  *
  * This can be used to make certain primitives or instances invisible to certain rays. For example,
  * objects can be grouped into layers and their visibility can be toggled by modifying the ray
@@ -3025,6 +4494,12 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  * Enabling this option may reduce raytracing performance.
  */
 @property (nonatomic) MPSRayMaskOptions rayMaskOptions;
+
+/**
+ * @brief The operator to apply to determine whether to accept an intersection between a ray and a
+ * primitive or instance. Defaults to MPSRayMaskOperatorAnd.
+ */
+@property (nonatomic) MPSRayMaskOperator rayMaskOperator MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
 
 /**
  * @brief Offset, in bytes, between consecutive rays in the ray buffer. Defaults to 0, indicating
@@ -3056,6 +4531,18 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  * MPSIntersectionDataTypeDistancePrimitiveIndexCoordinates.
  */
 @property (nonatomic) MPSIntersectionDataType intersectionDataType;
+
+/**
+ * @brief Ray index data type. Defaults to MPSDataTypeUInt32. Only MPSDataTypeUInt16 and
+ * MPSDataTypeUInt32 are supported.
+ */
+@property (nonatomic) MPSDataType rayIndexDataType MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
+/**
+ * @brief Global ray mask. Defaults to 0xFFFFFFFF. This value will be logically AND-ed with the
+ * per-ray mask if the ray data type contains a mask.
+ */
+@property (nonatomic) unsigned int rayMask MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
 
@@ -3163,6 +4650,147 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
                     accelerationStructure:(nonnull MPSAccelerationStructure *)accelerationStructure
                     MPS_SWIFT_NAME(encodeIntersection(commandBuffer:intersectionType:rayBuffer:rayBufferOffset:intersectionBuffer:intersectionBufferOffset:rayCountBuffer:rayCountBufferOffset:accelerationStructure:));
 
+/**
+ * @brief Schedule intersection tests between rays and an acceleration structure
+ *
+ * @param commandBuffer            Command buffer to schedule intersection testing in
+ * @param intersectionType         Which type of intersection to test for
+ * @param rayBuffer                Buffer containing rays to intersect against the acceleration
+ *                                 structure. The ray data type is defined by the rayDataType
+ *                                 and rayStride properties.
+ * @param rayBufferOffset          Offset, in bytes, into the ray buffer. Must be a multiple of
+ *                                 the ray stride.
+ * @param rayIndexBuffer           Buffer containing ray indices. Each index references a ray in
+ *                                 the ray buffer. The ray index data type is controlled by the
+ *                                 rayIndexDataType property.
+ * @param rayIndexBufferOffset     Offset, in bytes, into the ray index buffer. Must be a multiple
+ *                                 of the stride of the ray index type.
+ * @param intersectionBuffer       Buffer to store intersection in. Intersections are stored in
+ *                                 the same order as the ray buffer, one intersection per ray.
+ *                                 The intersection data type is defined by the
+ *                                 intersectionDataType and intersectionStride properties.
+ * @param intersectionBufferOffset Offset, in bytes, into the intersection buffer. Must be a
+ *                                 multiple of the intersection stride.
+ * @param rayIndexCount            Number of ray indices
+ * @param accelerationStructure    Acceleration structure to test against
+ */
+- (void)encodeIntersectionToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+                         intersectionType:(MPSIntersectionType)intersectionType
+                                rayBuffer:(nonnull id <MTLBuffer>)rayBuffer
+                          rayBufferOffset:(NSUInteger)rayBufferOffset
+                           rayIndexBuffer:(nonnull id <MTLBuffer>)rayIndexBuffer
+                     rayIndexBufferOffset:(NSUInteger)rayIndexBufferOffset
+                       intersectionBuffer:(nonnull id <MTLBuffer>)intersectionBuffer
+                 intersectionBufferOffset:(NSUInteger)intersectionBufferOffset
+                            rayIndexCount:(NSUInteger)rayIndexCount
+                    accelerationStructure:(nonnull MPSAccelerationStructure *)accelerationStructure
+    MPS_SWIFT_NAME(encodeIntersection(commandBuffer:intersectionType:rayBuffer:rayBufferOffset:rayIndexBuffer:rayIndexBufferOffset:intersectionBuffer:intersectionBufferOffset:rayIndexCount:accelerationStructure:))
+    MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
+/**
+ * @brief Schedule intersection tests between rays and an acceleration structure with a ray count
+ * provided in a buffer
+ *
+ * @param commandBuffer             Command buffer to schedule intersection testing in
+ * @param intersectionType          Which type of intersection to test for
+ * @param rayBuffer                 Buffer containing rays to intersect against the acceleration
+ *                                  structure. The ray data type is defined by the rayDataType
+ *                                  and rayStride properties.
+ * @param rayBufferOffset           Offset, in bytes, into the ray buffer. Must be a multiple of
+ *                                  the ray stride.
+ * @param rayIndexBuffer            Buffer containing ray indices. Each index references a ray in
+ *                                  the ray buffer. The ray index data type is controlled by the
+ *                                  rayIndexDataType property.
+ * @param rayIndexBufferOffset      Offset, in bytes, into the ray index buffer. Must be a multiple
+ *                                  of the stride of the ray index type.
+ * @param intersectionBuffer        Buffer to store intersection in. Intersections are stored in
+ *                                  the same order as the ray buffer, one intersection per ray.
+ *                                  The intersection data type is defined by the
+ *                                  intersectionDataType and intersectionStride properties.
+ * @param intersectionBufferOffset  Offset, in bytes, into the intersection buffer. Must be a
+ *                                  multiple of the intersection stride.
+ * @param rayIndexCountBuffer       Buffer containing number of rays as a 32 bit unsigned integer
+ * @param rayIndexCountBufferOffset Offset, in bytes, into the ray count buffer. Must be a multiple
+ *                                  of 4 bytes.
+ * @param accelerationStructure     Acceleration structure to test against
+ */
+- (void)encodeIntersectionToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+                         intersectionType:(MPSIntersectionType)intersectionType
+                                rayBuffer:(nonnull id <MTLBuffer>)rayBuffer
+                          rayBufferOffset:(NSUInteger)rayBufferOffset
+                           rayIndexBuffer:(nonnull id <MTLBuffer>)rayIndexBuffer
+                     rayIndexBufferOffset:(NSUInteger)rayIndexBufferOffset
+                       intersectionBuffer:(nonnull id <MTLBuffer>)intersectionBuffer
+                 intersectionBufferOffset:(NSUInteger)intersectionBufferOffset
+                      rayIndexCountBuffer:(nonnull id <MTLBuffer>)rayIndexCountBuffer
+                rayIndexCountBufferOffset:(NSUInteger)rayIndexCountBufferOffset
+                    accelerationStructure:(nonnull MPSAccelerationStructure *)accelerationStructure
+                    MPS_SWIFT_NAME(encodeIntersection(commandBuffer:intersectionType:rayBuffer:rayBufferOffset:rayIndexBuffer:rayIndexBufferOffset:intersectionBuffer:intersectionBufferOffset:rayIndexCountBuffer:rayIndexCountBufferOffset:accelerationStructure:))
+                    MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
+/**
+ * @brief Schedule intersection tests between rays and an acceleration structure, where rays and
+ * loaded from a texture and intersections are stored into a texture.
+ *
+ * This is convenient for hybrid rendering applications which produce ray data from a fragment
+ * shader. The ray and intersection texture must be 2D array textures. Ray data must be packed into
+ * consecutive channels and slices of the ray texture. Intersection data will be packed the same
+ * way. The ray and intersection data types are defined by the rayDataType and intersectionDataType
+ * properties. The rayStride and intersectionStride properties are ignored. Channels and slices
+ * beyond the required number are ignored when reading from the ray texture. Channels and slices
+ * beyond the required number are undefined when writing to the intersection texture.
+ *
+ * For example, if the ray data type is MPSRayDataTypeOriginMaskDirectionMaxDistance, the ray
+ * texture must have pixel format MTLPixelFormatRGBA32Float and at least two array slices, packed
+ * as follows:
+ *
+ *     @code
+ *     tex.write(float4(ray.position, as_type<float>(ray.mask)), pixel, 0); // slice 0
+ *     tex.write(float4(ray.direction, ray.maxDistance), pixel, 1);         // slice 1
+ *     @end
+ *
+ * If the intersection data type is MPSIntersectionDataTypeDistance, the intersection texture may
+ * have pixel format MTLPixelFormatR32Float with just a single channel and one array slice, and
+ * should be unpacked as follows:
+ *
+ *     @code
+ *     float distance = tex.read(pixel, 0).x;
+ *     @end
+ *
+ * On the other hand, if the intersection data type is 
+ * MPSIntersectionDistancePrimitiveIndexInstanceIndexCoordinates, the intersection texture must
+ * have pixel format MTLPixelFormatRGBA32Float and at least two slices:
+ *
+ *     @code
+ *     float3 f0 = tex.read(pixel, 0);
+ *
+ *     float distance = f0.x;
+ *     unsigned int primitiveIndex = as_type<unsigned int>(f0.y);
+ *     unsigned int instanceIndex = as_type<unsigned int>(f0.z);
+ *     // w component is padding for this intersection data type
+ *
+ *     float2 coordinates = tex.read(pixel, 1).xy;
+ *     @end
+ *
+ * @param commandBuffer            Command buffer to schedule intersection testing in
+ * @param intersectionType         Which type of intersection to test for
+ * @param rayTexture               A 2D array texture containing rays to intersect against the
+ *                                 acceleration structure. The ray data type is defined by the
+ *                                 rayDataType property.
+ * @param intersectionTexture      Texture to store intersection in. Intersections are stored in
+ *                                 the same position as the ray texture, one intersection per ray.
+ *                                 The intersection data type is defined by the
+ *                                 intersectionDataType property.
+ * @param accelerationStructure    Acceleration structure to test against
+ */
+- (void)encodeIntersectionToCommandBuffer:(nonnull id <MTLCommandBuffer>)commandBuffer
+                         intersectionType:(MPSIntersectionType)intersectionType
+                               rayTexture:(nonnull id <MTLTexture>)rayTexture
+                      intersectionTexture:(nonnull id <MTLTexture>)intersectionTexture
+                    accelerationStructure:(nonnull MPSAccelerationStructure *)accelerationStructure
+    MPS_SWIFT_NAME(encodeIntersection(commandBuffer:intersectionType:rayTexture:intersectionTexture:accelerationStructure:))
+    MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
 @end
 #endif
 
@@ -3233,7 +4861,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  *              the <MPSDeviceProvider> protocol.  To accomplish this you will likely need to subclass your
  *              unarchiver to add this method.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface MPSCNNKernel : MPSKernel
 
 /*! @abstract   Standard init with default properties per filter type
@@ -3394,11 +5022,11 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              rather than the source coordinate frame.
  */
 @property(readonly, nonatomic) BOOL                     isBackwards
-                    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*! @abstract   Returns true if the -encode call modifies the state object it accepts.  */
 @property (readonly, nonatomic) BOOL                    isStateModified
-                    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+                    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   padding
  *  @abstract   The padding method used by the filter
@@ -3407,13 +5035,13 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              -encode methods that return a MPSImage from the left hand side.
  */
 @property (readwrite, nonatomic, nonnull, retain) id <MPSNNPadding>    padding
-                    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*! @abstract   Method to allocate the result image for -encodeToCommandBuffer:sourceImage:
  *  @discussion Default: MPSTemporaryImage.defaultAllocator
  */
 @property (readwrite, nonatomic, retain, nonnull) id <MPSImageAllocator> destinationImageAllocator
-                    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 
@@ -3428,7 +5056,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *  @return     A new MPSKernel object, or nil if failure. */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /*! @abstract   Encode a MPSCNNKernel into a command Buffer.  The operation shall proceed out-of-place.
@@ -3454,7 +5082,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                   sourceImage: (MPSImage * __nonnull) sourceImage
              destinationState: (MPSState * __nonnull) destinationState
              destinationImage: (MPSImage * __nonnull) destinationImage
-    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
     MPS_SWIFT_NAME( encode(commandBuffer:sourceImage:destinationState:destinationImage:));
 
 /*! @abstract   Encode a MPSCNNKernel into a command Buffer.  The operation shall proceed out-of-place.
@@ -3468,7 +5096,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
 -(void) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                       sourceImages: (MPSImageBatch * __nonnull) sourceImages
                  destinationImages: (MPSImageBatch * __nonnull) destinationImages
-                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                 MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:destinationImages:));
 
 /*! @abstract   Encode a MPSCNNKernel with a destination state into a command Buffer.
@@ -3484,7 +5112,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                       sourceImages: (MPSImageBatch * __nonnull) sourceImages
                  destinationStates: (MPSStateBatch * __nullable) destinationStates
                  destinationImages: (MPSImageBatch * __nonnull) destinationImages
-                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))    // added in .5 support update
+                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))    // added in .5 support update
                 MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:destinationStates:destinationImages:));
 
 
@@ -3509,7 +5137,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(MPSImage * __nonnull) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                                   sourceImage: (MPSImage *  __nonnull) sourceImage
-                    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+                    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
                     MPS_SWIFT_NAME( encode(commandBuffer:sourceImage:));
 
 /*! @abstract       Encode a MPSCNNKernel into a command Buffer. Create a texture and state to hold the results and return them.
@@ -3536,7 +5164,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                   sourceImage: (MPSImage *  __nonnull) sourceImage
                              destinationState: (__autoreleasing MPSState * __nullable * __nonnull) outState
                   destinationStateIsTemporary: (BOOL) isTemporary
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
         MPS_SWIFT_NAME( encode(commandBuffer:sourceImage:destinationState:destinationStateIsTemporary:));
 
 
@@ -3561,7 +5189,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(MPSImageBatch * __nonnull) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                                            sourceImages: (MPSImageBatch *  __nonnull) sourceImages
-                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                         MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:));
 
 /*! @abstract       Encode a MPSCNNKernel into a command Buffer. Create a MPSImageBatch and MPSStateBatch to hold the results and return them.
@@ -3596,7 +5224,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                            sourceImages: (MPSImageBatch *  __nonnull) sourceImages
                                       destinationStates: (__autoreleasing MPSStateBatch * __nullable * __nonnull) outStates
                             destinationStateIsTemporary: (BOOL) isTemporary
-                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))  // added in .5 support update
+                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))  // added in .5 support update
                 MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:destinationStates:destinationStateIsTemporary:));
 
 /*! @abstract   Allocate a MPSState (subclass) to hold the results from a -encodeBatchToCommandBuffer... operation
@@ -3665,12 +5293,12 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                       sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
                                   destinationImage: (MPSImage *__nonnull) destinationImage
                         MPS_SWIFT_NAME( resultState(sourceImage:sourceStates:destinationImage:))
-                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 -(MPSStateBatch * __nullable) resultStateBatchForSourceImage: (MPSImageBatch * __nonnull) sourceImage
                                                 sourceStates: (NSArray<MPSStateBatch *> * __nullable) sourceStates
                                             destinationImage: (MPSImageBatch *__nonnull) destinationImage
                         MPS_SWIFT_NAME( resultStateBatch(sourceImage:sourceStates:destinationImage:))
-                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 /*! @abstract   Allocate a temporary MPSState (subclass) to hold the results from a -encodeBatchToCommandBuffer... operation
@@ -3741,13 +5369,13 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                                   sourceImage: (MPSImage *__nonnull) sourceImage
                                                  sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
                                              destinationImage: (MPSImage *__nonnull) destinationImage
-                         MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                         MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                          MPS_SWIFT_NAME( temporaryResultState(commandBuffer:sourceImage:sourceStates:destinationImage:));
 -(MPSStateBatch * __nullable) temporaryResultStateBatchForCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                                                             sourceImage: (MPSImageBatch *__nonnull) sourceImage
                                                            sourceStates: (NSArray <MPSStateBatch *> *__nullable) sourceStates
                                                        destinationImage: (MPSImageBatch *__nonnull) destinationImage
-                            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                             MPS_SWIFT_NAME( temporaryResultStateBatch(commandBuffer:sourceImage:sourceStates:destinationImage:));
 
 /*! @abstract   Returns YES if the same state is used for every operation in a batch
@@ -3755,7 +5383,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              (and different) state to go with it. Set to YES to avoid allocating
  *              redundant state in the case when the same state is used all the time.
  *              Default: NO    */
--(BOOL)     isResultStateReusedAcrossBatch MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+-(BOOL)     isResultStateReusedAcrossBatch MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract   Returns YES if the filter must be run over the entire batch before its
  *              results may be used
@@ -3786,7 +5414,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *
  *              Default: NO
  */
--(BOOL)     appendBatchBarrier MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+-(BOOL)     appendBatchBarrier MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract   Get a suggested destination image descriptor for a source image
  *  @discussion Your application is certainly free to pass in any destinationImage
@@ -3865,8 +5493,32 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(MPSImageDescriptor*__nonnull) destinationImageDescriptorForSourceImages: (NSArray<MPSImage *> * __nonnull) sourceImages
                                                              sourceStates: (NSArray<MPSState *> * __nullable) sourceStates
-                                MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+                                MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
                                 MPS_SWIFT_NAME( destinationImageDescriptor(sourceImages:sourceStates:));
+
+
+/*! @abstract   The size of extra MPS heap storage allocated while the kernel is encoding
+ *  @discussion This is best effort and just describes things that are likely to end up on the MPS heap. It does not
+ *              describe all allocation done by the -encode call.  It is intended for use with high water calculations
+ *              for MTLHeap sizing. Allocations are typically for temporary storage needed for multipass algorithms.
+ *              This interface should not be used to detect multipass algorithms. */
+-(NSUInteger) encodingStorageSizeForSourceImage: (MPSImage *__nonnull) sourceImage
+                                   sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
+                               destinationImage: (MPSImage *__nullable) destinationImage
+            MPS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+            MPS_SWIFT_NAME( encodingStorageSize(sourceImage:sourceStates:destinationImage:));
+
+/*! @abstract   The size of extra MPS heap storage allocated while the kernel is encoding a batch
+ *  @discussion This is best effort and just describes things that are likely to end up on the MPS heap. It does not
+ *              describe all allocation done by the -encode call.  It is intended for use with high water calculations
+ *              for MTLHeap sizing. Allocations are typically for temporary storage needed for multipass algorithms.
+ *              This interface should not be used to detect multipass algorithms.  */
+-(NSUInteger) batchEncodingStorageSizeForSourceImage: (MPSImageBatch * __nonnull) sourceImage
+                                        sourceStates: (NSArray<MPSStateBatch *> * __nullable) sourceStates
+                                    destinationImage: (MPSImageBatch *__nullable) destinationImage
+            MPS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+            MPS_SWIFT_NAME( batchEncodingStorageSize(sourceImage:sourceStates:destinationImage:));
+
 
 @end
 
@@ -3877,7 +5529,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *  @abstract   Describes a convolution neural network kernel.
  *  @discussion A MPSCNNKernel consumes two MPSImages, primary and secondary, and produces one MPSImage.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSCNNBinaryKernel : MPSKernel
 
 /*! @abstract   Standard init with default properties per filter type
@@ -3953,7 +5605,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              E.g. if the MPSCNNConvolution inputs 32 channels, and the source has 64 channels, then it is an error to set
  *              primarySourceFeatureChannelOffset > 32.
  */
-@property (readwrite, nonatomic) NSUInteger              primarySourceFeatureChannelOffset MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property (readwrite, nonatomic) NSUInteger              primarySourceFeatureChannelOffset MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   secondarySourceFeatureChannelOffset
  *  @abstract   The number of channels in the secondary source MPSImage to skip before reading the input.
@@ -3970,7 +5622,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              E.g. if the MPSCNNConvolution inputs 32 channels, and the source has 64 channels, then it is an error to set
  *              primarySourceFeatureChannelOffset > 32.
  */
-@property (readwrite, nonatomic) NSUInteger              secondarySourceFeatureChannelOffset MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property (readwrite, nonatomic) NSUInteger              secondarySourceFeatureChannelOffset MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   primarySourceFeatureChannelMaxCount
  *  @abstract   The maximum number of channels in the primary source MPSImage to use
@@ -4020,7 +5672,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              result pixel. If the MPSCNNKernel does not have a filter window, then
  *              1 will be returned.
  */
-@property (readonly, nonatomic) NSUInteger              primaryKernelWidth MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property (readonly, nonatomic) NSUInteger              primaryKernelWidth MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   primaryKernelHeight
  *  @abstract   The height of the MPSCNNBinaryKernel filter window
@@ -4028,7 +5680,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              result pixel. If the MPSCNNKernel does not have a filter window, then
  *              1 will be returned.
  */
-@property (readonly, nonatomic) NSUInteger              primaryKernelHeight MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property (readonly, nonatomic) NSUInteger              primaryKernelHeight MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   kernelWidth
  *  @abstract   The width of the MPSCNNBinaryKernel filter window for the second image source
@@ -4036,7 +5688,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              result pixel. If the MPSCNNBinaryKernel does not have a filter window, then
  *              1 will be returned.
  */
-@property (readonly, nonatomic) NSUInteger              secondaryKernelWidth MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property (readonly, nonatomic) NSUInteger              secondaryKernelWidth MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   kernelHeight
  *  @abstract   The height of the MPSCNNBinaryKernel filter window for the second image source
@@ -4044,7 +5696,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              result pixel. If the MPSCNNBinaryKernel does not have a filter window, then
  *              1 will be returned.
  */
-@property (readonly, nonatomic) NSUInteger              secondaryKernelHeight MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property (readonly, nonatomic) NSUInteger              secondaryKernelHeight MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 /*! @property   primaryStrideInPixelsX
@@ -4052,50 +5704,50 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              for the primary source image
  *  @discussion If the filter does not do up or downsampling, 1 is returned.
  */
-@property(readwrite, nonatomic) NSUInteger              primaryStrideInPixelsX MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property(readwrite, nonatomic) NSUInteger              primaryStrideInPixelsX MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   primaryStrideInPixelsY
  *  @abstract   The downsampling (or upsampling if a backwards filter) factor in the vertical dimension
  *              for the primary source image
  *  @discussion If the filter does not do up or downsampling, 1 is returned.
  */
-@property(readwrite, nonatomic) NSUInteger              primaryStrideInPixelsY MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property(readwrite, nonatomic) NSUInteger              primaryStrideInPixelsY MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   secondaryStrideInPixelsX
  *  @abstract   The downsampling (or upsampling if a backwards filter) factor in the horizontal dimension
  *              for the secondary source image
  *  @discussion If the filter does not do up or downsampling, 1 is returned.
  */
-@property(readwrite, nonatomic) NSUInteger              secondaryStrideInPixelsX MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property(readwrite, nonatomic) NSUInteger              secondaryStrideInPixelsX MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   secondaryStrideInPixelsY
  *  @abstract   The downsampling (or upsampling if a backwards filter) factor in the vertical dimension
  *              for the secondary source image
  *  @discussion If the filter does not do up or downsampling, 1 is returned.
  */
-@property(readwrite, nonatomic) NSUInteger              secondaryStrideInPixelsY MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property(readwrite, nonatomic) NSUInteger              secondaryStrideInPixelsY MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   dilationRateX
  *  @abstract   Stride in source coordinates from one kernel tap to the next in the X dimension.
  */
-@property(readonly, nonatomic) NSUInteger               primaryDilationRateX MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property(readonly, nonatomic) NSUInteger               primaryDilationRateX MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   dilationRate
  *  @abstract   Stride in source coordinates from one kernel tap to the next in the Y dimension.
  */
-@property(readonly, nonatomic) NSUInteger               primaryDilationRateY MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property(readonly, nonatomic) NSUInteger               primaryDilationRateY MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   dilationRateX
  *  @abstract   Stride in source coordinates from one kernel tap to the next in the X dimension.
  *  @discussion As applied to the secondary source image.
  */
-@property(readonly, nonatomic) NSUInteger               secondaryDilationRateX MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property(readonly, nonatomic) NSUInteger               secondaryDilationRateX MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   dilationRate
  *  @abstract   Stride in source coordinates from one kernel tap to the next in the Y dimension.
  *  @discussion As applied to the secondary source image.
  */
-@property(readonly, nonatomic) NSUInteger               secondaryDilationRateY MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property(readonly, nonatomic) NSUInteger               secondaryDilationRateY MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 /*! @property   isBackwards
@@ -4106,7 +5758,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 /*! @abstract   Returns true if the -encode call modifies the state object it accepts.  */
 @property (readonly, nonatomic) BOOL                    isStateModified
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 /*! @property   padding
@@ -4168,7 +5820,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                      primaryImages: (MPSImageBatch * __nonnull) primaryImages
                    secondaryImages: (MPSImageBatch * __nonnull) secondaryImages
                  destinationImages: (MPSImageBatch * __nonnull) destinationImages
-                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                 MPS_SWIFT_NAME( encodeBatch(commandBuffer:primaryImages:secondaryImages:destinationImages:));
 
 /*! @abstract       Encode a MPSCNNKernel into a command Buffer. Create a texture to hold the result and return it.
@@ -4216,7 +5868,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 -(MPSImageBatch * __nonnull) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                                           primaryImages: (MPSImageBatch * __nonnull) primaryImage
                                         secondaryImages: (MPSImageBatch * __nonnull) secondaryImage
-                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                         MPS_SWIFT_NAME( encodeBatch(commandBuffer:primaryImages:secondaryImages:));
 
 /*! @abstract       Encode a MPSCNNKernel into a command Buffer. Create a texture and state to hold the results and return them.
@@ -4247,7 +5899,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                              destinationState: (__autoreleasing MPSState * __nullable * __nonnull) outState
                   destinationStateIsTemporary: (BOOL) isTemporary
                     MPS_SWIFT_NAME( encode(commandBuffer:primaryImage:secondaryImage:destinationState:destinationStateIsTemporary:))
-                    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract       Encode a MPSCNNKernel into a command Buffer. Create a texture and state to hold the results and return them.
  *  @discussion     In the first iteration on this method, encodeToCommandBuffer:sourceImage:destinationState:destinationImage:
@@ -4277,7 +5929,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                                       destinationStates: (__autoreleasing MPSStateBatch * __nullable * __nonnull) outState
                             destinationStateIsTemporary: (BOOL) isTemporary
             MPS_SWIFT_NAME( encodeBatch(commandBuffer:primaryImages:secondaryImages:destinationStates:destinationStateIsTemporary:))
-            MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+            MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 
@@ -4319,14 +5971,14 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                                        sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
                                    destinationImage: (MPSImage * __nonnull) destinationImage
                             MPS_SWIFT_NAME( resultState(primaryImage:secondaryImage:sourceStates:destinationImage:))
-                            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+                            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 -(MPSStateBatch * __nullable) resultStateBatchForPrimaryImage: (MPSImageBatch * __nonnull) primaryImage
                                                secondaryImage: (MPSImageBatch * __nonnull) secondaryImage
                                                  sourceStates: (NSArray <MPSStateBatch *> *__nullable) sourceStates
                                              destinationImage: (MPSImageBatch * __nonnull) destinationImage
                             MPS_SWIFT_NAME( resultStateBatch(primaryImage:secondaryImage:sourceStates:destinationImage:))
-                            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+                            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 /*! @abstract   Allocate a temporary MPSState (subclass) to hold the results from a -encodeBatchToCommandBuffer... operation
@@ -4369,7 +6021,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                                                secondaryImage: (MPSImage *__nonnull) secondaryImage
                                                  sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
                                              destinationImage: (MPSImage *__nonnull) destinationImage
-                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                         MPS_SWIFT_NAME( temporaryResultState(commandBuffer:primaryImage:secondaryImage:sourceStates:destinationImage:));
 
 -(MPSStateBatch * __nullable) temporaryResultStateBatchForCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
@@ -4377,7 +6029,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                                                          secondaryImage: (MPSImageBatch *__nonnull) secondaryImage
                                                            sourceStates: (NSArray <MPSStateBatch *> *__nullable) sourceStates
                                                        destinationImage: (MPSImageBatch *__nonnull) destinationImage
-                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                         MPS_SWIFT_NAME( temporaryResultStateBatch(commandBuffer:primaryImage:secondaryImage:sourceStates:destinationImage:));
 
 /*! @abstract   Returns YES if the same state is used for every operation in a batch
@@ -4385,7 +6037,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              (and different) state to go with it. Set to YES to avoid allocating
  *              redundant state in the case when the same state is used all the time.
  *              Default: NO    */
--(BOOL)     isResultStateReusedAcrossBatch MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+-(BOOL)     isResultStateReusedAcrossBatch MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract   Returns YES if the filter must be run over the entire batch before its
  *              results may be considered complete
@@ -4403,7 +6055,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *
  *              Default: NO
  */
--(BOOL)     appendBatchBarrier MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+-(BOOL)     appendBatchBarrier MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract   Get a suggested destination image descriptor for a source image
  *  @discussion Your application is certainly free to pass in any destinationImage
@@ -4483,6 +6135,30 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 -(MPSImageDescriptor*__nonnull) destinationImageDescriptorForSourceImages: (NSArray<MPSImage *> * __nonnull) sourceImages
                                                              sourceStates: (NSArray<MPSState *> * __nullable) sourceStates;
 
+/*! @abstract   The size of extra MPS heap storage allocated while the kernel is encoding
+ *  @discussion This is best effort and just describes things that are likely to end up on the MPS heap. It does not
+ *              describe all allocation done by the -encode call.  It is intended for use with high water calculations
+ *              for MTLHeap sizing. Allocations are typically for temporary storage needed for multipass algorithms.
+ *              This interface should not be used to detect multipass algorithms.  */
+-(NSUInteger) encodingStorageSizeForPrimaryImage: (MPSImage *__nonnull) primaryImage
+                                  secondaryImage: (MPSImage *__nonnull) secondaryImage
+                                    sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
+                                destinationImage: (MPSImage *__nullable) destinationImage
+    MPS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+    MPS_SWIFT_NAME( encodingStorageSize(primaryImage:secondaryImage:sourceStates:destinationImage:));
+
+/*! @abstract   The size of extra MPS heap storage allocated while the kernel is encoding a batch
+ *  @discussion This is best effort and just describes things that are likely to end up on the MPS heap. It does not
+ *              describe all allocation done by the -encode call.  It is intended for use with high water calculations
+ *              for MTLHeap sizing. Allocations are typically for temporary storage needed for multipass algorithms.
+ *              This interface should not be used to detect multipass algorithms.  */
+-(NSUInteger) batchEncodingStorageSizeForPrimaryImage: (MPSImageBatch * __nonnull) primaryImage
+                                       secondaryImage: (MPSImageBatch * __nonnull) secondaryImage
+                                         sourceStates: (NSArray<MPSStateBatch *> * __nullable) sourceStates
+                                     destinationImage: (MPSImageBatch *__nullable) destinationImage
+    MPS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+    MPS_SWIFT_NAME( batchEncodingStorageSize(primaryImage:secondaryImage:sourceStates:destinationImage:));
+
 @end
 
 
@@ -4533,7 +6209,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              is called.
  */
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNGradientKernel : MPSCNNBinaryKernel
 
 /*! @abstract   Standard init with default properties per filter type
@@ -4700,6 +6376,670 @@ NS_DESIGNATED_INITIALIZER;
 
 #pragma mark -
 
+/*!
+ *  @class      MPSCNNMultiaryKernel
+ *  @dependency This depends on Metal.framework
+ *  @abstract   Describes a  neural network kernel with multiple image sources.
+ *  @discussion A MPSCNNKernel consumes multiple MPSImages, possibly a MPSState, and produces one MPSImage.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCNNMultiaryKernel : MPSKernel
+
+/*! @abstract   Standard init with default properties per filter type
+ *  @param      device      The device that the filter will be used on. May not be NULL.
+ *  @param      sourceCount The number of source images or MPSImageBatches
+ *  @result     A pointer to the newly initialized object. This will fail, returning
+ *              nil if the device is not supported. Devices must be
+ *              MTLFeatureSet_iOS_GPUFamily2_v1 or later.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                           sourceCount: (NSUInteger) sourceCount NS_DESIGNATED_INITIALIZER;
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_UNAVAILABLE;
+
+/*! @abstract   The number of source images accepted by the kernel */
+@property (readonly, nonatomic) NSUInteger  sourceCount;
+
+/*! @property   clipRect
+ *  @abstract   An optional clip rectangle to use when writing data. Only the pixels in the rectangle will be overwritten.
+ *  @discussion A MTLRegion that indicates which part of the destination to overwrite. If the clipRect does not lie
+ *              completely within the destination image, the intersection between clip rectangle and destination bounds is
+ *              used.   Default: MPSRectNoClip (MPSKernel::MPSRectNoClip) indicating the entire image.
+ *              clipRect.origin.z is the index of starting destination image in batch processing mode. clipRect.size.depth
+ *              is the number of images to process in batch processing mode.
+ *
+ *              See Also: @ref subsubsection_clipRect
+ */
+@property (readwrite, nonatomic) MTLRegion               clipRect;
+
+/*! @property   destinationFeatureChannelOffset
+ *  @abstract   The number of channels in the destination MPSImage to skip before writing output.
+ *  @discussion This is the starting offset into the destination image in the feature channel dimension
+ *              at which destination data is written.
+ *              This allows an application to pass a subset of all the channels in MPSImage as output of MPSKernel.
+ *              E.g. Suppose MPSImage has 24 channels and a MPSKernel outputs 8 channels. If
+ *              we want channels 8 to 15 of this MPSImage to be used as output, we can set destinationFeatureChannelOffset = 8.
+ *              Note that this offset applies independently to each image when the MPSImage
+ *              is a container for multiple images and the MPSCNNKernel is processing multiple images (clipRect.size.depth > 1).
+ *              The default value is 0 and any value specifed shall be a multiple of 4. If MPSKernel outputs N channels,
+ *              destination image MUST have at least destinationFeatureChannelOffset + N channels. Using a destination
+ *              image with insufficient number of feature channels result in an error.
+ *              E.g. if the MPSCNNConvolution outputs 32 channels, and destination has 64 channels, then it is an error to set
+ *              destinationFeatureChannelOffset > 32.
+ */
+@property (readwrite, nonatomic) NSUInteger              destinationFeatureChannelOffset;
+
+/*! @property   isBackwards
+ *  @abstract   YES if the filter operates backwards.
+ *  @discussion This influences how strideInPixelsX/Y should be interpreted.
+ */
+@property(readonly, nonatomic) BOOL                     isBackwards;
+
+/*! @abstract   Returns true if the -encode call modifies the state object it accepts.  */
+@property (readonly, nonatomic) BOOL                    isStateModified;
+
+/*! @property   padding
+ *  @abstract   The padding method used by the filter
+ *  @discussion This influences how strideInPixelsX/Y should be interpreted.
+ *              Default:  MPSNNPaddingMethodAlignCentered | MPSNNPaddingMethodAddRemainderToTopLeft | MPSNNPaddingMethodSizeSame
+ *              Some object types (e.g. MPSCNNFullyConnected) may override this default with something appropriate to its operation.
+ */
+@property (readwrite, nonatomic, nonnull, retain) id <MPSNNPadding>    padding;
+
+/*! @abstract   Method to allocate the result image for -encodeToCommandBuffer:sourceImage:
+ *  @discussion Default: MPSTemporaryImage.defaultAllocator
+ */
+@property (readwrite, nonatomic, retain, nonnull) id <MPSImageAllocator>  destinationImageAllocator;
+
+
+/*! @abstract   The positon of the destination clip rectangle origin relative to each source buffer
+ *  @discussion The offset is defined to be the position of clipRect.origin in source coordinates.
+ *              Default: {0,0,0}, indicating that the top left corners of the clipRect and source image align.
+ *              offset.z is the index of starting source image in batch processing mode.
+ *  @param      index   The index of the source image described by the offset
+ *  @return     A MPSOffset for that image */
+-(MPSOffset)  offsetAtIndex: (NSUInteger) index;
+
+/*! @abstract   Set the positon of the destination clip rectangle origin relative to each source buffer
+ *  @discussion The offset is defined to be the position of clipRect.origin in source coordinates.
+ *              Default: {0,0,0}, indicating that the top left corners of the clipRect and source image align.
+ *              offset.z is the index of starting source image in batch processing mode.
+ *  @param      offset  The new offset
+ *  @param      index   The index of the source image described by the offset */
+-(void)  setOffset: (MPSOffset) offset
+           atIndex: (NSUInteger) index;
+
+/*! @abstract   The number of channels in the source MPSImage to skip before reading the input.
+ *  @discussion This is the starting offset into the  source image in the feature channel dimension
+ *              at which source data is read. Unit: feature channels
+ *              This allows an application to read a subset of all the channels in MPSImage as input of MPSKernel.
+ *              E.g. Suppose MPSImage has 24 channels and a MPSKernel needs to read 8 channels. If
+ *              we want channels 8 to 15 of this MPSImage to be used as input, we can set sourceFeatureChannelOffset[0] = 8.
+ *              Note that this offset applies independently to each image when the MPSImage
+ *              is a container for multiple images and the MPSCNNKernel is processing multiple images (clipRect.size.depth > 1).
+ *              The default value is 0 and any value specifed shall be a multiple of 4. If MPSKernel inputs N channels,
+ *              the source image MUST have at least primarySourceFeatureChannelOffset + N channels. Using a source
+ *              image with insufficient number of feature channels will result in an error.
+ *              E.g. if the MPSCNNConvolution inputs 32 channels, and the source has 64 channels, then it is an error to set
+ *              primarySourceFeatureChannelOffset > 32.
+ *  @param      index   The index of the source image that the feature channel offset describes
+ *  @return     The source feature channel offset */
+-(NSUInteger) sourceFeatureChannelOffsetAtIndex: (NSUInteger) index;
+
+/*! @abstract   Set the number of channels in the source MPSImage to skip before reading the input.
+ *  @discussion This is the starting offset into the  source image in the feature channel dimension
+ *              at which source data is read. Unit: feature channels
+ *              This allows an application to read a subset of all the channels in MPSImage as input of MPSKernel.
+ *              E.g. Suppose MPSImage has 24 channels and a MPSKernel needs to read 8 channels. If
+ *              we want channels 8 to 15 of this MPSImage to be used as input, we can set sourceFeatureChannelOffset[0] = 8.
+ *              Note that this offset applies independently to each image when the MPSImage
+ *              is a container for multiple images and the MPSCNNKernel is processing multiple images (clipRect.size.depth > 1).
+ *              The default value is 0 and any value specifed shall be a multiple of 4. If MPSKernel inputs N channels,
+ *              the source image MUST have at least primarySourceFeatureChannelOffset + N channels. Using a source
+ *              image with insufficient number of feature channels will result in an error.
+ *              E.g. if the MPSCNNConvolution inputs 32 channels, and the source has 64 channels, then it is an error to set
+ *              primarySourceFeatureChannelOffset > 32.
+ *  @param      index   The index of the source image that the feature channel offset describes
+ *  @param      offset The source feature channel offset */
+-(void) setSourceFeatureChannelOffset: (NSUInteger) offset
+                              atIndex: (NSUInteger) index;
+
+/*! @abstract   The maximum number of channels in the source MPSImage to use
+ *  @discussion Most filters can insert a slice operation into the filter for free.
+ *              Use this to limit the size of the feature channel slice taken from
+ *              the input image. If the value is too large, it is truncated to be
+ *              the remaining size in the image after the sourceFeatureChannelOffset
+ *              is taken into account.  Default: ULONG_MAX
+ *  @param      index The index of the source image to which the max count refers
+ *  @return     The source feature channel max count */
+-(NSUInteger) sourceFeatureChannelMaxCountAtIndex: (NSUInteger) index;
+
+/*! @abstract   Set the maximum number of channels in the source MPSImage to use
+ *  @discussion Most filters can insert a slice operation into the filter for free.
+ *              Use this to limit the size of the feature channel slice taken from
+ *              the input image. If the value is too large, it is truncated to be
+ *              the remaining size in the image after the sourceFeatureChannelOffset
+ *              is taken into account.  Default: ULONG_MAX
+ *  @param      count The new source feature channel max count
+ *  @param      index The index of the source image to which the max count refers */
+-(void) setSourceFeatureChannelMaxCount: (NSUInteger) count
+                                atIndex: (NSUInteger) index;
+
+/*! @abstract   The MPSImageEdgeMode to use when texture reads stray off the edge of the primary source image
+ *  @discussion Most MPSKernel objects can read off the edge of the source image. This can happen
+ *              because of a negative offset property, because the offset + clipRect.size is larger
+ *              than the source image or because the filter looks at neighboring pixels, such as a
+ *              Convolution filter.   Default:  MPSImageEdgeModeZero.
+ *
+ *              See Also: @ref subsubsection_edgemode
+ *  @param      index   The index of the source image to which the edge mode refers
+ *  @return     The edge mode for that source image */
+-(MPSImageEdgeMode) edgeModeAtIndex: (NSUInteger) index;
+
+/*! @abstract   Set the MPSImageEdgeMode to use when texture reads stray off the edge of the primary source image
+ *  @discussion Most MPSKernel objects can read off the edge of the source image. This can happen
+ *              because of a negative offset property, because the offset + clipRect.size is larger
+ *              than the source image or because the filter looks at neighboring pixels, such as a
+ *              Convolution filter.   Default:  MPSImageEdgeModeZero.
+ *
+ *              See Also: @ref subsubsection_edgemode
+ *  @param      edgeMode    The new edge mode to use
+ *  @param      index       The index of the source image to which the edge mode refers */
+-(void) setEdgeMode: (MPSImageEdgeMode) edgeMode
+            atIndex: (NSUInteger) index;
+
+/*! @abstract   The width of the kernel filter window
+ *  @discussion This is the horizontal diameter of the region read by the filter for each
+ *              result pixel. If the MPSCNNKernel does not have a filter window, then
+ *              1 will be returned.
+ *  @param      index   The index of the source image to which the kernel width refers */
+-(NSUInteger) kernelWidthAtIndex: (NSUInteger) index;
+
+/*! @abstract   Set the width of the kernel filter window
+ *  @discussion This is the horizontal diameter of the region read by the filter for each
+ *              result pixel. If the MPSCNNKernel does not have a filter window, then
+ *              1 will be returned.
+ *  @param      width   The new width
+ *  @param      index   The index of the source image to which the kernel width refers */
+-(void) setKernelWidth: (NSUInteger) width
+               atIndex: (NSUInteger) index;
+
+/*! @abstract   The height of the kernel filter window
+ *  @discussion This is the horizontal diameter of the region read by the filter for each
+ *              result pixel. If the MPSCNNKernel does not have a filter window, then
+ *              1 will be returned.
+ *  @param      index   The index of the source image to which the kernel width refers */
+-(NSUInteger) kernelHeightAtIndex: (NSUInteger) index;
+
+/*! @abstract   Set the height of the kernel filter window
+ *  @discussion This is the horizontal diameter of the region read by the filter for each
+ *              result pixel. If the MPSCNNKernel does not have a filter window, then
+ *              1 will be returned.
+ *  @param      height   The new width
+ *  @param      index   The index of the source image to which the kernel width refers */
+-(void) setKernelHeight: (NSUInteger) height
+               atIndex: (NSUInteger) index;
+
+/*! @abstract   The downsampling factor in the horizontal dimension for the source image
+ *  @param      index   The index of the source Image
+ *  @discussion If the filter does not do up or downsampling, 1 is returned.
+ *  @return     The stride */
+-(NSUInteger) strideInPixelsXatIndex: (NSUInteger) index;
+
+/*! @abstract   The downsampling factor in the horizontal dimension for the source image
+ *  @discussion If the filter does not do up or downsampling, 1 is returned.  Default: 1
+ *  @param      index   The index of the source Image
+ *  @param      stride The stride for the source image */
+-(void) setStrideInPixelsX: (NSUInteger) stride
+                   atIndex: (NSUInteger) index;
+
+/*! @abstract   The downsampling factor in the vertical dimension for the source image
+ *  @param      index   The index of the source Image
+ *  @discussion If the filter does not do up or downsampling, 1 is returned.
+ *  @return     The stride */
+-(NSUInteger) strideInPixelsYatIndex: (NSUInteger) index;
+
+/*! @abstract   The downsampling factor in the vertical dimension for the source image
+ *  @discussion If the filter does not do up or downsampling, 1 is returned.  Default: 1
+ *  @param      index   The index of the source Image
+ *  @param      stride The stride for the source image */
+-(void) setStrideInPixelsY: (NSUInteger) stride
+                   atIndex: (NSUInteger) index;
+
+
+/*! @abstract   Stride in source coordinates from one kernel tap to the next in the X dimension.
+ *  @param      index   The index of the source image to which the dilation rate applies
+ *  @return     The dilation rate   */
+-(NSUInteger) dilationRateXatIndex: (NSUInteger) index;
+
+/*! @abstract   Set the stride in source coordinates from one kernel tap to the next in the X dimension.
+ *  @param      index   The index of the source image to which the dilation rate applies
+ *  @param      dilationRate The dilation rate   */
+-(void) setDilationRateX: (NSUInteger) dilationRate
+                 atIndex: (NSUInteger) index;
+
+/*! @abstract   Stride in source coordinates from one kernel tap to the next in the Y dimension.
+ *  @param      index   The index of the source image to which the dilation rate applies
+ *  @return     The dilation rate   */
+-(NSUInteger) dilationRateYatIndex: (NSUInteger) index;
+
+/*! @abstract   Set the stride in source coordinates from one kernel tap to the next in the Y dimension.
+ *  @param      index   The index of the source image to which the dilation rate applies
+ *  @param      dilationRate The dilation rate   */
+-(void) setDilationRateY: (NSUInteger) dilationRate
+                 atIndex: (NSUInteger) index;
+
+
+
+/*! @abstract NSSecureCoding compatability
+ *  @discussion While the standard NSSecureCoding/NSCoding method
+ *              -initWithCoder: should work, since the file can't
+ *              know which device your data is allocated on, we
+ *              have to guess and may guess incorrectly.  To avoid
+ *              that problem, use initWithCoder:device instead.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSKernel
+ *  @param      device      The MTLDevice on which to make the MPSKernel
+ *  @return     A new MPSKernel object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+/*!
+ *  @abstract   Encode a MPSCNNKernel into a command Buffer.  The operation shall proceed out-of-place.
+ *  @discussion This is the older style of encode which reads the offset, doesn't change it,
+ *              and ignores the padding method.
+ *  @param      commandBuffer        A valid MTLCommandBuffer to receive the encoded filter
+ *  @param      sourceImages         An array containing the source images
+ *  @param      destinationImage     A valid MPSImage to be overwritten by result image. destinationImage may not alias primarySourceImage or secondarySourceImage.
+ */
+-(void) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                 sourceImages: (NSArray<MPSImage *> * __nonnull) sourceImages
+             destinationImage: (MPSImage * __nonnull) destinationImage
+    MPS_SWIFT_NAME( encode(commandBuffer:sourceImages:destinationImage:));
+
+/*!
+ *  @abstract   Encode a MPSCNNKernel into a command Buffer.  The operation shall proceed out-of-place.
+ *  @discussion This is the older style of encode which reads the offset, doesn't change it,
+ *              and ignores the padding method. Multiple images are processed concurrently.
+ *              All images must have MPSImage.numberOfImages = 1.
+ *  @param      commandBuffer         A valid MTLCommandBuffer to receive the encoded filter
+ *  @param      sourceImages          An array of image batches containing the source images.
+ *  @param      destinationImages     An array of MPSImage objects to contain the result images.
+ *                                    destinationImages may not alias primarySourceImages or secondarySourceImages
+ *                                    in any manner.
+ */
+-(void) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                      sourceImages: (NSArray<MPSImageBatch *> * __nonnull) sourceImages
+                 destinationImages: (MPSImageBatch * __nonnull) destinationImages
+    MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:destinationImages:));
+
+/*! @abstract       Encode a MPSCNNKernel into a command Buffer. Create a texture to hold the result and return it.
+ *  @discussion     In the first iteration on this method, encodeToCommandBuffer:sourceImage:destinationImage:
+ *                  some work was left for the developer to do in the form of correctly setting the offset property
+ *                  and sizing the result buffer. With the introduction of the padding policy (see padding property)
+ *                  the filter can do this work itself. If you would like to have some input into what sort of MPSImage
+ *                  (e.g. temporary vs. regular) or what size it is or where it is allocated, you may set the
+ *                  destinationImageAllocator to allocate the image yourself.
+ *
+ *                  This method uses the MPSNNPadding padding property to figure out how to size
+ *                  the result image and to set the offset property.  See discussion in MPSNeuralNetworkTypes.h.
+ *
+ *  @param          commandBuffer       The command buffer
+ *  @param          sourceImages        An array of MPSImages to use as the source images for the filter.
+ *  @result         A MPSImage or MPSTemporaryImage allocated per the destinationImageAllocator containing the output of the graph.
+ *                  The returned image will be automatically released when the command buffer completes. If you want to
+ *                  keep it around for longer, retain the image. (ARC will do this for you if you use it later.)
+ */
+-(MPSImage * __nonnull) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                 sourceImages: (NSArray<MPSImage *>* __nonnull) sourceImages
+        MPS_SWIFT_NAME( encode(commandBuffer:sourceImages:));
+
+/*! @abstract       Encode a MPSCNNKernel into a command Buffer. Create textures to hold the results and return them.
+ *  @discussion     In the first iteration on this method, encodeBatchToCommandBuffer:sourceImage:destinationImage:
+ *                  some work was left for the developer to do in the form of correctly setting the offset property
+ *                  and sizing the result buffer. With the introduction of the padding policy (see padding property)
+ *                  the filter can do this work itself. If you would like to have some input into what sort of MPSImage
+ *                  (e.g. temporary vs. regular) or what size it is or where it is allocated, you may set the
+ *                  destinationImageAllocator to allocate the image yourself.
+ *
+ *                  This method uses the MPSNNPadding padding property to figure out how to size
+ *                  the result image and to set the offset property.  See discussion in MPSNeuralNetworkTypes.h.
+ *                  All images in a batch must have MPSImage.numberOfImages = 1.
+ *
+ *  @param          commandBuffer       The command buffer
+ *  @param          sourceImageBatches  An array of image batches to use as the source images for the filter.
+ *  @result         A MPSImage or MPSTemporaryImage allocated per the destinationImageAllocator containing the output of the graph.
+ *                  The returned image will be automatically released when the command buffer completes. If you want to
+ *                  keep it around for longer, retain the image. (ARC will do this for you if you use it later.)
+ */
+-(MPSImageBatch * __nonnull) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                           sourceImages: (NSArray<MPSImageBatch *> * __nonnull) sourceImageBatches
+        MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:));
+
+/*! @abstract       Encode a MPSCNNKernel into a command Buffer. Create a texture and state to hold the results and return them.
+ *  @discussion     In the first iteration on this method, encodeToCommandBuffer:sourceImage:destinationState:destinationImage:
+ *                  some work was left for the developer to do in the form of correctly setting the offset property
+ *                  and sizing the result buffer. With the introduction of the padding policy (see padding property)
+ *                  the filter can do this work itself. If you would like to have some input into what sort of MPSImage
+ *                  (e.g. temporary vs. regular) or what size it is or where it is allocated, you may set the
+ *                  destinationImageAllocator to allocate the image yourself.
+ *
+ *                  This method uses the MPSNNPadding padding property to figure out how to size
+ *                  the result image and to set the offset property. See discussion in MPSNeuralNetworkTypes.h.
+ *                  All images in a batch must have MPSImage.numberOfImages = 1.
+ *
+ *  @param          commandBuffer       The command buffer
+ *  @param          sourceImages        An array of MPSImages to use as the source images for the filter.
+ *  @param          outState            The address of location to write the pointer to the result state of the operation
+ *  @param          isTemporary         YES if the outState should be a temporary object
+ *  @result         A MPSImage or MPSTemporaryImage allocated per the destinationImageAllocator containing the output of the graph.
+ *                  The offset property will be adjusted to reflect the offset used during the encode.
+ *                  The returned image will be automatically released when the command buffer completes. If you want to
+ *                  keep it around for longer, retain the image. (ARC will do this for you if you use it later.)
+ */
+-(MPSImage * __nonnull) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                 sourceImages: (NSArray<MPSImage *> *  __nonnull) sourceImages
+                             destinationState: (__autoreleasing MPSState * __nullable * __nonnull) outState
+                  destinationStateIsTemporary: (BOOL) isTemporary
+    MPS_SWIFT_NAME( encode(commandBuffer:sourceImages:destinationState:destinationStateIsTemporary:));
+
+/*! @abstract       Encode a MPSCNNKernel into a command Buffer. Create a texture and state to hold the results and return them.
+ *  @discussion     In the first iteration on this method, encodeToCommandBuffer:sourceImage:destinationState:destinationImage:
+ *                  some work was left for the developer to do in the form of correctly setting the offset property
+ *                  and sizing the result buffer. With the introduction of the padding policy (see padding property)
+ *                  the filter can do this work itself. If you would like to have some input into what sort of MPSImage
+ *                  (e.g. temporary vs. regular) or what size it is or where it is allocated, you may set the
+ *                  destinationImageAllocator to allocate the image yourself.
+ *
+ *                  This method uses the MPSNNPadding padding property to figure out how to size
+ *                  the result image and to set the offset property. See discussion in MPSNeuralNetworkTypes.h.
+ *                  All images in a batch must have MPSImage.numberOfImages = 1.
+ *
+ *  @param          commandBuffer       The command buffer
+ *  @param          sourceImageBatches  An array of batches to use as the source images for the filter.
+ *  @param          outState            A new state object is returned here.
+ *  @param          isTemporary         YES if the outState should be a temporary object
+ *  @result         A MPSImage or MPSTemporaryImage allocated per the destinationImageAllocator containing the output of the graph.
+ *                  The offset property will be adjusted to reflect the offset used during the encode.
+ *                  The returned image will be automatically released when the command buffer completes. If you want to
+ *                  keep it around for longer, retain the image. (ARC will do this for you if you use it later.)
+ */
+-(MPSImageBatch * __nonnull) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                           sourceImages: (NSArray<MPSImageBatch *> * __nonnull) sourceImageBatches
+                                      destinationStates: (__autoreleasing MPSStateBatch * __nullable * __nonnull) outState
+                            destinationStateIsTemporary: (BOOL) isTemporary
+    MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:destinationStates:destinationStateIsTemporary:));
+
+
+
+/*! @abstract   Returns YES if the same state is used for every operation in a batch
+ *  @discussion If NO, then each image in a MPSImageBatch will need a corresponding
+ *              (and different) state to go with it. Set to YES to avoid allocating
+ *              redundant state in the case when the same state is used all the time.
+ *              Default: NO    */
+-(BOOL)     isResultStateReusedAcrossBatch;
+
+/*! @abstract   Returns YES if the filter must be run over the entire batch before its
+ *              results may be used
+ *  @discussion Nearly all filters do not need to see the entire batch all at once and can
+ *              operate correctly with partial batches. This allows the graph to
+ *              strip-mine the problem, processing the graph top to bottom on a subset
+ *              of the batch at a time, dramatically reducing memory usage. As the full
+ *              nominal working set for a graph is often so large that it may not fit
+ *              in memory, sub-batching may be required forward progress.
+ *
+ *              Batch normalization statistics on the other hand must complete the batch
+ *              before the statistics may be used to normalize the images in the batch
+ *              in the ensuing normalization filter. Consequently, batch normalization statistics
+ *              requests the graph insert a batch barrier following it by returning
+ *              YES from -appendBatchBarrier. This tells the graph to complete the batch
+ *              before any dependent filters can start. Note that the filter itself may
+ *              still be subject to sub-batching in its operation. All filters must be able to
+ *              function without seeing the entire batch in a single -encode call. Carry
+ *              over state that is accumulated across sub-batches is commonly carried in
+ *              a shared MPSState containing a MTLBuffer. See -isResultStateReusedAcrossBatch.
+ *
+ *              Caution: on most supported devices, the working set may be so large
+ *              that the graph may be forced to throw away and recalculate most
+ *              intermediate images in cases where strip-mining can not occur because
+ *              -appendBatchBarrier returns YES. A single batch barrier can commonly
+ *              cause a memory size increase and/or performance reduction by many fold
+ *              over the entire graph.  Filters of this variety should be avoided.
+ *
+ *              Default: NO
+ */
+-(BOOL)     appendBatchBarrier;
+
+/*! @abstract   Allocate a MPSState (subclass) to hold the results from a -encodeBatchToCommandBuffer... operation
+ *  @discussion A graph may need to allocate storage up front before executing.  This may be
+ *              necessary to avoid using too much memory and to manage large batches.  The function
+ *              should allocate any MPSState objects that will be produced by an -encode call
+ *              with the indicated sourceImages and sourceStates inputs. Though the states
+ *              can be further adjusted in the ensuing -encode call, the states should
+ *              be initialized with all important data and all MTLResource storage allocated.
+ *              The data stored in the MTLResource need not be initialized, unless the ensuing
+ *              -encode call expects it to be.
+ *
+ *              The MTLDevice used by the result is derived from the source image.
+ *              The padding policy will be applied to the filter before this is called
+ *              to give it the chance to configure any properties like MPSCNNKernel.offset.
+ *
+ *              CAUTION:
+ *              The kernel must have all properties set to values that will ultimately be
+ *              passed to the -encode call that writes to the state, before
+ *              -resultStateForSourceImages:sourceStates:destinationImage: is called or behavior is undefined.
+ *              Please note that -destinationImageDescriptorForSourceImages:sourceStates:
+ *              will alter some of these properties automatically based on the padding policy.
+ *              If you intend to call that to make the destination image, then you should
+ *              call that before -resultStateForSourceImages:sourceStates:destinationImage:. This will ensure the
+ *              properties used in the encode call and in the destination image creation
+ *              match those used to configure the state.
+ *
+ *              The following order is recommended:
+ *
+ *                  // Configure MPSCNNKernel properties first
+ *                  kernel.edgeMode = MPSImageEdgeModeZero;
+ *                  kernel.destinationFeatureChannelOffset = 128; // concatenation without the copy
+ *                  ...
+ *
+ *                  // ALERT: will change MPSCNNKernel properties
+ *                  MPSImageDescriptor * d = [kernel destinationImageDescriptorForSourceImage: source
+ *                                                                               sourceStates: states];
+ *                  MPSTemporaryImage * dest = [MPSTemporaryImage temporaryImageWithCommandBuffer: cmdBuf
+ *                                                                                imageDescriptor: d];
+ *
+ *                  // Now that all properties are configured properly, we can make the result state
+ *                  // and call encode.
+ *                  MPSState * __nullable destState = [kernel resultStateForSourceImage: source
+ *                                                                         sourceStates: states
+ *                                                                     destinationImage: dest];
+ *
+ *                  // This form of -encode will be declared by the MPSCNNKernel subclass
+ *                  [kernel encodeToCommandBuffer: cmdBuf
+ *                                    sourceImage: source
+ *                               destinationState: destState
+ *                               destinationImage: dest ];
+ *
+ *              Default: returns nil
+ *
+ *  @param      sourceImages        The MPSImage consumed by the associated -encode call.
+ *  @param      sourceStates        The list of MPSStates consumed by the associated -encode call,
+ *                                  for a batch size of 1.
+ *  @param      destinationImage    The destination image for the encode call
+ *  @return     The list of states produced by the -encode call for batch size of 1.
+ *              When the batch size is not 1, this function will be called repeatedly unless
+ *              -isResultStateReusedAcrossBatch returns YES. If  -isResultStateReusedAcrossBatch
+ *              returns YES, then it will be called once per batch and the MPSStateBatch array will
+ *              contain MPSStateBatch.length references to the same object.
+ */
+-(MPSState * __nullable) resultStateForSourceImages: (NSArray<MPSImage *> *__nonnull) sourceImages
+                                       sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
+                                   destinationImage: (MPSImage *__nonnull) destinationImage
+        MPS_SWIFT_NAME( resultState(sourceImages:sourceStates:destinationImage:));
+-(MPSStateBatch * __nullable) resultStateBatchForSourceImages: (NSArray<MPSImageBatch *> * __nonnull) sourceImages
+                                                 sourceStates: (NSArray<MPSStateBatch *> * __nullable) sourceStates
+                                             destinationImage: (MPSImageBatch *__nonnull) destinationImage
+        MPS_SWIFT_NAME( resultStateBatch(sourceImages:sourceStates:destinationImage:));
+
+
+/*! @abstract   Allocate a temporary MPSState (subclass) to hold the results from a -encodeBatchToCommandBuffer... operation
+ *  @discussion A graph may need to allocate storage up front before executing.  This may be
+ *              necessary to avoid using too much memory and to manage large batches.  The function
+ *              should allocate any MPSState objects that will be produced by an -encode call
+ *              with the indicated sourceImages and sourceStates inputs. Though the states
+ *              can be further adjusted in the ensuing -encode call, the states should
+ *              be initialized with all important data and all MTLResource storage allocated.
+ *              The data stored in the MTLResource need not be initialized, unless the ensuing
+ *              -encode call expects it to be.
+ *
+ *              The MTLDevice used by the result is derived from the command buffer.
+ *              The padding policy will be applied to the filter before this is called
+ *              to give it the chance to configure any properties like MPSCNNKernel.offset.
+ *
+ *              CAUTION:
+ *              The kernel must have all properties set to values that will ultimately be
+ *              passed to the -encode call that writes to the state, before
+ *              -resultStateForSourceImages:sourceStates:destinationImage: is called or behavior is undefined.
+ *              Please note that -destinationImageDescriptorForSourceImages:sourceStates:destinationImage:
+ *              will alter some of these properties automatically based on the padding policy.
+ *              If you intend to call that to make the destination image, then you should
+ *              call that before -resultStateForSourceImages:sourceStates:destinationImage:.  This will ensure the
+ *              properties used in the encode call and in the destination image creation
+ *              match those used to configure the state.
+ *
+ *              The following order is recommended:
+ *
+ *                  // Configure MPSCNNKernel properties first
+ *                  kernel.edgeMode = MPSImageEdgeModeZero;
+ *                  kernel.destinationFeatureChannelOffset = 128; // concatenation without the copy
+ *                  ...
+ *
+ *                  // ALERT: will change MPSCNNKernel properties
+ *                  MPSImageDescriptor * d = [kernel destinationImageDescriptorForSourceImage: source
+ *                                                                               sourceStates: states];
+ *                  MPSTemporaryImage * dest = [MPSTemporaryImage temporaryImageWithCommandBuffer: cmdBuf
+ *                                                                                imageDescriptor: d];
+ *
+ *                  // Now that all properties are configured properly, we can make the result state
+ *                  // and call encode.
+ *                  MPSState * __nullable destState = [kernel temporaryResultStateForCommandBuffer: cmdBuf
+ *                                                                                     sourceImage: source
+ *                                                                                    sourceStates: states];
+ *
+ *                  // This form of -encode will be declared by the MPSCNNKernel subclass
+ *                  [kernel encodeToCommandBuffer: cmdBuf
+ *                                    sourceImage: source
+ *                               destinationState: destState
+ *                               destinationImage: dest ];
+ *
+ *              Default: returns nil
+ *
+ *  @param      commandBuffer       The command buffer to allocate the temporary storage against
+ *                                  The state will only be valid on this command buffer.
+ *  @param      sourceImage         The MPSImage consumed by the associated -encode call.
+ *  @param      sourceStates        The list of MPSStates consumed by the associated -encode call,
+ *                                  for a batch size of 1.
+ *  @param      destinationImage    The destination image for the encode call
+ *  @return     The list of states produced by the -encode call for batch size of 1.
+ *              When the batch size is not 1, this function will be called repeatedly unless
+ *              -isResultStateReusedAcrossBatch returns YES. If  -isResultStateReusedAcrossBatch
+ *              returns YES, then it will be called once per batch and the MPSStateBatch array will
+ *              contain MPSStateBatch.length references to the same object.
+ */
+-(MPSState * __nullable) temporaryResultStateForCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                                 sourceImages: (NSArray <MPSImage *> *__nonnull) sourceImage
+                                                 sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
+                                             destinationImage: (MPSImage *__nonnull) destinationImage
+    MPS_SWIFT_NAME( temporaryResultState(commandBuffer:sourceImages:sourceStates:destinationImage:));
+-(MPSStateBatch * __nullable) temporaryResultStateBatchForCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                                           sourceImages: (NSArray <MPSImageBatch *> *__nonnull) sourceImage
+                                                           sourceStates: (NSArray <MPSStateBatch *> *__nullable) sourceStates
+                                                       destinationImage: (MPSImageBatch *__nonnull) destinationImage
+    MPS_SWIFT_NAME( temporaryResultStateBatch(commandBuffer:sourceImages:sourceStates:destinationImage:));
+
+
+/*! @abstract   Get a suggested destination image descriptor for a source image
+ *  @discussion Your application is certainly free to pass in any destinationImage
+ *              it likes to encodeToCommandBuffer:sourceImage:destinationImage,
+ *              within reason. This is the basic design for iOS 10. This method
+ *              is therefore not required.
+ *
+ *              However, calculating the MPSImage size and MPSCNNKernel properties
+ *              for each filter can be tedious and complicated work, so this method
+ *              is made available to automate the process. The application may
+ *              modify the properties of the descriptor before a MPSImage is made from
+ *              it, so long as the choice is sensible for the kernel in question.
+ *              Please see individual kernel descriptions for restrictions.
+ *
+ *              The expected timeline for use is as follows:
+ *
+ *                1) This method is called:
+ *                  a) The default MPS padding calculation is applied. It
+ *                     uses the MPSNNPaddingMethod of the .padding property to
+ *                     provide a consistent addressing scheme over the graph.
+ *                     It creates the MPSImageDescriptor and adjusts the .offset
+ *                     property of the MPSNNKernel. When using a MPSNNGraph, the
+ *                     padding is set using the MPSNNFilterNode as a proxy.
+ *
+ *                  b) This method may be overridden by MPSCNNKernel subclass
+ *                     to achieve any customization appropriate to the object type.
+ *
+ *                  c) Source states are then applied in order. These may modify the
+ *                     descriptor and may update other object properties. See:
+ *                      -destinationImageDescriptorForSourceImages:sourceStates:
+ *                       forKernel:suggestedDescriptor:  This is the typical way
+ *                      in which MPS may attempt to influence the operation of
+ *                      its kernels.
+ *
+ *                  d) If the .padding property has a custom padding policy method
+ *                      of the same name, it is called. Similarly, it may also adjust
+ *                      the descriptor and any MPSCNNKernel properties. This is the
+ *                      typical way in which your application may attempt to influence
+ *                      the operation of the MPS kernels.
+ *
+ *                2) A result is returned from this method and the caller
+ *                     may further adjust the descriptor and kernel properties
+ *                     directly.
+ *
+ *                3) The caller uses the descriptor to make a new MPSImage to
+ *                   use as the destination image for the -encode call in step 5.
+ *
+ *                4) The caller calls -resultStateForSourceImage:sourceStates:destinationImage:
+ *                    to make any result states needed for the kernel. If there isn't
+ *                    one, it will return nil. A variant is available to return a
+ *                    temporary state instead.
+ *
+ *                5) a -encode method is called to encode the kernel.
+ *
+ *              The entire process 1-5 is more simply achieved by just calling an -encode...
+ *              method that returns a MPSImage out the left hand sid of the method. Simpler
+ *              still, use the MPSNNGraph to coordinate the entire process from end to end.
+ *              Opportunities to influence the process are of course reduced, as (2) is no longer
+ *              possible with either method. Your application may opt to use the five step method
+ *              if it requires greater customization as described, or if it would like to estimate
+ *              storage in advance based on the sum of MPSImageDescriptors before processing
+ *              a graph. Storage estimation is done by using the MPSImageDescriptor to create
+ *              a MPSImage (without passing it a texture), and then call -resourceSize. As long
+ *              as the MPSImage is not used in an encode call and the .texture property is not
+ *              invoked, the underlying MTLTexture is not created.
+ *
+ *              No destination state or destination image is provided as an argument to this
+ *              function because it is expected they will be made / configured after this
+ *              is called. This method is expected to auto-configure important object properties
+ *              that may be needed in the ensuing destination image and state creation steps.
+ *
+ *  @param      sourceImages    A array of source images that will be passed into the -encode call
+ *                              Since MPSCNNKernel is a unary kernel, it is an array of length 1.
+ *  @param      sourceStates    An optional array of source states that will be passed into the -encode call
+ *  @return     an image descriptor allocated on the autorelease pool
+ */
+-(MPSImageDescriptor*__nonnull) destinationImageDescriptorForSourceImages: (NSArray<MPSImage *> * __nonnull) sourceImages
+                                                             sourceStates: (NSArray<MPSState *> * __nullable) sourceStates
+                MPS_SWIFT_NAME( destinationImageDescriptor(sourceImages:sourceStates:));
+
+@end
+
+
 #endif /* MPSCNNKernel_h */
 
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Headers/MPSMatrixSum.h
@@ -4741,7 +7081,7 @@ NS_DESIGNATED_INITIALIZER;
  *
  *              Each matrix in the array may have an independent origin.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixSum : MPSKernel
 /*
  * Use initWithDevice:count:rows:columns:transpose instead.
@@ -4774,6 +7114,15 @@ NS_DESIGNATED_INITIALIZER;
 
 /*! @abstract   The transposition used to initialize the kernel. */
 @property (nonatomic, readonly) BOOL transpose;
+
+/*! @property   resultMatrixOrigin
+ *
+ *  @discussion The origin, relative to [0, 0] in the result matrix, at which to
+ *              start writing results.  This property is modifiable and defaults
+ *              to [0, 0] at initialization time.  If a different origin is desired
+ *              then this should be modified prior to encoding the kernel.
+ */
+@property (readwrite, nonatomic) MTLOrigin resultMatrixOrigin;
 
 /*!
  *  @abstract   Specifies a neuron activation function to be used.
@@ -4898,7 +7247,7 @@ typedef void (^MPSNNGraphCompletionHandler)( MPSImage * __nullable result,
  *              graph, including some information on why certain optimizations were not
  *              made.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSNNGraph : MPSKernel <NSCopying, NSSecureCoding>
 
 /*! @abstract   Initialize a MPSNNGraph object on a device starting with resultImage working backward
@@ -4927,16 +7276,42 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                              resultImage: (MPSNNImageNode * __nonnull) resultImage
                      resultImageIsNeeded: (BOOL) resultIsNeeded;
 
+/*! @abstract   Initialize a MPSNNGraph object on a device starting with resultImage working backward
+ *  @discussion The MPSNNGraph constructor will start with the indicated result images, and look
+ *              to see what MPSNNFilterNode produced them, then look to its dependencies and so
+ *              forth to reveal the subsection of the graph necessary to compute the image. This variant
+ *              is provided to support graphs and subgraphs with multiple image outputs.
+ *  @param      device      The MTLDevice on which to run the graph
+ *  @param      resultImages The MPSNNImageNodes corresponding to the last images in the graph.
+ *                           The first image in the array will be returned from the -encode method
+ *                           LHS. The rest will be included in the list of intermediate images.
+ *  @param      areResultsNeeded  An array of BOOL values with count equal to resultImages.count.
+ *                                If NO is passed for a given image, the image itself is marked unneeded
+ *                                and might be skipped. The graph will prune this branch back to the
+ *                                first requred filter. A filter is required if it generates a needed
+ *                                result image, or is needed to update training parameters.
+ *  @result     A new MPSNNGraph.
+ */
+-(nullable instancetype)  initWithDevice: (nonnull id <MTLDevice>) device
+                            resultImages: (NSArray <MPSNNImageNode *> * __nonnull) resultImages
+                        resultsAreNeeded: (BOOL * __nullable) areResultsNeeded NS_DESIGNATED_INITIALIZER
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
++(nullable instancetype)  graphWithDevice: (nonnull id <MTLDevice>) device
+                             resultImages: (NSArray <MPSNNImageNode *> * __nonnull) resultImages
+                         resultsAreNeeded: (BOOL * __nullable) areResultsNeeded
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
 
 -(nullable instancetype)  initWithDevice: (nonnull id <MTLDevice>) device
                              resultImage: (MPSNNImageNode * __nonnull) resultImage
 MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use -initWithDevice:resultImage:resultIsNeeded: instead. Without this information, too much or too little work may occur. Results may be undefined.",
-                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0,11.3));
+                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0,11.3))  MPS_UNAVAILABLE(uikitformac);
 
 +(nullable instancetype) graphWithDevice: (nonnull id <MTLDevice>) device
                              resultImage: (MPSNNImageNode * __nonnull) resultImage
 MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:resultIsNeeded: instead. Without this information, too much or too little work may occur. Results may be undefined.",
-                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0,11.3));
+                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0,11.3))  MPS_UNAVAILABLE(uikitformac);
 
 /*! @abstract NSSecureCoding compatability
  *  @discussion While the standard NSSecureCoding/NSCoding method
@@ -5020,7 +7395,9 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
 -(void) reloadFromDataSources;
 
 /*! @abstract       Encode the graph to a MTLCommandBuffer
- *  @param          commandBuffer       The command buffer
+ *  @param          commandBuffer       The command buffer. If the command buffer is a MPSCommandBuffer,
+ *                                      the work will be committed to Metal in small pieces so that
+ *                                      the CPU-side latency is much reduced.
  *  @param          sourceImages        A list of MPSImages to use as the source images for the graph.
  *                                      These should be in the same order as the list returned from MPSNNGraph.sourceImageHandles.
  *                                      The images may be image arrays. Typically, this is only one or two images
@@ -5036,7 +7413,10 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
  *                                      These are only the images that were tagged with MPSNNImageNode.exportFromGraph = YES. The 
  *                                      identity of the states is given by -resultStateHandles.  If temporary, each intermediateImage 
  *                                      will have a readCount of 1.  If the result was tagged exportFromGraph = YES, it will be here
- *                                      too, with a readCount of 2.
+ *                                      too, with a readCount of 2. To be able to access the images from outside the graph on the CPU,
+ *                                      your application must also set MPSNNImageNode.synchronizeResource = YES,
+ *                                      and MPSNNImageNode.imageAllocator = [MPSImage defaultAllocator]; The defaultAllocator creates
+ *                                      a permanent image that can be read with readBytes.
  *  @param      destinationStates       An optional NSMutableArray to receive any MPSState objects created as part of its operation.
  *                                      The identity of the states is given by -resultStateHandles.
  *  @result     A MPSImage or MPSTemporaryImage allocated per the destinationImageAllocator containing the output of the graph.
@@ -5051,7 +7431,9 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
 /*! @abstract       Encode the graph to a MTLCommandBuffer
  *  @discussion     This interface is like the other except that it operates on a batch of images all
  *                  at once.  In addition, you may specify whether the result is needed.
- *  @param          commandBuffer       The command buffer
+ *  @param          commandBuffer       The command buffer. If the command buffer is a MPSCommandBuffer,
+ *                                      the work will be committed to Metal in small pieces so that
+ *                                      the CPU-side latency is much reduced.
  *  @param          sourceImages        A list of MPSImages to use as the source images for the graph.
  *                                      These should be in the same order as the list returned from MPSNNGraph.sourceImageHandles.
  *                                      The images may be image arrays. Typically, this is only one or two images
@@ -5067,7 +7449,10 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
  *                                      These are only the images that were tagged with MPSNNImageNode.exportFromGraph = YES. The
  *                                      identity of the states is given by -resultStateHandles.  If temporary, each intermediateImage
  *                                      will have a readCount of 1.  If the result was tagged exportFromGraph = YES, it will be here
- *                                      too, with a readCount of 2.
+ *                                      too, with a readCount of 2. To be able to access the images from outside the graph on the CPU,
+ *                                      your application must also set MPSNNImageNode.synchronizeResource = YES,
+ *                                      and MPSNNImageNode.imageAllocator = [MPSImage defaultAllocator]; The defaultAllocator creates
+ *                                      a permanent image that can be read with readBytes.
  *  @param      destinationStates       An optional NSMutableArray to receive any MPSState objects created as part of its operation.
  *                                      The identity of the states is given by -resultStateHandles.
  *  @result     A MPSImageBatch or MPSTemporaryImageBatch allocated per the destinationImageAllocator containing the output of the graph.
@@ -5079,7 +7464,7 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
                                             sourceStates: (NSArray<MPSStateBatch*> * __nullable) sourceStates
                                       intermediateImages: (NSMutableArray <MPSImageBatch*> * __nullable) intermediateImages
                                        destinationStates: (NSMutableArray <MPSStateBatch *> * __nullable) destinationStates
-                                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+                                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract       Encode the graph to a MTLCommandBuffer
  *
@@ -5097,7 +7482,9 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
  *                  to schedule CPU and GPU work concurrently. Regrattably, it is probable that every performance
  *                  benchmark you see on the net will be based on [MTLCommandBuffer waitUntilCompleted].
  *
- *  @param          commandBuffer       The command buffer
+ *  @param          commandBuffer       The command buffer. If the command buffer is a MPSCommandBuffer,
+ *                                      the work will be committed to Metal in small pieces so that
+ *                                      the CPU-side latency is much reduced.
  *  @param          sourceImages        A list of MPSImages to use as the source images for the graph.
  *                                      These should be in the same order as the list returned from MPSNNGraph.sourceImageHandles.
  *  @result     A MPSImage or MPSTemporaryImage allocated per the destinationImageAllocator containing the output of the graph.
@@ -5147,8 +7534,9 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
  *                          input images are required to generate a single graph result.
  *                          That is, the graph itself has multiple inputs.  If you need to
  *                          execute the graph multiple times, then call this API multiple
- *                          times, or better yet use [encodeToCommandBuffer:sourceImages:]
- *                          multiple times. (See discussion)
+ *                          times, or (faster) make use of MPSImageBatches using
+ *                          -executeBatchToCommandBuffer:sourceImages:sourceStates:...
+ *                          (See discussion)
  *
  *  @param  handler         A block to receive any errors generated. This block may run
  *                          on any thread and may be called before this method returns.
@@ -5160,6 +7548,30 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
  */
  -(MPSImage * __nonnull) executeAsyncWithSourceImages: (NSArray<MPSImage*> * __nonnull) sourceImages
                                     completionHandler: (MPSNNGraphCompletionHandler __nonnull) handler;
+
+/*! @abstract   Find the number of times a image will be read by the graph *
+ *  @discussion From the set of images (or image batches) passed in to the graph, find
+ *              the number of times the graph will read an image.  This may be needed
+ *              by your application to correctly set the MPSImage.readCount property.
+ *  @param      index   The index of the image. The index of the image matches the index of the image in the array returned
+ *              by the sourceImageHandles property.
+ *  @return     The read count of the image(s) at the index will be reduced by the value returned
+ *              when the graph is finished encoding. The readcount of the image(s) must be at least
+ *              this value when it is passed into the -encode... method. */
+-(NSUInteger) readCountForSourceImageAtIndex: (NSUInteger) index
+    MPS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1));
+
+/*! @abstract   Find the number of times a state will be read by the graph *
+ *  @discussion From the set of state (or state batches) passed in to the graph, find
+ *              the number of times the graph will read a state.  This may be needed
+ *              by your application to correctly set the MPSState.readCount property.
+ *  @param      index   The index of the state. The index of the state matches the index of the state in the array returned
+ *              by the sourceStateHandles property.
+ *  @return     The read count of the state(s) at the index will be reduced by the value returned
+ *              when the graph is finished encoding. The read count of the state(s) must be at least
+ *              this value when it is passed into the -encode... method. */
+-(NSUInteger) readCountForSourceStateAtIndex: (NSUInteger) index
+    MPS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1));
 
 @end
 
@@ -5206,6 +7618,8 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
 #include <MPSCore/MPSState.h>
 #include <MPSNeuralNetwork/MPSNeuralNetworkTypes.h>
 #include <MPSNeuralNetwork/MPSCNNNeuronType.h>
+#include <MPSNeuralNetwork/MPSCNNMath.h>
+#include <MPSNeuralNetwork/MPSCNNTypes.h>
 
 #pragma mark -
 #pragma mark Base Classes
@@ -5263,6 +7677,30 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
  *                  }
  *              }
  *              @endcode
+ *
+ *              But what is a handle?  Here MPS is giving you enough rope with which to hang
+ *              yourself. Don't panic! As long as your response is not to start tying nooses,
+ *              you should be fine. It is just rope. More precisely, it is just a pointer to a
+ *              NSObject. MPS doesn't know or care what it is or does, so long as it conforms
+ *              to the MPSHandle protocol. What it does is entirely up to you. We imagine it
+ *              will be an object that describes the data that you intend to pass later to the graph.
+ *              It could be a file reference, or an input to your own software component that wraps
+ *              the graph or even the MPSImage / MPSState that you plan to use.
+ *
+ *                  Do take note of the NSSecureCoding requirement in the MPSHandle protocol, however.
+ *                  This is needed if you attempt to use NSSecureCoding to serialize the MPSNNGraph.
+ *                  Normal MPSImages and MPSStates don't do that part.
+ *
+ *              Your application should be able to use the handle to locate / create the correct
+ *              image / state or batch thereof to pass as input to the graph.  Handles are also
+ *              used to disambiguate graph intermediate images and state outputs. They aren't used
+ *              to disambiguate image results (see -[MPSNNGraph initWithDevice:resultImages:resultsAreNeeded:]
+ *              as you should already know the ordering of outputs there. It is the same as what
+ *              you asked for.
+ *
+ *              Do take note of the NSSecureCoding requirement in the MPSHandle protocol, however.
+ *              This is needed if you attempt to use NSSecureCoding to serialize the MPSNNGraph.
+ *              Normal MPSImages and MPSStates don't do that part.
  */
 @protocol MPSHandle <NSSecureCoding, NSObject>
 
@@ -5295,7 +7733,7 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use +graphWithDevice:resultImage:
  *              MPSNNFilterNode.resultImage. Image nodes that are not created by MPS
  *              (i.e. "the graph inputs") must be created by you.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSNNImageNode : NSObject
 
 -(nonnull instancetype) initWithHandle: (NSObject <MPSHandle> * __nullable) handle NS_DESIGNATED_INITIALIZER;
@@ -5348,7 +7786,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 /*! @abstract   Set to true to cause the resource to be synchronized with the CPU
  *  @discussion It is not needed on iOS/tvOS devices, where it does nothing.  */
-@property (nonatomic, readwrite) BOOL       synchronizeResource MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property (nonatomic, readwrite) BOOL       synchronizeResource MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract   Stop training graph automatic creation at this node.
  *  @discussion An inference graph of MPSNNFilterNodes, MPSNNStateNodes and MPSNNImageNodes can be automatically
@@ -5358,7 +7796,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              nodes from being included in the training graph, set <undesired node>.resultImage.stopGradient = YES.
  *              This will prevent gradient propagation beyond this MPSNNImageNode.
  *              Default: NO */
-@property (nonatomic, readwrite) BOOL       stopGradient     MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(112.0));
+@property (nonatomic, readwrite) BOOL       stopGradient     MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 @end
 
@@ -5370,7 +7808,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              state may be moved into a MPSState object in order to keep the filter itself immutable.
  *              The MPSState object typically encapsulates one or more MTLResource objects.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSNNStateNode : NSObject
 -(nonnull instancetype) init NS_UNAVAILABLE;    // These are typically obtained using  MPSNNFilterNode.resultState
                                                 // If you do need a state node, make a MPSNNStateNode subclass, instead.
@@ -5399,7 +7837,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 /*! @abstract   Set to true to cause the resource to be synchronized with the CPU
  *  @discussion Ignored on non-MacOS.   */
-@property (nonatomic, readwrite) BOOL       synchronizeResource MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property (nonatomic, readwrite) BOOL       synchronizeResource MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 @end
 
@@ -5415,21 +7853,29 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              the necessary extra information like MPSNNGradientState
  *              nodes and inference filter source image nodes to the object as
  *              needed.*/
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSNNGradientStateNode : MPSNNStateNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNConvolutionGradientStateNode : MPSNNGradientStateNode
+@end
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCNNConvolutionTransposeGradientStateNode : MPSCNNConvolutionGradientStateNode
 @end
 
 /*! @class MPSNNBinaryGradientStateNode
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSNNBinaryGradientStateNode : MPSNNStateNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNNMultiaryGradientStateNode : MPSNNStateNode
+@end
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSNNArithmeticGradientStateNode : MPSNNBinaryGradientStateNode
 @end
 
@@ -5469,7 +7915,7 @@ typedef void (^MPSGradientNodeBlock)( MPSNNFilterNode * __nonnull gradientNode,
  *              MPS neural network filter objects. Make one of those. 
  *              This class defines an polymorphic interface for them.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSNNFilterNode : NSObject
 
 /* This is a virtual base class. Make MPSNNFilterNode subclass objects instead. */
@@ -5564,11 +8010,17 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 
 /*! @abstract       Build training graph from inference graph
- *  @discussion     This method will iteratively build the training potion of a graph based
+ *  @discussion     This method will iteratively build the training portion of a graph based
  *                  on an inference graph. Self should be the last node in the
  *                  inference graph. It is typically a loss layer, but can be anything.
  *                  Typically, the "inference graph" used here is the desired inference
  *                  graph with a dropout node and a loss layer node appended.
+ *
+ *                  The nodes that are created will have default properties. In certain cases,
+ *                  these may not be appropriate (e.g. if you want to do CPU based updates
+ *                  of convolution weights instead of default GPU updates.) In such cases, your
+ *                  application should use the nodeHandler to configure the new nodes as they are
+ *                  created.
  *
  *                  BUG: This method can not follow links to regions of the graph that are
  *                  connected to the rest of the graph solely via MPSNNStateNodes. A gradient
@@ -5594,7 +8046,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  */
 -(NSArray <MPSNNFilterNode*> * __nullable) trainingGraphWithSourceGradient: (MPSNNImageNode* __nullable ) gradientImage
                                                                nodeHandler: (__nullable MPSGradientNodeBlock) nodeHandler
-        MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
+        MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 @end
 
@@ -5612,7 +8064,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              -[MPSNNFilterNode gradientFilterWithSource:] is a simple way to construct
  *              these.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSNNGradientFilterNode : MPSNNFilterNode
 
 -(MPSNNGradientFilterNode*__nonnull) gradientFilterWithSources: (NSArray<MPSNNImageNode*> * __nonnull) sourceGradient NS_UNAVAILABLE;
@@ -5630,13 +8082,17 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 @protocol MPSCNNConvolutionDataSource;
 
 /*! @abstract   A MPSNNFilterNode representing a MPSCNNConvolution kernel   */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
-@interface MPSCNNConvolutionNode : MPSNNFilterNode
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
+@interface MPSCNNConvolutionNode : MPSNNFilterNode <MPSNNTrainableNode>
+
+/*! @abstract   The training style of the forward node will be propagated to gradient nodes made from it */
+@property (readwrite, nonatomic)    MPSNNTrainingStyle trainingStyle
+    MPS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
 
 /*! @abstract   Set the floating-point precision used by the convolution accumulator
  *  @discussion Default:  MPSNNConvolutionAccumulatorPrecisionOptionFloat */
 @property (readwrite, nonatomic) MPSNNConvolutionAccumulatorPrecisionOption accumulatorPrecision
-    MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
+    MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*! @abstract   Init an autoreleased not representing a MPSCNNConvolution kernel
  *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter
@@ -5665,11 +8121,11 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *               from the convolution transpose matches the size of the image passed in
  *               to this node. */
 @property (nonatomic, readonly, nullable) MPSCNNConvolutionGradientStateNode * convolutionGradientState
-    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A MPSNNFilterNode representing a MPSCNNFullyConnected kernel   */
 @interface MPSCNNFullyConnectedNode : MPSCNNConvolutionNode
 /*! @abstract   Init an autoreleased not representing a MPSCNNFullyConnected kernel
@@ -5693,7 +8149,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A MPSNNFilterNode representing a MPSCNNBinaryConvolution kernel   */
 @interface MPSCNNBinaryConvolutionNode : MPSCNNConvolutionNode
 /*! @abstract   Init an autoreleased node representing a MPSCNNBinaryConvolution kernel
@@ -5752,7 +8208,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                        inputScaleTerms: (const float * __nullable) inputScaleTerms
                                   type: (MPSCNNBinaryConvolutionType) type
                                  flags: (MPSCNNBinaryConvolutionFlags) flags
-                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+                MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract   Init a node representing a MPSCNNBinaryConvolution kernel
  *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter
@@ -5779,7 +8235,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                        inputScaleTerms: (const float * __nullable) inputScaleTerms
                                   type: (MPSCNNBinaryConvolutionType) type
                                  flags: (MPSCNNBinaryConvolutionFlags) flags
-            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 /*! @abstract unavailable */
@@ -5787,7 +8243,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A MPSNNFilterNode representing a MPSCNNBinaryFullyConnected kernel   */
 @interface MPSCNNBinaryFullyConnectedNode : MPSCNNBinaryConvolutionNode
 /*! @abstract   Init an autoreleased node representing a MPSCNNBinaryFullyConnected kernel
@@ -5845,7 +8301,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                        inputScaleTerms: (const float * __nullable) inputScaleTerms
                                   type: (MPSCNNBinaryConvolutionType) type
                                  flags: (MPSCNNBinaryConvolutionFlags) flags
-            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract   Init a node representing a MPSCNNBinaryFullyConnected kernel
  *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter
@@ -5872,13 +8328,13 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                        inputScaleTerms: (const float * __nullable) inputScaleTerms
                                   type: (MPSCNNBinaryConvolutionType) type
                                  flags: (MPSCNNBinaryConvolutionFlags) flags
-            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A MPSNNFilterNode representing a MPSCNNConvolutionTranspose kernel   */
 @interface MPSCNNConvolutionTransposeNode : MPSCNNConvolutionNode
 /*! @abstract   Init an autoreleased not representing a MPSCNNConvolutionTransposeNode kernel
@@ -5895,7 +8351,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 +(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) sourceNode
               convolutionGradientState: (MPSCNNConvolutionGradientStateNode * __nullable) convolutionGradientState
                                weights: (nonnull id <MPSCNNConvolutionDataSource>) weights
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract   Init a node representing a MPSCNNConvolutionTransposeNode kernel
  *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter
@@ -5912,13 +8368,13 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 -(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) sourceNode
               convolutionGradientState: (MPSCNNConvolutionGradientStateNode * __nullable) convolutionGradientState
                                weights: (nonnull id <MPSCNNConvolutionDataSource>) weights
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract unavailable */
 @property (nonatomic, readonly, nullable) MPSCNNConvolutionGradientStateNode * convolutionGradientState NS_UNAVAILABLE;
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNConvolutionGradientNode : MPSNNGradientFilterNode <MPSNNTrainableNode>
 /*! @abstract   A node to represent the gradient calculation for convolution training.
  *  @param sourceGradient   The input gradient from the 'downstream' gradient filter. Often
@@ -5951,6 +8407,73 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
                                        weights: (nullable id <MPSCNNConvolutionDataSource>) weights;
 @end
 
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCNNFullyConnectedGradientNode : MPSCNNConvolutionGradientNode
+/*! @abstract   A node to represent the gradient calculation for fully connected training.
+ *  @param sourceGradient   The input gradient from the 'downstream' gradient filter. Often
+ *                          that is a neuron gradient filter node.
+ *  @param sourceImage      The input image from the forward fully connected node
+ *  @param gradientState    The gradient state from the forward fully connected
+ *  @param weights          The data source from the forward fully connected. It may not contain
+ *                          an integrated neuron. Similary, any normalization should be
+ *                          broken out into a separate node. Pass nil to use the weights
+ *                          from the forward fully connected pass.
+ *  @return  A MPSCNNFullyConnectedGradientNode    */
++(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                      convolutionGradientState: (MPSCNNConvolutionGradientStateNode*__nonnull) gradientState
+                                       weights: (nullable id <MPSCNNConvolutionDataSource>) weights;
+
+/*! @abstract   A node to represent the gradient calculation for fully connectd training.
+ *  @param sourceGradient   The input gradient from the 'downstream' gradient filter. Often
+ *                          that is a neuron gradient filter node.
+ *  @param sourceImage      The input image from the forward fully connected node
+ *  @param gradientState    The gradient state from the forward fully connected
+ *  @param weights          The data source from the forward fully connected. It may not contain
+ *                          an integrated neuron. Similary, any normalization should be
+ *                          broken out into a separate node. Pass nil to use the weights
+ *                          from the forward convolution pass.
+ *  @return  A MPSCNNFullyConnectedGradientNode    */
+-(nonnull instancetype) initWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                      convolutionGradientState: (MPSCNNConvolutionGradientStateNode*__nonnull) gradientState
+                                       weights: (nullable id <MPSCNNConvolutionDataSource>) weights;
+@end
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCNNConvolutionTransposeGradientNode : MPSCNNConvolutionGradientNode
+/*! @abstract   A node to represent the gradient calculation for convolution transpose training.
+ *  @param sourceGradient   The input gradient from the 'downstream' gradient filter. Often
+ *                          that is a neuron gradient filter node.
+ *  @param sourceImage      The input image from the forward convolution transpose node
+ *  @param gradientState    The gradient state from the forward convolution transpose
+ *  @param weights          The data source from the forward convolution transpose. It may not contain
+ *                          an integrated neuron. Similary, any normalization should be
+ *                          broken out into a separate node. Pass nil to use the weights
+ *                          from the forward convolution transpose pass.
+ *  @return  A MPSCNNConvolutionTransposeGradientNode    */
++(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+             convolutionTransposeGradientState: (MPSCNNConvolutionTransposeGradientStateNode*__nonnull) gradientState
+                                       weights: (nullable id <MPSCNNConvolutionDataSource>) weights;
+
+/*! @abstract   A node to represent the gradient calculation for convolution transpose training.
+ *  @param sourceGradient   The input gradient from the 'downstream' gradient filter. Often
+ *                          that is a neuron gradient filter node.
+ *  @param sourceImage      The input image from the forward convolution transpose node
+ *  @param gradientState    The gradient state from the forward convolution transpose
+ *  @param weights          The data source from the forward convolution transpose. It may not contain
+ *                          an integrated neuron. Similary, any normalization should be
+ *                          broken out into a separate node. Pass nil to use the weights
+ *                          from the forward convolution transpose pass.
+ *  @return  A MPSCNNConvolutionTransposeGradientNode    */
+-(nonnull instancetype) initWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+             convolutionTransposeGradientState: (MPSCNNConvolutionTransposeGradientStateNode*__nonnull) gradientState
+                                       weights: (nullable id <MPSCNNConvolutionDataSource>) weights;
+@end
+
+
 #pragma mark -
 #pragma mark Neuron Nodes
 
@@ -5972,13 +8495,13 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              node reads from the convolution result. The graph -debugDescription
  *              should reveal what happened.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSCNNNeuronNode : MPSNNFilterNode
 
 /*! @abstract Create a neuron node of the appropriate type with a MPSNNNeuronDescriptor */
 +(nonnull instancetype) nodeWithSource: (MPSNNImageNode* __nonnull) sourceNode
                             descriptor: (MPSNNNeuronDescriptor * __nonnull) descriptor
-    MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+    MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*! @abstract filter parameter a */
 @property (nonatomic, readonly)  float a;
@@ -5994,7 +8517,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A node representing a MPSCNNNeuronAbsolute kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6008,7 +8531,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 -(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) sourceNode;
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A node representing a MPSCNNNeuronELU kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6030,7 +8553,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A node representing a MPSCNNNeuronReLUN kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6054,7 +8577,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A node representing a MPSCNNNeuronLinear kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6085,7 +8608,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A node representing a MPSCNNNeuronReLU kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6108,7 +8631,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A node representing a MPSCNNNeuronSigmoid kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6122,7 +8645,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 -(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) sourceNode;
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A node representing a MPSCNNNeuronHardSigmoid kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6152,7 +8675,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A node representing a MPSCNNNeuronSoftPlus kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6182,7 +8705,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A node representing a MPSCNNNeuronSoftSign kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6199,7 +8722,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A node representing a MPSCNNNeuronTanH kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6233,7 +8756,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract   A ReLU node with parameter a provided independently for each feature channel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6265,7 +8788,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! @abstract   A node representing a MPSCNNNeuronPower kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6302,7 +8825,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! @abstract   A node representing a MPSCNNNeuronExponential kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6339,7 +8862,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! @abstract   A node representing a MPSCNNNeuronLogarithm kernel
  *  @discussion For each pixel, applies the following function:
  *  @code
@@ -6376,13 +8899,32 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end
 
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+/*! @abstract   A node representing a MPSCNNNeuronGeLU kernel
+ *  @discussion For each pixel, applies the following function:
+ */
+@interface MPSCNNNeuronGeLUNode : MPSCNNNeuronNode
+
+/*! @abstract   Init a node representing a MPSCNNNeuronGeLU kernel
+ *  @discussion For each pixel, applies the following function:
+ *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter
+ *  @return     A new MPSNNFilter node for a MPSCNNNeuronLogarithm kernel.
+ */
+-(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) sourceNode;
+
+
+/*! @abstract Create an autoreleased node */
++(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) sourceNode;
+
+@end
+
 #pragma mark -
 #pragma mark Neuron Gradient Nodes
 
 /*! @abstract A node representing a MPSCNNNeuronGradient
  *  @discussion We use one generic neuron gradient node
  *              instead of having dozens of subclasses. */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNNeuronGradientNode : MPSNNGradientFilterNode
 
 /*! @abstract create a new neuron gradient node
@@ -6410,18 +8952,109 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 
 #pragma mark -
+#pragma mark Reduction Nodes
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+/*! @abstract  A node for a unary MPSNNReduce node.
+ *  @discussion This is an abstract base class that does not correspond with any
+ *              particular MPSCNNKernel. Please make one of the MPSNNReduction
+ *              subclasses instead. */
+@interface MPSNNUnaryReductionNode : MPSNNFilterNode
+
+/*! @abstract   The clip rectangle to apply to the source image.
+ */
+@property (readwrite, nonatomic) MTLRegion clipRectSource;
+
+/*! @abstract   Create an autoreleased node representing an MPS reduction kernel.
+ *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter
+ *  @return     A new MPSNNFilter node for an MPS reduction kernel.
+ */
++(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) sourceNode;
+
+/*! @abstract   Init a node representing an MPS reduction kernel.
+ *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter
+ *  @return     A new MPSNNFilter node for an MPS reduction kernel.
+ */
+-(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) sourceNode;
+@end    // MPSNNUnaryReductionNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionRowMinNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionRowMinNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionColumnMinNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionColumnMinNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionFeatureChannelsMinNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionFeatureChannelsMinNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionFeatureChannelsArgumentMinNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionFeatureChannelsArgumentMinNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionRowMaxNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionRowMaxNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionColumnMaxNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionColumnMaxNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionFeatureChannelsMaxNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionFeatureChannelsMaxNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionFeatureChannelsArgumentMaxNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionFeatureChannelsArgumentMaxNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionRowMeanNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionRowMeanNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionColumnMeanNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionColumnMeanNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionFeatureChannelsMeanNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionFeatureChannelsMeanNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionSpatialMeanNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionSpatialMeanNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionRowSumNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionRowSumNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionColumnSumNode : MPSNNUnaryReductionNode
+@end    // MPSNNReductionColumnSumNode
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionFeatureChannelsSumNode : MPSNNUnaryReductionNode
+
+/*! @abstract   A scale factor to apply to each feature channel sum.
+ */
+@property (readwrite, nonatomic) float weight;
+@end    // MPSNNReductionFeatureChannelsSumNode
+
+#pragma mark -
 #pragma mark Pooling Nodes
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract  A node for a MPSCNNPooling kernel
  *  @discussion This is an abstract base class that does not correspond with any
  *              particular MPSCNNKernel. Please make one of the MPSCNNPooling
  *              subclasses instead. */
 @interface MPSCNNPoolingNode : MPSNNFilterNode
-@property (readonly, nonatomic)  NSUInteger kernelWidth      MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
-@property (readonly, nonatomic)  NSUInteger kernelHeight     MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
-@property (readonly, nonatomic)  NSUInteger strideInPixelsX  MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
-@property (readonly, nonatomic)  NSUInteger strideInPixelsY  MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
+@property (readonly, nonatomic)  NSUInteger kernelWidth      MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
+@property (readonly, nonatomic)  NSUInteger kernelHeight     MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
+@property (readonly, nonatomic)  NSUInteger strideInPixelsX  MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
+@property (readonly, nonatomic)  NSUInteger strideInPixelsY  MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*! @abstract Convenience initializer for MPSCNNPooling nodes with square non-overlapping kernels
  *  @param      sourceNode      The MPSNNImageNode representing the source MPSImage for the filter
@@ -6476,25 +9109,25 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract  A node representing a MPSCNNPoolingAverage kernel
  *  @discussion The default edge mode is MPSImageEdgeModeClamp  */
 @interface MPSCNNPoolingAverageNode : MPSCNNPoolingNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract  A node representing a MPSCNNPoolingL2Norm kernel
  *  @discussion The default edge mode is MPSImageEdgeModeClamp  */
 @interface MPSCNNPoolingL2NormNode : MPSCNNPoolingNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract  A node representing a MPSCNNPoolingMax kernel
  *  @discussion The default edge mode is MPSImageEdgeModeClamp  */
 @interface MPSCNNPoolingMaxNode : MPSCNNPoolingNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract  A node for a MPSCNNDilatedPooling kernel
  *  @discussion This class corresponds to the MPSCNNDilatedPooling class. */
 @interface MPSCNNDilatedPoolingMaxNode : MPSNNFilterNode
@@ -6563,7 +9196,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNPoolingGradientNode : MPSNNGradientFilterNode
 /*! @abstract make a pooling gradient node
  *  @discussion  It would be much easier to use [inferencePoolingNode gradientNodeForSourceGradient:] instead.
@@ -6610,19 +9243,19 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNPoolingMaxGradientNode : MPSCNNPoolingGradientNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNPoolingAverageGradientNode : MPSCNNPoolingGradientNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNPoolingL2NormGradientNode : MPSCNNPoolingGradientNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNDilatedPoolingMaxGradientNode : MPSCNNPoolingGradientNode
 /*! @abstract make a pooling gradient node
  *  @discussion  It would be much easier to use [inferencePoolingNode gradientNodeForSourceGradient:] instead.
@@ -6672,7 +9305,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 #pragma mark - 
 #pragma mark Normalization Nodes
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract virtual base class for CNN normalization nodes */
 @interface MPSCNNNormalizationNode : MPSNNFilterNode
 
@@ -6710,7 +9343,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *             kernelHeight = kernelWidth = kernelSize
  *      @endcode
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSCNNSpatialNormalizationNode : MPSCNNNormalizationNode
 
 @property (readwrite, nonatomic) NSUInteger  kernelWidth;
@@ -6725,7 +9358,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNSpatialNormalizationGradientNode : MPSNNGradientFilterNode
 
 @property (readwrite, nonatomic) NSUInteger  kernelWidth;
@@ -6777,7 +9410,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *             kernelHeight = kernelWidth = kernelSize
  *      @endcode
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSCNNLocalContrastNormalizationNode : MPSCNNNormalizationNode
 
 @property (readwrite, nonatomic) float       pm;
@@ -6795,7 +9428,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNLocalContrastNormalizationGradientNode : MPSNNGradientFilterNode
 +(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
                                    sourceImage: (MPSNNImageNode*__nonnull) sourceImage
@@ -6867,7 +9500,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *             kernelHeight = kernelWidth = kernelSize
  *      @endcode
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSCNNCrossChannelNormalizationNode : MPSCNNNormalizationNode
 
 @property (readwrite, nonatomic) NSUInteger  kernelSizeInFeatureChannels;
@@ -6880,7 +9513,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 -(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) sourceNode NS_DESIGNATED_INITIALIZER;
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNCrossChannelNormalizationGradientNode : MPSNNGradientFilterNode
 +(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
                                    sourceImage: (MPSNNImageNode*__nonnull) sourceImage
@@ -6898,8 +9531,12 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 @protocol MPSCNNInstanceNormalizationDataSource;
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
-@interface MPSCNNInstanceNormalizationNode : MPSNNFilterNode
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
+@interface MPSCNNInstanceNormalizationNode : MPSNNFilterNode  <MPSNNTrainableNode>
+
+/*! @abstract   The training style of the forward node will be propagated to gradient nodes made from it */
+@property (readwrite, nonatomic)    MPSNNTrainingStyle trainingStyle
+            MPS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
 
 +(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) source
                             dataSource: (nonnull id <MPSCNNInstanceNormalizationDataSource>) dataSource;
@@ -6908,8 +9545,36 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
                             dataSource: (nonnull id <MPSCNNInstanceNormalizationDataSource>) dataSource;
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNInstanceNormalizationGradientNode : MPSNNGradientFilterNode <MPSNNTrainableNode>
+
++(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode*__nonnull) gradientState;
+
+-(nonnull instancetype) initWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode*__nonnull) gradientState;
+@end
+
+@protocol MPSCNNGroupNormalizationDataSource;
+
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCNNGroupNormalizationNode : MPSNNFilterNode  <MPSNNTrainableNode>
+
+/*! @abstract   The training style of the forward node will be propagated to gradient nodes made from it */
+@property (readwrite, nonatomic)    MPSNNTrainingStyle trainingStyle
+        MPS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
++(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) source
+                            dataSource: (nonnull id <MPSCNNGroupNormalizationDataSource>) dataSource;
+
+-(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) source
+                            dataSource: (nonnull id <MPSCNNGroupNormalizationDataSource>) dataSource;
+@end
+
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCNNGroupNormalizationGradientNode : MPSNNGradientFilterNode <MPSNNTrainableNode>
 
 +(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
                                    sourceImage: (MPSNNImageNode*__nonnull) sourceImage
@@ -6945,12 +9610,16 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              allow you to construct an identical sequence of nodes for inference
  *              and training and expect the right thing to happen.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
-@interface MPSCNNBatchNormalizationNode : MPSNNFilterNode
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
+@interface MPSCNNBatchNormalizationNode : MPSNNFilterNode  <MPSNNTrainableNode>
 
 /*! @abstract Options controlling how batch normalization is calculated
  *  @discussion     Default: MPSCNNBatchNormalizationFlagsDefault */
 @property (readwrite, nonatomic)  MPSCNNBatchNormalizationFlags   flags;
+
+/*! @abstract   The training style of the forward node will be propagated to gradient nodes made from it */
+@property (readwrite, nonatomic)    MPSNNTrainingStyle trainingStyle
+        MPS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
 
 +(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) source
                             dataSource: (nonnull id <MPSCNNBatchNormalizationDataSource>) dataSource;
@@ -6967,7 +9636,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              node. They will be called in sequence: statistics gradient until the
  *              batch is complete, then batch normalization gradient on the result.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNBatchNormalizationGradientNode : MPSNNGradientFilterNode <MPSNNTrainableNode>
 +(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
                                    sourceImage: (MPSNNImageNode*__nonnull) sourceImage
@@ -6988,7 +9657,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 /*! @abstract Abstract Node representing a image resampling operation
  *  @discussion  Please make a MPSNNBilinearScale or MPSNNLanczosScale object instead
  */
- MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSNNScaleNode : MPSNNFilterNode
 /*! @abstract create an autoreleased node to convert a MPSImage to the desired size
  *  @param  sourceNode    A valid MPSNNImageNode
@@ -7025,7 +9694,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *                    two in any dimension causes loss of information if a
  *                    low pass filter is not run over the image first. Details
  *                    may be omitted.    */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSNNBilinearScaleNode : MPSNNScaleNode
 @end
 
@@ -7035,7 +9704,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *                    could prove distracting to a neural network unused to seeing it.
  *                    You should use the resampling method that was used to train the
  *                    network. */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSNNLanczosScaleNode : MPSNNScaleNode
 @end
 
@@ -7043,7 +9712,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 #pragma mark -
 #pragma mark Arithmetic
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract virtual base class for basic arithmetic nodes */
 @interface MPSNNBinaryArithmeticNode : MPSNNFilterNode
 
@@ -7075,7 +9744,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *  @discussion Create two new arithmetic gradient nodes - one that computes the gradient for the primary
  *  source image and one that computes the gradient for the secondary sourcefrom the inference pass.
  */
--(NSArray <MPSNNGradientFilterNode*> * __nonnull) gradientFiltersWithSources: (NSArray<MPSNNImageNode*> * __nonnull) gradientImages MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+-(NSArray <MPSNNGradientFilterNode*> * __nonnull) gradientFiltersWithSources: (NSArray<MPSNNImageNode*> * __nonnull) gradientImages MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 @property (readwrite, nonatomic) float primaryScale;
 @property (readwrite, nonatomic) float secondaryScale;
@@ -7091,30 +9760,42 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract returns elementwise sum of left + right */
 @interface MPSNNAdditionNode : MPSNNBinaryArithmeticNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract returns elementwise difference of left - right */
 @interface MPSNNSubtractionNode : MPSNNBinaryArithmeticNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract returns elementwise product of left * right */
 @interface MPSNNMultiplicationNode : MPSNNBinaryArithmeticNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! @abstract returns elementwise quotient of left / right */
 @interface MPSNNDivisionNode : MPSNNBinaryArithmeticNode
+@end
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+/*! @abstract returns elementwise comparison of left and right */
+@interface MPSNNComparisonNode : MPSNNBinaryArithmeticNode
+
+/*! @property   comparisonType
+ *  @abstract   The comparison type to set on the underlying kernel.  Defaults
+ *              to MPSNNComparisonTypeEqual.
+ */
+@property (readwrite, nonatomic) MPSNNComparisonType   comparisonType;
+
 @end
 
 #pragma mark -
 #pragma mark Arithmetic Gradient
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSNNArithmeticGradientNode : MPSNNGradientFilterNode
 /*! @abstract create a new arithmetic gradient node
  *  @discussion See also -[MPSCNNNeuronNode gradientFilterNodesWithSources:]
@@ -7166,7 +9847,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! @abstract returns gradient for either primary or secondary source image from the inference pass.
  *  Use the isSecondarySourceFilter property to indicate whether this filter is computing the gradient
  *  for the primary or secondary source image from the inference pass.
@@ -7174,7 +9855,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 @interface MPSNNAdditionGradientNode : MPSNNArithmeticGradientNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! @abstract returns gradient for either primary or secondary source image from the inference pass.
  *  Use the isSecondarySourceFilter property to indicate whether this filter is computing the gradient
  *  for the primary or secondary source image from the inference pass.
@@ -7182,7 +9863,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 @interface MPSNNSubtractionGradientNode : MPSNNArithmeticGradientNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! @abstract returns gradient for either primary or secondary source image from the inference pass.
  *  Use the isSecondarySourceFilter property to indicate whether this filter is computing the gradient
  *  for the primary or secondary source image from the inference pass.
@@ -7193,7 +9874,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 #pragma mark -
 #pragma mark Dropout
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNDropoutNode : MPSNNFilterNode
 +(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) source;
 -(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) source;
@@ -7220,7 +9901,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNDropoutGradientNode : MPSNNGradientFilterNode
 /*! @abstract create a new dropout gradient node
  *  @discussion See also -[MPSCNNNeuronNode gradientFilterNodeWithSources:]
@@ -7261,11 +9942,11 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *               that holds the images.  The MPSNNLabelsNode is a place
  *               holder in the graph for these nodes. The MPSNNLabels node
  *               is taken as an input to the Loss node*/
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSNNLabelsNode : MPSNNStateNode
 @end
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! @class MPSCNNLossNode
  *  @discussion  This node calculates loss information during training
  *               typically immediately after the inference portion
@@ -7299,7 +9980,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 @class MPSCNNYOLOLossDescriptor;
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! @class MPSCNNYOLOLossNode
  *  @discussion  This node calculates loss information during training
  *               typically immediately after the inference portion
@@ -7331,7 +10012,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 #pragma mark -
 #pragma mark Other Nodes
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! Node representing a the concatenation (in the feature channel dimension) of the results from one or more kernels */
 @interface MPSNNConcatenationNode : MPSNNFilterNode
 /*! @abstract   Init a autoreleased node that concatenates feature channels from multiple images
@@ -7402,7 +10083,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! @class MPSNNConcatenationGradientNode
  *  @abstract  A MPSNNSlice filter that operates as the conjugate computation for concatentation operators during training
  *  @discussion As concatenation is formally just a copy and not a computation, there isn't a lot of arithmetic for
@@ -7431,8 +10112,147 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end
 
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+/*! @abstract  A node for a MPSNNReshape kernel */
+@interface MPSNNReshapeNode : MPSNNFilterNode
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+/*! @abstract   Init a node representing a autoreleased MPSNNReshape kernel
+ *  @param      source                  The MPSNNImageNode representing the source MPSImage for the filter
+ *  @param      resultWidth             The width of the reshaped image.
+ *  @param      resultHeight            The height of the reshaped image.
+ *  @param      resultFeatureChannels   The number of feature channels in the reshaped image.
+ *  @return     A new MPSNNFilter node for a MPSNNReshape kernel.
+ */
++(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) source
+                           resultWidth: (NSUInteger) resultWidth
+                          resultHeight: (NSUInteger) resultHeight
+                 resultFeatureChannels: (NSUInteger) resultFeatureChannels;
+
+/*! @abstract   Init a node representing a MPSNNReshape kernel
+ *  @param      source                  The MPSNNImageNode representing the source MPSImage for the filter
+ *  @param      resultWidth             The width of the reshaped image.
+ *  @param      resultHeight            The height of the reshaped image.
+ *  @param      resultFeatureChannels   The number of feature channels in the reshaped image.
+ *  @return     A new MPSNNFilter node for a MPSNNReshape kernel.
+ */
+-(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) source
+                           resultWidth: (NSUInteger) resultWidth
+                          resultHeight: (NSUInteger) resultHeight
+                 resultFeatureChannels: (NSUInteger) resultFeatureChannels;
+@end
+
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReshapeGradientNode : MPSNNGradientFilterNode
+/*! @abstract   A node to represent the gradient of a reshape node.
+ *  @param sourceGradient   The input gradient from the 'downstream' gradient filter.
+ *  @param sourceImage      The input image from the forward reshape node.
+ *  @return  A MPSNNReshapeGradientNode    */
++(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode*__nonnull) gradientState;
+
+/*! @abstract   A node to represent the gradient of a reshape node.
+ *  @param sourceGradient   The input gradient from the 'downstream' gradient filter.
+ *  @param sourceImage      The input image from the forward reshape node.
+ *  @return  A MPSCNNConvolutionGradientNode    */
+-(nonnull instancetype) initWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode*__nonnull) gradientState;
+@end
+
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNReductionSpatialMeanGradientNode : MPSNNGradientFilterNode
+/*! @abstract   A node to represent the gradient of a spatial mean reduction node.
+ *  @param sourceGradient   The input gradient from the 'downstream' gradient filter.
+ *  @param sourceImage      The input image from the forward spatial mean reduction node.
+ *  @return  A MPSNNReductionSpatialMeanGradientNode    */
++(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode*__nonnull) gradientState;
+
+/*! @abstract   A node to represent the gradient of a spatial mean reduction node.
+ *  @param sourceGradient   The input gradient from the 'downstream' gradient filter.
+ *  @param sourceImage      The input image from the forward spatial mean reduction node.
+ *  @return  A MPSNNReductionSpatialMeanGradientNode    */
+-(nonnull instancetype) initWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode*__nonnull) gradientState;
+@end
+
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+/*!  @class         MPSNNPadNode
+ *   @abstract      A node for a MPSNNPad kernel
+ *   @discussion    You should not use this node to zero pad your data in the XY-plane.
+ *                  This node copies the input image and therefore should only be used in
+ *                  special circumstances where the normal padding operation, defined for most
+ *                  filters and nodes through @ref MPSNNPadding, cannot achieve the necessary padding.
+ *                  Therefore use this node only when you need one of the special edge modes:
+ *                  @ref MPSImageEdgeModeConstant, @ref MPSImageEdgeModeMirror,
+ *                  @ref MPSImageEdgeModeMirrorWithEdge or, if you need padding in the
+ *                  feature-channel dimesion.
+ *                  In other cases use to @ref MPSNNPadding to get best performance.
+ */
+@interface MPSNNPadNode : MPSNNFilterNode
+
+/*! @property   fillValue
+ *  @abstract   Determines the constant value to apply when using @ref MPSImageEdgeModeConstant. Default: 0.0f.
+ */
+@property(readwrite, nonatomic) float               fillValue;
+
+/*! @abstract   Init a node representing a autoreleased MPSNNPad kernel
+ *  @param      source                  The MPSNNImageNode representing the source MPSImage for the filter
+ *  @param      paddingSizeBefore       The amount of padding to apply before the image in each dimension.
+ *  @param      paddingSizeAfter        The amount of padding to apply after the image in each dimension.
+ *  @param      edgeMode                The @ref MPSImageEdgeMode for the padding node - Note that for now
+ *                                      the pad-node and its gradient are the only nodes that support
+ *                                      the extended edge-modes, ie. the ones beyond MPSImageEdgeModeClamp.
+ *  @return     A new MPSNNFilter node for a MPSNNPad kernel.
+ */
++(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) source
+                     paddingSizeBefore: (MPSImageCoordinate) paddingSizeBefore
+                      paddingSizeAfter: (MPSImageCoordinate) paddingSizeAfter
+                              edgeMode: (MPSImageEdgeMode) edgeMode;
+
+/*! @abstract   Init a node representing a MPSNNPad kernel
+ *  @param      source                  The MPSNNImageNode representing the source MPSImage for the filter
+ *  @param      paddingSizeBefore       The amount of padding to apply before the image in each dimension.
+ *  @param      paddingSizeAfter        The amount of padding to apply after the image in each dimension.
+ *  @param      edgeMode                The @ref MPSImageEdgeMode for the padding node - Note that for now
+ *                                      the pad-node and its gradient are the only nodes that support
+ *                                      the extended edge-modes, ie. the ones beyond MPSImageEdgeModeClamp.
+ *  @return     A new MPSNNFilter node for a MPSNNPad kernel.
+ */
+-(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) source
+                     paddingSizeBefore: (MPSImageCoordinate) paddingSizeBefore
+                      paddingSizeAfter: (MPSImageCoordinate) paddingSizeAfter
+                              edgeMode: (MPSImageEdgeMode) edgeMode;
+@end
+
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNPadGradientNode : MPSNNGradientFilterNode
+/*! @abstract   A node to represent the gradient of a padding node.
+ *  @param      sourceGradient   The input gradient from the 'downstream' gradient filter.
+ *  @param      sourceImage      The input image from the forward padding node.
+ *  @return     A MPSNNPadGradientNode    */
++(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode * __nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode * __nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode * __nonnull) gradientState;
+
+/*! @abstract   A node to represent the gradient of a padding node.
+ *  @param      sourceGradient   The input gradient from the 'downstream' gradient filter.
+ *  @param      sourceImage      The input image from the forward reshape node.
+ *  @return     A MPSNNPadGradientNode    */
+-(nonnull instancetype) initWithSourceGradient: (MPSNNImageNode * __nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode * __nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode * __nonnull) gradientState;
+@end
+
+
+
+
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! Node representing a MPSCNNSoftMax kernel */
 @interface MPSCNNSoftMaxNode : MPSNNFilterNode
 /*! @abstract   Init a node representing a autoreleased MPSCNNSoftMax kernel
@@ -7449,7 +10269,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! Node representing a MPSCNNSoftMaxGradient kernel */
 @interface MPSCNNSoftMaxGradientNode : MPSNNGradientFilterNode
 +(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
@@ -7462,7 +10282,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! Node representing a MPSCNNLogSoftMax kernel */
 @interface MPSCNNLogSoftMaxNode : MPSNNFilterNode
 /*! @abstract   Init a node representing a autoreleased MPSCNNLogSoftMax kernel
@@ -7479,7 +10299,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! Node representing a MPSCNNLogSoftMaxGradient kernel */
 @interface MPSCNNLogSoftMaxGradientNode : MPSNNGradientFilterNode
 +(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
@@ -7492,7 +10312,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 @end
 
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! Node representing a MPSCNNUpsamplingNearest kernel */
 @interface MPSCNNUpsamplingNearestNode : MPSNNFilterNode
 /*! @abstract Convenience initializer for an autoreleased MPSCNNUpsamplingNearest nodes
@@ -7520,7 +10340,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 /*! Node representing a MPSCNNUpsamplingBilinear kernel */
 @interface MPSCNNUpsamplingBilinearNode : MPSNNFilterNode
 /*! @abstract   Init a autoreleased node representing a MPSCNNUpsamplingBilinear kernel
@@ -7574,7 +10394,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! Node representing a MPSCNNUpsamplingNearest kernel */
 @interface MPSCNNUpsamplingNearestGradientNode : MPSNNGradientFilterNode
 
@@ -7612,7 +10432,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 /*! Node representing a MPSCNNUpsamplingBilinear kernel */
 @interface MPSCNNUpsamplingBilinearGradientNode : MPSNNGradientFilterNode
 
@@ -7650,6 +10470,304 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end
 
+/*! @protocol   MPSNNGramMatrixCallback
+ *  @abstract   MPSNNGramMatrixCallback Defines a callback protocol for @ref MPSNNGramMatrixCalculationNode to set the 'alpha'
+ *              scaling value dynamically just before encoding the underlying MPSNNGramMatrixCalculation kernel.
+ *
+ */
+@protocol MPSNNGramMatrixCallback <NSObject, NSSecureCoding, NSCopying>
+
+@required
+/*! @abstract   Returns the desired alpha scaling value.
+ *  @param      sourceImage             One of the source images in the batch given as a reference for the alpha computation.
+ *  @param      destinationImage        One of the destination images in the batch given as a reference for the alpha computation.
+ *  @return     The desired alpha value.
+ */
+-(float) alphaForSourceImage: (MPSImage * __nonnull) sourceImage
+            destinationImage: (MPSImage * __nonnull) destinationImage;
+@end // MPSNNGramMatrixCallback
+
+
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+/*! Node representing a @ref MPSNNGramMatrixCalculation kernel */
+@interface MPSNNGramMatrixCalculationNode : MPSNNFilterNode
+
+/*! @property   alpha
+ *  @abstract   Scaling factor for the output. Default: 1.0f.
+ */
+@property(readonly, nonatomic) float               alpha;
+
+/*! @property   propertyCallBack
+ *  @abstract   Optional callback option - setting this allows the alpha value to be changed dynamically at encode time.
+ *              Default value: nil.
+ */
+@property (nonatomic, nullable, readwrite, retain) id <MPSNNGramMatrixCallback>   propertyCallBack;
+
+
+/*! @abstract   Init a node representing a autoreleased MPSNNGramMatrixCalculationNode kernel.
+ *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter.
+ *  @return     A new MPSNNFilter node for a MPSNNGramMatrixCalculationNode kernel.
+ */
++(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) sourceNode;
+
+/*! @abstract   Init a node representing a MPSNNGramMatrixCalculationNode kernel.
+ *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter.
+ *  @return     A new MPSNNFilter node for a MPSNNGramMatrixCalculationNode kernel.
+ */
+-(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) sourceNode;
+
+
+/*! @abstract   Init a node representing a autoreleased MPSNNGramMatrixCalculationNode kernel.
+ *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter.
+ *  @param      alpha                   Scaling factor for the output.
+ *  @return     A new MPSNNFilter node for a MPSNNGramMatrixCalculationNode kernel.
+ */
++(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) sourceNode
+                                 alpha: (float) alpha;
+
+/*! @abstract   Init a node representing a MPSNNGramMatrixCalculationNode kernel.
+ *  @param      sourceNode              The MPSNNImageNode representing the source MPSImage for the filter.
+ *  @param      alpha                   Scaling factor for the output.
+ *  @return     A new MPSNNFilter node for a MPSNNGramMatrixCalculationNode kernel.
+ */
+-(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) sourceNode
+                                 alpha: (float) alpha;
+
+@end
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+/*! Node representing a @ref MPSNNGramMatrixCalculationGradient kernel */
+@interface MPSNNGramMatrixCalculationGradientNode : MPSNNGradientFilterNode
+
+/*! @property   alpha
+ *  @abstract   Scaling factor for the output. Default: 1.0f.
+ */
+@property(readonly, nonatomic) float               alpha;
+
++(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode*__nonnull) gradientState;
+
+-(nonnull instancetype) initWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode*__nonnull) gradientState;
+
++(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode*__nonnull) gradientState
+                                         alpha: (float)alpha;
+
+-(nonnull instancetype) initWithSourceGradient: (MPSNNImageNode*__nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode*__nonnull) sourceImage
+                                 gradientState: (MPSNNGradientStateNode*__nonnull) gradientState
+                                         alpha: (float)alpha;
+
+@end
+
+
+#pragma mark -
+#pragma mark Loss nodes with separate forward and gradient passes
+
+/*! @protocol   MPSNNLossCallback
+ *  @abstract   MPSNNLossCallback Defines a callback protocol for @ref MPSNNForwardLossNode and @ref MPSNNLossGradientNode
+ *              to set the scalar weight value just before encoding the underlying kernels.
+ */
+@protocol MPSNNLossCallback <NSObject, NSSecureCoding, NSCopying>
+
+@required
+/*! @abstract   Returns the desired loss scaling weight value.
+ *  @param      sourceImage             One of the source images in the batch given as a reference.
+ *  @param      destinationImage        One of the destination images in the batch given as a reference.
+ *  @return     The desired scalar weight value.
+ */
+-(float) scalarWeightForSourceImage: (MPSImage * __nonnull) sourceImage
+                   destinationImage: (MPSImage * __nonnull) destinationImage;
+
+@end // MPSNNLossCallback
+
+
+
+@class MPSNNLossGradientNode;
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+/*! Node representing a @ref MPSNNForwardLoss kernel */
+@interface MPSNNForwardLossNode : MPSNNFilterNode
+
+@property (readonly, nonatomic) MPSCNNLossType lossType;
+@property (readonly, nonatomic) MPSCNNReductionType reductionType;
+@property (readonly, nonatomic) NSUInteger numberOfClasses;
+
+@property (readonly, nonatomic) float weight;
+@property (readonly, nonatomic) float labelSmoothing;
+@property (readonly, nonatomic) float epsilon;
+@property (readonly, nonatomic) float delta;
+
+/*! @property   propertyCallBack
+ *  @abstract   Optional callback option - setting this allows the scalar weight value to be changed dynamically at encode time.
+ *              Default value: nil.
+ */
+@property (nonatomic, nullable, readwrite, retain) id <MPSNNLossCallback>   propertyCallBack;
+
++(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) source
+                                labels: (MPSNNImageNode * __nonnull) labels
+                               weights: (MPSNNImageNode * __nonnull) weights
+                        lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor;
+
++(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) source
+                                labels: (MPSNNImageNode * __nonnull) labels
+                        lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor;
+
+/*! @abstract   Init a forward loss node from multiple images
+ *  @param      sourceNodes             The MPSNNImageNode representing the source MPSImages for the filter
+ *                                      Node0: logits, Node1: labels, Node2: weights
+ *  @return     A new MPSNNFilter node.
+ */
++(nonnull instancetype) nodeWithSources: (NSArray <MPSNNImageNode *> * __nonnull) sourceNodes
+                         lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor;
+
+-(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) source
+                                labels: (MPSNNImageNode * __nonnull) labels
+                               weights: (MPSNNImageNode * __nullable) weights
+                        lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor;
+
+-(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) source
+                                labels: (MPSNNImageNode * __nonnull) labels
+                        lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor;
+
+/*! @abstract   Init a forward loss node from multiple images
+ *  @param      sourceNodes             The MPSNNImageNode representing the source MPSImages for the filter
+ *                                      Node0: logits, Node1: labels, Node2: weights
+ *  @return     A new MPSNNFilter node.
+ */
+
+-(nonnull instancetype) initWithSources: (NSArray <MPSNNImageNode *> * __nonnull) sourceNodes
+                         lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor;
+
+
+//! @abstract Returns the gradient filter for predictions, if you want also gradients for labels then use -gradientFiltersWithSource(s):
+-(MPSNNLossGradientNode*__nonnull) gradientFilterWithSources: (NSArray<MPSNNImageNode*> * __nonnull) sourceGradient;
+-(NSArray <MPSNNLossGradientNode*> * __nonnull) gradientFiltersWithSources: (NSArray<MPSNNImageNode*> * __nonnull) sourceGradient;
+
+-(MPSNNLossGradientNode*__nonnull) gradientFilterWithSource: (MPSNNImageNode*__nonnull) sourceGradient;
+-(NSArray <MPSNNLossGradientNode*> * __nonnull) gradientFiltersWithSource: (MPSNNImageNode*__nonnull) sourceGradient;
+
+
+@end
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+/*! Node representing a @ref MPSNNLossGradient kernel */
+@interface MPSNNLossGradientNode : MPSNNGradientFilterNode
+
+@property (readonly, nonatomic) MPSCNNLossType lossType;
+@property (readonly, nonatomic) MPSCNNReductionType reductionType;
+@property (readonly, nonatomic) NSUInteger numberOfClasses;
+
+@property (readonly, nonatomic) float weight;
+@property (readonly, nonatomic) float labelSmoothing;
+@property (readonly, nonatomic) float epsilon;
+@property (readonly, nonatomic) float delta;
+
+@property (readonly, nonatomic) BOOL isLabelsGradientFilter;
+
+/*! @property   propertyCallBack
+ *  @abstract   Optional callback option - setting this allows the scalar weight value to be changed dynamically at encode time.
+ *              Default value: nil.
+ */
+@property (nonatomic, nullable, readwrite, retain) id <MPSNNLossCallback>   propertyCallBack;
+
+
++(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode * __nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode * __nonnull) sourceImage
+                                        labels: (MPSNNImageNode * __nonnull) labels
+                                       weights: (MPSNNImageNode * __nonnull) weights
+                                 gradientState: (MPSNNGradientStateNode* __nullable) gradientState
+                                lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor
+                        isLabelsGradientFilter: (BOOL) isLabelsGradientFilter;
+
++(nonnull instancetype) nodeWithSourceGradient: (MPSNNImageNode * __nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode * __nonnull) sourceImage
+                                        labels: (MPSNNImageNode * __nonnull) labels
+                                 gradientState: (MPSNNGradientStateNode* __nullable) gradientState
+                                lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor
+                        isLabelsGradientFilter: (BOOL) isLabelsGradientFilter;
+
+/*! @abstract   Init a gradient loss node from multiple images
+ *  @param      sourceNodes             The MPSNNImageNode representing the source MPSImages for the filter
+ *                                      Node0: logits, Node1: labels, Node2: weights
+ *  @return     A new MPSNNFilter node.
+ */
++(nonnull instancetype) nodeWithSources: (NSArray <MPSNNImageNode *> * __nonnull) sourceNodes
+                          gradientState: (MPSNNGradientStateNode* __nullable) gradientState
+                         lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor
+                 isLabelsGradientFilter: (BOOL) isLabelsGradientFilter;
+
+
+-(nonnull instancetype) initWithSourceGradient: (MPSNNImageNode * __nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode * __nonnull) sourceImage
+                                        labels: (MPSNNImageNode * __nonnull) labels
+                                       weights: (MPSNNImageNode * __nullable) weights
+                                 gradientState: (MPSNNGradientStateNode* __nullable) gradientState
+                                lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor
+                        isLabelsGradientFilter: (BOOL) isLabelsGradientFilter;
+
+
+-(nonnull instancetype) initWithSourceGradient: (MPSNNImageNode * __nonnull) sourceGradient
+                                   sourceImage: (MPSNNImageNode * __nonnull) sourceImage
+                                        labels: (MPSNNImageNode * __nonnull) labels
+                                 gradientState: (MPSNNGradientStateNode* __nullable) gradientState
+                                lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor
+                        isLabelsGradientFilter: (BOOL) isLabelsGradientFilter;
+
+
+/*! @abstract   Init a gradient loss node from multiple images
+ *  @param      sourceNodes             The MPSNNImageNode representing the source MPSImages for the filter
+ *                                      Node0: input gradients, Node1: logits, Node2: labels, Node3: weights
+ *  @return     A new MPSNNFilter node.
+ */
+
+-(nonnull instancetype) initWithSources: (NSArray <MPSNNImageNode *> * __nonnull) sourceNodes
+                          gradientState: (MPSNNGradientStateNode* __nullable) gradientState
+                         lossDescriptor: (MPSCNNLossDescriptor * __nonnull) descriptor
+                 isLabelsGradientFilter: (BOOL) isLabelsGradientFilter;
+
+
+/*! @abstract This is a gradient filter - there is no support gradients of gradients currently. */
+-(MPSNNGradientFilterNode*__nonnull) gradientFilterWithSources: (NSArray<MPSNNImageNode*> * __nonnull) gradientImages NS_UNAVAILABLE;
+
+
+@end
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+/*!  @class         MPSNNInitialGradientNode
+ *   @abstract      A node for a MPSNNInitialGradient kernel
+ *   @discussion    This node can be used to generate a starting point for an arbitrary gradient computation.
+ *                  Simply add this node after the node for which you want to compute gradients and then
+ *                  call the function @ref trainingGraphWithSourceGradient: of this node to automatically
+ *                  generate the nodes needed for gradient computations or add the desired nodes manually.
+ *                  This is generally used with MPSNNLossGradientNode and MPSNNForwardLossNode
+ */
+@interface MPSNNInitialGradientNode : MPSNNFilterNode
+
+/*! @abstract   Init a node representing a MPSNNInitialGradient MPSNNPad kernel
+ *  @param      source                  The MPSNNImageNode representing the source MPSImage for the filter
+ *  @return     A new MPSNNFilter node for a MPSNNInitialGradient kernel.
+ */
++(nonnull instancetype) nodeWithSource: (MPSNNImageNode * __nonnull) source;
+
+/*! @abstract   Init a node representing a MPSNNInitialGradient MPSNNPad kernel
+ *  @param      source                  The MPSNNImageNode representing the source MPSImage for the filter
+ *  @return     A new MPSNNFilter node for a MPSNNInitialGradient kernel.
+ */
+-(nonnull instancetype) initWithSource: (MPSNNImageNode * __nonnull) source;
+
+/*! @abstract The initial gradient filter is a gradient filter and we don't provide support for gradients of gradients currently. */
+-(MPSNNGradientFilterNode*__nonnull) gradientFilterWithSources: (NSArray<MPSNNImageNode*> * __nonnull) gradientImages NS_UNAVAILABLE;
+
+@end
+
+
+
 
 #endif /* MPSNNGraphNodes_h */
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Headers/MPSCNNNormalizationWeights.h
@@ -7676,7 +10794,7 @@ extern "C" {
  *               and bias in either an MPSCNNInstanceNormalization or MPSCNNBatchNormalization
  *               operation.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNNormalizationGammaAndBetaState : MPSState
 
 /*! @property   gamma
@@ -7753,7 +10871,7 @@ extern "C" {
  *
  *              The clamp mask is stored internally and is not accessible by the user.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNArithmeticGradientState : MPSNNBinaryGradientState
 
 /*
@@ -7768,7 +10886,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 #pragma mark MPSCNNArithmeticGradientStateBatch
 
 typedef NSArray<MPSCNNArithmeticGradientState*> MPSCNNArithmeticGradientStateBatch
-MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 #pragma mark -
@@ -7787,6 +10905,7 @@ MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
  *              - Subtraction
  *              - Multiplication
  *              - Division
+ *              - Comparison
  *
  *              This filter takes additional parameters: primaryScale, secondaryScale, and bias. The default
  *              value for primaryScale and secondaryScale is 1.0f. The default value for bias is 0.0f. This
@@ -7796,6 +10915,7 @@ MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
  *              - Subtraction:      result = ((primaryScale * x) - (secondaryScale * y)) + bias
  *              - Multiplicaton:    result = ((primaryScale * x) * (secondaryScale * y)) + bias
  *              - Division:         result = ((primaryScale * x) / (secondaryScale * y)) + bias
+ *              - Comparison:       Unused.
  *
  *              To clamp the result of an arithmetic operation, where
  *              result = clamp(result, minimumValue, maximumValue),
@@ -7815,7 +10935,7 @@ MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
  *
  *              You must use one of the sub-classes of MPSImageArithmetic.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNArithmetic : MPSCNNBinaryKernel
 
 @property (readwrite, nonatomic) float primaryScale;
@@ -7907,7 +11027,7 @@ MPS_SWIFT_NAME( encodeBatch(commandBuffer:primaryImages:secondaryImages:destinat
  *              For each pixel in the primary source image (x) and each pixel in a secondary source image (y),
  *              it applies the following function: result = ((primaryScale * x) + (secondaryScale * y)) + bias.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNAdd : MPSCNNArithmetic
 
 /*!
@@ -7930,7 +11050,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *              For each pixel in the primary source image (x) and each pixel in a secondary source image (y),
  *              it applies the following function: result = ((primaryScale * x) - (secondaryScale * y)) + bias.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNSubtract : MPSCNNArithmetic
 
 /*!
@@ -7953,7 +11073,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *              For each pixel in the primary source image (x) and each pixel in a secondary source image (y),
  *              it applies the following function: result = ((primaryScale * x) * (secondaryScale * y)) + bias.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNMultiply : MPSCNNArithmetic
 
 /*!
@@ -7976,7 +11096,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *              For each pixel in the primary source image (x) and each pixel in a secondary source image (y),
  *              it applies the following function: result = ((primaryScale * x) / (secondaryScale * y)) + bias.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNDivide : MPSCNNArithmetic
 
 /*!
@@ -7988,6 +11108,56 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end    /* MPSCNNDivide */
 
+#pragma mark -
+#pragma mark MPSNNCompare
+
+/*! @enum       MPSNNComparisonType
+ *  @abstract   The type of comparison an MPSNNCompare kernel should perform.
+ */
+#if defined(DOXYGEN)
+    typedef enum MPSNNComparisonType
+#else
+    typedef NS_OPTIONS(NSUInteger, MPSNNComparisonType)
+#endif
+{
+    MPSNNComparisonTypeEqual       MPS_ENUM_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))   MPS_SWIFT_NAME(equal),
+    MPSNNComparisonTypeNotEqual    MPS_ENUM_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))   MPS_SWIFT_NAME(notEqual),
+    MPSNNComparisonTypeLess        MPS_ENUM_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))   MPS_SWIFT_NAME(less),
+    MPSNNComparisonTypeLessOrEqual MPS_ENUM_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))   MPS_SWIFT_NAME(lessOrEqual),
+    MPSNNComparisonTypeGreater     MPS_ENUM_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))   MPS_SWIFT_NAME(greater),
+    MPSNNComparisonTypeGreaterOrEqual  MPS_ENUM_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))   MPS_SWIFT_NAME(greaterOrEqual)
+};
+    
+/*!
+ *  @class      MPSNNCompare
+ *  @dependency This depends on Metal.framework.
+ *  @discussion Specifies the elementwise comparison operator.
+ *              For each pixel in the primary source image (x) and each pixel in a secondary source image (y),
+ *              it applies the following function: result = (abs(x-y)) <= threshold
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface  MPSNNCompare : MPSCNNArithmetic
+/*! @property   comparisonType
+ *  @abstract   The comparison type to use
+ */
+@property (readwrite, nonatomic) MPSNNComparisonType   comparisonType;
+
+/*! @property   threshold
+ *  @abstract   The threshold to use when comparing for equality.  Two values will
+ *              be considered to be equal if the absolute value of their difference
+ *              is less than, or equal, to the specified threshold:
+ *                  result = |b - a| <= threshold
+ */
+@property (readwrite, nonatomic) float          threshold;
+
+/*!
+ *  @abstract  Initialize the comparison operator
+ *  @param     device           The device the filter will run on.
+ *  @return    A valid MPSNNCompare object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+@end    /* MPSNNCompare */
 
 #pragma mark -
 #pragma mark MPSCNNArithmeticGradient
@@ -8056,7 +11226,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *
  *              You must use one of the sub-classes of MPSImageArithmeticGradient.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNArithmeticGradient : MPSCNNGradientKernel
 
 @property (readwrite, nonatomic) float primaryScale;
@@ -8125,7 +11295,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *              combination thereof) to produce the destination image of the size that matches the
  *              primary/secondary input images used in the forward pass.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNAddGradient : MPSCNNArithmeticGradient
 
 /*!
@@ -8165,7 +11335,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *              combination thereof) to produce the destination image of the size that matches the
  *              primary/secondary input images used in the forward pass.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNSubtractGradient : MPSCNNArithmeticGradient
 
 /*!
@@ -8206,7 +11376,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *              combination thereof) to produce the destination image of the size that matches the
  *              primary/secondary input images used in the forward pass.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNMultiplyGradient : MPSCNNArithmeticGradient
 
 /*!
@@ -8250,13 +11420,13 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *          Gradient states must be created with [MPSCNNKernel resultStateForSourceImage:sourceStates:destinationImage:]
  *          or analogous interfaces.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSNNGradientState : MPSState
 
 @end
 
 typedef NSArray<MPSNNGradientState *>  MPSNNGradientStateBatch
-    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @class  A state created to record MPSCNNBinaryKernel properties
  *          at the time an -encode call was made. The contents are opaque.
@@ -8264,13 +11434,21 @@ typedef NSArray<MPSNNGradientState *>  MPSNNGradientStateBatch
  *          Gradient states must be created with [MPSCNNBinaryKernel resultStateForPrimaryImage:secondaryImage:sourceStates:destinationImage:]
  *          or analogous interfaces.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSNNBinaryGradientState : MPSState
 
 @end
 
 typedef NSArray<MPSNNBinaryGradientState *>  MPSNNBinaryGradientStateBatch
-    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
+
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNNMultiaryGradientState : MPSState
+
+@end
+
+typedef NSArray<MPSNNMultiaryGradientState *>  MPSNNMultiaryGradientStateBatch
+MPS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0));
 
 #endif /* MPSNNGradientState_h */
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Headers/MPSMatrixLayer.h
@@ -8326,7 +11504,7 @@ extern "C" {
  *              
  *              Nearest and bilinear variants are supported.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSCNNUpsampling : MPSCNNKernel
 
 /*! @property   scaleFactorX
@@ -8363,7 +11541,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *  @dependency This depends on Metal.framework.
  *  @discussion Specifies the nearest spatial upsampling filter.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSCNNUpsamplingNearest : MPSCNNUpsampling
 
 /*!
@@ -8388,7 +11566,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *  @dependency This depends on Metal.framework.
  *  @discussion Specifies the bilinear spatial upsampling filter.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSCNNUpsamplingBilinear : MPSCNNUpsampling
 
 /*!
@@ -8463,7 +11641,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *                      w = d1 + d2 + d3 + d4
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNUpsamplingGradient : MPSCNNGradientKernel
 
 /*! @property   scaleFactorX
@@ -8494,7 +11672,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @dependency This depends on Metal.framework.
  *  @discussion Specifies the nearest spatial downsampling filter.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNUpsamplingNearestGradient : MPSCNNUpsamplingGradient
 
 /*!
@@ -8519,7 +11697,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *  @dependency This depends on Metal.framework.
  *  @discussion Specifies the bilinear spatial downsampling filter.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNUpsamplingBilinearGradient : MPSCNNUpsamplingGradient
 
 /*!
@@ -8576,7 +11754,7 @@ extern "C" {
  *  @dependency This depends on Metal.framework
  *  @discussion The MPSCNNConvolutionDescriptor specifies a convolution descriptor
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface MPSCNNConvolutionDescriptor : NSObject <NSSecureCoding, NSCopying>
 
 /*! @property   kernelWidth
@@ -8668,7 +11846,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              MPSCNNConvolution. If the neuron type changes after either is made, behavior is undefined.
  */
 @property(readwrite, nonatomic, retain) MPSNNNeuronDescriptor* __nonnull fusedNeuronDescriptor
-                                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   neuron
  *  @abstract   MPSCNNNeuron filter to be applied as part of convolution. This is applied after BatchNormalization in the end.
@@ -8680,17 +11858,17 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
         MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "A MPSCNNNeuron:MPSKernel is much too heavy an object to\n"
                                                 "represent what is a type code and two floats. It is deprecated.\n"
                                                 "Please set fusedNeuronDescriptor property instead.",
-                                                ios(10.0, 11.0), tvos(10.0, 11.0));
+                                                ios(10.0, 11.0), tvos(10.0, 11.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*! @abstract <NSSecureCoding> support */
 @property (class, readonly) BOOL supportsSecureCoding
-            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 /*! @abstract <NSSecureCoding> support */
 - (void)encodeWithCoder:(NSCoder *__nonnull)aCoder
-            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 /*! @abstract <NSSecureCoding> support */
 - (nullable instancetype)initWithCoder:(NSCoder *__nonnull)aDecoder
-            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)) NS_DESIGNATED_INITIALIZER;
+            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) NS_DESIGNATED_INITIALIZER;
 
 /*!
  *  @abstract   This method is deprecated. Please use neuronType, neuronParameterA and neuronParameterB properites to fuse
@@ -8708,7 +11886,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                           outputFeatureChannels: (NSUInteger) outputFeatureChannels
                                                    neuronFilter: (const MPSCNNNeuron * __nullable) neuronFilter
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use neuronType, neuronParameterA and neuronParameterB properties instead.",
-                                            ios(10.0, 11.0), tvos(10.0, 11.0));
+                                            ios(10.0, 11.0), tvos(10.0, 11.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*!
  *  @abstract   Creates a convolution descriptor.
@@ -8722,7 +11900,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                                    kernelHeight: (NSUInteger) kernelHeight
                                            inputFeatureChannels: (NSUInteger) inputFeatureChannels
                                           outputFeatureChannels: (NSUInteger) outputFeatureChannels
-    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
+    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) );
 
 
 
@@ -8785,7 +11963,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                                       gamma: (const float * __nullable) gamma
                                                        beta: (const float * __nullable) beta
                                                     epsilon: (const float) epsilon
-                                                                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                                                                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @abstract   Adds a neuron activation function to convolution descriptor.
@@ -8811,28 +11989,28 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
            parameterA: (float) parameterA
            parameterB: (float) parameterB
                                         MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "set fusedNeuronDescriptor property instead",
-                                              macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0, 11.3) );
+                                              macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0, 11.3) )  MPS_UNAVAILABLE(uikitformac);
 
 /*!
  *  @abstract   Getter funtion for neuronType set using setNeuronType:parameterA:parameterB method
  */
 -(MPSCNNNeuronType) neuronType
                     MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "use fusedNeuronDescriptor property instead",
-                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0, 11.3) );
+                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0, 11.3) )  MPS_UNAVAILABLE(uikitformac);
 
 /*!
  *  @abstract   Getter funtion for neuronType set using setNeuronType:parameterA:parameterB method
  */
 -(float) neuronParameterA
                     MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "use fusedNeuronDescriptor property instead",
-                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0, 11.3) );
+                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0, 11.3) )  MPS_UNAVAILABLE(uikitformac);
 
 /*!
  *  @abstract   Getter funtion for neuronType set using setNeuronType:parameterA:parameterB method
  */
 -(float) neuronParameterB
                     MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "use fusedNeuronDescriptor property instead",
-                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0, 11.3) );
+                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0, 11.3) )  MPS_UNAVAILABLE(uikitformac);
 
 /*!
  *  @abstract   Add per-channel neuron parameters A for PReLu neuron activation functions.
@@ -8863,7 +12041,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(void) setNeuronToPReLUWithParametersA: (NSData* __nonnull) A
                             MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "use fusedNeuronDescriptor property instead",
-                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0, 11.3) );
+                                      macos(10.13, 10.13.4), ios(11.0, 11.3), tvos(11.0, 11.3))  MPS_UNAVAILABLE(uikitformac);
 
 @end    /* MPSCNNConvolutionDescriptor */
 
@@ -8892,7 +12070,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *                   2) The destination MPSImage to encode call must have at least N/r^2 + destinationFeatureChannelOffset channels.
  *                   3) Number of feature channels in reshaped output image (N/r^2) can be any value when groups = 1 but must be multiple of 4 when groups > 1.
 */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSCNNSubPixelConvolutionDescriptor : MPSCNNConvolutionDescriptor
 
 /*! @property      subPixelScaleFactor
@@ -8920,7 +12098,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *
  *                    Currently only channel multipler of 1 is supported i.e. inputFeatureChannels == outputFeatureChannels
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSCNNDepthWiseConvolutionDescriptor : MPSCNNConvolutionDescriptor
 
 /*! @property      channelMultiplier
@@ -8946,9 +12124,9 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
     typedef NS_ENUM(uint32_t, MPSCNNWeightsQuantizationType)
 #endif
     {
-        MPSCNNWeightsQuantizationTypeNone           MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(11.0), tvos(11.0)) MPS_SWIFT_NAME(none) = 0,
-        MPSCNNWeightsQuantizationTypeLinear         MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(11.0), tvos(11.0)) MPS_SWIFT_NAME(none) = 1,
-        MPSCNNWeightsQuantizationTypeLookupTable    MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(11.0), tvos(11.0)) MPS_SWIFT_NAME(none) = 2,
+        MPSCNNWeightsQuantizationTypeNone           MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(11.0), uikitformac(13.0), tvos(11.0)) MPS_SWIFT_NAME(none) = 0,
+        MPSCNNWeightsQuantizationTypeLinear         MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(11.0), uikitformac(13.0), tvos(11.0)) MPS_SWIFT_NAME(none) = 1,
+        MPSCNNWeightsQuantizationTypeLookupTable    MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(11.0), uikitformac(13.0), tvos(11.0)) MPS_SWIFT_NAME(none) = 2,
     }
 #if defined(DOXYGEN)
     MPSCNNWeightsQuantizationType
@@ -8962,7 +12140,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *  @class      MPSCNNConvolutionGradientState
  *  @discussion The MPSCNNConvolutionGradientState is returned by resultStateForSourceImage:sourceStates method on MPSCNNConvolution object.
  *              Note that resultStateForSourceImage:sourceStates:destinationImage creates the object on autoreleasepool.
- *              It will be consumed by MPSCNNConvolutionGradient. This used by MPSCNNConvolutionTranspose encode call
+ *              It will be consumed by MPSCNNConvolutionGradient. This is also used by MPSCNNConvolutionTranspose encode call
  *              that returns MPSImage on left hand side to correctly size the destination.
  *              Note that state objects are not usable across batches i.e. when batch is done you should nuke the state object and create
  *              new one for next batch.
@@ -9005,7 +12183,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *                        will reload the weights from application's update kernel in dest on GPU without CPU side involvement.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNConvolutionGradientState : MPSNNGradientState <MPSImageSizeEncodingState>
 
 /*! @property   gradientForWeights
@@ -9014,6 +12192,8 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              the weights layout provided by data source i.e. it can be interpreted as 4D array
  *
  *                   gradientForWeights[outputFeatureChannels][kernelHeight][kernelWidth][inputFeatureChannels/groups]
+ *              For depthwise convolution it will be (since we only support channel multiplier of 1 currently)
+ *                   gradientForWeights[outputFeatureChannels][kernelHeight][kernelWidth]
  */
 @property (readonly, nonatomic) __nonnull id<MTLBuffer> gradientForWeights;
 
@@ -9023,14 +12203,50 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 @property (readonly, nonatomic) __nonnull id<MTLBuffer> gradientForBiases;
 
 /*! @property   convolution
- *  @abstract   The convolution filter that produced the state. */
-@property (readonly, nonatomic, retain, nonnull) MPSCNNConvolution * convolution;
+ *  @abstract   The convolution filter that produced the state.
+ *              For child MPSCNNConvolutionTrasposeGradientState object, convolution
+ *              below refers to MPSCNNConvolution object that produced MPSCNNConvolutionGradientState object
+ *              which was used to create MPSCNNConvolutionTransposeGradientState object. See resultStateForSourceImage:sourceStates
+ *              method of MPSCNNConvolutionTranspose below. It will be nil
+ *              if no MPSCNNConvolutionGradientState object was used to create MPSCNNConvolutionTransposeGradientObject.
+ */
+@property (readonly, nonatomic, retain, nullable) MPSCNNConvolution * convolution;
 
 @end
     
 typedef NSArray<MPSCNNConvolutionGradientState*>  MPSCNNConvolutionGradientStateBatch
-        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
+@class MPSCNNConvolutionTranspose;
+/*!
+ *  @class      MPSCNNConvolutionTransposeGradientState
+ *  @discussion The MPSCNNConvolutionTransposeGradientState is returned by resultStateForSourceImage:sourceStates method on MPSCNNConvolutionTranspose object.
+ *              Note that resultStateForSourceImage:sourceStates:destinationImage creates the object on autoreleasepool.
+ *              It will be consumed by MPSCNNConvolutionTransposeGradient. It contains reference to MPSCNNConvolutionGradientState object that connects
+ *              MPSCNNConvolution and its corresponding MPSCNNConvolutionTranspose in forward pass of autoencoder. In an autoencoder forward pass, MPSCNNConvolutionGradientState is produced
+ *              by MPSCNNConvolution object and is used by corresponding MPSCNNConvolutionTraspose of forward pass that "undo" the corresponding MPSCNNConvolution. It is used to correctly size
+ *              destination image that is returned on left hand side by encode call MPSCNNConvolutionTranspose as well as automatically set kernelOffsetX/Y on MPSCNNConvolutionTranspose using
+ *              the offset and other properties of corresponding MPSCNNConvolution object. During training, same MPSCNNConvolutionGradientState object will be consumed by MPSCNNConvolutionGradient
+ *              object and the MPSCNNConvolutionTransposeGradientState produced by MPSCNNConvolutionTranspose's resultStateForSourceImage:sourceStates:destinationImage will be consumed by
+ *              MPSCNNConvolutionTransposeGradient object
+ *
+ *              Note that state objects are not usable across batches i.e. when batch is done you should nuke the state object and create
+ *              new one for next batch.
+ *              Weights update process for MPSCNNConvolutionTranspose is same as explained above for MPSCNNConvolution. See comments for MPSCNNConvolutionGradientState.
+ *
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCNNConvolutionTransposeGradientState : MPSCNNConvolutionGradientState
+
+/*! @property   convolutionTranspose
+ *  @abstract   The convolutionTranspose filter that produced the state. */
+@property (readonly, nonatomic, retain, nonnull) MPSCNNConvolutionTranspose * convolutionTranspose;
+
+@end
+    
+typedef NSArray<MPSCNNConvolutionTransposeGradientState*>  MPSCNNConvolutionTransposeGradientStateBatch
+                                MPS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0));
+    
 /*!
  *  @class      MPSCNNConvolutionWeightsAndBiasesState
  *  @discussion The MPSCNNConvolutionWeightsAndBiasesState is returned by exportWeightsAndBiasesWithCommandBuffer: method on MPSCNNConvolution object.
@@ -9040,7 +12256,7 @@ typedef NSArray<MPSCNNConvolutionGradientState*>  MPSCNNConvolutionGradientState
  *              MTLBuffer. If application does not want to keep a copy of weights/biases, it can call [MPSCNNConvolution exportWeightsAndBiasesWithCommandBuffer:] to get
  *              the current weights from convolution itself, do the updated and call reloadWithCommandBuffer.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNConvolutionWeightsAndBiasesState : MPSState
 
 /*! @property   weights
@@ -9049,6 +12265,8 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              the weights layout provided by data source i.e. it can be interpreted as 4D array
  *
  *                   weights[outputFeatureChannels][kernelHeight][kernelWidth][inputFeatureChannels/groups]
+ *              for regular convolution. For depthwise convolution
+ *                   weights[outputFeatureChannels][kernelHeight][kernelWidth] as we currently only support channel multiplier of 1.
  */
 @property (readonly, nonatomic) __nonnull id<MTLBuffer> weights;
 
@@ -9067,7 +12285,6 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
                                                               cnnConvolutionDescriptor: (MPSCNNConvolutionDescriptor* __nonnull) descriptor;
 
 @end
-    
     
 /*! @protocol   MPSCNNConvolutionDataSource
  *  @abstract   Provides convolution filter weights and bias terms
@@ -9227,7 +12444,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
     -(MPSCNNConvolutionWeightsAndBiasesState* __nullable) updateWithCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
                                                                     gradientState: (MPSCNNConvolutionGradientState* __nonnull) gradientState
                                                                       sourceState: (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) sourceState
-                                                                                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                                                                                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
     
     /*! @abstract   Callback for the MPSNNGraph to update the convolution weights on CPU.
      *                               MPSCNNConvolutionGradientNode.MPSNNTrainingStyle controls where you want your update
@@ -9244,8 +12461,8 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
      */
     - (BOOL) updateWithGradientState: (MPSCNNConvolutionGradientState* __nonnull) gradientState
                          sourceState: (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) sourceState
-                                         MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
-
+                                         MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
+    
     /*! @abstract  When copyWithZone:device on convolution is called, data source copyWithZone:device
      *             will be called if data source object responds to this selector. If not, copyWithZone:
      *             will be called if data source responds to it. Otherwise, it is simply retained.
@@ -9256,7 +12473,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
      */
 
     -(nonnull instancetype) copyWithZone: (nullable NSZone*) zone
-                                  device: (nullable id <MTLDevice>) device MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+                                  device: (nullable id <MTLDevice>) device MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 
 @end
@@ -9270,7 +12487,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @discussion The MPSCNNConvolution specifies a convolution.
  *              The MPSCNNConvolution convolves the input image with a set of filters, each producing one feature map in the output image.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNConvolution : MPSCNNKernel
 
 /*! @property   inputFeatureChannels
@@ -9304,36 +12521,36 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 @property(readonly, nonatomic) const MPSCNNNeuron * __nullable  neuron
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "A MPSCNNNeuron is much too heavy for this purpose. Please set fusedNeuronDescriptor property of convolution descriptor instead.",
-                                            ios(10.0, 11.0), tvos(10.0, 11.0) );
+                                            ios(10.0, 11.0), tvos(10.0, 11.0) )  MPS_UNAVAILABLE(uikitformac);
 
 /*! @abstract   The type of neuron to append to the convolution
  *  @discussion Please see class description for a full list. Default is MPSCNNNeuronTypeNone. */
 @property   (readonly, nonatomic) MPSCNNNeuronType     neuronType
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Use fusedNeuronDesciptor instead.",
-                                        macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0) );
+                                        macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*! @abstract   Parameter "a" for the neuron.  Default: 1.0f
  *  @discussion Please see class description for interpretation of a. */
 @property   (readonly, nonatomic) float                neuronParameterA
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Use fusedNeuronDesciptor instead.",
-                                        macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0) );
+                                        macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0) )  MPS_UNAVAILABLE(uikitformac);
 
 /*! @abstract   Parameter "b" for the neuron.  Default: 1.0f
  *  @discussion Please see class description for interpretation of b. */
 @property   (readonly, nonatomic) float                neuronParameterB
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Use fusedNeuronDesciptor instead.",
-                                        macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0) );
+                                        macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0) )  MPS_UNAVAILABLE(uikitformac);
 
 /*! @abstract   Parameter "c" for the neuron.  Default: 1.0f
  *  @discussion Please see class description for interpretation of c. */
 @property   (readonly, nonatomic) float                neuronParameterC
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Use fusedNeuronDesciptor instead.",
-                                        macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0) );
+                                        macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0) )  MPS_UNAVAILABLE(uikitformac);
 
 /*! @abstract   Fused neuron descritor passed in convolution descriptor for fusion with convolution.
  *  @discussion Please see class description for interpretation of c. */
 @property (readonly, nonatomic) MPSNNNeuronDescriptor* __nullable fusedNeuronDescriptor
-                                MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
+                                MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*! @abstract   Channel multiplier.
  *  @discussion For convolution created with MPSCNNDepthWiseConvolutionDescriptor, it is the number of
@@ -9346,7 +12563,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *  @discussion  See MPSNeuralNetworkTypes.h for discussion. Default is MPSNNConvolutionAccumulatorPrecisionOptionFloat.
  */
 @property   (readwrite, nonatomic) MPSNNConvolutionAccumulatorPrecisionOption accumulatorPrecisionOption
-                                                                      MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                                                                      MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*!
  *  @abstract   Initializes a convolution kernel
@@ -9360,7 +12577,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                                weights: (nonnull id <MPSCNNConvolutionDataSource>) weights NS_DESIGNATED_INITIALIZER
-                                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @abstract   Initializes a convolution kernel
@@ -9386,7 +12603,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                              biasTerms: (const float * __nullable) biasTerms
                                  flags: (MPSCNNConvolutionFlags) flags  NS_DESIGNATED_INITIALIZER
         MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use  -initWithDevice:convolutionDescriptor:weights: instead.",
-                                                ios(10.0, 11.0), tvos(10.0, 11.0) );
+                                                ios(10.0, 11.0), tvos(10.0, 11.0) )  MPS_UNAVAILABLE(uikitformac);
 
 /*! @abstract NSSecureCoding compatability
  *  @discussion While the standard NSSecureCoding/NSCoding method
@@ -9400,7 +12617,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*
  * Use initWithDevice:weights instead
@@ -9420,38 +12637,38 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                                             sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
                                                         destinationImage: (MPSImage *__nonnull) destinationImage
                                                                                 MPS_SWIFT_NAME( resultState(sourceImage:sourceStates:destinationImage:))
-                                                                                MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                                                                                MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /* To be used with batch encode call. Since same state is used across entire batch, it will return copy of same state in returned NSArray*/
 -(MPSCNNConvolutionGradientStateBatch * __nullable) resultStateBatchForSourceImage: (MPSImageBatch * __nonnull) sourceImage
                                                                       sourceStates: (NSArray<MPSStateBatch *> * __nullable) sourceStates
                                                                   destinationImage:(MPSImageBatch * _Nonnull)destinationImage
                                                                     MPS_SWIFT_NAME( resultStateBatch(sourceImage:sourceStates:destinationImage:))
-                                                                    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                                                                    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 -(MPSCNNConvolutionGradientState * __nullable) temporaryResultStateForCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                                                                         sourceImage: (MPSImage *__nonnull) sourceImage
                                                                        sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
                                                                    destinationImage: (MPSImage * __nonnull)destinationImage
-                                                                    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                                                                    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                                                                     MPS_SWIFT_NAME( temporaryResultState(commandBuffer:sourceImage:sourceStates:destinationImage:));
 
 -(MPSCNNConvolutionGradientStateBatch * __nullable) temporaryResultStateBatchForCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                                                                                   sourceImage: (MPSImageBatch *__nonnull) sourceImage
                                                                                  sourceStates: (NSArray <MPSStateBatch *> *__nullable) sourceStates
                                                                              destinationImage: (MPSImageBatch *__nonnull) destinationImage
-                                                                    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                                                                    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                                                                     MPS_SWIFT_NAME( temporaryResultStateBatch(commandBuffer:sourceImage:sourceStates:destinationImage:));
 
 /*! @abstract   CPU side reload. Reload the updated weights and biases from data provider into internal weights and bias buffers. Weights and biases
  *              gradients needed for update are obtained from MPSCNNConvolutionGradientState object. Data provider passed in init call is used for this purpose.
  */
 -(void) reloadWeightsAndBiasesFromDataSource
-            MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+            MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*! Deprecated. dataSource will be ignored. */
 -(void) reloadWeightsAndBiasesWithDataSource: (__nonnull id<MPSCNNConvolutionDataSource>) dataSource
-            MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -reloadWeightsAndBiasesFromDataSource instead. ", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3, 12.0));
+            MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -reloadWeightsAndBiasesFromDataSource instead. ", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 
 /*! @abstract   GPU side reload. Reload the updated weights and biases from update buffer produced by application enqueued metal kernel into internal weights
@@ -9465,7 +12682,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(void) reloadWeightsAndBiasesWithCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
                                           state: (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) state
-                                    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                                    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract   GPU side export. Enqueue a kernel to export current weights and biases stored in MPSCNNConvoltion's internal buffers into weights and biases MTLBuffer
  *              returned in MPSCNNConvolutionWeightsAndBiasesState.
@@ -9477,7 +12694,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 - (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) exportWeightsAndBiasesWithCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
                                                                     resultStateCanBeTemporary: (BOOL) resultStateCanBeTemporary
-                                                                     MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                                                                     MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 @end    /* MPSCNNConvolution */
     
@@ -9492,13 +12709,13 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
 #endif
 {
     // Only compute gradient with respect to data
-    MPSCNNConvolutionGradientOptionGradientWithData              MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)) MPS_SWIFT_NAME(gradientWithData)           = 1U,
+    MPSCNNConvolutionGradientOptionGradientWithData              MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) MPS_SWIFT_NAME(gradientWithData)           = 1U,
     
     // Only compute gradient with respect to weights and bias
-    MPSCNNConvolutionGradientOptionGradientWithWeightsAndBias    MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)) MPS_SWIFT_NAME(gradientWithWeightsAndBias) = 2U,
+    MPSCNNConvolutionGradientOptionGradientWithWeightsAndBias    MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) MPS_SWIFT_NAME(gradientWithWeightsAndBias) = 2U,
     
     // Compute both gradients
-    MPSCNNConvolutionGradientOptionAll                           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)) MPS_SWIFT_NAME(gradientWithWeightsAndBias) = MPSCNNConvolutionGradientOptionGradientWithData | MPSCNNConvolutionGradientOptionGradientWithWeightsAndBias
+    MPSCNNConvolutionGradientOptionAll                           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) MPS_SWIFT_NAME(gradientWithWeightsAndBias) = MPSCNNConvolutionGradientOptionGradientWithData | MPSCNNConvolutionGradientOptionGradientWithWeightsAndBias
 };
     
 /*!
@@ -9537,8 +12754,8 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              If I denotes the input image to corresponding MPSCNNConvolution in forward pass and E denoates the loss gradient from previous layer
  *              (normally neuron backward layer) in backward pass, gradient of E with respect to weights is
  *
- *              delta_E/delta_Wkpqc = sum_i sum_j [ E(i - primaryOffset.x,j - primaryOffset.y, k) * I( secondaryStrideInPixelX*i + secondaryOffset.x - secondaryDilationRateX*secondaryKernelWidth/2 + secondaryDilationRateX*p,
- *                                                                                                     secondaryStrideinPixelY*i + secondaryOffset.y - secondaryDilationRateY*secondaryKernelHeight/2 + secondaryDilationRateY*q, c) ]
+ *              delta_E/delta_Wkpqc = sum_i sum_j [ E(i, j, k) * I( secondaryStrideInPixelX*i + secondaryOffset.x + secondaryDilationRateX*p,
+ *                                                                  secondaryStrideinPixelY*i + secondaryOffset.y + secondaryDilationRateY*q, c) ]
  *
  *              where i goes over 0..W-1 and j goes over 0..H-1, (W,H) being width and height of E.
  *              p in [0, secondaryKernelWidth-1]
@@ -9548,7 +12765,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *
  *              and gradient with respect to bias
  *
- *              delta_E/delta_bk = sum_i sum_j [ E(i - primaryOffset.x,j - primaryOffset.y, k) ]
+ *              delta_E/delta_bk = sum_i sum_j [ E(i, j, k) ]
  *
  *              These gradients with respect to weights and bias are returned as buffers in MPSCNNConvolutionGradientState object passed in the encode call.
  *              These are consumed by MPSCNNConvolution object's -updateWeightsAndBias:MPSCNNConvolutionGradientState* method for CPU side update and
@@ -9576,8 +12793,45 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *
  *              Currently back propagation for gradients is only supported for regualar convolution and depthwise convolution. Back propagation
  *              sub-pixel convolution are not supported. So channelMultiplier and subPixelScaleFactor must be one.
+ *
+ *  Note on setting correct offsets
+ *  ===============================
+ *              If the forward convolution is called with
+ *                              offset = _offset; kernelWidth = kW; kernelHeight = kH; strideInPixelsX = sX; strideInPixelsY = sY;
+ *                              dilationRateX = dX; dilationRateY = dY;
+ *              thus dilated filter parameters are
+ *                              kW_Dilated = (kW - 1)*dX + 1; kH_Dilated = (kH - 1)*dY + 1;
+ *              Then the correct offset can be computed as follows.
+ *              Convoluton Gradient with Data
+ *              =============================
+ *                Convolution gradient with data of forward convolution with stride > 1 is essentially normal convoution with unit stride,
+ *                on an image that is formed by inserting strideInPixelsX-1 zeros in between each column and strideInPixelsY-1 zeros in between each
+ *                row of input gradient (output gradient of last layer) with kernel weights that are rotated by 180 degrees in spatial dimension (MPSCNNConvolutionGradient
+ *                does this rotation internally). primaryOffset property defines offset in original input gradient coordinate system. In order to
+ *                translate it in zero filled intermediate image coordinate system, kernelOffsetX and kernelOffsetY properties can be used as follows
+ *                       offsetInZeroFilledImageX = primaryOffset.x * primaryStrideInPixelsX + kernelOffsetX;
+ *                       offsetInZeroFilledImageY = primaryOffset.y * primaryStrideInPixelsY + kernelOffsetY;
+ *                This is what internally MPSCNNConvolutionGradient do. In order to correctly match forward convolution offset setting (so that padding policy is
+ *                consistent), application should set
+ *                       primaryOffset.x = 0; primaryOffset.y = 0;
+ *                       kernelOffset.x = -_offset.x + (~(NSInteger) kW_Dilated & 1L);
+ *                       kernelOffset.y = -_offset.y + (~(NSInteger) kH_Dilated & 1L);
+ *                Convolution gradient with data does not use secondaryOffset.
+ *
+ *                Convolution Gradient with Weights and Biases
+ *                ============================================
+ *                 For consistent padding policy with respect to forward convolution,
+ *                       secondaryOffset.x = _offset.x - kW_Dilated/2
+ *                       secondaryOffset.y = _offset.y - kH_Dilated/2
+ *                 Convolution gradient with weights and biases does not use primaryOffset (or it is assumed to be zero) as summation is over entire
+ *                 gradient image and only gradient image without any padding is currently accepted. If previous layer produces gradient image with
+ *                 padding, slice operation should be used to extract out the gradient which will be input to MPSCNNConvolutionGradient.
+ *
+ *             Note that if application uses encode method that return destination gradient on left hand side and consumes MPSCNNConvolutionGradientState
+ *             object produced by forward MPSCNNConvolution, all these parameters are set automatically for the application i.e. applicaiton does not
+ *             need to worry about setting these.
 */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNConvolutionGradient : MPSCNNGradientKernel
 
 /*! @property   sourceGradientFeatureChannels
@@ -9630,7 +12884,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  */
 @property   (readwrite, nonatomic) BOOL serializeWeightsAndBiases
                             MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "This is deprecated and doesn't do anything. It is here for backward compatibility. MPSCNNConvolutionGradient doesn't serialize weights. It gets weight from state.convolution.dataSource on first use i.e. first encodeToCommandBuffer call",
-                                      macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3, 12.0) );
+                                      macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*!
  *  @abstract   Initializes a convolution gradient (with respect to weights and bias) object.
@@ -9676,7 +12930,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  */
 -(void) reloadWeightsAndBiasesWithCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
                                           state: (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) state
-                                                MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                                                MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 @end    /* MPSCNNConvolutionGradient */
 
@@ -9714,7 +12968,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *              performant method which may not be possible when using a general convolution. For example,
  *              we may internally use matrix multiplication or special reduction kernels for a specific platform.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNFullyConnected : MPSCNNConvolution
 
 /*!
@@ -9729,7 +12983,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                                weights: (nonnull id <MPSCNNConvolutionDataSource>) weights NS_DESIGNATED_INITIALIZER
-                                                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                                                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @abstract   Initializes a convolution kernel
@@ -9755,7 +13009,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                              biasTerms: (const float * __nullable) biasTerms
                                  flags: (MPSCNNConvolutionFlags) flags  NS_DESIGNATED_INITIALIZER
                 MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use  -initWithDevice:convolutionDescriptor:weights: instead.",
-                                                            ios(10.0, 11.0), tvos(10.0, 11.0) );
+                                                            ios(10.0, 11.0), tvos(10.0, 11.0))  MPS_UNAVAILABLE(macos, uikitformac);
 
 /*! @abstract NSSecureCoding compatability
  *  @discussion While the standard NSSecureCoding/NSCoding method
@@ -9769,7 +13023,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                                                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                                                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*
  * Use initWithDevice:weights instead
@@ -9788,7 +13042,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *  @dependency This depends on Metal.framework
  *  @discussion Compute the gradient for fully connected layer.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNFullyConnectedGradient : MPSCNNConvolutionGradient
 
 /*!
@@ -9930,10 +13184,13 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *
  * @endcode
  *
+ *      Note that if your application is not using MPSCNNConvolutionGradientState to configure the convolution transpose with respect to convolution,
+ *      your application may do this using padding policy. In such case if convolution uses valid padding policy, than convolution transpose should use
+ *      full padding policy and vice vera. Full padding remains full. 
  */
 
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSCNNConvolutionTranspose : MPSCNNKernel
 
 /*! @property   inputFeatureChannels
@@ -9965,7 +13222,13 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *  @discussion  See MPSNeuralNetworkTypes.h for discussion. Default is MPSNNConvolutionAccumulatorPrecisionOptionFloat.
  */
 @property   (readwrite, nonatomic) MPSNNConvolutionAccumulatorPrecisionOption accumulatorPrecisionOption
-                                                    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                                                    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
+
+/*! @property   dataSource
+ *  @abstract   dataSource with which convolution transpose object was created
+ */
+@property(readonly, nonatomic, retain, nonnull) id<MPSCNNConvolutionDataSource>      dataSource
+                                MPS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0));
 
 /*!
  *  @abstract   Initializes a convolution transpose kernel
@@ -10002,6 +13265,10 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *
  *                  Note: the regular encodeToCommandBuffer:sourceImage: method may be used when no state is needed,
  *                  such as when the convolution transpose operation is not balanced by a matching convolution object upstream.
+ *                  These encode methods are for auto encoders where each convolution in inference pass is coupled with convolution
+ *                  transpose. In order for convolution transpose to correctly undo the convolution downsampling, MPSCNNConvolutionGradientState
+ *                  produced by convolution is needed by convolution transpose to correctly size destination image.
+ *                  These methods are only useful for inference only network. For training, use encode methods that take MPSCNNConvolutionTransposeGradientState below.
  *
  *  @param          commandBuffer       The command buffer
  *  @param          sourceImage         A MPSImage to use as the source images for the filter.
@@ -10016,32 +13283,225 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 -(MPSImage * __nonnull) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                                   sourceImage: (MPSImage *  __nonnull) sourceImage
                      convolutionGradientState: (MPSCNNConvolutionGradientState * __nullable) convolutionGradientState
-                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                         MPS_SWIFT_NAME( encode(commandBuffer:sourceImage:convolutionGradientState:));
 
 -(MPSImageBatch * __nonnull) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                                            sourceImages: (MPSImageBatch *  __nonnull) sourceImage
                               convolutionGradientStates: (MPSCNNConvolutionGradientStateBatch * __nullable) convolutionGradientState
-                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+                        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                         MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:convolutionGradientStates:));
 
 -(void) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                   sourceImage: (MPSImage *  __nonnull) sourceImage
      convolutionGradientState: (MPSCNNConvolutionGradientState * __nullable) convolutionGradientState
              destinationImage: (MPSImage * __nonnull) destinationImage
-                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                         MPS_SWIFT_NAME(encode(commandBuffer:sourceImage:convolutionGradientState:destinationImage:));
 
 -(void) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                       sourceImages: (MPSImageBatch *  __nonnull) sourceImage
          convolutionGradientStates: (MPSCNNConvolutionGradientStateBatch * __nullable) convolutionGradientState
                  destinationImages: (MPSImageBatch * __nonnull) destinationImage
-                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+                        MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                         MPS_SWIFT_NAME(encodeBatch(commandBuffer:sourceImages:convolutionGradientStates:destinationImages:));
 
+/*! @abstract   Allocate a MPCNNConvolutionTransposeGradientState to hold the results from a -encodeBatchToCommandBuffer... operation
+ *
+ *  @param      sourceImage         The MPSImage consumed by the associated -encode call.
+ *  @param      sourceStates        The list of MPSCNNConvolutionGradientState consumed by the associated -encode call,
+ *                                  for a batch size of 1. In auto encoders, this state is produced by corresponding MPSCNNConvolution.
+ *
+ *  @return     The list of states produced by the -encode call for batch size of 1.
+ *              -isResultStateReusedAcrossBatch returns YES for MPSCNNConvolutionTranspose so same
+ *              state is used across entire batch. State object is not reusasable across batches.
+ */
+-(MPSCNNConvolutionTransposeGradientState * __nullable) resultStateForSourceImage: (MPSImage *__nonnull) sourceImage
+                                                                     sourceStates: (NSArray <MPSCNNConvolutionGradientState *> *__nullable) sourceStates
+                                                                 destinationImage: (MPSImage *__nonnull) destinationImage
+                                MPS_SWIFT_NAME( resultState(sourceImage:sourceStates:destinationImage:))
+                                    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
+
+/* To be used with batch encode call. Since same state is used across entire batch, it will return copy of same state in returned NSArray*/
+-(MPSCNNConvolutionTransposeGradientStateBatch * __nullable) resultStateBatchForSourceImage: (MPSImageBatch * __nonnull) sourceImage
+                                                                               sourceStates: (NSArray<MPSCNNConvolutionGradientStateBatch *> * __nullable) sourceStates
+                                                                           destinationImage:(MPSImageBatch * _Nonnull)destinationImage
+                                    MPS_SWIFT_NAME( resultStateBatch(sourceImage:sourceStates:destinationImage:))
+                                    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
+
+-(MPSCNNConvolutionTransposeGradientState * __nullable) temporaryResultStateForCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                                                                 sourceImage: (MPSImage *__nonnull) sourceImage
+                                                                                sourceStates: (NSArray <MPSCNNConvolutionGradientState *> *__nullable) sourceStates
+                                                                            destinationImage: (MPSImage * __nonnull)destinationImage
+                                                                MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
+                                                        MPS_SWIFT_NAME( temporaryResultState(commandBuffer:sourceImage:sourceStates:destinationImage:));
+
+-(MPSCNNConvolutionTransposeGradientStateBatch * __nullable) temporaryResultStateBatchForCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                                                                           sourceImage: (MPSImageBatch *__nonnull) sourceImage
+                                                                                          sourceStates: (NSArray <MPSCNNConvolutionGradientStateBatch *> *__nullable) sourceStates
+                                                                                      destinationImage: (MPSImageBatch *__nonnull) destinationImage
+                                                                MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
+                                                                    MPS_SWIFT_NAME( temporaryResultStateBatch(commandBuffer:sourceImage:sourceStates:destinationImage:));
+
+/*! @abstract   CPU side reload. Reload the updated weights and biases from data provider into internal weights and bias buffers. Weights and biases
+ *              gradients needed for update are obtained from MPSCNNConvolutionTransposeGradientState object. Data provider passed in init call is used for this purpose.
+ */
+-(void) reloadWeightsAndBiasesFromDataSource
+            MPS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0));
+
+
+/*! @abstract   GPU side reload. Reload the updated weights and biases from update buffer produced by application enqueued metal kernel into internal weights
+ *              and biases buffer. Weights and biases gradients needed for update are obtained from MPSCNNConvolutionTransposeGradientState object's gradientForWeights and gradientForBiases metal buffer.
+ *
+ *  @param      commandBuffer      Metal command buffer on which application update kernel was enqueued consuming MPSCNNConvolutionGradientState's gradientForWeights and gradientForBiases buffers
+ *                                 and producing updateBuffer metal buffer.
+ *  @param      state              MPSCNNConvolutionWeightsAndBiasesState containing weights and biases buffers which have updated weights produced by application's update kernel.
+ *                                 The state readcount will be decremented.
+ *
+ */
+-(void) reloadWeightsAndBiasesWithCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
+                                          state: (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) state
+                            MPS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0));
+
+/*! @abstract   GPU side export. Enqueue a kernel to export current weights and biases stored in MPSCNNConvoltionTranspose's internal buffers into weights and biases MTLBuffer
+ *              returned in MPSCNNConvolutionWeightsAndBiasesState.
+ *
+ *  @param      commandBuffer              Metal command buffer on which export kernel is enqueued.
+ *  @param      resultStateCanBeTemporary  If FALSE, state returned will be non-temporary. If TRUE, returned state may or may not be temporary.
+ *  @return     MPSCNNConvolutionWeightsAndBiasesState containing weights and biases buffer to which weights got exported. This state and be
+ temporary or non-temporary depending on the flag resultStateCanBeTemporary
+ */
+- (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) exportWeightsAndBiasesWithCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
+                                                                    resultStateCanBeTemporary: (BOOL) resultStateCanBeTemporary
+                                                    MPS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0));
+
+/*! @abstract        These low level encode functions should be used during training. The first two encode functions, which return
+ *                   destination image on left hand side, takes in MPSCNNConvolutionGradientState that was produced by corresponding
+ *                   MPSCNNConvolution when there is one e.g. auto encoders. This state is used to correctly size destination being returned.
+ *                   These encode methods return MPSCNNConvoltionTransposeGradientState object on auto release pool to be consumed by MPSCNNConvolutionTransposeGradient.
+ */
+-(MPSImage * __nonnull) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                  sourceImage: (MPSImage *  __nonnull) sourceImage
+                     convolutionGradientState: (MPSCNNConvolutionGradientState * __nullable) convolutionGradientState
+                             destinationState: (__autoreleasing MPSCNNConvolutionTransposeGradientState * __nullable * __nonnull) outState
+                  destinationStateIsTemporary: (BOOL) isTemporary
+                    MPS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+                    MPS_SWIFT_NAME( encode(commandBuffer:sourceImage:convolutionGradientState:destinationState:destinationStateIsTemporary:));
+
+-(MPSImageBatch * __nonnull) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                           sourceImages: (MPSImageBatch *  __nonnull) sourceImages
+                              convolutionGradientStates: (MPSCNNConvolutionGradientStateBatch * __nullable) convolutionGradientStates
+                                      destinationStates: (__autoreleasing MPSCNNConvolutionTransposeGradientStateBatch * __nullable * __nonnull) outStates
+                            destinationStateIsTemporary: (BOOL) isTemporary
+                                MPS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+                                MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:convolutionGradientStates:destinationStates:destinationStateIsTemporary:));
+
+/*! @abstract        These low level encode functions can be called directly from MPSCNNKernel base class.
+ *                   If the destinationState is of type MPSCNNConvolutionTransposeGradient and contains MPSCNNConvolutionGradient* that is temporary, its readCount is decremented.
+ *                   If destinationState is of type MPSCNNConvolutionGradient* and is temporary, its readCount is decremented.
+ *                   These encode methods can be used with MPSCNNConvolutionTransposeGradientState that is created using resultStateForSourceImage:sourceStates:destinationImage:.
+ *                   If there is MPSCNNConvolutionGradientState coupling MPSCNNConvolution and this MPSCNNConvolutionTranspose e.g. in auto encoder, it should be passed as sourceStates
+ *                   to resultStateForSourceImage:sourceStates:destinationImage: method when creating MPSCNNConvolutionTransposeGradientState.
+ 
+-(void) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                  sourceImage: (MPSImage * __nonnull) sourceImage
+             destinationState: (MPSState * __nullable) destinationState
+             destinationImage: (MPSImage * __nonnull) destinationImage;
+
+-(void) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                      sourceImages: (MPSImageBatch * __nonnull) sourceImages
+                 destinationStates: (MPSStateBatch * __nullable) destinationStates
+                 destinationImages: (MPSImageBatch * __nonnull) destinationImages
+ */
 
 @end    /* MPSCNNConvolutionTranspose */
     
+    
+/*!
+ *  @class      MPSCNNConvolutionTransposeGradient
+ *  @dependency This depends on Metal.framework
+ *  @discussion The MPSCNNConvolutionTransposeGradient implementents backward propagation of gradient for MPSCNNConvolutionTranspose forward filter
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface  MPSCNNConvolutionTransposeGradient : MPSCNNGradientKernel
+
+/*! @property   sourceGradientFeatureChannels
+ *  @abstract   The number of feature channels per pixel in the gradient image (primarySource) of encode call. This is same is outputFeatureChannels
+ *              or the feature channels of destination image in forward convolution i.e. dataSource.descriptor.outputFeatureChannels
+ */
+@property(readonly, nonatomic) NSUInteger       sourceGradientFeatureChannels;
+
+/*! @property   sourceImageFeatureChannels
+ *  @abstract   The number of feature channels per pixel in the input image to forward convolution which is used here as secondarySource.
+ *              This is same as dataSource.descriptor.inputFeatureChannels. This is also the number of feature channels in destinatin image
+ *              here i.e. gradient with respect to data.
+ */
+@property(readonly, nonatomic) NSUInteger       sourceImageFeatureChannels;
+
+/*! @property   groups
+ *  @abstract   Number of groups input and output channels are divided into.
+ */
+@property(readonly, nonatomic) NSUInteger      groups;
+
+/*! @property   dataSource
+ *  @abstract   dataSource with which gradient object was created
+ */
+@property(readonly, nonatomic, retain, nonnull) id<MPSCNNConvolutionDataSource>      dataSource;
+
+
+/*! @property   gradientOption
+ *  @abstract   Option to control which gradient to compute. Default is MPSCNNConvolutionGradientOptionAll
+ *              which means both gradient with respect to data and gradient with respect to weight and bias are computed.
+ */
+@property(readwrite, nonatomic) MPSCNNConvolutionGradientOption      gradientOption;
+
+/*!
+ *  @abstract   Initializes a convolution transpose gradient (with respect to weights and bias) object.
+ *  @param      device                          The MTLDevice on which this MPSCNNConvolutionGradient filter will be used
+ *  @param      weights                         A pointer to a object that conforms to the MPSCNNConvolutionDataSource
+ *                                              protocol. Note that same data source as provided to forward convolution should be used.
+ *
+ *  @return     A valid MPSCNNConvolutionTransposeGradient object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                               weights: (nonnull id <MPSCNNConvolutionDataSource>) weights NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract NSSecureCoding compatability
+ *  @discussion While the standard NSSecureCoding/NSCoding method
+ *              -initWithCoder: should work, since the file can't
+ *              know which device your data is allocated on, we
+ *              have to guess and may guess incorrectly.  To avoid
+ *              that problem, use initWithCoder:device instead.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSKernel
+ *  @param      device      The MTLDevice on which to make the MPSKernel
+ *  @return     A new MPSKernel object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+/*
+ * Use initWithDevice:weights instead
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_UNAVAILABLE;
+
+/*! @abstract   CPU side reload. Reload the updated weights and biases from data provider into internal weights and bias buffers. Weights and biases
+ *              gradients needed for update are obtained from MPSCNNConvolutionGradientState object. Data provider passed in init call is used for this purpose.
+ */
+-(void) reloadWeightsAndBiasesFromDataSource;
+
+/*! @abstract   GPU side reload. Reload the updated weights and biases from update buffer produced by application enqueued metal kernel into internal weights
+ *              and biases buffer. Weights and biases gradients needed for update are obtained from MPSCNNConvolutionGradientState object's gradientForWeights and gradientForBiases metal buffer.
+ *
+ *  @param      commandBuffer      Metal command buffer on which application update kernel was enqueued consuming MPSCNNConvolutionGradientState's gradientForWeights and gradientForBiases buffer
+ *                                 and producing updateBuffer metal buffer.
+ *  @param      state              MPSCNNConvolutionWeightsAndBiasesState containing weights and biases buffers which have updated weights produced by application's update kernel.
+ *
+ */
+-(void) reloadWeightsAndBiasesWithCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
+                                          state: (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) state;
+
+@end    /* MPSCNNConvolutionTransposeGradient */
+
 
 
 #pragma mark -
@@ -10100,7 +13560,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              NOTE: MPSCNNBinaryConvolution does not currently support groups > 1.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSCNNBinaryConvolution : MPSCNNKernel
 
 @property(readonly, nonatomic) NSUInteger       inputFeatureChannels;
@@ -10229,7 +13689,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              filters. It uses MPSNNPaddingMethodSizeValidOnly instead of MPSNNPaddingMethodSizeSame.
  */
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSCNNBinaryFullyConnected : MPSCNNBinaryConvolution
 
 
@@ -10339,6 +13799,137 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 
 
+#pragma mark -
+#pragma mark MPSNNGramMatrixCalculation
+
+/*!
+ *  @class      MPSNNGramMatrixCalculation
+ *  @dependency This depends on Metal.framework
+ *  @discussion The MPSNNGramMatrixCalculation filter specifies a layer which computes the uncentered cross-correlation
+ *              values between the image planes of each feature channel of an image. If the input image batch is
+ *              x = x[b, y, x, c], where 'b' is batch index, 'y' and 'x' are the image coordinate and
+ *              'c' is the feature channel index then this filter computes the values:
+ *
+ *              y = y[b, 1, f, c] = alpha * sum_{x,y} x[b,y,x,f] * x[b,y,x,c], where
+ *
+ *              'alpha' is a scaling factor. This operation can be interpreted to be computing all combinations
+ *              of fully connected layers between the different image planes of the input image. The results
+ *              are stored in the feature channel and 'x'-coordinate indices of the output batch.
+ *              The operation is performed independently on different images in the batch.
+ *
+ *              NOTE: Due to the nature of the operation this filter specifies a special padding policy
+ *              and hence does not support non-default offset or cliprect properties.
+ */
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface  MPSNNGramMatrixCalculation : MPSCNNKernel
+
+
+/*! @property   alpha
+ *  @abstract   Scaling factor for the output. Default: 1.0f.
+ */
+@property(readwrite, nonatomic) float       alpha;
+
+
+/*! @abstract NSSecureCoding compatability
+ *  @discussion While the standard NSSecureCoding/NSCoding method
+ *              -initWithCoder: should work, since the file can't
+ *              know which device your data is allocated on, we
+ *              have to guess and may guess incorrectly.  To avoid
+ *              that problem, use initWithCoder:device instead.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSKernel
+ *  @param      device      The MTLDevice on which to make the MPSKernel
+ *  @return     A new MPSKernel object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+
+/*!
+ *  @abstract   Initializes a MPSNNGramMatrixCalculation kernel.
+ *
+ *  @param      device      The MTLDevice on which this MPSNNGramMatrixCalculation filter will be used.
+ *  @param      alpha       Scaling factor for the output.
+ *  @return     A valid MPSNNGramMatrixCalculation object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                                 alpha: (float) alpha
+NS_DESIGNATED_INITIALIZER;
+
+/*!
+ *  @abstract   Initializes a MPSNNGramMatrixCalculation kernel with scaling factor alpha = 1.0f.
+ *
+ *  @param      device      The MTLDevice on which this MPSNNGramMatrixCalculation filter will be used.
+ *  @return     A valid MPSNNGramMatrixCalculation object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device;
+
+/*!
+ * NOTE:    The encodeToCommandBuffer API in MPSCNNKernel can be used to encode this kernel to a MTLCommandBuffer.
+ */
+
+@end    /* MPSNNGramMatrixCalculation */
+
+
+#pragma mark -
+#pragma mark MPSNNGramMatrixCalculationGradient
+
+    /*!
+     *  @class      MPSNNGramMatrixCalculationGradient
+     *  @dependency This depends on Metal.framework
+     *  @discussion The MPSNNGramMatrixCalculationGradient defines the gradient filter for MPSNNGramMatrixCalculation.
+     */
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface  MPSNNGramMatrixCalculationGradient : MPSCNNGradientKernel
+
+
+/*! @property   alpha
+ *  @abstract   Scaling factor for the output. Default: 1.0f. NOTE: the value for alpha is automatically adjusted by
+ *              the @ref MPSNNGradientState when it is provided in the encode call.
+ */
+@property(readwrite, nonatomic) float       alpha;
+
+
+/*! @abstract NSSecureCoding compatability
+ *  @discussion While the standard NSSecureCoding/NSCoding method
+ *              -initWithCoder: should work, since the file can't
+ *              know which device your data is allocated on, we
+ *              have to guess and may guess incorrectly.  To avoid
+ *              that problem, use initWithCoder:device instead.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSKernel
+ *  @param      device      The MTLDevice on which to make the MPSKernel
+ *  @return     A new MPSKernel object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+
+/*!
+ *  @abstract   Initializes a MPSNNGramMatrixCalculationGradient kernel.
+ *
+ *  @param      device      The MTLDevice on which this MPSNNGramMatrixCalculationGradient filter will be used.
+ *  @param      alpha       Scaling factor for the output. NOTE: the value for alpha is automatically adjusted by
+ *                          the @ref MPSNNGradientState when it is provided in the encode call.
+ *  @return     A valid MPSNNGramMatrixCalculationGradient object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                                 alpha: (float) alpha
+NS_DESIGNATED_INITIALIZER;
+
+/*!
+ *  @abstract   Initializes a MPSNNGramMatrixCalculationGradient kernel with scaling factor alpha = 1.0f.
+ *
+ *  @param      device      The MTLDevice on which this MPSNNGramMatrixCalculationGradient filter will be used.
+ *  @return     A valid MPSNNGramMatrixCalculationGradient object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device;
+
+/*!
+ * NOTE:    The encodeToCommandBuffer API in MPSCNNKernel can be used to encode this kernel to a MTLCommandBuffer.
+ */
+
+@end    /* MPSNNGramMatrixCalculationGradient */
 
 
 
@@ -10385,7 +13976,7 @@ extern "C" {
  *                   https://www.tensorflow.org/api_docs/python/tf/slice
  */
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSNNSlice : MPSCNNKernel
 
 /*!
@@ -10444,7 +14035,7 @@ typedef NS_ENUM(NSUInteger, MPSCNNConvolutionFlags)
 #endif
 {
     /*! Use default options */
-    MPSCNNConvolutionFlagsNone      MPS_ENUM_AVAILABLE_STARTING_BUT_DEPRECATED( "Use the Convolution -init method with a MPSCNNConvolutionDataSource instead.", ios(10.0, 11.0), tvos(10.0, 11.0)) MPS_SWIFT_NAME(none)  = 0,
+    MPSCNNConvolutionFlagsNone      MPS_ENUM_AVAILABLE_STARTING_BUT_DEPRECATED( "Use the Convolution -init method with a MPSCNNConvolutionDataSource instead.", ios(10.0, 11.0), tvos(10.0, 11.0))  MPS_UNAVAILABLE(uikitformac) MPS_SWIFT_NAME(none)  = 0,
 }
 #if defined(DOXYGEN)
     MPSCNNConvolutionFlags
@@ -10464,9 +14055,9 @@ typedef NS_ENUM(NSUInteger, MPSCNNBinaryConvolutionFlags)
 #endif
 {
     /*! Use default in binary convolution options */
-    MPSCNNBinaryConvolutionFlagsNone            MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  MPS_SWIFT_NAME(none)  = 0,
+    MPSCNNBinaryConvolutionFlagsNone            MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  MPS_SWIFT_NAME(none)  = 0,
     /*! Scale the binary convolution operation using the beta-image option as detailed in MPSCNNBinaryConvolution */
-    MPSCNNBinaryConvolutionFlagsUseBetaScaling  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))   = 1 << 0,
+    MPSCNNBinaryConvolutionFlagsUseBetaScaling  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))   = 1 << 0,
 }
 #if defined(DOXYGEN)
     MPSCNNBinaryConvolutionFlags
@@ -10484,11 +14075,11 @@ typedef NS_ENUM(NSUInteger, MPSCNNBinaryConvolutionType)
 #endif
 {
     /*! Otherwise a normal convolution operation, except that the weights are binary values */
-    MPSCNNBinaryConvolutionTypeBinaryWeights    MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  MPS_SWIFT_NAME(binaryWeights)  = 0,
+    MPSCNNBinaryConvolutionTypeBinaryWeights    MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  MPS_SWIFT_NAME(binaryWeights)  = 0,
     /*! Use input image binarization and the XNOR-operation to perform the actual convolution - See MPSCNNBinaryConvolution for details  */
-    MPSCNNBinaryConvolutionTypeXNOR  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)),
+    MPSCNNBinaryConvolutionTypeXNOR  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)),
     /*! Use input image binarization and the AND-operation to perform the actual convolution - See MPSCNNBinaryConvolution for details */
-    MPSCNNBinaryConvolutionTypeAND  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)),
+    MPSCNNBinaryConvolutionTypeAND  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)),
 }
 #if defined(DOXYGEN)
     MPSCNNBinaryConvolutionType
@@ -10522,10 +14113,10 @@ typedef NS_OPTIONS(NSUInteger, MPSNNConvolutionAccumulatorPrecisionOption)
 #endif
 {
     /*! Set accumulator type to half precision float. */
-    MPSNNConvolutionAccumulatorPrecisionOptionHalf        MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)) MPS_SWIFT_NAME(half) = 0U,
+    MPSNNConvolutionAccumulatorPrecisionOptionHalf        MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) MPS_SWIFT_NAME(half) = 0U,
         
     /*! Set accumulator type to single precision float. */
-    MPSNNConvolutionAccumulatorPrecisionOptionFloat        MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)) MPS_SWIFT_NAME(float)  = 1U << 0,
+    MPSNNConvolutionAccumulatorPrecisionOptionFloat        MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) MPS_SWIFT_NAME(float)  = 1U << 0,
         
 };
 
@@ -10542,13 +14133,13 @@ typedef NS_OPTIONS(NSUInteger, MPSNNTrainingStyle)
 #endif
 {
     /*! Do not train this node, for example in transfer learning */
-    MPSNNTrainingStyleUpdateDeviceNone  MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))  MPS_SWIFT_NAME(UpdateDeviceNone) = 0,
+    MPSNNTrainingStyleUpdateDeviceNone  MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))  MPS_SWIFT_NAME(UpdateDeviceNone) = 0,
 
     /*! The weight update pass will be called in a command buffer completion callback, with a nil command buffer */
-    MPSNNTrainingStyleUpdateDeviceCPU   MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3)) = 1,
+    MPSNNTrainingStyleUpdateDeviceCPU   MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) = 1,
 
     /*! The weight update pass will be called immediately after the gradient pass is encoded, with a nonnull command buffer */
-    MPSNNTrainingStyleUpdateDeviceGPU   MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3)) = 2,
+    MPSNNTrainingStyleUpdateDeviceGPU   MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) = 2,
 }
 #if defined(DOXYGEN)
 MPSNNTrainingStyle
@@ -10562,19 +14153,19 @@ MPSNNTrainingStyle
 #endif
     {
         /*! Default Settings */
-        MPSCNNBatchNormalizationFlagsDefault  MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))  MPS_SWIFT_NAME(Default) = 0,
+        MPSCNNBatchNormalizationFlagsDefault  MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))  MPS_SWIFT_NAME(Default) = 0,
         
         /*! Statistics are calculated if another node consumes the gradient node (training). The data source is used otherwise. */
-        MPSCNNBatchNormalizationFlagsCalculateStatisticsAutomatic   MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3)) MPS_SWIFT_NAME(CalculateStatisticsAutomatic) = MPSCNNBatchNormalizationFlagsDefault,
+        MPSCNNBatchNormalizationFlagsCalculateStatisticsAutomatic   MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) MPS_SWIFT_NAME(CalculateStatisticsAutomatic) = MPSCNNBatchNormalizationFlagsDefault,
 
         /*! Statistics are calculated always */
-        MPSCNNBatchNormalizationFlagsCalculateStatisticsAlways      MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3)) = 1,
+        MPSCNNBatchNormalizationFlagsCalculateStatisticsAlways      MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) = 1,
 
         /*! Statistics are never calculated. Predefined values from the data source are used instead */
-        MPSCNNBatchNormalizationFlagsCalculateStatisticsNever       MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3)) = 2,
+        MPSCNNBatchNormalizationFlagsCalculateStatisticsNever       MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) = 2,
 
         /*! Bits used for  MPSCNNBatchNormalizationFlagsCalculateStatistics*/
-        MPSCNNBatchNormalizationFlagsCalculateStatisticsMask        MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3)) = 3,
+        MPSCNNBatchNormalizationFlagsCalculateStatisticsMask        MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) = 3,
     }
 #if defined(DOXYGEN)
     MPSCNNBatchNormalizationFlags
@@ -10731,34 +14322,34 @@ MPSNNTrainingStyle
 #endif
     {
         // The first two bits describe how to position the region read within the source image
-        MPSNNPaddingMethodAlignCentered                  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) MPS_SWIFT_NAME(centered)  = 0,    ///< Extra padding pixels are distributed as evenly as possible to all sides
-        MPSNNPaddingMethodAlignTopLeft                   MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = 1,    ///< Extra padding pixels appear on top and left sides
-        MPSNNPaddingMethodAlignBottomRight               MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = 2,    ///< Extra padding pixels appear on the bottom and right sides
-        MPSNNPaddingMethodAlign_reserved                 MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = 3,    ///< Extra padding pixels are not defined.
+        MPSNNPaddingMethodAlignCentered                  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) MPS_SWIFT_NAME(centered)  = 0,    ///< Extra padding pixels are distributed as evenly as possible to all sides
+        MPSNNPaddingMethodAlignTopLeft                   MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = 1,    ///< Extra padding pixels appear on top and left sides
+        MPSNNPaddingMethodAlignBottomRight               MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = 2,    ///< Extra padding pixels appear on the bottom and right sides
+        MPSNNPaddingMethodAlign_reserved                 MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = 3,    ///< Extra padding pixels are not defined.
         MPSNNPaddingMethodAlignMask = MPSNNPaddingMethodAlign_reserved,
 
         
         // The next two bits describe which sides the extra padding goes in the case where the total amount of padding
         // in a dimension is not an even number and the alignment is centered. This typically happens when the filter window size is even.
-        MPSNNPaddingMethodAddRemainderToTopLeft          MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) MPS_SWIFT_NAME(topLeft) = 0UL << 2,     ///< Extra padding pixels are accumulated to top and left sides
-        MPSNNPaddingMethodAddRemainderToTopRight         MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = 1UL << 2,
-        MPSNNPaddingMethodAddRemainderToBottomLeft       MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = 2UL << 2,
-        MPSNNPaddingMethodAddRemainderToBottomRight      MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = 3UL << 2,     ///< Extra padding pixels are accumulated to bottom and right sides
+        MPSNNPaddingMethodAddRemainderToTopLeft          MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) MPS_SWIFT_NAME(topLeft) = 0UL << 2,     ///< Extra padding pixels are accumulated to top and left sides
+        MPSNNPaddingMethodAddRemainderToTopRight         MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = 1UL << 2,
+        MPSNNPaddingMethodAddRemainderToBottomLeft       MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = 2UL << 2,
+        MPSNNPaddingMethodAddRemainderToBottomRight      MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = 3UL << 2,     ///< Extra padding pixels are accumulated to bottom and right sides
         MPSNNPaddingMethodAddRemainderToMask = MPSNNPaddingMethodAddRemainderToBottomRight,
         
         // The next thirteen bits describe the size of the padding area
-        MPSNNPaddingMethodSizeValidOnly                 MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) MPS_SWIFT_NAME(validOnly) = 0,               ///< The result is the largest image for which *all* source pixels are valid for result pixels
-        MPSNNPaddingMethodSizeSame                      MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = 1UL << 4,        ///< The result is the same size as the input image (before strides)
-        MPSNNPaddingMethodSizeFull                      MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = 2UL << 4,        ///< The result is the largest image for which *any* source pixel is valid for result pixels
-        MPSNNPaddingMethodSize_reserved                 MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = 3UL << 4,
-        MPSNNPaddingMethodCustomWhitelistForNodeFusion  MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))  = (1UL << 13),   ///< By itself, MPSNNPaddingMethodCustom will inhibit automatic fusion between nodes producing and consuming the image described by the padding policy. MPSNNPaddingMethodCustomWhitelistForNodeFusion signals that the custom method is benign and fusion may go ahead.
-        MPSNNPaddingMethodCustom                        MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = (1UL << 14),   ///< Use destinationImageDescriptorForSourceImages:sourceStates:forKernel:suggestedDescriptor: to calculate padding and offset.
-        MPSNNPaddingMethodSizeMask                      MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = 0x7f0,
+        MPSNNPaddingMethodSizeValidOnly                 MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) MPS_SWIFT_NAME(validOnly) = 0,               ///< The result is the largest image for which *all* source pixels are valid for result pixels
+        MPSNNPaddingMethodSizeSame                      MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = 1UL << 4,        ///< The result is the same size as the input image (before strides)
+        MPSNNPaddingMethodSizeFull                      MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = 2UL << 4,        ///< The result is the largest image for which *any* source pixel is valid for result pixels
+        MPSNNPaddingMethodSize_reserved                 MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = 3UL << 4,
+        MPSNNPaddingMethodCustomWhitelistForNodeFusion  MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))  = (1UL << 13),   ///< By itself, MPSNNPaddingMethodCustom will inhibit automatic fusion between nodes producing and consuming the image described by the padding policy. MPSNNPaddingMethodCustomWhitelistForNodeFusion signals that the custom method is benign and fusion may go ahead.
+        MPSNNPaddingMethodCustom                        MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = (1UL << 14),   ///< Use destinationImageDescriptorForSourceImages:sourceStates:forKernel:suggestedDescriptor: to calculate padding and offset.
+        MPSNNPaddingMethodSizeMask                      MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = 0x7f0,
 
         /*! The caffe framework constrains the average pooling area to the limits of the padding area in cases
          * where a pixel would read beyond the padding area. Set this bit for Caffe emulation with average pooling.
          */
-        MPSNNPaddingMethodExcludeEdges     MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))  = (1UL << 15),
+        MPSNNPaddingMethodExcludeEdges     MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  = (1UL << 15),
     }
 #if defined(DOXYGEN)
     MPSNNPaddingMethod
@@ -10860,7 +14451,7 @@ MPSNNTrainingStyle
                                                             suggestedDescriptor: (MPSImageDescriptor * __nonnull) inDescriptor;
 
     /*! @abstract   Make a "inverted" padding policy suitable for a training gradient pass.  */
-    -(instancetype __nullable) inverse MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+    -(instancetype __nullable) inverse MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 @end
 
@@ -10868,7 +14459,7 @@ MPSNNTrainingStyle
  *  @discussion You are, of course, welcome to write your own class that conforms to
  *              The MPSNNPadding protocol and use that instead.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSNNDefaultPadding : NSObject <MPSNNPadding>
 
 /*! @abstract   Fetch a well known object that implements a non-custom padding method
@@ -10907,10 +14498,10 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *                       }
  *                  @endcode
  */
-+ (instancetype __nonnull) paddingForTensorflowAveragePooling MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));  // same size centering mode
++ (instancetype __nonnull) paddingForTensorflowAveragePooling MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));  // same size centering mode
 
 /*! @abstract Typical pooling padding policy for valid only mode */
-+ (instancetype __nonnull) paddingForTensorflowAveragePoolingValidOnly  MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
++ (instancetype __nonnull) paddingForTensorflowAveragePoolingValidOnly  MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract  Human readable description of what the padding policy does */
 -(NSString * __nonnull) label;
@@ -10976,7 +14567,7 @@ extern "C" {
  *                      where N is the number of feature channels
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface MPSCNNSoftMax : MPSCNNKernel
 
 @end    /* MPSCNNSoftMax */
@@ -10998,7 +14589,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              The original output of corresponding softMax is the secondary source.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNSoftMaxGradient : MPSCNNGradientKernel
 
 /*!
@@ -11038,7 +14629,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *                      where N is the number of feature channels and y = ln{x} satisfies e^y = x.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface MPSCNNLogSoftMax : MPSCNNKernel
 
 @end    /* MPSCNNLogSoftMax */
@@ -11060,7 +14651,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              The original output of corresponding logSoftMax is the secondary source.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNLogSoftMaxGradient : MPSCNNGradientKernel
 
 /*!
@@ -11121,7 +14712,7 @@ extern "C" {
  *              The number of output feature channels remains the same as the number of input feature
  *              channels.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSNNResizeBilinear : MPSCNNKernel
 
 /*! @property   resizeWidth
@@ -11184,7 +14775,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  *              The number of output feature channels remains the same as the number of input feature
  *              channels.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSNNCropAndResizeBilinear : MPSCNNKernel
 
 /*! @property   resizeWidth
@@ -11285,7 +14876,7 @@ extern "C" {
  *              underlying resources.  Use [MPSCNNBatchNormalizationStatistics resultStateForSourceImages:]
  *              or [MPSCNNBatchNormalizationStatistics temporaryResultStateForCommandBuffer:sourceImages:].
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNBatchNormalizationState : MPSNNGradientState
 
 @property (readonly, nonnull, retain, nonatomic) MPSCNNBatchNormalization * batchNormalization;
@@ -11353,7 +14944,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *  @description A state which contains mean and variance terms used to apply a
  *               normalization in a MPSCNNBatchNormalization operation.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSCNNNormalizationMeanAndVarianceState : MPSState
 
 /*! @property   mean
@@ -11401,7 +14992,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  *              instance of MPSCNNBatchNormalizationState uses to initialize the
  *              scale factors, bias terms, and batch statistics.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @protocol MPSCNNBatchNormalizationDataSource <NSObject, NSCopying>
 
 @required
@@ -11480,7 +15071,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
      */
     -(MPSCNNNormalizationMeanAndVarianceState * __nullable) updateMeanAndVarianceWithCommandBuffer: (nonnull id<MTLCommandBuffer>) commandBuffer
                                                                             batchNormalizationState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationState
-    MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+    MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
     
     /*! @abstract       Compute new gamma and beta values using current values and gradients contained within a
      *                  MPSCNNBatchNormalizationState.  Perform the update using the CPU.
@@ -11500,7 +15091,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
      *  @return         A boolean value indicating if the update was performed.
      */
     -(BOOL) updateMeanAndVarianceWithBatchNormalizationState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationState
-    MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+    MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
     
     /*! @abstract       An optional tiny number to use to maintain numerical stability.
      *  @discussion     output_image = (input_image - mean[c]) * gamma[c] / sqrt(variance[c] + epsilon) + beta[c];
@@ -11528,7 +15119,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
      *  @result     A pointer to a copy of this data source.
      */
     - (nonnull instancetype) copyWithZone:(nullable NSZone *)zone
-                                   device:(nullable id <MTLDevice>) device MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+                                   device:(nullable id <MTLDevice>) device MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
     
 @end    // MPSCNNBatchNormalizationDataSource
     
@@ -11545,7 +15136,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *                  out(:,:,c,:) = output_image;
  *              }
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNBatchNormalization : MPSCNNKernel
 
 /*! @property   numberOfFeatureChannels
@@ -11588,7 +15179,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                             dataSource: (nonnull id <MPSCNNBatchNormalizationDataSource>) dataSource
                  fusedNeuronDescriptor: (MPSNNNeuronDescriptor* __nullable) fusedNeuronDescriptor NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*!
  * Use initWithDevice:dataSource instead
@@ -11697,17 +15288,17 @@ MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
  */
 -(void) reloadDataSource: (__nonnull id<MPSCNNBatchNormalizationDataSource>) dataSource
 MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use -reloadGammaAndBetaFromDataSource and/or -relaodMeanAndVarianceFromDataSource instead.",
-                                      macos(10.13.4, 10.14), ios(11.3,12.0), tvos(11.3, 12.0));
+                                      macos(10.13.4, 10.14), ios(11.3,12.0), tvos(11.3, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*!
  *  @abstract   Reinitialize the filter's gamma and beta values using the data source provided at kernel initialization.
  */
--(void) reloadGammaAndBetaFromDataSource MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+-(void) reloadGammaAndBetaFromDataSource MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*!
  *  @abstract   Reinitialize the filter's mean and variance values using the data source provided at kernel initialization.
  */
--(void) reloadMeanAndVarianceFromDataSource MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+-(void) reloadMeanAndVarianceFromDataSource MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*!
  *  @abstract   Reload data using new gamma and beta terms contained within an
@@ -11732,7 +15323,7 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use -reloadGammaAndBetaFromDataSo
  */
 -(void) reloadMeanAndVarianceWithCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
                           meanAndVarianceState: (MPSCNNNormalizationMeanAndVarianceState* __nonnull) meanAndVarianceState
- MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+ MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 @end    // MPSCNNBatchNormalization
     
 /*!
@@ -11744,7 +15335,7 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use -reloadGammaAndBetaFromDataSo
  *              multiple images to accumulate all the statistics necessary to perform
  *              a batch normalization as described in  https://arxiv.org/pdf/1502.03167v3.pdf.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNBatchNormalizationStatistics : MPSCNNKernel
 
 /*!
@@ -11820,7 +15411,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              terms used to compute the batch normalization.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNBatchNormalizationGradient : MPSCNNGradientKernel
 /*!
  *  @abstract   Initializes a batch normalization gradient kernel using a device and neuron descriptor.
@@ -11835,7 +15426,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                  fusedNeuronDescriptor: (MPSNNNeuronDescriptor* __nullable) fusedNeuronDescriptor NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*! @abstract NSSecureCoding compatability
  *  @discussion While the standard NSSecureCoding/NSCoding method
@@ -11942,7 +15533,7 @@ MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
  *              with the gradient of the loss function with respect to the batch statistics and
  *              batch normalization weights used to perform a batch normalization.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNBatchNormalizationStatisticsGradient : MPSCNNGradientKernel
 /*!
  *  @abstract   Initializes a batch normalization statistics gradient kernel using a device and neuron descriptor.
@@ -11956,7 +15547,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                  fusedNeuronDescriptor: (MPSNNNeuronDescriptor* __nullable) fusedNeuronDescriptor NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*! @abstract NSSecureCoding compatability
  *  @discussion While the standard NSSecureCoding/NSCoding method
@@ -12064,7 +15655,7 @@ extern "C" {
  *              The same descriptor can be used to initialize both the
  *              labels and the optional weights data.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNLossDataDescriptor : NSObject <NSCopying>
 
 /*! @property   layout
@@ -12120,11 +15711,11 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSCNNLossLabels
  *  @dependency This depends on Metal.framework.
  *  @discussion The MPSCNNLossLabels is used to hold the per-element weights buffer
- *              used by both MPSCNNLoss forward filter and MPSCNNLossGradient backward filter.
+ *              used by both MPSCNNLoss forward filter and MPSNNLossGradient backward filter.
  *              The MPSCNNLoss forward filter populates the MPSCNNLossLabels object
- *              and the MPSCNNLossGradient backward filter consumes the state object.
+ *              and the MPSNNLossGradient backward filter consumes the state object.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNLossLabels : MPSState
 
 /*!
@@ -12181,13 +15772,37 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
                       labelsDescriptor: (MPSCNNLossDataDescriptor* _Nonnull) labelsDescriptor
                      weightsDescriptor: (MPSCNNLossDataDescriptor* _Nullable) weightsDescriptor NS_DESIGNATED_INITIALIZER;
 
+
+/*!
+ *  @abstract   Set labels (aka targets, ground truth) and weights for the MPSCNNLossLabels object.
+ *              Weights are optional.
+ *  @discussion The labels and weights images are retained - it is the users responsibility to make sure that they contain
+ *              the right data when the loss filter is run on the device.
+ *  @param      device                  Device the state resources will be created on.
+ *  @param      lossImageSize           The size of the resulting loss image: { width, height, featureChannels }.
+ *                                      The computed loss can either be a scalar value (in batch mode, a single
+ *                                      value per image in a batch) or it can be one value per feature channel.
+ *                                      Thus, the size of the loss image must either match the size of the input
+ *                                      source image or be {1, 1, 1}, which results in a scalar value.
+ *  @param      labelsImage             Describes the labels data.
+ *  @param      weightsImage            Describes the weights data.
+ *                                      This parameter is optional. If you are using a single weight, please use the
+ *                                      weight property of the MPSCNNLossDescriptor object.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id<MTLDevice>)device
+                         lossImageSize: (MTLSize) lossImageSize
+                           labelsImage: (MPSImage* _Nonnull) labelsImage
+                          weightsImage: (MPSImage* _Nullable) weightsImage
+MPS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+NS_DESIGNATED_INITIALIZER;
+
 /*!
  *  @abstract   Loss image accessor method.
  *  @return     An autoreleased MPSImage object, containing the loss data.
  *              The loss data is populated in the -encode call, thus the contents
  *              are undefined until you -encode the filter.
  *
- *              In order to gaurantee that the image is correctly synchronized for CPU side access,
+ *              In order to guarantee that the image is correctly synchronized for CPU side access,
  *              it is the application's responsibility to call the [gradientState synchronizeOnCommandBuffer:]
  *              method before accessing the data in the image.
  */
@@ -12198,7 +15813,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @return     An autoreleased MPSImage object, containing the labels data.
  *              The labels data is populated in the -initWithDevice call.
  *
- *              In order to gaurantee that the image is correctly synchronized for CPU side access,
+ *              In order to guarantee that the image is correctly synchronized for CPU side access,
  *              it is the application's responsibility to call the [gradientState synchronizeOnCommandBuffer:]
  *              method before accessing the data in the image.
  */
@@ -12209,7 +15824,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @return     An autoreleased MPSImage object, containing the weights data.
  *              The weights data is populated in the -initWithDevice call.
  *
- *              In order to gaurantee that the image is correctly synchronized for CPU side access,
+ *              In order to guarantee that the image is correctly synchronized for CPU side access,
  *              it is the application's responsibility to call the [gradientState synchronizeOnCommandBuffer:]
  *              method before accessing the data in the image.
  */
@@ -12218,7 +15833,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 @end /* MPSCNNLossLabels */
     
 
-typedef NSArray <MPSCNNLossLabels*>  MPSCNNLossLabelsBatch MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+typedef NSArray <MPSCNNLossLabels*>  MPSCNNLossLabelsBatch MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 #pragma mark -
 #pragma mark MPSCNNLossDescriptor
@@ -12228,9 +15843,9 @@ typedef NSArray <MPSCNNLossLabels*>  MPSCNNLossLabelsBatch MPS_AVAILABLE_STARTIN
  *  @dependency This depends on Metal.framework.
  *  @discussion The MPSCNNLossDescriptor specifies a loss filter descriptor.
  *              The same descriptor can be used to initialize both the
- *              MPSCNNLoss and the MPSCNNLossGradient filters.
+ *              MPSCNNLoss and the MPSNNLossGradient filters.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNLossDescriptor : NSObject <NSCopying>
 
 /*! @property   lossType
@@ -12307,10 +15922,10 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 -(nonnull instancetype) init NS_UNAVAILABLE;
 
 /*!
- *  @abstract   Make a descriptor for a MPSCNNLoss or MPSCNNLossGradient object.
+ *  @abstract   Make a descriptor for a MPSCNNLoss or MPSNNLossGradient object.
  *  @param      lossType                    The type of a loss filter.
  *  @param      reductionType               The type of a reduction operation to apply.
- *                                          This argument is ignored in the MPSCNNLossGradient filter.
+ *                                          This argument is ignored in the MPSNNLossGradient filter.
  *  @return     A valid MPSCNNLossDescriptor object or nil, if failure.
  */
 +(nonnull MPSCNNLossDescriptor*) cnnLossDescriptorWithType:(MPSCNNLossType) lossType
@@ -12345,7 +15960,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              objects, which are in turn used to initialize the MPSCNNLossLabels object.
  *
  *              If the specified reduction operation is MPSCNNReductionTypeNone, the destinationImage should be
- *              at least as large as the specified clipRect. The detinationImage will then contain per-element
+ *              at least as large as the specified clipRect. The destinationImage will then contain per-element
  *              losses. Otherse, a reduction operation will be performed, according to the specified reduction
  *              type, and the filter will return a scalar value containing the overall loss. For more information
  *              on the available reduction types, see MPSCNNTypes.h. Also see MPSCNNLossDescriptor for the
@@ -12373,7 +15988,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *                                                                    labels: labels
  *                                                          destinationImage: lossGradientsImage];
  *
- *              // In order to gaurantee that the loss image data is correctly synchronized for CPU side access,
+ *              // In order to guarantee that the loss image data is correctly synchronized for CPU side access,
  *              // it is the application's responsibility to call the [labels synchronizeOnCommandBuffer:]
  *              // method before accessing the loss image data.
  *              [labels synchronizeOnCommandBuffer:commandBuffer];
@@ -12513,7 +16128,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              The number of output feature channels remains the same as the number of input feature
  *              channels.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNLoss : MPSCNNKernel
 
 /*!
@@ -12631,7 +16246,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *
  *              For details on how to set up the label values and anchorboxes see https://arxiv.org/abs/1612.08242
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12), tvos(12))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12), uikitformac(13.0), tvos(12))
 @interface MPSCNNYOLOLossDescriptor : NSObject <NSCopying>
 
 /*! @property   XYLossDescriptor
@@ -12759,7 +16374,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12), tvos(12))
 @end /* MPSCNNYOLOLossDescriptor */
 
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSCNNYOLOLoss : MPSCNNKernel
 
 /*! @property   lossXY
@@ -12860,6 +16475,249 @@ MPS_SWIFT_NAME( encode(commandBuffer:sourceImages:labels:));
 @end /* MPSCNNYOLOLoss */
 
 
+
+#pragma mark -
+#pragma mark MPSNNForwardLoss
+
+/*!
+ *  @class      MPSNNForwardLoss
+ *  @dependency This depends on Metal.framework.
+ *  @discussion The MPSNNForwardLoss filter specifies a version of the loss filter which separates the forward
+ *              computation from the gradient computation. In order to compute gradients for the loss filter
+ *              use @ref MPSNNLossGradient filter and in order to start the gradient computation of an arbitrary
+ *              image use the @ref MPSNNInitialGradient filter.
+ *              NOTE: This filter does not support non-default offset or cliprects and setting them to other
+ *              than default values will result in undefined results.
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNNForwardLoss : MPSCNNKernel
+
+/*!
+ * See MPSCNNLossDescriptor for information about the following properties.
+ */
+@property (readonly, nonatomic) MPSCNNLossType lossType;
+@property (readonly, nonatomic) MPSCNNReductionType reductionType;
+@property (readonly, nonatomic) NSUInteger numberOfClasses;
+
+// Dynamically adjustable parameters
+@property (readwrite, nonatomic) float weight;
+@property (readwrite, nonatomic) float labelSmoothing;
+@property (readwrite, nonatomic) float epsilon;
+@property (readwrite, nonatomic) float delta;
+
+/*
+ * You must use initWithDevice:lossDescriptor instead.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_UNAVAILABLE;
+
+/*!
+ *  @abstract   Initialize the loss forward pass filter with a loss descriptor.
+ *  @param      device                   The device the filter will run on.
+ *  @param      lossDescriptor           The loss descriptor.
+ *  @return     A valid MPSNNForwardLoss object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                        lossDescriptor: (MPSCNNLossDescriptor*_Nonnull) lossDescriptor NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract <NSSecureCoding> support */
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+
+
+/*! @abstract   Encode a MPSNNForwardLoss filter and return the result in the destinationImage.
+ *
+ *  @param      commandBuffer       The MTLCommandBuffer on which to encode.
+ *  @param      sourceImages        The source images that contains the network prediction (logits).
+ *  @param      labels              The source images that contains the labels (targets).
+ *  @param      weights             The object containing weights for the labels. Optional.
+ *  @param      destinationStates   Optional gradient state - carries dynamical property values to the gradient pass
+ *                                  (weight, labelSmoothing, epsilon, delta). Create state using resultStateBatchForSourceImage: or
+ *                                  temporaryResultStateBatchForCommandBuffer:.
+ *  @param      destinationImages   The MPSImages into which to write the loss results.
+ */
+
+-(void) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                      sourceImages: (MPSImageBatch * __nonnull) sourceImages
+                            labels: (MPSImageBatch * __nonnull) labels
+                           weights: (MPSImageBatch * __nullable) weights
+                 destinationStates: (MPSStateBatch * __nullable) destinationStates
+                 destinationImages: (MPSImageBatch * __nonnull) destinationImages
+MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:labels:weights:destinationStates:destinationImages:));
+
+
+/*! @abstract   Encode a MPSNNForwardLoss filter and return the loss result image(s).
+ *  @discussion This -encode call is similar to the encodeBatchToCommandBuffer:sourceImages:labels:destinationImages: above,
+ *              except that it creates and returns the MPSImages with the loss result.
+ *
+ *  @param      commandBuffer       The MTLCommandBuffer on which to encode.
+ *  @param      sourceImages        The source images that contains the network prediction (logits).
+ *  @param      labels              The source images that contains the labels (targets).
+ *  @param      weights             The object containing weights for the labels. Optional.
+ *  @param      outStates           Optional gradient state - carries dynamical property values to the gradient pass
+ *                                  (weight, labelSmoothing, epsilon, delta).
+ *  @param      isTemporary         Whether the returned state (if any) should be temporary or not.
+ *  @return     The MPSImages containing the loss computation results.
+ */
+
+-(MPSImageBatch * __nonnull) encodeBatchToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                           sourceImages: (MPSImageBatch * __nonnull) sourceImages
+                                                 labels: (MPSImageBatch * __nonnull) labels
+                                                weights: (MPSImageBatch * __nullable) weights
+                                      destinationStates: (__autoreleasing MPSStateBatch * __nullable * __nullable) outStates
+                            destinationStateIsTemporary: (BOOL) isTemporary
+MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceImages:labels:weights:outStates:isTemporary:));
+
+@end /* MPSNNForwardLoss */
+
+
+#pragma mark -
+#pragma mark MPSNNLossGradient
+
+/*!
+ *  @class      MPSNNLossGradient
+ *  @dependency This depends on Metal.framework.
+ *  @discussion The MPSNNLossGradient filter specifies the gradient filter for @ref MPSNNForwardLoss.
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNNLossGradient : MPSCNNBinaryKernel
+
+/*!
+ * See MPSCNNLossDescriptor for information about the following properties.
+ */
+@property (readonly, nonatomic) MPSCNNLossType lossType;
+@property (readonly, nonatomic) MPSCNNReductionType reductionType;
+@property (readonly, nonatomic) NSUInteger numberOfClasses;
+
+@property (readwrite, nonatomic) float weight;
+@property (readwrite, nonatomic) float labelSmoothing;
+@property (readwrite, nonatomic) float epsilon;
+@property (readwrite, nonatomic) float delta;
+
+/*! @property   computeLabelGradients
+ *  @abstract   The computeLabelGradients property is used to control whether the loss gradient
+ *              filter computes gradients for the primary (predictions) or secondary (labels) source image from the forward pass.
+ *              Default: NO.
+ */
+@property (readwrite, nonatomic) BOOL            computeLabelGradients;
+
+
+
+/*
+ * You must use initWithDevice:lossDescriptor instead.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_UNAVAILABLE;
+
+/*!
+ *  @abstract   Initialize the loss gradient filter with a loss descriptor.
+ *  @param      device                   The device the filter will run on.
+ *  @param      lossDescriptor           The loss descriptor.
+ *  @return     A valid MPSNNLossGradient object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                        lossDescriptor: (MPSCNNLossDescriptor*_Nonnull) lossDescriptor NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract <NSSecureCoding> support */
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+
+
+/*! @abstract   Encode the loss gradient filter and return a gradient
+ *  @param      commandBuffer    The MTLCommandBuffer on which to encode
+ *  @param      sourceGradients  The gradient images from the "next" filter in the graph
+ *  @param      sourceImages     The images used as source image from the forward pass
+ *  @param      labels           The source images that contains the labels (targets).
+ *  @param      weights          The object containing weights for the labels. Optional.
+ *  @param      sourceStates     Optional gradient state - carries dynamical property values from the forward pass
+ *                                  (weight, labelSmoothing, epsilon, delta).
+ */
+-(MPSImageBatch*__nonnull) encodeBatchToCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer
+                                      sourceGradients: (MPSImageBatch * __nonnull ) sourceGradients        // a.k.a. primaryImage
+                                         sourceImages: (MPSImageBatch * __nonnull ) sourceImages           // prediction source images from forward pass
+                                               labels: (MPSImageBatch * __nonnull ) labels                 // label images from forward pass
+                                              weights: (MPSImageBatch * __nullable) weights
+                                         sourceStates: (MPSStateBatch * __nullable) sourceStates
+MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceGradients:sourceImages:labels:weights:sourceStates:));
+
+/*! @abstract   Encode the loss gradient filter and return a gradient
+ *  @param      commandBuffer    The MTLCommandBuffer on which to encode
+ *  @param      sourceGradients  The gradient images from the "next" filter in the graph
+ *  @param      sourceImages     The image used as source images from the forward pass
+ *  @param      labels           The source images that contains the labels (targets).
+ *  @param      weights          The object containing weights for the labels. Optional.
+ *  @param      sourceStates     Optional gradient state - carries dynamical property values from the forward pass
+ *                                  (weight, labelSmoothing, epsilon, delta).
+ *  @param      destinationGradients  The MPSImages into which to write the filter result */
+-(void) encodeBatchToCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer
+                   sourceGradients: (MPSImageBatch * __nonnull ) sourceGradients        // a.k.a. primaryImage
+                      sourceImages: (MPSImageBatch * __nonnull ) sourceImages           // source Image from forward pass, a.k.a. secondaryImage
+                            labels: (MPSImageBatch * __nonnull ) labels                 // label images from forward pass
+                           weights: (MPSImageBatch * __nullable) weights
+                      sourceStates: (MPSStateBatch * __nullable) sourceStates
+              destinationGradients: (MPSImageBatch * __nonnull ) destinationGradients
+MPS_SWIFT_NAME( encodeBatch(commandBuffer:sourceGradients:sourceImages:labels:weights:sourceStates:destinationGradients:));
+
+@end /* MPSNNLossGradient */
+
+
+#pragma mark -
+#pragma mark MPSNNInitialGradient
+
+/*!
+ *  @class      MPSNNInitialGradient
+ *  @dependency This depends on Metal.framework
+ *  @discussion The MPSCNNInitialGradient filter specifies a layer which computes the initial gradient for
+ *              an aribitrary input image. The operation itself is extremely simple: it computes the gradient of the input image
+ *              with itself, resulting in an output image which is filled with '1's for all the inputs that were used.
+ *              This serves as the starting point for the computation of gradients between arbitrary images in a network.
+ *              Example:
+ *                  Suppose that we want to compute gradients for a function that multiplies together two losses:
+ *                      f = f(L1, L2) = L1 * L2
+ *                  The losses themselves are computed from some inputs x1,x2:
+ *                      L1 = L1(x1),
+ *                      L2 = L2(x2)
+ *                  The filters to compute f, L1, L2 are:
+ *                      f = MPSCNNMultiply(L1, L2), where
+ *                      L1 = MPSNNForwardLoss1(x1) and
+ *                      L2 = MPSNNForwardLoss1(x2)
+ *
+ *                  To compute df/dx1 we apply the chain rule:
+ *
+ *                      df/dx1 = d(L1 * L2)/dx1 = d(L1 * L2)/dL1 * dL1/dx1 + d(L1 * L2)/dL2 * dL2/dx1
+ *                             = d(L1 * L2)/dL1 * dL1/dx1 = L2 * dL1/dx1
+ *
+ *                  The MPSCNNMultiplyGradient filter computes for f = L1 * L2 forward op:
+ *                      dL/dL1 = dL/df * df/dL1 = dL/df * L2 and
+ *                      dL/dL2 = dL/df * df/dL2 = dL/df * L1 where
+ *                  dL/df is the input gradient of the chain rule / backpropagation algorithm.
+ *                  But in our case we want MPSCNNMultiplyGradient to compute the gradient:
+ *                      df/dL1 = d(L1 * L2)/dL1 = L2,
+ *                  which shows that
+ *                      L = f, which means that dL/dL1 = df/df * df/dL1 = 1 * L2, which
+ *                  shows that we get the correct gradient by providing unit input as input gradient to
+ *                  the MPSCNNMultiplyGradient.
+ */
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface  MPSNNInitialGradient : MPSCNNKernel
+
+
+/*!
+ *  @abstract   Initializes a MPSNNInitialGradient kernel.
+ *
+ *  @param      device      The MTLDevice on which this MPSNNInitialGradient filter will be used.
+ *  @return     A valid MPSNNInitialGradient object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device;
+
+/*!
+ * NOTE:    The encodeToCommandBuffer API in MPSCNNKernel can be used to encode this kernel to a MTLCommandBuffer.
+ */
+
+@end    /* MPSNNInitialGradient */
+
+
+
+
 #ifdef __cplusplus
 }
 #endif
@@ -12891,7 +16749,7 @@ extern "C" {
  *
  */
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSNNReshape : MPSCNNKernel
 
 /*!
@@ -12907,13 +16765,301 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 @end  /* MPSNNReshape_h */
 
+/*!
+ *  @class      MPSNNReshapeGradient
+ *  @dependency This depends on Metal.framework
+ *  @discussion The reshape gradient filter reshapes the incoming gradient into the dimensions
+ *              of the forward reshape kernel's source image.
+ *
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), tvos(12.1))
+@interface MPSNNReshapeGradient : MPSCNNGradientKernel
+
+/*!
+ *  @abstract   Initializes a MPSNNReshapeGradient function
+ *  @param      device  The MTLDevice on which this filter will be used
+ *
+ *  @return     A valid MPSNNReshapeGradient object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract NSSecureCoding compatability
+ *  @discussion While the standard NSSecureCoding/NSCoding method
+ *              -initWithCoder: should work, since the file can't
+ *              know which device your data is allocated on, we
+ *              have to guess and may guess incorrectly.  To avoid
+ *              that problem, use initWithCoder:device instead.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSKernel
+ *  @param      device      The MTLDevice on which to make the MPSKernel
+ *  @return     A new MPSKernel object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+@end    /* MPSNNReshapeGradient */
+
+
+
+
+
+/*
+ *  @class      MPSNNPad
+ *  @dependency This depends on Metal.framework
+ *  @abstract   Describes a padding operation
+ *  @discussion You should not use this filter to zero pad your data in the XY-plane.
+ *              This filter achieves padding by copying the input image and therefore should only be used in
+ *              special circumstances where the normal padding operation, defined for most filters through
+ *              @ref MPSNNPadding, cannot achieve the necessary padding. Therefore use this filter only when
+ *              you need one of the special edge modes: @ref MPSImageEdgeModeConstant,
+ *              @ref MPSImageEdgeModeMirror, @ref MPSImageEdgeModeMirrorWithEdge or, if you need padding in the
+ *              feature-channel dimesion.  In other cases use to @ref MPSNNPadding for best performance.
+ *              This kernel copies data from source MPSImage into the destination MPSImage allowing special padding
+ *              modes to be applied. It also enables easy to use arbitrary padding area sizes when used in conjuction
+ *              with @ref destinationImageDescriptorForSourceImages:sourceStates: function.
+ *              There are two main ways to control the amount of padding to be added in 'x' and 'y' image dimensions:
+ *                  - The first one involves passing in an existing MPSImage as the destination image
+ *              to the @ref MPSCNNKernel encode call, in which case the padding size in (x,y) plane
+ *              is defined by the user-specified @ref clipRect and @ref offset properties of the kernel.
+ *                  - In the second one the destination image size and @ref clipRect and @ref offset
+ *              properties of the kernel are automatically computed by calling
+ *              @ref destinationImageDescriptorForSourceImages:sourceStates: or the -encode calls that return the
+ *              resulting image from the left hand side of the call. In this case, the properties
+ *              @ref paddingSizeBefore and @ref paddingSizeAfter together with the source image
+ *              dimensions define the size of the destination image and set the correct @ref offset
+ *              and @ref clipRect properties to the filter.
+ *              Padding in the feature channel dimension is handled a bit differently: the amount of
+ *              padding is always determined by @ref paddingSizeBefore.channel and
+ *              @ref paddingSizeAfter.channel for this direction and the amount of feature channels
+ *              filled in the destination is determined by the number of active feature channels
+ *              determined by @ref sourceFeatureChannelOffset and @ref sourceFeatureChannelMaxCount and
+ *              the amount of padding to be added on each side of the source.
+ *
+ *              Example for feature channel indices:
+ *  @code
+ *                  paddingSizeBefore.channel = 2, paddingSizeAfter.channel = 3,
+ *                  sourceFeatureChannelOffset = 1, sourceFeatureChannelMaxCount = 3,
+ *                  destinationFeatureChannelOffset = 4.
+ *                  We get the following padding operation:
+ *
+ *              Source:
+ *                |-----------------------------|
+ *                | x0 | x1 | x2 | x3 | x4 | x5 |
+ *                |-----------------------------|
+ *              Destination:
+ *                |----------------------------------------------------------------|
+ *                | -  | -  | -  | -  | 0  | 0  | x1 | x2 | x3 | 0  | 0  | 0  | -  |
+ *                |----------------------------------------------------------------|
+ *
+ *              And with @ref edgeMode = MPSImageEdgeModeMirrorWithEdge:
+ *
+ *              Source:
+ *                |-----------------------------|
+ *                | x0 | x1 | x2 | x3 | x4 | x5 |
+ *                |-----------------------------|
+ *              Destination:
+ *                |----------------------------------------------------------------|
+ *                | -  | -  | -  | -  | x2 | x1 | x1 | x2 | x3 | x3 | x2 | x1 | -  |
+ *                |----------------------------------------------------------------|
+ *
+ *              Here the symbols '-' denote pixels not written by the kernel.
+ *
+ *              NOTE:   The 'channel' coordinate and size in sourceRegion can be
+ *                      set to other values than those with multiple of four channels,
+ *                      but the @ref destinationFeatureChannelOffset property must be multiple of
+ *                      four, which means that there are some limitations to what can be achieved
+ *                      with this filter alone.
+ *
+ *  @endcode
+ *              @NOTE:  MPSNNPad is currently the only filter that supports
+ *                      @ref MPSImageEdgeModeMirror, @ref MPSImageEdgeModeMirrorWithEdge and
+ *                      @ref MPSImageEdgeModeConstant.
+ *
+ */
+
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNPad : MPSCNNKernel
+
+/*! @property   paddingSizeBefore
+ *  @abstract   This property is used for automatically sizing the destination image
+ *              for the function @ref destinationImageDescriptorForSourceImages:sourceStates:. Defines
+ *              how much padding to assign on the left, top and smaller feature channel indices
+ *              of the image. NOTE: the x and y coordinates of this property are only
+ *              used through @ref destinationImageDescriptorForSourceImages:sourceStates:, since
+ *              the clipRect and offset together define the padding sizes in those directions, but
+ *              the 'channel' size defines the amount of padding to be applied in the feature
+ *              channel dimension, before the feature channels starting from feature channel
+ *              index @ref sourceFeatureChannelOffset.
+ *              Default: { 0, 0, 0 }
+ */
+@property(readwrite, nonatomic) MPSImageCoordinate  paddingSizeBefore;
+
+/*! @property   paddingSizeAfter
+ *  @abstract   This property is used for automatically sizing the destination image
+ *              for the function @ref destinationImageDescriptorForSourceImages:sourceStates:. Defines
+ *              how much padding to assign on the right, bottom and higher feature channel indices
+ *              of the image. NOTE: the x and y coordinates of this property are only
+ *              used through @ref destinationImageDescriptorForSourceImages:sourceStates:, since
+ *              the clipRect and offset together define the padding sizes in those directions, but
+ *              the 'channel' size defines the amount of padding to be applied in the feature
+ *              channel dimension after source feature channel index determined by the sum of
+ *              @ref sourceFeatureChannelOffset and @ref sourceFeatureChannelMaxCount, naturally
+ *              clipped to fit the feature channels in the provided source image.
+ *              Default: { 0, 0, 0 }
+ */
+@property(readwrite, nonatomic) MPSImageCoordinate  paddingSizeAfter;
+
+
+/*! @property   fillValue
+ *  @abstract   Determines the constant value to apply when using @ref MPSImageEdgeModeConstant. Default: 0.0f.
+ *              NOTE: this value is ignored if the filter is initialized with a per-channel fill value
+ *              using @ref initWithDevice:paddingSizeBefore:paddingSizeAfter:fillValueArray:.
+ */
+@property(readwrite, nonatomic) float               fillValue;
+
+/*!
+ *  @abstract Initialize a MPSNNPad kernel
+ *  @param      device      The device the filter will run on.
+ *  @return     A valid MPSNNPad object or nil, if failure.
+ */
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device;
+
+/*!
+ *  @abstract Initialize a MPSNNPad kernel
+ *  @param      device              The device the filter will run on
+ *  @param      paddingSizeBefore   The amount of padding to add before the source image - see details above.
+ *  @param      paddingSizeAfter    The amount of padding to add after the source image - see details above.
+ *  @return     A valid MPSNNPad object or nil, if failure.
+ */
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                     paddingSizeBefore: (MPSImageCoordinate) paddingSizeBefore
+                      paddingSizeAfter: (MPSImageCoordinate) paddingSizeAfter;
+/*!
+ *  @abstract Initialize a MPSNNPad kernel
+ *  @param      device              The device the filter will run on
+ *  @param      paddingSizeBefore   The amount of padding to add before the source image - see details above.
+ *  @param      paddingSizeAfter    The amount of padding to add after the source image - see details above.
+ *  @param      fillValueArray      A NSData containing a float array to use with @ref MPSImageEdgeModeConstant.
+ *                                  The first value of the array will correspond to the first feature channel
+ *                                  written out to the destination image and the number of float values in the
+ *                                  data must be at least as large as the number of feature channels written onto
+ *                                  the destination by the filter. Failing to pass a large enough array will
+ *                                  result in undefined behavior. Passing in nil is fine.
+ *  @return     A valid MPSNNPad object or nil, if failure.
+ */
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                     paddingSizeBefore: (MPSImageCoordinate) paddingSizeBefore
+                      paddingSizeAfter: (MPSImageCoordinate) paddingSizeAfter
+                        fillValueArray: (NSData* __nullable) fillValueArray
+NS_DESIGNATED_INITIALIZER;
+
+
+/*! @abstract   NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSNNPad
+ *  @param      device      The MTLDevice on which to make the MPSNNPad
+ *  @return     A new MPSNNPad object, or nil if failure.
+ */
+
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(__nonnull id<MTLDevice>)device    NS_DESIGNATED_INITIALIZER;
+
+
+@end  /* MPSNNPad */
+
+
+/*!
+ *  @class      MPSNNPadGradient
+ *  @dependency This depends on Metal.framework
+ *  @discussion Computes the gradient for the @ref MPSNNPad layer.
+ *              Since the padding forward operation typically increases the size of the image, the gradient operation
+ *              decreases it. In case of zero or constant padding forward operation the gradient operation slices the
+ *              input gradient and in other edge modes the padded values copied in the forward operation are
+ *              summed together in the gradient operation.
+ *              For Example for the @ref MPSImageEdgeModeClamp the forward operation with offset = -2, destSize = 8
+ *              or @ref paddingSizeBefore = 2, @ref paddingSizeAfter = 3, sourceSize = 3:
+ *  @code
+ *              Source Image:
+ *                |--------------|
+ *                | x0 | x1 | x2 |
+ *                |--------------|
+ *              Destination Image:
+ *                |---------------------------------------|
+ *                | x0 | x0 | x0 | x1 | x2 | x2 | x2 | x2 |
+ *                |---------------------------------------|
+ *  @endcode
+ *              Then the gradient operation becomes:
+ *  @code
+ *              Source Gradient Image:
+ *                |---------------------------------------|
+ *                | d0 | d1 | d2 | d3 | d4 | d5 | d6 | d7 |
+ *                |---------------------------------------|
+ *              Destination Gradient Image:
+ *                |-----------------------------|
+ *                | d0+d1+d2 | d3 | d4+d5+d6+d7 |
+ *                |-----------------------------|
+ *  @endcode
+ *              Another example with @ref MPSImageEdgeModeMirror, the forward operation with offset = -4, destSize = 8
+ *              or @ref paddingSizeBefore = 4, @ref paddingSizeAfter = 1, sourceSize = 3:
+ *  @code
+ *              Source Image:
+ *                |--------------|
+ *                | x0 | x1 | x2 |
+ *                |--------------|
+ *              Destination Image:
+ *                |---------------------------------------|
+ *                | x0 | x1 | x2 | x1 | x0 | x1 | x2 | x1 |
+ *                |---------------------------------------|
+ *  @endcode
+ *              Then the gradient operation becomes:
+ *  @code
+ *              Source Gradient Image:
+ *                |---------------------------------------|
+ *                | d0 | d1 | d2 | d3 | d4 | d5 | d6 | d7 |
+ *                |---------------------------------------|
+ *              Destination Gradient Image:
+ *                |-----------------------------|
+ *                | d0+d4 | d1+d3+d5+d7 | d2+d6 |
+ *                |-----------------------------|
+ *  @endcode
+ *
+ *              NOTE: There are no channel fill-values to use with @ref MPSImageEdgeModeConstant
+ *              since the gradient values are independent of the constant of the forward pass.
+ *              NOTE: In case the forward pass defined a slice operation in feature channels then
+ *              the channels not read in the forward pass will be filled with zeros in the gradient pass.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1))
+@interface MPSNNPadGradient : MPSCNNGradientKernel
+
+
+/*!
+ *  @abstract   Initializes a MPSNNPadGradient filter
+ *  @param      device  The MTLDevice on which this filter will be used
+ *
+ *  @return     A valid MPSNNPadGradient object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract   NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSNNPadGradient.
+ *  @param      device      The MTLDevice on which to make the MPSNNPadGradient.
+ *  @return     A new MPSNNPadGradient object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+@end    /* MPSNNPadGradient */
+
+
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* MPSNNReshape_h */
-
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Headers/MPSRNNLayer.h
 //
 //  MPSRNNLayer.h
@@ -12946,9 +17092,9 @@ typedef NS_ENUM(NSUInteger, MPSRNNSequenceDirection)
 #endif
 {
     /*! The input sequence is processed from index zero to array length minus one */
-    MPSRNNSequenceDirectionForward    MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) MPS_SWIFT_NAME(forward)  = 0,
+    MPSRNNSequenceDirectionForward    MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) MPS_SWIFT_NAME(forward)  = 0,
     /*! The input sequence is processed from index array length minus one to zero */
-    MPSRNNSequenceDirectionBackward  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)),
+    MPSRNNSequenceDirectionBackward  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)),
 }
 #if defined(DOXYGEN)
 MPSRNNSequenceDirection
@@ -12966,11 +17112,11 @@ typedef NS_ENUM(NSUInteger, MPSRNNBidirectionalCombineMode)
 #endif
 {
     /*! The two sequences are kept separate */
-    MPSRNNBidirectionalCombineModeNone    MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) MPS_SWIFT_NAME(none)  = 0,
+    MPSRNNBidirectionalCombineModeNone    MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) MPS_SWIFT_NAME(none)  = 0,
     /*! The two sequences are summed together to form a single output */
-    MPSRNNBidirectionalCombineModeAdd  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)),
+    MPSRNNBidirectionalCombineModeAdd  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)),
     /*! The two sequences are concatenated together along the feature channels to form a single output */
-    MPSRNNBidirectionalCombineModeConcatenate  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)),
+    MPSRNNBidirectionalCombineModeConcatenate  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)),
 }
 #if defined(DOXYGEN)
 MPSRNNBidirectionalCombineMode
@@ -12989,7 +17135,7 @@ MPSRNNBidirectionalCombineMode
  *  @discussion The MPSRNNDescriptor specifies a Recursive neural network block/layer descriptor.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSRNNDescriptor : NSObject
 
 
@@ -13074,7 +17220,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSRNNSingleGateDescriptor : MPSRNNDescriptor
 
 
@@ -13099,7 +17245,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  */
 +(nonnull instancetype) createRNNSingleGateDescriptorWithInputFeatureChannels: (NSUInteger) inputFeatureChannels
                                                         outputFeatureChannels: (NSUInteger) outputFeatureChannels
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) );
 
 @end    /* MPSRNNSingleGateDescriptor */
 
@@ -13159,7 +17305,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
  *
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSGRUDescriptor : MPSRNNDescriptor
 
 
@@ -13234,7 +17380,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  */
 +(nonnull instancetype) createGRUDescriptorWithInputFeatureChannels: (NSUInteger) inputFeatureChannels
                                               outputFeatureChannels: (NSUInteger) outputFeatureChannels
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) );
 
 @end    /* MPSGRUDescriptor */
 
@@ -13299,7 +17445,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
  *
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSLSTMDescriptor : MPSRNNDescriptor
 
 
@@ -13434,7 +17580,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  */
 +(nonnull instancetype) createLSTMDescriptorWithInputFeatureChannels: (NSUInteger) inputFeatureChannels
                                                outputFeatureChannels: (NSUInteger) outputFeatureChannels
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) );
 
 @end    /* MPSNNLSTMDescriptor */
 
@@ -13448,7 +17594,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
  *  @discussion This class holds all the data that is passed from one sequence iteration of the image-based RNN layer (stack) to the next.
  */
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSRNNRecurrentImageState : MPSState
 
 /*!
@@ -13492,7 +17638,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              and ultimately combining the two result sequences as desired with auxiliary functions.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSRNNImageInferenceLayer : MPSCNNKernel
 
 
@@ -13548,7 +17694,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                          rnnDescriptor: (nonnull const MPSRNNDescriptor*) rnnDescriptor
 NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @abstract   Initializes a kernel that implements a stack of convolutional RNN layers
@@ -13561,7 +17707,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                         rnnDescriptors: (NSArray<const MPSRNNDescriptor*>  * __nonnull) rnnDescriptors
 NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /*
@@ -13664,7 +17810,7 @@ MPS_SWIFT_NAME( encodeBidirectionalSequence(commandBuffer:sourceSequence:destina
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /*!
@@ -13692,7 +17838,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *  @dependency This depends on Metal.framework
  *  @discussion This class holds all the data that is passed from one sequence iteration of the matrix-based RNN layer to the next.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSRNNRecurrentMatrixState : MPSState
 /*!
  *  @abstract   Access the stored recurrent matrix data.
@@ -13756,7 +17902,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              the input vectors as rows, y is the matrix containing the output vectors as rows and W is the weight matrix.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSRNNMatrixInferenceLayer : MPSKernel
 
 
@@ -13810,7 +17956,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                          rnnDescriptor: (nonnull const MPSRNNDescriptor*) rnnDescriptor
 NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @abstract   Initializes a kernel that implements a stack of linear (fully connected) RNN layers
@@ -13823,7 +17969,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                         rnnDescriptors: (NSArray<const MPSRNNDescriptor*>  * __nonnull) rnnDescriptors
 NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /*
@@ -13891,7 +18037,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
                      recurrentInputState:(MPSRNNRecurrentMatrixState * __nullable)recurrentInputState
                    recurrentOutputStates:(NSMutableArray<MPSRNNRecurrentMatrixState*>  * __nullable)recurrentOutputStates
 MPS_SWIFT_NAME( encodeSequence(commandBuffer:sourceMatrices:sourceOffsets:destinationMatrices:destinationOffsets:recurrentInputState:recurrentOutputStates:))
-MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 
 -( void )  encodeSequenceToCommandBuffer:(nonnull id<MTLCommandBuffer>)commandBuffer
@@ -13943,7 +18089,7 @@ MPS_SWIFT_NAME( encodeBidirectionalSequence(commandBuffer:sourceSequence:destina
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /*!
@@ -13970,7 +18116,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *  @discussion This class holds the data that is passed from the forward pass needed in the backward pass.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface  MPSRNNMatrixTrainingState : MPSState
 @end
 
@@ -13988,44 +18134,44 @@ typedef enum MPSRNNMatrixId
 typedef NS_ENUM(NSUInteger, MPSRNNMatrixId)
 #endif
 {
-    MPSRNNMatrixIdSingleGateInputWeights            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)) MPS_SWIFT_NAME(SingleGateInputWeights)  = 0,
-    MPSRNNMatrixIdSingleGateRecurrentWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdSingleGateBiasTerms               MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
+    MPSRNNMatrixIdSingleGateInputWeights            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)) MPS_SWIFT_NAME(SingleGateInputWeights)  = 0,
+    MPSRNNMatrixIdSingleGateRecurrentWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdSingleGateBiasTerms               MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
 
 
-    MPSRNNMatrixIdLSTMInputGateInputWeights         MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMInputGateRecurrentWeights     MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMInputGateMemoryWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMInputGateBiasTerms            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMInputGateInputWeights         MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMInputGateRecurrentWeights     MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMInputGateMemoryWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMInputGateBiasTerms            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
 
-    MPSRNNMatrixIdLSTMForgetGateInputWeights         MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMForgetGateRecurrentWeights     MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMForgetGateMemoryWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMForgetGateBiasTerms            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMForgetGateInputWeights         MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMForgetGateRecurrentWeights     MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMForgetGateMemoryWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMForgetGateBiasTerms            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
 
-    MPSRNNMatrixIdLSTMMemoryGateInputWeights         MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMMemoryGateRecurrentWeights     MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMMemoryGateMemoryWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMMemoryGateBiasTerms            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMMemoryGateInputWeights         MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMMemoryGateRecurrentWeights     MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMMemoryGateMemoryWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMMemoryGateBiasTerms            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
 
-    MPSRNNMatrixIdLSTMOutputGateInputWeights         MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMOutputGateRecurrentWeights     MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMOutputGateMemoryWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdLSTMOutputGateBiasTerms            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMOutputGateInputWeights         MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMOutputGateRecurrentWeights     MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMOutputGateMemoryWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdLSTMOutputGateBiasTerms            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
 
 
-    MPSRNNMatrixIdGRUInputGateInputWeights            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdGRUInputGateRecurrentWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdGRUInputGateBiasTerms               MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
+    MPSRNNMatrixIdGRUInputGateInputWeights            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdGRUInputGateRecurrentWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdGRUInputGateBiasTerms               MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
 
-    MPSRNNMatrixIdGRURecurrentGateInputWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdGRURecurrentGateRecurrentWeights    MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdGRURecurrentGateBiasTerms           MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
+    MPSRNNMatrixIdGRURecurrentGateInputWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdGRURecurrentGateRecurrentWeights    MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdGRURecurrentGateBiasTerms           MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
 
-    MPSRNNMatrixIdGRUOutputGateInputWeights            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdGRUOutputGateRecurrentWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdGRUOutputGateInputGateWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
-    MPSRNNMatrixIdGRUOutputGateBiasTerms               MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)),
+    MPSRNNMatrixIdGRUOutputGateInputWeights            MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdGRUOutputGateRecurrentWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdGRUOutputGateInputGateWeights        MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
+    MPSRNNMatrixIdGRUOutputGateBiasTerms               MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)),
 
     MPSRNNMatrixId_count // Do not use - auxiliary enum value that gives number of ids.
 
@@ -14072,7 +18218,7 @@ MPSRNNMatrixId
  *              the input vectors as rows, y is the matrix containing the output vectors as rows and W is the weight matrix.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface  MPSRNNMatrixTrainingLayer : MPSKernel
 
 
@@ -14136,7 +18282,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
                          rnnDescriptor: (nonnull const MPSRNNDescriptor*) rnnDescriptor
                       trainableWeights: (NSMutableArray<MPSMatrix*>  * __nonnull)trainableWeights
 NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 
 /*!
@@ -14150,7 +18296,7 @@ MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
  */
 -(void) createWeightGradientMatrices: (NSMutableArray<MPSMatrix*>  * __nonnull) matricesOut
                             dataType: (MPSDataType) dataType
-MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*!
  *  @abstract   As @ref createWeightGradientMatrices, but the matrices will be temporary with readCount = 1, which means that they
@@ -14163,7 +18309,7 @@ MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
 -(void) createTemporaryWeightGradientMatrices: (NSMutableArray<MPSMatrix*>  * __nonnull) matricesOut
                                      dataType: (MPSDataType) dataType
                                 commandBuffer: (nonnull id<MTLCommandBuffer>) commandBuffer
-MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 
 /*!
@@ -14173,7 +18319,7 @@ MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
  *  @param      matricesOut                 An array where the newly created matrices will be stored, will be initialized to zero.
  */
 -(void) createWeightMatrices: (NSMutableArray<MPSMatrix*>  * __nonnull) matricesOut
-MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 
 /*
@@ -14352,7 +18498,7 @@ MPS_SWIFT_NAME( encodeGradientSequence(commandBuffer:forwardSources:sourceGradie
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /*!
@@ -14415,7 +18561,7 @@ extern "C" {
  *                   - Reduce column sum
  *                   - Reduce feature channels sum
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceUnary : MPSCNNKernel
 
 /*! @property   clipRectSource
@@ -14440,7 +18586,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSNNReduceRowMin
  *  @discussion The MPSNNReduceRowMin performs a reduction operation returning the mininmum value for each row of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceRowMin : MPSNNReduceUnary
 
 /*!
@@ -14451,6 +18597,15 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceRowMin object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceRowMin */
 
 
@@ -14458,7 +18613,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSNNReduceColumnMin
  *  @discussion The MPSNNReduceColumnMin performs a reduction operation returning the mininmum value for each column of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceColumnMin : MPSNNReduceUnary
 
 /*!
@@ -14469,13 +18624,22 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceColumnMin object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceColumnMin */
 
 /*!
  *  @class      MPSNNReduceFeatureChannelsMin
  *  @discussion The MPSNNReduceFeatureChannelsMin performs a reduction operation returning the mininmum value for feature channels of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceFeatureChannelsMin : MPSNNReduceUnary
 
 /*!
@@ -14486,6 +18650,15 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceFeatureChannelsMin object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceFeatureChannelsMin */
 
 /*!
@@ -14493,7 +18666,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @discussion The MPSNNReduceFeatureChannelsArgumentMin returns the argument index that is the
  *              location of the minimum value for feature channels of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface  MPSNNReduceFeatureChannelsArgumentMin : MPSNNReduceUnary
 
 /*!
@@ -14504,6 +18677,15 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceFeatureChannelsArgumentMin object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceFeatureChannelsArgumentMin */
 
 
@@ -14511,7 +18693,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  *  @class      MPSNNReduceRowMax
  *  @discussion The MPSNNReduceRowMax performs a reduction operation returning the maximum value for each row of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceRowMax : MPSNNReduceUnary
 
 /*!
@@ -14522,13 +18704,22 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceRowMax object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReducenRowMax */
 
 /*!
  *  @class      MPSNNReduceColumnMax
  *  @discussion The MPSNNReduceColumnMax performs a reduction operation returning the maximum value for each column of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceColumnMax : MPSNNReduceUnary
 
 /*!
@@ -14539,13 +18730,22 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceColumnMax object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceColumnMax */
 
 /*!
  *  @class      MPSNNReduceFeatureChannelsMax
  *  @discussion The MPSNNReduceFeatureChannelsMax performs a reduction operation returning the maximum value for feature channels of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceFeatureChannelsMax : MPSNNReduceUnary
 
 /*!
@@ -14556,6 +18756,15 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceFeatureChannelsMax object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceFeatureChannelsMax */
 
 /*!
@@ -14563,7 +18772,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @discussion The MPSNNReduceFeatureChannelsArgumentMax performs returns the argument index that is the
  *              location of the maximum value for feature channels of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface  MPSNNReduceFeatureChannelsArgumentMax : MPSNNReduceUnary
 
 /*!
@@ -14574,6 +18783,15 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceFeatureChannelsArgumentMax object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceFeatureChannelsArgumentMax */
     
 
@@ -14581,7 +18799,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  *  @class      MPSNNReduceRowMean
  *  @discussion The MPSNNReduceRowMean performs a reduction operation returning the mean value for each row of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceRowMean : MPSNNReduceUnary
 
 /*!
@@ -14592,13 +18810,22 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceRowMean object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceRowMean */
 
 /*!
  *  @class      MPSNNReduceColumnMean
  *  @discussion The MPSNNReduceColumnMean performs a reduction operation returning the mean value for each column of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceColumnMean : MPSNNReduceUnary
 
 /*!
@@ -14609,13 +18836,22 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceColumnMean object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceColumnMean */
 
 /*!
  *  @class      MPSNNReduceFeatureChannelsMean
  *  @discussion The MPSNNReduceFeatureChannelsMean performs a reduction operation returning the mean value for each column of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceFeatureChannelsMean : MPSNNReduceUnary
 
 /*!
@@ -14626,13 +18862,22 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceFeatureChannelsMean object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceFeatureChannelsMean */
 
 /*!
  *  @class      MPSNNReduceRowSum
  *  @discussion The MPSNNReduceRowSum performs a reduction operation returning the sum for each row of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceRowSum : MPSNNReduceUnary
 
 /*!
@@ -14643,13 +18888,22 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceRowSum object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceRowSum */
 
 /*!
  *  @class      MPSNNReduceColumnSum
  *  @discussion The MPSNNReduceColumnSum performs a reduction operation returning the sum for each column of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceColumnSum : MPSNNReduceUnary
 
 /*!
@@ -14660,6 +18914,15 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceColumnSum object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceColumnSum */
 
 
@@ -14667,7 +18930,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSNNReduceFeatureChannelsSum
  *  @discussion The MPSNNReduceFeatureChannelsSum performs a reduction operation returning the sum for each column of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceFeatureChannelsSum : MPSNNReduceUnary
 
 /*! @property   weight
@@ -14685,6 +18948,15 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSNNReduceFeatureChannelsSum object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceFeatureChannelsSum */
 
 
@@ -14697,7 +18969,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              The reduction operations supported are:
  *                   - Reduce feature channels mean
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceBinary : MPSCNNBinaryKernel
 
 /*!
@@ -14734,7 +19006,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 @end  /* MPSNNReduceBinary */
 
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceFeatureChannelsAndWeightsMean : MPSNNReduceBinary
 
 /*!
@@ -14744,9 +19016,18 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device     NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSCNNPooling object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceFeatureChannelsAndWeightsMean */
 
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSNNReduceFeatureChannelsAndWeightsSum : MPSNNReduceBinary
 
 /*!
@@ -14773,7 +19054,94 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                   doWeightedSumByNonZeroWeights: (bool)doWeightedSumByNonZeroWeights NS_DESIGNATED_INITIALIZER;
 
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSCNNPooling object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
 @end  /* MPSNNReduceFeatureChannelsAndWeightsSum */
+    
+/*!
+ *  @class      MPSNNLocalCorrelation
+ *  @discussion The MPSNNLocalCorrelation filter computes the correlation between two images locally with a
+ *              varying offset on x-y plane between the two source images (controlled by the window and
+ *              stride properties) and the end result is summed over the feature channels. The results are
+ *              stored in the different feature channels of the destination image, ordered such that the offset
+ *              in the x direction is the faster running index.
+ *
+ *              Given two images A and B, the output image has (2*windowInX + 1)*(2*windowInY + 1)
+ *              feature channels, with each feature channel computed as:
+ *                                  O(x, y, f(m, n)) = sum_z{A(x, y, z) * B(x + M[m], y + N[n], z)}
+ *              where m runs from {0, 1, ... , (2*windowInX)}, n runs from {0, 1, ... , (2*windowInY)},
+ *              f(m, n) = n * (2*windowInY + 1) + m,
+ *              M = {-windowInX*strideInX, (-windowInX + 1)*strideInX,  ... 0 ... , (windowInX - 1)*strideInX, windowInX*strideInX},
+ *              N = {-windowInY*strideInY, (-windowInY + 1)*strideInY,  ... 0 ... , (windowInY - 1)*strideInY, windowInX*strideInY}
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15.0), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNNLocalCorrelation : MPSNNReduceBinary
+
+/*!
+ *  @abstract   Specifies a symmetric window around 0 for offsetting the secondary source in the x dimension.
+ *  @discussion The default value for windowInX is 0.
+ */
+@property (readwrite, nonatomic) NSUInteger windowInX;
+
+/*!
+ *  @abstract   Specifies a symmetric window around 0 for offsetting the secondary source in the y dimension.
+ *  @discussion The default value for windowInY is 0.
+ */
+@property (readwrite, nonatomic) NSUInteger windowInY;
+
+/*!
+ *  @abstract   Specifies the stride for the offset in the x dimension.
+ *  @discussion strideInX must be > 0. The default value for strideInX is 1.
+ */
+@property (readwrite, nonatomic) NSUInteger strideInX;
+
+/*!
+ *  @abstract   Specifies the stride for the offset in the y dimension.
+ *  @discussion strideInY must be > 0. The default value for strideInY is 1.
+ */
+@property (readwrite, nonatomic) NSUInteger strideInY;
+
+/*!
+ *  @abstract  Initialize the MPSNNLocalCorrelation filter with default property values.
+ *  @param     device            The device the filter will run on
+ *  @return    A valid MPSNNReduceLocalCorrelation object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device;
+
+/*!
+ *  @abstract Specifies information to apply the local correlation operation on an image.
+ *  @param    device                The device the filter will run on
+ *  @param    windowInX             Specifies a symmetric window around 0 for offsetting
+ *                                  the secondary source in the x dimension.
+ *  @param    windowInY             Specifies a symmetric window around 0 for offsetting
+ *                                  the secondary source in the y dimension.
+ *  @param    strideInX             Specifies the stride for the offset in the x dimension.
+ *  @param    strideInY             Specifies the stride for the offset in the y dimension.
+ *  @return   A valid MPSNNReduceLocalCorrelation object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                             windowInX: (NSUInteger) windowInX
+                             windowInY: (NSUInteger) windowInY
+                             strideInX: (NSUInteger) strideInX
+                             strideInY: (NSUInteger) strideInY NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract NSSecureCoding compatability
+ *  @discussion See @ref MPSKernel#initWithCoder.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSCNNPooling
+ *  @param      device      The MTLDevice on which to make the MPSCNNPooling
+ *  @return     A new MPSCNNPooling object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder: (NSCoder * __nonnull)aDecoder
+                                device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+@end  /* MPSNNLocalCorrelation */
 
 #ifdef __cplusplus
 }
@@ -14822,7 +19190,7 @@ extern "C" {
  *                      unit weight matrix.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixNeuron : MPSMatrixUnaryKernel
 
 /*! @property   sourceNumberOfFeatureVectors
@@ -14996,7 +19364,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:inputMatrix:biasVector:resultMatrix:));
  *
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSMatrixNeuronGradient : MPSMatrixBinaryKernel
 
 /*! @property   sourceNumberOfFeatureVectors
@@ -15224,8 +19592,8 @@ extern "C" {
  *              https://www.tensorflow.org/api_docs/cc/class/tensorflow/ops/relu6.
  *              For default behavior, set the value of a to 1.0f and the value of b to 6.0f.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
-@interface MPSNNNeuronDescriptor : NSObject <NSCopying>
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
+@interface MPSNNNeuronDescriptor : NSObject <NSCopying, NSSecureCoding>
 
 @property (readwrite, nonatomic) MPSCNNNeuronType neuronType;
 @property (readwrite, nonatomic) float a;
@@ -15321,15 +19689,16 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  MPSCNNNeuronTypePower           ///< f(x) = (a * x + b) ^ c
  *  MPSCNNNeuronTypeExponential     ///< f(x) = c ^ (a * x + b)
  *  MPSCNNNeuronTypeLogarithm       ///< f(x) = log_c(a * x + b)
+ *  MPSCNNNeuronTypeGeLU            ///< f(x) = (1.0 + erf(x * sqrt(0.5))) * 0.5 * x
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNNeuron : MPSCNNKernel
 
-@property (readonly, nonatomic) MPSCNNNeuronType neuronType MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+@property (readonly, nonatomic) MPSCNNNeuronType neuronType MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 @property (readonly, nonatomic) float a;
 @property (readonly, nonatomic) float b;
 @property (readonly, nonatomic) float c;
-@property (readonly, nonatomic, retain, nullable) NSData* data MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+@property (readonly, nonatomic, retain, nullable) NSData* data MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*
  * You must use initWithDevice:neuronDescriptor or use one of the sub-classes of MPSCNNNeuron instead.
@@ -15348,7 +19717,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                       neuronDescriptor: (MPSNNNeuronDescriptor* _Nonnull) neuronDescriptor NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract NSSecureCoding compatability
  *  @discussion While the standard NSSecureCoding/NSCoding method
@@ -15398,11 +19767,12 @@ MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
  *                                               [ a * log(c) * c^(a * x + b), if c != -1
  *  MPSCNNNeuronTypeLogarithm       ///< df/dx = [            a / (a * in + b), if c == -1
  *                                               [ a / (log(c) * (a * in + b)), if c != -1
+ *  MPSCNNNeuronTypeGeLU            ///< df/dx = 0.5 * (1.0 + erf(x * sqrt(0.5))) + (sqrt(0.5) * M_2_SQRTPI * exp(-x*x * 0.5) * x) )
  *
  * The result of the above operation is multiplied with the gradient, computed
  * by the preceeding filter (going backwards).
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNNeuronGradient : MPSCNNGradientKernel
 
 @property (readonly, nonatomic) MPSCNNNeuronType neuronType;
@@ -15428,7 +19798,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                       neuronDescriptor: (MPSNNNeuronDescriptor* _Nonnull) neuronDescriptor NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*! @abstract NSSecureCoding compatability
  *  @discussion While the standard NSSecureCoding/NSCoding method
@@ -15454,7 +19824,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *  @dependency This depends on Metal.framework
  *  @discussion Specifies the linear neuron filter. For each pixel, applies the following function: f(x) = a * x + b
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNNeuronLinear : MPSCNNNeuron
 
 /*!
@@ -15468,7 +19838,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                      a: (float) a
                                      b: (float) b NS_DESIGNATED_INITIALIZER
                 MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*
  * You must use initWithDevice:a:b instead
@@ -15487,7 +19857,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              This is called Leaky ReLU in literature. Some literature defines
  *              classical ReLU as max(0, x). If you want this behavior, simply pass a = 0
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNNeuronReLU : MPSCNNNeuron
 
 /*!
@@ -15499,7 +19869,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                                      a: (float) a NS_DESIGNATED_INITIALIZER
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 
 /*
@@ -15520,7 +19890,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              this to ReLu where parameter a is shared across all channels.
  *              See https://arxiv.org/pdf/1502.01852.pdf for details.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSCNNNeuronPReLU : MPSCNNNeuron
 
 /*!
@@ -15535,7 +19905,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                                      a: (const float* _Nonnull) a
                                  count: (NSUInteger) count NS_DESIGNATED_INITIALIZER
             MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 
 /*
@@ -15551,7 +19921,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *  @dependency This depends on Metal.framework
  *  @discussion Specifies the sigmoid neuron filter.  For each pixel, applies the following function: f(x) = 1 / (1 + e^-x)
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNNeuronSigmoid : MPSCNNNeuron
 
 /*!
@@ -15561,7 +19931,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
                 MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 
 @end    /* MPSCNNNeuronSigmoid */
@@ -15572,7 +19942,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *  @dependency This depends on Metal.framework
  *  @discussion Specifies the hard sigmoid neuron filter.  For each pixel, applies the following function: f(x) = clamp((a * x) + b, 0, 1)
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSCNNNeuronHardSigmoid : MPSCNNNeuron
 
 /*!
@@ -15586,7 +19956,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                                      a: (float) a
                                      b: (float) b NS_DESIGNATED_INITIALIZER
                 MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*
  * Use initWithDevice:a:b: instead
@@ -15602,7 +19972,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *  @discussion Specifies the hyperbolic tangent neuron filter.
  *              For each pixel, applies the following function: f(x) = a * tanh(b * x)
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNNeuronTanH : MPSCNNNeuron
 
 /*!
@@ -15616,7 +19986,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                      a: (float) a
                                      b: (float) b NS_DESIGNATED_INITIALIZER
             MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*
  * Use initWithDevice:a:b: instead
@@ -15631,7 +20001,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *  @dependency This depends on Metal.framework
  *  @discussion Specifies the absolute neuron filter.  For each pixel, applies the following function: f(x) = | x |
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNNeuronAbsolute : MPSCNNNeuron
 
 /*!
@@ -15641,7 +20011,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
             MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 
 @end    /* MPSCNNNeuronAbsolute */
@@ -15653,7 +20023,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *  @discussion Specifies the parametric softplus neuron filter.
  *              For each pixel, applies the following function: f(x) = a * log(1 + e^(b * x))
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSCNNNeuronSoftPlus : MPSCNNNeuron
 
 /*!
@@ -15667,7 +20037,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
                                      a: (float) a
                                      b: (float) b NS_DESIGNATED_INITIALIZER
         MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*
  * Use initWithDevice:a:b: instead
@@ -15683,7 +20053,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *  @discussion Specifies the softsign neuron filter.
  *              For each pixel, applies the following function: f(x) = x / (1 + abs(x))
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSCNNNeuronSoftSign : MPSCNNNeuron
 
 /*!
@@ -15693,7 +20063,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
         MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 
 @end    /* MPSCNNNeuronSoftSign */
@@ -15706,7 +20076,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *              For each pixel, applies the following function: f(x) = [ a * (exp(x) - 1), x <  0
  *                                                                     [ x               , x >= 0
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSCNNNeuronELU : MPSCNNNeuron
 
 /*!
@@ -15718,7 +20088,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
 -(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
                                      a: (float) a NS_DESIGNATED_INITIALIZER
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*
  * Use initWithDevice:a: instead
@@ -15740,7 +20110,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *              https://www.tensorflow.org/api_docs/cc/class/tensorflow/ops/relu6.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSCNNNeuronReLUN : MPSCNNNeuron
 
 /*!
@@ -15754,7 +20124,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
                                      a: (float) a
                                      b: (float) b NS_DESIGNATED_INITIALIZER
         MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*
  * Use initWithDevice:a: instead
@@ -15771,7 +20141,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *              For each pixel, applies the following function: f(x) = (a * x + b) ^ c.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNNeuronPower : MPSCNNNeuron
 
 /*!
@@ -15787,7 +20157,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
                                      b: (float) b
                                      c: (float) c NS_DESIGNATED_INITIALIZER
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*
  * Use initWithDevice:a:b:c instead
@@ -15805,7 +20175,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *
  *              If the value of c is -1.0f, the base (c) is set to e.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNNeuronExponential : MPSCNNNeuron
 
 /*!
@@ -15821,7 +20191,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
                                      b: (float) b
                                      c: (float) c NS_DESIGNATED_INITIALIZER
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*
  * Use initWithDevice:a:b:c instead
@@ -15839,7 +20209,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *
  *              If the value of c is -1.0f, the base (c) is set to e.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNNeuronLogarithm : MPSCNNNeuron
 
 /*!
@@ -15855,7 +20225,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
                                      b: (float) b
                                      c: (float) c NS_DESIGNATED_INITIALIZER
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Please use MPSCNNNeuron initWithDevice:neuronDescriptor.",
-                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0));
+                                      macos(10.13, 10.14), ios(10.0, 12.0), tvos(10.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*
  * Use initWithDevice:a:b:c instead
@@ -15910,19 +20280,19 @@ extern "C" {
     typedef NS_ENUM(NSUInteger, MPSNNRegularizationType)
 #endif
     {
-        MPSNNRegularizationTypeNone MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)) MPS_SWIFT_NAME(None) = 0,
+        MPSNNRegularizationTypeNone MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)) MPS_SWIFT_NAME(None) = 0,
         /*!
          *  Apply L1 regularization. L1 norm of weights, will be considered to be added to the loss to be minimized.
          *  the gradient of the regularization loss turns to be 1 scaled with regularizationScale,
          *  so we add that to the incoming gradient of value.
          */
-        MPSNNRegularizationTypeL1 MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)) = 1,
+        MPSNNRegularizationTypeL1 MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)) = 1,
         /*!
          *  Apply L2 regularization. L2 norm of weights, will be considered to be added to the loss to be minimized.
          *  the gradient of the regularization loss turns to be the original value scaled with regularizationScale,
          *  so we add that to the incoming gradient of value.
          */
-        MPSNNRegularizationTypeL2 MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0)) = 2,
+        MPSNNRegularizationTypeL2 MPS_ENUM_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0)) = 2,
     } NS_ENUM_AVAILABLE(10_14, 12_0)
 #if defined(DOXYGEN)
     MPSNNRegularizationType
@@ -15939,7 +20309,7 @@ extern "C" {
  *              If regularization is chosen the appropriate regularization loss gradient is added to the value gradient.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface  MPSNNOptimizerDescriptor : NSObject
 
 /*! @property   learningRate
@@ -16072,7 +20442,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  *
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface  MPSNNOptimizer : MPSKernel
 
 /*! @property   learningRate
@@ -16151,7 +20521,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
  *                m[t] is momentum of gradients it is a state we keep updating every update iteration
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface  MPSNNOptimizerStochasticGradientDescent : MPSNNOptimizer
 
 
@@ -16240,6 +20610,15 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
           inputMomentumVector: (nullable MPSVector *) inputMomentumVector
            resultValuesVector: (nonnull MPSVector *) resultValuesVector
 MPS_SWIFT_NAME(encode(commandBuffer:inputGradientVector:inputValuesVector:inputMomentumVector:resultValuesVector:));
+
+-(void) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>)  commandBuffer
+          inputGradientMatrix: (nonnull MPSMatrix *) inputGradientMatrix
+            inputValuesMatrix: (nonnull MPSMatrix *) inputValuesMatrix
+          inputMomentumMatrix: (nullable MPSMatrix *) inputMomentumMatrix
+           resultValuesMatrix: (nonnull MPSMatrix *) resultValuesMatrix
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+MPS_SWIFT_NAME(encode(commandBuffer:inputGradientMatrix:inputValuesMatrix:inputMomentumMatrix:resultValuesMatrix:));
+
 
 /*!
  *  @abstract   Encode an MPSNNOptimizerStochasticGradientDescent object to a command buffer to perform out of place update
@@ -16385,7 +20764,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:batchNormalizationGradientState:batchNormali
  *                s[t] is weighted sum of squares of gradients
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface  MPSNNOptimizerRMSProp : MPSNNOptimizer
 
 
@@ -16467,6 +20846,15 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
            resultValuesVector: (nonnull MPSVector *) resultValuesVector
 MPS_SWIFT_NAME(encode(commandBuffer:inputGradientVector:inputValuesVector:inputSumOfSquaresVector:resultValuesVector:));
 
+-(void) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>)  commandBuffer
+          inputGradientMatrix: (nonnull MPSMatrix *) inputGradientMatrix
+            inputValuesMatrix: (nonnull MPSMatrix *) inputValuesMatrix
+      inputSumOfSquaresMatrix: (nonnull MPSMatrix *) inputSumOfSquaresMatrix
+           resultValuesMatrix: (nonnull MPSMatrix *) resultValuesMatrix
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+MPS_SWIFT_NAME(encode(commandBuffer:inputGradientMatrix:inputValuesMatrix:inputSumOfSquaresMatrix:resultValuesMatrix:));
+
+
 
 /*!
  *  @abstract   Encode an MPSNNOptimizerRMSProp object to a command buffer to perform out of place update
@@ -16496,7 +20884,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:inputGradientVector:inputValuesVector:inputS
 -(void) encodeToCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
      convolutionGradientState: (MPSCNNConvolutionGradientState* __nonnull) convolutionGradientState
        convolutionSourceState: (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) convolutionSourceState
-     inputSumOfSquaresVectors: (nullable NSArray<MPSVector *>*) inputSumOfSquaresVectors
+     inputSumOfSquaresVectors: (nonnull NSArray<MPSVector *>*) inputSumOfSquaresVectors
                   resultState: (nonnull MPSCNNConvolutionWeightsAndBiasesState *) resultState
 MPS_SWIFT_NAME(encode(commandBuffer:convolutionGradientState:convolutionSourceState:inputSumOfSquaresVectors:resultState:));
 
@@ -16526,7 +20914,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:convolutionGradientState:convolutionSourceSt
  */
 -(void) encodeToCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
       batchNormalizationState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationState
-     inputSumOfSquaresVectors: (nullable NSArray<MPSVector *>*) inputSumOfSquaresVectors
+     inputSumOfSquaresVectors: (nonnull NSArray<MPSVector *>*) inputSumOfSquaresVectors
                   resultState: (nonnull MPSCNNNormalizationGammaAndBetaState *) resultState
 MPS_SWIFT_NAME(encode(commandBuffer:batchNormalizationState:inputSumOfSquaresVectors:resultState:));
 
@@ -16558,7 +20946,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:batchNormalizationState:inputSumOfSquaresVec
 -(void)            encodeToCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
          batchNormalizationGradientState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationGradientState
            batchNormalizationSourceState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationSourceState
-                inputSumOfSquaresVectors: (nullable NSArray<MPSVector *>*) inputSumOfSquaresVectors
+                inputSumOfSquaresVectors: (nonnull NSArray<MPSVector *>*) inputSumOfSquaresVectors
                              resultState: (nonnull MPSCNNNormalizationGammaAndBetaState *) resultState
 MPS_SWIFT_NAME(encode(commandBuffer:batchNormalizationGradientState:batchNormalizationSourceState:inputSumOfSquaresVectors:resultState:));
 
@@ -16597,7 +20985,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:batchNormalizationGradientState:batchNormali
  *                m[t] is momentum
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface  MPSNNOptimizerAdam : MPSNNOptimizer
 
 /*! @property   beta1
@@ -16697,6 +21085,62 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
            resultValuesVector: (nonnull MPSVector *) resultValuesVector
 MPS_SWIFT_NAME(encode(commandBuffer:inputGradientVector:inputValuesVector:inputMomentumVector:inputVelocityVector:resultValuesVector:));
 
+-(void) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>)  commandBuffer
+          inputGradientMatrix: (nonnull MPSMatrix *) inputGradientMatrix
+            inputValuesMatrix: (nonnull MPSMatrix *) inputValuesMatrix
+          inputMomentumMatrix: (nonnull MPSMatrix *) inputMomentumMatrix
+          inputVelocityMatrix: (nonnull MPSMatrix *) inputVelocityMatrix
+           resultValuesMatrix: (nonnull MPSMatrix *) resultValuesMatrix
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+MPS_SWIFT_NAME(encode(commandBuffer:inputGradientMatrix:inputValuesMatrix:inputMomentumMatrix:inputVelocityMatrix:resultValuesMatrix:));
+
+
+/*!
+ *  @abstract   Encode an AMSGrad variant of MPSNNOptimizerAdam object to a command buffer to perform out of place update
+ *  @param      commandBuffer          A valid MTLCommandBuffer to receive the encoded kernel.
+ *  @param      inputGradientVector    A valid MPSVector object which specifies the input vector of gradients for this update.
+ *  @param      inputValuesVector      A valid MPSVector object which specifies the input vector of values to be updated.
+ *  @param      inputMomentumVector    A valid MPSVector object which specifies the gradient momentum vector which will
+ *                                     be updated and overwritten.
+ *  @param      inputVelocityVector    A valid MPSVector object which specifies the gradient velocity vector which will
+ *                                     be updated and overwritten.
+ *  @param      maximumVelocityVector  A valid MPSVector object which specifies the maximum velocity vector which will
+ *                                     be updated and overwritten. May be nil, if nil then normal Adam optimizer behaviour is followed.
+ *  @param      resultValuesVector     A valid MPSCNNConvolutionWeightsAndBiasesState object which specifies the resultValues state which will
+ *                                     be updated and overwritten.
+ *
+ *  @discussion The following operations would be applied
+ *              At update time:
+ *              t = t + 1
+ *              lr[t] = learningRate * sqrt(1 - beta2^t) / (1 - beta1^t)
+ *
+ *              m[t]     = beta1 * m[t-1] + (1 - beta1) * g
+ *              v[t]     = beta2 * v[t-1] + (1 - beta2) * (g ^ 2)
+ *              maxVel[t] = max(maxVel[t-1],v[t])
+ *              variable = variable - lr[t] * m[t] / (sqrt(maxVel[t]) + epsilon)
+ *
+ */
+-(void) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>)  commandBuffer
+          inputGradientVector: (nonnull MPSVector *) inputGradientVector
+            inputValuesVector: (nonnull MPSVector *) inputValuesVector
+          inputMomentumVector: (nonnull MPSVector *) inputMomentumVector
+          inputVelocityVector: (nonnull MPSVector *) inputVelocityVector
+        maximumVelocityVector: (nullable MPSVector *) maximumVelocityVector
+           resultValuesVector: (nonnull MPSVector *) resultValuesVector
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+MPS_SWIFT_NAME(encode(commandBuffer:inputGradientVector:inputValuesVector:inputMomentumVector:inputVelocityVector:maximumVelocityVector:resultValuesVector:));
+
+-(void) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>)  commandBuffer
+          inputGradientMatrix: (nonnull MPSMatrix *) inputGradientMatrix
+            inputValuesMatrix: (nonnull MPSMatrix *) inputValuesMatrix
+          inputMomentumMatrix: (nonnull MPSMatrix *) inputMomentumMatrix
+          inputVelocityMatrix: (nonnull MPSMatrix *) inputVelocityMatrix
+        maximumVelocityMatrix: (nullable MPSMatrix *) maximumVelocityMatrix
+           resultValuesMatrix: (nonnull MPSMatrix *) resultValuesMatrix
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+MPS_SWIFT_NAME(encode(commandBuffer:inputGradientMatrix:inputValuesMatrix:inputMomentumMatrix:inputVelocityMatrix:maximumVelocityMatrix:resultValuesMatrix:));
+
+
 /*!
  *  @abstract   Encode an MPSNNOptimizerAdam object to a command buffer to perform out of place update
  *
@@ -16727,10 +21171,51 @@ MPS_SWIFT_NAME(encode(commandBuffer:inputGradientVector:inputValuesVector:inputM
 -(void) encodeToCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
      convolutionGradientState: (MPSCNNConvolutionGradientState* __nonnull) convolutionGradientState
        convolutionSourceState: (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) convolutionSourceState
-         inputMomentumVectors: (nullable NSArray<MPSVector *>*) inputMomentumVectors
-         inputVelocityVectors: (nullable NSArray<MPSVector *>*) inputVelocityVectors
+         inputMomentumVectors: (nonnull NSArray<MPSVector *>*) inputMomentumVectors
+         inputVelocityVectors: (nonnull NSArray<MPSVector *>*) inputVelocityVectors
                   resultState: (nonnull MPSCNNConvolutionWeightsAndBiasesState *) resultState
 MPS_SWIFT_NAME(encode(commandBuffer:convolutionGradientState:convolutionSourceState:inputMomentumVectors:inputVelocityVectors:resultState:));
+
+/*!
+ *  @abstract   Encode an AMSGrad variant of MPSNNOptimizerAdam object to a command buffer to perform out of place update
+ *
+ *  @param      commandBuffer              A valid MTLCommandBuffer to receive the encoded kernel.
+ *  @param      convolutionGradientState   A valid MPSCNNConvolutionGradientState object which specifies the input state with gradients for this update.
+ *  @param      convolutionSourceState     A valid MPSCNNConvolutionWeightsAndBiasesState object which specifies the input state with values to be updated.
+ *  @param      inputMomentumVectors       An array MPSVector object which specifies the gradient momentum vectors which will
+ *                                         be updated and overwritten. The index 0 corresponds to weights, index 1 corresponds to biases, array can be of
+ *                                         size 1 in which case biases won't be updated
+ *  @param      inputVelocityVectors       An array MPSVector object which specifies the gradient velocity vectors which will
+ *                                         be updated and overwritten. The index 0 corresponds to weights, index 1 corresponds to biases, array can be of
+ *                                         size 1 in which case biases won't be updated
+ *  @param      maximumVelocityVectors     An array MPSVector object which specifies the maximum velocity vectors which will
+ *                                         be updated and overwritten. The index 0 corresponds to weights, index 1 corresponds to biases, array can be of
+ *                                         size 1 in which case biases won't be updated. May be nil, if nil then normal Adam optimizer behaviour is followed.
+ *  @param      resultState                A valid MPSCNNConvolutionWeightsAndBiasesState object which specifies the resultValues state which will
+ *                                         be updated and overwritten.
+ *
+ *  @discussion The following operations would be applied
+ *              At update time:
+ *              t = t + 1
+ *              lr[t] = learningRate * sqrt(1 - beta2^t) / (1 - beta1^t)
+ *
+ *              m[t]     = beta1 * m[t-1] + (1 - beta1) * g
+ *              v[t]     = beta2 * v[t-1] + (1 - beta2) * (g ^ 2)
+ *              maxVel[t] = max(maxVel[t-1],v[t])
+ *              variable = variable - lr[t] * m[t] / (sqrt(maxVel[t]) + epsilon)
+ *
+ */
+
+-(void) encodeToCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
+     convolutionGradientState: (MPSCNNConvolutionGradientState* __nonnull) convolutionGradientState
+       convolutionSourceState: (MPSCNNConvolutionWeightsAndBiasesState* __nonnull) convolutionSourceState
+         inputMomentumVectors: (nonnull NSArray<MPSVector *>*) inputMomentumVectors
+         inputVelocityVectors: (nonnull NSArray<MPSVector *>*) inputVelocityVectors
+       maximumVelocityVectors: (nullable NSArray<MPSVector *>*) maximumVelocityVectors
+                  resultState: (nonnull MPSCNNConvolutionWeightsAndBiasesState *) resultState
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+MPS_SWIFT_NAME(encode(commandBuffer:convolutionGradientState:convolutionSourceState:inputMomentumVectors:inputVelocityVectors:maximumVelocityVectors:resultState:));
+
 
 /*!
  *  @abstract   Encode an MPSNNOptimizerAdam object to a command buffer to perform out of place update
@@ -16760,10 +21245,48 @@ MPS_SWIFT_NAME(encode(commandBuffer:convolutionGradientState:convolutionSourceSt
  */
 -(void) encodeToCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
       batchNormalizationState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationState
-         inputMomentumVectors: (nullable NSArray<MPSVector *>*) inputMomentumVectors
-         inputVelocityVectors: (nullable NSArray<MPSVector *>*) inputVelocityVectors
+         inputMomentumVectors: (nonnull NSArray<MPSVector *>*) inputMomentumVectors
+         inputVelocityVectors: (nonnull NSArray<MPSVector *>*) inputVelocityVectors
                   resultState: (nonnull MPSCNNNormalizationGammaAndBetaState *) resultState
 MPS_SWIFT_NAME(encode(commandBuffer:batchNormalizationState:inputMomentumVectors:inputVelocityVectors:resultState:));
+
+/*!
+ *  @abstract   Encode an AMSGrad variant of  MPSNNOptimizerAdam object to a command buffer to perform out of place update
+ *
+ *  @param      commandBuffer                              A valid MTLCommandBuffer to receive the encoded kernel.
+ *  @param      batchNormalizationState                    A valid MPSCNNBatchNormalizationState object which specifies the input state with gradients and original gamma/beta for this update.
+ *  @param      inputMomentumVectors                       An array MPSVector object which specifies the gradient momentum vectors which will
+ *                                                         be updated and overwritten. The index 0 corresponds to gamma, index 1 corresponds to beta, array can be of
+ *                                                         size 1 in which case beta won't be updated
+ *  @param      inputVelocityVectors                       An array MPSVector object which specifies the gradient velocity vectors which will
+ *                                                         be updated and overwritten. The index 0 corresponds to gamma, index 1 corresponds to beta, array can be of
+ *                                                         size 1 in which case beta won't be updated
+ *  @param      maximumVelocityVectors                     An array MPSVector object which specifies the maximum velocity vectors which will
+ *                                                         be updated and overwritten. The index 0 corresponds to weights, index 1 corresponds to biases, array can be of
+ *                                                         size 1 in which case biases won't be updated. May be nil, if nil then normal Adam optimizer behaviour is followed.
+ *  @param      resultState                                A valid MPSCNNNormalizationGammaAndBetaState object which specifies the resultValues state which will
+ *                                                         be updated and overwritten.
+ *
+ *
+ *  @discussion The following operations would be applied
+ *              At update time:
+ *              t = t + 1
+ *              lr[t] = learningRate * sqrt(1 - beta2^t) / (1 - beta1^t)
+ *
+ *              m[t]     = beta1 * m[t-1] + (1 - beta1) * g
+ *              v[t]     = beta2 * v[t-1] + (1 - beta2) * (g ^ 2)
+ *              maxVel[t] = max(maxVel[t-1],v[t])
+ *              variable = variable - lr[t] * m[t] / (sqrt(maxVel[t]) + epsilon)
+ */
+
+-(void) encodeToCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
+      batchNormalizationState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationState
+         inputMomentumVectors: (nonnull NSArray<MPSVector *>*) inputMomentumVectors
+         inputVelocityVectors: (nonnull NSArray<MPSVector *>*) inputVelocityVectors
+       maximumVelocityVectors: (nullable NSArray<MPSVector *>*) maximumVelocityVectors
+                  resultState: (nonnull MPSCNNNormalizationGammaAndBetaState *) resultState
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+MPS_SWIFT_NAME(encode(commandBuffer:batchNormalizationState:inputMomentumVectors:inputVelocityVectors:maximumVelocityVectors:resultState:));
 
 /*!
  *  @abstract   Encode an MPSNNOptimizerAdam object to a command buffer to perform out of place update
@@ -16795,10 +21318,52 @@ MPS_SWIFT_NAME(encode(commandBuffer:batchNormalizationState:inputMomentumVectors
 -(void)             encodeToCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
           batchNormalizationGradientState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationGradientState
             batchNormalizationSourceState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationSourceState
-                     inputMomentumVectors: (nullable NSArray<MPSVector *>*) inputMomentumVectors
-                     inputVelocityVectors: (nullable NSArray<MPSVector *>*) inputVelocityVectors
+                     inputMomentumVectors: (nonnull NSArray<MPSVector *>*) inputMomentumVectors
+                     inputVelocityVectors: (nonnull NSArray<MPSVector *>*) inputVelocityVectors
                               resultState: (nonnull MPSCNNNormalizationGammaAndBetaState *) resultState
 MPS_SWIFT_NAME(encode(commandBuffer:batchNormalizationGradientState:batchNormalizationSourceState:inputMomentumVectors:inputVelocityVectors:resultState:));
+
+/*!
+ *  @abstract   Encode an AMSGrad variant of MPSNNOptimizerAdam object to a command buffer to perform out of place update
+ *
+ *  @param      commandBuffer                              A valid MTLCommandBuffer to receive the encoded kernel.
+ *  @param      batchNormalizationGradientState            A valid MPSCNNBatchNormalizationState object which specifies the input state with gradients for this update.
+ *  @param      batchNormalizationSourceState              A valid MPSCNNBatchNormalizationState object which specifies the input state with original gamma/beta for this update.
+ *  @param      inputMomentumVectors                       An array MPSVector object which specifies the gradient momentum vectors which will
+ *                                                         be updated and overwritten. The index 0 corresponds to gamma, index 1 corresponds to beta, array can be of
+ *                                                         size 1 in which case beta won't be updated
+ *  @param      inputVelocityVectors                       An array MPSVector object which specifies the gradient velocity vectors which will
+ *                                                         be updated and overwritten. The index 0 corresponds to gamma, index 1 corresponds to beta, array can be of
+ *                                                         size 1 in which case beta won't be updated
+ *  @param      maximumVelocityVectors                     An array MPSVector object which specifies the maximum velocity vectors which will
+ *                                                         be updated and overwritten. The index 0 corresponds to weights, index 1 corresponds to biases, array can be of
+ *                                                         size 1 in which case biases won't be updated. May be nil, if nil then normal Adam optimizer behaviour is followed.
+ *  @param      resultState                                A valid MPSCNNNormalizationGammaAndBetaState object which specifies the resultValues state which will
+ *                                                         be updated and overwritten.
+ *
+ *
+ *  @discussion The following operations would be applied
+ *              At update time:
+ *              t = t + 1
+ *              lr[t] = learningRate * sqrt(1 - beta2^t) / (1 - beta1^t)
+ *
+ *              m[t]     = beta1 * m[t-1] + (1 - beta1) * g
+ *              v[t]     = beta2 * v[t-1] + (1 - beta2) * (g ^ 2)
+ *              maxVel[t] = max(maxVel[t-1],v[t])
+ *              variable = variable - lr[t] * m[t] / (sqrt(maxVel[t]) + epsilon)
+ *
+ */
+
+-(void)             encodeToCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
+          batchNormalizationGradientState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationGradientState
+            batchNormalizationSourceState: (MPSCNNBatchNormalizationState* __nonnull) batchNormalizationSourceState
+                     inputMomentumVectors: (nonnull NSArray<MPSVector *>*) inputMomentumVectors
+                     inputVelocityVectors: (nonnull NSArray<MPSVector *>*) inputVelocityVectors
+                   maximumVelocityVectors: (nullable NSArray<MPSVector *>*) maximumVelocityVectors
+                              resultState: (nonnull MPSCNNNormalizationGammaAndBetaState *) resultState
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+MPS_SWIFT_NAME(encode(commandBuffer:batchNormalizationGradientState:batchNormalizationSourceState:inputMomentumVectors:inputVelocityVectors:maximumVelocityVectors:resultState:));
+
 
 @end  /* MPSNNOptimizerAdam */
 
@@ -16838,7 +21403,7 @@ extern "C" {
  *              rectangles (overlapping or non-overlapping) and, for each such sub-region, outputs a value.
  *              The pooling operation is used in computer vision to reduce the dimensionality of intermediate representations.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNPooling : MPSCNNKernel
 
 
@@ -16878,7 +21443,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 
@@ -17012,7 +21577,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *  @discussion Specifies the max pooling filter.  For each pixel, returns the maximum value of pixels
  *              in the kernelWidth x kernelHeight filter region.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNPoolingMax : MPSCNNPooling
 
 /*!
@@ -17039,7 +21604,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 @end    /* MPSCNNPoolingMax */
 
@@ -17055,7 +21620,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *              average. In case the filtering window is entirely outside the source image border the
  *              outputted value will be zero.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSCNNPoolingAverage : MPSCNNPooling
 
 
@@ -17105,7 +21670,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 @end    /* MPSCNNPoolingAverage */
 
@@ -17117,7 +21682,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *              in the kernelWidth x kernelHeight filter region.
  *                  out[c,x,y] = sqrt ( sum_{dx,dy} in[c,x+dx,y+dy] * in[c,x+dx,y+dy] ).
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSCNNPoolingL2Norm : MPSCNNPooling
 
 /*!
@@ -17153,7 +21718,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *  @discussion Specifies the dilated max pooling filter.  For each pixel, returns the maximum value of pixels
  *              in the kernelWidth x kernelHeight filter region by step size dilationRateX x dilationRateY.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0) )
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) )
 @interface  MPSCNNDilatedPoolingMax : MPSCNNPooling
 
 /*! @property   dilationRateX
@@ -17259,7 +21824,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0) )
  *              The actual value of d out(x) / d in(y) depends on the pooling operation and these are defined in the
  *              subclasses of MPSCNNPoolingGradient.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNPoolingGradient : MPSCNNGradientKernel
 
 /*! @property   sourceSize
@@ -17356,7 +21921,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              recommended to use a temporary image of correct size (see MPSTemporaryImage) for the
  *              secondary source image parameter.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNPoolingAverageGradient : MPSCNNPoolingGradient
 
 
@@ -17452,7 +22017,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              Later we may add encode calls to MPSCNNPoolingMax that produce a state that contains the
  *              coordinates of the maximal values to be consumed by the gradient filters.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNPoolingMaxGradient : MPSCNNPoolingGradient
 
 
@@ -17508,7 +22073,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *                                 {  0, otherwise,
  *              and out(x) is the L2-norm pooling value at point 'x' defined above.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNPoolingL2NormGradient : MPSCNNPoolingGradient
 
 
@@ -17548,7 +22113,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @discussion Specifies the filter for computing the gradient of the dilated max pooling filter.
  *              For details see comments on MPSCNNPoolingMaxGradient.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSCNNDilatedPoolingMaxGradient : MPSCNNPoolingGradient
 
 /*!
@@ -17633,7 +22198,7 @@ extern "C" {
  *              ensure that the state captures all information necessary to
  *              execute the corresponding gradient pass.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNInstanceNormalizationGradientState : MPSNNGradientState
 
 /*! @abstract The MPSCNNInstanceNormalization object that created this state object. */
@@ -17686,14 +22251,14 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 @end    /* MPSCNNInstanceNormalizationGradientState */
     
 typedef NSArray<MPSCNNInstanceNormalizationGradientState*>  MPSCNNInstanceNormalizationGradientStateBatch
-    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
     
 /*! @protocol   MPSCNNInstanceNormalizationDataSource
  *  @abstract   The MPSCNNInstanceNormalizationDataSource protocol declares the methods that an
  *              instance of MPSCNNInstanceNormalization uses to initialize the
  *              scale factors (gamma) and bias terms (beta).
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @protocol MPSCNNInstanceNormalizationDataSource <NSObject, NSCopying>
 
 @required
@@ -17777,7 +22342,17 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
      *  @result     A pointer to a copy of this data source.
      */
     - (nonnull instancetype) copyWithZone:(nullable NSZone *)zone
-                                   device:(nullable id <MTLDevice>) device MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+                                   device:(nullable id <MTLDevice>) device MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
+    
+    /*! @abstract   Alerts the data source that the data will be needed soon
+     *  @return     Returns YES on success.  If NO is returned, expect MPS
+     *              object construction to fail.
+     */
+    -(BOOL) load MPS_AVAILABLE_STARTING(macos(10.15), ios(13), uikitformac(13), tvos(13));
+    
+    /*! @abstract   Alerts the data source that the data is no longer needed
+     */
+    -(void) purge MPS_AVAILABLE_STARTING(macos(10.15), ios(13), uikitformac(13), tvos(13));
 @end    // MPSCNNInstanceNormalizationDataSource
     
 /*!
@@ -17790,7 +22365,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *                  for each channel:
  *                      y = (x - mean) * gamma / sqrt(variance + epsilon) + beta;
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNInstanceNormalization : MPSCNNKernel
 /*! @property   epsilon
  *  @abstract   The epsilon value used to bias the variance when normalizing.
@@ -17834,12 +22409,12 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  */
 -(void) reloadDataSource: (__nonnull id<MPSCNNInstanceNormalizationDataSource>) dataSource
 MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use -reloadGammaAndBetaFromDataSource instead.",
-                                      macos(10.13.4, 10.14), ios(11.3,12.0), tvos(11.3, 12.0));
+                                      macos(10.13.4, 10.14), ios(11.3,12.0), tvos(11.3, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 /*!
  *  @abstract   Reinitialize the filter using the data source provided at kernel initialization.
  */
--(void) reloadGammaAndBetaFromDataSource MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+-(void) reloadGammaAndBetaFromDataSource MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*!
  *  @abstract   Reload data using new gamma and beta terms contained within an
@@ -17876,7 +22451,7 @@ MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use -reloadGammaAndBetaFromDataSo
  *  @discussion This kernel executes a gradient pass corresponding to MPSCNNInstanceNormalization.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNInstanceNormalizationGradient : MPSCNNGradientKernel
 
 @end    /* MPSCNNInstanceNormalizationGradient */
@@ -17886,6 +22461,71 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 
 
 #endif /* MPSCNNInstanceNormalization_h */
+
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Headers/MPSNNGridSample.h
+//
+//  MPSNNGridSample.h
+//  MPSNeuralNetwork
+//
+//  Created by Aaftab Munshi on 12/03/18.
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#ifndef MPSNNGridSamplePrivate_h
+#define MPSNNGridSamplePrivate_h
+
+#include <MPSNeuralNetwork/MPSCNNKernel.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*
+ *  @class      MPSNNGridSample
+ *  @dependency This depends on Metal.framework
+ *  @abstract   Given an input and a flow-field grid, computes the output using input values and pixel locations from the grid.
+ *  @discussion More details at https://pytorch.org/docs/stable/nn.html#grid-sample.
+ *
+ */
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNNGridSample : MPSCNNBinaryKernel
+
+
+/*! @property   useGridValueAsInputCoordinate
+ *  @abstract   This determines whether the pixel locations from the grid are used as the input coordinate (if set to YES) or
+ *              is added to the input coordinate (if set to NO).
+ *              The default value is YES.
+ */
+@property(readwrite, nonatomic) BOOL    useGridValueAsInputCoordinate;
+
+/*!
+ *  @abstract Create a grid sample kernel.
+ *  @param    device            The device the filter will run on
+ *  @return     A valid MPSNNGridSample object or nil, if failure.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract NSSecureCoding compatability
+ *  @discussion While the standard NSSecureCoding/NSCoding method
+ *              -initWithCoder: should work, since the file can't
+ *              know which device your data is allocated on, we
+ *              have to guess and may guess incorrectly.  To avoid
+ *              that problem, use initWithCoder:device instead.
+ *  @param      aDecoder    The NSCoder subclass with your serialized MPSKernel
+ *  @param      device      The MTLDevice on which to make the MPSKernel
+ *  @return     A new MPSKernel object, or nil if failure.
+ */
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+@end  /* MPSNNGridSample */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* MPSNNGridSample_h */
 
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Headers/MPSCNNNormalization.h
 //
@@ -17922,7 +22562,7 @@ extern "C" {
  *              parameters delta and alpha does not result in a situation where the denominator
  *              becomes zero - in such situations the resulting pixel-value is undefined.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.12), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.12), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface MPSCNNSpatialNormalization : MPSCNNKernel
 
 /*! @property   alpha
@@ -17965,7 +22605,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.12), ios(10.0), tvos(10.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*
  * Use initWithDevice:kernelWidth:kernelHeight instead
@@ -18002,7 +22642,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.12), ios(10.0), tvos(10.0))
  *              For correct gradient computation all parameters must be the same as the original normalization filter.
  */
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNSpatialNormalizationGradient : MPSCNNGradientKernel
 
 /*! @property   alpha
@@ -18078,7 +22718,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *              against tiny variances is to regulate the expression with a small value for delta, for example
  *              delta = 1/1024 = 0.0009765625.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface MPSCNNLocalContrastNormalization : MPSCNNKernel
 
 /*! @property   alpha
@@ -18142,7 +22782,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*
  * Use initWithDevice:kernelWidth:kernelHeight instead
@@ -18189,7 +22829,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *
  *              For correct gradient computation all parameters must be the same as the original normalization filter.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNLocalContrastNormalizationGradient : MPSCNNGradientKernel
 
 /*! @property   alpha
@@ -18279,7 +22919,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
  *              parameters delta and alpha does not result in a situation where the denominator
  *              becomes zero - in such situations the resulting pixel-value is undefined.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface MPSCNNCrossChannelNormalization : MPSCNNKernel
 
 /*! @property   alpha
@@ -18325,7 +22965,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /*
@@ -18363,7 +23003,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *
  *              For correct gradient computation all parameters must be the same as the original normalization filter.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNCrossChannelNormalizationGradient : MPSCNNGradientKernel
 
 /*! @property   alpha
@@ -18440,24 +23080,25 @@ typedef enum MPSCNNNeuronType
 typedef NS_ENUM(int32_t, MPSCNNNeuronType)
 #endif
 {
-    MPSCNNNeuronTypeNone            MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)) MPS_SWIFT_NAME(none) = 0, ///< f(x) = x
-    MPSCNNNeuronTypeReLU            MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< f(x) = x >= 0 ? x : a * x;  rectified linear unit
-    MPSCNNNeuronTypeLinear          MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< f(x) = a * x + b
-    MPSCNNNeuronTypeSigmoid         MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< f(x) = 1 / (1 + e^-x)
-    MPSCNNNeuronTypeHardSigmoid     MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< f(x) = clamp((x * a) + b, 0, 1)
-    MPSCNNNeuronTypeTanH            MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< f(x) = a * tanh(b * x)
-    MPSCNNNeuronTypeAbsolute        MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< f(x) = fabs(x)
-    MPSCNNNeuronTypeSoftPlus        MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< f(x) = a * log(1 + e^(b * x))
-    MPSCNNNeuronTypeSoftSign        MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< f(x) = x / (1 + abs(x))
-    MPSCNNNeuronTypeELU             MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< f(x) = x >= 0 ? x : a * (exp(x) - 1); exponential linear unit
-    MPSCNNNeuronTypePReLU           MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< Same as ReLU except parameter a is per channel; parameterized rectified linear unit
-    MPSCNNNeuronTypeReLUN           MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< f(x) = min((x >= 0 ? x : a * x), b); clamped rectified liniear unit
-    MPSCNNNeuronTypePower           MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3)), ///< f(x) = (a * x + b) ^ c
-    MPSCNNNeuronTypeExponential     MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3)), ///< f(x) = c ^ (a * x + b)
-    MPSCNNNeuronTypeLogarithm       MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3)), ///< f(x) = log_c(a * x + b)
-    
+    MPSCNNNeuronTypeNone            MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) MPS_SWIFT_NAME(none) = 0, ///< f(x) = x
+    MPSCNNNeuronTypeReLU            MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< f(x) = x >= 0 ? x : a * x;  rectified linear unit
+    MPSCNNNeuronTypeLinear          MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< f(x) = a * x + b
+    MPSCNNNeuronTypeSigmoid         MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< f(x) = 1 / (1 + e^-x)
+    MPSCNNNeuronTypeHardSigmoid     MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< f(x) = clamp((x * a) + b, 0, 1)
+    MPSCNNNeuronTypeTanH            MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< f(x) = a * tanh(b * x)
+    MPSCNNNeuronTypeAbsolute        MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< f(x) = fabs(x)
+    MPSCNNNeuronTypeSoftPlus        MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< f(x) = a * log(1 + e^(b * x))
+    MPSCNNNeuronTypeSoftSign        MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< f(x) = x / (1 + abs(x))
+    MPSCNNNeuronTypeELU             MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< f(x) = x >= 0 ? x : a * (exp(x) - 1); exponential linear unit
+    MPSCNNNeuronTypePReLU           MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< Same as ReLU except parameter a is per channel; parameterized rectified linear unit
+    MPSCNNNeuronTypeReLUN           MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< f(x) = min((x >= 0 ? x : a * x), b); clamped rectified liniear unit
+    MPSCNNNeuronTypePower           MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)), ///< f(x) = (a * x + b) ^ c
+    MPSCNNNeuronTypeExponential     MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)), ///< f(x) = c ^ (a * x + b)
+    MPSCNNNeuronTypeLogarithm       MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)), ///< f(x) = log_c(a * x + b)
+    MPSCNNNeuronTypeGeLU            MPS_ENUM_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0)), ///< f(x) = (1.0 + erf(x * sqrt(0.5))) * 0.5 * x
+
     // must be last
-    MPSCNNNeuronTypeCount           MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0)), ///< holds the number of MPSCNNNeuronTypes
+    MPSCNNNeuronTypeCount           MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)), ///< holds the number of MPSCNNNeuronTypes
 }
 #if defined(DOXYGEN) || defined(__METAL_VERSION__)
     MPSCNNNeuronType
@@ -18505,7 +23146,7 @@ extern "C" {
  *              neuron() is a pointwise function applied to the intermediate result.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixFullyConnected : MPSMatrixBinaryKernel
 /*! @property   sourceNumberOfFeatureVectors
  *
@@ -18676,7 +23317,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:inputMatrix:weightMatrix:biasVector:resultMa
  *              and MPSMatrixNeuron if a gradient is to be computed.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSMatrixFullyConnectedGradient : MPSMatrixBinaryKernel
 /*! @property   sourceNumberOfFeatureVectors
  *
@@ -18817,9 +23458,11 @@ NS_DESIGNATED_INITIALIZER;
 #import <MPSNeuralNetwork/MPSCNNUpsampling.h>
 #import <MPSNeuralNetwork/MPSCNNBatchNormalization.h>
 #import <MPSNeuralNetwork/MPSCNNInstanceNormalization.h>
+#import <MPSNeuralNetwork/MPSCNNGroupNormalization.h>
 #import <MPSNeuralNetwork/MPSCNNDropout.h>
 #import <MPSNeuralNetwork/MPSRNNLayer.h>
 #import <MPSNeuralNetwork/MPSMatrixLayer.h>
+#import <MPSNeuralNetwork/MPSNNGridSample.h>
 #import <MPSNeuralNetwork/MPSNNOptimizers.h>
 #import <MPSNeuralNetwork/MPSNNReduce.h>
 #import <MPSNeuralNetwork/MPSNNReshape.h>
@@ -18862,7 +23505,7 @@ extern "C" {
  *              While the mask is stored internally, the mask data is accessible by the
  *              user for debugging purposes via an accessor method.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNDropoutGradientState : MPSNNGradientState
 
 /*
@@ -18889,7 +23532,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 #pragma mark MPSCNNDropoutGradientStateBatch
 
 typedef NSArray<MPSCNNDropoutGradientState*> MPSCNNDropoutGradientStateBatch
-    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+    MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 #pragma mark -
 #pragma mark MPSCNNDropout
@@ -18903,7 +23546,7 @@ typedef NSArray<MPSCNNDropoutGradientState*> MPSCNNDropoutGradientStateBatch
  *              outputs 0. Each input element is kept or dropped independently. The scaling
  *              is performed to keep the energy of the output unchanged.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNDropout : MPSCNNKernel
 
 /*! @property   keepProbability
@@ -18952,12 +23595,28 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
                                   seed: (NSUInteger) seed
                     maskStrideInPixels: (MTLSize) maskStrideInPixels NS_DESIGNATED_INITIALIZER;
 
+-(MPSCNNDropoutGradientState * __nullable) resultStateForSourceImage: (MPSImage *__nonnull) sourceImage
+                                                        sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
+                                                    destinationImage: (MPSImage *__nonnull) destinationImage
+                                                        MPS_SWIFT_NAME( resultState(sourceImage:sourceStates:destinationImage:));
+
+/* To be used with batch encode call. Since same state is used across entire batch, it will return copy of same state in returned NSArray*/
+-(MPSCNNDropoutGradientState * __nullable) resultStateBatchForSourceImage: (MPSImageBatch * __nonnull) sourceImage
+                                                             sourceStates: (NSArray<MPSStateBatch *> * __nullable) sourceStates
+                                                         destinationImage:(MPSImageBatch * _Nonnull)destinationImage
+                                                        MPS_SWIFT_NAME( resultStateBatch(sourceImage:sourceStates:destinationImage:));
+
 -(MPSCNNDropoutGradientState * __nullable) temporaryResultStateForCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer
                                                                     sourceImage: (MPSImage *__nonnull) sourceImage
                                                                    sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
-                                                               destinationImage: (MPSImage * __nonnull) dest NS_UNAVAILABLE;
+                                                               destinationImage: (MPSImage * __nonnull) destinationImage
+                                                        MPS_SWIFT_NAME( temporaryResultState(commandBuffer:sourceImage:sourceStates:destinationImage:));
 
--(MPSCNNDropoutGradientStateBatch * __nullable) temporaryResultStateBatchForCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer NS_UNAVAILABLE;
+-(MPSCNNDropoutGradientStateBatch * __nullable) temporaryResultStateBatchForCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                                                              sourceImage: (MPSImageBatch *__nonnull) sourceImage
+                                                                             sourceStates: (NSArray <MPSStateBatch *> *__nullable) sourceStates
+                                                                         destinationImage: (MPSImageBatch *__nonnull) destinationImage
+                                                        MPS_SWIFT_NAME( temporaryResultStateBatch(commandBuffer:sourceImage:sourceStates:destinationImage:));
 
 @end /* MPSCNNDroput */
 
@@ -18975,7 +23634,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *
  *              In this kernel, use the secondaryOffset to apply an offset to the mask data.
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSCNNDropoutGradient : MPSCNNGradientKernel
 
 /*! @property   keepProbability
@@ -19033,6 +23692,289 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
 #endif
 
 #endif /* MPSCNNDropout_h */
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Headers/MPSCNNGroupNormalization.h
+/*!
+ *  @header MPSCNNGroupNormalization.h
+ *  @framework MetalPerformanceShaders.framework
+ *
+ *  @copyright Copyright (c) 2018 Apple Inc. All rights reserved.
+ *  @abstract MPSKernels to do group normalization and training
+ */
+
+#ifndef MPSCNNGroupNormalization_h
+#define MPSCNNGroupNormalization_h
+
+#include <MPSNeuralNetwork/MPSCNNKernel.h>
+#include <MPSNeuralNetwork/MPSCNNNormalizationWeights.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
+@class MPSCNNGroupNormalization;
+
+/*!
+ *  @class      MPSCNNGroupNormalizationGradientState
+ *  @dependency This depends on Metal.framework
+ *  @discussion A state to hold information necessary to execute a gradient
+ *              pass for MPSCNNGroupNormalization.  Gradient states should
+ *              be created by using the forward kernel's methods.  This will
+ *              ensure that the state captures all information necessary to
+ *              execute the corresponding gradient pass.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCNNGroupNormalizationGradientState : MPSNNGradientState
+
+/*! @abstract The MPSCNNGroupNormalization object that created this state object. */
+@property (readonly, nonatomic, nonnull, retain) MPSCNNGroupNormalization * groupNormalization;
+
+/*!
+ *  @abstract   Return an MTLBuffer object with the state's current gamma values.
+ */
+@property (readonly, nonatomic) __nullable id<MTLBuffer> gamma;
+
+/*!
+ *  @abstract   Return an MTLBuffer object with the state's current beta values..
+ */
+@property (readonly, nonatomic) __nullable id<MTLBuffer> beta;
+
+/*!
+ *  @property   The MTLBuffer containing the gradient values for gamma.
+ */
+@property (readonly, nonatomic) __nonnull id<MTLBuffer> gradientForGamma;
+
+/*!
+ *  @property   The MTLBuffer containing the gradient values for beta.
+ */
+@property (readonly, nonatomic) __nonnull id<MTLBuffer> gradientForBeta;
+
+/*!
+ *  Unavailable.  Use MPSCNNGroupNormalization state creation methods.
+ */
++(nonnull instancetype) temporaryStateWithCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                                      textureDescriptor: (MTLTextureDescriptor * __nonnull) descriptor NS_UNAVAILABLE;
+
++(nonnull instancetype) temporaryStateWithCommandBuffer:(__nonnull id<MTLCommandBuffer>)cmdBuf NS_UNAVAILABLE;
++(nonnull instancetype) temporaryStateWithCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                                             bufferSize: (size_t) bufferSize NS_UNAVAILABLE;
+
+/*!
+ *  Unavailable.  Use MPSCNNGroupNormalization state creation methods.
+ */
+-(nonnull instancetype) initWithDevice: (__nonnull id <MTLDevice>) device
+                     textureDescriptor: (MTLTextureDescriptor * __nonnull) descriptor NS_UNAVAILABLE;
+
+/*!
+ *  Unavailable.  Use MPSCNNGroupNormalization state creation methods.
+ */
+-(nonnull instancetype) initWithResource: (__nullable id <MTLResource>) resource NS_UNAVAILABLE;
+
+-(nonnull instancetype) initWithDevice: (__nonnull id <MTLDevice>) device
+                            bufferSize: (size_t) bufferSize NS_UNAVAILABLE;
+
+@end    /* MPSCNNGroupNormalizationGradientState */
+
+typedef NSArray<MPSCNNGroupNormalizationGradientState*>  MPSCNNGroupNormalizationGradientStateBatch
+MPS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
+/*! @protocol   MPSCNNGroupNormalizationDataSource
+ *  @abstract   The MPSCNNGroupNormalizationDataSource protocol declares the methods that an
+ *              group of MPSCNNGroupNormalization uses to initialize the
+ *              scale factors (gamma) and bias terms (beta).
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@protocol MPSCNNGroupNormalizationDataSource <NSObject, NSCopying>
+
+@required
+/*!
+ *  @abstract   Return a pointer to an array containing the gamma terms.
+ *  @discussion Must have numberOfFeatureChannels values since scaling is done per feature channel.
+ */
+-(float* __nullable) gamma;
+
+/*!
+ *  @abstract   Return a pointer to an array containing the beta terms.
+ *  @discussion Must have numberOfFeatureChannels values since scaling is done per feature channel.
+ */
+-(float* __nullable) beta;
+
+/*!
+ *  @property   The number of feature channels that are normalized.
+ */
+@property (readonly, nonatomic) NSUInteger numberOfFeatureChannels;
+    
+/*! @property   The number of groups used.
+ *  @discussion numberOfFeatureChannels/numberOfGroups channels are normalized together.
+ */
+@property (readwrite, nonatomic) NSUInteger numberOfGroups;
+
+/*! @abstract   A label that is transferred to the group normalization filter at init time
+ *  @discussion Overridden by a MPSCNNGroupNormalizationNode.label if it is non-nil.
+ */
+-(NSString* __nullable) label;
+
+@optional
+
+/*! @abstract       Compute new gamma and beta values using current values and gradients contained within a
+ *                  MPSCNNGroupNormalizationStateBatch.
+ *  @discussion     This is for use in the context of training a network within a MPSNNGraph. If you are
+ *                  writing your own graph using the low level interface or aren't training group normalization
+ *                  it isn't needed.
+ *
+ *                  In this mathod, you should perform the update on a GPU, because at the time it is called
+ *                  the data isn't in the state objects yet and the CPU can't do the work. You should not attempt
+ *                  to update the MPSCNNGroupNormalization kernel directly with the results. The state object
+ *                  returned from the function will be used for that.  A batch of states will be passed in.
+ *                  You should accumulate the gradients and then update the weights.
+ *
+ *                  This operation is expected to also decrement the read count of groupNormalizationStateBatch by 1,
+ *                  if the states are temporary.
+ *
+ *  @param          commandBuffer                   The command buffer on which to encode the update.
+ *
+ *  @param          groupNormalizationStateBatch A batch of MPSCNNGroupNormalizationGradientState objects containing
+ *                                                  current weights and gradients.
+ *
+ *  @return         A MPSCNNNormalizationGammaAndBetaState object containing updated gamma and beta values.  If NULL no
+ *                  update was performed.
+ */
+-(MPSCNNNormalizationGammaAndBetaState * __nullable)
+    updateGammaAndBetaWithCommandBuffer: (nonnull id<MTLCommandBuffer>) commandBuffer
+           groupNormalizationStateBatch: (MPSCNNGroupNormalizationGradientStateBatch* __nonnull) groupNormalizationStateBatch;
+/*! @abstract       Compute new gamma and beta values using current values and gradients contained within a
+ *                  batch MPSCNNGroupNormalizationState objects.  Perform the update on the CPU.
+ *
+ *  @param          groupNormalizationStateBatch A batch of MPSCNNGroupNormalizationGradientState objects containing
+ *                                                  current gamma and beta values and gradients.
+ *
+ *  @return         A boolean value indicating if the update was performed.
+ */
+-(BOOL) updateGammaAndBetaWithGroupNormalizationStateBatch: (MPSCNNGroupNormalizationGradientStateBatch* __nonnull) groupNormalizationStateBatch;
+
+/*! @abstract       An optional tiny number to use to maintain numerical stability.
+ *  @discussion     output_image = (input_image - mean[c]) * gamma[c] / sqrt(variance[c] + epsilon) + beta[c];
+ *                  Defalt value if method unavailable: FLT_MIN   */
+-(float) epsilon;
+
+/*!
+ *  Optional NSSecureCoding compatibility.
+ */
+- (void)encodeWithCoder:(NSCoder * __nonnull)aCoder;
+
+- (nullable instancetype)initWithCoder:(NSCoder * __nonnull)aDecoder; // NS_DESIGNATED_INITIALIZER
+
+@property (class, readonly) BOOL supportsSecureCoding;
+
+/*!
+ *  @abstract   Optional copy method to create a copy of the data source for use with a new device.
+ *
+ *  @param      zone    The NSZone on which to allocate.
+ *  @param      device  The device where the kernel which uses this data source will be used.
+ *
+ *  @result     A pointer to a copy of this data source.
+ */
+- (nonnull instancetype) copyWithZone:(nullable NSZone *)zone
+device:(nullable id <MTLDevice>) device;
+@end    // MPSCNNGroupNormalizationDataSource
+
+/*!
+ *  @class      MPSCNNGroupNormalization
+ *  @dependency This depends on Metal.framework
+ *  @discussion This kernel normalizes each image, on a per-group basis, to
+ *              have zero mean and unit variance:
+ *
+ *              for each image:
+ *                  for each channel:
+ *                      y = (x - mean) * gamma / sqrt(variance + epsilon) + beta;
+ *
+ *              The mean and variance are computed per group of channels, as given by the dataSource.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCNNGroupNormalization : MPSCNNKernel
+/*! @property  epsilon
+*  @abstract   The epsilon value used to bias the variance when normalizing.
+*/
+@property(readwrite, nonatomic) float       epsilon;
+
+/*! @abstract   The data source that the object was initialized with */
+@property (readonly, nonatomic, nonnull, retain) id <MPSCNNGroupNormalizationDataSource> dataSource;
+
+/*!
+*  @abstract   Initialize a MPSCNNGroupNormalization kernel on a device.
+*  @param      dataSource  An object conforming to the MPSCNNGroupNormalizationDataSource
+*                          protocol which
+*/
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                        dataSource: (nonnull id<MPSCNNGroupNormalizationDataSource>) dataSource NS_DESIGNATED_INITIALIZER;
+
+/*!
+* Use initWithDevice:dataSource instead
+*/
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_UNAVAILABLE;
+
+/*! @abstract NSSecureCoding compatability
+*  @discussion While the standard NSSecureCoding/NSCoding method
+*              -initWithCoder: should work, since the file can't
+*              know which device your data is allocated on, we
+*              have to guess and may guess incorrectly.  To avoid
+*              that problem, use initWithCoder:device instead.
+*  @param      aDecoder    The NSCoder subclass with your serialized MPSKernel
+*  @param      device      The MTLDevice on which to make the MPSKernel
+*  @return     A new MPSCNNGroupNormalization object, or nil if failure.
+*/
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                            device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+/*!
+*  @abstract   Reinitialize the filter using the data source provided at kernel initialization.
+*/
+-(void) reloadGammaAndBetaFromDataSource;
+
+/*!
+*  @abstract   Reload data using new gamma and beta terms contained within an
+*              MPSCNNGroupNormalizationGradientState object.
+*
+*  @param      commandBuffer               The command buffer on which to encode the reload.
+*
+*  @param      gammaAndBetaState           The state containing the updated weights which are to
+*                                          be reloaded.
+*/
+-(void) reloadGammaAndBetaWithCommandBuffer: (__nonnull id<MTLCommandBuffer>) commandBuffer
+                      gammaAndBetaState: (MPSCNNNormalizationGammaAndBetaState* __nonnull) gammaAndBetaState;
+
+/*!
+*  @abstract   Return a MPSCNNGroupNormalizationGradientState object for the provided
+*              source image, source states, and destination image.
+*/
+-(MPSCNNGroupNormalizationGradientState * __nullable) resultStateForSourceImage: (MPSImage *__nonnull) sourceImage
+                                                                  sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
+                                                              destinationImage: (MPSImage * __nonnull) destinationImage;
+
+/*! @abstract       Return a temporary MPSCNNGroupNormalizationGradientState object which may be used with
+*                  a MPSCNNGroupNormalization filter.
+*/
+-(MPSCNNGroupNormalizationGradientState * __nullable) temporaryResultStateForCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                                                              sourceImage: (MPSImage *__nonnull) sourceImage
+                                                                             sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
+                                                                         destinationImage: (MPSImage *__nonnull) destinationImage;
+@end    /* MPSCNNGroupNormalization */
+
+/*!
+ *  @class      MPSCNNGroupNormalizationGradient
+ *  @dependency This depends on Metal.framework
+ *  @discussion This kernel executes a gradient pass corresponding to MPSCNNGroupNormalization.
+ *
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCNNGroupNormalizationGradient : MPSCNNGradientKernel
+
+@end    /* MPSCNNGroupNormalizationGradient */
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif /* MPSCNNGroupNormalization_h */
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Headers/MPSCNNTypes.h
 //
 //  MPSCNNTypes.h
@@ -19059,17 +24001,17 @@ typedef enum MPSCNNLossType
 typedef NS_ENUM(uint32_t, MPSCNNLossType)
 #endif
 {
-    MPSCNNLossTypeMeanAbsoluteError             MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+    MPSCNNLossTypeMeanAbsoluteError             MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                                                                                   MPS_SWIFT_NAME(meanAbsoluteError) = 0,  // Mean Absolute Error
-    MPSCNNLossTypeMeanSquaredError              MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Mean Squared Error
-    MPSCNNLossTypeSoftMaxCrossEntropy           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // SoftMax Cross Entropy
-    MPSCNNLossTypeSigmoidCrossEntropy           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Sigmoid Cross Entropy
-    MPSCNNLossTypeCategoricalCrossEntropy       MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Categorical Cross Entropy
-    MPSCNNLossTypeHinge                         MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Hinge
-    MPSCNNLossTypeHuber                         MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Huber
-    MPSCNNLossTypeCosineDistance                MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Cosine Distance
-    MPSCNNLossTypeLog                           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Log
-    MPSCNNLossTypeKullbackLeiblerDivergence     MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Kullback-Leibler Divergence
+    MPSCNNLossTypeMeanSquaredError              MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Mean Squared Error
+    MPSCNNLossTypeSoftMaxCrossEntropy           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // SoftMax Cross Entropy
+    MPSCNNLossTypeSigmoidCrossEntropy           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Sigmoid Cross Entropy
+    MPSCNNLossTypeCategoricalCrossEntropy       MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Categorical Cross Entropy
+    MPSCNNLossTypeHinge                         MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Hinge
+    MPSCNNLossTypeHuber                         MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Huber
+    MPSCNNLossTypeCosineDistance                MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Cosine Distance
+    MPSCNNLossTypeLog                           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Log
+    MPSCNNLossTypeKullbackLeiblerDivergence     MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Kullback-Leibler Divergence
     
     // Must be last
     MPSCNNLossTypeCount // Holds the number of MPSCNNLossTypes
@@ -19091,11 +24033,11 @@ typedef enum MPSCNNReductionType
 typedef NS_ENUM(int32_t, MPSCNNReductionType)
 #endif
 {
-    MPSCNNReductionTypeNone                     MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+    MPSCNNReductionTypeNone                     MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
                                                                                                MPS_SWIFT_NAME(none) = 0,  // No reduction
-    MPSCNNReductionTypeSum                      MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Sum
-    MPSCNNReductionTypeMean                     MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Mean
-    MPSCNNReductionTypeSumByNonZeroWeights      MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3)),      // Sum divided by the number of non-zero weights
+    MPSCNNReductionTypeSum                      MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Sum
+    MPSCNNReductionTypeMean                     MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Mean
+    MPSCNNReductionTypeSumByNonZeroWeights      MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)),      // Sum divided by the number of non-zero weights
     
     // Must be last
     MPSCNNReductionTypeCount // Holds the number of MPSCNNReductionTypes
@@ -19147,7 +24089,7 @@ extern "C" {
  *              Optionally a neuron activation function may be applied to the result.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSMatrixBatchNormalization : MPSMatrixUnaryKernel
 
 /*! @property   sourceNumberOfFeatureVectors
@@ -19320,7 +24262,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:inputMatrix:meanVector:varianceVector:gammaV
  *
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSMatrixBatchNormalizationGradient : MPSMatrixBinaryKernel
 
 /*! @property   sourceNumberOfFeatureVectors
@@ -19460,6 +24402,801 @@ NS_DESIGNATED_INITIALIZER;
 #endif
 #endif /* MPSMatrixBatchNormalization_h */
 
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSNDArray.framework/Headers/MPSNDArrayMatrixMultiplication.h
+/*!
+ *  @header MPSNDArrayMatrixMultiplication.h
+ *  @framework MetalPerformanceShaders.framework
+ *
+ *  @copyright Copyright (c) 2016 Apple Inc. All rights reserved.
+ *  @abstract MetalPerformanceShaders filter base classes
+ */
+#ifndef MPSNDArrayMatrixMultiplication_h
+#define MPSNDArrayMatrixMultiplication_h
+
+#import <MPSCore/MPSKernel.h>
+#import <MPSMatrix/MPSMatrixTypes.h>
+#import <MPSCore/MPSNDArray.h>
+#import <MPSNDArray/MPSNDArrayKernel.h>
+
+/*!
+ *  @class      MPSNDArrayMatrixMultiplication
+ *
+ *  @dependency This depends on Metal.framework.
+ *
+ *  @abstract   A matrix multiplication kernel operating on MPSNDArray objects.
+ *
+ *  @discussion A MPSNDArrayMatrixMultiplication object computes, for each 2-D matrix within
+ *              a 4-D MPSNDArray object:
+ *
+ *                  D = alpha * A * B + beta * C
+ *
+ *              A, B, C, and D are matrices which are represented by objects stored
+ *              in the two most major dimensions of the MPSNDArray. alpha and beta
+ *              are scalar values (of the same data type as values of D and C) which
+ *              are applied as shown above.
+ *
+ *              If an input's 3rd or 4th dimension is 1 its data will be broadcast as
+ *              appropriate to the remaining input's 3rd or 4th dimension respectively.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface MPSNDArrayMatrixMultiplication : MPSNDArrayMultiaryKernel
+
+/*! @property   alpha
+ *
+ *  @discussion The scale factor to apply to the product.  Specified in double
+ *              precision.  Will be converted to the appropriate precision in the
+ *              implementation subject to rounding and/or clamping as necessary.
+ *              Defaults to 1.0 at initialization time.
+ */
+@property (readwrite, nonatomic) double alpha;
+
+/*! @property   beta
+ *
+ *  @discussion The scale factor to apply to the addend if available.  Specified in double
+ *              precision.  Will be converted to the appropriate precision in the
+ *              implementation subject to rounding and/or clamping as necessary.
+ *              Defaults to 1.0 at initialization time.
+ */
+@property (readwrite, nonatomic) double beta;
+
+@end    // MPSNDArrayMatrixMultiplication
+
+#endif /* MPSNDArrayMatrixMultiplication_h */
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSNDArray.framework/Headers/MPSNDArrayStridedSlice.h
+//
+//  MPSNDArrayStridedSlice.h
+//  MPS
+//
+//  Created by Justin Voo on 1/10/19.
+//  Copyright © 2019 Apple. All rights reserved.
+//
+
+#ifndef MPSNDArrayStridedSlice_h
+#define MPSNDArrayStridedSlice_h
+
+#import <MPSNDArray/MPSNDArrayKernel.h>
+
+/*!
+ *  @class      MPSNDStridedSlice
+ *
+ *  @dependency This depends on Metal.framework.
+ *
+ *  @abstract   Extracts a subset of the source array using the specified slice strides.
+ *
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface MPSNDArrayStridedSlice : MPSNDArrayUnaryKernel
+
+/*! @property  strides
+ *  @abstract  The strides to use when slicing the input array.
+ */
+@property (readwrite, nonatomic)  MPSNDArrayOffsets strides;
+
+@end    // MPSNDArrayStridedSlice
+
+/*!
+ *  @class      MPSNDStridedSliceGradient
+ *
+ *  @dependency This depends on Metal.framework.
+ *
+ *  @abstract   Perform the gradient operation corresponding to a strided slice.
+ *
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface MPSNDArrayStridedSliceGradient : MPSNDArrayUnaryGradientKernel
+
+@end    // MPSNDArrayStridedSliceGradient
+
+#endif /* MPSNDArrayStridedSlice_h */
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSNDArray.framework/Headers/MPSNDArrayKernel.h
+//
+//  MPSNDArrayMultiaryKernel.h
+//  MPSNDArray
+//
+//  Created by Ian Ollmann on 12/20/18.
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#ifndef MPSNDArrayKernel_h
+#define MPSNDArrayKernel_h
+
+#include <MPSCore/MPSKernel.h>
+#include <MPSCore/MPSNDArray.h>
+#include <MPSCore/MPSState.h>
+#include <MPSNDArray/MPSNDArrayTypes.h>
+
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNDArrayMultiaryBase : MPSKernel
+
+/*! @abstract   Read offsets to use when addressing a source NDArray
+ *  @discussion The coordinate of the position read from this source array which is
+ *              used to calculate the result value at [0,0,0,....]
+ *              If the position read is actually a contiguous region (e.g. the area covered by
+ *              a convolution kernel) then this is the center of that region, rounded down, for
+ *              each dimension.
+ *  @param      sourceIndex   The index of the source MPSNDArray to which the list of offsets is applied */
+-(MPSNDArrayOffsets) offsetsAtSourceIndex: (NSUInteger) sourceIndex;
+
+/*! @abstract   The edge mode used for each source NDArray
+ *  @param      sourceIndex   The index of the source image
+ *  @return     The MPSImageEdgeMode for that image */
+-(MPSImageEdgeMode) edgeModeAtSourceIndex: (NSUInteger) sourceIndex;
+
+/*! @abstract   Get the diameters of the point spread function (PSF) in each dimension
+ *  @param      sourceIndex     The MPSNDArrayMultiaryKernel source NDArray to which the kernel will be applied
+ *  @return     A list of kernel diameters in each dimension */
+-(MPSNDArraySizes) kernelSizesForSourceIndex: (NSUInteger) sourceIndex;
+
+/*! @abstract   Return the downsampling ratio for the kernel in each dimension
+ *  @discussion If the filter is a "backwards" filter such as a gradient filter
+ *              or convolution transpose, then this is the upsampling ratio and
+ *              zeros are inserted in the result.
+ *  @param      sourceIndex The index of the source for which the strides apply
+ *  @return     The strides from one destination sample to the next in each
+ *              dimension of the corresponding source NDArray   */
+-(MPSNDArrayOffsets) stridesForSourceIndex: (NSUInteger) sourceIndex;
+
+/*! @abstract   Get the kernel dilation rate for each dimension
+ *  @param      sourceIndex The index of the source image for which this applies
+ *  @return     The kernel dilation rate for each dimension. */
+-(MPSNDArraySizes) dilationRatesForSourceIndex: (NSUInteger) sourceIndex;
+
+/*! @abstract   Method to allocate the result image for -encodeToCommandBuffer:sourceImage:
+ *  @discussion Default: MPSTemporaryImage.defaultAllocator  */
+@property (readwrite, nonatomic, retain, nonnull) id <MPSNDArrayAllocator> destinationArrayAllocator;
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_UNAVAILABLE;
+
+
+/*! @abstract   Initialize a MPSNDArrayMultiaryKernel
+ *  @param      device  The device on which the kernel will run
+ *  @param      count   The maximum number of NDArrays read by the kernel
+ *  @return     A valid MPSNDArrayMultiaryKernel, or nil if allocation failure. */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                           sourceCount: (NSUInteger) count NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract   Initialize a MPSNDArrayMultiaryKernel from a NSCoder
+ *  @param      coder   The NSCoder that contains the serialized object
+ *  @param      device  The device on which the kernel will run
+ *  @return     A valid MPSNDArrayMultiaryKernel, or nil if allocation failure. */
+-(nonnull instancetype) initWithCoder: (NSCoder*__nonnull) coder
+                               device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract   Initialize a MPSNDArrayMultiaryKernel from a NSCoder
+ *  @param      coder   The NSCoder that contains the serialized object */
+-(void) encodeWithCoder: (NSCoder * __nonnull) coder;
+
+/*! @abstract   Create a copy with
+ *  @param      zone    The NSZone in which to allocate the MPSNDArrayMultiaryKernel object
+ *  @param      device  The device on which the new kernel will run. Pass nil for same device.
+ *  @return     A valid MPSNDArrayMultiaryKernel, or nil if allocation failure. */
+-(nonnull instancetype) copyWithZone: (NSZone*__nullable) zone
+                              device: (nullable id <MTLDevice>) device;
+
+-(MPSState * __nullable) resultStateForSourceArrays: (NSArray <MPSNDArray *> * __nonnull) sourceArrays
+                                       sourceStates: (NSArray <MPSState *> *__nullable) sourceStates
+                                   destinationArray: (MPSNDArray *__nonnull) destinationArray;
+
+/*! @abstract   Return a descriptor suitable for allocating a NSArray to receive the result
+ *  @discussion The object properties (kernelSize, offsets, edgeMode, etc.) should be properly
+ *              configured as if the -encode call was about to be made, before this method is
+ *              called. Those properties may affect the results.
+ *  @param      sources     The list of sources passed into the -encode call
+ *  @param      state       The source state object, if any passed to the -encode call
+ *  @return     a valid MPSNDArrayDescriptor that may be used to create a MPSNDArray to used to
+ *              hold the results of this kernel.    */
+-(MPSNDArrayDescriptor * __nonnull) destinationArrayDescriptorForSourceArrays: (NSArray <MPSNDArray*> * __nonnull)  sources
+                                                                  sourceState: (MPSState * __nullable) state;
+
+@end
+
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNDArrayMultiaryKernel : MPSNDArrayMultiaryBase
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                           sourceCount: (NSUInteger) count NS_DESIGNATED_INITIALIZER;
+
+/* NSSecureCoding support */
+-(nonnull instancetype) initWithCoder: (NSCoder*__nonnull) coder
+                               device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+// Inference encode calls
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      sourceArrays    The list of sources for the filter in a NSArray.
+ *                              Ordering to be defined by subclass
+ *  @result     A newly allocated MPSNDArray that will contain the result of the calculation
+ *              when the command buffer completes successfully. */
+-(MPSNDArray * __nonnull) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                                   sourceArrays: (NSArray <MPSNDArray *> * __nonnull) sourceArrays;
+
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      sourceArrays    The list of sources for the filter in a NSArray.
+ *                              Ordering to be defined by subclass
+ *  @param      destination     The NDArray to receive the result */
+-(void) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                 sourceArrays: (NSArray <MPSNDArray *> * __nonnull) sourceArrays
+             destinationArray: (MPSNDArray *__nonnull) destination;
+
+
+// Forward training encode calls
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      sourceArrays    The list of sources for the filter in a NSArray.
+ *                              Ordering to be defined by subclass
+ *  @param      outGradientState If non-nil, the address output gradient state is written to this address
+ *  @param      outputStateIsTemporary  If YES, the state if any will be allocated to contain temporary textures and buffers as needed
+ *  @result     A newly allocated MPSNDArray that will contain the result of the calculation
+ *              when the command buffer completes successfully. */
+-(MPSNDArray * __nonnull) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                                   sourceArrays: (NSArray <MPSNDArray *> * __nonnull) sourceArrays
+                                    resultState: (MPSState * __nullable * __nullable) outGradientState
+                         outputStateIsTemporary: (BOOL) outputStateIsTemporary;
+
+
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      sourceArrays    The list of sources for the filter in a NSArray.
+ *                              Ordering to be defined by subclass
+ *  @param      outGradientState The output gradient state to record the operation for later use by gradient
+ *  @param      destination     A destination array to contain the result of the calculation
+ *              when the command buffer completes successfully. */
+-(void) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                 sourceArrays: (NSArray <MPSNDArray *> * __nonnull) sourceArrays
+                  resultState: (MPSState * __nullable) outGradientState
+             destinationArray: (MPSNDArray * __nonnull) destination;
+
+@end
+
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNDArrayMultiaryGradientKernel : MPSNDArrayMultiaryBase
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                           sourceCount: (NSUInteger) count NS_UNAVAILABLE;
+
+/* NSSecureCoding support */
+-(nonnull instancetype) initWithCoder: (NSCoder*__nonnull) coder
+                               device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract   Initialize a MPSNDArrayMultiaryKernel
+ *  @param      device                The device on which the kernel will run
+ *  @param      count                 The maximum number of NDArrays read by the kernel
+ *  @param      sourceGradientIndex   The source index for which gradient will be calculated
+ *  @return     A valid MPSNDArrayMultiaryKernel, or nil if allocation failure. */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                           sourceCount: (NSUInteger) count
+                   sourceGradientIndex: (NSUInteger) sourceGradientIndex NS_DESIGNATED_INITIALIZER;
+
+//RFC:  While this design is nice as it allows the same set of source arrays to
+//      be used for forward and gradient passees, it causes a problem for the
+//      getters and setters of properties like offset, kernel size, etc.
+//      There is currently no way to manually set this information for the gradient.
+//      This may not be viewed as a problem as this information is automatically
+//      set by the gradient state.
+
+// Gradient encode methods
+// Inference encode calls.
+-(MPSNDArray * __nonnull) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                                   sourceArrays: (NSArray <MPSNDArray *> * __nonnull) sources
+                                 sourceGradient: (MPSNDArray * __nonnull) gradient
+                                  gradientState: (MPSState * __nonnull) state;
+
+-(void) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                 sourceArrays: (NSArray <MPSNDArray *> * __nonnull) sources
+               sourceGradient: (MPSNDArray * __nonnull) gradient
+                gradientState: (MPSState * __nonnull) state
+             destinationArray: (MPSNDArray *__nonnull) destination;
+
+@end
+
+
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNDArrayUnaryKernel : MPSNDArrayMultiaryKernel
+
+/*! @property  offsets
+ *  @abstract  The coordinate of the position read from this source array which is
+ *             used to calculate the result value at [0,0,0,....]
+ *             If the position read is actually a contiguous region (e.g. the area covered by
+ *             a convolution kernel) then this is the center of that region, rounded down, for
+ *             each dimension.
+ *             Default: 0,0,0...
+ */
+@property (readonly, nonatomic)  MPSNDArrayOffsets offsets;
+
+/*! @property  edgeMode
+ *  @abstract  The edge mode used for a source NDArray
+ *             Default: MPSImageEdgeModeZero
+ */
+@property (readonly, nonatomic)  MPSImageEdgeMode edgeMode;
+
+/*! @property  kernelSizes
+ *  @abstract  The diameters of the point spread function in each dimension for a source NDArray
+ *             Default: 1
+ */
+@property (readonly, nonatomic)  MPSNDArraySizes kernelSizes;
+
+/*! @property  kernelStrides
+ *  @abstract  If the filter is a "backwards" filter such as a gradient filter
+ *             or convolution transpose, then this is the upsampling ratio and
+ *             zeros are inserted in the result.
+ *             Default: 1
+ */
+@property (readonly, nonatomic)  MPSNDArrayOffsets strides;
+
+/*! @property  dilationRate
+ *  @abstract  The stride in each dimension from one PSF tap to an adjacent
+ *             PSF tap. Default: 1
+ */
+@property (readonly, nonatomic)  MPSNDArraySizes dilationRates;
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                           sourceCount: (NSUInteger) count NS_UNAVAILABLE;
+
+/* NSSecureCoding support */
+-(nonnull instancetype) initWithCoder: (NSCoder*__nonnull) coder
+                               device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+// Inference encode calls
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      sourceArray     The source for the filter in an NSArray.
+ *  @result     A newly allocated MPSNDArray that will contain the result of the calculation
+ *              when the command buffer completes successfully. */
+-(MPSNDArray * __nonnull) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                                    sourceArray: (MPSNDArray *__nonnull) sourceArray;
+
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      sourceArray     The source for the filter in an NSArray.
+ *  @param      destination     The NDArray to receive the result */
+-(void) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                  sourceArray: (MPSNDArray *__nonnull) sourceArray
+             destinationArray: (MPSNDArray *__nonnull) destination;
+
+
+// Forward training encode calls
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      sourceArray     The source for the filter in an NSArray.
+ *  @param      outGradientState If non-nil, the address output gradient state is written to this address
+ *  @param      outputStateIsTemporary  If YES, the state if any will be allocated to contain temporary textures and buffers as needed
+ *  @result     A newly allocated MPSNDArray that will contain the result of the calculation
+ *              when the command buffer completes successfully. */
+-(MPSNDArray * __nonnull) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                                    sourceArray: (MPSNDArray *__nonnull) sourceArray
+                                    resultState: (MPSState * __nullable * __nullable) outGradientState
+                         outputStateIsTemporary: (BOOL) outputStateIsTemporary;
+
+
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      sourceArray     The source for the filter in an NSArray.
+ *  @param      outGradientState The output gradient state to record the operation for later use by gradient
+ *  @param      destination     A destination array to contain the result of the calculation
+ *              when the command buffer completes successfully. */
+-(void) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                  sourceArray: (MPSNDArray *__nonnull) sourceArray
+                  resultState: (MPSState * __nullable) outGradientState
+             destinationArray: (MPSNDArray * __nonnull) destination;
+
+@end
+
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNDArrayUnaryGradientKernel : MPSNDArrayMultiaryGradientKernel
+
+//RFC:  While this design is nice as it allows the same set of source arrays to
+//      be used for forward and gradient passees, it causes a problem for the
+//      getters and setters of properties like offset, kernel size, etc.
+//      There is currently no way to manually set this information for the gradient.
+//      This may not be viewed as a problem as this information is automatically
+//      set by the gradient state.
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                           sourceCount: (NSUInteger) count
+                   sourceGradientIndex: (NSUInteger) sourceGradientIndex NS_UNAVAILABLE;
+
+/* NSSecureCoding support */
+-(nonnull instancetype) initWithCoder: (NSCoder*__nonnull) coder
+                               device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+// Gradient encode methods
+// Inference encode calls.
+-(MPSNDArray * __nonnull) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                                    sourceArray: (MPSNDArray *__nonnull) sourceArray
+                                 sourceGradient: (MPSNDArray * __nonnull) gradient
+                                  gradientState: (MPSState * __nonnull) state;
+
+-(void) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                  sourceArray: (MPSNDArray *__nonnull) sourceArray
+               sourceGradient: (MPSNDArray * __nonnull) gradient
+                gradientState: (MPSState * __nonnull) state
+             destinationArray: (MPSNDArray *__nonnull) destination;
+
+@end
+
+
+
+
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNDArrayBinaryKernel : MPSNDArrayMultiaryKernel
+
+/*! @property  primaryOffsets
+ *  @abstract  The coordinate of the position read from this source array which is
+ *             used to calculate the result value at [0,0,0,....]
+ *             If the position read is actually a contiguous region (e.g. the area covered by
+ *             a convolution kernel) then this is the center of that region, rounded down, for
+ *             each dimension.
+ *             Default: 0,0,0...
+ */
+@property (readonly, nonatomic)  MPSNDArrayOffsets primaryOffsets;
+
+/*! @property  primaryEdgeMode
+ *  @abstract  The edge mode used for a source NDArray
+ *             Default: MPSImageEdgeModeZero
+ */
+@property (readonly, nonatomic)  MPSImageEdgeMode primaryEdgeMode;
+
+/*! @property  primaryKernelSizes
+ *  @abstract  The diameters of the point spread function in each dimension for a source NDArray
+ *             Default: 1
+ */
+@property (readonly, nonatomic)  MPSNDArraySizes primaryKernelSizes;
+
+/*! @property  primaryStrides
+ *  @abstract  If the filter is a "backwards" filter such as a gradient filter
+ *             or convolution transpose, then this is the upsampling ratio and
+ *             zeros are inserted in the result.
+ *             Default: 1
+ */
+@property (readonly, nonatomic)  MPSNDArrayOffsets primaryStrides;
+
+/*! @property  primaryDilationRate
+ *  @abstract  The stride in each dimension from one PSF tap to an adjacent
+ *             PSF tap. Default: 1
+ */
+@property (readonly, nonatomic)  MPSNDArraySizes primaryDilationRates;
+
+
+/*! @property  secondaryOffsets
+ *  @abstract  The coordinate of the position read from this source array which is
+ *             used to calculate the result value at [0,0,0,....]
+ *             If the position read is actually a contiguous region (e.g. the area covered by
+ *             a convolution kernel) then this is the center of that region, rounded down, for
+ *             each dimension.
+ *             Default: 0,0,0...
+ */
+@property (readonly, nonatomic)  MPSNDArrayOffsets secondaryOffsets;
+
+/*! @property  secondaryEdgeMode
+ *  @abstract  The edge mode used for a source NDArray
+ *             Default: MPSImageEdgeModeZero
+ */
+@property (readonly, nonatomic)  MPSImageEdgeMode secondaryEdgeMode;
+
+/*! @property  secondaryKernelSizes
+ *  @abstract  The diameters of the point spread function in each dimension for a source NDArray
+ *             Default: 1
+ */
+@property (readonly, nonatomic)  MPSNDArraySizes secondaryKernelSizes;
+
+/*! @property  secondaryStrides
+ *  @abstract  If the filter is a "backwards" filter such as a gradient filter
+ *             or convolution transpose, then this is the upsampling ratio and
+ *             zeros are inserted in the result.
+ *             Default: 1
+ */
+@property (readonly, nonatomic)  MPSNDArrayOffsets secondaryStrides;
+
+/*! @property  secondaryDilationRate
+ *  @abstract  The stride in each dimension from one PSF tap to an adjacent
+ *             PSF tap. Default: 1
+ */
+@property (readonly, nonatomic)  MPSNDArraySizes secondaryDilationRates;
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                           sourceCount: (NSUInteger) count NS_UNAVAILABLE;
+
+/* NSSecureCoding support */
+-(nonnull instancetype) initWithCoder: (NSCoder*__nonnull) coder
+                               device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+// Inference encode calls
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf                 The command buffer into which to encode the kernel
+ *  @param      primarySourceArray     The primary source for the filter in an NSArray.
+ *  @param      secondarySourceArray   The secondary source for the filter in an NSArray.
+ *  @result     A newly allocated MPSNDArray that will contain the result of the calculation
+ *              when the command buffer completes successfully. */
+-(MPSNDArray * __nonnull) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                             primarySourceArray: (MPSNDArray *__nonnull) primarySourceArray
+                           secondarySourceArray: (MPSNDArray *__nonnull) secondarySourceArray;
+
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      primarySourceArray     The primary source for the filter in an NSArray.
+ *  @param      secondarySourceArray   The secondary source for the filter in an NSArray.
+ *  @param      destination     The NDArray to receive the result */
+-(void) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+           primarySourceArray: (MPSNDArray *__nonnull) primarySourceArray
+         secondarySourceArray: (MPSNDArray *__nonnull) secondarySourceArray
+             destinationArray: (MPSNDArray *__nonnull) destination;
+
+
+// Forward training encode calls
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      primarySourceArray     The primary source for the filter in an NSArray.
+ *  @param      secondarySourceArray   The secondary source for the filter in an NSArray.
+ *  @param      outGradientState If non-nil, the address output gradient state is written to this address
+ *  @param      outputStateIsTemporary  If YES, the state if any will be allocated to contain temporary textures and buffers as needed
+ *  @result     A newly allocated MPSNDArray that will contain the result of the calculation
+ *              when the command buffer completes successfully. */
+-(MPSNDArray * __nonnull) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                             primarySourceArray: (MPSNDArray *__nonnull) primarySourceArray
+                           secondarySourceArray: (MPSNDArray *__nonnull) secondarySourceArray
+                                    resultState: (MPSState * __nullable * __nullable) outGradientState
+                         outputStateIsTemporary: (BOOL) outputStateIsTemporary;
+
+
+/*! @abstract   Encode a simple inference NDArray kernel and return a NDArray to hold the result
+ *  @param      cmdBuf          The command buffer into which to encode the kernel
+ *  @param      primarySourceArray     The primary source for the filter in an NSArray.
+ *  @param      secondarySourceArray   The secondary source for the filter in an NSArray.
+ *  @param      outGradientState The output gradient state to record the operation for later use by gradient
+ *  @param      destination     A destination array to contain the result of the calculation
+ *              when the command buffer completes successfully. */
+-(void) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+           primarySourceArray: (MPSNDArray *__nonnull) primarySourceArray
+         secondarySourceArray: (MPSNDArray *__nonnull) secondarySourceArray
+                  resultState: (MPSState * __nullable) outGradientState
+             destinationArray: (MPSNDArray * __nonnull) destination;
+
+@end
+
+
+/*!
+ *  @class      MPSNDArrayDivisionPrimaryGradient
+ *
+ *  @dependency This depends on Metal.framework.
+ *
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface MPSNDArrayBinaryPrimaryGradientKernel : MPSNDArrayMultiaryGradientKernel
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                           sourceCount: (NSUInteger) count
+                   sourceGradientIndex: (NSUInteger) sourceGradientIndex NS_UNAVAILABLE;
+
+-(nonnull instancetype) initWithDevice:(id<MTLDevice> _Nonnull)device NS_DESIGNATED_INITIALIZER;
+
+/* NSSecureCoding support */
+-(nonnull instancetype) initWithCoder: (NSCoder*__nonnull) coder
+                               device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+// Gradient encode methods
+// Inference encode calls.
+-(MPSNDArray * __nonnull) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                             primarySourceArray: (MPSNDArray *__nonnull) primarySourceArray
+                           secondarySourceArray: (MPSNDArray *__nonnull) secondarySourceArray
+                                 sourceGradient: (MPSNDArray * __nonnull) gradient
+                                  gradientState: (MPSState * __nonnull) state;
+
+-(void) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+           primarySourceArray: (MPSNDArray *__nonnull) primarySourceArray
+         secondarySourceArray: (MPSNDArray *__nonnull) secondarySourceArray
+               sourceGradient: (MPSNDArray * __nonnull) gradient
+                gradientState: (MPSState * __nonnull) state
+             destinationArray: (MPSNDArray *__nonnull) destination;
+
+@end    // MPSNDArrayDivisionPrimaryGradient
+
+/*!
+ *  @class      MPSNDArrayDivisionSecondaryGradient
+ *
+ *  @dependency This depends on Metal.framework.
+ *
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface MPSNDArrayBinarySecondaryGradientKernel : MPSNDArrayMultiaryGradientKernel
+
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                           sourceCount: (NSUInteger) count
+                   sourceGradientIndex: (NSUInteger) sourceGradientIndex NS_UNAVAILABLE;
+
+-(nonnull instancetype) initWithDevice:(id<MTLDevice> _Nonnull)device NS_DESIGNATED_INITIALIZER;
+
+/* NSSecureCoding support */
+-(nonnull instancetype) initWithCoder: (NSCoder*__nonnull) coder
+                               device: (nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+// Gradient encode methods
+// Inference encode calls.
+-(MPSNDArray * __nonnull) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                             primarySourceArray: (MPSNDArray *__nonnull) primarySourceArray
+                           secondarySourceArray: (MPSNDArray *__nonnull) secondarySourceArray
+                                 sourceGradient: (MPSNDArray * __nonnull) gradient
+                                  gradientState: (MPSState * __nonnull) state;
+
+-(void) encodeToCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+           primarySourceArray: (MPSNDArray *__nonnull) primarySourceArray
+         secondarySourceArray: (MPSNDArray *__nonnull) secondarySourceArray
+               sourceGradient: (MPSNDArray * __nonnull) gradient
+                gradientState: (MPSState * __nonnull) state
+             destinationArray: (MPSNDArray *__nonnull) destination;
+
+@end    // MPSNDArrayDivisionSecondaryGradient
+
+
+#endif /* MPSNDArrayKernel_h */
+
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSNDArray.framework/Headers/MPSNDArrayTypes.h
+//
+//  MPSNDArrayTypes.h
+//  MPS
+//
+//  Created by Ian Ollmann on 12/20/18.
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#ifndef MPSNDArrayTypes_h
+#define MPSNDArrayTypes_h
+
+typedef struct
+{
+    NSInteger dimensions[16];
+}MPSNDArrayOffsets;
+
+typedef struct
+{
+    NSUInteger dimensions[16];
+}MPSNDArraySizes;
+
+#endif /* MPSNDArrayTypes_h */
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSNDArray.framework/Headers/MPSNDArray.h
+/*!
+ *  @header MPSNDArray.h
+ *  @framework MPSNDArray
+ *
+ *  @copyright Copyright (c) 2018 Apple Inc. All rights reserved.
+ */
+
+#import <MPSNDArray/MPSNDArrayKernel.h>
+#import <MPSNDArray/MPSNDArrayGradientState.h>
+#import <MPSNDArray/MPSNDArrayMatrixMultiplication.h>
+#import <MPSNDArray/MPSNDArrayStridedSlice.h>
+#import <MPSNDArray/MPSNDArrayGather.h>
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSNDArray.framework/Headers/MPSNDArrayGather.h
+//
+//  MPSNDArrayGather.h
+//  MPSNDArray
+//
+//  Created by Justin Voo on 1/22/19.
+//  Copyright © 2019 Apple. All rights reserved.
+//
+
+#ifndef MPSNDArrayGather_h
+#define MPSNDArrayGather_h
+
+#import <MPSNDArray/MPSNDArrayKernel.h>
+#import <MPSNDArray/MPSNDArrayGradientState.h>
+
+/*! @class  A state created to record a MPSNDArrayGather kernel properties
+ *          at the time an -encode call was made.
+ *
+ *          Must be created with the appropriate MPSNDArray kernel method, for example:
+ *
+ *          MPSNDArrayGather* gather = [[MPSNDArrayGather alloc] initWithDevice: device];
+ *          MPSNDArrayGatherGradientState* state = [gather resultStateForSourceArrays:...];
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNDArrayGatherGradientState : MPSNDArrayGradientState
+@end
+
+/*!
+ *  @class      MPSNDArrayGather
+ *
+ *  @dependency This depends on Metal.framework.
+ *
+ *  @abstract   Applies a gather operation along a given axis.  The encoded primary source array
+ *              contains the data and the secondary array is a 1-D MPSNDArray containing the
+ *              indices.
+ *
+ *                  For each dimension other than axis
+ *                      result[i] = source[i]; 0 <= i < array slice length along dimension
+ *                  Along the specified axis
+ *                      result[i] = source[indices[i]]; 0 <= i < number of indices
+ *
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface MPSNDArrayGather : MPSNDArrayBinaryKernel
+
+/*! @property  axis
+ *  @abstract  The axis along which to apply the gather operation.
+ *              Defaults to zero.
+ */
+@property (readwrite, nonatomic)  NSUInteger axis;
+
+@end    // MPSNDArrayGather
+
+/*!
+ *  @class      MPSNDArrayGatherGradient
+ *
+ *  @dependency This depends on Metal.framework.
+ *
+ *  @abstract   Applies the gradient operation corresponding to a forward gather operation.
+ *
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface MPSNDArrayGatherGradient : MPSNDArrayBinaryPrimaryGradientKernel
+
+@end    // MPSNDArrayGatherGradient
+
+#endif /* MPSNDArrayGather_h */
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSNDArray.framework/Headers/MPSNDArrayGradientState.h
+//
+//  MPSNDArrayGradientState.h
+//  MPS
+//
+//  Created by Dhruv Saksena on 1/3/19.
+//  Copyright © 2019 Apple. All rights reserved.
+//
+
+#ifndef MPSNDArrayGradientState_h
+#define MPSNDArrayGradientState_h
+
+#include <MPSCore/MPSState.h>
+
+@class MPSNDArrayMultiaryKernel;
+@class MPSNDArrayMultiaryGradientKernel;
+
+/*! @class  A state created to record a MPSCNNKernel properties
+ *          at the time an -encode call was made. The contents are opaque.
+ *
+ *          Gradient states must be created with [MPSCNNKernel resultStateForSourceImage:sourceStates:destinationImage:]
+ *          or analogous interfaces.
+ */
+MPS_CLASS_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNDArrayGradientState : MPSState
+
+@end
+
+
+#endif /* MPSNDArrayGradientState_h */
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSCore.framework/Headers/MPSCore.h
 /*!
  *  @header MPSCore.h
@@ -19477,11 +25214,256 @@ NS_DESIGNATED_INITIALIZER;
 #import <MPSCore/MPSCoreTypes.h>
 #import <MPSCore/MPSImage.h>
 #import <MPSCore/MPSKernel.h>
+#import <MPSCore/MPSMatrix.h>
 #import <MPSCore/MPSState.h>
 #import <MPSCore/MPSKernelTypes.h>
 #import <MPSCore/MPSKeyedUnarchiver.h>
+#import <MPSCore/MPSNDArray.h>
 
 #endif /* MPSCore_h */
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSCore.framework/Headers/MPSCommandBuffer.h
+//
+//  MPSCommandBuffer.h
+//  MPSCore
+//
+//  Created by Ian Ollmann on 4/15/19.
+//  Copyright © 2019 Apple. All rights reserved.
+//
+
+#ifndef MPSCommandBuffer_h
+#define MPSCommandBuffer_h
+
+#include <MPSCore/MPSCoreTypes.h>
+
+#ifdef __cplusplus
+    extern "C" {
+#endif
+
+/*!
+ *  @class      MPSPredicate
+ *  @dependency This depends on Metal.framework
+ *  @abstract   A MPSPredicate can be used to run MPS kernels subject to a predicate.
+ *  @discussion The MPSPredicate defines a way to refrain running a kernel on the GPU
+ *              based on values computed on the GPU. That way one can build control flow operations
+ *              that do the decisions on the GPU side mitigating the need to synchronize CPU and GPU
+ *              execution. The predicate is used with the version of encode calls that take
+ *              a object of type @ref MPSKernelEncodeOptions as a parameter (@see MPSCNNKernel for example).
+ *              The code associated with the kernel's encode call is executed on the GPU if and only if
+ *              the predicate is considered to be true.
+ *              NOTE: It is advisable to release MPSPredicate objects promptly as they take a reference
+ *              to a MTLBuffer object and therefore can keep the memory allocated for long periods of time.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSPredicate :  NSObject
+
+/*! @property predicateBuffer
+ *  @abstract The buffer that is used as the predicate
+ */
+@property (readonly, retain, nonatomic, nonnull)  id <MTLBuffer> predicateBuffer;
+
+/*! @property   predicateOffset
+ *  @abstract   Location of the predicate in bytes, must be multiple of four.
+ *  @discussion If the uint32_t value stored at this location in @ref predicateBuffer is other than zero,
+ *              then the predicate is considered to be true and the code is executed on the GPU.
+ *              With this property a single MPSPredicate object can be used with multiple different predication
+ *              operations.
+ *              Default = 0;
+ */
+@property (readonly, nonatomic) NSUInteger predicateOffset;
+
+/*!
+ *  @abstract   Initializes a MPSPredicate object with a buffer and given offset.
+ *  @param      buffer      The buffer to use as a predicate.
+ *  @param      offset      Byteoffset to the predicate buffer where the predicate is stored.
+ *  @result     A pointer to the newly initialized MPSPredicate object.
+ */
++(__nonnull instancetype) predicateWithBuffer: (nonnull id <MTLBuffer>)buffer
+                                       offset: (NSUInteger) offset;
+
+/*!
+ *  @abstract   Initializes a MPSPredicate object with a buffer and given offset.
+ *  @param      buffer      The buffer to use as a predicate.
+ *  @param      offset      Byteoffset to the predicate buffer where the predicate is stored.
+ *  @result     A pointer to the newly initialized MPSPredicate object.
+ */
+-(nonnull instancetype)  initWithBuffer: (nonnull id <MTLBuffer>)buffer
+                                 offset: (NSUInteger) offset
+NS_DESIGNATED_INITIALIZER;
+
+/*!
+ *  @abstract   Initializes a MPSPredicate object for a given device.
+ *  @discussion NOTE: The metal buffer used by the resulting MPSPredicate object may be
+ *              shared among many MPSPredicate objects and therefore care must be used when
+ *              writing to this buffer: writing to any other location in this buffer than the
+ *              four bytes at the offset @ref predicateOffset results in undefined behavior.
+ *
+ *  @param      device      The device the predicate is used with
+ *  @result     A pointer to the newly initialized MPSPredicate object.
+ */
+-(nonnull instancetype)  initWithDevice: (nonnull id <MTLDevice>)device
+NS_DESIGNATED_INITIALIZER;
+
+@end /* MPSPredicate */
+
+#pragma mark MPSPredicate
+@protocol MPSHeapProvider <NSObject>
+@required
+
+/*! @abstract   Return a heap of the size indicated
+ *  @discussion The heap may be larger than requested. 
+ *              id <MTLDevice> implements this method.
+ *  @param      descriptor    A descriptor for the new heap
+ *  @return     A new heap of size at least descriptor.size.  If nil is returned, MPS
+ *              will use the MPS internal heap cache instead to satisfy the allocation. */
+-(nullable id <MTLHeap>) newHeapWithDescriptor: (MTLHeapDescriptor * __nonnull) descriptor;
+        
+@optional
+/*! @abstract   Retire a heap
+ *  @discussion When MPS is done with the heap, this is called to return the heap to the heap provider
+ *              MPS will release the heap after this is called.
+ *  @param      heap                The heap to be retired
+ *  @param      seconds          A hint for how long to cache the heap before retiring it.  See MPSSetHeapCacheDuration(). */
+-(void) retireHeap: (nonnull id <MTLHeap>) heap
+        cacheDelay: (double) seconds;
+        
+@end /* MPSHeapProvider */
+
+
+
+
+/*!
+ *  @class      MPSCommandBuffer
+ *  @dependency This depends on Metal.framework
+ *  @abstract   A MPSCommandBuffer object is used to wrap an existing command buffer with MPS specific options.
+ *  @discussion A MPS kernel typically operates between a fixed set of inputs and outputs.
+ *              The MPSCommandBuffer class provides a way to add further encode-time parameters
+ *              to the encode call using the command buffer. Currently the only parameter included in the
+ *              MPSCommandBuffer that all MPS kernels support is the the predicate option,
+ *              which can be used to pre-empt the kernel from the GPU side.
+ *              NOTE: the options that contain metal resources will be referenced by this object and
+ *              therefore it is advisable to make the lifetime of this object as short as possible as is the
+ *              case for all command buffers.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSCommandBuffer : NSObject <MTLCommandBuffer>
+
+/*! @property   commandBuffer
+ *  @abstract   The Metal Command Buffer that was used to initialize this object.
+ */
+@property (readonly, retain, nonatomic, nonnull)  id <MTLCommandBuffer> commandBuffer;
+
+/*! @property   rootCommandBuffer
+ *  @abstract   The base MTLCommandBuffer underlying the MPSCommandBuffer
+ *  @discussion MPSCommandBuffers may wrap other MPSCommandBuffers, in the process
+ *              creating what is in effect a stack of predicate objects that may be
+ *              pushed or popped by making new MPSCommandBuffers or by calling -commandBuffer.
+ *              In some circumstances, it is preferable to use the root command buffer,
+ *              particularly when trying to identify the command buffer that will be commited
+ *              by -commitAndContinue. */
+@property (readonly, retain, nonatomic, nonnull) id <MTLCommandBuffer> rootCommandBuffer;
+
+
+/*! @property   predicate
+ *  @abstract   A GPU predicate object. Default: nil.
+ */
+@property (readwrite, retain, nonatomic, nullable)  MPSPredicate * predicate;
+
+/*! @property   heapProvider
+ *  @abstract   A application supplied object to allocate MTLHeaps for MPS
+ *  @discussion By default this is nil, which will use MPS' device level global heap cache to
+ *              allocate the heaps. This is a reasonable choice. However, it may be inefficient
+ *              if you are keeping your own MTLHeap, since there will be two pessimistically
+ *              sized free stores which may be larger than is strictly necessary, and of course
+ *              fragmentation across multiple heaps. In such cases, the problem may be solved
+ *              either by using MPS' automatically managed heap (simple) or having MPS use
+ *              your heap. The heapProvider allows you to implement the second case.  To use
+ *              the MPS heap, simply make temporary MPSImages, vectors and matrices.
+ *
+ *              If multiple MPSCommandBuffers reference the same MTLCommandBuffer, changing
+ *              the heapProvider on one will change the heap provider for all of them. */
+@property (readwrite, retain, nonatomic, nullable) id <MPSHeapProvider> heapProvider;
+
+/*!
+ *  @abstract   Initializes a MPSCommandBuffer object with given MTLCommandBuffer.
+ *  @result     A pointer to the newly initialized MPSCommandBuffer object.
+ */
++(__nonnull instancetype) commandBufferWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer;
+
+/*!
+ *  @abstract   Initializes a MPSCommandBuffer object from a given command queue.
+ *  @result     A pointer to the newly initialized MPSCommandBuffer object.
+ */
++(__nonnull instancetype) commandBufferFromCommandQueue: (nonnull id <MTLCommandQueue>) commandQueue;
+
+
+/*!
+ *  @abstract   Initializes an empty MPSCommandBuffer object with given MTLCommandBuffer.
+ *  @result     A pointer to the newly initialized MPSCommandBuffer object.
+ */
+-(nonnull instancetype) initWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+NS_DESIGNATED_INITIALIZER;
+
+/*
+ * Use initWithCommandBuffer: instead
+ */
+-(nonnull instancetype) init NS_UNAVAILABLE;
+
+/*!     @abstract   Commit work encoded so far and continue with a new underlying command buffer
+ *      @discussion This method commits the underlying root MTLCommandBuffer, and makes
+ *                  a new one on the same command queue. The MPS heap is moved forward
+ *                  to the new command buffer such that temporary objects used by
+ *                  the previous command buffer can be still be used with the new one.
+ *
+ *                  This provides a way to move work already encoded into consideration
+ *                  by the Metal back end sooner. For large workloads, e.g. a neural networking graph
+ *                  periodically calling -commitAndContinue may allow you to improve CPU / GPU parallelism
+ *                  without the substantial memory increases associated with double buffering.
+ *                  It will also help decrease overall latency.
+ *
+ *                  Any Metal schedule or completion callbacks previously attached to this
+ *                  object will remain attached to the old command buffer and
+ *                  will fire as expected as the old command buffer is scheduled and
+ *                  completes. If your application is relying on such callbacks to coordinate
+ *                  retain / release of important objects that are needed for work encoded after
+ *                  -commitAndContinue, your application should retain these objects before
+ *                  calling commitAndContinue, and attach new release callbacks to this
+ *                  object with a new completion handler so that they persist through the
+ *                  lifetime of the new underlying command buffer. You may do this, for example
+ *                  by adding the objects to a mutable array before calling -commitAndContinue, then
+ *                  release the mutable array in a new completion callback added after -commitAndContinue.
+ *
+ *                  Because -commitAndContinue commits the old command buffer then switches to a new one,
+ *                  some aspects of command buffer completion may surprise unwary developers. For example,
+ *                  -waitUntilCompleted called immediately after -commitAndContinue asks Metal to wait for
+ *                  the new command buffer to finish, not the old one. Since the new command buffer presumably
+ *                  hasn't been committed yet, it is formally a deadlock, resources may leak and Metal may
+ *                  complain. Your application should ether call -commit before -waitUntilCompleted, or
+ *                  capture the -rootCommandBuffer from before the call to -commitAndContinue and wait
+ *                  on that.  Similarly, your application should be sure to use the appropriate command buffer
+ *                  when querying the [MTLCommandBuffer status] property.
+ *
+ *                  If the underlying MTLCommandBuffer also implements -commitAndContinue, then the message
+ *                  will be forwarded to that object instead. In this way, underlying predicate objects and
+ *                  other state will be preserved.
+ */
+-(void) commitAndContinue;
+
+/*! @abstract   Prefetch heap into the MPS command buffer heap cache.
+ *  @discussion If there is not sufficient free storage in the MPS heap for the command buffer for allocations of total size size,
+ *              pre-warm the MPS heap with a new MTLHeap allocation of sufficient size.  If this size turns out to be too small
+ *              MPS may ask for more heaps later to cover additional allocations. If heapProvider is not nil, the heapProvider
+ *              will be used.
+ *  @param      size        The minimum size of the free store needed */
+-(void) prefetchHeapForWorkloadSize: (size_t) size;
+
+@end /* MPSCommandBuffer */
+
+
+#ifdef __cplusplus
+    }   // extern "C"
+#endif
+
+#endif /* MPSCommandBuffer_h */
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSCore.framework/Headers/MPSKernel.h
 /*!
  *  @header MPSKernel.h
@@ -19496,6 +25478,7 @@ NS_DESIGNATED_INITIALIZER;
 #define MPSKernel_h
 
 #include <MPSCore/MPSCoreTypes.h>
+#include <MPSCore/MPSCommandBuffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -19562,7 +25545,7 @@ extern "C" {
  *              to add this method.
  */
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface MPSKernel  : NSObject <NSCopying, NSSecureCoding>
 
 /****************
@@ -19645,7 +25628,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 @end
@@ -19675,7 +25658,7 @@ extern "C" {
 
 /*! @class MPSKeyedUnarchiver
  *  @abstract A NSKeyedArchiver that supports the MPSDeviceProvider protocol for MPSKernel decoding */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSKeyedUnarchiver : NSKeyedUnarchiver <MPSDeviceProvider>
 
 /* Common NSKeyedUnarchiver methods */
@@ -19683,18 +25666,18 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
                                 fromData:(NSData * __nonnull)data
                                   device: (__nonnull id <MTLDevice>) device
                                    error:(NSError * __nullable * __nullable)error
-        MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
+        MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 + (nullable id)unarchivedObjectOfClass:(__nonnull Class)cls
                               fromData:(NSData * __nonnull)data
                                 device: (__nonnull id <MTLDevice>) device
                                  error:(NSError * __nullable * __nullable)error
-        MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
+        MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 - (nonnull instancetype)initForReadingFromData: (NSData * __nonnull)data
                                         device: (__nonnull id <MTLDevice>) device
                                          error: (NSError * __nullable * __nullable)error
-        MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
+        MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*! @abstract   Reports which device to use for unarchiving MPSKernels */
 -(__nonnull id <MTLDevice>) mpsMTLDevice;
@@ -19715,27 +25698,27 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
 + (nullable id)unarchiveObjectWithData: (NSData * __nonnull)data NS_UNAVAILABLE;
 + (nullable id)unarchiveObjectWithData: (NSData *__nonnull)data
                                 device: (__nonnull id <MTLDevice>) device
-        MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -unarchivedObjectOfClass:fromData:device:error: instead", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3,12.0));
+        MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -unarchivedObjectOfClass:fromData:device:error: instead", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3,12.0))  MPS_UNAVAILABLE(uikitformac);
 + (nullable id)unarchiveTopLevelObjectWithData:(NSData *__nonnull)data
                                          error:(NSError * __nullable * __nullable)error NS_UNAVAILABLE;
 + (nullable id)unarchiveTopLevelObjectWithData:(NSData *__nonnull)data
                                         device: (__nonnull id <MTLDevice>) device
                                          error:(NSError * __nullable * __nullable)error
-        MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -unarchivedObjectOfClass:fromData:device:error: instead", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3,12.0));
+        MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -unarchivedObjectOfClass:fromData:device:error: instead", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3,12.0))  MPS_UNAVAILABLE(uikitformac);
 
 + (nullable id)unarchiveObjectWithFile:(NSString * __nonnull)path NS_UNAVAILABLE;
 - (nonnull instancetype)initForReadingWithData:(NSData * __nonnull)data NS_UNAVAILABLE;
 
 + (nullable id)unarchiveObjectWithFile:(NSString * __nonnull)path
                                 device: (__nonnull id <MTLDevice>) device
-        MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -initForReadingFromData:device:error: instead", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3,12.0));
+        MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -initForReadingFromData:device:error: instead", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3,12.0))  MPS_UNAVAILABLE(uikitformac);
 
 - (nullable instancetype)initWithDevice: (__nonnull id <MTLDevice>) device
-        MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -initForReadingFromData:device:error: instead", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3,12.0));
+        MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -initForReadingFromData:device:error: instead", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3,12.0))  MPS_UNAVAILABLE(uikitformac);
 
 - (nonnull instancetype)initForReadingWithData:(NSData * __nonnull)data
                                         device: (__nonnull id <MTLDevice>) device
-        MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -initForReadingFromData:device:error: instead", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3,12.0));
+        MPS_AVAILABLE_STARTING_BUT_DEPRECATED("Please use -initForReadingFromData:device:error: instead", macos(10.13.4, 10.14), ios(11.3, 12.0), tvos(11.3,12.0))  MPS_UNAVAILABLE(uikitformac);
 
 @end
     
@@ -19780,6 +25763,7 @@ extern "C" {
 #if defined(DOXYGEN)
 #   define  MPS_HIDE_AVAILABILITY 1
 #endif
+
     
 /*
  *  Macros to describe MPS functionality availability by operating system revision.
@@ -19790,12 +25774,14 @@ extern "C" {
 #    define MPS_CLASS_AVAILABLE_STARTING(...)
 #    define MPS_AVAILABLE_STARTING(...)
 #    define MPS_AVAILABLE_STARTING_BUT_DEPRECATED(...)
+#    define MPS_UNAVAILABLE(...)
 #else
 #    define MPS_ENUM_AVAILABLE_STARTING(...)                    __API_AVAILABLE(__VA_ARGS__)
 #    define MPS_ENUM_AVAILABLE_STARTING_BUT_DEPRECATED(...)     __API_DEPRECATED_WITH_REPLACEMENT(__VA_ARGS__)
 #    define MPS_CLASS_AVAILABLE_STARTING(...)                   __API_AVAILABLE(__VA_ARGS__)
 #    define MPS_AVAILABLE_STARTING(...)                         __API_AVAILABLE(__VA_ARGS__)
 #    define MPS_AVAILABLE_STARTING_BUT_DEPRECATED(...)          __API_DEPRECATED_WITH_REPLACEMENT(__VA_ARGS__)
+#    define MPS_UNAVAILABLE(...)                                __API_UNAVAILABLE(__VA_ARGS__)
 #endif
     
 /*
@@ -19810,6 +25796,7 @@ extern "C" {
 #else
 #   define  MPS_SWIFT_NAME(_name)
 #endif
+
     
 /*! @enum       MPSKernelOptions
  *  @memberof   MPSKernel
@@ -19822,7 +25809,7 @@ extern "C" {
 #endif
 {
     /*! Use default options */
-    MPSKernelOptionsNone                         MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0)) MPS_SWIFT_NAME(none) = 0U,
+    MPSKernelOptionsNone                         MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0)) MPS_SWIFT_NAME(none) = 0U,
     
     /*! Most MPS functions will sanity check their arguments. This has a small but
      *  non-zero CPU cost. Setting the MPSKernelOptionsSkipAPIValidation will skip these checks.
@@ -19831,7 +25818,7 @@ extern "C" {
      *  if the requested operation can not be completed for some reason. Most error states
      *  will be passed through to Metal which may do nothing or abort the program if Metal
      *  API validation is turned on. */
-    MPSKernelOptionsSkipAPIValidation            MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))  = 1U << 0,
+    MPSKernelOptionsSkipAPIValidation            MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))  = 1U << 0,
     
     /*! When possible, MPSKernels use a higher precision data representation internally than
      *  the destination storage format to avoid excessive accumulation of computational
@@ -19841,7 +25828,7 @@ extern "C" {
      *  internally when it feels that a less precise result would yield better performance.
      *  The expected performance win is often small, perhaps 0-20%. When enabled, the
      *  precision of the result may vary by hardware and operating system. */
-    MPSKernelOptionsAllowReducedPrecision        MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))  = 1U << 1,
+    MPSKernelOptionsAllowReducedPrecision        MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))  = 1U << 1,
     
     /*! Some MPSKernels may automatically split up the work internally into multiple tiles.
      *  This improves performance on larger textures and reduces the amount of memory needed by
@@ -19850,12 +25837,12 @@ extern "C" {
      *  one another causing MPS to subdivide your tiles for its own use inefficiently. Pass
      *  MPSKernelOptionsDisableInternalTiling to force MPS to process your data tile as a
      *  single chunk.   */
-    MPSKernelOptionsDisableInternalTiling        MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) = 1U << 2,
+    MPSKernelOptionsDisableInternalTiling        MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) = 1U << 2,
     
     /*! Enabling this bit will cause various -encode... methods to call MTLCommandEncoder
      *  push/popDebugGroup.  The debug string will be drawn from MPSKernel.label, if any
      *  or the name of the class otherwise. */
-    MPSKernelOptionsInsertDebugGroups            MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) = 1U << 3,
+    MPSKernelOptionsInsertDebugGroups            MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) = 1U << 3,
 
     /*! Some parts of MPS can provide debug commentary and tuning advice when run.
      *  Setting this bit to 1 will cause the commentary to be emitted to stderr. Otherwise,
@@ -19866,7 +25853,7 @@ extern "C" {
      *  @code
      *    llvm>  po  <MPS object pointer>
      *  @endcode */
-    MPSKernelOptionsVerbose                      MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) = 1U << 4,
+    MPSKernelOptionsVerbose                      MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) = 1U << 4,
     
 };
     
@@ -19882,10 +25869,22 @@ typedef NS_ENUM(NSUInteger, MPSImageEdgeMode)
 {
     /*! Out of bound pixels are (0,0,0,1) for image with pixel format without alpha channel
      *  and (0,0,0,0) for image with pixel format that has an alpha channel */
-    MPSImageEdgeModeZero                MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(9.0), tvos(9.0)) MPS_SWIFT_NAME(zero)  = 0,
+    MPSImageEdgeModeZero                MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0)) MPS_SWIFT_NAME(zero)  = 0,
     
     /*! Out of bound pixels are clamped to nearest edge pixel */
-    MPSImageEdgeModeClamp               MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(9.0), tvos(9.0))  = 1,
+    MPSImageEdgeModeClamp               MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))  = 1,
+
+    /*! Out of bound pixels are mirrored wrt. the nearest edge pixel center - ie. the edge of the image is not repeated.
+     *  NOTE: The only filter that currently supports this mode is @ref MPSNNPad - using this with other filters results in undefined behavior. */
+    MPSImageEdgeModeMirror              MPS_ENUM_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1)),
+
+    /*! Out of bound pixels are mirrored wrt. the nearest edge pixel nearest border - ie. the edge of the image is repeated.
+     *  NOTE: The only filter that currently supports this mode is @ref MPSNNPad - using this with other filters results in undefined behavior. */
+    MPSImageEdgeModeMirrorWithEdge      MPS_ENUM_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1)),
+
+    /*! Out of bound pixels are filled with a constant value defined by the filter.
+     *  NOTE: The only filter that currently supports this mode is @ref MPSNNPad - using this with other filters results in undefined behavior. */
+    MPSImageEdgeModeConstant            MPS_ENUM_AVAILABLE_STARTING( macos(10.14.1), ios(12.1), uikitformac(13.0), tvos(12.1)),
 }
 #if defined(DOXYGEN)
     MPSImageEdgeMode
@@ -19912,23 +25911,25 @@ typedef NS_ENUM(NSUInteger, MPSImageFeatureChannelFormat)
 {
     /*! No format. This can mean  according to context invalid format or any format.  In the
         latter case, it is an invitation to MPS to pick a format. */
-    MPSImageFeatureChannelFormatNone        MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), tvos(10.0)) MPS_SWIFT_NAME(none)  = 0,
+    MPSImageFeatureChannelFormatNone        MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) MPS_SWIFT_NAME(none)  = 0,
     
     /*! uint8_t with value [0,255] encoding [0,1.0] */
-    MPSImageFeatureChannelFormatUnorm8      MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), tvos(10.0))   = 1,
+    MPSImageFeatureChannelFormatUnorm8      MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))   = 1,
     
     /*! uint16_t with value [0,65535] encoding [0,1.0] */
-    MPSImageFeatureChannelFormatUnorm16     MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), tvos(10.0))  = 2,
+    MPSImageFeatureChannelFormatUnorm16     MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))  = 2,
     
     /*! IEEE-754 16-bit floating-point value. "half precision" Representable normal range is +-[2**-14, 65504], 0, Infinity, NaN. 11 bits of precision + exponent. */
-    MPSImageFeatureChannelFormatFloat16     MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), tvos(10.0))  = 3,
+    MPSImageFeatureChannelFormatFloat16     MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))  = 3,
     
     /*! IEEE-754 32-bit floating-point value.  "single precision" (standard float type in C) 24 bits of precision + exponent */
-    MPSImageFeatureChannelFormatFloat32     MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), tvos(10.0))  = 4,
+    MPSImageFeatureChannelFormatFloat32     MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))  = 4,
     
-    
+    /*! Reserved for later expansion*/
+    MPSImageFeatureChannelFormat_reserved0  MPS_ENUM_AVAILABLE_STARTING(macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))  = 5,
+
     /* Always last */
-    MPSImageFeatureChannelFormatCount        MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+    MPSImageFeatureChannelFormatCount        MPS_ENUM_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 }
 #if defined(DOXYGEN)
     MPSImageFeatureChannelFormat
@@ -19960,33 +25961,65 @@ typedef NS_ENUM(NSUInteger, MPSImageFeatureChannelFormat)
     typedef NS_ENUM(uint32_t, MPSDataType)
 #endif
 {
-    MPSDataTypeInvalid MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) MPS_SWIFT_NAME(invalid) = 0,
+    MPSDataTypeInvalid MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) MPS_SWIFT_NAME(invalid) = 0,
     
-    MPSDataTypeFloatBit MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) = 0x10000000,
-    MPSDataTypeFloat32  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) = MPSDataTypeFloatBit | 32,
-    MPSDataTypeFloat16  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) = MPSDataTypeFloatBit | 16,
+    MPSDataTypeFloatBit MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) = 0x10000000,
+    MPSDataTypeFloat32  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) = MPSDataTypeFloatBit | 32,
+    MPSDataTypeFloat16  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) = MPSDataTypeFloatBit | 16,
     
     // signed integers
-    MPSDataTypeSignedBit MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) = 0x20000000,
+    MPSDataTypeSignedBit MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) = 0x20000000,
     MPSDataTypeIntBit DEPRECATED_ATTRIBUTE = MPSDataTypeSignedBit,
-    MPSDataTypeInt8   MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))   = MPSDataTypeSignedBit | 8,
-    MPSDataTypeInt16  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))   = MPSDataTypeSignedBit | 16,
+    MPSDataTypeInt8   MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))   = MPSDataTypeSignedBit | 8,
+    MPSDataTypeInt16  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))   = MPSDataTypeSignedBit | 16,
+    MPSDataTypeInt32  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))   = MPSDataTypeSignedBit | 32,
 
     // unsigned integers. Range: [0, UTYPE_MAX]
-    MPSDataTypeUInt8   MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))   = 8,
-    MPSDataTypeUInt16  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))   = 16,
-    MPSDataTypeUInt32  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))   = 32,
+    MPSDataTypeUInt8   MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))   = 8,
+    MPSDataTypeUInt16  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))   = 16,
+    MPSDataTypeUInt32  MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))   = 32,
 
     // unsigned normalized  (see for example Metal's unorm8 and unorm16 pixel formats). Range: [0, 1.0]
-    MPSDataTypeNormalizedBit MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))   = 0x40000000,
-    MPSDataTypeUnorm1   MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) = MPSDataTypeNormalizedBit | 1,
-    MPSDataTypeUnorm8   MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) = MPSDataTypeNormalizedBit | 8,
+    MPSDataTypeNormalizedBit MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))   = 0x40000000,
+    MPSDataTypeUnorm1   MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) = MPSDataTypeNormalizedBit | 1,
+    MPSDataTypeUnorm8   MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) = MPSDataTypeNormalizedBit | 8,
 }
 #if defined(DOXYGEN)
     MPSDataType
 #endif
     ;
 
+/*! @enum       MPSAliasingStrategy
+ *  @discussion  A description of whether slices,transposes and other views should alias their underlying content or be copied into new storage.
+ *
+ *  @constant   MPSAliasingStrategyDefault              View should alias if possible, otherwise make a copy. In the latter case if the allocation fails, nil will be returned.
+ *  @constant   MPSAliasingStrategyShallAlias           View must alias. If it can not, nil is returned.
+ *  @constant   MPSAliasingStrategyShallNotAlias        Always make a copy. If there isn't enough memory available the allocation may fail and nil will be returned.
+ *  @constant   MPSAliasingStrategyPreferTemporaryMemory If the view doesn't alias the old object, use temporary for it. If they do alias, the same type of memory must be used.
+ *  @constant   MPSAliasingStrategyPreferNonTemporaryMemory If the view doesn't alias the old object, use non-temporary for it. If they do alias, the same type of memory must be used.
+ */
+#if defined(DOXYGEN)
+    typedef enum MPSAliasingStrategy
+#else
+    typedef NS_OPTIONS(NSUInteger, MPSAliasingStrategy)
+#endif
+    {
+        MPSAliasingStrategyDefault  MPS_ENUM_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0)) MPS_SWIFT_NAME( Default ) = 0,
+
+        /* should new object alias the old one? */
+        MPSAliasingStrategyDontCare = MPSAliasingStrategyDefault,
+        MPSAliasingStrategyShallAlias MPS_ENUM_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0)) = 1UL << 0,
+        MPSAliasingStrategyShallNotAlias MPS_ENUM_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0)) = 1UL << 1,
+        MPSAliasingStrategyAliasingReserved = MPSAliasingStrategyShallAlias | MPSAliasingStrategyShallNotAlias,
+
+        /* If they don't alias, should new object use temporary memory or not? */
+        MPSAliasingStrategyPreferTemporaryMemory MPS_ENUM_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0)) = 1UL << 2,                                ///< The view must alias the original.  Typical usage for views used for destination slicing.
+        MPSAliasingStrategyPreferNonTemporaryMemory MPS_ENUM_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0)) = 1UL << 3,                                ///< The view must alias the original.  Typical usage for views used for destination slicing.
+    }
+#if defined(DOXYGEN)
+    MPSAliasingStrategy
+#endif
+;
 
 /*!
  *  @struct     MPSOffset
@@ -20023,6 +26056,16 @@ typedef struct MPSSize
     double  height;     /**< The height of the region   */
     double  depth;      /**< The depth of the region    */
 }MPSSize;
+    
+/*! @struct MPSDimensionSize
+ *  @memberof MPSNDArray
+ *  @abstract Describes a sub-region of an array dimension   */
+ typedef struct MPSDimensionSlice
+ {
+     NSUInteger        start;        /**< the position of the first element in the slice */
+     NSUInteger        length;        /**< the number of elements in the slice. */
+ }MPSDimensionSlice;
+
 
 /*!
  *  @struct     MPSRegion
@@ -20037,7 +26080,7 @@ typedef struct MPSRegion
     
 /*!
  *  @struct         MPSScaleTransform
- *  @abstract       Transform matrix for explict control over resampling in MPSImageLanczosScale.
+ *  @abstract       Transform matrix for explict control over resampling in MPSImageScale.
  *  @discussion     The MPSScaleTransform is equivalent to:
  *       @code
  *          (CGAffineTransform) {
@@ -20047,7 +26090,7 @@ typedef struct MPSRegion
  *           }
  *       @endcode
  *
- *  @memberof       MPSImageLanczosScale
+ *  @memberof       MPSImageScale
  */
 typedef struct MPSScaleTransform
 {
@@ -20057,6 +26100,28 @@ typedef struct MPSScaleTransform
     double  translateY;                     /**< vertical translation */
 }MPSScaleTransform;
 
+/*!
+ *  @struct     MPSImageCoordinate
+ *  @memberof   MPSImage
+ *  @abstract   A unsigned coordinate with x, y and channel components
+ */
+typedef struct MPSImageCoordinate
+{
+    NSUInteger x;           /**<    The horizontal component of the coordinate. Units: pixels      */
+    NSUInteger y;           /**<    The vertical component of the coordinate. Units: pixels        */
+    NSUInteger channel;     /**<    The index of the channel or feature channel within the pixel   */
+}MPSImageCoordinate;
+
+/*!
+ *  @struct     MPSImageRegion
+ *  @memberof   MPSImage
+ *  @abstract   A rectangular subregion of a MPSImage
+ */
+typedef struct MPSImageRegion
+{
+    MPSImageCoordinate offset;      /**<    The position of the top left corner of the subregion */
+    MPSImageCoordinate size;        /**<    The size {pixels, pixels, channels} of the subregion */
+}MPSImageRegion;
 
     
 /*!
@@ -20067,7 +26132,7 @@ typedef struct MPSScaleTransform
  *              This is the default clipping rectangle or the input extent for MPSKernels.
  */
 extern const MTLRegion  MPSRectNoClip
-    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0));
+    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
     
 /*! @abstract   A way of extending a NSCoder to enable the setting of MTLDevice for unarchived objects
  *  @discussion When a object is initialized by a NSCoder, it calls -initWithCoder:, which is 
@@ -20092,6 +26157,475 @@ extern const MTLRegion  MPSRectNoClip
 
 
 #endif /* MPSCoreTypes_h */
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSCore.framework/Headers/MPSNDArray.h
+//
+//  MPSNDArray.h
+//  MPSCore
+//
+//  Created by Ian Ollmann on 11/16/18.
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#ifndef MPSNDArray_h
+#define MPSNDArray_h
+
+#include <MPSCore/MPSCoreTypes.h>
+#import <Metal/MTLBuffer.h>
+#include <simd/simd.h>
+
+@class MPSMatrix;
+@class MPSMatrixDescriptor;
+@class MPSImage;
+typedef NSArray<MPSImage*>  MPSImageBatch;
+
+/*!
+ *  @class      MPSNDArrayDescriptor
+ *  @dependency This depends on Metal.framework
+ *  @abstract   A MPSNDArrayDescriptor object describes a attributes of MPSNDArray and is used to
+ *              create one (see MPSNDArray discussion below) */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNDArrayDescriptor : NSObject
+
+/*! @abstract  Data Type of the MPSNDArray elements
+ */
+@property (readwrite, nonatomic)  MPSDataType dataType;
+
+/*! @abstract   The number of dimensions in the NDArray.
+ *  @discussion May not exceed 16. A 0-diumension MPSNDArray is a single scalar value.
+ *              Undefined dimensions are implicitly length 1. */
+@property (readwrite, nonatomic)  NSUInteger numberOfDimensions;
+
+/*! @abstract   The number of elements of type dataType in the indicated dimension.
+ *  @discussion If dimensionIndex >= numberOfDimensions, 1 will be returned.
+ *  @param      dimensionIndex  dimension the MPSNDArray for which to return the length
+ *  @return     The number of elements in that dimension. */
+-(NSUInteger)  lengthOfDimension: (NSUInteger)dimensionIndex;
+
+/*! @abstract      The slice dimensions for each dimension
+ *  @discusion     A slice is a subregion of a dimension. It is
+ *                 used to calve off a fraction of a larger NDArray.
+ *  @param         dimensionIndex           The index of the dimension
+ *  @return        Returns the slice range for the index. If the
+ *                 dimensionIndex >= numberOfDimensions, {0,1} is returned. */
+-(MPSDimensionSlice)   sliceRangeForDimension:  (NSUInteger) dimensionIndex;
+
+/*! @abstract      The slice dimensions for each dimension
+ *  @discusion     A slice is a subregion of a dimension. It is
+ *                 used to calve off a fraction of a larger NDArray.
+ *
+ *                 Default:  NSRange(0, lengthOfDimension(i))
+ *
+ *  @param         subRange                 The region of the slice
+ *  @param         dimensionIndex           The index of the dimension. Must be < numberOfDimensions */
+-(void)      sliceDimension: (NSUInteger) dimensionIndex
+               withSubrange: (MPSDimensionSlice) subRange;
+
+/*! @abstract    transpose two dimensions
+ *  @discusion   If the intention is to insert a length 1 dimension, increment the numberOfDimensions first.
+ *  @param       dimensionIndex  The first dimension. Must be < numberOfDimensions
+ *  @param       dimensionIndex2 The second dimension.  Must be < number of Dimensions. */
+-(void)     transposeDimension: (NSUInteger) dimensionIndex
+                 withDimension: (NSUInteger) dimensionIndex2;
+
+/*! @abstract    The new ordering of dimensions
+ *  @discussion  If a transpose is applied, it will change the order
+ *               of dimensions in the MPSNDArray. The default ordering is
+ *               {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}.  After a transpose
+ *               of dimensions 0 and 1, it will be: {1,0,2,3,4,5,6,7,8,9,10,11,12,13,14,15}     */
+-(vector_uchar16)   dimensionOrder;
+
+/*! @abstract   Create an MPSNDArrayDescriptor object for a given size of dimensions.
+ *  @discussion Sample code:
+ *   @code
+ *                // Creates an NDArrayDescriptor of dimensions [32, 6, 5, 3]
+ *                NSUInteger sizes[] = {3,5,6,32};
+ *                [ MPSNDArray descriptorWithDataType: MPSDataTypeFloat32
+ *                                     dimensionCount: 4
+ *                                     dimensionSizes: sizes ];    // array of numberOfDimensions dimensions. Starts with dimension 0
+ *   @endcode
+ *  @param      dataType           MPSDataType of elements in the MPSNDArray
+ *  @param      numberOfDimensions Number of dimensions in the NDArray. May not exceed 16.
+ *  @param      dimensionSizes     An array of NSUIntegers where dimension lengths provided by the user goes from fastest
+ *                                 moving to slowest moving dimension.
+ *                                 The product of all dimension lengths must be less than 2**31.
+ *                                 Additional system memory limits may apply
+ *  @return     A valid MPSNDArrayDescriptor object or nil, if failure. */
++(nonnull instancetype) descriptorWithDataType: (MPSDataType) dataType
+                                dimensionCount: (NSUInteger) numberOfDimensions
+                                dimensionSizes: (NSUInteger*__nonnull) dimensionSizes;
+
+/*! @abstract   A convenience function to create an MPSNDArrayDescriptor object for a given size of dimensions.
+ *  @discussion Sample code:
+ *   @code
+ *                // Creates an NDArrayDescriptor of dimensions [32, 6, 5, 3]
+ *                NSArray<NSNumber *> sizes = {@32,@6,@5,@3};
+ *                [ MPSNDArray descriptorWithDataType: MPSDataTypeFloat32
+ *                                              shape: &sizes];
+ *   @endcode
+ *  @param      dataType           MPSDataType of elements in the MPSNDArray
+ *  @param      shape              An array of NSUIntegers where dimension lengths provided by the user goes from slowest
+ *                                 moving to fastest moving dimension. This is same order as MLMultiArray in coreML and most frameworks in Python
+ *                                 The product of all dimension lengths must be less than 2**31.
+ *                                 Additional system memory limits may apply
+ *  @return     A valid MPSNDArrayDescriptor object or nil, if failure. */
++(nonnull instancetype) descriptorWithDataType: (MPSDataType) dataType
+                                         shape: (NSArray<NSNumber *> * _Nonnull) shape;
+
+
+/*! @abstract   Create an MPSNDArrayDescriptor object for a given size of dimensions.
+ *  @discussion     Sample code:
+ *   @code
+ *                // Creates an NDArrayDescriptor of dimensions [32, 5, 6, 3]
+ *                [ MPSNDArray descriptorWithDataType: MPSDataTypeFloat32
+ *                                     dimensionSizes: 3, 6, 5, 32, 0 //<--list terminator! ]; // array of numberOfDimensions dimensions. Starts with dimension 0
+ *   @endcode
+ *  @param      dataType           MPSDataType of elements in the MPSNDArray
+ *  @param      dimension0         The start of a 0-terminated variadric list of NSUIntegers where dimension lengths provided by the user goes from fastest
+ *                                 moving to slowest moving dimension.
+ *                                 The product of all dimension sizes must be less than 2**31.
+ *                                 Additional system memory limits may apply
+ *  @return     A valid MPSNDArrayDescriptor object or nil, if failure. */
++(nonnull instancetype) descriptorWithDataType: (MPSDataType) dataType
+                                dimensionSizes: (NSUInteger) dimension0, ...;
+
+/*! @abstract   Changes dimension sizes and number of dimensions on the current descriptor
+ *  @param      numberOfDimensions Number of dimensions in the NDArray. May not exceed 16.
+ *  @param      dimensionSizes     An array of NSUIntegers where dimension lengths provided by the user goes from fastest
+ *                                 moving to slowest moving dimension.
+ *                                 The product of all dimension lengths must be less than 2**31.
+ *                                 Additional system memory limits may apply
+ */
+-(void) reshapeWithDimensionCount: (NSUInteger) numberOfDimensions
+                   dimensionSizes: (NSUInteger*__nonnull) dimensionSizes;
+
+/*! @abstract   Changes dimension sizes and number of dimensions on the current descriptor
+ *  @param      shape              An array of NSUIntegers where dimension lengths provided by the user goes from slowest
+ *                                 moving to fastest moving dimension. This is same order as MLMultiArray in coreML and most frameworks in Python
+ *                                 The product of all dimension lengths must be less than 2**31.
+ *                                 Additional system memory limits may apply
+ */
+-(void) reshapeWithShape: (NSArray<NSNumber *> * _Nonnull) shape;
+
+/*! @abstract Use -descriptorWithDataType:... instead */
+-(nonnull instancetype) init NS_UNAVAILABLE;
+@end
+
+@class MPSKernel;
+@class MPSNDArray;
+
+@protocol MPSNDArrayAllocator <NSObject, NSSecureCoding, NSCopying>
+@required
+
+/*! @abstract   Create a new MPSNDArray
+ *  @discussion See class description for sample implementation
+ *  @param          cmdBuf      The MTLCommandBuffer on which the array will be initialized.
+ *                              cmdBuf.device encodes the MTLDevice.
+ *  @param          descriptor  A MPSNDArrayDescriptor containing the array parameters to use.
+ *                              This format is the result of your MPSPadding policy.
+ *  @param          kernel      The kernel that will overwrite the array returned by the filter.
+ *                              Note that the MPS implementations of this protocol don't need
+ *                              this field. It is provided for your convenience.
+ *
+ *  @return         A valid MPSNDArray or MPSTemporaryNDArray. It will be automatically released when the command buffer completes.
+ */
+-(MPSNDArray * __nonnull)  arrayForCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                                 arrayDescriptor: (MPSNDArrayDescriptor * __nonnull) descriptor
+                                          kernel: (MPSKernel * __nonnull) kernel;
+
+@end
+
+
+/*! @class      MPSNDArray
+ *  @abstract   A MPSNDArray object is a MTLBuffer based storage container for multi-dimensional data.
+ *  @discussion Operations on MPSNDArrays will commonly implicitly reshape the multidimensional
+ *              structure into a 2-dimensional structure by reinterpreting higher dimensions as a single dimensional
+ *              array of matrix rows. For example a [a, b, c, d] NDArray passed to a matrix multiplication may
+ *              be implicitly reinterpreted as a [a*b*c, d] matrix and a 2D matrix multiplication performed.
+ *              In practice, the major row (the dimension in which successive elements appear adjacent to one
+ *              another in memory) is the 0th dimension (represented as 'd' in the above example).  It has both a
+ *              dimension size indicating the number of elements and a storage size which may be slightly bigger
+ *              to allow for performance improvement arising from better data alignment in memory.  In principle,
+ *              the rowBytes may also be used to create a 0th-dimension slice out of a larger array stored in the
+ *              underlying MTLBuffer.
+ *
+ *              MPS will automatically manage the storage size of the major row ("rowBytes") though you may
+ *              set it in the descriptor if you have a need to do so. Generally, it should be at least a multiple
+ *              of 16 bytes.   Dimensions after the 0th are a densely packed array of rows of size rowBytes.
+ *              Thus, the 1st dimension is an array of rows. The 2nd dimension is an array of arrays of rows with
+ *              identical size, and so forth.  When the reduction to 2 dimensions is done, no data is moved. MPS
+ *              just reinterprets a higher order N-1 dimensions of matrix rows as a single large 1-dimensional
+ *              array of rows.
+ *
+ *              It is a common desire to reorder the dimensions of NDArrays or define a subregion thereof. A transpose
+ *              or slice operation is performed by making a MPSNDArray view of the original. The dimensions to transpose
+ *              or slice are given by the descriptor for the new view. If both a transpose and slice operation are defined,
+ *              then the slice is performed first and the result of the slice is transposed. Because many MPS kernels can
+ *              operate on transposed data at speed, MPS will usually defer doing a physical transpose operation until later,
+ *              when it becomes clear that one is actually required. For this reason, conversions to formats that do not
+ *              support deferred transposes and slices such as MPSMatrix MPSVector view or using -exportWithCommandBuffer:
+ *              toBuffer:offset:rowStrides, may cause substantial new computation to be done and new memory to be allocated.
+ *              These should be avoided except when necessary.  As a general rule, transposes that do not involve the 0th
+ *              dimension should be able to be handled by nearly everything natively. MPSNDArrayMatrixMultiplication and reductions
+ *              can handle 0th dimension transposes. Other filters may insert a physical repacking operation. If you wish
+ *              to force a physical repacking use MPSAliasingStrategyShallNotAlias. To avoid confusion with aliased NDArrays
+ *              the parent property is provided.  MPSNDArrays that alias share a common ancestor.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSNDArray : NSObject
+
+/*!     Get a well known <MPSNDArrayAllocator> that makes standard MTLBuffers */
++(nonnull id <MPSNDArrayAllocator>) defaultAllocator;
+
+/*! @abstract   A used specified string to help identify the array during debugging.
+ *  @discussion May be externally visible to tools like Instruments */
+@property (copy, atomic, nullable)  NSString *label;
+
+/*! @abstract  The type of data stored by each element in the array */
+@property (readonly, nonatomic)  MPSDataType dataType;
+
+/*! @abstract  The size of one element in the MPSNDArray */
+@property (readonly, nonatomic)  size_t dataTypeSize;
+
+/*! @abstract  Number of dimensions in the NDArray */
+@property (readonly, nonatomic)  NSUInteger numberOfDimensions;
+
+/*! @abstract    The number of elements in the dimension at dimensionIndex
+ *  @discussion     The dimension length is at least as large as the existing
+ *                  slice length.  Views of this MPSNDArray may have differing
+ *                  dimension lengths.
+ */
+-(NSUInteger)  lengthOfDimension: (NSUInteger)dimensionIndex;
+
+/*! @property device
+ *  @abstract The device on which the MSPNDArray may be used */
+@property (readonly, retain, nonatomic, nonnull)  id <MTLDevice>  device;
+
+
+/*! @abstract  Create a MPSNDArrayDescriptor that describes this MPSNDArray
+ *  @discussion The descriptor will describe the shape of the MPSNDArray
+ *              after all deferred slicing and transposes have completed.
+ *              A new descriptor is created each time to allow for
+ *              further customization of the descriptor by the application.
+ *  @return     A new autoreleased MPSNDArrayDescriptor that matches the
+ *              shape of the MPSNDArray, suitable for introduction of slice,
+ *              cast and transpose operations. */
+-(MPSNDArrayDescriptor * __nonnull) descriptor;
+
+
+/* @abstract Please use -initWithDevice:descriptor: instead */
+-(nonnull instancetype) init NS_UNAVAILABLE;
+
+/*! @abstract   Initialize an MPSNDArrayDescriptor object on a device
+ *              for given dimension sizes in descriptor.
+ *
+ *   @param      device          The device on which the data type will be created.
+ *
+ *   @param      descriptor      The MPSNDArrayDescriptor used for initializing the the NDArray
+ *
+ *   @return     A valid MPSNDArray object or nil, if failure. */
+-(nonnull instancetype) initWithDevice:(id<MTLDevice> _Nonnull) device
+                            descriptor:(MPSNDArrayDescriptor * _Nonnull) descriptor NS_DESIGNATED_INITIALIZER;
+
+/*! @abstract   Create a 1-Dimensional length=1 NDArray to hold a scalar    */
+-(nonnull instancetype) initWithDevice:(id<MTLDevice> _Nonnull) device
+                                scalar:(double) value;
+
+/*! @abstract       Get the number of bytes used to allocate underyling MTLResources
+ *  @discussion     This is the size of the backing store of underlying MTLResources.
+ *                  It does not include all storage used by the object, for example
+ *                  the storage used to hold the MPSNDArray instantiation and MTLBuffer
+ *                  is not included. It only measures the size of the allocation used
+ *                  to hold the MPSNDArray data in the MTLBuffer. This value is subject to
+ *                  change between different devices and operating systems.
+ *
+ *                  Except when -initWithBuffer:descriptor: is used, most MPSNDArrays are allocated
+ *                  initiallly without a backing store. The backing store is allocated lazily when
+ *                  it is needed, typically when the MPSNDArray is written to the first time.
+ *                  Consequently, in most cases, it should be inexpensive to make
+ *                  a MPSImage to see how much memory it will need, and release it
+ *                  if it is too large.
+ */
+-(NSUInteger)  resourceSize;
+
+/*! @abstract   Make a new representation of a MPSNDArray with a slice, transpose or other change in property
+ *  @discussion If possible, the views will merely record the slice or transpose without performing the
+ *              operation. Many MPSKernels are able to operate on subregions of a MPSNDArray or operate on transposed
+ *              data, so making a new copy of the data for these operations would be wasteful.  A copy may be forced by
+ *              a change in dataType, rowBytes, or when using a view with a MPSKernel that does not support
+ *              the deferred operation. To force an operation to occur immediately, use MPSAliasingStrategyShallNotAlias
+ *              Otherwise, it is likely that the new MPSNDArray will share a MTLBuffer with the parent and alias
+ *              its memory.
+ *  @param      cmdBuf      The command buffer on which to perform physical copies if any are required
+ *  @param      descriptor  A MPSNDArrayDescriptor describing the shape of the new view of the data
+ *  @param      aliasing    A aliasing strategy to direct MPS how to respond to cases when aliasing can or can not
+ *                          be performed.
+ *  @return     A new MPSNDArray, if it is possible to make one. Otherwise nil is returned. The MPSNDArray is autoreleased. */
+-(MPSNDArray * __nullable)     arrayViewWithCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                                               descriptor: (MPSNDArrayDescriptor * _Nonnull) descriptor
+                                                 aliasing: (MPSAliasingStrategy) aliasing;
+
+/*! @abstract   The parent MPSNDArray that this object aliases
+ *  @discussion If the MPSNDArray was createrd as a array view of another MPSNDArray object, and aliases content
+ *              in the same MTLBuffer, the original MPSNDArray will be retained as the parent here. Two MPSNDArrays
+ *              alias if they share a common ancestor. Note that the parent may itself have a parent, and so forth. */
+@property (readonly, retain, nonatomic, nullable)  MPSNDArray *  parent;
+
+
+/*! @abstract   Do a GPU side copy of the contents of a MPSNDArray to a MTLBuffer
+ *  @discussion To do a transpose or slice as part of the operation, make a MPSNDArray view first that encodes that operation.
+ *  @param      cmdBuf      The command buffer on which to encode the operation
+ *  @param      buffer      The destination to overwrite
+ *  @param      destinationDataType The destination data type.
+ *  @param      offset      The byte offset to where the {0,0,0...}th element will be written
+ *  @param      rowStrides  An optional array of (numberOfDimensions-1) byte counts which describe
+ *                          the byte offset from position 0 of the respective dimension to position 1.  */
+-(void) exportDataWithCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                           toBuffer: (__nonnull id <MTLBuffer>) buffer
+                destinationDataType: (MPSDataType) destinationDataType
+                             offset: (NSUInteger) offset
+                         rowStrides: (NSInteger * __nullable) rowStrides;
+
+/*! @abstract   Do a GPU side copy of the contents of a MTLBuffer into a MPSNDArray
+ *  @discussion Copy data from provided buffer to the NDArray. Implicit transposes and slicing shall be honored.
+ *  @param      cmdBuf      The command buffer on which to encode the operation
+ *  @param      buffer      The destination to read from
+ *  @param      sourceDataType  The source data type.
+ *  @param      offset      The byte offset to where the {0,0,0...}th element will be written
+ *  @param      rowStrides  An optional array of (numberOfDimensions-1) byte counts which describe
+ *                          the byte offset from position 0 of the respective dimension to position 1.  */
+-(void) importDataWithCommandBuffer: (__nonnull id <MTLCommandBuffer>) cmdBuf
+                         fromBuffer: (__nonnull id <MTLBuffer>) buffer
+                     sourceDataType: (MPSDataType) sourceDataType
+                             offset: (NSUInteger) offset
+                         rowStrides: (NSInteger * __nullable) rowStrides;
+
+
+
+/*! @abstract   Do a GPU side copy of the contents of a MPSNDArray to a MPSImageBatch.
+ *  @discussion To do a transpose or slice as part of the operation, make a MPSNDArray view first that encodes that operation.
+ *              The shape of the array must be [ C, W, H, N, 1, 1, ... ], where C is dimension 0 (normally the fastest running index)
+ *              and is mapped to feature channels in the destination image, W and H are mapped to x and y coordinates in the destination
+ *              image and N is mapped to the image batch index. You can use arrayViewWithCommandBuffer: to transpose, slice and reshape
+ *              the source array to layout the data in the desired way for the image(s).
+ *
+ *  @param      cmdBuf      The command buffer on which to encode the operation/
+ *  @param      images      The destination images. NOTE: you can use [images subarrayWithRange:...] to get a sub-batch of images.
+ *  @param      offset      The offset to the image where to write - the size of the operation is defined by the source array.
+ *                          Note: offset.featureChannel must be multiple of four, otherwise results are undefined.
+ */
+
+-(void) exportDataWithCommandBuffer: (id <MTLCommandBuffer> _Nonnull) cmdBuf
+                           toImages: (MPSImageBatch * _Nonnull) images
+                             offset: (MPSImageCoordinate) offset;
+
+/*! @abstract   Do a GPU side copy of the contents of a MPSImageBatch into a MPSNDArray.
+ *  @discussion This reverses exportDataWithCommandBuffer:toImages: function.
+ *  @param      cmdBuf      The command buffer on which to encode the operation.
+ *  @param      images      The source images. NOTE: you can use [images subarrayWithRange:...] to get a sub-batch of images.
+ *  @param      offset      The offset to the image where to read - the size of the operation is defined by the destination array.
+ */
+-(void) importDataWithCommandBuffer: (id <MTLCommandBuffer> _Nonnull) cmdBuf
+                         fromImages: (MPSImageBatch * _Nonnull) images
+                             offset: (MPSImageCoordinate) offset;
+
+
+
+/*! @abstract       Copy bytes from MPSNDArray into buffer
+ *  @discussion     The dimensionality and size of the copy region is given by the size of the MPSNDArray
+ *                  For subregions, use a MPSNDArray view.
+ *  @param          buffer                  A pointer to memory where to write the data
+ *  @param          strideBytesPerDimension An optional array of numberOfDimensions sizes, which gives the distance
+ *                                          in bytes from one element to the next in that dimension in buffer. The first value
+ *                                          is typically dataTypeSize. The next is a row bytes. The next is 2d matrix bytes,
+ *                                          and so forth.  If the value is nil, these are calculated for you assuming that the
+ *                                          data is packed without additional space in between elements, rows, etc.
+ *                                          0 and negative values are permitted. */
+-(void) readBytes: (void*__nonnull) buffer
+      strideBytes: (NSInteger*__nullable) strideBytesPerDimension;
+
+
+/*! @abstract       Copy bytes from a buffer into the MPSNDArray
+ *  @discussion     The dimensionality and size of the copy region is given by the size of the MPSNDArray
+ *                  For subregions, use a MPSNDArray view.
+ *  @param          buffer                  A pointer to memory where to read the data
+ *  @param          strideBytesPerDimension An optional array of numberOfDimensions sizes, which gives the distance
+ *                                          in bytes from one element to the next in that dimension in buffer. The first value
+ *                                          is typically dataTypeSize. The next is a row bytes. The next is 2d matrix bytes,
+ *                                          and so forth.  If strideBytesPerDimension is nil, these are calculated for you assuming that the
+ *                                          data is packed without additional space in between elements, rows, etc.
+ *                                          0 and negative values are permitted. */
+-(void) writeBytes: (void*__nonnull) buffer
+       strideBytes: (NSInteger*__nullable) strideBytesPerDimension;
+
+
+/*! @abstract   Use a blit encoder if a discrete device to update CPU contents of underlying buffer with latest GPU value
+ *  @param      commandBuffer     The commandBuffer on which we transfer the contents. */
+-(void) synchronizeOnCommandBuffer:(id<MTLCommandBuffer> _Nonnull) commandBuffer;
+
+@end
+
+/*! @class MPSTemporaryNDArray
+ *  @abstract   A MPSNDArray that uses command buffer specific memory to store the array data
+ *  @discussion Temporary memory is command buffer specific memory, and is useful for MPSNDArray allocations
+ *              with limited lifetime within a single command buffer. Typically, most MPSNDArrays that
+ *              are not read or written to by the CPU or needed in other command buffers should be
+ *              MPSTemporaryNDArray. This will greatly reduce time spent allocating new memory, reduce memory usage
+ *              and help improve memory locality. */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0))
+@interface MPSTemporaryNDArray : MPSNDArray
+
+/*!     Get a well known <MPSNDArrayAllocator> that makes temporary MTLBuffers */
++(nonnull id <MPSNDArrayAllocator>) defaultAllocator;
+
+/*!
+ *  @abstract   Initialize a MPSTemporaryNDArray for use on a MTLCommandBuffer
+ *  @param      commandBuffer       The MTLCommandBuffer on which the MPSTemporaryNDArray will be exclusively used
+ *  @param      descriptor          A valid MPSNDArrayDescriptor describing the MPSNDArray format to create
+ *  @return     A valid MPSTemporaryNDArray.  The object is not managed by a NSAutoreleasePool. The object will be
+ *              released when the command buffer is committed. The underlying buffer will become invalid before
+ *              this time due to the action of the readCount property.  Please read and understand the use of
+ *              the readCount property before using this object. */
++(nonnull instancetype) temporaryNDArrayWithCommandBuffer: (id <MTLCommandBuffer> _Nonnull) commandBuffer
+                                               descriptor: (MPSNDArrayDescriptor* _Nonnull) descriptor;
+
+
+/*! @abstract  Please use temporaryNDArrayWithCommandBuffer:descriptor: instead */
+-(nonnull instancetype) initWithDevice:(id<MTLDevice> _Nonnull) device
+                            descriptor:(MPSNDArrayDescriptor * _Nonnull) descriptor NS_UNAVAILABLE;
+
+
+/*!
+ *  @abstract       The number of times a temporary MPSNDArray may be read by a MPSNDArray... kernel
+ *                  before its contents become undefined.
+ *
+ *  @discussion     MPSTemporaryNDArrays must release their underlying buffers for reuse
+ *                  immediately after last use. So as to facilitate *prompt* convenient
+ *                  memory recycling, each time a MPSTemporaryNDArray is read by a
+ *                  MPSNDArray... -encode... method, its readCount is automatically
+ *                  decremented. When the readCount reaches 0, the underlying buffer is
+ *                  automatically made available for reuse to MPS for its own needs and for
+ *                  other MPSTemporaryNDArrays prior to return from the -encode.. function.
+ *                  The contents of the buffer become undefined at this time.
+ *
+ *                  By default, the readCount is initialized to 1, indicating a MPSNDArray that
+ *                  may be overwritten any number of times, but read only once.
+ *
+ *                  You may change the readCount as desired to allow MPSNDArrayKernels to read
+ *                  the MPSTemporaryNDArray additional times. However, it is an error to change
+ *                  the readCount once it is zero. It is an error to read or write to a
+ *                  MPSTemporaryNDArray with a zero readCount. You may set the readCount to 0
+ *                  yourself to cause the underlying buffer to be returned to MPS. Writing
+ *                  to a MPSTemporaryNDArray does not adjust the readCount.
+ *
+ *                  The Metal API Validation layer will assert if a MPSTemporaryNDArray is
+ *                  deallocated with non-zero readCount to help identify cases when resources
+ *                  are not returned promptly.
+ */
+@property (readwrite, nonatomic)  NSUInteger  readCount;
+
+@end
+
+#endif /* MPSNDArray_h */
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSCore.framework/Headers/MPSState.h
 //
 //  MPSState.h
@@ -20114,7 +26648,7 @@ extern "C" {
 @class MPSKernel;
 @class MPSImageDescriptor;
     
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSStateResourceList : NSObject
 /*! @abstract Init an empty autoreleased resource list */
 +(nonnull instancetype) resourceList;
@@ -20157,9 +26691,9 @@ typedef struct MPSStateTextureInfo
     typedef NS_ENUM(NSUInteger, MPSStateResourceType)
 #endif
     {
-        MPSStateResourceTypeNone            MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3)) MPS_SWIFT_NAME(none)  = 0,
-        MPSStateResourceTypeBuffer          MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))  = 1,
-        MPSStateResourceTypeTexture         MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))  = 2,
+        MPSStateResourceTypeNone            MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3)) MPS_SWIFT_NAME(none)  = 0,
+        MPSStateResourceTypeBuffer          MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))  = 1,
+        MPSStateResourceTypeTexture         MPS_ENUM_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))  = 2,
     }
 #if defined(DOXYGEN)
     MPSStateResourceType
@@ -20232,7 +26766,7 @@ typedef struct MPSStateTextureInfo
  *                  blit encoder, -synchronizeResource: can not encounter this problem because temporary
  *                  images and states live in GPU private memory and can not be read by the CPU.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSState : NSObject
 
 /******************************
@@ -20275,13 +26809,13 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *  @param          resourceList The list of resources to create. */
 -(nonnull instancetype) initWithDevice: (__nonnull id <MTLDevice>) device
                           resourceList: (MPSStateResourceList * __nonnull) resourceList
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract       Initialize a temporary state to hold a number of textures and buffers
  *  @discussion     The textures occur first in sequence*/
  +(nonnull instancetype) temporaryStateWithCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer
                                             resourceList: (MPSStateResourceList * __nonnull) resourceList
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
  
 /*! @abstract Create a state object with a list of MTLResources
  *  @discussion     Because MPS prefers deferred allocation of resources
@@ -20413,7 +26947,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              resources (these are all MTLStorageModePrivate), nothing is done.
  *  @param      commandBuffer       The commandbuffer on which to synchronize   */
 -(void) synchronizeOnCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer
-            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+            MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract       Get the number of bytes used to allocate underyling MTLResources
  *  @discussion     This is the size of the backing store of underlying MTLResources.
@@ -20436,7 +26970,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *                  which case 0 will be returned.
  */
 -(NSUInteger)  resourceSize
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 /*! @abstract       Determine padding and sizing of result images
@@ -20550,7 +27084,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  */
 @property (readonly, nonatomic, retain, nullable) id <MTLResource> resource
     MPS_AVAILABLE_STARTING_BUT_DEPRECATED( "Please use -resourceAtIndex:allocateMemory: instead",
-        macos(10.13, 10.13.4), ios(11.0,12.0), tvos(11.0, 12.0));
+        macos(10.13, 10.13.4), ios(11.0,12.0), tvos(11.0, 12.0))  MPS_UNAVAILABLE(uikitformac);
 
 
 @end
@@ -20573,15 +27107,15 @@ typedef NSArray<MPSState*>  MPSStateBatch;
  *  @return  The number of different objects in the batch
  */
 NSUInteger MPSStateBatchIncrementReadCount( MPSStateBatch * __nullable batch, NSInteger amount )
-     MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+     MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
     
 /*! @abstract Call [MTLBlitEncoder synchronizeResource:] on unique resources */
 void MPSStateBatchSynchronize( MPSStateBatch * __nonnull batch, __nonnull id <MTLCommandBuffer> cmdBuf )
-    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract Call [MTLBlitEncoder resourceSize] on unique resources */
 NSUInteger MPSStateBatchResourceSize( MPSStateBatch * __nullable batch )
-    MPS_AVAILABLE_STARTING( macos(10.14.0), ios(12.0), tvos(12.0));
+    MPS_AVAILABLE_STARTING( macos(10.14.0), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 #ifdef __cplusplus
 }
@@ -20616,7 +27150,7 @@ extern "C" {
  *  @abstract   A MPSImageDescriptor object describes a attributes of MPSImage and is used to
  *              create one (see MPSImage discussion below)
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface MPSImageDescriptor : NSObject <NSCopying>
 /*! @property   width
  *  @abstract   The width of the CNN image.
@@ -20693,7 +27227,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                                                      usage: (MTLTextureUsage)usage;
 
 -(nonnull instancetype) copyWithZone: (NSZone* __nullable) zone
-        MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
+        MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 @end
 
 @class MPSKernel;
@@ -20712,24 +27246,34 @@ typedef NSArray<MPSImage*>  MPSImageBatch;
  *                  each object in the batch only once, avoiding this problem. Non-temporary
  *                  images and images with readCount already 0 will be ignored.
  *
+ *                  CAUTION: At many places in MPS, the framework assumes all images
+ *                  in the batch have the same characteristics, such as MPSImageFeatureChannelFormat.
+ *                  At times, for example, it is necessary to patch in a special version of the
+ *                  kernel to handle BFloat16 or another characteristic. When this happens, the
+ *                  kernel generally can't respond correctly when some images in a batch have that
+ *                  characteristic and some do not, because the special case handling code is hard
+ *                  compiled in.  For this reason, all images in a batch should be constructed from
+ *                  the same list of descriptor parameters.
+ *
  *  @param  batch   The MPSImageBatch to increment
  *  @param  amount  The value to add to the read count for each unique image in the batch
  *  @return         The number of different images in the batch
  */
 NSUInteger MPSImageBatchIncrementReadCount( MPSImageBatch * __nonnull batch, NSInteger amount )
-    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract Call [MTLBlitEncoder synchronizeResource:] on unique resources*/
 void MPSImageBatchSynchronize( MPSImageBatch * __nonnull batch, __nonnull id <MTLCommandBuffer> cmdBuf )
-    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract Call [MTLBlitEncoder resourceSize] on unique resources and return sum */
 NSUInteger MPSImageBatchResourceSize( MPSImageBatch * __nonnull batch )
-    MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
+    MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 /*! @abstract   Iterate over unique images in the batch
  *  @discussion This function looks only at image address to determine uniqueness.
  *              The same texture stored in different MPSImages would be considered not unique.
+ *
  *  @param      batch           The image batch
  *  @param      iteratorBlock   Callback block to execute once for each unique image.
  *                              Return a value greater than NSIntegerMin to terminate early.
@@ -20738,7 +27282,7 @@ NSUInteger MPSImageBatchResourceSize( MPSImageBatch * __nonnull batch )
  *  @return     The value returned by the iterator block for the last image on which it ran */
 NSInteger MPSImageBatchIterate( MPSImageBatch * __nonnull batch,
                                 NSInteger (^__nonnull iteratorBlock)( MPSImage * __nonnull image, NSUInteger index ) )
-    MPS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0));
+    MPS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
 
 /*! @abstract       A class  that allocates new MPSImage or MPSTemporaryImage
  *  @discussion     Sometimes it is prohibitively costly for MPS to figure out how
@@ -20860,12 +27404,12 @@ NSInteger MPSImageBatchIterate( MPSImageBatch * __nonnull batch,
     typedef NS_ENUM(NSUInteger, MPSPurgeableState)
 #endif
 {
-    MPSPurgeableStateAllocationDeferred MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) MPS_SWIFT_NAME(allocationDeferred) = 0,                // The buffer hasn't been allocated yet. Attempts to set purgeability will be ignored.
-    MPSPurgeableStateKeepCurrent        MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) = MTLPurgeableStateKeepCurrent,
+    MPSPurgeableStateAllocationDeferred MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) MPS_SWIFT_NAME(allocationDeferred) = 0,                // The buffer hasn't been allocated yet. Attempts to set purgeability will be ignored.
+    MPSPurgeableStateKeepCurrent        MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) = MTLPurgeableStateKeepCurrent,
     
-    MPSPurgeableStateNonVolatile        MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) = MTLPurgeableStateNonVolatile,
-    MPSPurgeableStateVolatile           MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) = MTLPurgeableStateVolatile,
-    MPSPurgeableStateEmpty              MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0)) = MTLPurgeableStateEmpty,
+    MPSPurgeableStateNonVolatile        MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) = MTLPurgeableStateNonVolatile,
+    MPSPurgeableStateVolatile           MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) = MTLPurgeableStateVolatile,
+    MPSPurgeableStateEmpty              MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) = MTLPurgeableStateEmpty,
 } NS_ENUM_AVAILABLE(10_11, 8_0)
 #if defined(DOXYGEN)
     MPSPurgeableState
@@ -20879,9 +27423,9 @@ NSInteger MPSImageBatchIterate( MPSImageBatch * __nonnull batch,
 #endif
 {
     // output as order [imageNum][imageHeight][imageWidth][numberOfFeatureChannels]
-    MPSDataLayoutHeightxWidthxFeatureChannels MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) MPS_SWIFT_NAME(HeightxWidthxFeatureChannels) = 0,
+    MPSDataLayoutHeightxWidthxFeatureChannels MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) MPS_SWIFT_NAME(HeightxWidthxFeatureChannels) = 0,
     // output as order [imageNum][numberOfFeatureChannels][imageHeight][imageWidth]
-    MPSDataLayoutFeatureChannelsxHeightxWidth MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0)) = 1,
+    MPSDataLayoutFeatureChannelsxHeightxWidth MPS_ENUM_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0)) = 1,
 } NS_ENUM_AVAILABLE(10_13, 11_0)
 #if defined(DOXYGEN)
     MPSDataLayout
@@ -20966,7 +27510,7 @@ typedef struct
  *              Most MPSImages of 4 or fewer feature channels can generate quicklooks output in
  *              Xcode for easy visualization of image data in the object. MPSTemporaryImages can not.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface MPSImage :  NSObject
 
 /*!     Get a well known MPSImageAllocator that makes MPSImages */
@@ -21005,6 +27549,9 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
 
 /*! @property   pixelFormat
  *  @abstract   The MTLPixelFormat of the underlying texture
+ *  @discussion Note that in some cases, this value may be misleading. For example,
+ *              float16 data (BFloat16) is sometimes stored in MTLPixelFormatRGBA16Unorm
+ *              Please consult the featureChannelFormat.
  */
 @property (readonly, nonatomic) MTLPixelFormat pixelFormat;
 
@@ -21023,6 +27570,11 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *  @abstract   Description of texture usage.
  */
 @property (readonly, nonatomic) MTLTextureUsage usage;
+
+/*! @property   featureChannelFormat
+ *  @abstract   The true encoding of the feature channels
+ */
+@property (readonly, nonatomic) MPSImageFeatureChannelFormat featureChannelFormat;
 
 /*!
  *  @property   pixelSize
@@ -21052,7 +27604,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
 /*! @abstract   The MPSImage from which this MPSImage was derived. Otherwise nil.
  *  @discussion This will point to the original image if this image was created using
  *              -batchRepresentation, -batchRepresentationWithRange: or
- *              -subImageWithRange:.  */
+ *              -subImageWithFeatureChannelRange:.  */
 @property (readonly, nullable, retain, nonatomic)  MPSImage * parent;
 
 /*!
@@ -21199,7 +27751,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *                  it is a sub-image or sub-batch (.parent is not nil).
  */
 -(NSUInteger)  resourceSize
-    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0));
+    MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*! @abstract       Set (or query) the purgeability state of a MPSImage
  *  @discussion     Usage is per [MTLResource setPurgeableState:], except that the MTLTexture might be
@@ -21230,12 +27782,10 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
             region: (MTLRegion)region
 featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
         imageIndex: (NSUInteger)imageIndex
-        MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0));
+        MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
-/*!
- *  @method         writeBytes
- *  @abstract       Set the values inside MPSImage with the Buffer passed in.
+/*! @abstract       Set the values inside MPSImage with the Buffer passed in.
  *  @param          dataBytes                    The array allocated by the user to be used to put data from MPSImage, the length should be
  *                                               imageWidth * imageHeight * numberOfFeatureChannels and dataType should be inferred from pixelFormat
  *                                               defined in the Image Descriptor.
@@ -21246,8 +27796,10 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
  *                                               The z direction denotes the number of images, thus for 1 image, origin.z = 0 and size.depth = 1
  *  @param          featureChannelInfo           information user fills in to read from a set of feature channels in the image
  *  @param          imageIndex                   Image index in MPSImage to write to.
- *  @discussion     Use the enum to set data is coming in with what order. The data type will be determined by the pixelFormat
- *                  defined in the Image Descriptor.
+ *  @discussion     This method is used to copy data from the storage provided by dataBytes to the MPSImage. The ordering of data in
+ *                  your dataBytes buffer is given by dataLayout. Each image may be stored as either a series of planar images (a series of single WxH images, one per
+ *                  feature channel) or a single chunky image, WxHxfeature_channels. BytesPerRow and BytesPerImage are there to allow some padding between
+ *                  successive rows and successive images. No padding is allowed between successive feature channels.
  */
 -(void) writeBytes: (const void * __nonnull)dataBytes
         dataLayout: (MPSDataLayout)dataLayout
@@ -21255,7 +27807,36 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
             region: (MTLRegion)region
 featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
         imageIndex: (NSUInteger)imageIndex
-        MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0));
+        MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
+
+/*! @abstract       Set the values inside MPSImage with the Buffer passed in.
+ *  @param          dataBytes                    The array allocated by the user to be used to put data from MPSImage, the length should be
+ *                                               imageWidth * imageHeight * numberOfFeatureChannels and dataType should be inferred from pixelFormat
+ *                                               defined in the Image Descriptor.
+ *  @param          dataLayout                   The enum tells how to layout MPS data in the buffer.
+ *  @param          bytesPerColumn               This is the stride in bytes from W[0] to W[1], for both HWC and CHW orderings in the buffer pointed to by dataBytes.
+ *  @param          bytesPerRow                  Bytes to stride to point to next row(pixel just below current one, i.e. H[0] to H[1]) in the buffer pointed to by  dataBytes.
+ *  @param          bytesPerImage                This is the stride in bytes from image[0] to image[1] im the buffer pointed to by dataBytes.
+ *  @param          region                       region of the MPSImage to write to. A region is a structure with the origin in the Image from which to start
+ *                                               writing values and a size which represents the width and height of the rectangular region to write in.
+ *                                               The z direction denotes the number of images, thus for 1 image, origin.z = 0 and size.depth = 1
+ *  @param          featureChannelInfo           information user fills in to read from a set of feature channels in the image
+ *  @param          imageIndex                   Image index in MPSImage to write to.
+ *  @discussion     This method is used to copy data from the storage provided by dataBytes to the MPSImage. The ordering of data in
+ *                  your dataBytes buffer is given by dataLayout. Each image may be stored as either a series of planar images (a series of single WxH images, one per
+ *                  feature channel) or a single chunky image, WxHxfeature_channels. BytesPerRow and BytesPerImage are there to allow some padding between
+ *                  successive rows and successive images. No padding is allowed between successive feature channels.
+ */
+-(void) writeBytes: (const void * __nonnull)dataBytes
+        dataLayout: (MPSDataLayout)dataLayout
+    bytesPerColumn: (NSUInteger)bytesPerColumn
+       bytesPerRow: (NSUInteger)bytesPerRow
+     bytesPerImage: (NSUInteger)bytesPerImage
+            region: (MTLRegion)region
+featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
+        imageIndex: (NSUInteger)imageIndex
+        MPS_AVAILABLE_STARTING( macos(10.15), ios(13.0), uikitformac(13.0), tvos(13.0));
+
 
 /*!
  *  @method         readBytes
@@ -21265,14 +27846,24 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
  *                                               defined in the Image Descriptor.
  *  @param          dataLayout                   The enum tells how to layout MPS data in the buffer.
  *  @param          bytesPerRow                  Bytes to stride to point to next row(pixel just below current one) in the user buffer.
- *  @param          bytesPerImage                Bytes to stride to point to next slice in the user buffer.
+ *  @param          bytesPerImage                Bytes to stride to point to next dataBytes image. See region.size.depth for image count.
  *  @param          featureChannelInfo           information user fills in to write to a set of feature channels in the image
  *  @param          imageIndex                   Image index in MPSImage to write to.
  *  @param          region                       region of the MPSImage to read from. A region is a structure with the origin in the Image from which to start
  *                                               reading values and a size which represents the width and height of the rectangular region to read from.
  *                                               The z direction denotes the number of images, thus for 1 image, origin.z = 0 and size.depth = 1
- *  @discussion     Use the enum to set data is coming in with what order. The data type will be determined by the pixelFormat
- *                  defined in the Image Descriptor.
+ *
+ *  @discussion     This method is used to copy data from the MPSImage to the storage provided by dataBytes. The ordering of data in
+ *                  your dataBytes buffer is given by dataLayout. Each image may be stored as either a series of planar images (a series of single WxH images, one per
+ *                  feature channel) or a single chunky image, WxHxfeature_channels. BytesPerRow and BytesPerImage are there to allow some padding between
+ *                  successive rows and successive images. No padding is allowed between successive feature channels.
+ *
+ *                  BUG: Prior to MacOS 10.15, iOS/tvOS 13.0, incorrect behavior may be observed if region.size.depth != 1 or if
+ *                       bytesPerRow allowed for unused padding between rows.
+ *                  BUG: To provide for full capability to extract and insert content from arbitrarily sized buffers, there should
+ *                       also be a featureChannelStride in addition to bytesPerRow and bytesPerImage. With the current design, when we finish the
+ *                       last feature channel, the next byte will contain the 0th feature channel for the next texel or slice, depending
+ *                       on packing order. This method can not be used to modify some but not all of the feature channels in an image.
  */
 -(void)  readBytes: (void * __nonnull)dataBytes
         dataLayout: (MPSDataLayout)dataLayout
@@ -21281,7 +27872,7 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
             region: (MTLRegion)region
 featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
         imageIndex: (NSUInteger)imageIndex
-        MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0));
+        MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @method         writeBytes
@@ -21291,7 +27882,7 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
  *                                               defined in the Image Descriptor.
  *  @param          dataLayout                   The enum tells how to layout MPS data in the buffer.
  *  @param          bytesPerRow                  Bytes to stride to point to next row(pixel just below current one) in the user buffer.
- *  @param          bytesPerImage                Bytes to stride to point to next slice in the user buffer.
+ *  @param          bytesPerImage                Bytes to stride to point to next dataBytes image. See region.size.depth for image count.
  *  @param          region                       region of the MPSImage to write to. A region is a structure with the origin in the Image from which to start
  *                                               writing values and a size which represents the width and height of the rectangular region to write in.
  *                                               The z direction denotes the number of images, thus for 1 image, origin.z = 0 and size.depth = 1
@@ -21299,6 +27890,13 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
  *  @param          imageIndex                   Image index in MPSImage to write to.
  *  @discussion     Use the enum to set data is coming in with what order. The data type will be determined by the pixelFormat
  *                  defined in the Image Descriptor.
+ *
+ *                  BUG: Prior to MacOS 10.15, iOS/tvOS 13.0, incorrect behavior may be observed if region.size.depth != 1 or if
+ *                       bytesPerRow allowed for unused padding between rows.
+ *                  BUG: To provide for full capability to extract and insert content from arbitrarily sized buffers, there should
+ *                       also be a featureChannelStride in addition to bytesPerRow and bytesPerImage. With the current design, when we finish the
+ *                       last feature channel, the next byte will contain the 0th feature channel for the next texel or slice, depending
+ *                       on packing order. This method can not be used to modify some but not all of the feature channels in an image.
  */
 -(void) writeBytes: (const void * __nonnull)dataBytes
         dataLayout: (MPSDataLayout)dataLayout
@@ -21307,7 +27905,7 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
             region: (MTLRegion)region
 featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
         imageIndex: (NSUInteger)imageIndex
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 /*!
@@ -21324,7 +27922,7 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
 -(void) readBytes: (void * __nonnull)dataBytes
        dataLayout: (MPSDataLayout)dataLayout
        imageIndex: (NSUInteger)imageIndex
-        MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0));
+        MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /*!
@@ -21341,7 +27939,7 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
 -(void) writeBytes: (const void * __nonnull)dataBytes
         dataLayout: (MPSDataLayout)dataLayout
         imageIndex: (NSUInteger)imageIndex
-        MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0));
+        MPS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*! @abstract   Flush the underlying MTLTexture from the device's caches, and invalidate any CPU caches if needed.
  *  @discussion This will call [id <MTLBlitEncoder> synchronizeResource: ] on the image's MTLTexture, if any.
@@ -21350,7 +27948,7 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
  *              It is more efficient to use this method than to attempt to do this yourself with the texture property.
  *  @param      commandBuffer       The commandbuffer on which to synchronize   */
 -(void) synchronizeOnCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 
 @end
@@ -21452,7 +28050,7 @@ featureChannelInfo: (MPSImageReadWriteParams)featureChannelInfo
  *
  *              MPSTemporaryImages can otherwise be used wherever MPSImages are used.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSTemporaryImage : MPSImage
 
 /*!     Get a well known MPSImageAllocator that makes MPSTemporaryImages */
@@ -21518,7 +28116,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
 +(nonnull instancetype) temporaryImageWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
                                       textureDescriptor: (const MTLTextureDescriptor * __nonnull) textureDescriptor
                                         featureChannels: (NSUInteger) featureChannels
-                            MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3));
+                            MPS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @abstract       Help MPS decide which allocations to make ahead of time
  *  @discussion     The texture cache that underlies the MPSTemporaryImage can automatically allocate new storage as
@@ -21588,6 +28186,660 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
 
 
 #endif /* MPSImage_h */
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSCore.framework/Headers/MPSMatrix.h
+//
+//  MPSMatrix.h
+//  MPS
+//
+//  Created by Ian Ollmann on 9/4/18.
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#ifndef MPSMatrix_h
+#define MPSMatrix_h
+
+/*!
+ *  @class      MPSMatrixDescriptor
+ *
+ *  @dependency This depends on Metal.framework
+ *
+ *  @discussion A MPSMatrixDescriptor describes the sizes, strides, and data type of a
+ *              an array of 2-dimensional matrices.  All storage is assumed to be in
+ *              "matrix-major".  See the description for MPSMatrix for further details.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
+@interface MPSMatrixDescriptor: NSObject
+
+/*! @property   rows
+ *  @discussion The number of rows in a matrix.
+ */
+@property (readwrite, nonatomic) NSUInteger rows;
+
+/*! @property   columns
+ *  @discussion The number of columns in a matrix.
+ */
+@property (readwrite, nonatomic) NSUInteger columns;
+
+/*! @property   matrices
+ *  @discussion The number of matrices.
+ */
+@property (readonly, nonatomic) NSUInteger matrices MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
+
+/*! @property   dataType
+ *  @discussion The type of the data which makes up the values of the matrix.
+ */
+@property (readwrite, nonatomic) MPSDataType dataType;
+
+/*! @property   rowBytes
+ *  @discussion The stride, in bytes, between corresponding elements of
+ *              consecutive rows.  Must be a multiple of the element size.
+ */
+@property (readwrite, nonatomic) NSUInteger rowBytes;
+
+/*! @property   matrixBytes
+ *  @discussion The stride, in bytes, between corresponding elements of
+ *              consecutive matrices.  Must be a multiple of rowBytes.
+ */
+@property (readonly, nonatomic) NSUInteger matrixBytes MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
+
+/*!
+ *  @abstract   Create a MPSMatrixDescriptor with the specified dimensions and data type.
+ *
+ *  @param      rows                The number of rows of the matrix.
+ *
+ *  @param      columns             The number of columns of the matrix.
+ *
+ *  @param      rowBytes            The number of bytes between starting elements of consecutive
+ *                                  rows.  Must be a multiple of the element size.
+ *
+ *  @param      dataType            The type of the data to be stored in the matrix.
+ *
+ *  @discussion For performance considerations the optimal row stride may not necessarily be equal
+ *              to the number of columns in the matrix.  The MPSMatrix class provides a method which
+ *              may be used to determine this value, see the rowBytesForColumns API in the MPSMatrix
+ *              class.
+ *              The number of matrices described is initialized to 1.
+ */
++(__nonnull instancetype) matrixDescriptorWithDimensions: (NSUInteger)              rows
+                                                 columns: (NSUInteger)              columns
+                                                rowBytes: (NSUInteger)              rowBytes
+                                                dataType: (MPSDataType)             dataType
+MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Use matrixDescriptorWithRows:columns:rowBytes:dataType instead.",
+                                      ios(10.0, 11.0), tvos(10.0, 11.0)) MPS_UNAVAILABLE(uikitformac);
+
++(__nonnull instancetype) matrixDescriptorWithRows: (NSUInteger)              rows
+                                           columns: (NSUInteger)              columns
+                                          rowBytes: (NSUInteger)              rowBytes
+                                          dataType: (MPSDataType)             dataType
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
+/*!
+ *  @abstract   Create a MPSMatrixDescriptor with the specified dimensions and data type.
+ *
+ *  @param      rows                The number of rows of a single matrix.
+ *
+ *  @param      columns             The number of columns of a single matrix.
+ *
+ *  @param      matrices            The number of matrices in the MPSMatrix object.
+ *
+ *  @param      rowBytes            The number of bytes between starting elements of consecutive
+ *                                  rows.  Must be a multiple of the element size.
+ *
+ *  @param      matrixBytes         The number of bytes between starting elements of consecutive
+ *                                  matrices.  Must be a multiple of rowBytes.
+ *
+ *  @param      dataType            The type of the data to be stored in the matrix.
+ *
+ *  @discussion For performance considerations the optimal row stride may not necessarily be equal
+ *              to the number of columns in the matrix.  The MPSMatrix class provides a method which
+ *              may be used to determine this value, see the rowBytesForColumns API in the MPSMatrix
+ *              class.
+ */
++(__nonnull instancetype) matrixDescriptorWithRows: (NSUInteger)              rows
+                                           columns: (NSUInteger)              columns
+                                          matrices: (NSUInteger)              matrices
+                                          rowBytes: (NSUInteger)              rowBytes
+                                       matrixBytes: (NSUInteger)              matrixBytes
+                                          dataType: (MPSDataType)             dataType
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
+/*!
+ *  @abstract   Return the recommended row stride, in bytes, for a given number of
+ *              columns.
+ *
+ *  @param      columns         The number of columns in the matrix for which the recommended
+ *                              row stride, in bytes, is to be determined.
+ *
+ *  @param      dataType        The type of matrix data values.
+ *
+ *  @discussion To achieve best performance the optimal stride between rows of a matrix is not
+ *              necessarily equivalent to the number of columns.  This method returns the row stride, in
+ *              bytes, which gives best performance for a given number of columns.  Using this row stride
+ *              to construct your array is recommended, but not required (provided that the stride
+ *              used is still large enough to allocate a full row of data).
+ */
++(size_t) rowBytesFromColumns: (NSUInteger) columns
+                     dataType: (MPSDataType) dataType
+MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Use rowBytesForColumns:dataType instead.",
+                                      ios(10.0, 11.0), tvos(10.0, 11.0)) MPS_UNAVAILABLE(uikitformac);
+
++(size_t) rowBytesForColumns:   (NSUInteger) columns
+                    dataType:   (MPSDataType) dataType
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
+@end // MPSMatrixDescriptor
+
+/*!
+ *  @class      MPSVectorDescriptor
+ *
+ *  @dependency This depends on Metal.framework
+ *
+ *  @discussion A MPSVectorDescriptor describes the length and data type of a
+ *              an array of 1-dimensional vectors.  All vectors are stored as
+ *              contiguous arrays of data.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
+@interface MPSVectorDescriptor: NSObject
+
+/*! @property   length
+ *  @discussion The number of elements in the vector.
+ */
+@property (readwrite, nonatomic) NSUInteger length;
+
+/*! @property   vectors
+ *  @discussion The number of vectors.
+ */
+@property (readonly, nonatomic) NSUInteger vectors;
+
+/*! @property   dataType
+ *  @discussion The type of the data which makes up the values of the vector.
+ */
+@property (readwrite, nonatomic) MPSDataType dataType;
+
+/*! @property   vectorBytes
+ *  @discussion The stride, in bytes, between corresponding elements of
+ *              consecutive vectors.  Must be a multiple of the element size
+ */
+@property (readonly, nonatomic) NSUInteger vectorBytes;
+
+/*!
+ *  @abstract   Create a MPSVectorDescriptor with the specified length and data type.
+ *
+ *  @param      length              The number of elements in a single vector.
+ *
+ *  @param      dataType            The type of the data to be stored in the vector.
+ *
+ *  @discussion Use this function for creating a descriptor of a MPSVector object
+ *              containing a single vector.
+ */
++(__nonnull instancetype) vectorDescriptorWithLength: (NSUInteger)              length
+                                            dataType: (MPSDataType)             dataType;
+
+/*!
+ *  @abstract   Create a MPSVectorDescriptor with the specified length and data type.
+ *
+ *  @param      length              The number of elements in a single vector.
+ *
+ *  @param      vectors             The number of vectors in the MPSVector object.
+ *
+ *  @param      vectorBytes         The number of bytes between starting elements of consecutive
+ *                                  vectors.
+ *
+ *  @param      dataType            The type of the data to be stored in the vector.
+ *
+ *  @discussion For performance considerations the optimal stride between vectors may not necessarily be equal
+ *              to the vector length.  The MPSVectorDescriptor class provides a method which
+ *              may be used to determine this value, see the vectorBytesForLength API.
+ */
++(__nonnull instancetype) vectorDescriptorWithLength: (NSUInteger)              length
+                                             vectors: (NSUInteger)              vectors
+                                         vectorBytes: (NSUInteger)              vectorBytes
+                                            dataType: (MPSDataType)             dataType;
+
+/*!
+ *  @abstract   Return the recommended stride, in bytes, to be used for an array
+ *              of vectors of a given length.
+ *
+ *  @param      length          The number of elements in a single vector.
+ *
+ *  @param      dataType        The type of vector data values.
+ *
+ *  @discussion To achieve best performance the optimal stride between vectors within an array of
+ *              vectors is not necessarily equivalent to the number of elements per vector.  This method
+ *              returns the stride, in bytes, which gives best performance for a given vector length.
+ *              Using this stride to construct your array is recommended, but not required (provided that
+ *              the stride used is still large enough to allocate a full vector of data).
+ */
++(size_t) vectorBytesForLength:   (NSUInteger) length
+                      dataType:   (MPSDataType) dataType;
+@end // MPSVectorDescriptor
+
+/*!
+ *  @class      MPSMatrix
+ *
+ *  @dependency This depends on Metal.framework
+ *
+ *  @discussion A MPSMatrix object describes a set of 2-dimensional arrays of data and provides storage
+ *              for its values.  MPSMatrix objects serve as inputs and outputs of MPSMatrixKernel
+ *              objects.
+ *
+ *              Implementation note:
+ *              A MPSMatrix object maintains its internal storage using a MTLBuffer object and thus
+ *              the same rules for maintaining coherency of a MTLBuffer's data between CPU memory and GPU
+ *              memory apply to a MPSMatrix.  An MPSMatrix object's data refers to an array of matrices.
+ *              Data is assumed to be ordered by matrix first, followed by row, followed by column.
+ *
+ *              For example, index [i,j] of the k'th matrix of an MPSMatrix is located at byte offset:
+ *                       k * matrixBytes + i * rowBytes + j * sizeof(dataType)
+ *
+ *               Where matrixBytes is a multiple of rowBytes at least equal to rows * rowBytes.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
+@interface MPSMatrix: NSObject
+
+/*! @property   device
+ *  @discussion The device on which the MPSMatrix will be used.
+ */
+@property (readonly, retain, nonatomic, nonnull) id<MTLDevice> device;
+
+/*! @property   rows
+ *  @discussion The number of rows in a matrix in the MPSMatrix.
+ */
+@property (readonly, nonatomic) NSUInteger rows;
+
+/*! @property   columns
+ *  @discussion The number of columns in a matrix in the MPSMatrix.
+ */
+@property (readonly, nonatomic) NSUInteger columns;
+
+/*! @property   matrices
+ *  @discussion The number of matrices in the MPSMatrix.
+ */
+@property (readonly, nonatomic) NSUInteger matrices MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
+
+/*! @property   dataType
+ *  @discussion The type of the MPSMatrix data.
+ */
+@property (readonly, nonatomic) MPSDataType dataType;
+
+/*! @property   rowBytes
+ *  @discussion The stride, in bytes, between corresponding elements of
+ *              consecutive rows.
+ */
+@property (readonly, nonatomic) NSUInteger rowBytes;
+
+/*! @property   matrixBytes
+ *  @discussion The stride, in bytes, between corresponding elements of
+ *              consecutive matrices.
+ */
+@property (readonly, nonatomic) NSUInteger matrixBytes MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
+
+/*! @property   data
+ *  @discussion An MTLBuffer to store the data.
+ */
+@property (readonly, nonnull, nonatomic) id<MTLBuffer> data;
+
+/*!
+ *  @abstract   Initialize a MPSMatrix object with a MTLBuffer.
+ *
+ *  @param      buffer          The MTLBuffer object which contains the data to use for the
+ *                              MPSMatrix. May not be NULL.
+ *
+ *  @param      descriptor      The MPSMatrixDescriptor. May not be NULL.
+ *
+ *  @return     A valid MPSMatrix object or nil, if failure.
+ *
+ *  @discussion This function returns a MPSMatrix object which uses the supplied MTLBuffer.  The
+ *              dimensions and stride of the matrix are specified by the MPSMatrixDescriptor object.
+ *
+ *              The provided MTLBuffer must have enough storage to hold
+ *
+ *                  (descriptor.matrices-1) * descriptor.matrixBytes +
+ *                  (descriptor.rows-1) * descriptor.rowBytes +
+ *                   descriptor.columns * (element size) bytes.
+ *
+ */
+-(nonnull instancetype) initWithBuffer: (nonnull id<MTLBuffer>) buffer
+                            descriptor: (nonnull MPSMatrixDescriptor*) descriptor;
+
+/*!
+ *  @abstract   Initialize a MPSMatrix object with a MTLBuffer at a given offset.
+ *
+ *  @param      buffer      The MTLBuffer object which contains the data to use for the
+ *                          MPSMatrix.  May not be NULL.
+ *
+ *  @param      offset      The offset, in bytes, into the buffer at which the data begins.
+ *
+ *  @param      descriptor  The MPSMatrixDescriptor describing the shape of the matrix.
+ */
+-(nonnull instancetype) initWithBuffer: (nonnull id<MTLBuffer>) buffer
+                                offset: (NSUInteger) offset
+                            descriptor: (nonnull MPSMatrixDescriptor*) descriptor
+MPS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13));
+
+/*! @abstract   Initialize a MPSMatrix object with a descriptor. Allocate the buffer.
+ *  @param      device      The device with which it will be used
+ *  @param      descriptor  The shape and style of the matrix
+ *  @return     A valid MPSMatrix object or nil
+ *  @discussion The matrix object will be created, but the storage to hold the
+ *              matrix data will only be allocated when it is needed, typically
+ *              when the data property is invoked.  In conjunction
+ *              with -resourceSize, this will allow you to estimate storage needs
+ *              without actually creating the backing store for the matrix.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                            descriptor: (MPSMatrixDescriptor * __nonnull) descriptor;
+
+/*
+ * Use one of the above initialization methods instead.
+ */
+-(nonnull instancetype) init NS_UNAVAILABLE;
+
+
+/*! @abstract   Flush the underlying MTLBuffer from the device's caches, and invalidate any CPU caches if needed.
+ *  @discussion This will call [id <MTLBlitEncoder> synchronizeResource: ] on the matrix's MTLBuffer, if any.
+ *              This is necessary for all MTLStorageModeManaged resources. For other resources, including temporary
+ *              resources (these are all MTLStorageModePrivate), and buffers that have not yet been allocated, nothing is done.
+ *              It is more efficient to use this method than to attempt to do this yourself with the data property.
+ *  @param      commandBuffer       The commandbuffer on which to synchronize   */
+-(void) synchronizeOnCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer
+MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
+
+/*! @abstract       Get the number of bytes used to allocate underyling MTLResources
+ *  @discussion     This is the size of the backing store of underlying MTLResources.
+ *                  It does not include all storage used by the object, for example
+ *                  the storage used to hold the MPSMatrix instantiation and MTLBuffer
+ *                  is not included. It only measures the size of the allocation used
+ *                  to hold the matrix data in the buffer. This value is subject to
+ *                  change between different devices and operating systems.
+ *
+ *                  Except when -initWithBuffer:descriptor: is used, most MPSMatrixes are allocated
+ *                  without a backing store. The backing store is allocated lazily when
+ *                  it is needed, typically when the .texture property is called.
+ *                  Consequently, in most cases, it should be inexpensive to make
+ *                  a MPSImage to see how much memory it will need, and release it
+ *                  if it is too large.
+ *
+ *                  This method may fail in certain circumstances, such as when the
+ *                  MPSImage is created with -initWithTexture:featureChannels:. In
+ *                  such cases, 0 will be returned.
+ */
+-(NSUInteger)  resourceSize
+MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
+
+@end // MPSMatrix
+
+/*!
+ *  @class      MPSVector
+ *
+ *  @dependency This depends on Metal.framework
+ *
+ *  @discussion A MPSVector object describes a 1-dimensional array of data and provides storage
+ *              for its values.  Some MPSMatrixKernel objects operate on MPSVector objects
+ *              for convenience.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
+@interface MPSVector: NSObject
+
+/*! @property   device
+ *  @discussion The device on which the MPSVector will be used.
+ */
+@property (readonly, retain, nonatomic, nonnull) id<MTLDevice> device;
+
+/*! @property   length
+ *  @discussion The number of elements in the vector.
+ */
+@property (readonly, nonatomic) NSUInteger length;
+
+/*! @property   vectors
+ *  @discussion The number of vectors in the MPSVector.
+ */
+@property (readonly, nonatomic) NSUInteger vectors;
+
+/*! @property   dataType
+ *  @discussion The type of the MPSVector data.
+ */
+@property (readonly, nonatomic) MPSDataType dataType;
+
+/*! @property   vectorBytes
+ *  @discussion The stride, in bytes, between corresponding elements of
+ *              consecutive vectors.
+ */
+@property (readonly, nonatomic) NSUInteger vectorBytes;
+
+/*! @property   data
+ *  @discussion An MTLBuffer to store the data.
+ */
+@property (readonly, nonnull, nonatomic) id<MTLBuffer> data;
+
+/*!
+ *  @abstract   Initialize a MPSVector object with a MTLBuffer.
+ *
+ *  @param      buffer          The MTLBuffer object which contains the data to use for the
+ *                              MPSVector. May not be NULL.
+ *
+ *  @param      descriptor      The MPSVectorDescriptor. May not be NULL.
+ *
+ *  @return     A valid MPSVector object or nil, if failure.
+ *
+ *  @discussion This function returns a MPSVector object which uses the supplied MTLBuffer.  The
+ *              length, number of vectors, and stride between vectors are specified by the
+ *              MPSVectorDescriptor object.
+ *
+ *              The provided MTLBuffer must have enough storage to hold
+ *
+ *                  (descriptor.vectors-1) * descriptor.vectorBytes +
+ *                   descriptor.length * (element size) bytes.
+ *
+ */
+-(nonnull instancetype) initWithBuffer: (nonnull id<MTLBuffer>) buffer
+                            descriptor: (nonnull MPSVectorDescriptor*) descriptor;
+
+/*!
+ *  @abstract   Initialize a MPSVector object with a MTLBuffer and an offset.
+ *
+ *  @param      buffer  The MTLBuffer containing the data.
+ *
+ *  @param      offset  The offset, in bytes, into the buffer at which data begins.
+ *
+ *  @param      descriptor  The MPSVectorDescriptor.
+ */
+-(nonnull instancetype) initWithBuffer: (nonnull id<MTLBuffer>) buffer
+                                offset: (NSUInteger) offset
+                            descriptor: (nonnull MPSVectorDescriptor*) descriptor
+MPS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13));
+
+/*! @abstract   Initialize a lazily backed MPSVector object with a descriptor
+ *  @param      device      The device with which it will be used
+ *  @param      descriptor  The shape and style of the matrix
+ *  @return     A valid MPSVector object or nil
+ *  @discussion The vector object will be created, but the storage to hold the
+ *              vector data will only be allocated when it is needed, typically
+ *              when the data property is invoked.  In conjunction
+ *              with -resourceSize, this will allow you to estimate storage needs
+ *              without actually creating the backing store for the vector.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                            descriptor: (MPSVectorDescriptor * __nonnull) descriptor
+MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
+
+/*
+ * Use the above initialization methods instead.
+ */
+-(nonnull instancetype) init NS_UNAVAILABLE;
+
+
+/*! @abstract   Flush the underlying MTLBuffer from the device's caches, and invalidate any CPU caches if needed.
+ *  @discussion This will call [id <MTLBlitEncoder> synchronizeResource: ] on the vector's MTLBuffer, if any.
+ *              This is necessary for all MTLStorageModeManaged resources. For other resources, including temporary
+ *              resources (these are all MTLStorageModePrivate), and buffers that have not yet been allocated, nothing is done.
+ *              It is more efficient to use this method than to attempt to do this yourself with the data property.
+ *  @param      commandBuffer       The commandbuffer on which to synchronize   */
+-(void) synchronizeOnCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer
+MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
+
+/*! @abstract       Get the number of bytes used to allocate underyling MTLResources
+ *  @discussion     This is the size of the backing store of underlying MTLResources.
+ *                  It does not include all storage used by the object, for example
+ *                  the storage used to hold the MPSVector instantiation and MTLBuffer
+ *                  is not included. It only measures the size of the allocation used
+ *                  to hold the vector data in the buffer. This value is subject to
+ *                  change between different devices and operating systems.
+ *
+ *                  Except when -initWithBuffer:descriptor: is used, most MPSVectors are allocated
+ *                  without a backing store. The backing store is allocated lazily when
+ *                  it is needed, typically when the .texture property is called.
+ *                  Consequently, in most cases, it should be inexpensive to make
+ *                  a MPSMatrix to see how much memory it will need, and release it
+ *                  if it is too large.
+ *
+ *                  This method may fail in certain circumstances, such as when the
+ *                  MPSMatrix is created with -initWithBuffer:descriptor:. In
+ *                  such cases, 0 will be returned.
+ */
+-(NSUInteger)  resourceSize
+MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
+
+@end // MPSVector
+
+/*! @abstract A MPSMatrix allocated on GPU private memory.
+ *  @discussion It may alias one or more other MPSTemporaryMatrices. Undesired data destruction
+ *              due to aliasing is avoided using the readCount property.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
+@interface MPSTemporaryMatrix : MPSMatrix
+
+/*!
+ *  @abstract   Initialize a MPSTemporaryMatrix for use on a MTLCommandBuffer
+ *  @param      commandBuffer       The MTLCommandBuffer on which the MPSTemporaryMatrix will be exclusively used
+ *  @param      matrixDescriptor    A valid MPSMatrixDescriptor describing the MPSMatrix format to create
+ *  @return     A valid MPSTemporaryMatrix.  The object is not managed by a NSAutoreleasePool. The object will be
+ *              released when the command buffer is committed. The underlying buffer will become invalid before
+ *              this time due to the action of the readCount property.  Please read and understand the use of
+ *              the readCount property before using this object.
+ */
++(nonnull instancetype) temporaryMatrixWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                        matrixDescriptor: (nonnull MPSMatrixDescriptor*) matrixDescriptor;
+
+/*!
+ *  @abstract       Help MPS decide which allocations to make ahead of time
+ *  @discussion     The buffer cache that underlies the MPSTemporaryMatrix can automatically allocate new storage as
+ *                  needed as you create new temporary matrices.  However, sometimes a more global view of what you
+ *                  plan to make is useful for maximizing memory reuse to get the most efficient operation.
+ *                  This class method hints to the cache what the list of matrices will be.
+ *
+ *                  It is never necessary to call this method. It is purely a performance and memory optimization.
+ *
+ *  @param commandBuffer        The command buffer on which the MPSTemporaryMatrix will be used
+ *  @param descriptorList       A NSArray of MPSMatrixDescriptor, indicating matrices that will be created
+ */
++(void) prefetchStorageWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                    matrixDescriptorList: (NSArray <MPSMatrixDescriptor*> * __nonnull) descriptorList;
+
+/* MPS can not make a temporary matrix with a outside buffer. Please use the above methods. */
+/*! @abstract *** unavailable */
+-(nonnull instancetype) initWithBuffer: (nonnull id<MTLBuffer>) buffer
+                            descriptor: (nonnull MPSMatrixDescriptor*) descriptor NS_UNAVAILABLE;
+
+/*!
+ *  @abstract       The number of times a temporary matrix may be read by a MPSMatrix... kernel
+ *                  before its contents become undefined.
+ *
+ *  @discussion     MPSTemporaryMatrices must release their underlying buffers for reuse
+ *                  immediately after last use. So as to facilitate *prompt* convenient
+ *                  memory recycling, each time a MPSTemporaryMatrix is read by a
+ *                  MPSMatrix... -encode... method, its readCount is automatically
+ *                  decremented. When the readCount reaches 0, the underlying buffer is
+ *                  automatically made available for reuse to MPS for its own needs and for
+ *                  other MPSTemporaryMatrices prior to return from the -encode.. function.
+ *                  The contents of the buffer become undefined at this time.
+ *
+ *                  By default, the readCount is initialized to 1, indicating a matrix that
+ *                  may be overwritten any number of times, but read only once.
+ *
+ *                  You may change the readCount as desired to allow MPSMatrixKernels to read
+ *                  the MPSTemporaryMatrix additional times. However, it is an error to change
+ *                  the readCount once it is zero. It is an error to read or write to a
+ *                  MPSTemporaryMatrix with a zero readCount. You may set the readCount to 0
+ *                  yourself to cause the underlying buffer to be returned to MPS. Writing
+ *                  to a MPSTemporaryMatrix does not adjust the readCount.
+ *
+ *                  The Metal API Validation layer will assert if a MPSTemporaryMatrix is
+ *                  deallocated with non-zero readCount to help identify cases when resources
+ *                  are not returned promptly.
+ */
+@property (readwrite, nonatomic)  NSUInteger  readCount;
+
+@end
+
+/*! @abstract A MPSVector allocated on GPU private memory.
+ *  @discussion It may alias one or more other MPSTemporaryVector objects. Undesired data destruction
+ *              due to aliasing is avoided using the readCount property.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
+@interface MPSTemporaryVector : MPSVector
+/*!
+ *  @abstract   Initialize a MPSTemporaryVector for use on a MTLCommandBuffer
+ *  @param      commandBuffer       The MTLCommandBuffer on which the MPSTemporaryMatrix will be exclusively used
+ *  @param      descriptor    A valid MPSVectorDescriptor describing the MPSVector format to create
+ *  @return     A valid MPSTemporaryVector.  The object is not managed by a NSAutoreleasePool. The object will be
+ *              released when the command buffer is committed. The underlying buffer will become invalid before
+ *              this time due to the action of the readCount property.  Please read and understand the use of
+ *              the readCount property before using this object.
+ */
++(nonnull instancetype) temporaryVectorWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                                              descriptor: (nonnull MPSVectorDescriptor*) descriptor;
+
+/*!
+ *  @abstract       Help MPS decide which allocations to make ahead of time
+ *  @discussion     The buffer cache that underlies the MPSTemporaryVector can automatically allocate new storage as
+ *                  needed as you create new temporary vectors.  However, sometimes a more global view of what you
+ *                  plan to make is useful for maximizing memory reuse to get the most efficient operation.
+ *                  This class method hints to the cache what the list of matrices will be.
+ *
+ *                  It is never necessary to call this method. It is purely a performance and memory optimization.
+ *
+ *  @param commandBuffer        The command buffer on which the MPSTemporaryVector will be used
+ *  @param descriptorList       A NSArray of MPSVectorDescriptor objects, indicating vectors that will be created
+ */
++(void) prefetchStorageWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+                          descriptorList: (NSArray <MPSVectorDescriptor*> * __nonnull) descriptorList;
+
+/* MPS can not make a temporary vector with an outside buffer. Please use the above methods. */
+/*! @abstract *** unavailable */
+-(nonnull instancetype) initWithBuffer: (nonnull id<MTLBuffer>) buffer
+                            descriptor: (nonnull MPSVectorDescriptor*) descriptor NS_UNAVAILABLE;
+
+/*!
+ *  @abstract       The number of times a temporary vector may be read by a MPSMatrix... kernel
+ *                  before its contents become undefined.
+ *
+ *  @discussion     MPSTemporaryVector objects must release their underlying buffers for reuse
+ *                  immediately after last use. So as to facilitate *prompt* convenient
+ *                  memory recycling, each time a MPSTemporaryVector is read by a
+ *                  MPSMatrix... -encode... method, its readCount is automatically
+ *                  decremented. When the readCount reaches 0, the underlying buffer is
+ *                  automatically made available for reuse to MPS for its own needs and for
+ *                  other MPSTemporaryVector objects prior to return from the -encode.. function.
+ *                  The contents of the buffer become undefined at this time.
+ *
+ *                  By default, the readCount is initialized to 1, indicating a matrix that
+ *                  may be overwritten any number of times, but read only once.
+ *
+ *                  You may change the readCount as desired to allow MPSMatrix kernels to read
+ *                  the MPSTemporaryVector additional times. However, it is an error to change
+ *                  the readCount once it is zero. It is an error to read or write to a
+ *                  MPSTemporaryVector with a zero readCount. You may set the readCount to 0
+ *                  yourself to cause the underlying buffer to be returned to MPS. Writing
+ *                  to a MPSTemporaryVector does not adjust the readCount.
+ *
+ *                  The Metal API Validation layer will assert if a MPSTemporaryVector is
+ *                  deallocated with non-zero readCount to help identify cases when resources
+ *                  are not returned promptly.
+ */
+@property (readwrite, nonatomic)  NSUInteger  readCount;
+
+@end    // MPSTemporaryVector
+
+
+#endif /* MPSMatrix_h */
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSCore.framework/Headers/MPSKernelTypes.h
 //
 //  MPSKernelTypes.h
@@ -21600,27 +28852,42 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
 #ifndef MPSKernelTypes_h
 #define MPSKernelTypes_h    1
 
-#define MPSFunctionConstantIndex               127
-#define MPSBatchSizeIndex                      126
+#define MPSFunctionConstantIndex                127
+#define MPSBatchSizeIndex                       126
+#define MPSUserConstantIndex                    125
+#define MPSNDArrayConstantIndex                 124
 
 #if defined(__METAL_MACOS__) || MPS_TARGET_MAC || (defined (__i386__) || defined(__x86_64__))
-#    define MPSMaxTextures                     128
+#    define MPSMaxTextures                      128
 #else
 #    define MPSMaxTextures                      32
 #endif
 
+
 typedef enum
 {
     MPSCustomKernelIndexDestIndex = 0,
+    MPSCustomKernelIndexSrc0Index = 0,
     MPSCustomKernelIndexSrc1Index = 1,
     MPSCustomKernelIndexSrc2Index = 2,
     MPSCustomKernelIndexSrc3Index = 3,   // caution: may overlap with MPSCustomKernelIndexUserDataIndex
+    MPSCustomKernelIndexSrc4Index = 4,   // caution: may overlap with MPSCustomKernelIndexUserDataIndex
     // ...
     MPSCustomKernelIndexUserDataIndex = 30
 }MPSCustomKernelIndex;
 
 /*! @abstract the [[function_constant(index)]] index where the kMPSConstant is passed to the kernel */
 
+/*!
+ *  @struct     MPSMatrixOffset
+ *  @memberof   MPSMatrix
+ *  @abstract   Specifies a row and column offset into an MPSMatrix.
+ */
+typedef struct
+{
+    uint32_t    rowOffset;        /**< offset to start of source region to read in rows */
+    uint32_t    columnOffset;     /**< offset to start of source region to read in columns */
+}MPSMatrixOffset;
 
 #if defined(__METAL_VERSION__)
 #   include <metal_stdlib>
@@ -21642,16 +28909,16 @@ typedef struct
 
 typedef struct
 {
-    vector_short2   kernelOrigin;   // MPS estimate of where the top left corner of the kernel will fall. May be negative !
-    vector_ushort2  kernelPhase;    // for gradient filters, when stride > 1, stride kernel taps may apply to each source input. The phase gives which one corresponds to non-zero input.
-    vector_ushort2  kernelSize;     // MPSCNNCustomKernel.kernelSize
-    vector_short2   offset;         // MPSCNNCustomKernel.offsetAtIndex:   may be negative!
-    vector_ushort2  stride;         // MPSCNNCustomKernel.strideInPixelsAtIndex:
-    vector_ushort2  dilationRate;   // MPSCNNCustomKernel.dilationRateAtIndex:
+    vector_short2   kernelOrigin;           // MPS estimate of where the top left corner of the kernel will fall. May be negative !
+    vector_ushort2  kernelPhase;            // for gradient filters, when stride > 1, stride kernel taps may apply to each source input. The phase gives which one corresponds to non-zero input.
+    vector_ushort2  kernelSize;             // MPSCNNCustomKernel.kernelSize
+    vector_short2   offset;                 // MPSCNNCustomKernel.offsetAtIndex:   may be negative!
+    vector_ushort2  stride;                 // MPSCNNCustomKernel.strideInPixelsAtIndex:
+    vector_ushort2  dilationRate;           // MPSCNNCustomKernel.dilationRateAtIndex:
     uint16_t        featureChannelOffset;   // offset into image for the first feature channel to read
-    uint16_t        featureChannels; // number of actual feature channels. May be smaller than slices * 4
+    uint16_t        featureChannels;        // number of actual feature channels. May be smaller than slices * 4
     uint16_t        imageArrayOffset;       // offset into batch for first image to read
-    uint16_t        imageArraySize; // number of images in a MPSTextureArray, or 1 if texture2d/texture2d_array
+    uint16_t        imageArraySize;         // number of images in a MPSTextureArray, or 1 if texture2d/texture2d_array
 }MPSCustomKernelSourceInfo;
 
 typedef struct
@@ -21669,7 +28936,12 @@ typedef struct
 
     MPSIntegerDivisionParams    idiv;   // Used to decompose the Z grid component into feature channel and batchID
                                         // globalID.z = batchID * feature_channel_slice_count + feature_channel_slice
+                                        // see MPSFindIntegerDivisionParams and MPSDecomposeGlobalID
 }MPSCustomKernelInfo;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum : uint32_t {
     MPSImageType2d,                              // texture2d                Standard Metal type
@@ -21680,11 +28952,28 @@ typedef enum : uint32_t {
     MPSImageType_BatchMask = 2,
     MPSImageType_typeMask = 3,
     MPSImageType_noAlpha = 4,
+    MPSImageType_texelFormatMask = 0x38,
+    MPSImageType_texelFormatShift = 3,
+    MPSImageType_texelFormatStandard = 0 << MPSImageType_texelFormatShift,
+    MPSImageType_texelFormatUnorm8   = 1 << MPSImageType_texelFormatShift,
+    MPSImageType_texelFormatFloat16  = 2 << MPSImageType_texelFormatShift,
+    MPSImageType_texelFormatBFloat16 = 3 << MPSImageType_texelFormatShift,
+    MPSImageType_bitCount = 6,
+    MPSImageType_mask = (1U << MPSImageType_bitCount) - 1U,
     MPSImageType2d_noAlpha = MPSImageType2d | MPSImageType_noAlpha,
     MPSImageType2d_array_noAlpha = MPSImageType2d_array | MPSImageType_noAlpha,
     MPSImageTypeArray2d_noAlpha = MPSImageType2d | MPSImageType_BatchMask| MPSImageType_noAlpha,
     MPSImageTypeArray2d_array_noAlpha = MPSImageType2d_array | MPSImageType_BatchMask | MPSImageType_noAlpha,
 }MPSImageType;
+
+#ifdef __OBJC__
+    @class MPSImage;
+    MPSImageType MPSGetImageType( MPSImage * __nonnull image);
+#endif
+    
+#ifdef __cplusplus
+}
+#endif
 
 #ifdef __cplusplus
     inline MPSImageType operator|(MPSImageType a, MPSImageType b){ return MPSImageType(uint32_t(a)|uint32_t(b));}
@@ -21698,44 +28987,16 @@ typedef enum : uint32_t {
 #include <metal_stdlib>
 using namespace metal;
 typedef uint32_t MPSFunctionConstant;
-constant MPSFunctionConstant  kMPSConstant [[function_constant(MPSFunctionConstantIndex)]];
-constant MPSFunctionConstant  MPSMaxBatchSize[[function_constant(MPSBatchSizeIndex)]];
-constant MPSImageType  kMPSDestTextureType = MPSImageType(kMPSConstant & 7);
-constant MPSImageType  kMPSSrc1TextureType = MPSImageType((kMPSConstant >> 3) & 7);
-constant MPSImageType  kMPSSrc2TextureType = MPSImageType((kMPSConstant >> 6) & 7);
-constant MPSImageType  kMPSSrc3TextureType = MPSImageType((kMPSConstant >> 9) & 7);
-constant MPSImageType  kMPSSrc4TextureType = MPSImageType((kMPSConstant >>12) & 7);
-constant uint16_t      kMPSUserConstant = (kMPSConstant >> 16) & 0xffffU;
+constant MPSFunctionConstant  kMPSConstant [[function_constant(MPSFunctionConstantIndex)]];     // describes data types of input and output textures
+constant MPSFunctionConstant  kMPSUserConstant [[function_constant(MPSUserConstantIndex)]];     // uint32_t for user use
+constant MPSFunctionConstant  MPSMaxBatchSize[[function_constant(MPSBatchSizeIndex)]];          // the largest the batch can be
+constant MPSImageType  kMPSDestTextureType = MPSImageType((kMPSConstant >> 0*MPSImageType_bitCount) & MPSImageType_mask);
+constant MPSImageType  kMPSSrc0TextureType = MPSImageType((kMPSConstant >> 0*MPSImageType_bitCount) & MPSImageType_mask);
+constant MPSImageType  kMPSSrc1TextureType = MPSImageType((kMPSConstant >> 1*MPSImageType_bitCount) & MPSImageType_mask);
+constant MPSImageType  kMPSSrc2TextureType = MPSImageType((kMPSConstant >> 2*MPSImageType_bitCount) & MPSImageType_mask);
+constant MPSImageType  kMPSSrc3TextureType = MPSImageType((kMPSConstant >> 3*MPSImageType_bitCount) & MPSImageType_mask);
+constant MPSImageType  kMPSSrc4TextureType = MPSImageType((kMPSConstant >> 4*MPSImageType_bitCount) & MPSImageType_mask);
 
-
-// template <typename T> using MPSTextureArray = array<T, MPSMaxBatchSize>;
-
-typedef struct
-{
-    ushort2         globalID;        //{x, y}
-    ushort2         threadgroupID;   //{x, y}
-    ushort2         localID;         //{x, y}
-    ushort2         gridSize;        //{x, y}
-    uniform<ushort> imageID;
-    uniform<ushort> imageCount;
-    uniform<ushort> threadgroupStorageSize;
-}ThreadgroupInfo;
-
-static inline ThreadgroupInfo MPSInitThreadgroupInfo( ushort3 globalID,
-                                                      ushort3 threadgroupID,
-                                                      ushort3 localID,
-                                                      constant MPSCustomKernelInfo &info )
-{
-    return (ThreadgroupInfo){
-        .globalID = globalID.xy,
-        .threadgroupID = threadgroupID.xy,
-        .localID = localID.xy,
-        .gridSize = info.clipSize.xy,
-        .imageID = make_uniform(globalID.z),            // Caution: Assumes threadgroup is 2D: {X, Y, 1}. MPSNNSimpleCustomKernel does this automatically.
-        .imageCount = make_uniform(info.clipSize.z),
-        .threadgroupStorageSize = make_uniform(info.threadgroupSize)
-    };
-}
 
 // Decompose a ushort3 globalID on a grid {width, height, feature_channel_slice_count * batch_image_count}
 // into a ushort3 {x, y, feature_channel} and a uniform<ushort> batch_image_id.
@@ -21761,10 +29022,113 @@ static inline uniform<ushort>  MPSDecomposeGlobalID( constant MPSIntegerDivision
     return make_uniform(image);
 }
 
+// template <typename T> using MPSTextureArray = array<T, MPSMaxBatchSize>;
+
+typedef struct
+{
+    ushort2         globalID;        //{x, y}
+    ushort2         threadgroupID;   //{x, y}
+    ushort2         localID;         //{x, y}
+    ushort2         gridSize;        //{x, y}
+    ushort          sliceID;
+    ushort          sliceCount;
+    uniform<ushort> imageID;
+    uniform<ushort> imageCount;
+    uniform<ushort> threadgroupStorageSize;
+}ThreadgroupInfo;
+
+static inline ThreadgroupInfo MPSInitThreadgroupInfo( ushort3 globalID,
+                                                      ushort3 threadgroupID,
+                                                      ushort3 localID,
+                                                      constant MPSCustomKernelInfo &info )
+{
+    uniform <ushort> imageID = MPSDecomposeGlobalID( info.idiv, &globalID );
+    return (ThreadgroupInfo){
+        .globalID = globalID.xy,
+        .threadgroupID = threadgroupID.xy,
+        .localID = localID.xy,
+        .gridSize = info.clipSize.xy,
+        .sliceID = globalID.z,
+        .sliceCount = info.idiv.divisor,
+        .imageID = imageID,            // Caution: Assumes threadgroup is 2D: {X, Y, 1}. MPSNNSimpleCustomKernel does this automatically.
+        .imageCount = make_uniform(info.clipSize.w),
+        .threadgroupStorageSize = make_uniform(info.threadgroupSize)
+    };
+}
+
+
+
+
+// BFloat16 is typically not supported directly by hardware. Consequently,
+// it is aliased on top of some other type such as uint16, unorm16, or float16.
+// While uint16 is the cheapes way to do this -- bits do not change when it is loaded,
+// or stored, the change of the sample/read texture return type to uint4 causes
+// severe template bloat which MPS can not afford due to the large number
+// of kernels therein. (The problem explodes geometrically with increasing numbers
+// of textures passed into each kernel.)  Instead, we have code here to use
+// half and unorm16, both of which are capable of returning a float return type.
+// Some extra arithmetic is required after load and before store to make sure
+// that once the data has been mangled appropriately by the TPU, we end up with
+// a canonical bfloat16 in memory.
+static inline float4 MPSConvertToBFloat16AsUnorm16( float4 f)
+{
+    float4 round = as_type<float4>( as_type<uint4>(f) & 0xff800000U );  // extract power of two of f. Returns 0 for subnormals.
+    float4 rounded = fma(round, 0x1.0p-8f, f);                          // round to nearest, ties away from zero
+    rounded = float4( as_type<uint4>(rounded)>>16);                     // truncate to bfloat16 precision. Reinterpret as uint16_t. Convert to float.
+    rounded *= 1.0f / 65535.0f;                                         // normalize
+    return rounded;
+}
+
+static inline half4
+#if MPS_WARN_ABOUT_BROKEN_BFLOAT16_USAGE
+__attribute__ ((deprecated("Warning: can not convert to bfloat16 from half precision. Signal will be destroyed. Will return NaN.")))
+#endif
+MPSConvertToBFloat16AsUnorm16( half4 f){ return __builtin_nanf("");}    // too many bits lost. Can not work correctly.
+
+static inline uint4
+#if MPS_WARN_ABOUT_BROKEN_BFLOAT16_USAGE
+__attribute__ ((deprecated("Warning: can not convert to bfloat16 from uint sample. 0 is returned.")))
+#endif
+MPSConvertToBFloat16AsUnorm16( uint4 f){ return 0;}    // too many bits lost. Can not work correctly.
+
+static inline int4
+#if MPS_WARN_ABOUT_BROKEN_BFLOAT16_USAGE
+__attribute__ ((deprecated("Warning: can not convert to bfloat16 from int sample. 0 is returned.")))
+#endif
+MPSConvertToBFloat16AsUnorm16( int4 f){ return 0;}    // too many bits lost. Can not work correctly.
+
+// This function requires full float precision from the LHS of texture::sample
+// through to the RHS of MPSConvertFromBFloat16AsUnorm16.  Casting to/from
+// half precision in that span will cause this function to have undefined behavior.
+static inline float4 MPSConvertFromBFloat16AsUnorm16( float4 f )
+{
+    f = fma(f, 65535.0f, 0x1.0p23f);
+    f =  as_type<float4>( as_type<uint4>(f) << 16);
+    return float4(f);
+}
+
+static inline half4
+#if MPS_WARN_ABOUT_BROKEN_BFLOAT16_USAGE
+    __attribute__ ((deprecated("Warning: can not convert to bfloat16 from half precision. Signal already destroyed. Will return NaN.")))
+#endif
+    MPSConvertFromBFloat16AsUnorm16( half4 f)
+{
+    // poison bfloat16 results if the user is trying to convert them to
+    // half.  This destroys the entire point of bfloat16, extended range.
+    return  __builtin_nanf("");
+}
+
+
+
 constant bool kMPSDestIs2d = (kMPSDestTextureType & MPSImageType_typeMask) == MPSImageType2d;
 constant bool kMPSDestIs2dArray = (kMPSDestTextureType & MPSImageType_typeMask) == MPSImageType2d_array;
 constant bool kMPSDestIsArray2d = (kMPSDestTextureType & MPSImageType_typeMask) == MPSImageTypeArray2d;
 constant bool kMPSDestIsArray2dArray = (kMPSDestTextureType & MPSImageType_typeMask) == MPSImageTypeArray2d_array;
+
+constant bool kMPSSrc0Is2d = (kMPSSrc0TextureType & MPSImageType_typeMask) == MPSImageType2d;
+constant bool kMPSSrc0Is2dArray = (kMPSSrc0TextureType & MPSImageType_typeMask) == MPSImageType2d_array;
+constant bool kMPSSrc0IsArray2d = (kMPSSrc0TextureType & MPSImageType_typeMask) == MPSImageTypeArray2d;
+constant bool kMPSSrc0IsArray2dArray = (kMPSSrc0TextureType & MPSImageType_typeMask) == MPSImageTypeArray2d_array;
 
 constant bool kMPSSrc1Is2d = (kMPSSrc1TextureType & MPSImageType_typeMask) == MPSImageType2d;
 constant bool kMPSSrc1Is2dArray = (kMPSSrc1TextureType & MPSImageType_typeMask) == MPSImageType2d_array;
@@ -21781,7 +29145,14 @@ constant bool kMPSSrc3Is2dArray = (kMPSSrc3TextureType & MPSImageType_typeMask) 
 constant bool kMPSSrc3IsArray2d = (kMPSSrc3TextureType & MPSImageType_typeMask) == MPSImageTypeArray2d;
 constant bool kMPSSrc3IsArray2dArray = (kMPSSrc3TextureType & MPSImageType_typeMask) == MPSImageTypeArray2d_array;
 
+constant bool kMPSSrc4Is2d = (kMPSSrc4TextureType & MPSImageType_typeMask) == MPSImageType2d;
+constant bool kMPSSrc4Is2dArray = (kMPSSrc4TextureType & MPSImageType_typeMask) == MPSImageType2d_array;
+constant bool kMPSSrc4IsArray2d = (kMPSSrc4TextureType & MPSImageType_typeMask) == MPSImageTypeArray2d;
+constant bool kMPSSrc4IsArray2dArray = (kMPSSrc4TextureType & MPSImageType_typeMask) == MPSImageTypeArray2d_array;
 
+
+// Generally type would be {half, float} and _type4 would be {half4, float4}
+// For BFloat16, use _type = {uint} and _type4 = {half4, float4}
 template <class _type, access _access, class _type4>
 class _MPSSrcImage
 {
@@ -21827,10 +29198,10 @@ class _MPSSrcImage
     // where = {X,Y} and which = {feature channel slice, batch image}.
     // It wasn't possible to declare just the w component of a float4 to be uniform<>
     // See small uniform tutorial below
-    _type4  sample( sampler s, float2 where, ushort slice, uniform<ushort> image, int2 offset = int2(0) ) const;
-    _type4  gather( sampler s, float2 where, ushort slice, uniform<ushort> image, int2 offset = int2(0), component c = component::x ) const;
-    _type4  read( ushort2 where, ushort slice, uniform<ushort> image ) const;
-    _type4  read( uint2 where, uint slice, uniform<uint> image ) const;
+    __attribute__((__always_inline__)) _type4  sample( sampler s, float2 where, ushort slice, uniform<ushort> image, int2 offset = int2(0) ) const;
+    __attribute__((__always_inline__)) _type4  gather( sampler s, float2 where, ushort slice, uniform<ushort> image, int2 offset = int2(0), component c = component::x ) const;
+    __attribute__((__always_inline__)) _type4  read( ushort2 where, ushort slice, uniform<ushort> image ) const;
+    __attribute__((__always_inline__)) _type4  read( uint2 where, uint slice, uniform<uint> image ) const;
 };
 
 //
@@ -21863,20 +29234,29 @@ class _MPSSrcImage
 
 // 1- and 2-channel image formats always set alpha = 1, which is the wrong
 // thing to do for feature channel based images. These need to be zero.
-#define __MPS_TEX_TYPE_SELECT_TYPE4( _2d, _2da, _a2d, _a2da, _default )     \
-     { _type4 _r;                                                           \
-        switch(_texType & MPSImageType_typeMask){                           \
-        /* _texType is known at compile time, so */                         \
-        /* this switch should be optimized away. */                         \
-            case MPSImageType2d: _r = (_2d); break;                         \
-            case MPSImageType2d_array: _r = (_2da); break;                  \
-            case MPSImageTypeArray2d: _r = (_a2d); break;                   \
-            case MPSImageTypeArray2d_array: _r = (_a2da); break;            \
-            default: _r = (_default); break;                                \
-        }                                                                   \
-        if( _texType & MPSImageType_noAlpha)                                \
-            _r.w = 0;                                                       \
-        return _r;  }
+#define __MPS_TEX_TYPE_SELECT_TYPE4(_2d, _2da, _a2d, _a2da, _default )              \
+     ({                                                                             \
+        _type4 _r;                                                                  \
+        switch(_texType & MPSImageType_typeMask){                                   \
+        /* _texType is known at compile time, so */                                 \
+        /* this switch should be optimized away. */                                 \
+            case MPSImageType2d: _r = (_2d); break;                                 \
+            case MPSImageType2d_array: _r = (_2da); break;                          \
+            case MPSImageTypeArray2d: _r = (_a2d); break;                           \
+            case MPSImageTypeArray2d_array: _r = (_a2da); break;                    \
+            default: _r = (_default); break;                                        \
+        }                                                                           \
+        if( _texType & MPSImageType_noAlpha)                                        \
+            _r.w = 0;                                                               \
+        switch( MPSImageType_texelFormatMask & _texType) {                          \
+            case MPSImageType_texelFormatBFloat16:                                  \
+                _r = MPSConvertFromBFloat16AsUnorm16(_r);                           \
+                break;                                                              \
+            default:                                                                \
+                break;                                                              \
+        }                                                                           \
+        /* return */ _r;                                                            \
+    })
 
 //ushort  get_width(uint imageIndex = 0) const;
 template<class _type, access _access, class _type4> ushort _MPSSrcImage<_type, _access, _type4>::get_width(uint index) const {
@@ -21899,66 +29279,63 @@ template<class _type, access _access, class _type4> ushort _MPSSrcImage<_type, _
 }
 
 //_type4   sample( sampler s, float2 where, ushort slice, uniform<ushort> image, int2 offset = int2(0) );
-template<class _type, access _access, class _type4> _type4 _MPSSrcImage<_type, _access, _type4>::sample( sampler s, float2 where, ushort slice, uniform<ushort> image, int2 offset ) const {
-    __MPS_TEX_TYPE_SELECT_TYPE4( _img.sample(s, where, offset),
-                                 _imgA.sample(s, where, slice, offset),
-                                 _Aimg[image].sample(s, where, offset),
-                                 _AimgA[image].sample(s, where, slice, offset),
-                                0);
+template<class _type, access _access, class _type4> __attribute__((__always_inline__)) _type4 _MPSSrcImage<_type, _access, _type4>::sample( sampler s, float2 where, ushort slice, uniform<ushort> image, int2 offset ) const {
+   return  __MPS_TEX_TYPE_SELECT_TYPE4( _img.sample(s, where, offset),
+                                        _imgA.sample(s, where, slice, offset),
+                                        _Aimg[image].sample(s, where, offset),
+                                        _AimgA[image].sample(s, where, slice, offset),
+                                        0);
 }
 
 
 //_type4   gather( sampler s, float2 where, ushort2 which, int2 offset = int2(0), component c = component::x );
-template<class _type, access _access, class _type4> _type4 _MPSSrcImage<_type, _access, _type4>::gather( sampler s, float2 where, ushort slice, uniform<ushort> image, int2 offset, component c ) const {
+template<class _type, access _access, class _type4> __attribute__((__always_inline__)) _type4 _MPSSrcImage<_type, _access, _type4>::gather( sampler s, float2 where, ushort slice, uniform<ushort> image, int2 offset, component c ) const {
     switch(c)
     { // this switch should be optimized away, since c is known at compile time.
         case component::x:
-        __MPS_TEX_TYPE_SELECT_TYPE4( _img.gather(s, where, offset, component::x),
-                                     _imgA.gather(s, where, slice, offset, component::x),
-                                     _Aimg[image].gather(s, where, offset, component::x),
-                                     _AimgA[image].gather(s, where, slice, offset, component::x),
-                                     0);
-        break;
+            return __MPS_TEX_TYPE_SELECT_TYPE4( _img.gather(s, where, offset, component::x),
+                                                _imgA.gather(s, where, slice, offset, component::x),
+                                                _Aimg[image].gather(s, where, offset, component::x),
+                                                _AimgA[image].gather(s, where, slice, offset, component::x),
+                                                0);
         case component::y:
-        __MPS_TEX_TYPE_SELECT_TYPE4( _img.gather(s, where, offset, component::y),
-                                     _imgA.gather(s, where, slice, offset, component::y),
-                                     _Aimg[image].gather(s, where, offset, component::y),
-                                     _AimgA[image].gather(s, where, slice, offset, component::y),
-                                     0);
-        break;
+            return __MPS_TEX_TYPE_SELECT_TYPE4( _img.gather(s, where, offset, component::y),
+                                                _imgA.gather(s, where, slice, offset, component::y),
+                                                _Aimg[image].gather(s, where, offset, component::y),
+                                                _AimgA[image].gather(s, where, slice, offset, component::y),
+                                                0);
         case component::z:
-        __MPS_TEX_TYPE_SELECT_TYPE4( _img.gather(s, where, offset, component::z),
-                                     _imgA.gather(s, where, slice, offset, component::z),
-                                     _Aimg[image].gather(s, where, offset, component::z),
-                                     _AimgA[image].gather(s, where, slice, offset, component::z),
-                                    0);
-        break;
+            return __MPS_TEX_TYPE_SELECT_TYPE4( _img.gather(s, where, offset, component::z),
+                                                _imgA.gather(s, where, slice, offset, component::z),
+                                                _Aimg[image].gather(s, where, offset, component::z),
+                                                _AimgA[image].gather(s, where, slice, offset, component::z),
+                                                0);
         case component::w:
-        __MPS_TEX_TYPE_SELECT_TYPE4( _img.gather(s, where, offset, component::w),
-                                     _imgA.gather(s, where, slice, offset, component::w),
-                                     _Aimg[image].gather(s, where, offset, component::w),
-                                     _AimgA[image].gather(s, where, slice, offset, component::w),
-                                     0);
-        break;
+            return __MPS_TEX_TYPE_SELECT_TYPE4( _img.gather(s, where, offset, component::w),
+                                                _imgA.gather(s, where, slice, offset, component::w),
+                                                _Aimg[image].gather(s, where, offset, component::w),
+                                                _AimgA[image].gather(s, where, slice, offset, component::w),
+                                                0);
     }
+    return 0;
 }
 
 //_type4   read( ushort4 where );
-template<class _type, access _access, class _type4> _type4 _MPSSrcImage<_type, _access, _type4>::read( ushort2 where, ushort slice, uniform<ushort> image ) const {
-    __MPS_TEX_TYPE_SELECT_TYPE4( _img.read(where),
-                                _imgA.read(where, slice),
-                                _Aimg[image].read( where),
-                                _AimgA[image].read( where, slice),
-                                0);
+template<class _type, access _access, class _type4> __attribute__((__always_inline__)) _type4 _MPSSrcImage<_type, _access, _type4>::read( ushort2 where, ushort slice, uniform<ushort> image ) const {
+    return __MPS_TEX_TYPE_SELECT_TYPE4( _img.read(where),
+                                        _imgA.read(where, slice),
+                                        _Aimg[image].read( where),
+                                        _AimgA[image].read( where, slice),
+                                        0);
 }
 
 //_type4   read( uint4 where );
-template<class _type, access _access, class _type4> _type4 _MPSSrcImage<_type, _access, _type4>::read( uint2 where, uint slice, uniform<uint> image ) const {
-    __MPS_TEX_TYPE_SELECT_TYPE4( _img.read(where),
-                                _imgA.read(where, slice),
-                                _Aimg[image].read( where),
-                                _AimgA[image].read( where, slice),
-                                0);
+template<class _type, access _access, class _type4> __attribute__((__always_inline__)) _type4 _MPSSrcImage<_type, _access, _type4>::read( uint2 where, uint slice, uniform<uint> image ) const {
+    return __MPS_TEX_TYPE_SELECT_TYPE4( _img.read(where),
+                                        _imgA.read(where, slice),
+                                        _Aimg[image].read( where),
+                                        _AimgA[image].read( where, slice),
+                                        0);
 }
 
 
@@ -21969,46 +29346,46 @@ template <class _type, class _type4>
 class _MPSDestImage
 {
     private:
-    thread texture2d<_type, access::write> &                            _img;
-    thread texture2d_array<_type, access::write> &                      _imgA;
+        thread texture2d<_type, access::write> &                            _img;
+        thread texture2d_array<_type, access::write> &                      _imgA;
 #if defined(__METAL_MACOS__)    // writable arrays of texture are not an iOS feature
-    array_ref<texture2d<_type, access::write>>                          _Aimg;
-    array_ref<texture2d_array<_type, access::write>>                    _AimgA;
+        array_ref<texture2d<_type, access::write>>                          _Aimg;
+        array_ref<texture2d_array<_type, access::write>>                    _AimgA;
 #endif
-    const int                                                           _texType;
-    constant MPSCustomKernelInfo &                                      _info;
+        const int                                                           _texType;
+        constant MPSCustomKernelInfo &                                      _info;
     
     public:
-    _MPSDestImage(thread texture2d<_type, access::write> & img,
-                  thread texture2d_array<_type, access::write> & imgA,
+        _MPSDestImage(thread texture2d<_type, access::write> & img,
+                      thread texture2d_array<_type, access::write> & imgA,
 #if defined(__METAL_MACOS__)    // writable arrays of texture are not an iOS feature
-                  array_ref<texture2d<_type, access::write>> Aimg,
-                  array_ref<texture2d_array<_type, access::write>> AimgA,
+                      array_ref<texture2d<_type, access::write>> Aimg,
+                      array_ref<texture2d_array<_type, access::write>> AimgA,
 #endif
-                  const int texType,
-                  constant MPSCustomKernelInfo &info ) : _img(img), _imgA(imgA),
+                      const int texType,
+                      constant MPSCustomKernelInfo &info ) : _img(img), _imgA(imgA),
 #if defined(__METAL_MACOS__)    // writable arrays of texture are not an iOS feature
-                                                         _Aimg(Aimg), _AimgA(AimgA),
+                                                             _Aimg(Aimg), _AimgA(AimgA),
 #endif
-                                                         _texType(texType), _info(info) { }
+                                                             _texType(texType), _info(info) { }
     
     // image metadata
     // The imageIndex parameter for width, height and slices, can be ignored.
     // It may save some registers / memory access if you use the same where.w as your write call
-    ushort  get_width(uint imageIndex = 0) const;
-    ushort  get_height(uint imageIndex = 0) const;
-    ushort  get_slices(uint imageIndex = 0) const;
-    ushort  get_image_count(void) const;
-    ushort4 get_size(uint imageIndex = 0){ return ushort4(get_width(imageIndex), get_height(imageIndex), get_slices(imageIndex), get_image_count()); }
-    ushort  get_feature_channels(void) const {return _info.destinationFeatureChannels;}
+    ushort  get_width(uint imageIndex = 0) const;    ///< width of image in texels
+    ushort  get_height(uint imageIndex = 0) const;   ///< height of image in texels
+    ushort  get_slices(uint imageIndex = 0) const;   ///< number of slices in a single image
+    ushort  get_image_count(void) const;             ///< number of images in the _MPSDestImage
+    ushort4 get_size(uint imageIndex = 0){ return ushort4(get_width(imageIndex), get_height(imageIndex), get_slices(imageIndex), get_image_count()); }  ///< (ushor4){ width, height, slice count, image count }
+    ushort  get_feature_channels(void) const {return _info.destinationFeatureChannels;} ///< number of feature channels in the images.
     
-    uniform<ushort> get_image_offset(void)const { return make_uniform(_info.clipOrigin.w);}
-    ushort  get_slice_offset(void)const { return _info.clipOrigin.z;}
-    ushort4 get_clip_origin(void){ return _info.clipOrigin;}   // {x,y, destinationFeatureChannelOffset}
-    ushort4 get_clip_size(void){ return _info.clipSize;}
+    uniform<ushort> get_image_offset(void)const { return make_uniform(_info.clipOrigin.w);} ///< The index of the first image to start writing to
+    ushort  get_slice_offset(void)const { return _info.clipOrigin.z;}                       ///< The index of the first slice to start writing to
+    ushort4 get_clip_origin(void){ return _info.clipOrigin;}                                ///< {x,y, destinationFeatureChannelOffset/4}
+    ushort4 get_clip_size(void){ return _info.clipSize;}                                    ///< {clip.width, clip.height, clip.slice_cout, clip_image_count }
     
-    void    write( _type4 v, ushort2 where, ushort slice, uniform<ushort> image );
-    void    write( _type4 v, uint2 where, uint slice, uniform<uint> image );
+    __attribute__((__always_inline__)) void    write( _type4 v, ushort2 where, ushort slice, uniform<ushort> image );
+    __attribute__((__always_inline__)) void    write( _type4 v, uint2 where, uint slice, uniform<uint> image );
 };
 
 #if defined(__METAL_MACOS__)    // writable arrays of texture are not an iOS feature
@@ -22018,6 +29395,7 @@ class _MPSDestImage
                 case MPSImageType2d_array: return (_2da);           \
                 case MPSImageTypeArray2d: return (_a2d);            \
                 case MPSImageTypeArray2d_array: return (_a2da);     \
+                default: return (_2d);                              \
     }
 #else
 #   define __MPS_DEST_TEX_TYPE_SELECT( _2d, _2da, _a2d, _a2da )                         \
@@ -22048,7 +29426,16 @@ template<class _type, class _type4> ushort _MPSDestImage<_type, _type4>::get_ima
 }
 
 //void    write( _vec4 v, ushort2 where, ushort slice, uniform<ushort> image );
-template<class _type, class _type4> void _MPSDestImage<_type, _type4>::write( _type4 v, ushort2 where, ushort slice, uniform<ushort> image ) {
+template<class _type, class _type4> __attribute__((__always_inline__)) void _MPSDestImage<_type, _type4>::write( _type4 v, ushort2 where, ushort slice, uniform<ushort> image ) {
+    switch(_texType & MPSImageType_texelFormatMask)
+    {
+        case MPSImageType_texelFormatBFloat16:
+            v = MPSConvertToBFloat16AsUnorm16(v);
+            break;
+        default:
+            break;
+    }
+
     __MPS_DEST_TEX_TYPE_SELECT( _img.write(v,where),
                                 _imgA.write(v, where, slice),
                                 _Aimg[image].write(v, where),
@@ -22056,7 +29443,15 @@ template<class _type, class _type4> void _MPSDestImage<_type, _type4>::write( _t
 }
 
 //void    write( _vec4 v, uint2 where, uint slice, uniform<uint> image );
-template<class _type, class _type4> void _MPSDestImage<_type, _type4>::write( _type4 v, uint2 where, uint slice, uniform<uint> image ) {
+template<class _type, class _type4> __attribute__((__always_inline__)) void _MPSDestImage<_type, _type4>::write( _type4 v, uint2 where, uint slice, uniform<uint> image ) {
+    switch(_texType & MPSImageType_texelFormatMask)
+    {
+        case MPSImageType_texelFormatBFloat16:
+            v = MPSConvertToBFloat16AsUnorm16(v);
+            break;
+        default:
+            break;
+    }
     __MPS_DEST_TEX_TYPE_SELECT( _img.write(v,where),
                                 _imgA.write(v, where, slice),
                                 _Aimg[image].write(v, where),
@@ -22099,21 +29494,63 @@ template<class _type, class _type4> void _MPSDestImage<_type, _type4>::write( _t
 #   define __MPS_DEST_IMAGE_PARAMS(_name)     _name, _name##A, kMPSDestTextureType, _name ## Info
 #endif
 
+#define GET_GLOBALID_DIVISOR(_name)  ((_name ## Info).idiv)
 
-//  _func           function name to inline
-//  _access         read or sample
-//  _type           float or half
-#   define __MPS_MAKE_CUSTOM_KERNEL( _func, _access, _type)                                                                                                 \
-    kernel void _func ## _MPSCustomV1_ ## _ ##_access ## _ ##  _type (                                                                   \
+/*! @abstract   __MPS_MAKE_CUSTOM_KERNEL -- macro to construct custom kernel
+ *  @discussion MPS custom kernels insert a wrapper kernel around your function to abstract away code complication
+ *              that arises from the diversity of hardware and MTLResource types. This wrapper is also intended to
+ *              provide some limited ability to automatically adapt to ever changing MPS best practices and
+ *              hardware landscape. The wrapper is versioned to reduce maintenance.
+ *
+ *              Caution: The custom kernel was delayed two major operating systems because we couldn't be sure
+ *              it would work properly the following year -- and in fact it would not have. This remains a
+ *              continuing risk. MPS workarounds to keep this feature operating may be very performance costly.
+ *              This feature is intended for use by application developers that are able to commit to
+ *              ongoing maintenance of this segment of their application in exchange for the simplification custom
+ *              kernels allow elsewhere. This interface is more likely than most to be deprecated in the future.
+ *
+ *  @param      _func           function to inline (e.g. MyFunc)
+ *              @code
+ *                  Example:
+ *                      #include <MetalPerformanceShaders/MPSKernelTypes.h>
+ *                      void MyFunc<class srcTexAccess, class scalarType, class vectorType2, class vectorType3, class vectorType4>
+ *                          (   _MPSSrcImage<scalarType, srcTexAccess, vectorType4> & src,
+ *                              _MPSDestImage<scalarType, vectorType4> & dest,
+ *                              device void * __nullable userData,                 // put whatever you want in here
+ *                              threadgroup void * __nullabe threadgroupData,      // threadgroup memory if you needed any
+ *                              ThreadgroupInfo & threadgroupInfo )
+ *                      {
+ *                          ushort sliceCount = dest.get_slices( threadgroupInfo.imageID );
+ *
+ *                          // Note: striding this way through memory is not usually the best thing for caches
+ *                          //       It is often a performance improvement to have each thread produce 2-4
+ *                          //       destination texels that are spatially adjacent in the X,Y plane. Some
+ *                          //       computation for the different result texels may also be identical and
+ *                          //       can be optimized away.
+ *                          for( ushort slice = 0; i < sliceCount; slice++ )
+ *                          {
+ *                              // simple copy
+ *                              vectorType4 texel = src.read(threadgroupInfo.globalID, slice, threadgroupInfo.imageID);
+ *                              dest.write( texel, threadgroupInfo.globalID, slice, threadgroupInfo.imageID);
+ *                          }
+ *                      }
+ *
+ *                      MPS_MAKE_CUSTOM_KERNELS(MyFunc);
+ *              @endcode
+ *  @param _access      read or sample
+ *  @param _type        float or half
+ */
+#   define __MPS_MAKE_CUSTOM_KERNEL( _func, _access, _type, _userDatType)                                                                                                 \
+    kernel void _func ## _MPSCustomV1_ ##_access ## _ ##  _type (                                                                                      \
         __MPS_DEST_IMAGE_ARG( dest, _type),                                                                                                                 \
         __MPS_SRC_IMAGE_ARG( src, _access, _type, 1 ),                                                                                                      \
-        device void * userData [[buffer(MPSCustomKernelIndexUserDataIndex)]],                                                                                    \
-        threadgroup void * threadgroupData [[threadgroup(MPSCustomKernelIndexUserDataIndex)]],                                                                   \
+        constant _userDatType * userData [[buffer(MPSCustomKernelIndexUserDataIndex)]], /* indirect argument buffer */                                                                   \
+        threadgroup void * threadgroupData [[threadgroup(MPSCustomKernelIndexUserDataIndex)]],                                                              \
         ushort3 globalID [[thread_position_in_grid]],                                                                                                       \
         ushort3 threadgroupID [[threadgroup_position_in_grid]],                                                                                             \
         ushort3 localID [[thread_position_in_threadgroup]] )                                                                                                \
     {                                                                                                                                                       \
-        if( any(globalID >= destInfo.gridSize.xyz) )  return;                                                                                               \
+        if( any(globalID >= destInfo.clipSize.xyz) )  return;                                                                                               \
         ThreadgroupInfo threadgroupInfo = MPSInitThreadgroupInfo( globalID, threadgroupID, localID, destInfo );                                             \
         _MPSSrcImage<_type, access::_access, _type ## 4> srcImage( __MPS_SRC_IMAGE_PARAMS(src, 1));                                                         \
         _MPSDestImage<_type, _type ## 4> destImage( __MPS_DEST_IMAGE_PARAMS(dest));                                                                         \
@@ -22122,9 +29559,9 @@ template<class _type, class _type4> void _MPSDestImage<_type, _type4>::write( _t
     }
 
 
-#   define MPS_MAKE_CUSTOM_KERNELS(_funcName)                                       \
-    __MPS_MAKE_CUSTOM_KERNEL( _funcName, sample, half)                              \
-    __MPS_MAKE_CUSTOM_KERNEL( _funcName, sample, float)
+#   define MPS_MAKE_CUSTOM_KERNELS(_funcName, _userDatType)                                       \
+    __MPS_MAKE_CUSTOM_KERNEL( _funcName, sample, half, _userDatType)                              \
+    __MPS_MAKE_CUSTOM_KERNEL( _funcName, sample, float, _userDatType)
 
 
 
@@ -22135,21 +29572,18 @@ typedef int64_t  MPSFunctionConstant;
 typedef uint32_t MPSFunctionConstantInMetal;
 static const MPSFunctionConstant    MPSFunctionConstantNone = -1LL;
 
-
 #   ifdef __cplusplus
-static inline MPSFunctionConstant MPSMakeFunctionConstant( uint16_t    userValue,
-                                                           MPSImageType destType,
+static inline MPSFunctionConstant MPSMakeFunctionConstant( MPSImageType destType,
                                                            MPSImageType src1Type,
                                                            MPSImageType src2Type = MPSImageType2d,
                                                            MPSImageType src3Type = MPSImageType2d,
                                                            MPSImageType src4Type = MPSImageType2d )
 {
-    MPSFunctionConstant result = uint32_t(destType) & 7;
-    result |= (uint32_t(src1Type) & 7) << 3;
-    result |= (uint32_t(src2Type) & 7) << 6;
-    result |= (uint32_t(src3Type) & 7) << 9;
-    result |= (uint32_t(src4Type) & 7) << 12;
-    result |= uint32_t(userValue) << 16;
+    MPSFunctionConstant result = uint32_t(destType) & MPSImageType_mask;
+    result |= (uint32_t(src1Type) & MPSImageType_mask) << 1 * MPSImageType_bitCount;
+    result |= (uint32_t(src2Type) & MPSImageType_mask) << 2 * MPSImageType_bitCount;
+    result |= (uint32_t(src3Type) & MPSImageType_mask) << 3 * MPSImageType_bitCount;
+    result |= (uint32_t(src4Type) & MPSImageType_mask) << 4 * MPSImageType_bitCount;
     return result;
 }
 
@@ -22262,7 +29696,7 @@ static inline unsigned long MPSGetCustomKernelBroadcastSourceIndex( MPSCustomKer
  *                  - max value is written at pixel location (1, 0)
  *              
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageStatisticsMinAndMax : MPSUnaryImageKernel
 
 /*! @property   clipRectSource
@@ -22310,7 +29744,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *                  - variance value is written at pixel location (1, 0)
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageStatisticsMeanAndVariance : MPSUnaryImageKernel
 
 /*! @property   clipRectSource
@@ -22355,7 +29789,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *  @discussion The MPSImageStatisticsMean computes the mean for a given region of an image.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageStatisticsMean : MPSUnaryImageKernel
 
 /*! @property   clipRectSource
@@ -22426,7 +29860,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *              image height * number of featureChannels in the image.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageCopyToMatrix : MPSKernel
 
 /*! @property   destinationMatrixOrigin
@@ -22518,7 +29952,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
                       sourceImages: (nonnull MPSImageBatch *) sourceImages
                  destinationMatrix: (nonnull MPSMatrix *) destinationMatrix
     MPS_SWIFT_NAME(encodeBatch(commandBuffer:sourceImages:destinationMatrix:))
-    MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+    MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 
 
@@ -22531,7 +29965,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
  *              The operation is the reverse of MPSImageCopyToMatrix.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface  MPSMatrixCopyToImage : MPSKernel
 
 /*! @property   sourceMatrixOrigin
@@ -22624,7 +30058,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:sourceMatrix:destinationImage:));
                       sourceMatrix: (nonnull MPSMatrix *) sourceMatrix
                  destinationImages: (nonnull MPSImageBatch *) destinationImages
 MPS_SWIFT_NAME(encodeBatch(commandBuffer:sourceMatrix:destinationImages:))
-MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
+MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0));
 
 
 
@@ -22657,7 +30091,7 @@ MPS_AVAILABLE_STARTING(macos(10.14), ios(12.0), tvos(12.0));
  *              The ThresholdBinary function is:
  *                  destinationPixelValue = sourcePixelValue > thresholdValue ? maximumValue : 0
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageThresholdBinary : MPSUnaryImageKernel
 
 /*!
@@ -22685,7 +30119,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /* You must use initWithDevice:thresholdValue:maximumValue:linearGrayColorTransform: instead */
 -(nonnull instancetype) initWithDevice:(nonnull id<MTLDevice>)device            NS_UNAVAILABLE;
@@ -22717,7 +30151,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              The ThresholdBinaryInverse function is:
  *                  destinationPixelValue = sourcePixelValue > thresholdValue ? 0 : maximumValue
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageThresholdBinaryInverse : MPSUnaryImageKernel
 
 /*!
@@ -22746,7 +30180,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /* You must use initWithDevice:thresholdValue:maximumValue:linearGrayColorTransform: instead */
 -(nonnull instancetype) initWithDevice:(nonnull id<MTLDevice>)device            NS_UNAVAILABLE;
@@ -22777,7 +30211,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              The ThresholdTruncate function is:
  *                  destinationPixelValue = sourcePixelValue > thresholdValue ? thresholdValue : sourcePixelValue
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageThresholdTruncate : MPSUnaryImageKernel
 
 /*! 
@@ -22803,7 +30237,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /* You must use initWithDevice:thresholdValue:linearGrayColorTransform: instead */
 -(nonnull instancetype) initWithDevice:(nonnull id<MTLDevice>)device            NS_UNAVAILABLE;
@@ -22830,7 +30264,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              The ThresholdToZero function is:
  *                  destinationPixelValue = sourcePixelValue > thresholdValue ? sourcePixelValue : 0
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageThresholdToZero : MPSUnaryImageKernel
 
 /*!
@@ -22859,7 +30293,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*! @property thresholdValue
  *  @discussion The threshold value used to init the threshold filter
@@ -22882,7 +30316,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              The ThresholdToZeroINverse function is:
  *                  destinationPixelValue = sourcePixelValue > thresholdValue ? 0 : sourcePixelValue
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageThresholdToZeroInverse : MPSUnaryImageKernel
 
 /*!
@@ -22908,7 +30342,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /* You must use initWithDevice:thresholdValue:linearGrayColorTransform: instead */
 -(nonnull instancetype) initWithDevice:(nonnull id<MTLDevice>)device            NS_UNAVAILABLE;
@@ -22955,7 +30389,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *                    Lanczos
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageScale : MPSUnaryImageKernel
 
 /*
@@ -22965,8 +30399,8 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 /*! @property   scaleTransform
  *  @abstract   An optional transform that describes how to scale and translate the source image
- *  @discussion If the scaleTransform is NULL, then the MPSImageLanczosScale filter will
- *              rescale the image so that the source image fits exactly into the destination
+ *  @discussion If the scaleTransform is NULL, then any image scaling factor such as MPSImageLanczosScale
+ *              will rescale the image so that the source image fits exactly into the destination
  *              texture.  If the transform is not NULL, then the transform is used for determining
  *              how to map the source image to the destination. Default: NULL
  *
@@ -23009,7 +30443,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              One would typically use non-zero translations to do tiling, or provide a resized
  *              view into a internal segment of an image.
  *
- *              Changing the Lanczos scale factor may trigger recalculation of signficant state internal
+ *              NOTE:  Changing the Lanczos scale factor may trigger recalculation of signficant state internal
  *              to the object when the filter is encoded to the command buffer. The scale factor is
  *              scaleTransform->scaleX,Y, or the ratio of source and destination image sizes if
  *              scaleTransform is NULL. Reuse a MPSImageLanczosScale object for frequently used scalings
@@ -23030,7 +30464,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 @end
 
@@ -23048,7 +30482,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *              Because the resampling function has negative lobes, Lanczos can result 
  *              in ringing near sharp edges, making it less suitable for vector art.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageLanczosScale : MPSImageScale
 
 -(nonnull instancetype) initWithDevice: (nonnull id<MTLDevice>)device NS_DESIGNATED_INITIALIZER;
@@ -23065,7 +30499,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 @end
 
@@ -23076,7 +30510,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *  @discussion The MPSImageBilinearScale filter can be used to resample an existing image
  *              using a bilinear filter. This is typically used to reduce the size of an image.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageBilinearScale : MPSImageScale
 
 -(nonnull instancetype) initWithDevice: (nonnull id<MTLDevice>)device NS_DESIGNATED_INITIALIZER;
@@ -23093,7 +30527,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 @end
 
@@ -23226,7 +30660,7 @@ typedef id <MTLTexture> __nonnull NS_RETURNS_RETAINED (^MPSCopyAllocator)(
  *  @dependency This depends on Metal.framework
  *  @discussion A MPSUnaryImageKernel consumes one MTLTexture and produces one MTLTexture.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface MPSUnaryImageKernel : MPSKernel
 
 
@@ -23284,7 +30718,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  This method attempts to apply the MPSKernel in place on a texture.
@@ -23321,14 +30755,14 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *  Sample usage with a copy allocator:
  *  @code
  *  id <MTLTexture> inPlaceTex = ...;
- *  MPSImageSobel *sobelFiler = [[MPSImageSobel alloc] initWithDevice: my_device];
+ *  MPSImageSobel *sobelFiler = [[MPSImageSobel alloc] initWithDevice: myDevice];
  *
  *  // With a fallback MPSCopyAllocator, failure should only occur in exceptional
  *  // conditions such as MTLTexture allocation failure or programmer error.
  *  // That is, the operation is roughly as robust as the MPSCopyAllocator.
  *  // Depending on the quality of that, we might decide we are justified here
  *  // in not checking the return value.
- *  [sobelFilter encodeToCommandBuffer: my_command_buffer
+ *  [sobelFilter encodeToCommandBuffer: myCommandBuffer
  *                      inPlaceTexture: &inPlaceTex  // may be replaced!
  *               fallbackCopyAllocator: myAllocator];
  *
@@ -23443,7 +30877,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *  @dependency This depends on Metal.framework
  *  @discussion A MPSBinaryImageKernel consumes two MTLTextures and produces one MTLTexture.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface MPSBinaryImageKernel : MPSKernel
 
 /*! @property   primaryOffset
@@ -23523,7 +30957,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /*!
@@ -23780,7 +31214,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              
  *              You must use one of the sub-classes of MPSImageArithmetic.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageArithmetic : MPSBinaryImageKernel
 
 @property (readwrite, nonatomic) float primaryScale;
@@ -23804,14 +31238,14 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              result = clamp(result, minimumValue, maximumValue).
  *              The default value of minimumValue is -FLT_MAX.
  */
-@property (readwrite, nonatomic) float          minimumValue    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property (readwrite, nonatomic) float          minimumValue    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*! @property   maximumValue
  *  @abstract   maximumValue is used to clamp the result of an arithmetic operation:
  *              result = clamp(result, minimumValue, maximumValue).
  *              The default value of maximumValue is FLT_MAX.
  */
-@property (readwrite, nonatomic) float          maximumValue    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
+@property (readwrite, nonatomic) float          maximumValue    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3));
 
 /*
  * You must use one of the sub-classes of MPSImageArithmetic.
@@ -23828,7 +31262,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              For each pixel in the primary source image (x) and each pixel in a secondary source image (y),
  *              it applies the following function: result = ((primaryScale * x) + (secondaryScale * y)) + bias.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageAdd : MPSImageArithmetic
 
 /*!
@@ -23848,7 +31282,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              For each pixel in the primary source image (x) and each pixel in a secondary source image (y),
  *              it applies the following function: result = ((primaryScale * x) - (secondaryScale * y)) + bias.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageSubtract : MPSImageArithmetic
 
 /*!
@@ -23868,7 +31302,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              For each pixel in the primary source image (x) and each pixel in a secondary source image (y),
  *              it applies the following function: result = ((primaryScale * x) * (secondaryScale * y)) + bias.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageMultiply : MPSImageArithmetic
 
 /*!
@@ -23888,7 +31322,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              For each pixel in the primary source image (x) and each pixel in a secondary source image (y),
  *              it applies the following function: result = ((primaryScale * x) / (secondaryScale * y)) + bias.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageDivide : MPSImageArithmetic
 
 /*!
@@ -23932,7 +31366,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *
  *              This kernel accepts uint and int textures in addition to unorm and floating-point textures.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageIntegral : MPSUnaryImageKernel
 
 @end    /* MPSImageIntegral */
@@ -23953,7 +31387,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *
  *              This kernel accepts uint and int textures in addition to unorm and floating-point textures.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageIntegralOfSquares : MPSUnaryImageKernel
 
 @end    /* MPSImageIntegralOfSquares */
@@ -23988,7 +31422,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *                   - Reduce row sum
  *                   - Reduce column sum
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageReduceUnary : MPSUnaryImageKernel
 
 /*! @property   clipRectSource
@@ -24015,7 +31449,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSImageReduceRowMin
  *  @discussion The MPSImageReduceRowMin performs a reduction operation returning the mininmum value for each row of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageReduceRowMin : MPSImageReduceUnary
 
 /*!
@@ -24033,7 +31467,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSImageReduceColumnMin
  *  @discussion The MPSImageReduceColumnMin performs a reduction operation returning the mininmum value for each column of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageReduceColumnMin : MPSImageReduceUnary
 
 /*!
@@ -24050,7 +31484,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSImageReduceRowMax
  *  @discussion The MPSImageReduceRowMax performs a reduction operation returning the maximum value for each row of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageReduceRowMax : MPSImageReduceUnary
 
 /*!
@@ -24067,7 +31501,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSImageReduceColumnMax
  *  @discussion The MPSImageReduceColumnMax performs a reduction operation returning the maximum value for each column of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageReduceColumnMax : MPSImageReduceUnary
 
 /*!
@@ -24084,7 +31518,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSImageReduceRowMean
  *  @discussion The MPSImageReduceRowMean performs a reduction operation returning the mean value for each row of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageReduceRowMean : MPSImageReduceUnary
 
 /*!
@@ -24101,7 +31535,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSImageReduceColumnMean
  *  @discussion The MPSImageReduceColumnMean performs a reduction operation returning the mean value for each column of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageReduceColumnMean : MPSImageReduceUnary
 
 /*!
@@ -24118,7 +31552,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSImageReduceRowSum
  *  @discussion The MPSImageReduceRowSum performs a reduction operation returning the sum for each row of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageReduceRowSum : MPSImageReduceUnary
 
 /*!
@@ -24135,7 +31569,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @class      MPSImageReduceColumnSum
  *  @discussion The MPSImageReduceColumnSum performs a reduction operation returning the sum for each column of an image
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageReduceColumnSum : MPSImageReduceUnary
 
 /*!
@@ -24175,7 +31609,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *              NOTE: The MPSImageMedian filter currently only supports images with <= 8 bits/channel.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageMedian : MPSUnaryImageKernel
 
 /*! @property   kernelDiameter
@@ -24208,7 +31642,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /* You must use initWithDevice:kernelDiameter: instead. */
@@ -24248,7 +31682,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              in the source image. If there are multiple channels in the source image, each channel is processed independently.
  *              The edgeMode property is assumed to always be MPSImageEdgeModeClamp for this filter.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageAreaMax : MPSUnaryImageKernel
 
 /*! @property kernelHeight
@@ -24284,7 +31718,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                    MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /* You must use initWithDevice:kernelWidth:kernelHeight: instead. */
 -(nonnull instancetype) initWithDevice:(nonnull id<MTLDevice>)device        NS_UNAVAILABLE;
@@ -24298,7 +31732,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *               It has the same methods as MPSImageAreaMax
  *               The edgeMode property is assumed to always be MPSImageEdgeModeClamp for this filter.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageAreaMin : MPSImageAreaMax
 
 @end  /* MPSImageAreaMin */
@@ -24322,7 +31756,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *
  *              The edgeMode property is assumed to always be MPSImageEdgeModeClamp for this filter.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageDilate : MPSUnaryImageKernel
 /*! @property kernelHeight
  *  @abstract  The height of the filter window. Must be an odd number.
@@ -24373,7 +31807,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 @end  /* MPSImageDilate */
@@ -24400,7 +31834,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              This allows MPSImageDilate and MPSImageErode to use the same filter, making open and close operators easier to write.
  *              The edgeMode property is assumed to always be MPSImageEdgeModeClamp for this filter.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageErode : MPSImageDilate
 @end
 
@@ -24455,7 +31889,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *
  *              This kernel accepts uint and int textures in addition to unorm and floating-point textures.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageTranspose : MPSUnaryImageKernel
 
 @end    /* MPSImageTranspose */
@@ -24482,7 +31916,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *  @class      MPSImageEuclideanDistanceTransform
  *  @discussion Perform a Euclidean Distance Transform
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageEuclideanDistanceTransform : MPSUnaryImageKernel
 
 /*!
@@ -24531,7 +31965,7 @@ MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
  *  @discussion The MPSImageConversion filter performs a conversion from source to destination
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSImageConversion : MPSUnaryImageKernel
 
 /*! @property   sourceAlpha
@@ -24627,7 +32061,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *
  */
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageConvolution : MPSUnaryImageKernel
 
 /*! @property kernelHeight
@@ -24681,7 +32115,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 @end
 
@@ -24697,7 +32131,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              The optimized convolution filter used by MPSImageLaplacian can also be used by creating a MPSImageConvolution
  *              object with kernelWidth = 3, kernelHeight = 3 and weights as specified above.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSImageLaplacian : MPSUnaryImageKernel
 
 /*! @property    bias
@@ -24724,7 +32158,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              is aware of this and will act accordingly to give best performance for multi-dimensional blurs.
  */
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageBox : MPSUnaryImageKernel
 
 
@@ -24761,7 +32195,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /* You must use initWithDevice:kernelWidth:kernelHeight: instead. */
 -(nonnull instancetype) initWithDevice:(nonnull id<MTLDevice>)device    NS_UNAVAILABLE;
@@ -24797,7 +32231,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              The tent blur is a separable filter. The implementation is aware of this and will act accordingly
  *              to give best performance for multi-dimensional blurs.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface MPSImageTent : MPSImageBox
 
 @end
@@ -24815,7 +32249,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *                  to be suitable for all common image processing needs demanding ~10 bits of precision or
  *                  less.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageGaussianBlur : MPSUnaryImageKernel
 
 /*! @abstract   Initialize a gaussian blur filter for a particular sigma and device
@@ -24845,7 +32279,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /* You must use initWithDevice:sigma: instead. */
@@ -24869,7 +32303,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *
  *                  Luminance = v[0] * pixel.x + v[1] * pixel.y + v[2] * pixel.z;
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageSobel : MPSUnaryImageKernel
 
 /*! @abstract   Initialize a Sobel filter on a given device using the default color 
@@ -24907,7 +32341,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 
 /*! @property    colorTransform
@@ -24945,7 +32379,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              where w_0, h_0 are the zeroth level width and height. ie the image dimensions themselves.
  */
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSImagePyramid : MPSUnaryImageKernel
 
 /*! @abstract   Initialize a downwards 5-tap image pyramid with the default filter kernel and device
@@ -25006,16 +32440,21 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 @end
 
 /*!
  *  @class      MPSImageGaussianPyramid
- *  @discussion The Gaussian image pyramid is constructed as follows:
- *              First the zeroth level mipmap of the input image is filtered with the specified
- *              convolution kernel.
- *              The default the convolution filter kernel is
+ *  @discussion A Gaussian image pyramid is constructed as follows:
+ *              The mipmap level zero is the source of the operation and is left untouched and
+ *              the subsequent mipmap levels are constructed from it recursively:
+ *              @code
+ *                  mip[ level = n + 1 ] = Downsample( filter( mip[ level = n ] ) ), where
+ *              @endcode
+ *              "filter()" applies a filter with the specified convolution kernel and
+ *              "Downsample()" removes odd rows and columns from the input image.
+ *              The default convolution filter kernel for this operation is
  *              @code
  *                  k = w w^T, where w = [ 1/16,  1/4,  3/8,  1/4,  1/16 ]^T,
  *              @endcode
@@ -25023,8 +32462,8 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              @code
  *                  k = w w^T, where w = [ (1/4 - a/2),  1/4,  a,  1/4,  (1/4 - a/2) ]^T
  *              @endcode
- *              or the user can provide a completely custom kernel. After this the image is downsampled by
- *              removing all odd rows and columns, which defines the next level in the Gaussian image pyramid.
+ *              or the user can provide a completely custom kernel.
+ *
  *              This procedure is continued until every mipmap level present in the image texture are
  *              filled with the pyramid levels.
  *
@@ -25033,7 +32472,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              where the fallback allocator is ignored.
  */
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSImageGaussianPyramid : MPSImagePyramid
 @end
 
@@ -25084,7 +32523,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *                    (from which they are inherited), corresponding to no offset applied to the source and unbounded region of interest
  *                    in every destination mip-level; all updates to these properties are ignored.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSImageLaplacianPyramid : MPSImagePyramid
     @property(readwrite, assign, nonatomic, setter = setLaplacianBias:,  getter = getLaplacianBias  ) float laplacianBias;
     @property(readwrite, assign, nonatomic, setter = setLaplacianScale:, getter = getLaplacianScale ) float laplacianScale;
@@ -25104,7 +32543,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              for reconstruction of the original Gaussian pyramid data, and it is user's responsibility 
  *              to propagate it around, i.e. via the use of MTLBlitCommandEncoder.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSImageLaplacianPyramidSubtract : MPSImageLaplacianPyramid
 @end
 
@@ -25127,7 +32566,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *             discussed for MPSImageLaplacianPyramidSubtract. Just like for MPSImageLaplacianPyramidSubtract, if the destination texture needs 
  *             to contain all mip-level of the Gaussian pyramid including the top level, it can be just from the source texture.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface  MPSImageLaplacianPyramidAdd : MPSImageLaplacianPyramid
 @end
 
@@ -25172,7 +32611,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
  *              Guided Filter is described at https://arxiv.org/pdf/1505.00996.pdf.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface  MPSImageGuidedFilter : MPSKernel
 
 /*! @property   kernelDiameter
@@ -25311,7 +32750,7 @@ typedef struct
  *              The pixel format of the source image must be MTLPixelFormatR8Unorm.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSImageFindKeypoints : MPSKernel
 
 /*! @property   keypointRangeInfo
@@ -25411,7 +32850,7 @@ typedef struct
  *  @discussion The MPSImageHistogram computes the histogram of an image.
  *              
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageHistogram : MPSKernel
 
 /*! @property   clipRectSource
@@ -25470,7 +32909,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                        MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @abstract Encode the filter to a command buffer using a MTLComputeCommandEncoder.
@@ -25523,7 +32962,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              min(computed maximum pixel value, MPSImageHistogramInfo.maxPixelValue) are used to
  *              compute the normalized histogram.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageNormalizedHistogram : MPSKernel
 
 /*! @property   clipRectSource
@@ -25572,7 +33011,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @abstract Encode the filter to a command buffer using a MTLComputeCommandEncoder.
@@ -25646,7 +33085,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *              they will probably not be equalized by it.) This filter usually will not be able 
  *              to work in place.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageHistogramEqualization : MPSUnaryImageKernel
 
 /*! @property   histogramInfo
@@ -25678,7 +33117,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @abstract Encode the transform function to a command buffer using a MTLComputeCommandEncoder.
@@ -25718,7 +33157,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  *              converts the image so that its histogram matches the desired histogram.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), uikitformac(13.0), tvos(9.0))
 @interface  MPSImageHistogramSpecification : MPSUnaryImageKernel
 
 /*! @property   histogramInfo
@@ -25775,7 +33214,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(9.0), tvos(9.0))
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-                            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+                            MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @abstract Encode the transform function to a command buffer using a MTLComputeCommandEncoder.
@@ -25877,15 +33316,14 @@ typedef enum MPSAlphaType
 typedef NS_ENUM( NSUInteger, MPSAlphaType )
 #endif
 {
-    MPSAlphaTypeNonPremultiplied   MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), tvos(10.0)) MPS_SWIFT_NAME(nonPremultiplied)  = 0,
-    MPSAlphaTypeAlphaIsOne         MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), tvos(10.0))  = 1,
-    MPSAlphaTypePremultiplied      MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), tvos(10.0))  = 2
+    MPSAlphaTypeNonPremultiplied   MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0)) MPS_SWIFT_NAME(nonPremultiplied)  = 0,
+    MPSAlphaTypeAlphaIsOne         MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))  = 1,
+    MPSAlphaTypePremultiplied      MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))  = 2
 }
 #if defined(DOXYGEN)
     MPSAlphaType
 #endif
 ;
-    
     
 
 #ifdef __cplusplus
@@ -25923,7 +33361,7 @@ typedef NS_ENUM( NSUInteger, MPSAlphaType )
  *
  */
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), uikitformac(13.0), tvos(11.3))
 @interface MPSMatrixFindTopK : MPSMatrixUnaryKernel
 
 /*! @property   sourceRows
@@ -26109,643 +33547,24 @@ MPS_SWIFT_NAME(encode(commandBuffer:inputMatrix:resultIndexMatrix:resultValueMat
 #ifndef __METAL_VERSION__
 #   include <stdint.h>  // For uint32_t.
 #endif
-/*!
- *  @struct     MPSMatrixOffset
- *  @memberof   MPSMatrix
- *  @abstract   Specifies a row and column offset into an MPSMatrix.
- */
-typedef struct
-{
-    uint32_t    rowOffset;        /**< offset to start of source region to read in rows */
-    uint32_t    columnOffset;     /**< offset to start of source region to read in columns */
-} MPSMatrixOffset;
 
 // Hide the rest of the header from metal shading language
 #ifndef __METAL_VERSION__
 
 #import <MPSCore/MPSKernel.h>
 #import <MPSCore/MPSCoreTypes.h>
+#import <MPSCore/MPSKernelTypes.h>
+#import <MPSCore/MPSMatrix.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*!
-*  @class      MPSMatrixDescriptor
-*
-*  @dependency This depends on Metal.framework
-*
-*  @discussion A MPSMatrixDescriptor describes the sizes, strides, and data type of a
-*              an array of 2-dimensional matrices.  All storage is assumed to be in 
-*              "matrix-major".  See the description for MPSMatrix for further details.
-*/
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
-@interface MPSMatrixDescriptor: NSObject
 
-/*! @property   rows
- *  @discussion The number of rows in a matrix.
- */
-@property (readwrite, nonatomic) NSUInteger rows;
-
-/*! @property   columns
- *  @discussion The number of columns in a matrix.
- */
-@property (readwrite, nonatomic) NSUInteger columns;
-
-/*! @property   matrices
- *  @discussion The number of matrices.
- */
-@property (readonly, nonatomic) NSUInteger matrices MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
-
-/*! @property   dataType
- *  @discussion The type of the data which makes up the values of the matrix.
- */
-@property (readwrite, nonatomic) MPSDataType dataType;
-
-/*! @property   rowBytes
- *  @discussion The stride, in bytes, between corresponding elements of
- *              consecutive rows.  Must be a multiple of the element size.
- */
-@property (readwrite, nonatomic) NSUInteger rowBytes;
-
-/*! @property   matrixBytes
- *  @discussion The stride, in bytes, between corresponding elements of
- *              consecutive matrices.  Must be a multiple of rowBytes.
- */
-@property (readonly, nonatomic) NSUInteger matrixBytes MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
-
-/*!
- *  @abstract   Create a MPSMatrixDescriptor with the specified dimensions and data type.
- *
- *  @param      rows                The number of rows of the matrix.
- *
- *  @param      columns             The number of columns of the matrix.
- *
- *  @param      rowBytes            The number of bytes between starting elements of consecutive
- *                                  rows.  Must be a multiple of the element size.
- *
- *  @param      dataType            The type of the data to be stored in the matrix.
- *
- *  @discussion For performance considerations the optimal row stride may not necessarily be equal
- *              to the number of columns in the matrix.  The MPSMatrix class provides a method which
- *              may be used to determine this value, see the rowBytesForColumns API in the MPSMatrix
- *              class.
- *              The number of matrices described is initialized to 1.
- */
-+(__nonnull instancetype) matrixDescriptorWithDimensions: (NSUInteger)              rows
-                                                 columns: (NSUInteger)              columns
-                                                rowBytes: (NSUInteger)              rowBytes
-                                                dataType: (MPSDataType)             dataType
-MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Use matrixDescriptorWithRows:columns:rowBytes:dataType instead.",
-                                      ios(10.0, 11.0), tvos(10.0, 11.0));
-
-+(__nonnull instancetype) matrixDescriptorWithRows: (NSUInteger)              rows
-                                           columns: (NSUInteger)              columns
-                                          rowBytes: (NSUInteger)              rowBytes
-                                          dataType: (MPSDataType)             dataType
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
-/*!
- *  @abstract   Create a MPSMatrixDescriptor with the specified dimensions and data type.
- *
- *  @param      rows                The number of rows of a single matrix.
- *
- *  @param      columns             The number of columns of a single matrix.
- *
- *  @param      matrices            The number of matrices in the MPSMatrix object.
- *
- *  @param      rowBytes            The number of bytes between starting elements of consecutive
- *                                  rows.  Must be a multiple of the element size.
- *
- *  @param      matrixBytes         The number of bytes between starting elements of consecutive
- *                                  matrices.  Must be a multiple of rowBytes.
- *
- *  @param      dataType            The type of the data to be stored in the matrix.
- *
- *  @discussion For performance considerations the optimal row stride may not necessarily be equal
- *              to the number of columns in the matrix.  The MPSMatrix class provides a method which
- *              may be used to determine this value, see the rowBytesForColumns API in the MPSMatrix
- *              class.
- */
-+(__nonnull instancetype) matrixDescriptorWithRows: (NSUInteger)              rows
-                                           columns: (NSUInteger)              columns
-                                          matrices: (NSUInteger)              matrices
-                                          rowBytes: (NSUInteger)              rowBytes
-                                       matrixBytes: (NSUInteger)              matrixBytes
-                                          dataType: (MPSDataType)             dataType
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
-/*!
- *  @abstract   Return the recommended row stride, in bytes, for a given number of
- *              columns.
- *
- *  @param      columns         The number of columns in the matrix for which the recommended
- *                              row stride, in bytes, is to be determined.
- *
- *  @param      dataType        The type of matrix data values.
- *
- *  @discussion To achieve best performance the optimal stride between rows of a matrix is not
- *              necessarily equivalent to the number of columns.  This method returns the row stride, in
- *              bytes, which gives best performance for a given number of columns.  Using this row stride
- *              to construct your array is recommended, but not required (provided that the stride
- *              used is still large enough to allocate a full row of data).
- */
-+(size_t) rowBytesFromColumns: (NSUInteger) columns
-                     dataType: (MPSDataType) dataType
-MPS_AVAILABLE_STARTING_BUT_DEPRECATED(  "Use rowBytesForColumns:dataType instead.",
-                                      ios(10.0, 11.0), tvos(10.0, 11.0));
-
-+(size_t) rowBytesForColumns:   (NSUInteger) columns
-                    dataType:   (MPSDataType) dataType
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
-@end // MPSMatrixDescriptor
-    
-/*!
-*  @class      MPSVectorDescriptor
-*
-*  @dependency This depends on Metal.framework
-*
-*  @discussion A MPSVectorDescriptor describes the length and data type of a
-*              an array of 1-dimensional vectors.  All vectors are stored as
-*              contiguous arrays of data.
-*/
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
-@interface MPSVectorDescriptor: NSObject
-
-/*! @property   length
- *  @discussion The number of elements in the vector.
- */
-@property (readwrite, nonatomic) NSUInteger length;
-
-/*! @property   vectors
- *  @discussion The number of vectors.
- */
-@property (readonly, nonatomic) NSUInteger vectors;
-
-/*! @property   dataType
- *  @discussion The type of the data which makes up the values of the vector.
- */
-@property (readwrite, nonatomic) MPSDataType dataType;
-
-/*! @property   vectorBytes
- *  @discussion The stride, in bytes, between corresponding elements of
- *              consecutive vectors.  Must be a multiple of the element size
- */
-@property (readonly, nonatomic) NSUInteger vectorBytes;
-
-/*!
- *  @abstract   Create a MPSVectorDescriptor with the specified length and data type.
- *
- *  @param      length              The number of elements in a single vector.
- *
- *  @param      dataType            The type of the data to be stored in the vector.
- *
- *  @discussion Use this function for creating a descriptor of a MPSVector object
- *              containing a single vector.
- */
-+(__nonnull instancetype) vectorDescriptorWithLength: (NSUInteger)              length
-                                            dataType: (MPSDataType)             dataType;
-
-/*!
- *  @abstract   Create a MPSVectorDescriptor with the specified length and data type.
- *
- *  @param      length              The number of elements in a single vector.
- *
- *  @param      vectors             The number of vectors in the MPSVector object.
- *
- *  @param      vectorBytes         The number of bytes between starting elements of consecutive
- *                                  vectors.
- *
- *  @param      dataType            The type of the data to be stored in the vector.
- *
- *  @discussion For performance considerations the optimal stride between vectors may not necessarily be equal
- *              to the vector length.  The MPSVectorDescriptor class provides a method which
- *              may be used to determine this value, see the vectorBytesForLength API.
- */
-+(__nonnull instancetype) vectorDescriptorWithLength: (NSUInteger)              length
-                                             vectors: (NSUInteger)              vectors
-                                         vectorBytes: (NSUInteger)              vectorBytes
-                                            dataType: (MPSDataType)             dataType;
-
-/*!
- *  @abstract   Return the recommended stride, in bytes, to be used for an array
- *              of vectors of a given length.
- *
- *  @param      length          The number of elements in a single vector.
- *
- *  @param      dataType        The type of vector data values.
- *
- *  @discussion To achieve best performance the optimal stride between vectors within an array of
- *              vectors is not necessarily equivalent to the number of elements per vector.  This method 
- *              returns the stride, in bytes, which gives best performance for a given vector length.  
- *              Using this stride to construct your array is recommended, but not required (provided that
- *              the stride used is still large enough to allocate a full vector of data).
- */
-+(size_t) vectorBytesForLength:   (NSUInteger) length
-                      dataType:   (MPSDataType) dataType;
-@end // MPSVectorDescriptor
-    
-/*!
-*  @class      MPSMatrix
-*
-*  @dependency This depends on Metal.framework
-*
-*  @discussion A MPSMatrix object describes a set of 2-dimensional arrays of data and provides storage
-*              for its values.  MPSMatrix objects serve as inputs and outputs of MPSMatrixKernel
-*              objects.
-*
-*              Implementation note:
-*              A MPSMatrix object maintains its internal storage using a MTLBuffer object and thus
-*              the same rules for maintaining coherency of a MTLBuffer's data between CPU memory and GPU
-*              memory apply to a MPSMatrix.  An MPSMatrix object's data refers to an array of matrices.
-*              Data is assumed to be ordered by matrix first, followed by row, followed by column.
-*
-*              For example, index [i,j] of the k'th matrix of an MPSMatrix is located at byte offset:
-*                       k * matrixBytes + i * rowBytes + j * sizeof(dataType)
-*               
-*               Where matrixBytes is a multiple of rowBytes at least equal to rows * rowBytes.
-*/
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
-@interface MPSMatrix: NSObject
-
-/*! @property   device
- *  @discussion The device on which the MPSMatrix will be used.
- */
-@property (readonly, retain, nonatomic, nonnull) id<MTLDevice> device;
-
-/*! @property   rows
- *  @discussion The number of rows in a matrix in the MPSMatrix.
- */
-@property (readonly, nonatomic) NSUInteger rows;
-
-/*! @property   columns
- *  @discussion The number of columns in a matrix in the MPSMatrix.
- */
-@property (readonly, nonatomic) NSUInteger columns;
-
-/*! @property   matrices
- *  @discussion The number of matrices in the MPSMatrix.
- */
-@property (readonly, nonatomic) NSUInteger matrices MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
-
-/*! @property   dataType
- *  @discussion The type of the MPSMatrix data.
- */
-@property (readonly, nonatomic) MPSDataType dataType;
-
-/*! @property   rowBytes
- *  @discussion The stride, in bytes, between corresponding elements of
- *              consecutive rows.
- */
-@property (readonly, nonatomic) NSUInteger rowBytes;
-
-/*! @property   matrixBytes
- *  @discussion The stride, in bytes, between corresponding elements of
- *              consecutive matrices.
- */
-@property (readonly, nonatomic) NSUInteger matrixBytes MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
-
-/*! @property   data
- *  @discussion An MTLBuffer to store the data.
- */
-@property (readonly, nonnull, nonatomic) id<MTLBuffer> data;
-
-/*!
- *  @abstract   Initialize a MPSMatrix object with a MTLBuffer.
- *
- *  @param      buffer          The MTLBuffer object which contains the data to use for the
- *                              MPSMatrix. May not be NULL.
- *
- *  @param      descriptor      The MPSMatrixDescriptor. May not be NULL.
- *
- *  @return     A valid MPSMatrix object or nil, if failure.
- *
- *  @discussion This function returns a MPSMatrix object which uses the supplied MTLBuffer.  The
- *              dimensions and stride of the matrix are specified by the MPSMatrixDescriptor object.
- *
- *              The provided MTLBuffer must have enough storage to hold
- *
- *                  (descriptor.matrices-1) * descriptor.matrixBytes +
- *                  (descriptor.rows-1) * descriptor.rowBytes +
- *                   descriptor.columns * (element size) bytes.
- *
- */
--(nonnull instancetype) initWithBuffer: (nonnull id<MTLBuffer>) buffer
-                            descriptor: (nonnull MPSMatrixDescriptor*) descriptor;
-
-/*! @abstract   Initialize a MPSMatrix object with a descriptor. Allocate the buffer.
- *  @param      device      The device with which it will be used
- *  @param      descriptor  The shape and style of the matrix
- *  @return     A valid MPSMatrix object or nil
- *  @discussion The matrix object will be created, but the storage to hold the
- *              matrix data will only be allocated when it is needed, typically
- *              when the data property is invoked.  In conjunction
- *              with -resourceSize, this will allow you to estimate storage needs
- *              without actually creating the backing store for the matrix.
- */
--(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
-                            descriptor: (MPSMatrixDescriptor * __nonnull) descriptor;
-
-/*
- * Use one of the above initialization methods instead.
- */
--(nonnull instancetype) init NS_UNAVAILABLE;
-
-
-/*! @abstract   Flush the underlying MTLBuffer from the device's caches, and invalidate any CPU caches if needed.
- *  @discussion This will call [id <MTLBlitEncoder> synchronizeResource: ] on the matrix's MTLBuffer, if any.
- *              This is necessary for all MTLStorageModeManaged resources. For other resources, including temporary
- *              resources (these are all MTLStorageModePrivate), and buffers that have not yet been allocated, nothing is done.
- *              It is more efficient to use this method than to attempt to do this yourself with the data property.
- *  @param      commandBuffer       The commandbuffer on which to synchronize   */
--(void) synchronizeOnCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
-
-/*! @abstract       Get the number of bytes used to allocate underyling MTLResources
- *  @discussion     This is the size of the backing store of underlying MTLResources.
- *                  It does not include all storage used by the object, for example
- *                  the storage used to hold the MPSMatrix instantiation and MTLBuffer
- *                  is not included. It only measures the size of the allocation used
- *                  to hold the matrix data in the buffer. This value is subject to
- *                  change between different devices and operating systems.
- *
- *                  Except when -initWithBuffer:descriptor: is used, most MPSMatrixes are allocated
- *                  without a backing store. The backing store is allocated lazily when
- *                  it is needed, typically when the .texture property is called.
- *                  Consequently, in most cases, it should be inexpensive to make
- *                  a MPSImage to see how much memory it will need, and release it
- *                  if it is too large.
- *
- *                  This method may fail in certain circumstances, such as when the
- *                  MPSImage is created with -initWithTexture:featureChannels:. In
- *                  such cases, 0 will be returned.
- */
--(NSUInteger)  resourceSize
-    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
-
-@end // MPSMatrix
-    
-/*!
-*  @class      MPSVector
-*
-*  @dependency This depends on Metal.framework
-*
-*  @discussion A MPSVector object describes a 1-dimensional array of data and provides storage
-*              for its values.  Some MPSMatrixKernel objects operate on MPSVector objects
-*              for convenience.
-*/
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
-@interface MPSVector: NSObject
-
-/*! @property   device
- *  @discussion The device on which the MPSVector will be used.
- */
-@property (readonly, retain, nonatomic, nonnull) id<MTLDevice> device;
-
-/*! @property   length
- *  @discussion The number of elements in the vector.
- */
-@property (readonly, nonatomic) NSUInteger length;
-
-/*! @property   vectors
- *  @discussion The number of vectors in the MPSVector.
- */
-@property (readonly, nonatomic) NSUInteger vectors;
-
-/*! @property   dataType
- *  @discussion The type of the MPSVector data.
- */
-@property (readonly, nonatomic) MPSDataType dataType;
-
-/*! @property   vectorBytes
- *  @discussion The stride, in bytes, between corresponding elements of
- *              consecutive vectors.
- */
-@property (readonly, nonatomic) NSUInteger vectorBytes;
-
-/*! @property   data
- *  @discussion An MTLBuffer to store the data.
- */
-@property (readonly, nonnull, nonatomic) id<MTLBuffer> data;
-
-/*!
- *  @abstract   Initialize a MPSVector object with a MTLBuffer.
- *
- *  @param      buffer          The MTLBuffer object which contains the data to use for the
- *                              MPSVector. May not be NULL.
- *
- *  @param      descriptor      The MPSVectorDescriptor. May not be NULL.
- *
- *  @return     A valid MPSVector object or nil, if failure.
- *
- *  @discussion This function returns a MPSVector object which uses the supplied MTLBuffer.  The
- *              length, number of vectors, and stride between vectors are specified by the
- *              MPSVectorDescriptor object.
- *
- *              The provided MTLBuffer must have enough storage to hold
- *
- *                  (descriptor.vectors-1) * descriptor.vectorBytes +
- *                   descriptor.length * (element size) bytes.
- *
- */
--(nonnull instancetype) initWithBuffer: (nonnull id<MTLBuffer>) buffer
-                            descriptor: (nonnull MPSVectorDescriptor*) descriptor;
-
-/*! @abstract   Initialize a lazily backed MPSVector object with a descriptor
- *  @param      device      The device with which it will be used
- *  @param      descriptor  The shape and style of the matrix
- *  @return     A valid MPSVector object or nil
- *  @discussion The vector object will be created, but the storage to hold the
- *              vector data will only be allocated when it is needed, typically
- *              when the data property is invoked.  In conjunction
- *              with -resourceSize, this will allow you to estimate storage needs
- *              without actually creating the backing store for the vector.
- */
--(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
-                            descriptor: (MPSVectorDescriptor * __nonnull) descriptor
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
-
-/*
- * Use the above initialization methods instead.
- */
--(nonnull instancetype) init NS_UNAVAILABLE;
-
-
-/*! @abstract   Flush the underlying MTLBuffer from the device's caches, and invalidate any CPU caches if needed.
- *  @discussion This will call [id <MTLBlitEncoder> synchronizeResource: ] on the vector's MTLBuffer, if any.
- *              This is necessary for all MTLStorageModeManaged resources. For other resources, including temporary
- *              resources (these are all MTLStorageModePrivate), and buffers that have not yet been allocated, nothing is done.
- *              It is more efficient to use this method than to attempt to do this yourself with the data property.
- *  @param      commandBuffer       The commandbuffer on which to synchronize   */
--(void) synchronizeOnCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer
-        MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
-
-/*! @abstract       Get the number of bytes used to allocate underyling MTLResources
- *  @discussion     This is the size of the backing store of underlying MTLResources.
- *                  It does not include all storage used by the object, for example
- *                  the storage used to hold the MPSVector instantiation and MTLBuffer
- *                  is not included. It only measures the size of the allocation used
- *                  to hold the vector data in the buffer. This value is subject to
- *                  change between different devices and operating systems.
- *
- *                  Except when -initWithBuffer:descriptor: is used, most MPSVectors are allocated
- *                  without a backing store. The backing store is allocated lazily when
- *                  it is needed, typically when the .texture property is called.
- *                  Consequently, in most cases, it should be inexpensive to make
- *                  a MPSMatrix to see how much memory it will need, and release it
- *                  if it is too large.
- *
- *                  This method may fail in certain circumstances, such as when the
- *                  MPSMatrix is created with -initWithBuffer:descriptor:. In
- *                  such cases, 0 will be returned.
- */
--(NSUInteger)  resourceSize
-    MPS_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), tvos(11.3));
-
-@end // MPSVector
-    
-/*! @abstract A MPSMatrix allocated on GPU private memory. 
- *  @discussion It may alias one or more other MPSTemporaryMatrices. Undesired data destruction
- *              due to aliasing is avoided using the readCount property.
- */    
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
-@interface MPSTemporaryMatrix : MPSMatrix
-
-/*!
- *  @abstract   Initialize a MPSTemporaryMatrix for use on a MTLCommandBuffer
- *  @param      commandBuffer       The MTLCommandBuffer on which the MPSTemporaryMatrix will be exclusively used
- *  @param      matrixDescriptor    A valid MPSMatrixDescriptor describing the MPSMatrix format to create
- *  @return     A valid MPSTemporaryMatrix.  The object is not managed by a NSAutoreleasePool. The object will be 
- *              released when the command buffer is committed. The underlying buffer will become invalid before 
- *              this time due to the action of the readCount property.  Please read and understand the use of 
- *              the readCount property before using this object.
- */
-+(nonnull instancetype) temporaryMatrixWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
-                                        matrixDescriptor: (nonnull MPSMatrixDescriptor*) matrixDescriptor;
-
-/*!
- *  @abstract       Help MPS decide which allocations to make ahead of time
- *  @discussion     The buffer cache that underlies the MPSTemporaryMatrix can automatically allocate new storage as
- *                  needed as you create new temporary matrices.  However, sometimes a more global view of what you
- *                  plan to make is useful for maximizing memory reuse to get the most efficient operation.
- *                  This class method hints to the cache what the list of matrices will be.
- *
- *                  It is never necessary to call this method. It is purely a performance and memory optimization.
- *
- *  @param commandBuffer        The command buffer on which the MPSTemporaryMatrix will be used
- *  @param descriptorList       A NSArray of MPSMatrixDescriptor, indicating matrices that will be created
- */
-+(void) prefetchStorageWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
-                    matrixDescriptorList: (NSArray <MPSMatrixDescriptor*> * __nonnull) descriptorList;
-
-/* MPS can not make a temporary matrix with a outside buffer. Please use the above methods. */
-/*! @abstract *** unavailable */
--(nonnull instancetype) initWithBuffer: (nonnull id<MTLBuffer>) buffer
-                            descriptor: (nonnull MPSMatrixDescriptor*) descriptor NS_UNAVAILABLE;
-
-/*!
- *  @abstract       The number of times a temporary matrix may be read by a MPSMatrix... kernel
- *                  before its contents become undefined.
- *
- *  @discussion     MPSTemporaryMatrices must release their underlying buffers for reuse
- *                  immediately after last use. So as to facilitate *prompt* convenient
- *                  memory recycling, each time a MPSTemporaryMatrix is read by a
- *                  MPSMatrix... -encode... method, its readCount is automatically
- *                  decremented. When the readCount reaches 0, the underlying buffer is
- *                  automatically made available for reuse to MPS for its own needs and for
- *                  other MPSTemporaryMatrices prior to return from the -encode.. function.
- *                  The contents of the buffer become undefined at this time.
- *
- *                  By default, the readCount is initialized to 1, indicating a matrix that
- *                  may be overwritten any number of times, but read only once.
- *
- *                  You may change the readCount as desired to allow MPSMatrixKernels to read
- *                  the MPSTemporaryMatrix additional times. However, it is an error to change
- *                  the readCount once it is zero. It is an error to read or write to a
- *                  MPSTemporaryMatrix with a zero readCount. You may set the readCount to 0
- *                  yourself to cause the underlying buffer to be returned to MPS. Writing
- *                  to a MPSTemporaryMatrix does not adjust the readCount.
- *
- *                  The Metal API Validation layer will assert if a MPSTemporaryMatrix is
- *                  deallocated with non-zero readCount to help identify cases when resources
- *                  are not returned promptly.
- */
-@property (readwrite, nonatomic)  NSUInteger  readCount;
-
-@end
-    
-/*! @abstract A MPSVector allocated on GPU private memory.
- *  @discussion It may alias one or more other MPSTemporaryVector objects. Undesired data destruction
- *              due to aliasing is avoided using the readCount property.
- */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
-@interface MPSTemporaryVector : MPSVector
-/*!
- *  @abstract   Initialize a MPSTemporaryVector for use on a MTLCommandBuffer
- *  @param      commandBuffer       The MTLCommandBuffer on which the MPSTemporaryMatrix will be exclusively used
- *  @param      descriptor    A valid MPSVectorDescriptor describing the MPSVector format to create
- *  @return     A valid MPSTemporaryVector.  The object is not managed by a NSAutoreleasePool. The object will be
- *              released when the command buffer is committed. The underlying buffer will become invalid before
- *              this time due to the action of the readCount property.  Please read and understand the use of
- *              the readCount property before using this object.
- */
-+(nonnull instancetype) temporaryVectorWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
-                                              descriptor: (nonnull MPSVectorDescriptor*) descriptor;
-
-/*!
- *  @abstract       Help MPS decide which allocations to make ahead of time
- *  @discussion     The buffer cache that underlies the MPSTemporaryVector can automatically allocate new storage as
- *                  needed as you create new temporary vectors.  However, sometimes a more global view of what you
- *                  plan to make is useful for maximizing memory reuse to get the most efficient operation.
- *                  This class method hints to the cache what the list of matrices will be.
- *
- *                  It is never necessary to call this method. It is purely a performance and memory optimization.
- *
- *  @param commandBuffer        The command buffer on which the MPSTemporaryVector will be used
- *  @param descriptorList       A NSArray of MPSVectorDescriptor objects, indicating vectors that will be created
- */
-+(void) prefetchStorageWithCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
-                          descriptorList: (NSArray <MPSVectorDescriptor*> * __nonnull) descriptorList;
-
-/* MPS can not make a temporary vector with an outside buffer. Please use the above methods. */
-/*! @abstract *** unavailable */
--(nonnull instancetype) initWithBuffer: (nonnull id<MTLBuffer>) buffer
-                            descriptor: (nonnull MPSVectorDescriptor*) descriptor NS_UNAVAILABLE;
-
-/*!
- *  @abstract       The number of times a temporary vector may be read by a MPSMatrix... kernel
- *                  before its contents become undefined.
- *
- *  @discussion     MPSTemporaryVector objects must release their underlying buffers for reuse
- *                  immediately after last use. So as to facilitate *prompt* convenient
- *                  memory recycling, each time a MPSTemporaryVector is read by a
- *                  MPSMatrix... -encode... method, its readCount is automatically
- *                  decremented. When the readCount reaches 0, the underlying buffer is
- *                  automatically made available for reuse to MPS for its own needs and for
- *                  other MPSTemporaryVector objects prior to return from the -encode.. function.
- *                  The contents of the buffer become undefined at this time.
- *
- *                  By default, the readCount is initialized to 1, indicating a matrix that
- *                  may be overwritten any number of times, but read only once.
- *
- *                  You may change the readCount as desired to allow MPSMatrix kernels to read
- *                  the MPSTemporaryVector additional times. However, it is an error to change
- *                  the readCount once it is zero. It is an error to read or write to a
- *                  MPSTemporaryVector with a zero readCount. You may set the readCount to 0
- *                  yourself to cause the underlying buffer to be returned to MPS. Writing
- *                  to a MPSTemporaryVector does not adjust the readCount.
- *
- *                  The Metal API Validation layer will assert if a MPSTemporaryVector is
- *                  deallocated with non-zero readCount to help identify cases when resources
- *                  are not returned promptly.
- */
-@property (readwrite, nonatomic)  NSUInteger  readCount;
-
-@end    // MPSTemporaryVector
-
-/*!
- *  @class      MPSMatrixUnaryKernel
+/*! @class      MPSMatrixUnaryKernel
  *  @dependency This depends on Metal.framework
  *  @discussion A MPSMatrixUnaryKernel consumes one MPSMatrix and produces one MPSMatrix.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixUnaryKernel : MPSKernel
 
 /*! @property   sourceMatrixOrigin
@@ -26794,7 +33613,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *  @discussion A MPSMatrixBinaryKernel consumes two MPSMatrix objects and produces
  *              one MPSMatrix object.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixBinaryKernel : MPSKernel
 /*! @property   primarySourceMatrixOrigin
  *
@@ -26851,6 +33670,234 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
 
 #endif // __METAL_VERSION__
 #endif /* MPSMatrixTypes_h */
+// ==========  MetalPerformanceShaders.framework/Frameworks/MPSMatrix.framework/Headers/MPSMatrixRandom.h
+//
+//  MPSMatrixRandom.h
+//  MPS
+//
+//  Created by Justin Voo on 5/1/19.
+//  Copyright © 2019 Apple. All rights reserved.
+//
+
+#ifndef MPSMatrixRandom_h
+#define MPSMatrixRandom_h
+
+#import <MPSCore/MPSKernel.h>
+#import <MPSMatrix/MPSMatrixTypes.h>
+
+/*! @enum       MPSMatrixRandomDistribution
+ *  @abstract   Type of distribution from which to generate values.
+ */
+#if defined(DOXYGEN)
+    typedef enum MPSMatrixRandomDistribution
+#else
+    typedef NS_OPTIONS(NSUInteger, MPSMatrixRandomDistribution)
+#endif
+{
+    // Generate random bits according to the distribution of the underlying generator.
+    MPSMatrixRandomDistributionDefault    MPS_ENUM_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13)) MPS_SWIFT_NAME(default)           = 1U,
+    
+    // Generate uniformly distributed random floating point values in the interval [0, 1).
+    MPSMatrixRandomDistributionUniform    MPS_ENUM_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13)) MPS_SWIFT_NAME(uniform) = 2U
+};
+
+/*!
+ *  @class      MPSMatrixRandomDistributionDescriptor
+ *  @dependency This depends on Metal.framework
+ *  @discussion Decribes properties of a distribution of random values.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface MPSMatrixRandomDistributionDescriptor : NSObject <NSCopying>
+
+/*! @property   distributionType
+ *  @abstract   The type of distribution.
+ */
+@property (readwrite, nonatomic) MPSMatrixRandomDistribution distributionType;
+
+/*! @property   minimum
+ *  @abstract   For distributions of values bounded below, this value describes the minimum.
+ */
+@property (readwrite, nonatomic) float minimum;
+
+/*! @property   maximum
+ *  @abstract   For distributions of values bounded above, this value describes the maximum.
+ */
+@property (readwrite, nonatomic) float maximum;
+
+/*! @property   mean
+ *  @abstract   The value to use for distributions described by their mean.
+ */
+@property (readwrite, nonatomic) float mean;
+
+/*! @property   standardDeviation
+ *  @abstract   The value to use for distributions described by their standardDeviation.
+ */
+@property (readwrite, nonatomic) float standardDeviation;
+
+/*!
+ *  @abstract  Make a descriptor for a uniform distribution of floating point values in
+ *              the range [minimum, maximum).
+ *  @param     minimum  The lower bound of the range.
+ *  @param     maximum  The upper bound of the range.
+ *  @return    A valid MPSMatrixRandomDistribution object or nil, if failure.
+ */
++(nonnull MPSMatrixRandomDistributionDescriptor*) uniformDistributionDescriptorWithMinimum: (float) minimum
+                                                                                   maximum: (float) maximum;
+
+/*!
+ *  @abstract  Make a descriptor for a default distribution.
+ *  @return    A valid MPSMatrixRandomDistribution object or nil, if failure.
+ */
++(nonnull MPSMatrixRandomDistributionDescriptor*) defaultDistributionDescriptor;
+
+@end    /* MPSMatrixRandomDistributionDescriptor */
+
+/*!
+ *  @class      MPSMatrixRandom
+ *  @discussion Kernels that implement random number generation.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface  MPSMatrixRandom : MPSKernel
+
+/*! @property   destinationDataType
+ *  @discussion The type of the data which makes up the values of the result.
+ *              Supported values are:
+ *                  MPSDataTypeUInt32
+ *                  MPSDataTypeFloat32
+ *
+ *              Default is MPSDataTypeUInt32
+ */
+@property (readonly, nonatomic) MPSDataType destinationDataType;
+
+/*! @property   distributionType
+ *  @discussion The distribution from which to generate random values.
+ *
+ *              Default is MPSMatrixRandomDistributionDefault
+ */
+@property (readonly, nonatomic) MPSMatrixRandomDistribution distributionType;
+
+/*! @property   batchStart
+ *
+ *  @discussion The starting index in the destination batch.
+ */
+@property (readwrite, nonatomic) NSUInteger batchStart;
+
+/*! @property   batchSize
+ *
+ *  @discussion The size of the batch to process.
+ */
+@property (readwrite, nonatomic) NSUInteger batchSize;
+
+/*
+ * You must use one of the sub-classes of MPSMatrixRandom.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device NS_UNAVAILABLE;
+
+/*!
+ *  @abstract   Encode a MPSKernel into a command Buffer.
+ *  @param      commandBuffer       A valid MTLCommandBuffer to receive the encoded filter
+ *  @param      destinationVector   A valid MPSVector to contain the result.
+ */
+-(void) encodeToCommandBuffer: (nonnull id <MTLCommandBuffer>) commandBuffer
+            destinationVector: (MPSVector* __nonnull) destinationVector
+MPS_SWIFT_NAME(encode(commandBuffer:destinationVector:));
+
+@end  /* MPSMatrixRandom */
+
+/*!
+ *  @class      MPSMatrixRandomMTGP32
+ *  @discussion Generates random numbers using a Mersenne Twister algorithm
+ *              suitable for GPU execution.  It uses a period of 2**11214.
+ *              For further details see:
+ *          Mutsuo Saito. A Variant of Mersenne Twister Suitable for Graphic Processors. arXiv:1005.4973
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface  MPSMatrixRandomMTGP32 : MPSMatrixRandom
+
+/*!
+ *  @abstract   initialize a MPSMatrixRandomMTGP32 filter to generate 32-bit unsigned
+ *              integer values with an initial seed of 0.
+ *  @param      device          The device the filter will run on
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device;
+
+/*!
+ *  @abstract   initialize a MPSMatrixRandomMTGP32 filter
+ *  @param      device                  The device the filter will run on
+ *  @param      destinationDataType     The data type of the result.
+ *  @param      seed                    The seed to initialize the random number generators with.
+ *  @param      distributionDescriptor  A descriptor containing information about the distribution.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                   destinationDataType: (MPSDataType) destinationDataType
+                                  seed: (NSUInteger) seed
+                distributionDescriptor: (MPSMatrixRandomDistributionDescriptor* __nonnull) distributionDescriptor NS_DESIGNATED_INITIALIZER;
+
+/*!
+ *  @abstract   Synchronize internal MTGP32 state between GPU and CPU.
+ *  @param      commandBuffer       The command buffer on which to encode the synchronization.
+ */
+-(void) synchronizeStateOnCommandBuffer: (__nonnull id <MTLCommandBuffer>) commandBuffer;
+
+/*!
+ *  @abstract   initialize a MPSMatrixRandomMTGP32 filter using a default distribution.
+ *  @param      device                  The device the filter will run on
+ *  @param      destinationDataType     The data type of the result.
+ *  @param      seed                    The seed to initialize the random number generators with.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                   destinationDataType: (MPSDataType) destinationDataType
+                                  seed: (NSUInteger) seed;
+
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+@end  /* MPSMatrixRandomMTGP32 */
+
+/*!
+ *  @class      MPSMatrixRandomPhilox
+ *  @discussion Generates random numbers using a counter based algorithm.
+ *              For further details see:
+ *          John K. Salmon, Mark A. Moraes, Ron O. Dror, and David E. Shaw. Parallel Random Numbers: As Easy as 1, 2, 3.
+ */
+MPS_CLASS_AVAILABLE_STARTING( macos(10.15), ios(13), uikitformac(13), tvos(13))
+@interface  MPSMatrixRandomPhilox : MPSMatrixRandom
+
+/*!
+ *  @abstract   initialize a MPSMatrixRandomPhilox filter to generate 32-bit unsigned
+ *              integer values with an initial seed of 0.
+ *  @param      device          The device the filter will run on
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device;
+
+/*!
+ *  @abstract   initialize a MPSMatrixRandomPhilox filter
+ *  @param      device                  The device the filter will run on
+ *  @param      destinationDataType     The data type of the result.
+ *  @param      seed                    The seed to initialize the random number generators with.
+ *  @param      distributionDescriptor  A descriptor containing information about the distribution.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                   destinationDataType: (MPSDataType) destinationDataType
+                                  seed: (NSUInteger) seed
+                distributionDescriptor: (MPSMatrixRandomDistributionDescriptor* __nonnull) distributionDescriptor NS_DESIGNATED_INITIALIZER;
+
+/*!
+ *  @abstract   initialize a MPSMatrixRandomPhilox filter using a default distribution.
+ *  @param      device                  The device the filter will run on
+ *  @param      destinationDataType     The data type of the result.
+ *  @param      seed                    The seed to initialize the random number generators with.
+ */
+-(nonnull instancetype) initWithDevice: (nonnull id <MTLDevice>) device
+                   destinationDataType: (MPSDataType) destinationDataType
+                                  seed: (NSUInteger) seed;
+
+-(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
+                                device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER;
+
+@end  /* MPSMatrixRandomPhilox */
+
+#endif /* MPSMatrixRandom_h */
 // ==========  MetalPerformanceShaders.framework/Frameworks/MPSMatrix.framework/Headers/MPSMatrixSolve.h
 /*!
  *  @header MPSMatrixSolve.h
@@ -26883,7 +33930,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              equations are to be solved.  X is the resulting matrix of
  *              solutions.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixSolveTriangular : MPSMatrixBinaryKernel
 
 /*!
@@ -26983,7 +34030,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:sourceMatrix:rightHandSideMatrix:solutionMat
  *              Where op(A) is A**T or A.  B is the array of right hand sides for which
  *              the equations are to be solved.  X is the resulting matrix of solutions.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixSolveLU : MPSMatrixBinaryKernel
 /*!
  *  @abstract   Initialize an MPSMatrixSolveLU object on a device
@@ -27062,7 +34109,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:sourceMatrix:rightHandSideMatrix:pivotIndice
  *              right hand sides for which the equations are to be solved.
  *              X is the resulting matrix of solutions.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixSolveCholesky : MPSMatrixBinaryKernel
 /*!
  *  @abstract   Initialize an MPSMatrixSolveCholesky object on a device
@@ -27156,10 +34203,10 @@ typedef enum MPSMatrixDecompositionStatus
 typedef NS_ENUM( int, MPSMatrixDecompositionStatus)
 #endif
 {
-    MPSMatrixDecompositionStatusSuccess             MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))  =   0,
-    MPSMatrixDecompositionStatusFailure             MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))  =  -1,
-    MPSMatrixDecompositionStatusSingular            MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))  =  -2,
-    MPSMatrixDecompositionStatusNonPositiveDefinite MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0))  =  -3,
+    MPSMatrixDecompositionStatusSuccess             MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  =   0,
+    MPSMatrixDecompositionStatusFailure             MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  =  -1,
+    MPSMatrixDecompositionStatusSingular            MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  =  -2,
+    MPSMatrixDecompositionStatusNonPositiveDefinite MPS_ENUM_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))  =  -3,
 }
 #ifdef DOXYGEN
     MPSMatrixDecompositionStatus
@@ -27182,7 +34229,7 @@ typedef NS_ENUM( int, MPSMatrixDecompositionStatus)
  *              L is a unit lower triangular matrix and U is an upper triangular
  *              matrix.  P is a permutation matrix.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixDecompositionLU : MPSMatrixUnaryKernel
 
 /*!
@@ -27266,7 +34313,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:sourceMatrix:resultMatrix:pivotIndices:info:
  *              factorization is to be computed. L and U are lower and upper
  *              triangular matrices respectively.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixDecompositionCholesky : MPSMatrixUnaryKernel
 
 /*!
@@ -27345,6 +34392,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:sourceMatrix:resultMatrix:status:));
 
 #import <MPSCore/MPSKernel.h>
 #import <MPSMatrix/MPSMatrixTypes.h>
+#import <MPSCore/MPSNDArray.h>
 
 /*!
  *  @class      MPSMatrixMultiplication
@@ -27370,7 +34418,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:sourceMatrix:resultMatrix:status:));
  *              and the scalar values alpha and beta.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), uikitformac(13.0), tvos(10.0))
 @interface MPSMatrixMultiplication : MPSKernel
 /*! @property   resultMatrixOrigin
  *
@@ -27481,7 +34529,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(10.0), tvos(10.0))
                             resultRows: (NSUInteger) resultRows
                          resultColumns: (NSUInteger) resultColumns
                        interiorColumns: (NSUInteger) interiorColumns
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  @discussion Use the above initialization method instead.
@@ -27548,7 +34596,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *              and the scalar values alpha and beta.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixVectorMultiplication : MPSMatrixBinaryKernel
 
 /*!
@@ -27687,13 +34735,13 @@ extern "C" {
  *              The MPSMatriceCopyDescriptor provides a container to list the operations.
  *              The operations occur in any order, and may not alias.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface  MPSMatrixCopyDescriptor : NSObject
 /*! @abstract   convenience allocator for single copies */
 +(nonnull instancetype) descriptorWithSourceMatrix: (MPSMatrix * __nonnull) sourceMatrix
                                  destinationMatrix: (MPSMatrix * __nonnull) destinationMatrix
                                            offsets: (MPSMatrixCopyOffsets) offsets
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) );
 
 /*! @abstract       initialize a MPSMatrixCopyDescriptor with default values.
  *  @discussion     Use -setCopyOperationAtIndex:sourceMatrix:destinationMatrix:copyOffsets
@@ -27705,7 +34753,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
 -(nonnull instancetype)     initWithDevice: (nonnull id <MTLDevice>) device
                                      count: (NSUInteger) count
 NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) );
 
 /*! @abstract    Initialize a MPSMatrixCopyDescriptor using offsets generated on the CPU
  *  @discussion  This is for one at a time intialization of the copy operations
@@ -27717,7 +34765,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
                    sourceMatrix: (MPSMatrix * __nonnull) sourceMatrix
               destinationMatrix: (MPSMatrix * __nonnull) destinationMatrix
                         offsets: (MPSMatrixCopyOffsets) offsets
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) );
 
 
 /*! @abstract       Initialize a MPSMatrixCopyDescriptor using offsets generated on the GPU
@@ -27736,14 +34784,14 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
                                   offsetVector: (MPSVector * __nullable) offsets
                                         offset: (NSUInteger) byteOffset
 NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) );
 
 
 -(nonnull instancetype) init    NS_UNAVAILABLE;
 
 @end
 
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixCopy : MPSKernel
 
 /*
@@ -27763,7 +34811,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
                   sourcesAreTransposed: (BOOL) sourcesAreTransposed
              destinationsAreTransposed: (BOOL) destinationsAreTransposed
 NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) );
 
 /*! @abstract   The number of rows to copy for each copy operation */
 @property (nonatomic, readonly) NSUInteger copyRows;
@@ -27833,7 +34881,7 @@ MPS_SWIFT_NAME( encode(commandBuffer:copyDescriptor:rowPermuteIndices:rowPermute
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 @end
 
@@ -27878,7 +34926,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *              of the matrix as feature channels, that is the sum runs over column indices.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixSoftMax : MPSMatrixUnaryKernel
 
 /*! @property   sourceRows
@@ -27927,7 +34975,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  */
 -(nonnull instancetype) initWithDevice: (nonnull id<MTLDevice>) device
 NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0) );
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0) );
 
 
 /*!
@@ -27967,7 +35015,7 @@ MPS_SWIFT_NAME(encode(commandBuffer:inputMatrix:resultMatrix:));
  */
 -(nullable instancetype) initWithCoder:(NSCoder * __nonnull)aDecoder
                                 device:(nonnull id <MTLDevice>) device NS_DESIGNATED_INITIALIZER
-MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
+MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0));
 
 /*!
  *  @abstract   Make a copy of this kernel for a new device - @see MPSKernel
@@ -28002,7 +35050,7 @@ MPS_AVAILABLE_STARTING(macos(10.13), ios(11.0), tvos(11.0));
  *              of the matrix as feature channels, that is the sum runs over column indices.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), uikitformac(13.0), tvos(11.0))
 @interface MPSMatrixLogSoftMax : MPSMatrixSoftMax
 
 @end // MPSMatrixLogSoftMax
@@ -28024,7 +35072,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.13), ios(11.0), tvos(11.0))
  *              gradient of the loss function with respect to Y.
  *
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSMatrixSoftMaxGradient : MPSMatrixBinaryKernel
 
 /*! @property   sourceRows
@@ -28135,7 +35183,7 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
  *              the output of the forward MPSMatrixLogSoftMax operation, and dL_dY is the
  *              gradient of the loss function with respect to Y.
  */
-MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
+MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), uikitformac(13.0), tvos(12.0))
 @interface MPSMatrixLogSoftMaxGradient : MPSMatrixSoftMaxGradient
 
 @end // MPSMatrixLogSoftMaxGradient
@@ -28156,4 +35204,5 @@ MPS_CLASS_AVAILABLE_STARTING( macos(10.14), ios(12.0), tvos(12.0))
 #import <MPSMatrix/MPSMatrixCombination.h>
 #import <MPSMatrix/MPSMatrixSoftMax.h>
 #import <MPSMatrix/MPSMatrixFindTopK.h>
+#import <MPSMatrix/MPSMatrixRandom.h>
 

@@ -190,12 +190,92 @@ CONTACTS_EXTERN NSString * const CNLabelPhoneNumberOtherFax              NS_AVAI
 CONTACTS_EXTERN NSString * const CNLabelPhoneNumberPager                 NS_AVAILABLE(10_11, 9_0);
 
 NS_ASSUME_NONNULL_END
+// ==========  Contacts.framework/Headers/CNChangeHistoryFetchRequest.h
+//
+//  CNChangeHistoryFetchRequest.h
+//  Contacts
+//
+//  Copyright (c) 2019 Apple Inc. All rights reserved.
+//
+
+#import <Contacts/CNFetchRequest.h>
+
+@protocol CNKeyDescriptor;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * @abstract    Specifies the criteria to fetch change history.
+ *
+ * @discussion  Changes to contacts are always returned.
+ *              All changes are coalesced to remove redundant adds, updates and deletes.
+ *              This request is used with [CNContactStore enumeratorForChangeHistoryFetchRequest:error:].
+ */
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryFetchRequest : CNFetchRequest <NSSecureCoding>
+
+/*!
+ * @abstract    Request changes made after a certain point.
+ *
+ * @discussion  If non-nil, only changes made after this point in history will be returned.
+ *
+ *              If nil, a @c CNChangeHistoryDropEverythingEvent will be returned, followed by an add event
+ *              for every contact and group currently in the contacts database.
+ */
+@property (nullable, copy, nonatomic) NSData * startingToken;
+
+/*!
+ * @abstract    Additional keys to include in the fetched contacts.
+ *
+ * @discussion  By default, only @c CNContactIdentifierKey will be fetched. If you
+ *              would like to include additional key descriptors to process the contacts,
+ *              include the key descriptors you need.
+ *
+ *              @c CNContactIdentifierKey will always be fetched, whether you
+ *              request it or not.
+ */
+@property (copy, nullable, nonatomic) NSArray<id<CNKeyDescriptor>> * additionalContactKeyDescriptors;
+
+/*!
+ * @abstract    Returns contact changes as unified contacts.
+ *
+ * @discussion  If @c YES, returns unified contact history. Otherwise returns individual contact history.
+ *
+ * @note        A unified contact is the aggregation of properties from a set of linked individual contacts.
+ *              If an individual contact is not linked then the unified contact is simply that individual contact.
+ */
+@property (nonatomic) BOOL shouldUnifyResults;
+
+/*!
+ * @abstract    To return mutable contacts and groups.
+ *
+ * @discussion  If @c YES returns mutable contacts and groups.
+ */
+@property (nonatomic) BOOL mutableObjects;
+
+/*!
+ * @abstract    Set to @c YES to also fetch group changes.
+ */
+@property (nonatomic) BOOL includeGroupChanges;
+
+/*!
+ * @abstract    Exclude changes made by certain authors.
+ *
+ * @discussion  If set, transactions made by the specified authors will be excluded
+ *              from the results. Use this, in conjunction with @c CNSaveRequest.transactionAuthor,
+ *              to suppress processing of changes you already know about.
+ */
+@property (copy, nonatomic) NSArray<NSString *> * excludedTransactionAuthors;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Contacts.framework/Headers/CNContactStore.h
 //
 //  CNContactStore.h
 //  Contacts
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015–2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -204,7 +284,14 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class CNContact, CNGroup, CNContainer, CNContactFetchRequest, CNSaveRequest;
+@class CNContact;
+@class CNGroup;
+@class CNContainer;
+@class CNChangeHistoryEvent;
+@class CNContactFetchRequest;
+@class CNChangeHistoryFetchRequest;
+@class CNFetchResult<ValueType>;
+@class CNSaveRequest;
 
 /*!
  * @abstract The entities the user can grant access to.
@@ -284,7 +371,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  * @param error If an error occurs, contains error information.
  * @return An array of CNContact objects matching the predicate. If no matches are found, an empty array is returned. If an error occurs, nil is returned.
  */
-- (nullable NSArray<CNContact*> *)unifiedContactsMatchingPredicate:(NSPredicate *)predicate keysToFetch:(NSArray<id<CNKeyDescriptor>> *)keys error:(NSError *__nullable *__nullable)error;
+- (nullable NSArray<CNContact*> *)unifiedContactsMatchingPredicate:(NSPredicate *)predicate keysToFetch:(NSArray<id<CNKeyDescriptor>> *)keys error:(NSError **)error;
 
 /*!
  * @abstract Fetch a unified contact with a given identifier.
@@ -296,7 +383,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  * @param error If an error occurs, contains error information.
  * @return The unified contact matching or linked to the identifier. If no contact with the given identifier is found, nil is returned and error is set to CNErrorCodeRecordDoesNotExist.
  */
-- (nullable CNContact *)unifiedContactWithIdentifier:(NSString *)identifier keysToFetch:(NSArray<id<CNKeyDescriptor>> *)keys error:(NSError *__nullable *__nullable)error;
+- (nullable CNContact *)unifiedContactWithIdentifier:(NSString *)identifier keysToFetch:(NSArray<id<CNKeyDescriptor>> *)keys error:(NSError **)error;
 
 /*!
  * @abstract Fetch the unified contact that is the "me" card.
@@ -307,22 +394,59 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  * @param error If an error occurs, contains error information.
  * @return The unified contact that is the "me" card. If no "me" card is set, nil is returned.
  */
-- (nullable CNContact *)unifiedMeContactWithKeysToFetch:(NSArray<id<CNKeyDescriptor>> *)keys error:(NSError *__nullable *__nullable)error NS_AVAILABLE(10_11, NA) __WATCHOS_PROHIBITED;
+- (nullable CNContact *)unifiedMeContactWithKeysToFetch:(NSArray<id<CNKeyDescriptor>> *)keys error:(NSError **)error NS_AVAILABLE(10_11, NA) __WATCHOS_PROHIBITED;
 
 
 #pragma mark - Fetch and Save
 
 /*!
+ * @abstract    Enumerate a contact fetch request.
+ *
+ * @discussion  Executes the given fetch request and returns an enumerator for the results.
+ *              This may prevent all records from being loaded into memory at once.
+ *
+ *              An exception may be thrown if an error occurs during enumeration.
+ *
+ * @param       request
+ *              A description of the records to fetch.
+ *
+ * @param       error
+ *              If the fetch fails, contains an @c NSError object with more information.
+ *
+ * @return      An enumerator of the records matching the result, or @c nil if there was an error.
+ */
+- (nullable CNFetchResult<NSEnumerator<CNContact *> *> *)enumeratorForContactFetchRequest:(CNContactFetchRequest *)request error:(NSError **)error NS_SWIFT_UNAVAILABLE("Use iterator(for:) instead");
+
+/*!
+ * @abstract    Enumerate a change history fetch request.
+ *
+ * @discussion  Executes the given fetch request and returns an enumerator for the results.
+ *              This may prevent all events from being loaded into memory at once.
+ *
+ *              An exception may be thrown if an error occurs during enumeration.
+ *
+ * @param       request
+ *              A description of the events to fetch.
+ *
+ * @param       error
+ *              If the fetch fails, contains an @c NSError object with more information.
+ *
+ * @return      An enumerator of the events matching the result, or @c nil if there was an error.
+ */
+- (nullable CNFetchResult<NSEnumerator<CNChangeHistoryEvent *> *> *)enumeratorForChangeHistoryFetchRequest:(CNChangeHistoryFetchRequest *)request error:(NSError **)error NS_SWIFT_UNAVAILABLE("Use iterator(for:) instead");
+
+
+/*!
  * @abstract Enumerates all contacts matching a contact fetch request.
  *
- * @discussion This method will wait until the enumeration is finished. If there are no results the block is not called and YES is returned.
+ * @discussion This method will wait until the enumeration is finished. If there are no results, the block is not called and YES is returned.
  *
  * @param fetchRequest The contact fetch request that specifies the search criteria.
  * @param error If an error occurs, contains error information.
  * @param block Called for each matching contact. Set *stop to YES to stop the enumeration.
  * @return YES if successful, otherwise NO.
  */
-- (BOOL)enumerateContactsWithFetchRequest:(CNContactFetchRequest *)fetchRequest error:(NSError *__nullable *__nullable)error usingBlock:(void (^)(CNContact *contact, BOOL *stop))block;
+- (BOOL)enumerateContactsWithFetchRequest:(CNContactFetchRequest *)fetchRequest error:(NSError **)error usingBlock:(void (^)(CNContact *contact, BOOL *stop))block;
 
 /*!
  * @abstract Fetch all groups matching a given predicate.
@@ -333,7 +457,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  * @param error If an error occurs, contains error information.
  * @return An array of CNGroup objects matching the predicate. If no matches are found, an empty array is returned. If an error occurs, nil is returned.
  */
-- (nullable NSArray<CNGroup*> *)groupsMatchingPredicate:(nullable NSPredicate *)predicate error:(NSError *__nullable *__nullable)error;
+- (nullable NSArray<CNGroup*> *)groupsMatchingPredicate:(nullable NSPredicate *)predicate error:(NSError **)error;
 
 /*!
  * @abstract Fetch all containers matching a given predicate.
@@ -344,7 +468,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  * @param error If an error occurs, contains error information.
  * @return An array of CNContainer objects matching the predicate. If no matches are found, an empty array is returned. If an error occurs, nil is returned.
  */
-- (nullable NSArray<CNContainer*> *)containersMatchingPredicate:(nullable NSPredicate *)predicate error:(NSError *__nullable *__nullable)error;
+- (nullable NSArray<CNContainer*> *)containersMatchingPredicate:(nullable NSPredicate *)predicate error:(NSError **)error;
 
 /*!
  * @abstract Executes a save request.
@@ -355,10 +479,17 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
  * @param error If an error occurs, contains error information.
  * @return YES if successful, otherwise NO.
  */
-- (BOOL)executeSaveRequest:(CNSaveRequest *)saveRequest error:(NSError *__nullable *__nullable)error __WATCHOS_PROHIBITED;
+- (BOOL)executeSaveRequest:(CNSaveRequest *)saveRequest error:(NSError **)error __WATCHOS_PROHIBITED;
 
 
 #pragma mark - Miscellaneous
+
+/*!
+ *  @abstract The current history token.
+ *
+ *  @discussion Retrieve the current history token. If you are fetching contacts or change history events, you should use the token on the @c CNFetchResult instead.
+ */
+@property (nonatomic, readonly, copy) NSData * currentHistoryToken API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0));
 
 /*!
  *  @abstract The identifier of the default container.
@@ -441,12 +572,129 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Contacts.framework/Headers/CNChangeHistoryEvent.h
+//
+//  CNChangeHistoryEvent.h
+//  Contacts
+//
+//  Copyright (c) 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol CNChangeHistoryEventVisitor;
+@class CNContact;
+@class CNGroup;
+
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryEvent : NSObject <NSCopying, NSSecureCoding>
+
+- (void)acceptEventVisitor:(id<CNChangeHistoryEventVisitor>)visitor;
+
+@end
+
+/// Drop all cached information your app has persisted
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryDropEverythingEvent : CNChangeHistoryEvent
+@end
+
+/// A contact was added
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryAddContactEvent : CNChangeHistoryEvent
+@property (readonly, strong, nonatomic) CNContact * contact;
+@property (readonly, strong, nonatomic, nullable) NSString * containerIdentifier;
+@end
+
+/// A contact was updated
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryUpdateContactEvent : CNChangeHistoryEvent
+@property (readonly, strong, nonatomic) CNContact * contact;
+@end
+
+/// A contact was removed
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryDeleteContactEvent : CNChangeHistoryEvent
+@property (readonly, strong, nonatomic) NSString * contactIdentifier;
+@end
+
+/// A group was added
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryAddGroupEvent : CNChangeHistoryEvent
+@property (readonly, strong, nonatomic) CNGroup * group;
+@property (readonly, strong, nonatomic) NSString * containerIdentifier;
+@end
+
+/// A group was updated
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryUpdateGroupEvent : CNChangeHistoryEvent
+@property (readonly, strong, nonatomic) CNGroup * group;
+@end
+
+/// A group was deleted
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryDeleteGroupEvent : CNChangeHistoryEvent
+@property (readonly, strong, nonatomic) NSString * groupIdentifier;
+@end
+
+/// A contact was added to a group
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryAddMemberToGroupEvent : CNChangeHistoryEvent
+@property (readonly, strong, nonatomic) CNContact * member;
+@property (readonly, strong, nonatomic) CNGroup * group;
+@end
+
+/// A contact was removed from a group
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryRemoveMemberFromGroupEvent : CNChangeHistoryEvent
+@property (readonly, strong, nonatomic) CNContact * member;
+@property (readonly, strong, nonatomic) CNGroup * group;
+@end
+
+/// A subgroup was added to a group
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryAddSubgroupToGroupEvent : CNChangeHistoryEvent
+@property (readonly, strong, nonatomic) CNGroup * subgroup;
+@property (readonly, strong, nonatomic) CNGroup * group;
+@end
+
+/// A subgroup was removed from a group
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNChangeHistoryRemoveSubgroupFromGroupEvent : CNChangeHistoryEvent
+@property (readonly, strong, nonatomic) CNGroup * subgroup;
+@property (readonly, strong, nonatomic) CNGroup * group;
+@end
+
+
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@protocol CNChangeHistoryEventVisitor <NSObject>
+
+- (void)visitDropEverythingEvent:(CNChangeHistoryDropEverythingEvent *)event;
+
+- (void)visitAddContactEvent:(CNChangeHistoryAddContactEvent *)event;
+- (void)visitUpdateContactEvent:(CNChangeHistoryUpdateContactEvent *)event;
+- (void)visitDeleteContactEvent:(CNChangeHistoryDeleteContactEvent *)event;
+
+@optional
+- (void)visitAddGroupEvent:(CNChangeHistoryAddGroupEvent *)event;
+- (void)visitUpdateGroupEvent:(CNChangeHistoryUpdateGroupEvent *)event;
+- (void)visitDeleteGroupEvent:(CNChangeHistoryDeleteGroupEvent *)event;
+
+- (void)visitAddMemberToGroupEvent:(CNChangeHistoryAddMemberToGroupEvent *)event;
+- (void)visitRemoveMemberFromGroupEvent:(CNChangeHistoryRemoveMemberFromGroupEvent *)event;
+- (void)visitAddSubgroupToGroupEvent:(CNChangeHistoryAddSubgroupToGroupEvent *)event;
+- (void)visitRemoveSubgroupFromGroupEvent:(CNChangeHistoryRemoveSubgroupFromGroupEvent *)event;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Contacts.framework/Headers/CNContactRelation.h
 //
 //  CNContactRelation.h
 //  Contacts
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015–2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -472,19 +720,254 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 
 // Contact relation labels
-CONTACTS_EXTERN NSString * const CNLabelContactRelationFather             NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationMother             NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationParent             NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationBrother            NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationSister             NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationSon                NS_AVAILABLE(10_13, 11_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationDaughter           NS_AVAILABLE(10_13, 11_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationChild              NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationFriend             NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationSpouse             NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationPartner            NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationAssistant          NS_AVAILABLE(10_11, 9_0);
-CONTACTS_EXTERN NSString * const CNLabelContactRelationManager            NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAssistant                                                    NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationManager                                                      NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationColleauge                                                    NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationTeacher                                                      NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSibling                                                      NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerSibling                                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderSibling                                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSister                                                       NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerSister                                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungestSister                                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderSister                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationEldestSister                                                 NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBrother                                                      NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerBrother                                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungestBrother                                              NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderBrother                                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationEldestBrother                                                NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationFriend                                                       NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationMaleFriend                                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationFemaleFriend                                                 NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSpouse                                                       NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationWife                                                         NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationHusband                                                      NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationPartner                                                      NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationMalePartner                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationFemalePartner                                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGirlfriendOrBoyfriend                                        NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGirlfriend                                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBoyfriend                                                    NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParent                                                       NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationMother                                                       NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationFather                                                       NS_AVAILABLE(10_11, 9_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationChild                                                        NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationDaughter                                                     NS_AVAILABLE(10_13, 11_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSon                                                          NS_AVAILABLE(10_13, 11_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandparent                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandmother                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandmotherMothersMother                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandmotherFathersMother                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandfather                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandfatherMothersFather                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandfatherFathersFather                                     NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGreatGrandparent                                             NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGreatGrandmother                                             NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGreatGrandfather                                             NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandchild                                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGranddaughter                                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandson                                                     NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGreatGrandchild                                              NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGreatGranddaughter                                           NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGreatGrandson                                                NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParentInLaw                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationMotherInLaw                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationMotherInLawWifesMother                                       NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationMotherInLawHusbandsMother                                    NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationFatherInLaw                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationFatherInLawWifesFather                                       NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationFatherInLawHusbandsFather                                    NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCoParentInLaw                                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCoMotherInLaw                                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCoFatherInLaw                                                NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSiblingInLaw                                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerSiblingInLaw                                          NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderSiblingInLaw                                            NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSisterInLaw                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerSisterInLaw                                           NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderSisterInLaw                                             NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSisterInLawSpousesSister                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSisterInLawWifesSister                                       NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSisterInLawHusbandsSister                                    NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSisterInLawBrothersWife                                      NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSisterInLawYoungerBrothersWife                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSisterInLawElderBrothersWife                                 NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBrotherInLaw                                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerBrotherInLaw                                          NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderBrotherInLaw                                            NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBrotherInLawSpousesBrother                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBrotherInLawHusbandsBrother                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBrotherInLawWifesBrother                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBrotherInLawSistersHusband                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBrotherInLawYoungerSistersHusband                            NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBrotherInLawElderSistersHusband                              NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSisterInLawWifesBrothersWife                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSisterInLawHusbandsBrothersWife                              NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBrotherInLawWifesSistersHusband                              NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationBrotherInLawHusbandsSistersHusband                           NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCoSiblingInLaw                                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCoSisterInLaw                                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCoBrotherInLaw                                               NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationChildInLaw                                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationDaughterInLaw                                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSonInLaw                                                     NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousin                                                       NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousin                                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousin                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationMaleCousin                                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationFemaleCousin                                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinParentsSiblingsChild                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinParentsSiblingsSon                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinParentsSiblingsSon                              NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinParentsSiblingsSon                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinParentsSiblingsDaughter                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinParentsSiblingsDaughter                         NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinParentsSiblingsDaughter                           NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinMothersSistersDaughter                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinMothersSistersDaughter                          NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinMothersSistersDaughter                            NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinMothersSistersSon                                      NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinMothersSistersSon                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinMothersSistersSon                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinMothersBrothersDaughter                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinMothersBrothersDaughter                         NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinMothersBrothersDaughter                           NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinMothersBrothersSon                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinMothersBrothersSon                              NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinMothersBrothersSon                                NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinFathersSistersDaughter                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinFathersSistersDaughter                          NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinFathersSistersDaughter                            NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinFathersSistersSon                                      NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinFathersSistersSon                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinFathersSistersSon                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinFathersBrothersDaughter                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinFathersBrothersDaughter                         NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinFathersBrothersDaughter                           NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinFathersBrothersSon                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinFathersBrothersSon                              NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinFathersBrothersSon                                NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinGrandparentsSiblingsChild                              NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinGrandparentsSiblingsDaughter                           NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinGrandparentsSiblingsSon                                NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinMothersSiblingsSonOrFathersSistersSon           NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinMothersSiblingsSonOrFathersSistersSon             NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationYoungerCousinMothersSiblingsDaughterOrFathersSistersDaughter NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationElderCousinMothersSiblingsDaughterOrFathersSistersDaughter   NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParentsSibling                                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParentsYoungerSibling                                        NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParentsElderSibling                                          NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParentsSiblingMothersSibling                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParentsSiblingMothersYoungerSibling                          NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParentsSiblingMothersElderSibling                            NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParentsSiblingFathersSibling                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParentsSiblingFathersYoungerSibling                          NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationParentsSiblingFathersElderSibling                            NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAunt                                                         NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntParentsSister                                            NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntParentsYoungerSister                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntParentsElderSister                                       NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntFathersSister                                            NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntFathersYoungerSister                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntFathersElderSister                                       NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntFathersBrothersWife                                      NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntFathersYoungerBrothersWife                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntFathersElderBrothersWife                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntMothersSister                                            NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntMothersYoungerSister                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntMothersElderSister                                       NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationAuntMothersBrothersWife                                      NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandaunt                                                    NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncle                                                        NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleParentsBrother                                          NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleParentsYoungerBrother                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleParentsElderBrother                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleMothersBrother                                          NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleMothersYoungerBrother                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleMothersElderBrother                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleMothersSistersHusband                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleFathersBrother                                          NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleFathersYoungerBrother                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleFathersElderBrother                                     NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleFathersSistersHusband                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleFathersYoungerSistersHusband                            NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationUncleFathersElderSistersHusband                              NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGranduncle                                                   NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSiblingsChild                                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNiece                                                        NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNieceSistersDaughter                                         NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNieceBrothersDaughter                                        NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNieceSistersDaughterOrWifesSiblingsDaughter                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNieceBrothersDaughterOrHusbandsSiblingsDaughter              NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNephew                                                       NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNephewSistersSon                                             NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNephewBrothersSon                                            NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNephewBrothersSonOrHusbandsSiblingsSon                       NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNephewSistersSonOrWifesSiblingsSon                           NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandniece                                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandnieceSistersGranddaughter                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandnieceBrothersGranddaughter                              NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandnephew                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandnephewSistersGrandson                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandnephewBrothersGrandson                                  NS_AVAILABLE(10_15, 13_0);
+
+CONTACTS_EXTERN NSString * const CNLabelContactRelationStepparent                                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationStepfather                                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationStepmother                                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationStepchild                                                    NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationStepson                                                      NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationStepdaughter                                                 NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationStepbrother                                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationStepsister                                                   NS_AVAILABLE(10_15, 13_0);
+
+// Additional international labels consisting of conjunctions of English terms:
+CONTACTS_EXTERN NSString * const CNLabelContactRelationMotherInLawOrStepmother                                      NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationFatherInLawOrStepfather                                      NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationDaughterInLawOrStepdaughter                                  NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSonInLawOrStepson                                            NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationCousinOrSiblingsChild                                        NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNieceOrCousin                                                NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationNephewOrCousin                                               NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGrandchildOrSiblingsChild                                    NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationGreatGrandchildOrSiblingsGrandchild                          NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationDaughterInLawOrSisterInLaw                                   NS_AVAILABLE(10_15, 13_0);
+CONTACTS_EXTERN NSString * const CNLabelContactRelationSonInLawOrBrotherInLaw                                       NS_AVAILABLE(10_15, 13_0);
+
+
 
 NS_ASSUME_NONNULL_END
 // ==========  Contacts.framework/Headers/CNMutablePostalAddress.h
@@ -614,7 +1097,7 @@ NS_ASSUME_NONNULL_END
 //  CNLabeledValue.h
 //  Contacts
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015–2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -666,6 +1149,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 // Generic labels
 CONTACTS_EXTERN NSString * const CNLabelHome                             NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNLabelWork                             NS_AVAILABLE(10_11, 9_0);
+CONTACTS_EXTERN NSString * const CNLabelSchool                           NS_AVAILABLE(10_15, 13_0);
 CONTACTS_EXTERN NSString * const CNLabelOther                            NS_AVAILABLE(10_11, 9_0);
 
 // Additional email labels
@@ -888,6 +1372,24 @@ CONTACTS_EXTERN NSString * const CNGroupIdentifierKey	NS_AVAILABLE(10_11, 9_0);
 CONTACTS_EXTERN NSString * const CNGroupNameKey			NS_AVAILABLE(10_11, 9_0);
 
 NS_ASSUME_NONNULL_END
+// ==========  Contacts.framework/Headers/CNFetchRequest.h
+//
+//  CNFetchRequest.h
+//  Contacts
+//
+//  Copyright (c) 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNFetchRequest : NSObject
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Contacts.framework/Headers/CNContact+NSItemProvider.h
 //
 //  CNContact+NSItemProvider.h
@@ -1005,7 +1507,7 @@ NS_ASSUME_NONNULL_END
 //  CNMutableGroup.h
 //  Contacts
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015–2019 Apple Inc. All rights reserved.
 //
 
 #import <Contacts/CNGroup.h>
@@ -1201,12 +1703,16 @@ NS_ASSUME_NONNULL_END
 //  Contacts.h
 //  Contacts
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015–2019 Apple Inc. All rights reserved.
 //
 
 #import <Contacts/CNContactStore.h>
 #import <Contacts/CNContactFetchRequest.h>
+#import <Contacts/CNFetchResult.h>
 #import <Contacts/CNSaveRequest.h>
+
+#import <Contacts/CNChangeHistoryFetchRequest.h>
+#import <Contacts/CNChangeHistoryEvent.h>
 
 #import <Contacts/CNContact.h>
 #import <Contacts/CNContact+Predicates.h>
@@ -1250,6 +1756,33 @@ NS_ASSUME_NONNULL_END
 #else
 #define CONTACTS_EXTERN extern __attribute__((visibility ("default")))
 #endif
+// ==========  Contacts.framework/Headers/CNFetchResult.h
+//
+//  CNFetchResult.h
+//  Contacts
+//
+//  Copyright (c) 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class CNChangeHistoryAnchor;
+
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0))
+@interface CNFetchResult<ValueType> : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new  NS_UNAVAILABLE;
+
+@property (nonatomic, readonly, strong) ValueType value;
+
+@property (nonatomic, readonly, copy) NSData * currentHistoryToken;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Contacts.framework/Headers/CNContactVCardSerialization.h
 //
 //  CNContactVCardSerialization.h
@@ -1318,7 +1851,7 @@ NS_ASSUME_NONNULL_END
 //  CNError.h
 //  Contacts
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015–2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1333,6 +1866,7 @@ typedef NS_ENUM(NSInteger, CNErrorCode)
     
     CNErrorCodeAuthorizationDenied = 100,
     CNErrorCodeNoAccessableWritableContainers NS_ENUM_AVAILABLE(10_13_3, 11_3) = 101,
+    CNErrorCodeUnauthorizedKeys API_AVAILABLE(macos(10.14), ios(13.0), watchos(6.0)) = 102,
 
     CNErrorCodeRecordDoesNotExist = 200,
     CNErrorCodeInsertedRecordAlreadyExists = 201,
@@ -1340,6 +1874,9 @@ typedef NS_ENUM(NSInteger, CNErrorCode)
     CNErrorCodeContainmentScope = 203,
     CNErrorCodeParentRecordDoesNotExist = 204,
     CNErrorCodeRecordIdentifierInvalid = 205,
+    CNErrorCodeRecordNotWritable API_AVAILABLE(macos(10.14), ios(13.0), watchos(6.0)) = 206,
+    CNErrorCodeParentContainerNotWritable API_AVAILABLE(macos(10.14), ios(13.0), watchos(6.0)) = 207,
+
     
     CNErrorCodeValidationMultipleErrors = 300,
     CNErrorCodeValidationTypeMismatch = 301,
@@ -1351,13 +1888,16 @@ typedef NS_ENUM(NSInteger, CNErrorCode)
     
     CNErrorCodeClientIdentifierInvalid = 600,
     CNErrorCodeClientIdentifierDoesNotExist = 601,
+    CNErrorCodeClientIdentifierCollision = 602,
+    CNErrorCodeChangeHistoryExpired = 603,
+    CNErrorCodeChangeHistoryInvalidAnchor = 604,
     
     CNErrorCodeVCardMalformed NS_ENUM_AVAILABLE(10_13, 11_0) = 700,
     CNErrorCodeVCardSummarizationError NS_ENUM_AVAILABLE(10_14, 12_0) = 701,
     
 }  NS_ENUM_AVAILABLE(10_11, 9_0);
 
-/*! When available an array of one or more CNContact, CNGroup or CNContainer objects for which the error code applies. */
+/*! When available an array of one or more CNContact, CNGroup, CNContainer, CNSaveRequest, or CNFetchRequest objects for which the error code applies. */
 CONTACTS_EXTERN NSString * const CNErrorUserInfoAffectedRecordsKey NS_AVAILABLE(10_11, 9_0);
 
 /*! When available an array of one or more NSString objects for which the error code applies. */
@@ -1373,10 +1913,11 @@ CONTACTS_EXTERN NSString * const CNErrorUserInfoKeyPathsKey NS_AVAILABLE(10_11, 
 //  CNContactFetchRequest.h
 //  Contacts
 //
-//  Copyright (c) 2015 Apple Inc. All rights reserved.
+//  Copyright (c) 2015–2019 Apple Inc. All rights reserved.
 //
 
 #import <Contacts/CNContact.h>
+#import <Contacts/CNFetchRequest.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1387,7 +1928,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion Used with [CNContactStore enumerateContactsWithFetchRequest:error:usingBlock:]. Can combine any of these options to create a contact fetch request.
  */
 NS_CLASS_AVAILABLE(10_11, 9_0)
-@interface CNContactFetchRequest : NSObject <NSSecureCoding>
+@interface CNContactFetchRequest : CNFetchRequest <NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new  NS_UNAVAILABLE;

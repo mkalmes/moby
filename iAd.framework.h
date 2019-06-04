@@ -683,7 +683,7 @@ typedef NS_ENUM(NSInteger, ADInterstitialPresentationPolicy) {
  * disabled, the view controller's content view will remain embedded - that operation
  * will not be reversed.
  */
-@property (nullable, nonatomic, retain, readonly) UIView *originalContentView NS_DEPRECATED_IOS(7_0, 10_0);
+@property (nullable, nonatomic, strong, readonly) UIView *originalContentView NS_DEPRECATED_IOS(7_0, 10_0);
 
 /*!
  * @property presentingFullScreenAd

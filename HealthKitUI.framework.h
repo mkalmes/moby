@@ -28,7 +28,7 @@ HK_EXTERN API_AVAILABLE(ios(9.3), watchos(2.2))
 /**
  @property      activitySummary
  @abstract      The activity summary that is currently being displayed in the activity ring view
- @discussion    Setting this properly directly will not animate ring changes
+ @discussion    Setting this property directly will not animate ring changes
  */
 @property (nonatomic, strong, nullable) HKActivitySummary *activitySummary;
 

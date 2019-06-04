@@ -24,7 +24,12 @@
 #import <CoreMedia/CMBase.h>
 #import <CoreMedia/CMTime.h>
 #import <CoreMedia/CMTimeRange.h>
+
+#define AVF_AUDIO_PROCESSING_TAP_AVAILABLE (__has_include(<MediaToolbox/MTAudioProcessingTap.h>))
+
+#if AVF_AUDIO_PROCESSING_TAP_AVAILABLE
 #import <MediaToolbox/MTAudioProcessingTap.h>
+#endif
 
 /*!
  
@@ -39,7 +44,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVAudioMix : NSObject <NSCopying, NSMutableCopying> {
 @private
     AVAudioMixInternal    *_audioMix;
@@ -53,7 +58,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @class AVMutableAudioMixInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVMutableAudioMix : AVAudioMix {
 @private
     AVMutableAudioMixInternal    *_mutableAudioMix __attribute__((unused));
@@ -97,7 +102,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @class AVAudioMixInputParametersInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVAudioMixInputParameters : NSObject <NSCopying, NSMutableCopying> {
 @private
     AVAudioMixInputParametersInternal    *_inputParameters;
@@ -116,13 +121,18 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
    Constants for various time pitch algorithms, e.g. AVAudioTimePitchSpectral, are defined in AVAudioProcessingSettings.h.
    Can be nil, in which case the audioTimePitchAlgorithm set on the AVPlayerItem, AVAssetExportSession, or AVAssetReaderAudioMixOutput on which the AVAudioMix is set will be used for the associated track.
 */
-@property (nonatomic, readonly, copy, nullable) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm NS_AVAILABLE(10_10, 7_0);
+@property (nonatomic, readonly, copy, nullable) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0), watchos(1.0));
+
+
+#if AVF_AUDIO_PROCESSING_TAP_AVAILABLE
 
 /*!
  @property		audioTapProcessor
  @abstract		Indicates the audio processing tap that will be used for the audio track.
 */
-@property (nonatomic, readonly, retain, nullable) __attribute__((NSObject)) MTAudioProcessingTapRef audioTapProcessor NS_AVAILABLE(10_9, 6_0);
+@property (nonatomic, readonly, retain, nullable) __attribute__((NSObject)) MTAudioProcessingTapRef audioTapProcessor API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+
+#endif
 
 /*  
  @method		getVolumeRampForTime:startVolume:endVolume:timeRange:
@@ -148,7 +158,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 @class AVPlayerItemTrack;
 @class AVMutableAudioMixInputParametersInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVMutableAudioMixInputParameters : AVAudioMixInputParameters {
 @private
     AVMutableAudioMixInputParametersInternal    *_mutableInputParameters __attribute__((unused));
@@ -181,13 +191,17 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
    Constants for various time pitch algorithms, e.g. AVAudioTimePitchSpectral, are defined in AVAudioProcessingSettings.h.
    Can be nil, in which case the audioTimePitchAlgorithm set on the AVPlayerItem, AVAssetExportSession, or AVAssetReaderAudioMixOutput on which the AVAudioMix is set will be used for the associated track.
 */
-@property (nonatomic, copy, nullable) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm NS_AVAILABLE(10_10, 7_0);
+@property (nonatomic, copy, nullable) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0), watchos(1.0));
+
+#if AVF_AUDIO_PROCESSING_TAP_AVAILABLE
 
 /*!
  @property		audioTapProcessor
  @abstract		Indicates the audio processing tap that will be used for the audio track.
 */
-@property (nonatomic, retain, nullable) __attribute__((NSObject)) MTAudioProcessingTapRef audioTapProcessor NS_AVAILABLE(10_9, 6_0);
+@property (nonatomic, retain, nullable) __attribute__((NSObject)) MTAudioProcessingTapRef audioTapProcessor API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+
+#endif
 
 /*  
  @method		setVolumeRampFromStartVolume:toEndVolume:timeRange:
@@ -233,7 +247,7 @@ NS_ASSUME_NONNULL_BEGIN
 		AVAssetCaches are vended by AVURLAsset's assetCache property.
 
 */
-NS_CLASS_AVAILABLE(10_12, 10_0)
+API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetCache : NSObject
 
 /*
@@ -364,7 +378,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  
     Note that the dictionary of settings is dependent on the current configuration of the receiver's AVCaptureSession and its inputs. The settings dictionary may change if the session's configuration changes. As such, you should configure your session first, then query the recommended audio settings.
  */
-- (nullable NSDictionary *)recommendedAudioSettingsForAssetWriterWithOutputFileType:(AVFileType)outputFileType API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+- (nullable NSDictionary *)recommendedAudioSettingsForAssetWriterWithOutputFileType:(AVFileType)outputFileType API_AVAILABLE(macos(10.15), ios(7.0));
 
 @end
 
@@ -431,7 +445,7 @@ NS_ASSUME_NONNULL_BEGIN
 	Clients can inspect the track groups contained in an AVAsset by loading and obtaining the value of its trackGroups property.
  */
 
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0))
 @interface AVAssetTrackGroup : NSObject <NSCopying>
 {
 @private
@@ -463,6 +477,7 @@ NS_ASSUME_NONNULL_END
 
 #import <AVFoundation/AVBase.h>
 #import <AVFoundation/AVMediaFormat.h>
+#import <AVFoundation/AVCaptureDevice.h>
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CMFormatDescription.h>
 #import <CoreMedia/CMSync.h>
@@ -590,6 +605,30 @@ AV_INIT_UNAVAILABLE
  */
 @property(nonatomic, readonly, nullable) __attribute__((NSObject)) CMClockRef clock API_AVAILABLE(macos(10.9), ios(7.0));
 
+/*!
+ @property sourceDeviceType
+ @abstract
+    The AVCaptureDeviceType of the source device providing input through this port.
+ 
+ @discussion
+    All AVCaptureInputPorts contained in an AVCaptureDeviceInput's ports array have the same sourceDeviceType, which is equal to deviceInput.device.deviceType. All of these ports are legal for use in an AVCaptureSession. When working with virtual devices such as the DualCamera in an AVCaptureMultiCamSession, it is possible to stream media from the virtual device's constituent device streams by discovering and connecting hidden ports. In the case of the DualCamera, its constituent devices are the WideAngle camera and the Telephoto camera. By calling -[AVCaptureDeviceInput portsWithMediaType:sourceDeviceType:sourceDevicePosition:], you may discover ports originating from one or more of the virtual device's constituent devices and then make connections using those ports. Constituent device ports are never present in their owning virtual device input's ports array. As an example, to find the video port originating from the DualCamera's Telephoto camera constituent device, you call [dualCameraDeviceInput portsWithMediaType:AVMediaTypeVideo sourceDeviceType:AVCaptureDeviceTypeBuiltInTelephotoCamera sourceDevicePosition:dualCamera.position] and use the first port in the resulting array.
+ */
+@property(nonatomic, readonly, nullable) AVCaptureDeviceType sourceDeviceType API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
+
+/*!
+ @property sourceDevicePosition
+ @abstract
+    The AVCaptureDevicePosition of the source device providing input through this port.
+ 
+ @discussion
+    All AVCaptureInputPorts contained in an AVCaptureDeviceInput's ports array have the same sourceDevicePosition, which is deviceInput.device.position. When working with microphone input in an AVCaptureMultiCamSession, it is possible to record multiple microphone directions simultaneously, for instance, to record front-facing microphone input to pair with video from the front facing camera, and back-facing microphone input to pair with the video from the back-facing camera. By calling -[AVCaptureDeviceInput portsWithMediaType:sourceDeviceType:sourceDevicePosition:], you may discover additional hidden ports originating from the source audio device. These ports represent individual microphones positioned to pick up audio from one particular direction. Examples follow.
+ 
+        To discover the audio port that captures omnidirectional audio, use [microphoneDeviceInput portsWithMediaType:AVMediaTypeAudio sourceDeviceType:AVCaptureDeviceTypeBuiltInMicrophone sourceDevicePosition:AVCaptureDevicePositionUnspecified].firstObject.
+        To discover the audio port that captures front-facing audio, use [microphoneDeviceInput portsWithMediaType:AVMediaTypeAudio sourceDeviceType:AVCaptureDeviceTypeBuiltInMicrophone sourceDevicePosition:AVCaptureDevicePositionFront].firstObject.
+        To discover the audio port that captures back-facing audio, use [microphoneDeviceInput portsWithMediaType:AVMediaTypeAudio sourceDeviceType:AVCaptureDeviceTypeBuiltInMicrophone sourceDevicePosition:AVCaptureDevicePositionBack].firstObject.
+ */
+@property(nonatomic, readonly) AVCaptureDevicePosition sourceDevicePosition API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
+
 @end
 
 
@@ -668,6 +707,47 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
     Note that if you manually set the device's min frame rate, max frame rate, or max exposure duration, your custom values will override the device defaults regardless of whether you've set this property to YES.
  */
 @property(nonatomic) BOOL unifiedAutoExposureDefaultsEnabled API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+
+/*!
+ @method portsWithMediaType:sourceDeviceType:sourceDevicePosition:
+ @abstract
+    An accessor method used to retrieve a virtual device's constituent device ports for use in an AVCaptureMultiCamSession.
+ 
+ @param mediaType
+    The AVMediaType of the port for which you're searching, or nil if all media types should be considered.
+ @param sourceDeviceType
+    The AVCaptureDeviceType of the port for which you're searching, or nil if source device type is irrelevant.
+ @param sourceDevicePosition
+    The AVCaptureDevicePosition of the port for which you're searching. AVCaptureDevicePositionUnspecified is germane to audio devices, indicating omnidirectional audio. For other types of capture devices (e.g. cameras), AVCaptureDevicePositionUnspecified means all positions should be considered in the search.
+ 
+ @result
+    An array of AVCaptureInputPorts satisfying the search criteria, or an empty array could be found.
+ 
+ @discussion
+    When using AVCaptureMultiCamSession, multiple devices may be run simultaneously. You may also run simultaneous streams from a virtual device such as the Dual Camera. By inspecting a virtual device's constituentDevices property, you can find its underlying physical devices and, using this method, search for ports originating from one of those constituent devices. Note that the AVCaptureInput.ports array does not include constituent device ports for virtual devices. You must use this accessor method to discover the ports for which you're specifically looking. These constituent device ports may be used to make connections to outputs for use with an AVCaptureMultiCamSession. Using the Dual Camera as an example, the AVCaptureInput.ports property exposes only those ports supported by the virtual device (it switches automatically between wide and telephoto cameras according to the zoom factor). You may use this method to find the video ports for the constituentDevices.
+ 
+         AVCaptureInputPort *wideVideoPort = [dualCameraInput portsWithMediaType:AVMediaTypeVideo sourceDeviceType:AVCaptureDeviceTypeBuiltInWideAngleCamera sourceDevicePosition:AVCaptureDevicePositionBack].firstObject;
+         AVCaptureInputPort *teleVideoPort = [dualCameraInput portsWithMediaType:AVMediaTypeVideo sourceDeviceType:AVCaptureDeviceTypeBuiltInTelephotoCamera sourceDevicePosition:AVCaptureDevicePositionBack].firstObject;
+
+    These ports may be used to create connections, say, to two AVCaptureVideoDataOutput instances, allowing for synchronized full frame rate delivery of both wide and telephoto streams.
+ 
+    As of iOS 13, constituent device ports may not be connected to AVCapturePhotoOutput instances. Clients who wish to capture multiple photos from a virtual device should use AVCapturePhotoOutput's virtualDeviceConstituentPhotoDeliveryEnabled feature.
+ 
+    When used in conjunction with an audio device, this method allows you to discover microphones in different AVCaptureDevicePositions. When you intend to work with an AVCaptureMultiCamSession, you may use these ports to make connections and simultaneously capture both front facing and back facing audio simultaneously to two different outputs. When used with an AVCaptureMultiCamSession, the audio device port whose sourceDevicePosition is AVCaptureDevicePositionUnspecified produces omnidirectional sound.
+ */
+- (NSArray<AVCaptureInputPort *> *)portsWithMediaType:(nullable AVMediaType)mediaType sourceDeviceType:(nullable AVCaptureDeviceType)sourceDeviceType sourceDevicePosition:(AVCaptureDevicePosition)sourceDevicePosition API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
+
+/*!
+ @property videoMinFrameDurationOverride
+ @abstract
+    A property that acts as a modifier to the AVCaptureDevice's activeVideoMinFrameDuration property. Default value is kCMTimeInvalid.
+ 
+ @discussion
+    An AVCaptureDevice's activeVideoMinFrameDuration property is the reciprocal of its active maximum frame rate. To limit the max frame rate of the capture device, clients may set the device's activeVideoMinFrameDuration to a value supported by the receiver's activeFormat (see AVCaptureDeviceFormat's videoSupportedFrameRateRanges property). Changes you make to the device's activeVideoMinFrameDuration property take effect immediately without disrupting preview. Therefore, the AVCaptureSession must always allocate sufficient resources to allow the device to run at its activeFormat's max allowable frame rate. If you wish to use a particular device format but only ever run it at lower frame rates (for instance, only run a 1080p240 fps format at a max frame rate of 60), you can set the AVCaptureDeviceInput's videoMinFrameDurationOverride property to the reciprocal of the max frame rate you intend to use before starting the session (or within a beginConfiguration / commitConfiguration block while running the session).
+ 
+    When a device input is removed from a session and then added back to a session, this property reverts back to the default of kCMTimeInvalid (no override).
+ */
+@property(nonatomic) CMTime videoMinFrameDurationOverride API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
 
 @end
 
@@ -882,7 +962,7 @@ NS_ASSUME_NONNULL_BEGIN
 				The value for this key should be a NSNumber.
  @discussion	By default, the highest media bitrate will be selected for download.
 */
-AVF_EXPORT NSString *const AVAssetDownloadTaskMinimumRequiredMediaBitrateKey API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, tvos, watchos);
+AVF_EXPORT NSString *const AVAssetDownloadTaskMinimumRequiredMediaBitrateKey API_AVAILABLE(macos(15.0), ios(9.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant		AVAssetDownloadTaskMediaSelectionKey
@@ -890,7 +970,15 @@ AVF_EXPORT NSString *const AVAssetDownloadTaskMinimumRequiredMediaBitrateKey API
 				The value for this key should be an AVMediaSelection.
  @discussion	By default, media selections for AVAssetDownloadTask will be automatically selected.
 */
-AVF_EXPORT NSString *const AVAssetDownloadTaskMediaSelectionKey API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, tvos, watchos);
+AVF_EXPORT NSString *const AVAssetDownloadTaskMediaSelectionKey API_AVAILABLE(macos(15.0), ios(9.0)) API_UNAVAILABLE(tvos, watchos);
+
+/*!
+ @constant		AVAssetDownloadTaskMediaSelectionPrefersMultichannelKey
+ @abstract		Download the specified media selections with or without support for multichannel playback.
+ 				The value for this key should be an NSNumber representing a BOOL.
+ @discussion	By default AVAssetDownloadTask will prefer multichannel by downloading the most capable multichannel rendition available in additon to stereo.
+*/
+AVF_EXPORT NSString *const AVAssetDownloadTaskMediaSelectionPrefersMultichannelKey API_AVAILABLE(macos(15.0), ios(13.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @class			AVAssetDownloadTask
@@ -898,7 +986,7 @@ AVF_EXPORT NSString *const AVAssetDownloadTaskMediaSelectionKey API_AVAILABLE(io
  @discussion	Should be created with -[AVAssetDownloadURLSession assetDownloadTaskWithURLAsset:assetTitle:assetArtworkData:options:]. To utilize local data for playback for downloads that are in-progress, re-use the URLAsset supplied in initialization. An AVAssetDownloadTask may be instantiated with a destinationURL pointing to an existing asset on disk, for the purpose of completing or augmenting a downloaded asset.
 */
 
-NS_CLASS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(tvos, watchos)
 @interface AVAssetDownloadTask : NSURLSessionTask
 
 /*!
@@ -912,7 +1000,7 @@ NS_CLASS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
  @abstract		The file URL supplied to the download task upon initialization.
  @discussion	This URL may have been appended with the appropriate extension for the asset.
 */
-@property (nonatomic, readonly) NSURL *destinationURL NS_DEPRECATED_IOS(9_0, 10_0);
+@property (nonatomic, readonly) NSURL *destinationURL API_DEPRECATED("No longer supported", ios(9.0, 10.0)) API_UNAVAILABLE(tvos, watchos) API_UNAVAILABLE(macos);
 
 /*!
  @property		options
@@ -940,7 +1028,7 @@ AV_INIT_UNAVAILABLE
  @abstract		An AVAssetDownloadTask used for downloading multiple AVMediaSelections for a single AVAsset, under the umbrella of a single download task.
  @discussion	Should be created with -[AVAssetDownloadURLSession aggregateAssetDownloadTaskWithURLAsset:mediaSelections:assetTitle:assetArtworkData:options:. For progress tracking, monitor the delegate callbacks for each childAssetDownloadTask.
 */
-NS_CLASS_AVAILABLE_IOS(11_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos)
 @interface AVAggregateAssetDownloadTask : NSURLSessionTask
 
 /*!
@@ -962,7 +1050,7 @@ AV_INIT_UNAVAILABLE
  @abstract		Delegate methods to implement when adopting AVAssetDownloadTask.
 */
 
-__TVOS_PROHIBITED __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(tvos, watchos)
 @protocol AVAssetDownloadDelegate <NSURLSessionTaskDelegate>
 @optional
 /*!
@@ -976,7 +1064,7 @@ __TVOS_PROHIBITED __WATCHOS_PROHIBITED
  @param			location
 				The location the asset has been downloaded to.
 */
-- (void)URLSession:(NSURLSession *)session assetDownloadTask:(AVAssetDownloadTask *)assetDownloadTask didFinishDownloadingToURL:(NSURL *)location NS_AVAILABLE_IOS(10_0);
+- (void)URLSession:(NSURLSession *)session assetDownloadTask:(AVAssetDownloadTask *)assetDownloadTask didFinishDownloadingToURL:(NSURL *)location API_AVAILABLE(macos(10.15), ios(10.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @method		URLSession:assetDownloadTask:didLoadTimeRange:totalTimeRangesLoaded:timeRangeExpectedToLoad:
@@ -992,7 +1080,7 @@ __TVOS_PROHIBITED __WATCHOS_PROHIBITED
  @param			timeRangeExpectedToLoad
 				A CMTimeRange indicating the single time range that is expected to be loaded when the download is complete.
 */
-- (void)URLSession:(NSURLSession *)session assetDownloadTask:(AVAssetDownloadTask *)assetDownloadTask didLoadTimeRange:(CMTimeRange)timeRange totalTimeRangesLoaded:(NSArray<NSValue *> *)loadedTimeRanges timeRangeExpectedToLoad:(CMTimeRange)timeRangeExpectedToLoad NS_AVAILABLE_IOS(9_0);
+- (void)URLSession:(NSURLSession *)session assetDownloadTask:(AVAssetDownloadTask *)assetDownloadTask didLoadTimeRange:(CMTimeRange)timeRange totalTimeRangesLoaded:(NSArray<NSValue *> *)loadedTimeRanges timeRangeExpectedToLoad:(CMTimeRange)timeRangeExpectedToLoad API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*
  @method		URLSession:assetDownloadTask:didResolveMediaSelection:
@@ -1004,11 +1092,11 @@ __TVOS_PROHIBITED __WATCHOS_PROHIBITED
  @param			resolvedMediaSelection
 				The resolved media selection for the download task. For the best chance of playing back downloaded content without further network I/O, apply this selection to subsequent AVPlayerItems.
 */
-- (void)URLSession:(NSURLSession *)session assetDownloadTask:(AVAssetDownloadTask *)assetDownloadTask didResolveMediaSelection:(AVMediaSelection *)resolvedMediaSelection NS_AVAILABLE_IOS(9_0);
+- (void)URLSession:(NSURLSession *)session assetDownloadTask:(AVAssetDownloadTask *)assetDownloadTask didResolveMediaSelection:(AVMediaSelection *)resolvedMediaSelection API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*
  @method		URLSession:aggregateAssetDownloadTask:willDownloadToURL:
- @abstract		Method called when the an aggregate download task determines the location this asset will be downloaded to.
+ @abstract		Method called when the aggregate download task determines the location this asset will be downloaded to.
  @discussion	This URL should be saved for future instantiations of AVAsset. While an AVAsset already exists for this content, it is advisable to re-use that instance.
  @param			session
 				The session the aggregate asset download task is on.
@@ -1017,7 +1105,7 @@ __TVOS_PROHIBITED __WATCHOS_PROHIBITED
  @param			location
 				The file URL this task will download media data to.
 */
-- (void)URLSession:(NSURLSession *)session aggregateAssetDownloadTask:(AVAggregateAssetDownloadTask *)aggregateAssetDownloadTask willDownloadToURL:(NSURL *)location NS_AVAILABLE_IOS(11_0);
+- (void)URLSession:(NSURLSession *)session aggregateAssetDownloadTask:(AVAggregateAssetDownloadTask *)aggregateAssetDownloadTask willDownloadToURL:(NSURL *)location API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*
  @method		URLSession:aggregateAssetDownloadTask:didCompleteForMediaSelection:
@@ -1029,7 +1117,7 @@ __TVOS_PROHIBITED __WATCHOS_PROHIBITED
  @param			mediaSelection
 				The AVMediaSelection which is now fully available for offline use.
 */
-- (void)URLSession:(NSURLSession *)session aggregateAssetDownloadTask:(AVAggregateAssetDownloadTask *)aggregateAssetDownloadTask didCompleteForMediaSelection:(AVMediaSelection *)mediaSelection NS_AVAILABLE_IOS(11_0);
+- (void)URLSession:(NSURLSession *)session aggregateAssetDownloadTask:(AVAggregateAssetDownloadTask *)aggregateAssetDownloadTask didCompleteForMediaSelection:(AVMediaSelection *)mediaSelection API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*
  @method		URLSession:aggregateAssetDownloadTask:didLoadTimeRange:totalTimeRangesLoaded:timeRangeExpectedToLoad:forMediaSelection:
@@ -1047,7 +1135,7 @@ __TVOS_PROHIBITED __WATCHOS_PROHIBITED
  @param			mediaSelection
 				The media selection which has additional media data loaded for offline use.
 */
-- (void)URLSession:(NSURLSession *)session aggregateAssetDownloadTask:(AVAggregateAssetDownloadTask *)aggregateAssetDownloadTask didLoadTimeRange:(CMTimeRange)timeRange totalTimeRangesLoaded:(NSArray<NSValue *> *)loadedTimeRanges timeRangeExpectedToLoad:(CMTimeRange)timeRangeExpectedToLoad forMediaSelection:(AVMediaSelection *)mediaSelection NS_AVAILABLE_IOS(11_0);
+- (void)URLSession:(NSURLSession *)session aggregateAssetDownloadTask:(AVAggregateAssetDownloadTask *)aggregateAssetDownloadTask didLoadTimeRange:(CMTimeRange)timeRange totalTimeRangesLoaded:(NSArray<NSValue *> *)loadedTimeRanges timeRangeExpectedToLoad:(CMTimeRange)timeRangeExpectedToLoad forMediaSelection:(AVMediaSelection *)mediaSelection API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
 @end
 
@@ -1056,7 +1144,7 @@ __TVOS_PROHIBITED __WATCHOS_PROHIBITED
  @class			AVAssetDownloadURLSession
  @abstract		A subclass of NSURLSession to support AVAssetDownloadTask.
 */
-NS_CLASS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(tvos, watchos)
 @interface AVAssetDownloadURLSession : NSURLSession
 
 /*!
@@ -1082,7 +1170,7 @@ NS_CLASS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED
  @param			options
 				See AVAssetDownloadTask*Key above. Configures non-default behavior for the download task. Using this parameter is required for downloading non-default media selections for HLS assets.
 */
-- (nullable AVAssetDownloadTask *)assetDownloadTaskWithURLAsset:(AVURLAsset *)URLAsset destinationURL:(NSURL *)destinationURL options:(nullable NSDictionary<NSString *, id> *)options NS_DEPRECATED_IOS(9_0, 10_0);
+- (nullable AVAssetDownloadTask *)assetDownloadTaskWithURLAsset:(AVURLAsset *)URLAsset destinationURL:(NSURL *)destinationURL options:(nullable NSDictionary<NSString *, id> *)options API_DEPRECATED("No longer supported", ios(9.0, 10.0)) API_UNAVAILABLE(tvos, watchos) API_UNAVAILABLE(macos);
 
 /*!
  @method		assetDownloadTaskWithURLAsset:assetTitle:assetArtworkData:options:
@@ -1097,7 +1185,7 @@ NS_CLASS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED
  @param			options
 				See AVAssetDownloadTask*Key above. Configures non-default behavior for the download task. Using this parameter is required for downloading non-default media selections for HLS assets.
 */
-- (nullable AVAssetDownloadTask *)assetDownloadTaskWithURLAsset:(AVURLAsset *)URLAsset assetTitle:(NSString *)title assetArtworkData:(nullable NSData *)artworkData options:(nullable NSDictionary<NSString *, id> *)options NS_AVAILABLE_IOS(10_0);
+- (nullable AVAssetDownloadTask *)assetDownloadTaskWithURLAsset:(AVURLAsset *)URLAsset assetTitle:(NSString *)title assetArtworkData:(nullable NSData *)artworkData options:(nullable NSDictionary<NSString *, id> *)options API_AVAILABLE(macos(10.15), ios(10.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @method		aggregateAssetDownloadTaskWithURLAsset:mediaSelections:assetTitle:assetArtworkData:options:
@@ -1114,7 +1202,7 @@ NS_CLASS_AVAILABLE_IOS(9_0) __TVOS_PROHIBITED
  @param			options
 				See AVAssetDownloadTask*Key above. Configures non-default behavior for the download task.
 */
-- (nullable AVAggregateAssetDownloadTask *)aggregateAssetDownloadTaskWithURLAsset:(AVURLAsset *)URLAsset mediaSelections:(NSArray <AVMediaSelection *> *)mediaSelections assetTitle:(NSString *)title assetArtworkData:(nullable NSData *)artworkData options:(nullable NSDictionary<NSString *, id> *)options NS_AVAILABLE_IOS(11_0);
+- (nullable AVAggregateAssetDownloadTask *)aggregateAssetDownloadTaskWithURLAsset:(AVURLAsset *)URLAsset mediaSelections:(NSArray <AVMediaSelection *> *)mediaSelections assetTitle:(NSString *)title assetArtworkData:(nullable NSData *)artworkData options:(nullable NSDictionary<NSString *, id> *)options API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
 // only AVAssetDownloadTasks can be created with AVAssetDownloadURLSession
 AV_INIT_UNAVAILABLE
@@ -1150,6 +1238,8 @@ NS_ASSUME_NONNULL_END
 */
 
 #import <AVFoundation/AVBase.h>
+
+#if __has_include(<QuartzCore/QuartzCore.h>)
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVCaptureSession.h>
 #import <AVFoundation/AVAnimation.h>
@@ -1265,6 +1355,16 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 @property(copy) AVLayerVideoGravity videoGravity;
 
 /*!
+ @property previewing
+ @abstract
+    A BOOL value indicating whether the receiver is currently rendering video frames from its source.
+ 
+ @discussion
+    An AVCaptureVideoPreviewLayer begins previewing when -[AVCaptureSession startRunning] is called. When associated with an AVCaptureMultiCamSession, all video preview layers are guaranteed to be previewing by the time the blocking call to -startRunning or -commitConfiguration returns. While a session is running, you may enable or disable a video preview layer's connection to re-start or stop the flow of video to the layer. Once you've set enabled to YES, you can observe this property changing from NO to YES and synchronize any UI to take place precisely when the video resumes rendering to the video preview layer.
+ */
+@property(nonatomic, readonly, getter=isPreviewing) BOOL previewing API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
+
+/*!
  @method captureDevicePointOfInterestForPoint:
  @abstract
     Converts a point in layer coordinates to a point of interest in the coordinate space of the capture device providing input to the layer.
@@ -1277,7 +1377,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     AVCaptureDevice pointOfInterest is expressed as a CGPoint where {0,0} represents the top left of the picture area, and {1,1} represents the bottom right on an unrotated picture. This convenience method converts a point in the coordinate space of the receiver to a point of interest in the coordinate space of the AVCaptureDevice providing input to the receiver. The conversion takes frameSize and videoGravity into consideration.
  */
-- (CGPoint)captureDevicePointOfInterestForPoint:(CGPoint)pointInLayer API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos);
+- (CGPoint)captureDevicePointOfInterestForPoint:(CGPoint)pointInLayer API_AVAILABLE(macos(10.15), ios(6.0));
 
 /*!
  @method pointForCaptureDevicePointOfInterest:
@@ -1292,7 +1392,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     AVCaptureDevice pointOfInterest is expressed as a CGPoint where {0,0} represents the top left of the picture area, and {1,1} represents the bottom right on an unrotated picture. This convenience method converts a point in the coordinate space of the AVCaptureDevice providing input to the coordinate space of the receiver. The conversion takes frame size and videoGravity into consideration.
  */
-- (CGPoint)pointForCaptureDevicePointOfInterest:(CGPoint)captureDevicePointOfInterest API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos);
+- (CGPoint)pointForCaptureDevicePointOfInterest:(CGPoint)captureDevicePointOfInterest API_AVAILABLE(macos(10.15), ios(6.0));
 
 /*!
  @method metadataOutputRectOfInterestForRect:
@@ -1307,7 +1407,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     AVCaptureMetadataOutput rectOfInterest is expressed as a CGRect where {0,0} represents the top left of the picture area, and {1,1} represents the bottom right on an unrotated picture. This convenience method converts a rectangle in the coordinate space of the receiver to a rectangle of interest in the coordinate space of an AVCaptureMetadataOutput whose AVCaptureDevice is providing input to the receiver. The conversion takes frame size and videoGravity into consideration.
  */
-- (CGRect)metadataOutputRectOfInterestForRect:(CGRect)rectInLayerCoordinates API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+- (CGRect)metadataOutputRectOfInterestForRect:(CGRect)rectInLayerCoordinates API_AVAILABLE(macos(10.15), ios(7.0));
 
 /*!
  @method rectForMetadataOutputRectOfInterest:
@@ -1322,7 +1422,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     AVCaptureMetadataOutput rectOfInterest is expressed as a CGRect where {0,0} represents the top left of the picture area, and {1,1} represents the bottom right on an unrotated picture. This convenience method converts a rectangle in the coordinate space of an AVCaptureMetadataOutput whose AVCaptureDevice is providing input to the coordinate space of the receiver. The conversion takes frame size and videoGravity into consideration.
  */
-- (CGRect)rectForMetadataOutputRectOfInterest:(CGRect)rectInMetadataOutputCoordinates API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+- (CGRect)rectForMetadataOutputRectOfInterest:(CGRect)rectInMetadataOutputCoordinates API_AVAILABLE(macos(10.15), ios(7.0));
 
 /*!
  @method transformedMetadataObjectForMetadataObject:
@@ -1337,7 +1437,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     AVMetadataObject bounds may be expressed as a rect where {0,0} represents the top left of the picture area, and {1,1} represents the bottom right on an unrotated picture. Face metadata objects likewise express yaw and roll angles with respect to an unrotated picture. -transformedMetadataObjectForMetadataObject: converts the visual properties in the coordinate space of the supplied AVMetadataObject to the coordinate space of the receiver. The conversion takes orientation, mirroring, layer bounds and videoGravity into consideration. If the provided metadata object originates from an input source other than the preview layer's, nil will be returned.
  */
-- (nullable AVMetadataObject *)transformedMetadataObjectForMetadataObject:(AVMetadataObject *)metadataObject API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos);
+- (nullable AVMetadataObject *)transformedMetadataObjectForMetadataObject:(AVMetadataObject *)metadataObject API_AVAILABLE(macos(10.15), ios(6.0));
 
 /*!
  @property orientationSupported
@@ -1347,7 +1447,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     Changes in orientation are not supported on all hardware configurations. An application should check the value of @"orientationSupported" before attempting to manipulate the orientation of the receiver. This property is deprecated. Use AVCaptureConnection's -isVideoOrientationSupported instead.
  */
-@property(nonatomic, readonly, getter=isOrientationSupported) BOOL orientationSupported API_DEPRECATED("Use AVCaptureConnection's isVideoOrientationSupported instead.", ios(4.0, 6.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isOrientationSupported) BOOL orientationSupported API_DEPRECATED("Use AVCaptureConnection's isVideoOrientationSupported instead.", ios(4.0, 6.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property orientation
@@ -1357,7 +1457,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     AVCaptureVideoOrientation and its constants are defined in AVCaptureSession.h. The value of @"orientationSupported" must be YES in order to set @"orientation". An exception will be raised if this requirement is ignored. This property is deprecated. Use AVCaptureConnection's -videoOrientation instead.
  */
-@property(nonatomic) AVCaptureVideoOrientation orientation API_DEPRECATED("Use AVCaptureConnection's videoOrientation instead.", ios(4.0, 6.0)) API_UNAVAILABLE(macos);
+@property(nonatomic) AVCaptureVideoOrientation orientation API_DEPRECATED("Use AVCaptureConnection's videoOrientation instead.", ios(4.0, 6.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property mirroringSupported
@@ -1367,7 +1467,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     Mirroring is not supported on all hardware configurations. An application should check the value of @"mirroringSupported" before attempting to manipulate mirroring on the receiver. This property is deprecated. Use AVCaptureConnection's -isVideoMirroringSupported instead.
  */
-@property(nonatomic, readonly, getter=isMirroringSupported) BOOL mirroringSupported API_DEPRECATED("Use AVCaptureConnection's isVideoMirroringSupported instead.", ios(4.0, 6.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isMirroringSupported) BOOL mirroringSupported API_DEPRECATED("Use AVCaptureConnection's isVideoMirroringSupported instead.", ios(4.0, 6.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property automaticallyAdjustsMirroring
@@ -1377,7 +1477,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     For some session configurations, preview will be mirrored by default. When the value of this property is YES, the value of @"mirrored" may change depending on the configuration of the session, for example after switching to a different AVCaptureDeviceInput. The default value is YES. This property is deprecated. Use AVCaptureConnection's -automaticallyAdjustsVideoMirroring instead.
  */
-@property(nonatomic) BOOL automaticallyAdjustsMirroring API_DEPRECATED("Use AVCaptureConnection's automaticallyAdjustsVideoMirroring instead.", ios(4.0, 6.0)) API_UNAVAILABLE(macos);
+@property(nonatomic) BOOL automaticallyAdjustsMirroring API_DEPRECATED("Use AVCaptureConnection's automaticallyAdjustsVideoMirroring instead.", ios(4.0, 6.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property mirrored
@@ -1387,11 +1487,13 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     For most applications, it is unnecessary to manipulate preview mirroring manually if @"automaticallyAdjustsMirroring" is set to YES. The value of @"automaticallyAdjustsMirroring" must be NO in order to set @"mirrored". The value of @"mirroringSupported" must be YES in order to set @"mirrored". An exception will be raised if the value of @"mirrored" is mutated without respecting these requirements. This property is deprecated. Use AVCaptureConnection's -videoMirrored instead.
  */
-@property(nonatomic, getter=isMirrored) BOOL mirrored API_DEPRECATED("Use AVCaptureConnection's videoMirrored instead.", ios(4.0, 6.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, getter=isMirrored) BOOL mirrored API_DEPRECATED("Use AVCaptureConnection's videoMirrored instead.", ios(4.0, 6.0)) API_UNAVAILABLE(macos, uikitformac);
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // __has_include(<QuartzCore/QuartzCore.h>)
 // ==========  AVFoundation.framework/Headers/AVCaptureSessionPreset.h
 /*
     File:  AVCaptureSessionPreset.h
@@ -1512,7 +1614,7 @@ AVF_EXPORT AVCaptureSessionPreset const AVCaptureSessionPreset1280x720 API_AVAIL
  @discussion
     Clients may set an AVCaptureSession instance's sessionPreset to AVCaptureSessionPreset1920x1080 to achieve 1920x1080 output.
  */
-AVF_EXPORT AVCaptureSessionPreset const AVCaptureSessionPreset1920x1080 API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVCaptureSessionPreset const AVCaptureSessionPreset1920x1080 API_AVAILABLE(macos(10.15), ios(5.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 /*!
  @constant AVCaptureSessionPreset3840x2160
@@ -1522,7 +1624,7 @@ AVF_EXPORT AVCaptureSessionPreset const AVCaptureSessionPreset1920x1080 API_AVAI
  @discussion
     Clients may set an AVCaptureSession instance's sessionPreset to AVCaptureSessionPreset3840x2160 to achieve 3840x2160 output.
  */
-AVF_EXPORT AVCaptureSessionPreset const AVCaptureSessionPreset3840x2160 API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVCaptureSessionPreset const AVCaptureSessionPreset3840x2160 API_AVAILABLE(macos(10.15), ios(9.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 /*!
  @constant AVCaptureSessionPresetiFrame960x540
@@ -1561,7 +1663,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
  
-	Copyright 2011-2018 Apple Inc. All rights reserved.
+	Copyright 2011-2017 Apple Inc. All rights reserved.
 
 */
 
@@ -1581,7 +1683,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class AVMediaSelectionOption;
 @class AVMediaSelectionGroupInternal;
 
-NS_CLASS_AVAILABLE(10_8, 5_0)
+API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0))
 @interface AVMediaSelectionGroup : NSObject <NSCopying> {
 @private
 	AVMediaSelectionGroupInternal	*_mediaSelectionGroup;
@@ -1600,7 +1702,7 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
  @discussion
 	Can be nil, indicating that without a specific end-user selection or preference, no option in the group is intended to be selected.
 */
-@property (nonatomic, readonly, nullable) AVMediaSelectionOption *defaultOption NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readonly, nullable) AVMediaSelectionOption *defaultOption API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		allowsEmptySelection
@@ -1651,7 +1753,7 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 				An array of language identifiers in order of preference, each of which is an IETF BCP 47 (RFC 4646) language identifier. Use +[NSLocale preferredLanguages] to obtain the user's list of preferred languages.
  @result		An instance of NSArray containing media selection options of the specified NSArray that match a preferred language, sorted according to the order of preference of the language each matches.
 */
-+ (NSArray<AVMediaSelectionOption *> *)mediaSelectionOptionsFromArray:(NSArray<AVMediaSelectionOption *> *)mediaSelectionOptions filteredAndSortedAccordingToPreferredLanguages:(NSArray<NSString *> *)preferredLanguages NS_AVAILABLE(10_8, 6_0);
++ (NSArray<AVMediaSelectionOption *> *)mediaSelectionOptionsFromArray:(NSArray<AVMediaSelectionOption *> *)mediaSelectionOptions filteredAndSortedAccordingToPreferredLanguages:(NSArray<NSString *> *)preferredLanguages API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /*!
   @method		mediaSelectionOptionsFromArray:withLocale:
@@ -1701,7 +1803,7 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 @class AVMediaSelectionOptionInternal;
 @class AVMetadataItem;
 
-NS_CLASS_AVAILABLE(10_8, 5_0)
+API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0))
 @interface AVMediaSelectionOption : NSObject <NSCopying> {
 @private
 	AVMediaSelectionOptionInternal	*_mediaSelectionOption;
@@ -1744,7 +1846,7 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
  @property		extendedLanguageTag
  @abstract		Indicates the RFC 4646 language tag associated with the option. May be nil.
  */
-@property (nonatomic, readonly, nullable) NSString *extendedLanguageTag NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly, nullable) NSString *extendedLanguageTag API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		locale
@@ -1826,7 +1928,7 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
   @discussion
    May use this option's common metadata, media characteristics and locale properties in addition to the provided locale to formulate an NSString intended for display. Will only consider common metadata with the specified locale.
 */
-- (NSString *)displayNameWithLocale:(NSLocale *)locale NS_AVAILABLE(10_9, 7_0);
+- (NSString *)displayNameWithLocale:(NSLocale *)locale API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
   @property		displayName
@@ -1836,7 +1938,7 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
    In the event that common metadata is not available in the specified locale, displayName will fall back to considering locales with the multilingual ("mul") then undetermined ("und") locale identifiers.
    For a display name strictly with the specified locale use displayNameWithLocale: instead.
 */
-@property (nonatomic, readonly) NSString *displayName NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) NSString *displayName API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -1857,7 +1959,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
  
-	Copyright 2011-2017 Apple Inc. All rights reserved.
+	Copyright 2011-2018 Apple Inc. All rights reserved.
 
 */
 
@@ -1870,6 +1972,8 @@ NS_ASSUME_NONNULL_END
 #import <AVFoundation/AVBase.h>
 #import <AVFoundation/AVAnimation.h>
 #import <AVFoundation/AVQueuedSampleBufferRendering.h>
+
+#if __has_include(<QuartzCore/CoreAnimation.h>)
 #import <QuartzCore/CoreAnimation.h>
 #import <CoreMedia/CMSync.h>
 #import <CoreMedia/CMSampleBuffer.h>
@@ -1878,10 +1982,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AVSampleBufferDisplayLayerInternal;
 
-AVF_EXPORT NSString *const AVSampleBufferDisplayLayerFailedToDecodeNotification API_AVAILABLE(macos(10.10), ios(8.0), tvos(10.2)) __WATCHOS_PROHIBITED; // decode failed, see NSError in notification payload
-AVF_EXPORT NSString *const AVSampleBufferDisplayLayerFailedToDecodeNotificationErrorKey API_AVAILABLE(macos(10.10), ios(8.0), tvos(10.2)) __WATCHOS_PROHIBITED; // NSError
+AVF_EXPORT NSString *const AVSampleBufferDisplayLayerFailedToDecodeNotification API_AVAILABLE(macos(10.10), ios(8.0), tvos(10.2)) API_UNAVAILABLE(watchos); // decode failed, see NSError in notification payload
+AVF_EXPORT NSString *const AVSampleBufferDisplayLayerFailedToDecodeNotificationErrorKey API_AVAILABLE(macos(10.10), ios(8.0), tvos(10.2)) API_UNAVAILABLE(watchos); // NSError
 
-API_AVAILABLE(macos(10.8), ios(8.0), tvos(10.2)) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.8), ios(8.0), tvos(10.2)) API_UNAVAILABLE(watchos)
 @interface AVSampleBufferDisplayLayer : CALayer
 {
 @private
@@ -1928,14 +2032,14 @@ API_AVAILABLE(macos(10.8), ios(8.0), tvos(10.2)) __WATCHOS_PROHIBITED
 		
 					This property is key value observable.
  */
-@property (nonatomic, readonly) AVQueuedSampleBufferRenderingStatus status API_AVAILABLE(macos(10.10), ios(8.0), tvos(10.2)) __WATCHOS_PROHIBITED;
+@property (nonatomic, readonly) AVQueuedSampleBufferRenderingStatus status API_AVAILABLE(macos(10.10), ios(8.0), tvos(10.2)) API_UNAVAILABLE(watchos);
 
 /*!
 	@property		error
 	@abstract		If the display layer's status is AVQueuedSampleBufferRenderingStatusFailed, this describes the error that caused the failure.
 	@discussion		The value of this property is an NSError that describes what caused the display layer to no longer be able to enqueue sample buffers. If the status is not AVQueuedSampleBufferRenderingStatusFailed, the value of this property is nil.
  */
-@property (nonatomic, readonly, nullable) NSError *error API_AVAILABLE(macos(10.10), ios(8.0), tvos(10.2)) __WATCHOS_PROHIBITED;
+@property (nonatomic, readonly, nullable) NSError *error API_AVAILABLE(macos(10.10), ios(8.0), tvos(10.2)) API_UNAVAILABLE(watchos);
 
 /*!
 	@method			enqueueSampleBuffer:
@@ -2033,7 +2137,33 @@ API_AVAILABLE(macos(10.8), ios(8.0), tvos(10.2)) __WATCHOS_PROHIBITED
 
 @end
 
+@interface AVSampleBufferDisplayLayer (AVSampleBufferDisplayLayerImageProtection)
+
+/*!
+ @property		preventsCapture
+ @abstract		Indicates that image data should be protected from capture.
+ */
+@property (nonatomic) BOOL preventsCapture API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+@end
+
+@interface AVSampleBufferDisplayLayer (AVSampleBufferDisplayLayerVideoDisplaySleepPrevention)
+
+/*!
+ @property   preventsDisplaySleepDuringVideoPlayback
+ @abstract   Indicates whether video playback prevents display and device sleep.
+ @discussion
+ Default is YES on iOS.  Default is NO on macOS.
+ Setting this property to NO does not force the display to sleep, it simply stops preventing display sleep.  Other apps or frameworks within your app may still be preventing display sleep for various reasons.
+ Note: If sample buffers are being enqueued for playback at the user's request, you should ensure that the value of this property is set to YES. If video is not being displayed as part of the user's primary focus, you should ensure that the value of this property is set to NO.
+ */
+@property (nonatomic) BOOL preventsDisplaySleepDuringVideoPlayback API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+@end
+
 NS_ASSUME_NONNULL_END
+
+#endif  // __has_include(<QuartzCore/CoreAnimation.h>)
 // ==========  AVFoundation.framework/Headers/AVAssetWriterInput.h
 /*
 	File:  AVAssetWriterInput.h
@@ -2070,7 +2200,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 	As of OS X 10.10 and iOS 8.0 AVAssetWriterInput can also be used to create tracks that are not self-contained.  Such tracks reference sample data that is located in another file. This is currently supported only for instances of AVAssetWriterInput attached to an instance of AVAssetWriter that writes files of type AVFileTypeQuickTimeMovie.
  */
-NS_CLASS_AVAILABLE(10_7, 4_1)
+API_AVAILABLE(macos(10.7), ios(4.1), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetWriterInput : NSObject
 {
 @private
@@ -2120,7 +2250,7 @@ AV_INIT_UNAVAILABLE
  
 	An NSInvalidArgumentException will be thrown if the media type of the format description does not match the media type string passed into this method.
  */
-+ (instancetype)assetWriterInputWithMediaType:(AVMediaType)mediaType outputSettings:(nullable NSDictionary<NSString *, id> *)outputSettings sourceFormatHint:(nullable CMFormatDescriptionRef)sourceFormatHint NS_AVAILABLE(10_8, 6_0);
++ (instancetype)assetWriterInputWithMediaType:(AVMediaType)mediaType outputSettings:(nullable NSDictionary<NSString *, id> *)outputSettings sourceFormatHint:(nullable CMFormatDescriptionRef)sourceFormatHint API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method initWithMediaType:outputSettings:
@@ -2164,7 +2294,7 @@ AV_INIT_UNAVAILABLE
  
 	An NSInvalidArgumentException will be thrown if the media type of the format description does not match the media type string passed into this method.
  */
-- (instancetype)initWithMediaType:(AVMediaType)mediaType outputSettings:(nullable NSDictionary<NSString *, id> *)outputSettings sourceFormatHint:(nullable CMFormatDescriptionRef)sourceFormatHint NS_AVAILABLE(10_8, 6_0) NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithMediaType:(AVMediaType)mediaType outputSettings:(nullable NSDictionary<NSString *, id> *)outputSettings sourceFormatHint:(nullable CMFormatDescriptionRef)sourceFormatHint API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos) NS_DESIGNATED_INITIALIZER;
 
 /*!
  @property mediaType
@@ -2194,7 +2324,7 @@ AV_INIT_UNAVAILABLE
  @discussion
 	AVAssetWriterInput may be able to use this hint to fill in missing output settings or perform more upfront validation.  To guarantee successful file writing, clients who specify a format hint should ensure that subsequently-appended media data are of the specified format.
  */
-@property (nonatomic, readonly, nullable) __attribute__((NSObject)) CMFormatDescriptionRef sourceFormatHint NS_AVAILABLE(10_8, 6_0);
+@property (nonatomic, readonly, nullable) __attribute__((NSObject)) CMFormatDescriptionRef sourceFormatHint API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property metadata
@@ -2351,7 +2481,7 @@ AV_INIT_UNAVAILABLE
 
 	This property cannot be set after writing on the receiver's AVAssetWriter has started.
  */
-@property (nonatomic, copy, nullable) NSString *languageCode NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, copy, nullable) NSString *languageCode API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property extendedLanguageTag
@@ -2363,7 +2493,7 @@ AV_INIT_UNAVAILABLE
 
 	This property cannot be set after writing on the receiver's AVAssetWriter has started.	
  */
-@property (nonatomic, copy, nullable) NSString *extendedLanguageTag NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, copy, nullable) NSString *extendedLanguageTag API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -2380,7 +2510,7 @@ AV_INIT_UNAVAILABLE
 
 	This property cannot be set after writing on the receiver's AVAssetWriter has started.
 */
-@property (nonatomic) CGSize naturalSize NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic) CGSize naturalSize API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property transform
@@ -2409,7 +2539,7 @@ AV_INIT_UNAVAILABLE
  
 	This property cannot be set after writing on the receiver's AVAssetWriter has started.
  */
-@property (nonatomic) float preferredVolume NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic) float preferredVolume API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -2426,7 +2556,7 @@ AV_INIT_UNAVAILABLE
 
 	This property cannot be set after writing on the receiver's AVAssetWriter has started.
  */
-@property (nonatomic) BOOL marksOutputTrackAsEnabled NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic) BOOL marksOutputTrackAsEnabled API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property mediaTimeScale
@@ -2438,7 +2568,7 @@ AV_INIT_UNAVAILABLE
 
 	This property cannot be set after writing has started.
  */
-@property (nonatomic) CMTimeScale mediaTimeScale NS_AVAILABLE(10_7, 4_3);
+@property (nonatomic) CMTimeScale mediaTimeScale API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property preferredMediaChunkDuration
@@ -2454,7 +2584,7 @@ AV_INIT_UNAVAILABLE
 
 	This property cannot be set after -startWriting has been called on the receiver.
  */
-@property (nonatomic) CMTime preferredMediaChunkDuration NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) CMTime preferredMediaChunkDuration API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property preferredMediaChunkAlignment
@@ -2466,7 +2596,7 @@ AV_INIT_UNAVAILABLE
  
 	This property cannot be set after -startWriting has been called on the receiver.
  */
-@property (nonatomic) NSInteger preferredMediaChunkAlignment NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) NSInteger preferredMediaChunkAlignment API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property sampleReferenceBaseURL
@@ -2486,21 +2616,21 @@ AV_INIT_UNAVAILABLE
  
 	This property cannot be set after -startWriting has been called on the receiver.
  */
-@property (nonatomic, copy, nullable) NSURL *sampleReferenceBaseURL NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, copy, nullable) NSURL *sampleReferenceBaseURL API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
-typedef NSString *AVAssetWriterInputMediaDataLocation NS_STRING_ENUM NS_AVAILABLE(10_13, 11_0);
+typedef NSString *AVAssetWriterInputMediaDataLocation NS_STRING_ENUM API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant AVAssetWriterInputMediaDataLocationInterleavedWithMainMediaData
 	Indicates that the media data should be interleaved with all other media data with this constant.
  */
-AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaDataLocationInterleavedWithMainMediaData NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaDataLocationInterleavedWithMainMediaData API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant AVAssetWriterInputMediaDataLocationBeforeMainMediaDataNotInterleaved
 	Indicates that the media data should be laid out before all the media data with AVAssetWriterInputMediaDataLocationInterleavedWithMainMediaData and not be interleaved.
  */
-AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaDataLocationBeforeMainMediaDataNotInterleaved NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaDataLocationBeforeMainMediaDataNotInterleaved API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property mediaDataLocation
@@ -2519,7 +2649,7 @@ AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaData
 
 	This property cannot be set after -startWriting has been called on the receiver.
  */
-@property (nonatomic, copy) AVAssetWriterInputMediaDataLocation mediaDataLocation NS_AVAILABLE(10_13, 11_0);
+@property (nonatomic, copy) AVAssetWriterInputMediaDataLocation mediaDataLocation API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -2539,7 +2669,7 @@ AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaData
  @discussion
 	If the type of association requires tracks of specific media types that don't match the media types of the inputs, or if the output file type does not support track associations, -canAddTrackAssociationWithTrackOfInput:type: will return NO.
  */
-- (BOOL)canAddTrackAssociationWithTrackOfInput:(AVAssetWriterInput *)input type:(NSString *)trackAssociationType NS_AVAILABLE(10_9, 7_0);
+- (BOOL)canAddTrackAssociationWithTrackOfInput:(AVAssetWriterInput *)input type:(NSString *)trackAssociationType API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method addTrackAssociationWithTrackOfInput:type:
@@ -2556,7 +2686,7 @@ AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaData
 
 	Track associations cannot be added after writing on the receiver's AVAssetWriter has started.
  */
-- (void)addTrackAssociationWithTrackOfInput:(AVAssetWriterInput *)input type:(NSString *)trackAssociationType NS_AVAILABLE(10_9, 7_0);
+- (void)addTrackAssociationWithTrackOfInput:(AVAssetWriterInput *)input type:(NSString *)trackAssociationType API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -2583,7 +2713,7 @@ AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaData
 
 	This property cannot be set after writing on the receiver's AVAssetWriter has started.
  */
-@property (nonatomic) BOOL performsMultiPassEncodingIfSupported NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) BOOL performsMultiPassEncodingIfSupported API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property canPerformMultiplePasses
@@ -2599,7 +2729,7 @@ AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaData
  
 	This property is key-value observable.
  */
-@property (nonatomic, readonly) BOOL canPerformMultiplePasses NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readonly) BOOL canPerformMultiplePasses API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property currentPassDescription
@@ -2615,7 +2745,7 @@ AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaData
  
 	This property is key-value observable.  Observers should not assume that they will be notified of changes on a specific thread.
  */
-@property (readonly, nullable) AVAssetWriterInputPassDescription *currentPassDescription NS_AVAILABLE(10_10, 8_0);
+@property (readonly, nullable) AVAssetWriterInputPassDescription *currentPassDescription API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method respondToEachPassDescriptionOnQueue:usingBlock:
@@ -2638,7 +2768,7 @@ AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaData
  
 	Before calling this method, you must ensure that the receiver is attached to an AVAssetWriter via a prior call to -addInput: and that -startWriting has been called on the asset writer.
  */
-- (void)respondToEachPassDescriptionOnQueue:(dispatch_queue_t)queue usingBlock:(dispatch_block_t)block NS_AVAILABLE(10_10, 8_0);
+- (void)respondToEachPassDescriptionOnQueue:(dispatch_queue_t)queue usingBlock:(dispatch_block_t)block API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method markCurrentPassAsFinished
@@ -2658,7 +2788,7 @@ AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaData
 
 	Before calling this method, you must ensure that the receiver is attached to an AVAssetWriter via a prior call to -addInput: and that -startWriting has been called on the asset writer.
  */
-- (void)markCurrentPassAsFinished NS_AVAILABLE(10_10, 8_0);
+- (void)markCurrentPassAsFinished API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -2670,7 +2800,7 @@ AVF_EXPORT AVAssetWriterInputMediaDataLocation const AVAssetWriterInputMediaData
  @abstract
 	Defines an interface for querying information about the requirements of the current pass, such as the time ranges of media data to append.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetWriterInputPassDescription : NSObject
 {
 @private
@@ -2701,7 +2831,7 @@ AV_INIT_UNAVAILABLE
  @discussion
 	Instances of AVAssetWriterInputPixelBufferAdaptor provide a CVPixelBufferPool that can be used to allocate pixel buffers for writing to the output file.  Using the provided pixel buffer pool for buffer allocation is typically more efficient than appending pixel buffers allocated using a separate pool.
  */
-NS_CLASS_AVAILABLE(10_7, 4_1)
+API_AVAILABLE(macos(10.7), ios(4.1), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetWriterInputPixelBufferAdaptor : NSObject
 {
 @private
@@ -2827,7 +2957,7 @@ AV_INIT_UNAVAILABLE
 	Defines an interface for writing metadata, packaged as instances of AVTimedMetadataGroup, to a single AVAssetWriterInput object.
  */
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetWriterInputMetadataAdaptor : NSObject {
     AVAssetWriterInputMetadataAdaptorInternal	*_internal;
 }
@@ -2902,7 +3032,7 @@ NS_ASSUME_NONNULL_END
 
     Framework:  AVFoundation
  
-    Copyright 2014-2018 Apple Inc. All rights reserved.
+    Copyright 2014-2019 Apple Inc. All rights reserved.
 
 */
 
@@ -2912,283 +3042,283 @@ NS_ASSUME_NONNULL_END
 typedef NSString * AVMetadataIdentifier NS_EXTENSIBLE_STRING_ENUM;
 
 // CommonMetadata
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierTitle                                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierCreator                                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierSubject                                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierDescription                                NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierPublisher                                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierContributor                                NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierCreationDate                               NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierLastModifiedDate                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierType                                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierFormat                                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierAssetIdentifier                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierSource                                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierLanguage                                   NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierRelation                                   NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierLocation                                   NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierCopyrights                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierAlbumName                                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierAuthor                                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierArtist                                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierArtwork                                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierMake                                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierModel                                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierSoftware                                   NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierTitle                                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierCreator                                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierSubject                                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierDescription                                API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierPublisher                                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierContributor                                API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierCreationDate                               API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierLastModifiedDate                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierType                                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierFormat                                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierAssetIdentifier                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierSource                                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierLanguage                                   API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierRelation                                   API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierLocation                                   API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierCopyrights                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierAlbumName                                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierAuthor                                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierArtist                                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierArtwork                                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierMake                                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierModel                                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataCommonIdentifierSoftware                                   API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 // QuickTimeUserData
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataAlbum                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataArranger                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataArtist                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataAuthor                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataChapter                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataComment                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataComposer                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataCopyright                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataCreationDate                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataDescription                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataDirector                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataDisclaimer                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataEncodedBy                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataFullName                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataGenre                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataHostComputer                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataInformation                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataKeywords                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataMake                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataModel                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataOriginalArtist                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataOriginalFormat                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataOriginalSource                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataPerformers                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataProducer                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataPublisher                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataProduct                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataSoftware                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataSpecialPlaybackRequirements     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataTrack                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataWarning                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataWriter                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataURLLink                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataLocationISO6709                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataTrackName                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataCredits                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataPhonogramRights                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataTaggedCharacteristic            NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataAlbum                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataArranger                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataArtist                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataAuthor                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataChapter                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataComment                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataComposer                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataCopyright                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataCreationDate                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataDescription                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataDirector                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataDisclaimer                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataEncodedBy                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataFullName                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataGenre                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataHostComputer                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataInformation                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataKeywords                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataMake                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataModel                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataOriginalArtist                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataOriginalFormat                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataOriginalSource                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataPerformers                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataProducer                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataPublisher                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataProduct                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataSoftware                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataSpecialPlaybackRequirements     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataTrack                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataWarning                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataWriter                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataURLLink                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataLocationISO6709                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataTrackName                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataCredits                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataPhonogramRights                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeUserDataTaggedCharacteristic            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 // ISO UserData (includes 3GPP)
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierISOUserDataCopyright                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierISOUserDataDate                                  NS_AVAILABLE(10_12, 10_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierISOUserDataTaggedCharacteristic                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataCopyright                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataAuthor                                NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataPerformer                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataGenre                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataRecordingYear                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataLocation                              NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataTitle                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataDescription                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataCollection                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataUserRating                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataThumbnail                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataAlbumAndTrack                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataKeywordList                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataMediaClassification                   NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataMediaRating                           NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierISOUserDataCopyright                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierISOUserDataDate                                  API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierISOUserDataTaggedCharacteristic                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataCopyright                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataAuthor                                API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataPerformer                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataGenre                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataRecordingYear                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataLocation                              API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataTitle                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataDescription                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataCollection                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataUserRating                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataThumbnail                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataAlbumAndTrack                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataKeywordList                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataMediaClassification                   API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifier3GPUserDataMediaRating                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 // QuickTimeMetadata. For more information, see the QuickTime File Format Specification, available as part of the Mac OS X Reference Library at http://developer.apple.com/library/mac/navigation/
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataAuthor                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataComment                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCopyright                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCreationDate                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDirector                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDisplayName                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataInformation                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataKeywords                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataProducer                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataPublisher                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataAlbum                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataArtist                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataArtwork                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDescription                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataSoftware                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataYear                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataGenre                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataiXML                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationISO6709                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataMake                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataModel                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataArranger                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataEncodedBy                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataOriginalArtist                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataPerformer                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataComposer                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCredits                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataPhonogramRights                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCameraIdentifier                NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCameraFrameReadoutTime          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataTitle		                   NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCollectionUser                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataRatingUser                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationName                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationBody                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationNote                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationRole                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationDate                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDirectionFacing                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDirectionMotion                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataPreferredAffineTransform        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDetectedFace                    NS_AVAILABLE(10_11, 9_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataVideoOrientation                NS_AVAILABLE(10_11, 9_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataContentIdentifier               NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataAuthor                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataComment                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCopyright                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCreationDate                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDirector                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDisplayName                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataInformation                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataKeywords                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataProducer                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataPublisher                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataAlbum                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataArtist                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataArtwork                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDescription                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataSoftware                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataYear                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataGenre                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataiXML                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationISO6709                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataMake                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataModel                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataArranger                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataEncodedBy                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataOriginalArtist                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataPerformer                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataComposer                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCredits                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataPhonogramRights                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCameraIdentifier                API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCameraFrameReadoutTime          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataTitle		                   API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataCollectionUser                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataRatingUser                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationName                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationBody                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationNote                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationRole                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataLocationDate                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDirectionFacing                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDirectionMotion                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataPreferredAffineTransform        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataDetectedFace                    API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataVideoOrientation                API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierQuickTimeMetadataContentIdentifier               API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 // iTunesMetadata
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAlbum                              NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataArtist                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataUserComment                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataCoverArt                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataCopyright                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataReleaseDate                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataEncodedBy                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataPredefinedGenre                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataUserGenre                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataSongName                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataTrackSubTitle                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataEncodingTool                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataComposer                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAlbumArtist                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAccountKind                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAppleID                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataArtistID                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataSongID                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataDiscCompilation                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataDiscNumber                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataGenreID                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataGrouping                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataPlaylistID                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataContentRating                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataBeatsPerMin                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataTrackNumber                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataArtDirector                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataArranger                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAuthor                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataLyrics                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAcknowledgement                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataConductor                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataDescription                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataDirector                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataEQ                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataLinerNotes                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataRecordCompany                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataOriginalArtist                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataPhonogramRights                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataProducer                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataPerformer                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataPublisher                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataSoundEngineer                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataSoloist                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataCredits                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataThanks                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataOnlineExtras                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataExecProducer                       NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAlbum                              API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataArtist                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataUserComment                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataCoverArt                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataCopyright                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataReleaseDate                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataEncodedBy                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataPredefinedGenre                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataUserGenre                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataSongName                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataTrackSubTitle                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataEncodingTool                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataComposer                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAlbumArtist                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAccountKind                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAppleID                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataArtistID                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataSongID                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataDiscCompilation                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataDiscNumber                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataGenreID                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataGrouping                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataPlaylistID                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataContentRating                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataBeatsPerMin                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataTrackNumber                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataArtDirector                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataArranger                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAuthor                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataLyrics                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataAcknowledgement                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataConductor                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataDescription                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataDirector                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataEQ                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataLinerNotes                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataRecordCompany                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataOriginalArtist                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataPhonogramRights                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataProducer                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataPerformer                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataPublisher                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataSoundEngineer                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataSoloist                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataCredits                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataThanks                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataOnlineExtras                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifieriTunesMetadataExecProducer                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 // ID3Metadata
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataAudioEncryption                       /* AENC Audio encryption */                                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataAttachedPicture                       /* APIC Attached picture */                                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataAudioSeekPointIndex                   /* ASPI Audio seek point index */                               NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataComments                              /* COMM Comments */                                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataCommercial                            /* COMR Commercial frame */                                     NS_AVAILABLE(10_11, 9_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataCommerical                            /* COMR Commercial frame */                                     NS_DEPRECATED(10_10, 10_11, 8_0, 9_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEncryption                            /* ENCR Encryption method registration */                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEqualization                          /* EQUA Equalization */                                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEqualization2                         /* EQU2 Equalisation (2) */                                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEventTimingCodes                      /* ETCO Event timing codes */                                   NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataGeneralEncapsulatedObject             /* GEOB General encapsulated object */                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataGroupIdentifier                       /* GRID Group identification registration */                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInvolvedPeopleList_v23                /* IPLS Involved people list */                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataLink                                  /* LINK Linked information */                                   NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataMusicCDIdentifier                     /* MCDI Music CD identifier */                                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataMPEGLocationLookupTable               /* MLLT MPEG location lookup table */                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOwnership                             /* OWNE Ownership frame */                                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPrivate                               /* PRIV Private frame */                                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPlayCounter                           /* PCNT Play counter */                                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPopularimeter                         /* POPM Popularimeter */                                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPositionSynchronization               /* POSS Position synchronisation frame */                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataRecommendedBufferSize                 /* RBUF Recommended buffer size */                              NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataRelativeVolumeAdjustment              /* RVAD Relative volume adjustment */                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataRelativeVolumeAdjustment2             /* RVA2 Relative volume adjustment (2) */                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataReverb                                /* RVRB Reverb */                                               NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSeek                                  /* SEEK Seek frame */                                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSignature                             /* SIGN Signature frame */                                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSynchronizedLyric                     /* SYLT Synchronized lyric/text */                              NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSynchronizedTempoCodes                /* SYTC Synchronized tempo codes */                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataAlbumTitle                            /* TALB Album/Movie/Show title */                               NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataBeatsPerMinute                        /* TBPM BPM (beats per minute) */                               NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataComposer                              /* TCOM Composer */                                             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataContentType                           /* TCON Content type */                                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataCopyright                             /* TCOP Copyright message */                                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataDate                                  /* TDAT Date */                                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEncodingTime                          /* TDEN Encoding time */                                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPlaylistDelay                         /* TDLY Playlist delay */                                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalReleaseTime                   /* TDOR Original release time */                                NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataRecordingTime                         /* TDRC Recording time */                                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataReleaseTime                           /* TDRL Release time */                                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTaggingTime                           /* TDTG Tagging time */                                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEncodedBy                             /* TENC Encoded by */                                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataLyricist                              /* TEXT Lyricist/Text writer */                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataFileType                              /* TFLT File type */                                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTime                                  /* TIME Time */                                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInvolvedPeopleList_v24                /* TIPL Involved people list */                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataContentGroupDescription               /* TIT1 Content group description */                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTitleDescription                      /* TIT2 Title/songname/content description */                   NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSubTitle                              /* TIT3 Subtitle/Description refinement */                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInitialKey                            /* TKEY Initial key */                                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataLanguage                              /* TLAN Language(s) */                                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataLength                                /* TLEN Length */                                               NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataMusicianCreditsList                   /* TMCL Musician credits list */                                NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataMediaType                             /* TMED Media type */                                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataMood                                  /* TMOO Mood */                                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalAlbumTitle                    /* TOAL Original album/movie/show title */                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalFilename                      /* TOFN Original filename */                                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalLyricist                      /* TOLY Original lyricist(s)/text writer(s) */                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalArtist                        /* TOPE Original artist(s)/performer(s) */                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalReleaseYear                   /* TORY Original release year */                                NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataFileOwner                             /* TOWN File owner/licensee */                                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataLeadPerformer                         /* TPE1 Lead performer(s)/Soloist(s) */                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataBand                                  /* TPE2 Band/orchestra/accompaniment */                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataConductor                             /* TPE3 Conductor/performer refinement */                       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataModifiedBy                            /* TPE4 Interpreted, remixed, or otherwise modified by */       NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPartOfASet                            /* TPOS Part of a set */                                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataProducedNotice                        /* TPRO Produced notice */                                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPublisher                             /* TPUB Publisher */                                            NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTrackNumber                           /* TRCK Track number/Position in set */                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataRecordingDates                        /* TRDA Recording dates */                                      NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInternetRadioStationName              /* TRSN Internet radio station name */                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInternetRadioStationOwner             /* TRSO Internet radio station owner */                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSize                                  /* TSIZ Size */                                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataAlbumSortOrder                        /* TSOA Album sort order */                                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPerformerSortOrder                    /* TSOP Performer sort order */                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTitleSortOrder                        /* TSOT Title sort order */                                     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInternationalStandardRecordingCode    /* TSRC ISRC (international standard recording code) */         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEncodedWith                           /* TSSE Software/Hardware and settings used for encoding */     NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSetSubtitle                           /* TSST Set subtitle */                                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataYear                                  /* TYER Year */                                                 NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataUserText                              /* TXXX User defined text information frame */                  NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataUniqueFileIdentifier                  /* UFID Unique file identifier */                               NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTermsOfUse                            /* USER Terms of use */                                         NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataUnsynchronizedLyric                   /* USLT Unsynchronized lyric/text transcription */              NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataCommercialInformation                 /* WCOM Commercial information */                               NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataCopyrightInformation                  /* WCOP Copyright/Legal information */                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOfficialAudioFileWebpage              /* WOAF Official audio file webpage */                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOfficialArtistWebpage                 /* WOAR Official artist/performer webpage */                    NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOfficialAudioSourceWebpage            /* WOAS Official audio source webpage */                        NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOfficialInternetRadioStationHomepage  /* WORS Official Internet radio station homepage */             NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPayment                               /* WPAY Payment */                                              NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOfficialPublisherWebpage              /* WPUB Publishers official webpage */                          NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataUserURL                               /* WXXX User defined URL link frame */                          NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataAudioEncryption                       /* AENC Audio encryption */                                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataAttachedPicture                       /* APIC Attached picture */                                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataAudioSeekPointIndex                   /* ASPI Audio seek point index */                               API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataComments                              /* COMM Comments */                                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataCommercial                            /* COMR Commercial frame */                                     API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataCommerical                            /* COMR Commercial frame */                                     API_DEPRECATED("No longer supported", macos(10.10, 10.11), ios(8.0, 9.0), tvos(9.0, 9.0), watchos(1.0, 1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEncryption                            /* ENCR Encryption method registration */                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEqualization                          /* EQUA Equalization */                                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEqualization2                         /* EQU2 Equalisation (2) */                                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEventTimingCodes                      /* ETCO Event timing codes */                                   API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataGeneralEncapsulatedObject             /* GEOB General encapsulated object */                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataGroupIdentifier                       /* GRID Group identification registration */                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInvolvedPeopleList_v23                /* IPLS Involved people list */                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataLink                                  /* LINK Linked information */                                   API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataMusicCDIdentifier                     /* MCDI Music CD identifier */                                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataMPEGLocationLookupTable               /* MLLT MPEG location lookup table */                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOwnership                             /* OWNE Ownership frame */                                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPrivate                               /* PRIV Private frame */                                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPlayCounter                           /* PCNT Play counter */                                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPopularimeter                         /* POPM Popularimeter */                                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPositionSynchronization               /* POSS Position synchronisation frame */                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataRecommendedBufferSize                 /* RBUF Recommended buffer size */                              API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataRelativeVolumeAdjustment              /* RVAD Relative volume adjustment */                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataRelativeVolumeAdjustment2             /* RVA2 Relative volume adjustment (2) */                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataReverb                                /* RVRB Reverb */                                               API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSeek                                  /* SEEK Seek frame */                                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSignature                             /* SIGN Signature frame */                                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSynchronizedLyric                     /* SYLT Synchronized lyric/text */                              API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSynchronizedTempoCodes                /* SYTC Synchronized tempo codes */                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataAlbumTitle                            /* TALB Album/Movie/Show title */                               API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataBeatsPerMinute                        /* TBPM BPM (beats per minute) */                               API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataComposer                              /* TCOM Composer */                                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataContentType                           /* TCON Content type */                                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataCopyright                             /* TCOP Copyright message */                                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataDate                                  /* TDAT Date */                                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEncodingTime                          /* TDEN Encoding time */                                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPlaylistDelay                         /* TDLY Playlist delay */                                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalReleaseTime                   /* TDOR Original release time */                                API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataRecordingTime                         /* TDRC Recording time */                                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataReleaseTime                           /* TDRL Release time */                                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTaggingTime                           /* TDTG Tagging time */                                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEncodedBy                             /* TENC Encoded by */                                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataLyricist                              /* TEXT Lyricist/Text writer */                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataFileType                              /* TFLT File type */                                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTime                                  /* TIME Time */                                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInvolvedPeopleList_v24                /* TIPL Involved people list */                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataContentGroupDescription               /* TIT1 Content group description */                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTitleDescription                      /* TIT2 Title/songname/content description */                   API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSubTitle                              /* TIT3 Subtitle/Description refinement */                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInitialKey                            /* TKEY Initial key */                                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataLanguage                              /* TLAN Language(s) */                                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataLength                                /* TLEN Length */                                               API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataMusicianCreditsList                   /* TMCL Musician credits list */                                API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataMediaType                             /* TMED Media type */                                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataMood                                  /* TMOO Mood */                                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalAlbumTitle                    /* TOAL Original album/movie/show title */                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalFilename                      /* TOFN Original filename */                                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalLyricist                      /* TOLY Original lyricist(s)/text writer(s) */                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalArtist                        /* TOPE Original artist(s)/performer(s) */                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOriginalReleaseYear                   /* TORY Original release year */                                API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataFileOwner                             /* TOWN File owner/licensee */                                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataLeadPerformer                         /* TPE1 Lead performer(s)/Soloist(s) */                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataBand                                  /* TPE2 Band/orchestra/accompaniment */                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataConductor                             /* TPE3 Conductor/performer refinement */                       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataModifiedBy                            /* TPE4 Interpreted, remixed, or otherwise modified by */       API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPartOfASet                            /* TPOS Part of a set */                                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataProducedNotice                        /* TPRO Produced notice */                                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPublisher                             /* TPUB Publisher */                                            API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTrackNumber                           /* TRCK Track number/Position in set */                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataRecordingDates                        /* TRDA Recording dates */                                      API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInternetRadioStationName              /* TRSN Internet radio station name */                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInternetRadioStationOwner             /* TRSO Internet radio station owner */                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSize                                  /* TSIZ Size */                                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataAlbumSortOrder                        /* TSOA Album sort order */                                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPerformerSortOrder                    /* TSOP Performer sort order */                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTitleSortOrder                        /* TSOT Title sort order */                                     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataInternationalStandardRecordingCode    /* TSRC ISRC (international standard recording code) */         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataEncodedWith                           /* TSSE Software/Hardware and settings used for encoding */     API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataSetSubtitle                           /* TSST Set subtitle */                                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataYear                                  /* TYER Year */                                                 API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataUserText                              /* TXXX User defined text information frame */                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataUniqueFileIdentifier                  /* UFID Unique file identifier */                               API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataTermsOfUse                            /* USER Terms of use */                                         API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataUnsynchronizedLyric                   /* USLT Unsynchronized lyric/text transcription */              API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataCommercialInformation                 /* WCOM Commercial information */                               API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataCopyrightInformation                  /* WCOP Copyright/Legal information */                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOfficialAudioFileWebpage              /* WOAF Official audio file webpage */                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOfficialArtistWebpage                 /* WOAR Official artist/performer webpage */                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOfficialAudioSourceWebpage            /* WOAS Official audio source webpage */                        API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOfficialInternetRadioStationHomepage  /* WORS Official Internet radio station homepage */             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataPayment                               /* WPAY Payment */                                              API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataOfficialPublisherWebpage              /* WPUB Publishers official webpage */                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierID3MetadataUserURL                               /* WXXX User defined URL link frame */                          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierIcyMetadataStreamTitle                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierIcyMetadataStreamURL                             NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierIcyMetadataStreamTitle                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierIcyMetadataStreamURL                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 // ==========  AVFoundation.framework/Headers/AVAudioUnitGenerator.h
 /*
@@ -3206,7 +3336,7 @@ AVF_EXPORT AVMetadataIdentifier const AVMetadataIdentifierIcyMetadataStreamURL  
 
 	Framework:  AVFoundation
  
-	Copyright 2010-2016 Apple Inc. All rights reserved.
+	Copyright 2010-2018 Apple Inc. All rights reserved.
 
 */
 
@@ -3241,10 +3371,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef NS_ENUM(NSInteger, AVAssetWriterStatus) {
 	AVAssetWriterStatusUnknown = 0,
-	AVAssetWriterStatusWriting,
-	AVAssetWriterStatusCompleted,
-	AVAssetWriterStatusFailed,
-	AVAssetWriterStatusCancelled
+	AVAssetWriterStatusWriting = 1,
+	AVAssetWriterStatusCompleted = 2,
+	AVAssetWriterStatusFailed = 3,
+	AVAssetWriterStatusCancelled = 4
 };
 
 @class AVAssetWriterInternal;
@@ -3261,7 +3391,7 @@ typedef NS_ENUM(NSInteger, AVAssetWriterStatus) {
  
 	A single instance of AVAssetWriter can be used once to write to a single file. Clients that wish to write to files multiple times must use a new instance of AVAssetWriter each time.
  */
-NS_CLASS_AVAILABLE(10_7, 4_1)
+API_AVAILABLE(macos(10.7), ios(4.1), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetWriter : NSObject
 {
 @private
@@ -3393,7 +3523,7 @@ AV_INIT_UNAVAILABLE
 	
 	This property cannot be set after writing has started.  The asset writer will fail if a file cannot be created in this directory (for example, due to insufficient permissions).
  */
-@property (nonatomic, copy, nullable) NSURL *directoryForTemporaryFiles NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, copy, nullable) NSURL *directoryForTemporaryFiles API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property inputs
@@ -3543,7 +3673,7 @@ AV_INIT_UNAVAILABLE
 	
 	This method should not be called concurrently with -[AVAssetWriterInput appendSampleBuffer:] or -[AVAssetWriterInputPixelBufferAdaptor appendPixelBuffer:withPresentationTime:].
 */
-- (BOOL)finishWriting NS_DEPRECATED(10_7, 10_9, 4_1, 6_0);
+- (BOOL)finishWriting API_DEPRECATED("No longer supported", macos(10.7, 10.9), ios(4.1, 6.0), tvos(9.0, 9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method finishWritingWithCompletionHandler:
@@ -3557,7 +3687,7 @@ AV_INIT_UNAVAILABLE
 	
 	To guarantee that all sample buffers are successfully written, ensure all calls to -[AVAssetWriterInput appendSampleBuffer:] or -[AVAssetWriterInputPixelBufferAdaptor appendPixelBuffer:withPresentationTime:] have returned before invoking this method.
 */
-- (void)finishWritingWithCompletionHandler:(void (^)(void))handler NS_AVAILABLE(10_9, 6_0);
+- (void)finishWritingWithCompletionHandler:(void (^)(void))handler API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -3600,7 +3730,7 @@ AV_INIT_UNAVAILABLE
  
 	This property cannot be set after writing has started.
  */
-@property (nonatomic) CMTimeScale movieTimeScale NS_AVAILABLE(10_7, 4_3);
+@property (nonatomic) CMTimeScale movieTimeScale API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -3622,7 +3752,7 @@ AV_INIT_UNAVAILABLE
  @discussion
 	If outputFileType specifies a container format that does not support mutually exclusive relationships among tracks, or if the specified instance of AVAssetWriterInputGroup contains inputs with media types that cannot be related, the group cannot be added to the AVAssetWriter.
  */
-- (BOOL)canAddInputGroup:(AVAssetWriterInputGroup *)inputGroup NS_AVAILABLE(10_9, 7_0);
+- (BOOL)canAddInputGroup:(AVAssetWriterInputGroup *)inputGroup API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*
  @method addInputGroup:
@@ -3637,7 +3767,7 @@ AV_INIT_UNAVAILABLE
 
 	Input groups cannot be added after writing has started.
  */
-- (void)addInputGroup:(AVAssetWriterInputGroup *)inputGroup NS_AVAILABLE(10_9, 7_0);
+- (void)addInputGroup:(AVAssetWriterInputGroup *)inputGroup API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property inputGroups
@@ -3647,7 +3777,7 @@ AV_INIT_UNAVAILABLE
  @discussion
 	The value of this property is an NSArray containing concrete instances of AVAssetWriterInputGroup.  Input groups can be added to the receiver using the addInputGroup: method.
  */
-@property (nonatomic, readonly) NSArray<AVAssetWriterInputGroup *> *inputGroups NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) NSArray<AVAssetWriterInputGroup *> *inputGroups API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -3664,7 +3794,7 @@ AV_INIT_UNAVAILABLE
 	Note that because AVAssetWriterInputGroup is a subclass of AVMediaSelectionGroup, clients can examine the media selection options that will be available on the output asset before the asset is written.  Best results for examining the options of the AVAssetWriterInputGroup will be obtained after associating the AVAssetWriterInputs of the AVAsset as appropriate via -[AVAssetWriterInput addTrackAssociationWithTrackOfInput:type:] and by initializing each AVAssetWriterInput with a source format hint, where appropriate.
  */
 
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetWriterInputGroup : AVMediaSelectionGroup
 {
 @private
@@ -3719,6 +3849,464 @@ AV_INIT_UNAVAILABLE
 	The value of this property is a concrete instance of AVAssetWriterInput.
  */
 @property (nonatomic, readonly, nullable) AVAssetWriterInput *defaultInput;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  AVFoundation.framework/Headers/AVMovieTrack.h
+/*
+	File:			AVMovieTrack.h
+
+	Framework:		AVFoundation
+ 
+	Copyright 2009-2019 Apple Inc. All rights reserved.
+
+*/
+
+#import <AVFoundation/AVBase.h>
+
+#import <AVFoundation/AVAssetTrack.h>
+#import <CoreMedia/CMTime.h>
+#import <CoreMedia/CMTimeRange.h>
+#import <CoreMedia/CMSampleBuffer.h>
+
+/*!
+    @class			AVMovieTrack
+
+    @abstract		AVMovieTrack represents the tracks of audiovisual containers in a file that conforms to the QuickTime movie file format or to one of the related ISO base media file formats (such as MPEG-4).
+*/
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class AVMovieTrackInternal;
+@class AVMediaDataStorage;
+@class AVMetadataItem;
+
+#pragma mark --- AVMovieTrack ---
+API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos)
+@interface AVMovieTrack : AVAssetTrack {
+@private
+    AVMovieTrackInternal    *_movieTrackInternal __attribute__((unused));
+}
+
+/*!
+	@property       mediaPresentationTimeRange
+	@abstract       A CMTimeRange indicating the range of presentation times for the track's media.
+*/
+@property (nonatomic, readonly) CMTimeRange mediaPresentationTimeRange API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+	@property       mediaDecodeTimeRange
+	@abstract       A CMTimeRange indicating the range of decode times for the track's media.
+*/
+@property (nonatomic, readonly) CMTimeRange mediaDecodeTimeRange API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+	@property       alternateGroupID
+	@abstract       An integer indicating the track as a member of a particular alternate group.
+*/
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wavailability"
+@property (nonatomic, readonly) NSInteger alternateGroupID API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+#pragma clang diagnostic pop
+
+@end
+
+@interface AVMovieTrack (AVMovieTrackMediaDataStorage)
+
+/*!
+	@property       mediaDataStorage
+	@abstract       The storage container for media data added to a track.
+	@discussion     The value of this property is an AVMediaDataStorage object that indicates the location at which media data inserted or appended to the track will be written.
+*/
+@property (nonatomic, readonly, copy, nullable) AVMediaDataStorage *mediaDataStorage API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+@end
+
+
+/*!
+	@class			AVMutableMovieTrack
+
+	@abstract		AVMutableMovieTrack provides the track-level editing interface of an AVMutableMovie. Media can be inserted into a movie track and other editing operations performed via an instance of this class.
+*/
+
+@class AVMutableMovieTrackInternal;
+
+#pragma mark --- AVMutableMovieTrack ---
+API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos)
+@interface AVMutableMovieTrack : AVMovieTrack {
+@private
+    AVMutableMovieTrackInternal    *_mutableMovieTrackInternal;
+}
+
+/*!
+	@property       mediaDataStorage
+	@abstract       The storage container for media data added to a track.
+	@discussion     The value of this property is an AVMediaDataStorage object that indicates the location at which media data inserted or appended to the track will be written.
+*/
+@property (nonatomic, copy, nullable) AVMediaDataStorage *mediaDataStorage;
+
+/*!
+	@property       sampleReferenceBaseURL
+	@abstract       For file types that support writing sample references, such as QuickTime Movie files, specifies the base URL that sample references are relative to; may be nil.
+	@discussion     If the value of this property can be resolved as an absolute URL, the sample locations written to the file when appending sample references to this track will be relative to this URL. The URL must point to a location contained by any common parent directory of the locations that will be referenced. For example, setting the sampleReferenceBaseURL property to "file:///Users/johnappleseed/Movies/" and appending sample buffers that refer to "file:///Users/johnappleseed/Movies/data/movie1.mov" will cause the sample reference "data/movie1.mov" to be written to the movie file.
+ 
+		If the value of the property cannot be resolved as an absolute URL or if it points to a location that is not contained by any common parent directory of the locations that will be referenced, the location will be written unmodified.
+ 
+		The default value is nil, which means that the location will be written unmodified.
+*/
+@property (nonatomic, copy, nullable) NSURL *sampleReferenceBaseURL;
+
+/*!
+	@property       enabled
+	@abstract       A BOOL value indicating whether the track is enabled by default for presentation.
+*/
+@property (nonatomic, getter=isEnabled) BOOL enabled;
+
+/*!
+	@property       alternateGroupID
+	@abstract       An integer indicating the track as a member of a particular alternate group.
+*/
+@property (nonatomic) NSInteger alternateGroupID;
+
+/*!
+	@property       modified
+	@abstract       Whether a track has been modified.
+	@discussion     The value of this property is a BOOL that indicates whether the AVMutableMovieTrack object has been modified since it was created, was last written, or had its modified state cleared via a call to setModified:NO.
+*/
+@property (nonatomic, getter=isModified) BOOL modified;
+
+/*!
+	@property       hasProtectedContent
+	@abstract       Whether a track contains protected content.
+	@discussion     The value of this property is a BOOL that indicates whether the track contains protected content.
+ */
+@property (nonatomic, readonly) BOOL hasProtectedContent;
+
+/*!
+	@property       timescale
+	@abstract       For file types that contain a 'moov' atom, such as QuickTime Movie files, specifies the time scale of the track's media.
+	@discussion		The default media time scale is 0.
+ 
+					This property should be set on a new empty track before any edits are performed on the track.
+*/
+@property (nonatomic, readwrite) CMTimeScale timescale;
+
+@end
+
+
+@interface AVMutableMovieTrack (AVMutableMovieTrackLanguageProperties)
+
+/*!
+	@property       languageCode
+	@abstract       The language associated with the track.
+	@discussion     The value of this property is an ISO 639-2/T language code indicating the language associated with the track; may be nil if no language is indicated.
+*/
+@property (nonatomic, copy, nullable) NSString *languageCode;
+
+/*!
+	@property       extendedLanguageTag
+	@abstract       The language tag associated with the track.
+	@discussion     The value of this property is an IETF BCP 47 (RFC 4646) language identifier indicating the language tag associated with the track; may be nil if no language tag is indicated.
+*/
+@property (nonatomic, copy, nullable) NSString *extendedLanguageTag;
+
+@end
+
+
+@interface AVMutableMovieTrack (AVMutableMovieTrackVisualProperties)
+
+/*!
+	@property       naturalSize
+	@abstract       A CGSize indicating the dimensions at which the visual media data of the track should be displayed.
+*/
+@property (nonatomic) CGSize naturalSize;
+
+/*!
+	@property       preferredTransform
+	@abstract       A CGAffineTransform indicating the transform specified in the track's storage container as the preferred transformation of the visual media data for display purposes; the value is often but not always CGAffineTransformIdentity.
+*/
+@property (nonatomic) CGAffineTransform preferredTransform;
+
+/*!
+	@property       layer
+	@abstract       The layer level of the visual media data of the track.
+*/
+@property (nonatomic) NSInteger layer;
+
+/*!
+	@property       cleanApertureDimensions
+	@abstract       A CGSize indicating the clean aperture dimensions of the track.
+*/
+@property (nonatomic) CGSize cleanApertureDimensions;
+
+/*!
+	@property       productionApertureDimensions
+	@abstract       A CGSize indicating the production aperture dimensions of the track.
+*/
+@property (nonatomic) CGSize productionApertureDimensions;
+
+/*!
+	@property       encodedPixelsDimensions
+	@abstract       A CGSize indicating the dimensions encoded pixels dimensions of the track.
+*/
+@property (nonatomic) CGSize encodedPixelsDimensions;
+
+@end
+
+
+@interface AVMutableMovieTrack (AVMutableMovieTrackAudibleProperties)
+
+/*!
+	@property       preferredVolume
+	@abstract       The preferred volume of the audible media data of the track; often but not always 1.0.
+*/
+@property (nonatomic) float preferredVolume;
+
+@end
+
+
+@interface AVMutableMovieTrack (AVMutableMovieTrackChunkProperties)
+
+/*!
+	@category		AVMutableMovieTrack(AVMutableMovieTrackChunkProperties)
+ 
+	@discussion		Sample data in a movie file is stored in a series of "chunks". A chunk contains one or more samples, which may have different sizes from one another.
+					The collection of samples into chunks is intended to allow optimized access to the sample data during operations such as movie playback. 
+ 
+					You can change the default chunk size in a movie file by adjusting the chunk properties of a movie track prior to writing the track's sample data 
+					to a media storage container. A larger chunk size can result in fewer reads from the storage container, at the potential expense of a larger memory footprint.
+ 
+					The preferredMediaChunkSize property restricts the size of the chunks to a maximum number of bytes, and the preferredMediaChunkDuration property restricts
+					the size of the chunks to a maximum duration. Note that these settings are not mutually exclusive: a chunk ends when either the preferred chunk size or the preferred chunk duration is reached.
+*/
+
+/*!
+	@property       preferredMediaChunkSize
+	@abstract       For file types that support media chunk sizes, the maximum size (in bytes) to be used for each chunk of sample data written to the file.
+	@discussion		The total size of the samples in a chunk will be no larger than this preferred chunk size, or the size of a single sample if the sample is larger than this preferred chunk size.
+ 
+					The default media chunk size is 1024 * 1024 bytes. It is an error to set a negative chunk size.
+*/
+@property (nonatomic) NSInteger preferredMediaChunkSize;
+
+/*!
+	@property		preferredMediaChunkDuration
+	@abstract		For file types that support media chunk durations, the maximum duration to be used for each chunk of sample data written to the file.
+ 
+	@discussion		The total duration of the samples in a chunk will be no greater than this preferred chunk duration, or the duration of a single sample if the sample's duration is greater than this preferred chunk duration.
+ 
+					The default media chunk duration is 1.0 second. It is an error to set a chunk duration that is negative or non-numeric.
+ */
+@property (nonatomic) CMTime preferredMediaChunkDuration;
+
+/*!
+	@property		preferredMediaChunkAlignment
+	@abstract		For file types that support media chunk alignment, the boundary for media chunk alignment (in bytes).
+ 
+	@discussion		The default value is 0, which means that no padding should be used to achieve chunk alignment. It is an error to set a negative value for chunk alignment.
+*/
+@property (nonatomic) NSInteger preferredMediaChunkAlignment;
+
+@end
+
+
+@interface AVMutableMovieTrack (AVMutableMovieTrackTrackLevelEditing)
+
+/*!
+	@method			insertTimeRange:ofTrack:atTime:copySampleData:error:
+	@abstract		Inserts a portion of an AVAssetTrack object into the target movie.
+	@param			timeRange
+					The time range from the track from which media is to be inserted.
+	@param			track
+					An AVAssetTrack object indicating the source of the inserted media. Only AVAssetTracks of AVURLAssets and AVCompositions are supported.
+					Must not be nil.
+	@param			startTime
+					The time in the target track at which the media is to be inserted.
+	@param			copySampleData
+                    A BOOL value that indicates whether sample data is to be copied form the source to the destination during edits.
+					If YES, the sample data is written to the file specified by the track property mediaDataStorage if non-nil,
+					or else by the movie property defaultMediaDataStorage if non-nil; if both are nil, the method will fail and return NO.
+					If NO, sample data will not be written and sample references to the samples in their original container will be added
+					as necessary. Note that in this case, this method will fail if the original samples are fragmented.
+	@param			outError
+					If the insertion fails, describes the nature of the failure.
+	@result			A BOOL value that indicates the success of the insertion.
+
+*/
+- (BOOL)insertTimeRange:(CMTimeRange)timeRange ofTrack:(AVAssetTrack *)track atTime:(CMTime)startTime copySampleData:(BOOL)copySampleData error:(NSError * _Nullable * _Nullable)outError;
+
+/*!
+	@method			insertEmptyTimeRange:
+	@abstract		Adds an empty time range to the target track.
+	@param			timeRange
+					The time range to be made empty. Note that you cannot add empty time ranges to the end of a track.
+*/
+- (void)insertEmptyTimeRange:(CMTimeRange)timeRange;
+
+/*!
+	@method			removeTimeRange:
+	@abstract		Removes a specified time range from a track.
+	@param			timeRange
+					The time range to be removed.
+*/
+- (void)removeTimeRange:(CMTimeRange)timeRange;
+
+/*!
+	@method			scaleTimeRange:toDuration:
+	@abstract		Changes the duration of a time range of a track.
+	@param			timeRange
+					The time range to be scaled.
+	@param			duration
+					The new duration of the time range.
+*/
+- (void)scaleTimeRange:(CMTimeRange)timeRange toDuration:(CMTime)duration;
+
+@end
+
+
+@interface AVMutableMovieTrack (AVMutableMovieTrackMetadataEditing)
+
+/*!
+	@property       metadata
+	@abstract       A collection of metadata stored by the track.
+	@discussion     The value of this property is an array of AVMetadataItem objects representing the collection of metadata stored by the track.
+*/
+@property (nonatomic, copy) NSArray<AVMetadataItem *> *metadata;
+
+@end
+
+
+@interface AVMutableMovieTrack (AVMutableMovieTrackTrackAssociations)
+
+/*!
+	@method			addTrackAssociationToTrack:type:
+	@abstract		Establishes a track association of a specific type between two tracks.
+	@param			movieTrack
+					An AVMovieTrack object that is to be associated with the receiver.
+	@param			trackAssociationType
+					The type of track association to add between the receiver and the specified movieTrack (for instance, AVTrackAssociationTypeChapterList).
+*/
+- (void)addTrackAssociationToTrack:(AVMovieTrack *)movieTrack type:(AVTrackAssociationType)trackAssociationType;
+
+/*!
+	@method			removeTrackAssociationToTrack:type:
+	@abstract		Removes a track association of a specific type between two tracks.
+	@param			movieTrack
+					An AVMovieTrack object that is associated with the receiver.
+	@param			trackAssociationType
+					The type of track association to remove between the receiver and the specified movieTrack (for instance, AVTrackAssociationTypeChapterList).
+*/
+- (void)removeTrackAssociationToTrack:(AVMovieTrack *)movieTrack type:(AVTrackAssociationType)trackAssociationType;
+
+@end
+
+@interface AVMutableMovieTrack (AVMutableMovieTrackFormatDescriptions)
+
+/*!
+	@method			replaceFormatDescription:withFormatDescription:
+	@abstract		Replaces one of the receiver's format descriptions with another format description
+	@param			formatDescription
+					A CMFormatDescription occurring in the array returned by the -formatDescriptions method.
+	@param			newFormatDescription
+					A CMFormatDescription to replace the specified format description.
+	@discussion     You can use this method to make surgical changes to a track's format descriptions, such as adding format description extensions to a format description or changing the audio channel layout of an audio track. You should note that a format description can have extensions of type kCMFormatDescriptionExtension_VerbatimSampleDescription and kCMFormatDescriptionExtension_VerbatimISOSampleEntry; if you modify a copy of a format description, you should delete those extensions from the copy or your changes might be ignored.
+ 
+					An NSInvalidArgumentException will be thrown if the media type of the new format description does not match the media type of the receiver.
+*/
+- (void)replaceFormatDescription:(CMFormatDescriptionRef)formatDescription withFormatDescription:(CMFormatDescriptionRef)newFormatDescription API_AVAILABLE(macos(10.13), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+@end
+
+
+@interface AVMutableMovieTrack (AVMutableMovieTrackSampleLevelEditing)
+
+/*!
+	@method			appendSampleBuffer:decodeTime:presentationTime:error:
+	@abstract		Appends sample data to a media file and adds sample references for the added data to a track's media sample tables.
+	@param			sampleBuffer
+					The CMSampleBuffer to be appended; this may be obtained from an instance of AVAssetReader.
+	@param			outDecodeTime
+					A pointer to a CMTime structure to receive the decode time in the media of the first sample appended from the sample buffer. Pass NULL if you do not need this information.
+	@param			outPresentationTime
+					A pointer to a CMTime structure to receive the presentation time in the media of the first sample appended from the sample buffer. Pass NULL if you do not need this information.
+	@param			outError
+					If the appending fails, describes the nature of the failure. For example, if the device containing the track's media data storage is full, AVErrorDiskFull is returned.
+	@result			A BOOL value indicating the success of the operation.
+	@discussion
+                    If the sample buffer carries sample data, the sample data is written to the container specified by the track property mediaDataStorage if non-nil,
+                    or else by the movie property defaultMediaDataStorage if non-nil, and sample references will be appended to the track's media.
+                    If both media data storage properties are nil, the method will fail and return NO.
+                    If the sample buffer carries sample references only, sample data will not be written and sample references to the samples in their
+                    original container will be appended to the track's media as necessary.
+
+                    Note regarding sample timing: in a track's media, the first sample's decode timestamp must always be zero.
+                    For an audio track, each sample buffer's duration is used as the sample decode duration.
+                    For other track types, difference between a sample's decode timestamp and the following 
+                    sample's decode timestamp is used as the first sample's decode duration, so as to preserve the relative timing.
+                    
+                    Note that this method does not modify the track's sourceTimeMappings but only appends sample references and sample data to the track's media.  
+                    To make the new samples appear in the track's timeline, invoke -insertMediaTimeRange:intoTimeRange:.
+                    You can retrieve the mediaPresentationTimeRange property before and after appending a sequence of samples,
+                    using CMTimeRangeGetEnd on each to calculate the media TimeRange for -insertMediaTimeRange:intoTimeRange:.
+
+                    It's safe for multiple threads to call this method on different tracks at once.
+*/
+- (BOOL)appendSampleBuffer:(CMSampleBufferRef)sampleBuffer decodeTime:(nullable CMTime *)outDecodeTime presentationTime:(nullable CMTime *)outPresentationTime error:(NSError * _Nullable * _Nullable)outError API_AVAILABLE(macos(10.12), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+	@method			insertMediaTimeRange:intoTimeRange:
+	@abstract		Inserts a reference to a media time range into a track.
+	@param			mediaTimeRange
+					The presentation time range of the media to be inserted.
+	@param			trackTimeRange
+					The time range of the track into which the media is to be inserted.
+    @result			A BOOL value indicating the success of the operation.
+	@discussion
+                    Use this method after you have appended samples or sample references to a track's media.
+                    
+                    To specify that the media time range be played at its natural rate, pass mediaTimeRange.duration == trackTimeRange.duration;
+                    otherwise, the ratio between these is used to determine the playback rate.
+                    
+                    Pass kCMTimeInvalid for trackTimeRange.start to indicate that the segment should be appended to the end of the track.
+*/
+- (BOOL)insertMediaTimeRange:(CMTimeRange)mediaTimeRange intoTimeRange:(CMTimeRange)trackTimeRange API_AVAILABLE(macos(10.12), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+@end
+
+
+#pragma mark --- AVFragmentedMovieTrack ---
+/*!
+	@class			AVFragmentedMovieTrack
+	@abstract		A subclass of AVMovieTrack for handling tracks of fragmented movie files. An AVFragmentedMovieTrack is capable of changing the values of certain of its properties, if its parent movie is associated with an instance of AVFragmentedMovieMinder when one or more movie fragments are appended to the movie file.
+*/
+
+/*!
+ @constant       AVFragmentedMovieTrackTimeRangeDidChangeNotification
+ @abstract       Posted when the timeRange of an AVFragmentedMovieTrack changes while the associated instance of AVFragmentedMovie is being minded by an AVFragmentedMovieMinder, but only for changes that occur after the status of the value of @"timeRange" has reached AVKeyValueStatusLoaded.
+*/
+AVF_EXPORT NSString *const AVFragmentedMovieTrackTimeRangeDidChangeNotification API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+ @constant       AVFragmentedMovieTrackSegmentsDidChangeNotification
+ @abstract       Posted when the array of segments of an AVFragmentedMovieTrack changes while the associated instance of AVFragmentedMovie is being minded by an AVFragmentedMovieMinder, but only for changes that occur after the status of the value of @"segments" has reached AVKeyValueStatusLoaded.
+*/
+AVF_EXPORT NSString *const AVFragmentedMovieTrackSegmentsDidChangeNotification API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+ @constant       AVFragmentedMovieTrackTotalSampleDataLengthDidChangeNotification
+ @discussion     This notification name has been deprecated. Use either AVFragmentedMovieTrackTimeRangeDidChangeNotification or AVFragmentedMovieTrackSegmentsDidChangeNotification instead; in either case, you can assume that timing changes to fragmented tracks result in changes to the total length of the sample data used by the track.
+*/
+AVF_EXPORT NSString *const AVFragmentedMovieTrackTotalSampleDataLengthDidChangeNotification API_DEPRECATED("Upon receipt of either AVFragmentedMovieTrackTimeRangeDidChangeNotification or AVFragmentedMovieTrackSegmentsDidChangeNotification, you can assume that the sender's totalSampleDataLength has changed.", macos(10.10, 10.11)) API_UNAVAILABLE(ios, tvos, watchos);
+
+@class AVFragmentedMovieTrackInternal;
+
+API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos)
+@interface AVFragmentedMovieTrack : AVMovieTrack
+{
+@private
+	AVFragmentedMovieTrackInternal	*_fragmentedMovieTrack __attribute__((unused));
+}
 
 @end
 
@@ -3837,6 +4425,8 @@ API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHI
  
  @discussion
     The value of this property is a CGRect that determines the receiver's rectangle of interest for each frame of video. The rectangle's origin is top left and is relative to the coordinate space of the device providing the metadata. Specifying a rectOfInterest may improve detection performance for certain types of metadata. The default value of this property is the value CGRectMake(0, 0, 1, 1). Metadata objects whose bounds do not intersect with the rectOfInterest will not be returned.
+ 
+    As of iOS 13, this property can be set without requiring a lengthy rebuild of the session in which video preview is disrupted.
  */
 @property(nonatomic) CGRect rectOfInterest API_AVAILABLE(ios(7.0));
 
@@ -3938,7 +4528,7 @@ typedef struct {
 
 @class AVVideoCompositionRenderContextInternal;
 
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVVideoCompositionRenderContext : NSObject {
 @private
 	AVVideoCompositionRenderContextInternal	*_internal;
@@ -3978,6 +4568,26 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 @end
 
+/*!
+	@class		AVVideoCompositionRenderHint
+	@abstract	An AVVideoCompositionRenderHint instance contains the information necessary for announcing upcoming rendering request time ranges.
+*/
+
+@class AVVideoCompositionRenderHintInternal;
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos)
+@interface AVVideoCompositionRenderHint : NSObject {
+@private
+	AVVideoCompositionRenderHintInternal *_internal;
+}
+
+/*! The start time of the upcoming composition requests. */
+@property (nonatomic, readonly) CMTime startCompositionTime;
+
+/*! The end time of the upcoming composition requests. */
+@property (nonatomic, readonly) CMTime endCompositionTime;
+
+@end
 
 /*!
 	@protocol		AVVideoCompositing
@@ -3989,7 +4599,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 		Custom video compositor instances will then be retained by the AVFoundation object for as long as the value of its videoComposition property indicates that an instance of the same custom video compositor class should be used, even if the value is changed from one instance of AVVideoComposition to another instance that's associated with the same custom video compositor class.
 */
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @protocol AVVideoCompositing<NSObject>
 
 @required
@@ -4067,7 +4677,41 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
  @discussion 
 	Controls whether the client will receive frames that contain wide color information. Care should be taken to avoid clamping.
  */
-@property (nonatomic, readonly) BOOL supportsWideColorSourceFrames NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, readonly) BOOL supportsWideColorSourceFrames API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+
+/*!
+	@method			anticipateRenderingUsingHint:
+	@abstract		Informs a custom video compositor about upcoming rendering requests.
+	@param			renderHint
+					Information about the upcoming composition requests.
+	@discussion
+		In the method the compositor can load composition resources such as overlay images which will be needed in the anticipated rendering time range.
+
+		Unlike -startVideoCompositionRequest, which is invoked only when the frame compositing is necessary, the framework typically calls this method every frame duration. It allows the custom compositor to load and unload a composition resource such as overlay images at an appropriate timing.
+
+		In forward playback, renderHint's startCompositionTime is less than endCompositionTime. In reverse playback, its endCompositionTime is less than startCompositionTime. For seeking, startCompositionTime == endCompositionTime, which means the upcoming composition request time range is unknown and the compositor shouldn’t preload time associated composition resources eagerly.
+
+		The method is guaranteed to be called before -startVideoCompositionRequest: for a given composition time.
+
+		The method is synchronous. The implementation should return quickly because otherwise the playback would stall and cause frame drops.
+*/
+- (void)anticipateRenderingUsingHint:(AVVideoCompositionRenderHint *)renderHint API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+/*!
+	@method			prerollForRenderingUsingHint:
+	@abstract		Tell a custom video compositor to perform any work in prerolling phase.
+	@param			renderHint
+					Information about the upcoming composition requests.
+	@discussion
+		The framework may perform prerolling to load media data to prime the render pipelines for smoother playback. This method is called in the prerolling phase so that the compositor can load composition resources such as overlay images which will be needed as soon as the playback starts.
+
+		Not all rendering scenarios use prerolling. For example, the method won't be called while seeking.
+
+		If called, the method is guaranteed to be invoked before the first -startVideoCompositionRequest: call.
+
+		The method is synchronous. The prerolling won't finish until the method returns.
+*/
+-(void)prerollForRenderingUsingHint:(AVVideoCompositionRenderHint *)renderHint API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -4079,7 +4723,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 @class AVAsynchronousVideoCompositionRequestInternal;
 
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAsynchronousVideoCompositionRequest : NSObject <NSCopying> {
 @private
 	AVAsynchronousVideoCompositionRequestInternal *_internal;
@@ -4126,7 +4770,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 @class CIImage;
 @class CIContext;
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAsynchronousCIImageFilteringRequest : NSObject <NSCopying> {
 @private
 	AVAsynchronousCIImageFilteringRequestInternal *_internal;
@@ -4159,7 +4803,7 @@ It is safe to pass in the sourceImage in which case the filter will appear to ha
  
 	@abstract	The AVVideoCompositionInstruction protocol is implemented by objects to represent operations to be performed by a compositor.
 */
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @protocol AVVideoCompositionInstruction<NSObject>
 
 @required
@@ -4216,7 +4860,7 @@ NS_ASSUME_NONNULL_BEGIN
 	@abstract	AVMetadataGroup is the common superclass for AVTimedMetadataGroup and AVDateRangeMetadataGroup; each represents a collection of metadata items associated with a segment of a timeline. AVTimedMetadataGroup is typically used with content that defines an independent timeline, while AVDateRangeMetadataGroup is typically used with content that's associated with a specific range of dates.
 */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0))
 @interface AVMetadataGroup : NSObject
 
 @property (nonatomic, readonly, copy) NSArray<AVMetadataItem *> *items;
@@ -4226,10 +4870,10 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 @interface AVMetadataGroup (AVMetadataGroupIdentification)
 
 /* indicates the classifyingLabel of the group; nil if no classifyingLabel is indicated */
-@property (nonatomic, readonly, nullable) NSString *classifyingLabel NS_AVAILABLE(10_11_3, 9_3);
+@property (nonatomic, readonly, nullable) NSString *classifyingLabel API_AVAILABLE(macos(10.11.3), ios(9.3), tvos(9.3), watchos(2.3));
 
 /* indicates the unique identifier of the group; nil if no unique identifier is indicated */
-@property (nonatomic, readonly, nullable) NSString *uniqueID NS_AVAILABLE(10_11_3, 9_3);
+@property (nonatomic, readonly, nullable) NSString *uniqueID API_AVAILABLE(macos(10.11.3), ios(9.3), tvos(9.3), watchos(2.3));
 
 @end
 
@@ -4239,7 +4883,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 	@abstract	AVTimedMetadataGroup is used to represent a collection of metadata items that are valid for use during a specific range of time. For example, AVTimedMetadataGroups are used to represent chapters, optionally containing metadata items for chapter titles and chapter images.
 */
 
-NS_CLASS_AVAILABLE(10_7, 4_3)
+API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0))
 @interface AVTimedMetadataGroup : AVMetadataGroup <NSCopying, NSMutableCopying>
 {
 @private
@@ -4264,7 +4908,7 @@ NS_CLASS_AVAILABLE(10_7, 4_3)
 				A CMSampleBuffer with media type kCMMediaType_Metadata.
 	@result		An instance of AVTimedMetadataGroup.
 */
-- (nullable instancetype)initWithSampleBuffer:(CMSampleBufferRef)sampleBuffer NS_AVAILABLE(10_10, 8_0);
+- (nullable instancetype)initWithSampleBuffer:(CMSampleBufferRef)sampleBuffer API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* indicates the time range of the timed metadata */
 @property (nonatomic, readonly) CMTimeRange timeRange;
@@ -4285,7 +4929,7 @@ NS_CLASS_AVAILABLE(10_7, 4_3)
  
 		Each item referenced by the receiver must carry a non-nil value for its dataType property.  An exception will be thrown if any item does not have a data type.
 */
-- (nullable CMMetadataFormatDescriptionRef)copyFormatDescription NS_AVAILABLE(10_10, 8_0) CF_RETURNS_RETAINED;
+- (nullable CMMetadataFormatDescriptionRef)copyFormatDescription API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0)) CF_RETURNS_RETAINED;
 
 @end
 
@@ -4295,7 +4939,7 @@ NS_CLASS_AVAILABLE(10_7, 4_3)
 	@abstract	AVMutableTimedMetadataGroup is used to represent a mutable collection of metadata items that are valid for use during a specific range of time.
 */
 
-NS_CLASS_AVAILABLE(10_7, 4_3)
+API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0))
 @interface AVMutableTimedMetadataGroup : AVTimedMetadataGroup
 {
 @private
@@ -4316,7 +4960,7 @@ NS_CLASS_AVAILABLE(10_7, 4_3)
 	@abstract	AVDateRangeMetadataGroup is used to represent a collection of metadata items that are valid for use within a specific range of dates.
 */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0))
 @interface AVDateRangeMetadataGroup : AVMetadataGroup <NSCopying, NSMutableCopying>
 {
 @private
@@ -4353,7 +4997,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 	@abstract	AVMutableDateRangeMetadataGroup is used to represent a mutable collection of metadata items that are valid for use within a specific range of dates.
 */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0))
 @interface AVMutableDateRangeMetadataGroup : AVDateRangeMetadataGroup
 {
 @private
@@ -4475,7 +5119,7 @@ AV_INIT_UNAVAILABLE
     Returns an AVPortraitEffectsMatte instance wrapping the replacement pixel buffer.
  
  @param pixelBuffer
-    A pixel buffer containing a portrait effects matting image, represented as kCVPixelFormatType_OneComponent8 with kCVImageBufferColorPrimaries_ITU_R_709_2 color primaries and a kCVImageBufferTransferFunction_Linear transfer function.
+    A pixel buffer containing a portrait effects matting image, represented as kCVPixelFormatType_OneComponent8 with a kCVImageBufferTransferFunction_Linear transfer function.
  @param outError
     On return, if the AVPortraitEffectsMatte cannot be created, points to an NSError describing the problem.
  @result
@@ -4530,7 +5174,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
  
-	Copyright 2010-2017 Apple Inc. All rights reserved.
+	Copyright 2010-2018 Apple Inc. All rights reserved.
 
 */
 
@@ -4571,7 +5215,7 @@ typedef NSString * AVAssetImageGeneratorApertureMode NS_STRING_ENUM;
 	@discussion
 		An image's clean aperture is a region of video free from transition artifacts caused by the encoding of the signal.
 */
-AVF_EXPORT AVAssetImageGeneratorApertureMode const AVAssetImageGeneratorApertureModeCleanAperture NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVAssetImageGeneratorApertureMode const AVAssetImageGeneratorApertureModeCleanAperture API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
 	@constant		AVAssetImageGeneratorApertureModeProductionAperture
@@ -4579,7 +5223,7 @@ AVF_EXPORT AVAssetImageGeneratorApertureMode const AVAssetImageGeneratorAperture
 	@discussion
 		The image is not cropped to the clean aperture region, but it is scaled according to the pixel aspect ratio. Use this option when you want to see all the pixels in your video, including the edges.
 */
-AVF_EXPORT AVAssetImageGeneratorApertureMode const AVAssetImageGeneratorApertureModeProductionAperture NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVAssetImageGeneratorApertureMode const AVAssetImageGeneratorApertureModeProductionAperture API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
 	@constant		AVAssetImageGeneratorApertureModeEncodedPixels
@@ -4587,16 +5231,16 @@ AVF_EXPORT AVAssetImageGeneratorApertureMode const AVAssetImageGeneratorAperture
 	@discussion
 		The image is not cropped to the clean aperture region and is not scaled according to the pixel aspect ratio. The encoded dimensions of the image description are displayed.
 */
-AVF_EXPORT AVAssetImageGeneratorApertureMode const AVAssetImageGeneratorApertureModeEncodedPixels NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVAssetImageGeneratorApertureMode const AVAssetImageGeneratorApertureModeEncodedPixels API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 typedef NS_ENUM(NSInteger, AVAssetImageGeneratorResult)
 {
-	AVAssetImageGeneratorSucceeded,
-	AVAssetImageGeneratorFailed,
-	AVAssetImageGeneratorCancelled,
+	AVAssetImageGeneratorSucceeded = 0,
+	AVAssetImageGeneratorFailed = 1,
+	AVAssetImageGeneratorCancelled = 2,
 };
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetImageGenerator : NSObject
 {
 @private
@@ -4605,7 +5249,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 AV_INIT_UNAVAILABLE
 
 /* Indicates the instance of AVAsset with which the AVAssetImageGenerator was initialized  */ 
-@property (nonatomic, readonly) AVAsset *asset NS_AVAILABLE(10_9, 6_0);
+@property (nonatomic, readonly) AVAsset *asset API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* Specifies whether or not to apply the track's preferredTransform (see -[AVAssetTrack preferredTransform]) when extracting an image from the asset.
    Default is NO.  Only rotation by 90, 180, or 270 degrees is supported. */
@@ -4625,13 +5269,13 @@ AV_INIT_UNAVAILABLE
 @property (nonatomic, copy, nullable) AVVideoComposition *videoComposition;
 
 /* Indicates the custom video compositor instance used, if any */
-@property (nonatomic, readonly, nullable) id <AVVideoCompositing> customVideoCompositor NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly, nullable) id <AVVideoCompositing> customVideoCompositor API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* The actual time of the generated images will be within the range [requestedTime-toleranceBefore, requestedTime+toleranceAfter] and may differ from the requested time for efficiency.
    Pass kCMTimeZero for both toleranceBefore and toleranceAfter to request frame-accurate image generation; this may incur additional decoding delay.
    Default is kCMTimePositiveInfinity. */
-@property (nonatomic) CMTime requestedTimeToleranceBefore NS_AVAILABLE(10_7, 5_0);
-@property (nonatomic) CMTime requestedTimeToleranceAfter NS_AVAILABLE(10_7, 5_0);
+@property (nonatomic) CMTime requestedTimeToleranceBefore API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+@property (nonatomic) CMTime requestedTimeToleranceAfter API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
 	@method			assetImageGeneratorWithAsset:
@@ -4796,7 +5440,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AVCompositionInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVComposition : AVAsset <NSMutableCopying>
 {
 @private
@@ -4822,7 +5466,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
       AVCompositions create AVURLAssets internally for URLs specified by AVCompositionTrackSegments of AVCompositionTracks, as needed, whenever AVCompositionTrackSegments were originally added to a track via -[AVMutableCompositionTrack setSegments:] rather than by inserting timeranges of already existing AVAssets or AVAssetTracks.
       The value of URLAssetInitializationOptions can be specified at the time an AVMutableComposition is created via +compositionWithURLAssetInitializationOptions:.
  */
-@property (nonatomic, readonly, copy) NSDictionary<NSString *, id> *URLAssetInitializationOptions NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readonly, copy) NSDictionary<NSString *, id> *URLAssetInitializationOptions API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 @end
 
@@ -4866,7 +5510,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @class AVMutableCompositionInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVMutableComposition : AVComposition
 {
 @private
@@ -4901,7 +5545,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
     @discussion
       AVMutableCompositions create AVURLAssets internally for URLs specified by AVCompositionTrackSegments of AVMutableCompositionTracks, as needed, whenever AVCompositionTrackSegments are added to tracks via -[AVMutableCompositionTrack setSegments:] rather than by inserting timeranges of already existing AVAssets or AVAssetTracks.
  */
-+ (instancetype)compositionWithURLAssetInitializationOptions:(nullable NSDictionary<NSString *, id> *)URLAssetInitializationOptions NS_AVAILABLE(10_11, 9_0);
++ (instancetype)compositionWithURLAssetInitializationOptions:(nullable NSDictionary<NSString *, id> *)URLAssetInitializationOptions API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 @end
 
@@ -5072,15 +5716,7 @@ NS_ASSUME_NONNULL_END
 */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_WATCH
-#if ! __has_include(<AVFoundation/AVAnimation.h>)
-#define AVF_IS_WATCHOS_SDK 1
-#endif
-#endif
-
 #import <AVFoundation/AVBase.h>
-
-#if ! AVF_IS_WATCHOS_SDK
 #import <AVFoundation/AVAnimation.h>
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetCache.h>
@@ -5121,19 +5757,18 @@ NS_ASSUME_NONNULL_END
 #import <AVFoundation/AVComposition.h>
 #import <AVFoundation/AVCompositionTrack.h>
 #import <AVFoundation/AVCompositionTrackSegment.h>
+#if __has_include(<AVFoundation/AVDepthData.h>)
 #import <AVFoundation/AVDepthData.h>
-#import <AVFoundation/AVPortraitEffectsMatte.h>
-#import <AVFoundation/AVError.h>
 #endif
-
+#import <AVFoundation/AVPortraitEffectsMatte.h>
+#import <AVFoundation/AVSemanticSegmentationMatte.h>
+#import <AVFoundation/AVError.h>
 #import <AVFoundation/AVFAudio.h>
-
-#if ! AVF_IS_WATCHOS_SDK
 #import <AVFoundation/AVMediaFormat.h>
 #import <AVFoundation/AVMediaSelection.h>
 #import <AVFoundation/AVMediaSelectionGroup.h>
 #import <AVFoundation/AVMetadataFormat.h>
-#import <AVFoundation/AVMetadataIdentifiers.h> 
+#import <AVFoundation/AVMetadataIdentifiers.h>
 #import <AVFoundation/AVMetadataItem.h>
 #import <AVFoundation/AVMetadataObject.h>
 #if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
@@ -5169,7 +5804,6 @@ NS_ASSUME_NONNULL_END
 #import <AVFoundation/AVVideoCompositing.h>
 #import <AVFoundation/AVVideoComposition.h>
 #import <AVFoundation/AVVideoSettings.h>
-#endif
 #if TARGET_OS_TV
 #import <AVFoundation/AVDisplayCriteria.h>
 #endif
@@ -5196,7 +5830,7 @@ NS_ASSUME_NONNULL_BEGIN
   @class		AVSampleBufferRenderSynchronizer
   @abstract		AVSampleBufferRenderSynchronizer can synchronize multiple objects conforming to AVQueuedSampleBufferRendering to a single timebase.
 */
-API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
 @interface AVSampleBufferRenderSynchronizer : NSObject
 {
 @private
@@ -5229,7 +5863,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED
 	@discussion
 		The rate can change as a result of setting the rate property, either by directly setting the property or calling -setRate:time:.  The rate can also change at any time, without any action by the client of the render synchronizer.  For example, on iOS if the app's playback is interrupted (e.g. by a phone call or another non-mixable app starting playback), the rate will automatically be set to zero.  This notification will be sent in all of those cases.
  */
-AVF_EXPORT NSNotificationName const AVSampleBufferRenderSynchronizerRateDidChangeNotification API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) __WATCHOS_PROHIBITED;
+AVF_EXPORT NSNotificationName const AVSampleBufferRenderSynchronizerRateDidChangeNotification API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
 
 /*!
 	@method			currentTime
@@ -5237,7 +5871,7 @@ AVF_EXPORT NSNotificationName const AVSampleBufferRenderSynchronizerRateDidChang
 	@result			A CMTime
 	@discussion		Returns the current time of the synchronizer. Not key-value observable; use -addPeriodicTimeObserverForInterval:queue:usingBlock: instead.
 */
-- (CMTime)currentTime API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) __WATCHOS_PROHIBITED;
+- (CMTime)currentTime API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
 
 /*!
 	@method			setRate:time:
@@ -5385,7 +6019,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class AVMediaSelectionInternal;
 @class AVMutableMediaSelectionInternal;
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0))
 @interface AVMediaSelection : NSObject <NSCopying, NSMutableCopying>
 {
 @private
@@ -5421,7 +6055,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 @end
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0))
 @interface AVMutableMediaSelection : AVMediaSelection
 /*!
  @method		selectMediaOption:inMediaSelectionGroup:
@@ -5462,7 +6096,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVAssetTrackSegment : NSObject
 {
 @private
@@ -5502,7 +6136,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AVTextStyleRuleInternal;
 
-NS_CLASS_AVAILABLE(10_9, 6_0)
+API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVTextStyleRule : NSObject <NSCopying> {
 @private
 	AVTextStyleRuleInternal *_textStyleRule;
@@ -5626,7 +6260,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     For instance, if you specify a video data output as your first (master) output and a metadata output for detected faces as your second output, your data callback will not be called until there is face data ready for a video frame, or it is assured that there is no face metadata for that particular video frame.
  
-    Note that the AVCaptureDataOutputSynchronizer overrides each data output's -setSampleBufferDelegate:queue:, -setDepthDataDelegate:queue:, or -setMetadataObjectsDelegate:queue: method call. -[AVCaptureVideoDataOutput alwaysDiscardsLateVideoFrames] and -[AVCaptureDepthData alwaysDiscardsLateDepthData] properties are honored.
+    Note that the AVCaptureDataOutputSynchronizer overrides each data output's -setSampleBufferDelegate:queue:, -setDepthDataDelegate:queue:, or -setMetadataObjectsDelegate:queue: method call. -[AVCaptureVideoDataOutput alwaysDiscardsLateVideoFrames] and -[AVCaptureDepthDataOutput alwaysDiscardsLateDepthData] properties are honored.
  */
 API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 @interface AVCaptureDataOutputSynchronizer : NSObject
@@ -5967,7 +6601,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
  
-	Copyright 2010-2018 Apple Inc. All rights reserved.
+	Copyright 2010-2019 Apple Inc. All rights reserved.
 
 */
 
@@ -6020,7 +6654,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class AVDisplayCriteria;
 @class AVAssetInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
 {
 @private
@@ -6055,13 +6689,20 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 /*	The following property is deprecated. Instead, use the naturalSize and preferredTransform, as appropriate, of the receiver's video tracks. See -tracksWithMediaType: below.
 */
-@property (nonatomic, readonly) CGSize naturalSize NS_DEPRECATED(10_7, 10_8, 4_0, 5_0);
+@property (nonatomic, readonly) CGSize naturalSize API_DEPRECATED("No longer supported", macos(10.7, 10.8), ios(4.0, 5.0), tvos(9.0, 9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property	preferredDisplayCriteria
  @abstract	Guides to a display mode that is optimal for playing this particular asset.
  */
 @property (nonatomic, readonly) AVDisplayCriteria *preferredDisplayCriteria API_AVAILABLE(tvos(11.2)) API_UNAVAILABLE(ios) API_UNAVAILABLE(macos, watchos);
+
+/*!
+ @property		minimumTimeOffsetFromLive
+ @abstract		Indicates how close to the latest content in a live stream playback can be sustained.
+ @discussion	For non-live assets this value is kCMTimeInvalid.
+ */
+@property (nonatomic, readonly) CMTime minimumTimeOffsetFromLive API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
 
 @end
 
@@ -6108,6 +6749,8 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
 	AVAssetReferenceRestrictionForbidCrossSiteReference = (1UL << 2),
 	AVAssetReferenceRestrictionForbidLocalReferenceToLocal = (1UL << 3),
 	AVAssetReferenceRestrictionForbidAll = 0xFFFFUL,
+	
+	AVAssetReferenceRestrictionDefaultPolicy = AVAssetReferenceRestrictionForbidLocalReferenceToRemote
 };
 
 /*!
@@ -6116,7 +6759,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
   @discussion
 	For AVURLAsset, this property reflects the value passed in for AVURLAssetReferenceRestrictionsKey, if any. See AVURLAssetReferenceRestrictionsKey below for a full discussion of reference restrictions. The default value for this property is AVAssetReferenceRestrictionForbidNone.
 */
-@property (nonatomic, readonly) AVAssetReferenceRestrictions referenceRestrictions NS_AVAILABLE(10_7, 5_0);
+@property (nonatomic, readonly) AVAssetReferenceRestrictions referenceRestrictions API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -6169,7 +6812,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
  @discussion
 	The value of this property is an NSArray of AVAssetTrackGroups, each representing a different grouping of tracks in the receiver.
  */
-@property (nonatomic, readonly) NSArray<AVAssetTrackGroup *> *trackGroups NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) NSArray<AVAssetTrackGroup *> *trackGroups API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -6180,7 +6823,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
 
 /* Indicates the creation date of the asset as an AVMetadataItem. May be nil. If a creation date has been stored by the asset in a form that can be converted to an NSDate, the dateValue property of the AVMetadataItem will provide an instance of NSDate. Otherwise the creation date is available only as a string value, via -[AVMetadataItem stringValue].
 */
-@property (nonatomic, readonly, nullable) AVMetadataItem *creationDate NS_AVAILABLE(10_8, 5_0);
+@property (nonatomic, readonly, nullable) AVMetadataItem *creationDate API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /* Provides access to the lyrics of the asset suitable for the current locale.
 */
@@ -6192,7 +6835,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
 
 /* Provides access to an array of AVMetadataItems for all metadata identifiers for which a value is available; items can be filtered according to language via +[AVMetadataItem metadataItemsFromArray:filteredAndSortedAccordingToPreferredLanguages:] and according to identifier via +[AVMetadataItem metadataItemsFromArray:filteredByIdentifier:].
 */
-@property (nonatomic, readonly) NSArray<AVMetadataItem *> *metadata NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readonly) NSArray<AVMetadataItem *> *metadata API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* Provides an NSArray of NSStrings, each representing a metadata format that's available to the asset (e.g. ID3, iTunes metadata, etc.). Metadata formats are defined in AVMetadataFormat.h.
 */
@@ -6217,7 +6860,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
 
 /* array of NSLocale
 */
-@property (readonly) NSArray<NSLocale *> *availableChapterLocales NS_AVAILABLE(10_7, 4_3);
+@property (readonly) NSArray<NSLocale *> *availableChapterLocales API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
 
 /*!
   @method		chapterMetadataGroupsWithTitleLocale:containingMetadataItemsWithCommonKeys:
@@ -6235,7 +6878,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
  
 	Further filtering of the metadata items in AVTimedMetadataGroups according to language can be accomplished using +[AVMetadataItem metadataItemsFromArray:filteredAndSortedAccordingToPreferredLanguages:]; filtering of the metadata items according to locale can be accomplished using +[AVMetadataItem metadataItemsFromArray:withLocale:].
 */
-- (NSArray<AVTimedMetadataGroup *> *)chapterMetadataGroupsWithTitleLocale:(NSLocale *)locale containingItemsWithCommonKeys:(nullable NSArray<AVMetadataKey> *)commonKeys NS_AVAILABLE(10_7, 4_3);
+- (NSArray<AVTimedMetadataGroup *> *)chapterMetadataGroupsWithTitleLocale:(NSLocale *)locale containingItemsWithCommonKeys:(nullable NSArray<AVMetadataKey> *)commonKeys API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
 
 /*!
  @method		chapterMetadataGroupsBestMatchingPreferredLanguages:
@@ -6253,7 +6896,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
  Further filtering of the metadata items in AVTimedMetadataGroups according to language can be accomplished using +[AVMetadataItem metadataItemsFromArray:filteredAndSortedAccordingToPreferredLanguages:]; filtering of the metadata items according to locale can be accomplished using +[AVMetadataItem metadataItemsFromArray:withLocale:].
 .
 */
-- (NSArray<AVTimedMetadataGroup *> *)chapterMetadataGroupsBestMatchingPreferredLanguages:(NSArray<NSString *> *)preferredLanguages NS_AVAILABLE(10_8, 6_0);
+- (NSArray<AVTimedMetadataGroup *> *)chapterMetadataGroupsBestMatchingPreferredLanguages:(NSArray<NSString *> *)preferredLanguages API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 
 @end
@@ -6265,7 +6908,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
 
 /* Provides an NSArray of NSStrings, each NSString indicating a media characteristic for which a media selection option is available.
 */
-@property (nonatomic, readonly) NSArray<AVMediaCharacteristic> *availableMediaCharacteristicsWithMediaSelectionOptions NS_AVAILABLE(10_8, 5_0);
+@property (nonatomic, readonly) NSArray<AVMediaCharacteristic> *availableMediaCharacteristicsWithMediaSelectionOptions API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
   @method		mediaSelectionGroupForMediaCharacteristic:
@@ -6284,13 +6927,13 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
 	
 	Filtering of the options in the returned AVMediaSelectionGroup according to playability, locale, and additional media characteristics can be accomplished using the category AVMediaSelectionOptionFiltering defined on AVMediaSelectionGroup.
 */
-- (nullable AVMediaSelectionGroup *)mediaSelectionGroupForMediaCharacteristic:(AVMediaCharacteristic)mediaCharacteristic NS_AVAILABLE(10_8, 5_0);
+- (nullable AVMediaSelectionGroup *)mediaSelectionGroupForMediaCharacteristic:(AVMediaCharacteristic)mediaCharacteristic API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
   @property		preferredMediaSelection
   @abstract		Provides an instance of AVMediaSelection with default selections for each of the receiver's media selection groups.
 */
-@property (nonatomic, readonly) AVMediaSelection *preferredMediaSelection NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readonly) AVMediaSelection *preferredMediaSelection API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 /*!
   @property		allMediaSelections
@@ -6298,7 +6941,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
   @discussion
 	Becomes callable without blocking when the key @"availableMediaCharacteristicsWithMediaSelectionOptions" has been loaded.
 */
-@property (nonatomic, readonly) NSArray <AVMediaSelection *> *allMediaSelections NS_AVAILABLE(10_13, 11_0);
+@property (nonatomic, readonly) NSArray <AVMediaSelection *> *allMediaSelections API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 @end
 
@@ -6310,7 +6953,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
   @abstract		Indicates whether or not the asset has protected content.
   @discussion	Assets containing protected content may not be playable without successful authorization, even if the value of the "playable" property is YES.  See the properties in the AVAssetUsability category for details on how such an asset may be used.  On OS X, clients can use the interfaces in AVPlayerItemProtectedContentAdditions.h to request authorization to play the asset.
 */
-@property (nonatomic, readonly) BOOL hasProtectedContent NS_AVAILABLE(10_7, 4_2);
+@property (nonatomic, readonly) BOOL hasProtectedContent API_AVAILABLE(macos(10.7), ios(4.2), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -6323,21 +6966,21 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
   @discussion	For QuickTime movie files and MPEG-4 files, the value of canContainFragments is YES if an 'mvex' box is present in the 'moov' box. For those types, the 'mvex' box signals the possible presence of later 'moof' boxes.
 */
 
-@property (nonatomic, readonly) BOOL canContainFragments NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readonly) BOOL canContainFragments API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
   @property		containsFragments
   @abstract		Indicates whether the asset is extended by at least one fragment.
   @discussion	For QuickTime movie files and MPEG-4 files, the value of this property is YES if canContainFragments is YES and at least one 'moof' box is present after the 'moov' box.
 */
-@property (nonatomic, readonly) BOOL containsFragments NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readonly) BOOL containsFragments API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
   @property		overallDurationHint
   @abstract		Indicates the total duration of fragments that either exist now or may be appended in the future in order to extend the duration of the asset.
   @discussion	For QuickTime movie files and MPEG-4 files, the value of this property is obtained from the 'mehd' box of the 'mvex' box, if present. If no total fragment duration hint is available, the value of this property is kCMTimeInvalid.
 */
-@property (nonatomic, readonly) CMTime overallDurationHint NS_AVAILABLE(10_12_2, 10_2);
+@property (nonatomic, readonly) CMTime overallDurationHint API_AVAILABLE(macos(10.12.2), ios(10.2), tvos(10.2), watchos(3.2));
 
 @end
 
@@ -6349,25 +6992,25 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
  @abstract		Indicates whether an AVPlayer can play the contents of the asset in a manner that meets user expectations.
  @discussion	A client can attempt playback when playable is NO, this however may lead to a substandard playback experience.
 */
-@property (nonatomic, readonly, getter=isPlayable) BOOL playable NS_AVAILABLE(10_7, 4_3);
+@property (nonatomic, readonly, getter=isPlayable) BOOL playable API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
 
 /* indicates whether an AVAssetExportSession can be used with the receiver for export
 */
-@property (nonatomic, readonly, getter=isExportable) BOOL exportable NS_AVAILABLE(10_7, 4_3);
+@property (nonatomic, readonly, getter=isExportable) BOOL exportable API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* indicates whether an AVAssetReader can be used with the receiver for extracting media data
 */
-@property (nonatomic, readonly, getter=isReadable) BOOL readable NS_AVAILABLE(10_7, 4_3);
+@property (nonatomic, readonly, getter=isReadable) BOOL readable API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* indicates whether the receiver can be used to build an AVMutableComposition
 */
-@property (nonatomic, readonly, getter=isComposable) BOOL composable NS_AVAILABLE(10_7, 4_3);
+@property (nonatomic, readonly, getter=isComposable) BOOL composable API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
 
 #if TARGET_OS_IPHONE
 
 /* indicates whether the receiver can be written to the saved photos album
 */
-@property (nonatomic, readonly, getter=isCompatibleWithSavedPhotosAlbum) BOOL compatibleWithSavedPhotosAlbum NS_AVAILABLE_IOS(5_0);
+@property (nonatomic, readonly, getter=isCompatibleWithSavedPhotosAlbum) BOOL compatibleWithSavedPhotosAlbum API_AVAILABLE(ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos) API_UNAVAILABLE(macos);
 
 #endif	// TARGET_OS_IPHONE
 
@@ -6376,7 +7019,8 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
   @abstract		Indicates whether the asset is compatible with AirPlay Video.
   @discussion	YES if an AVPlayerItem initialized with the receiver can be played by an external device via AirPlay Video.
  */
-@property (nonatomic, readonly, getter=isCompatibleWithAirPlayVideo) BOOL compatibleWithAirPlayVideo NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readonly, getter=isCompatibleWithAirPlayVideo) BOOL compatibleWithAirPlayVideo API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+
 
 @end
 
@@ -6397,7 +7041,7 @@ typedef NS_OPTIONS(NSUInteger, AVAssetReferenceRestrictions) {
 	If precise duration and timing is not possible for the timed media resource referenced by the asset's URL, AVAsset.providesPreciseDurationAndTiming will be NO even if precise timing is requested via the use of this key.
 					
 */
-AVF_EXPORT NSString *const AVURLAssetPreferPreciseDurationAndTimingKey NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT NSString *const AVURLAssetPreferPreciseDurationAndTimingKey API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
   @constant		AVURLAssetReferenceRestrictionsKey
@@ -6406,7 +7050,7 @@ AVF_EXPORT NSString *const AVURLAssetPreferPreciseDurationAndTimingKey NS_AVAILA
   @discussion
 	Some assets can contain references to media data stored outside the asset's container file, for example in another file. This key can be used to specify a policy to use when these references are encountered. If an asset contains one or more references of a type that is forbidden by the reference restrictions, loading of asset properties will fail. In addition, such an asset cannot be used with other AVFoundation modules, such as AVPlayerItem or AVAssetExportSession.
 */
-AVF_EXPORT NSString *const AVURLAssetReferenceRestrictionsKey NS_AVAILABLE(10_7, 5_0);
+AVF_EXPORT NSString *const AVURLAssetReferenceRestrictionsKey API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant		AVURLAssetHTTPCookiesKey
@@ -6423,7 +7067,7 @@ AVF_EXPORT NSString *const AVURLAssetReferenceRestrictionsKey NS_AVAILABLE(10_7,
 	In both of these cases, HTTP requests will be missing any cookies that do not apply to the AVURLAsset's URL.  
 	This init option allows the AVURLAsset to use additional HTTP cookies for those HTTP(S) requests.
  */
-AVF_EXPORT NSString *const AVURLAssetHTTPCookiesKey API_AVAILABLE(ios(8.0), tvos(9.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED;
+AVF_EXPORT NSString *const AVURLAssetHTTPCookiesKey API_AVAILABLE(macos(10.15), ios(8.0), tvos(9.0), watchos(1.0));
 
 /*
  @constant		AVURLAssetAllowsCellularAccessKey
@@ -6431,7 +7075,23 @@ AVF_EXPORT NSString *const AVURLAssetHTTPCookiesKey API_AVAILABLE(ios(8.0), tvos
  @discussion
  	Default is YES.
 */
-AVF_EXPORT NSString *const AVURLAssetAllowsCellularAccessKey API_AVAILABLE(ios(10.0), tvos(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED;
+AVF_EXPORT NSString *const AVURLAssetAllowsCellularAccessKey API_AVAILABLE(macos(10.15), ios(10.0), tvos(10.0), watchos(3.0));
+
+/*
+ @constant		AVURLAssetAllowsExpensiveNetworkAccessKey
+ @abstract		Indicates whether network requests on behalf of this asset are allowed to use the expensive interface (e.g. cellular, tethered, constrained).
+ @discussion
+ 	Default is YES.
+ */
+AVF_EXPORT NSString *const AVURLAssetAllowsExpensiveNetworkAccessKey API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*
+ @constant		AVURLAssetAllowsConstrainedNetworkAccessKey
+ @abstract		Indicates whether network requests on behalf of this asset are allowed to use the constrained interface (e.g. interfaces marked as being in data saver mode).
+ @discussion
+ 	Default is YES.
+ */
+AVF_EXPORT NSString *const AVURLAssetAllowsConstrainedNetworkAccessKey API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
 
 /*!
   @class		AVURLAsset
@@ -6447,7 +7107,7 @@ AVF_EXPORT NSString *const AVURLAssetAllowsCellularAccessKey API_AVAILABLE(ios(1
 */
 @class AVURLAssetInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVURLAsset : AVAsset
 {
 @private
@@ -6460,14 +7120,14 @@ AV_INIT_UNAVAILABLE
   @abstract		Provides the file types the AVURLAsset class understands.
   @result		An NSArray of UTIs identifying the file types the AVURLAsset class understands.
 */
-+ (NSArray<AVFileType> *)audiovisualTypes NS_AVAILABLE(10_7, 5_0);
++ (NSArray<AVFileType> *)audiovisualTypes API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
   @method		audiovisualMIMETypes
   @abstract		Provides the MIME types the AVURLAsset class understands.
   @result		An NSArray of NSStrings containing MIME types the AVURLAsset class understands.
 */
-+ (NSArray<NSString *> *)audiovisualMIMETypes NS_AVAILABLE(10_7, 5_0);
++ (NSArray<NSString *> *)audiovisualMIMETypes API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
   @method		isPlayableExtendedMIMEType:
@@ -6475,7 +7135,7 @@ AV_INIT_UNAVAILABLE
   @param		extendedMIMEType
   @result		YES or NO.
 */
-+ (BOOL)isPlayableExtendedMIMEType: (NSString *)extendedMIMEType NS_AVAILABLE(10_7, 5_0);
++ (BOOL)isPlayableExtendedMIMEType: (NSString *)extendedMIMEType API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
   @method		URLAssetWithURL:options:
@@ -6517,7 +7177,7 @@ AV_INIT_UNAVAILABLE
     The loading of file URLs cannot be mediated via use of AVAssetResourceLoader.
     Note that copies of an AVAsset will vend the same instance of AVAssetResourceLoader.
 */
-@property (nonatomic, readonly) AVAssetResourceLoader *resourceLoader NS_AVAILABLE(10_9, 6_0);
+@property (nonatomic, readonly) AVAssetResourceLoader *resourceLoader API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -6529,7 +7189,7 @@ AV_INIT_UNAVAILABLE
  @property	assetCache
  @abstract	Provides access to an instance of AVAssetCache to use for inspection of locally cached media data. Will be nil if an asset has not been configured to store or access media data from disk.
 */
-@property (nonatomic, readonly, nullable) AVAssetCache *assetCache NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, readonly, nullable) AVAssetCache *assetCache API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -6561,7 +7221,7 @@ AV_INIT_UNAVAILABLE
  @constant       AVAssetDurationDidChangeNotification
  @abstract       Posted when the duration of an AVFragmentedAsset changes while it's being minded by an AVFragmentedAssetMinder, but only for changes that occur after the status of the value of @"duration" has reached AVKeyValueStatusLoaded.
 */
-AVF_EXPORT NSString *const AVAssetDurationDidChangeNotification NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT NSString *const AVAssetDurationDidChangeNotification API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 /*!
  @constant       AVAssetContainsFragmentsDidChangeNotification
@@ -6580,13 +7240,13 @@ AVF_EXPORT NSString *const AVAssetWasDefragmentedNotification API_AVAILABLE(maco
  @constant       AVAssetChapterMetadataGroupsDidChangeNotification
  @abstract       Posted when the collection of arrays of timed metadata groups representing chapters of an AVAsset change and when any of the contents of the timed metadata groups change, but only for changes that occur after the status of the value of @"availableChapterLocales" has reached AVKeyValueStatusLoaded.
 */
-AVF_EXPORT NSString *const AVAssetChapterMetadataGroupsDidChangeNotification NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT NSString *const AVAssetChapterMetadataGroupsDidChangeNotification API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 /*!
 
  @constant       AVAssetMediaSelectionGroupsDidChangeNotification
  @abstract       Posted when the collection of media selection groups provided by an AVAsset changes and when any of the contents of its media selection groups change, but only for changes that occur after the status of the value of @"availableMediaCharacteristicsWithMediaSelectionOptions" has reached AVKeyValueStatusLoaded.
 */
-AVF_EXPORT NSString *const AVAssetMediaSelectionGroupsDidChangeNotification NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT NSString *const AVAssetMediaSelectionGroupsDidChangeNotification API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 #pragma mark --- AVFragmentedAsset ---
 /*!
@@ -6605,13 +7265,13 @@ AVF_EXPORT NSString *const AVAssetMediaSelectionGroupsDidChangeNotification NS_A
   @abstract		Indicates whether an AVAsset that supports fragment minding is currently associated with a fragment minder, e.g. an instance of AVFragmentedAssetMinder.
   @discussion	AVAssets that support fragment minding post change notifications only while associated with a fragment minder.
 */
-@property (nonatomic, readonly, getter=isAssociatedWithFragmentMinder) BOOL associatedWithFragmentMinder API_AVAILABLE(macos(10.11), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos);
+@property (nonatomic, readonly, getter=isAssociatedWithFragmentMinder) BOOL associatedWithFragmentMinder API_AVAILABLE(macos(10.11), ios(12.0), tvos(12.0), watchos(6.0));
 
 @end
 
 @class AVFragmentedAssetInternal;
 
-API_AVAILABLE(macos(10.11), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos)
+API_AVAILABLE(macos(10.11), ios(12.0), tvos(12.0), watchos(6.0))
 @interface AVFragmentedAsset : AVURLAsset <AVFragmentMinding>
 {
 @private
@@ -6680,7 +7340,7 @@ API_AVAILABLE(macos(10.11), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos)
 
 @class AVFragmentedAssetMinderInternal;
 
-API_AVAILABLE(macos(10.11), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos)
+API_AVAILABLE(macos(10.11), ios(12.0), tvos(12.0), watchos(6.0))
 @interface AVFragmentedAssetMinder : NSObject
 {
 @private
@@ -6739,6 +7399,7 @@ API_AVAILABLE(macos(10.11), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos)
 
 @end
 
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVURLAsset (AVURLAssetContentKeyEligibility) <AVContentKeyRecipient>
 
 /*!
@@ -6799,7 +7460,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class CIContext;
 @class CIImage;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVVideoComposition : NSObject <NSCopying, NSMutableCopying> {
 @private
     AVVideoCompositionInternal    *_videoComposition;
@@ -6823,23 +7484,23 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
    If the specified asset has no video tracks, this method will return an AVVideoComposition instance with an empty collection of instructions.
  
 */
-+ (AVVideoComposition *)videoCompositionWithPropertiesOfAsset:(AVAsset *)asset NS_AVAILABLE(10_9, 6_0);
++ (AVVideoComposition *)videoCompositionWithPropertiesOfAsset:(AVAsset *)asset API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* indicates a custom compositor class to use. The class must implement the AVVideoCompositing protocol.
    If nil, the default, internal video compositor is used */
-@property (nonatomic, readonly, nullable) Class<AVVideoCompositing> customVideoCompositorClass NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly, nullable) Class<AVVideoCompositing> customVideoCompositorClass API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* indicates the interval which the video composition, when enabled, should render composed video frames */
 @property (nonatomic, readonly) CMTime frameDuration;
 
 /* If sourceTrackIDForFrameTiming is not kCMPersistentTrackID_Invalid, frame timing for the video composition is derived from the source asset's track with the corresponding ID. This may be used to preserve a source asset's variable frame timing. If an empty edit is encountered in the source asset’s track, the compositor composes frames as needed up to the frequency specified in frameDuration property. */
-@property (nonatomic, readonly) CMPersistentTrackID sourceTrackIDForFrameTiming NS_AVAILABLE(10_13, 11_0);
+@property (nonatomic, readonly) CMPersistentTrackID sourceTrackIDForFrameTiming API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 /* indicates the size at which the video composition, when enabled, should render */
 @property (nonatomic, readonly) CGSize renderSize;
 
 /* indicates the scale at which the video composition should render. May only be other than 1.0 for a video composition set on an AVPlayerItem */
-@property (nonatomic, readonly) float renderScale API_AVAILABLE(macos(10.14), ios(4.0), tvos(9.0)) __WATCHOS_PROHIBITED;
+@property (nonatomic, readonly) float renderScale API_AVAILABLE(macos(10.14), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* Indicates instructions for video composition via an NSArray of instances of classes implementing the AVVideoCompositionInstruction protocol.
    For the first instruction in the array, timeRange.start must be less than or equal to the earliest time for which playback or other processing will be attempted
@@ -6885,7 +7546,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @discussion
     Default is nil. Valid values are those suitable for AVVideoColorPrimariesKey. Generally set as a triple along with colorYCbCrMatrix and colorTransferFunction.
 */
-@property (nonatomic, readonly, nullable) NSString *colorPrimaries NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, readonly, nullable) NSString *colorPrimaries API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
 
 /*
  @property     colorYCbCrMatrix
@@ -6894,7 +7555,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @discussion
     Default is nil. Valid values are those suitable for AVVideoYCbCrMatrixKey. Generally set as a triple along with colorPrimaries and colorTransferFunction.
 */
-@property (nonatomic, readonly, nullable) NSString *colorYCbCrMatrix NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, readonly, nullable) NSString *colorYCbCrMatrix API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
 
 /*
  @property     colorTransferFunction
@@ -6903,7 +7564,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @discussion
     Default is nil. Valid values are those suitable for AVVideoTransferFunctionKey. Generally set as a triple along with colorYCbCrMatrix and colorYCbCrMatrix.
 */
-@property (nonatomic, readonly, nullable) NSString *colorTransferFunction NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, readonly, nullable) NSString *colorTransferFunction API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -6943,7 +7604,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 			}];
 */
 + (AVVideoComposition *)videoCompositionWithAsset:(AVAsset *)asset
-			 applyingCIFiltersWithHandler:(void (^)(AVAsynchronousCIImageFilteringRequest *request))applier NS_AVAILABLE(10_11, 9_0);
+			 applyingCIFiltersWithHandler:(void (^)(AVAsynchronousCIImageFilteringRequest *request))applier API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -6956,7 +7617,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @class AVMutableVideoCompositionInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVMutableVideoComposition : AVVideoComposition {
 @private
     AVMutableVideoCompositionInternal    *_mutableVideoComposition __attribute__((unused));
@@ -6988,22 +7649,40 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
    If the specified asset has no video tracks, this method will return an AVMutableVideoComposition instance with an empty collection of instructions.
  
 */
-+ (AVMutableVideoComposition *)videoCompositionWithPropertiesOfAsset:(AVAsset *)asset NS_AVAILABLE(10_9, 6_0);
++ (AVMutableVideoComposition *)videoCompositionWithPropertiesOfAsset:(AVAsset *)asset API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+
+/*
+ @method		videoCompositionWithPropertiesOfAsset:prototypeInstruction:
+ @abstract
+    Returns a new instance of AVMutableVideoComposition with values and instructions suitable for presenting the video tracks of the specified asset according to its temporal and geometric properties and those of its tracks, and also overrides default properties with those from a prototypeInstruction.
+ @param			asset		An instance of AVAsset. For best performance, ensure that the duration and tracks properties of the asset are already loaded before invoking this method.
+ @param			prototypeInstruction		Custom instructions that the client can choose to override.
+ @result		An instance of AVMutableVideoComposition.
+ @discussion
+   Also see videoCompositionWithPropertiesOfAsset:.
+   The returned AVVideoComposition will have instructions that respect the spatial properties and timeRanges of the specified asset's video tracks. Anything not pertaining to spatial layout and timing, such as background color for their composition or post-processing behaviors, is eligible to be specified via a prototype instruction.
+   Example: To add a background color,
+   myPrototypeInstruction = [[AVMutableVideoCompositionInstruction alloc] init];
+   myPrototypeInstruction.backgroundColor = myCGColorRef; // Do not use constant CGColorRef colors here.
+   myVideoComposition = [AVVideoComposition videoCompositionWithPropertiesOfAsset:myAsset prototypeInstruction:myPrototypeInstruction];
+ 
+ */
++ (AVMutableVideoComposition *)videoCompositionWithPropertiesOfAsset:(AVAsset *)asset prototypeInstruction:(AVVideoCompositionInstruction *)prototypeInstruction API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 /* indicates the custom compositor class to use. If nil, the default, internal video compositor is used */
-@property (nonatomic, retain, nullable) Class<AVVideoCompositing> customVideoCompositorClass NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, retain, nullable) Class<AVVideoCompositing> customVideoCompositorClass API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* indicates the interval which the video composition, when enabled, should render composed video frames */
 @property (nonatomic) CMTime frameDuration;
 
 /* If sourceTrackIDForFrameTiming is not kCMPersistentTrackID_Invalid, frame timing for the video composition is derived from the source asset's track with the corresponding ID. This may be used to preserve a source asset's variable frame timing. If an empty edit is encountered in the source asset’s track, the compositor composes frames as needed up to the frequency specified in frameDuration property. */
-@property (nonatomic) CMPersistentTrackID sourceTrackIDForFrameTiming NS_AVAILABLE(10_13, 11_0);
+@property (nonatomic) CMPersistentTrackID sourceTrackIDForFrameTiming API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 /* indicates the size at which the video composition, when enabled, should render */
 @property (nonatomic) CGSize renderSize;
 
 /* indicates the scale at which the video composition should render. May only be other than 1.0 for a video composition set on an AVPlayerItem */
-@property (nonatomic) float renderScale API_AVAILABLE(macos(10.14), ios(4.0), tvos(9.0)) __WATCHOS_PROHIBITED;
+@property (nonatomic) float renderScale API_AVAILABLE(macos(10.14), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* Indicates instructions for video composition via an NSArray of instances of classes implementing the AVVideoCompositionInstruction protocol.
    For the first instruction in the array, timeRange.start must be less than or equal to the earliest time for which playback or other processing will be attempted
@@ -7049,7 +7728,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @discussion
     Default is nil. Valid values are those suitable for AVVideoColorPrimariesKey. Generally set as a triple along with colorYCbCrMatrix and colorTransferFunction.
 */
-@property (nonatomic, copy, nullable) NSString *colorPrimaries NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, copy, nullable) NSString *colorPrimaries API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
 
 /*
  @property     colorYCbCrMatrix
@@ -7058,7 +7737,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @discussion
     Default is nil. Valid values are those suitable for AVVideoYCbCrMatrixKey. Generally set as a triple along with colorPrimaries and colorTransferFunction.
 */
-@property (nonatomic, copy, nullable) NSString *colorYCbCrMatrix NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, copy, nullable) NSString *colorYCbCrMatrix API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
 
 /*
  @property     colorTransferFunction
@@ -7067,7 +7746,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @discussion
     Default is nil. Valid values are those suitable for AVVideoTransferFunctionKey. Generally set as a triple along with colorYCbCrMatrix and colorYCbCrMatrix.
 */
-@property (nonatomic, copy, nullable) NSString *colorTransferFunction NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, copy, nullable) NSString *colorTransferFunction API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -7107,7 +7786,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 			}];
 */
 + (AVMutableVideoComposition *)videoCompositionWithAsset:(AVAsset *)asset
-			 applyingCIFiltersWithHandler:(void (^)(AVAsynchronousCIImageFilteringRequest *request))applier NS_AVAILABLE(10_11, 9_0);
+			 applyingCIFiltersWithHandler:(void (^)(AVAsynchronousCIImageFilteringRequest *request))applier API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -7123,7 +7802,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @class AVVideoCompositionInstructionInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVVideoCompositionInstruction : NSObject <NSSecureCoding, NSCopying, NSMutableCopying, AVVideoCompositionInstruction> {
 @private
 	AVVideoCompositionInstructionInternal	*_instruction;
@@ -7148,12 +7827,12 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 @property (nonatomic, readonly) BOOL enablePostProcessing;
 
 /* List of video track IDs required to compose frames for this instruction. The value of this property is computed from the layer instructions. */
-@property (nonatomic, readonly) NSArray<NSValue *> *requiredSourceTrackIDs NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) NSArray<NSValue *> *requiredSourceTrackIDs API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* If the video composition result is one of the source frames for the duration of the instruction, this property
    returns the corresponding track ID. The compositor won't be run for the duration of the instruction and the proper source
    frame will be used instead. The value of this property is computed from the layer instructions */
-@property (nonatomic, readonly) CMPersistentTrackID passthroughTrackID NS_AVAILABLE(10_9, 7_0); // kCMPersistentTrackID_Invalid if not a passthrough instruction
+@property (nonatomic, readonly) CMPersistentTrackID passthroughTrackID API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos); // kCMPersistentTrackID_Invalid if not a passthrough instruction
 
 @end
 
@@ -7168,7 +7847,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @class AVMutableVideoCompositionInstructionInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVMutableVideoCompositionInstruction : AVVideoCompositionInstruction {
 @private
 	AVMutableVideoCompositionInstructionInternal	*_mutableInstruction __attribute__((unused));
@@ -7210,7 +7889,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @class AVVideoCompositionLayerInstructionInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVVideoCompositionLayerInstruction : NSObject <NSSecureCoding, NSCopying, NSMutableCopying> {
 @private
 	AVVideoCompositionLayerInstructionInternal	*_layerInstruction;
@@ -7268,7 +7947,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @result
    An indication of success. NO will be returned if the specified time is beyond the duration of the last crop rectangle ramp that has been set.
 */
-- (BOOL)getCropRectangleRampForTime:(CMTime)time startCropRectangle:(nullable CGRect *)startCropRectangle endCropRectangle:(nullable CGRect *)endCropRectangle timeRange:(nullable CMTimeRange *)timeRange NS_AVAILABLE(10_9, 7_0);
+- (BOOL)getCropRectangleRampForTime:(CMTime)time startCropRectangle:(nullable CGRect *)startCropRectangle endCropRectangle:(nullable CGRect *)endCropRectangle timeRange:(nullable CMTimeRange *)timeRange API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -7280,7 +7959,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @class AVMutableVideoCompositionLayerInstructionInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVMutableVideoCompositionLayerInstruction : AVVideoCompositionLayerInstruction {
 @private
 	AVMutableVideoCompositionLayerInstructionInternal	*_mutableLayerInstruction __attribute__((unused));
@@ -7392,7 +8071,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
    Before the first specified time for which a crop rectangle is set, the crop rectangle is held constant to CGRectInfinite
    after the last time for which a crop rectangle is set, the crop rectangle is held constant at that last value.
 */
-- (void)setCropRectangleRampFromStartCropRectangle:(CGRect)startCropRectangle toEndCropRectangle:(CGRect)endCropRectangle timeRange:(CMTimeRange)timeRange NS_AVAILABLE(10_9, 7_0);
+- (void)setCropRectangleRampFromStartCropRectangle:(CGRect)startCropRectangle toEndCropRectangle:(CGRect)endCropRectangle timeRange:(CMTimeRange)timeRange API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*  
  @method		setCropRectangle:atTime:
@@ -7410,7 +8089,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
    Before the first specified time for which a crop rectangle is set, the crop rectangle is held constant to CGRectInfinite
    after the last time for which a crop rectangle is set, the crop rectangle is held constant at that last value.
 */
-- (void)setCropRectangle:(CGRect)cropRectangle atTime:(CMTime)time NS_AVAILABLE(10_9, 7_0);
+- (void)setCropRectangle:(CGRect)cropRectangle atTime:(CMTime)time API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -7435,7 +8114,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 @class CALayer;
 @class AVVideoCompositionCoreAnimationToolInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVVideoCompositionCoreAnimationTool : NSObject {
 @private
 	AVVideoCompositionCoreAnimationToolInternal	*_videoCompositionTool;
@@ -7481,7 +8160,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 								to YES in the layer hierarchy to get the same result when attaching a CALayer to a AVVideoCompositionCoreAnimationTool
 								as when using it to back a UIView.
 */
-+ (instancetype)videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayers:(NSArray<CALayer *> *)videoLayers inLayer:(CALayer *)animationLayer NS_AVAILABLE(10_9, 7_0);
++ (instancetype)videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayers:(NSArray<CALayer *> *)videoLayers inLayer:(CALayer *)animationLayer API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -7511,7 +8190,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
    In the course of validation, the receiver will invoke its validationDelegate with reference to any trouble spots in the video composition.
    An exception will be raised if the delegate modifies the receiver's array of instructions or the array of layerInstructions of any AVVideoCompositionInstruction contained therein during validation.
 */
-- (BOOL)isValidForAsset:(nullable AVAsset *)asset timeRange:(CMTimeRange)timeRange validationDelegate:(nullable id<AVVideoCompositionValidationHandling>)validationDelegate NS_AVAILABLE(10_8, 5_0);
+- (BOOL)isValidForAsset:(nullable AVAsset *)asset timeRange:(CMTimeRange)timeRange validationDelegate:(nullable id<AVVideoCompositionValidationHandling>)validationDelegate API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -7526,7 +8205,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @result
    An indication of whether the AVVideoComposition should continue validation in order to report additional problems that may exist.
 */
-- (BOOL)videoComposition:(AVVideoComposition *)videoComposition shouldContinueValidatingAfterFindingInvalidValueForKey:(NSString *)key NS_AVAILABLE(10_8, 5_0);
+- (BOOL)videoComposition:(AVVideoComposition *)videoComposition shouldContinueValidatingAfterFindingInvalidValueForKey:(NSString *)key API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method		videoComposition:shouldContinueValidatingAfterFindingEmptyTimeRange:
@@ -7535,7 +8214,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @result
    An indication of whether the AVVideoComposition should continue validation in order to report additional problems that may exist.
 */
-- (BOOL)videoComposition:(AVVideoComposition *)videoComposition shouldContinueValidatingAfterFindingEmptyTimeRange:(CMTimeRange)timeRange NS_AVAILABLE(10_8, 5_0);
+- (BOOL)videoComposition:(AVVideoComposition *)videoComposition shouldContinueValidatingAfterFindingEmptyTimeRange:(CMTimeRange)timeRange API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method		videoComposition:shouldContinueValidatingAfterFindingInvalidTimeRangeInInstruction:
@@ -7546,7 +8225,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @result
    An indication of whether the AVVideoComposition should continue validation in order to report additional problems that may exist.
 */
-- (BOOL)videoComposition:(AVVideoComposition *)videoComposition shouldContinueValidatingAfterFindingInvalidTimeRangeInInstruction:(id<AVVideoCompositionInstruction>)videoCompositionInstruction NS_AVAILABLE(10_8, 5_0);
+- (BOOL)videoComposition:(AVVideoComposition *)videoComposition shouldContinueValidatingAfterFindingInvalidTimeRangeInInstruction:(id<AVVideoCompositionInstruction>)videoCompositionInstruction API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method		videoComposition:shouldContinueValidatingAfterFindingInvalidTrackIDInInstruction:layerInstruction:asset:
@@ -7555,7 +8234,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @result
    An indication of whether the AVVideoComposition should continue validation in order to report additional problems that may exist.
 */
-- (BOOL)videoComposition:(AVVideoComposition *)videoComposition shouldContinueValidatingAfterFindingInvalidTrackIDInInstruction:(id<AVVideoCompositionInstruction>)videoCompositionInstruction layerInstruction:(AVVideoCompositionLayerInstruction *)layerInstruction asset:(AVAsset *)asset NS_AVAILABLE(10_8, 5_0);
+- (BOOL)videoComposition:(AVVideoComposition *)videoComposition shouldContinueValidatingAfterFindingInvalidTrackIDInInstruction:(id<AVVideoCompositionInstruction>)videoCompositionInstruction layerInstruction:(AVVideoCompositionLayerInstruction *)layerInstruction asset:(AVAsset *)asset API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -7566,7 +8245,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
  
-    Copyright 2010-2018 Apple Inc. All rights reserved.
+    Copyright 2010-2017 Apple Inc. All rights reserved.
 
 */
 
@@ -7594,7 +8273,7 @@ NS_ASSUME_NONNULL_BEGIN
 	
 	IMPORTANT PERFORMANCE NOTE: Make sure to set the alwaysCopiesSampleData property to NO if you do not need to modify the sample data in-place, to avoid unnecessary and inefficient copying.
  */
-NS_CLASS_AVAILABLE(10_7, 4_1)
+API_AVAILABLE(macos(10.7), ios(4.1), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetReaderOutput : NSObject
 {
 @private
@@ -7621,7 +8300,7 @@ NS_CLASS_AVAILABLE(10_7, 4_1)
  
 	The default value is YES.
  */
-@property (nonatomic) BOOL alwaysCopiesSampleData NS_AVAILABLE(10_8, 5_0);
+@property (nonatomic) BOOL alwaysCopiesSampleData API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method copyNextSampleBuffer
@@ -7649,11 +8328,11 @@ NS_CLASS_AVAILABLE(10_7, 4_1)
  @discussion
 	When the value of this property is YES, the time ranges read by the asset reader output can be reconfigured during reading using the -resetForReadingTimeRanges: method.  This also prevents the attached AVAssetReader from progressing to AVAssetReaderStatusCompleted until -markConfigurationAsFinal has been invoked.
  
-	The default value is NO, which means that the asset reader output may not be reconfigured once reading has begin.  When the value of this property is NO, AVAssetReader may be able to read media data more efficiently, particularly when multiple asset reader outputs are attached.
+	The default value is NO, which means that the asset reader output may not be reconfigured once reading has begun.  When the value of this property is NO, AVAssetReader may be able to read media data more efficiently, particularly when multiple asset reader outputs are attached.
  
 	This property may not be set after -startReading has been called on the attached asset reader.
  */
-@property (nonatomic) BOOL supportsRandomAccess NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) BOOL supportsRandomAccess API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method resetForReadingTimeRanges:
@@ -7674,7 +8353,7 @@ NS_CLASS_AVAILABLE(10_7, 4_1)
  
 	If this method is invoked before all media data has been read (i.e. -copyNextSampleBuffer has not yet returned NULL), an exception will be thrown.  This method may not be called before -startReading has been invoked on the attached asset reader.
  */
-- (void)resetForReadingTimeRanges:(NSArray<NSValue *> *)timeRanges NS_AVAILABLE(10_10, 8_0);
+- (void)resetForReadingTimeRanges:(NSArray<NSValue *> *)timeRanges API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method markConfigurationAsFinal
@@ -7688,7 +8367,7 @@ NS_CLASS_AVAILABLE(10_7, 4_1)
  
 	Once this method has been called, further invocations of -resetForReadingTimeRanges: are disallowed.
  */
-- (void)markConfigurationAsFinal NS_AVAILABLE(10_10, 8_0);
+- (void)markConfigurationAsFinal API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -7702,7 +8381,7 @@ NS_CLASS_AVAILABLE(10_7, 4_1)
  @discussion
 	Clients can read the media data of an asset track by adding an instance of AVAssetReaderTrackOutput to an AVAssetReader using the -[AVAssetReader addOutput:] method. The track's media samples can either be read in the format in which they are stored in the asset, or they can be converted to a different format.
  */
-NS_CLASS_AVAILABLE(10_7, 4_1)
+API_AVAILABLE(macos(10.7), ios(4.1), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetReaderTrackOutput : AVAssetReaderOutput
 {
 @private
@@ -7810,7 +8489,7 @@ AV_INIT_UNAVAILABLE
  
 	The default value is AVAudioTimePitchAlgorithmSpectral.
  */
-@property (nonatomic, copy) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, copy) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -7825,7 +8504,7 @@ AV_INIT_UNAVAILABLE
  @discussion
 	Clients can read the audio data mixed from one or more asset tracks by adding an instance of AVAssetReaderAudioMixOutput to an AVAssetReader using the -[AVAssetReader addOutput:] method.
  */
-NS_CLASS_AVAILABLE(10_7, 4_1)
+API_AVAILABLE(macos(10.7), ios(4.1), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetReaderAudioMixOutput : AVAssetReaderOutput
 {
 @private
@@ -7913,7 +8592,7 @@ AV_INIT_UNAVAILABLE
  
 	The default value is AVAudioTimePitchAlgorithmSpectral.
  */
-@property (nonatomic, copy) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, copy) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -7928,7 +8607,7 @@ AV_INIT_UNAVAILABLE
  @discussion
 	Clients can read the video frames composited from one or more asset tracks by adding an instance of AVAssetReaderVideoCompositionOutput to an AVAssetReader using the -[AVAssetReader addOutput:] method.
  */
-NS_CLASS_AVAILABLE(10_7, 4_1)
+API_AVAILABLE(macos(10.7), ios(4.1), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetReaderVideoCompositionOutput : AVAssetReaderOutput
 {
 @private
@@ -8025,7 +8704,7 @@ AV_INIT_UNAVAILABLE
  @discussion
  	This property is nil if there is no video compositor, or if the internal video compositor is in use.
  */
-@property (nonatomic, readonly, nullable) id <AVVideoCompositing> customVideoCompositor NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly, nullable) id <AVVideoCompositing> customVideoCompositor API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -8039,7 +8718,7 @@ AV_INIT_UNAVAILABLE
 	Defines an interface for reading metadata, packaged as instances of AVTimedMetadataGroup, from a single AVAssetReaderTrackOutput object.
  */
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetReaderOutputMetadataAdaptor : NSObject
 {
 @private
@@ -8121,7 +8800,7 @@ AV_INIT_UNAVAILABLE
 	Since no sample data is ever returned by instances of AVAssetReaderSampleReferenceOutput, the value of the alwaysCopiesSampleData property is ignored.
  */
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetReaderSampleReferenceOutput : AVAssetReaderOutput
 {
 @private
@@ -8172,6 +8851,161 @@ AV_INIT_UNAVAILABLE
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  AVFoundation.framework/Headers/AVSemanticSegmentationMatte.h
+/*
+    File:  AVSemanticSegmentationMatte.h
+ 
+    Framework:  AVFoundation
+ 
+    Copyright 2019 Apple Inc. All rights reserved.
+*/
+
+#import <AVFoundation/AVBase.h>
+#import <Foundation/Foundation.h>
+#import <CoreVideo/CVPixelBufferPool.h>
+#import <ImageIO/CGImageProperties.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ @group AVSemanticSegmentationMatteType string constants
+ 
+ @discussion
+    AVSemanticSegmentationMatteType string constants describe specific types of semantic segmentation matting images that may be captured and stored along with a primary image and may be used to improve the rendering of various effects on that image.
+ */
+typedef NSString *AVSemanticSegmentationMatteType NS_STRING_ENUM;
+
+/*!
+ @constant AVSemanticSegmentationMatteTypeSkin
+    A matting image segmenting all skin from all persons in the visible field-of-view of an image.
+ */
+AVF_EXPORT AVSemanticSegmentationMatteType const AVSemanticSegmentationMatteTypeSkin API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @constant AVSemanticSegmentationMatteTypeHair
+    A matting image segmenting all hair from all persons in the visible field-of-view of an image.
+ */
+AVF_EXPORT AVSemanticSegmentationMatteType const AVSemanticSegmentationMatteTypeHair API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @constant AVSemanticSegmentationMatteTypeTeeth
+    A matting image segmenting all teeth from all persons in the visible field-of-view of an image.
+ */
+AVF_EXPORT AVSemanticSegmentationMatteType const AVSemanticSegmentationMatteTypeTeeth API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+
+/*!
+ @class AVSemanticSegmentationMatte
+ @abstract
+    An object wrapping a matting image for a particular semantic segmentation.
+ 
+ @discussion
+    The pixel data in the matting image is represented in CVPixelBuffers as kCVPixelFormatType_OneComponent8 ('L008'). It is stored in image files as an auxiliary image, accessible using CGImageSourceCopyAuxiliaryDataInfoAtIndex using data types defined in <ImageIO/CGImageProperties.h>.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0))
+@interface AVSemanticSegmentationMatte : NSObject
+
+AV_INIT_UNAVAILABLE
+
+/*!
+ @method semanticSegmentationMatteFromDictionaryRepresentation:error:
+ @abstract
+    Returns an AVSemanticSegmentationMatte instance from auxiliary image information in an image file.
+ 
+ @param imageSourceAuxiliaryDataType
+    The kCGImageAuxiliaryDataType constant corresponding to the semantic segmentation matte being created (see <ImageIO/CGImageProperties.h>.
+ @param imageSourceAuxiliaryDataInfoDictionary
+    A dictionary of primitive semantic segmentation matte related information obtained from CGImageSourceCopyAuxiliaryDataInfoAtIndex.
+ @param outError
+    On return, if the semantic segmentation matte cannot be created, points to an NSError describing the problem.
+ @result
+    An AVSemanticSegmentationMatte instance, or nil if the auxiliary data info dictionary was malformed.
+ 
+ @discussion
+    When using ImageIO framework's CGImageSource API to read from a HEIF or JPEG file containing a semantic segmentation matte, AVSemanticSegmentationMatte can be instantiated using the result of CGImageSourceCopyAuxiliaryDataInfoAtIndex, which returns a CFDictionary of primitive segmentation matte information.
+ */
++ (nullable instancetype)semanticSegmentationMatteFromImageSourceAuxiliaryDataType:(CFStringRef)imageSourceAuxiliaryDataType dictionaryRepresentation:(NSDictionary *)imageSourceAuxiliaryDataInfoDictionary error:(NSError * _Nullable * _Nullable)outError;
+
+/*!
+ @property matteType
+ @abstract
+    Specifies the receiver's semantic segmentation matting image type.
+ 
+ @discussion
+    An AVSemanticSegmentationMatte's matteType is immutable for the life of the object.
+ */
+@property(readonly) AVSemanticSegmentationMatteType matteType;
+
+/*!
+ @method semanticSegmentationMatteByApplyingExifOrientation:
+ @abstract
+    Returns a derivative AVSemanticSegmentationMatte instance in which the specified Exif orientation has been applied.
+ 
+ @param exifOrientation
+    One of the 8 standard Exif orientation tags expressing how the matte should be rotated / mirrored.
+ @result
+    An AVSemanticSegmentationMatte's instance.
+ 
+ @discussion
+    When applying simple 90 degree rotation or mirroring edits to media containing a semantic segmentation matte, you may use this initializer to create a derivative copy of the matte in which the specified orientation is applied. This method throws an NSInvalidArgumentException if you pass an unrecognized exifOrientation.
+ */
+- (instancetype)semanticSegmentationMatteByApplyingExifOrientation:(CGImagePropertyOrientation)exifOrientation;
+
+/*!
+ @method semanticSegmentationMatteByReplacingSemanticSegmentationMatteWithPixelBuffer:error:
+ @abstract
+    Returns an AVSemanticSegmentationMatte instance wrapping the replacement pixel buffer.
+ 
+ @param pixelBuffer
+    A pixel buffer containing a semantic segmentation matting image, represented as kCVPixelFormatType_OneComponent8 with a kCVImageBufferTransferFunction_Linear transfer function.
+ @param outError
+    On return, if the AVSemanticSegmentationMatte cannot be created, points to an NSError describing the problem.
+ @result
+    An AVSemanticSegmentationMatte instance, or nil if the pixel buffer is malformed.
+ 
+ @discussion
+    When applying complex edits to media containing a semantic segmentation matte, you may create a derivative matte with arbitrary transforms applied to it, then use this initializer to create a new AVSemanticSegmentationMatte.
+ */
+- (nullable instancetype)semanticSegmentationMatteByReplacingSemanticSegmentationMatteWithPixelBuffer:(CVPixelBufferRef)pixelBuffer error:(NSError * _Nullable * _Nullable)outError;
+
+/*!
+ @method dictionaryRepresentationForAuxiliaryDataType:
+ @abstract
+    Returns a dictionary of primitive map information to be used when writing an image file with a semantic segmentation matte.
+ 
+ @param outAuxDataType
+    On output, the auxiliary data type to be used when calling CGImageDestinationAddAuxiliaryDataInfo. Currently supported auxiliary data types are enumerated in <ImageIO/CGImageProperties.h>
+ @result
+    A dictionary of CGImageDestination compatible semantic segmentation matte information, or nil if the auxDataType is unsupported.
+ 
+ @discussion
+    When using ImageIO framework's CGImageDestination API to write semantic segmentation matte information to a HEIF or JPEG file, you may use this method to generate a dictionary of primitive map information consumed by CGImageDestinationAddAuxiliaryDataInfo.
+ */
+- (nullable NSDictionary *)dictionaryRepresentationForAuxiliaryDataType:(NSString * _Nullable * _Nullable)outAuxDataType;
+
+/*!
+ @property pixelFormatType
+ @abstract
+    Specifies the pixel format type of this object's internal matting image.
+ 
+ @discussion
+    Currently the only supported CV pixel format type for the matting image is kCVPixelFormatType_OneComponent8.
+ */
+@property(readonly) OSType pixelFormatType;
+
+/*!
+ @property mattingImage
+ @abstract
+    Provides access to the semantic segmentation matte's internal image.
+ 
+ @discussion
+    The pixel format can be queried using the pixelFormatType property.
+ */
+@property(readonly) __attribute__((NSObject)) CVPixelBufferRef mattingImage NS_RETURNS_INNER_POINTER;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  AVFoundation.framework/Headers/AVAudioPlayer.h
 /*
 	File:           AVAudioPlayer.h
@@ -8212,7 +9046,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AVCompositionTrackSegmentInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVCompositionTrackSegment : AVAssetTrackSegment
 {
 @private
@@ -8329,21 +9163,27 @@ NS_ASSUME_NONNULL_BEGIN
  @group         AVContentKeySystem string constants
  @brief         Used by AVContentKeySession to determine the method of key delivery
  */
-typedef NSString *AVContentKeySystem NS_STRING_ENUM API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED;
+typedef NSString *AVContentKeySystem NS_STRING_ENUM API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant      AVContentKeySystemFairPlayStreaming
  @discussion    Used to specify FairPlay Streaming (FPS) as the method of key delivery.
  */
-AVF_EXPORT AVContentKeySystem const AVContentKeySystemFairPlayStreaming API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED;
+AVF_EXPORT AVContentKeySystem const AVContentKeySystemFairPlayStreaming API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant      AVContentKeySystemClearKey
  @discussion    Used to specify clear key as the method of key delivery.
  */
-AVF_EXPORT AVContentKeySystem const AVContentKeySystemClearKey API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+AVF_EXPORT AVContentKeySystem const AVContentKeySystemClearKey API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
-API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
+/*!
+ @constant      AVContentKeySystemAuthorizationToken
+ @discussion    Used to specify a token that could be used to authorize playback of associated content key recipients.
+ */
+AVF_EXPORT AVContentKeySystem const AVContentKeySystemAuthorizationToken API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos)
 @interface AVContentKeySession : NSObject {
 @private
     AVContentKeySessionInternal *_session;
@@ -8358,7 +9198,7 @@ AV_INIT_UNAVAILABLE
  @result        A new AVContentKeySession.
  @discussion    This method returns an AVContentKeySession instance that is capable of managing collection of media content keys corresponding to the input keySystem. An NSInvalidArgumentException will be raised if the value of keySystem is unsupported.
  */
-+ (instancetype)contentKeySessionWithKeySystem:(AVContentKeySystem)keySystem API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
++ (instancetype)contentKeySessionWithKeySystem:(AVContentKeySystem)keySystem API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method        contentKeySessionWithKeySystem:storageDirectoryAtURL:
@@ -8431,7 +9271,7 @@ AV_INIT_UNAVAILABLE
  @param         initializationData
                 Container- and protocol-specific data to be used to obtain a key response. Either identifier or initializationData must be non-nil. Both can be non-nil, if the content protection protocol requires both.
  @param         options
-                No options are defined at this time, may be nil.
+                Additional information necessary to obtain the key, or nil if none. See AVContentKeyRequest*Key below.
  @discussion    May be used to generate an AVContentKeyRequest from request initialization data already in hand, without awaiting such data during the processing of media data of an associated recipient.
 */
 - (void)processContentKeyRequestWithIdentifier:(nullable id)identifier initializationData:(nullable NSData *)initializationData options:(nullable NSDictionary<NSString *, id> *)options;
@@ -8444,7 +9284,7 @@ AV_INIT_UNAVAILABLE
 - (void)renewExpiringResponseDataForContentKeyRequest:(AVContentKeyRequest *)contentKeyRequest;
 
 /*!
- @method        makeSecureTokenForExpirationDateOfPersistableContentKey:
+ @method        makeSecureTokenForExpirationDateOfPersistableContentKey:completionHandler:
  @abstract      Creates a secure server playback context (SPC) that the client could send to the key server to obtain an expiration date for the provided persistable content key data.
  @param         persistableContentKeyData
                 Persistable content key data that was previously created using -[AVContentKeyRequest persistableContentKeyFromKeyVendorResponse:options:error:] or obtained via AVContentKeySessionDelegate callback -contentKeySession:didUpdatePersistableContentKey:forContentKeyIdentifier:.
@@ -8452,7 +9292,57 @@ AV_INIT_UNAVAILABLE
                 Once the secure token is ready, this block will be called with the token or an error describing the failure.
  */
 - (void)makeSecureTokenForExpirationDateOfPersistableContentKey:(NSData *)persistableContentKeyData
-											  completionHandler:(void (^)(NSData * _Nullable secureTokenData, NSError * _Nullable error))handler API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos, watchos);
+											  completionHandler:(void (^)(NSData * _Nullable secureTokenData, NSError * _Nullable error))handler API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+
+/*!
+ @typedef       AVContentKeySessionServerPlaybackContextKey
+ @abstract      Options keys used to specify additional information for generating server playback context (SPC) in
+                    -[AVContentKeySession invalidatePersistableContentKey:options:completionHandler:] and
+                    -[AVContentKeySession invalidateAllPersistableContentKeysForApp:options:completionHandler:]
+ */
+typedef NSString * AVContentKeySessionServerPlaybackContextOption NS_STRING_ENUM;
+
+/*!
+ @constant      AVContentKeySessionServerPlaybackContextOptionProtocolVersions
+ @abstract      Specifies the versions of the content protection protocol supported by the application as an NSArray of one or more NSNumber objects. If not specified default protocol version of 1 is assumed.
+ */
+AVF_EXPORT AVContentKeySessionServerPlaybackContextOption const AVContentKeySessionServerPlaybackContextOptionProtocolVersions API_AVAILABLE(macos(10.15), ios(12.2)) API_UNAVAILABLE(tvos, watchos);
+
+/*!
+ @constant      AVContentKeySessionServerPlaybackContextOptionServerChallenge
+ @abstract      Specifies a nonce as a 8-byte NSData object to be included in the secure server playback context (SPC) in order to prevent replay attacks. If not specified default server challenge of 0 is assumed.
+ */
+AVF_EXPORT AVContentKeySessionServerPlaybackContextOption const AVContentKeySessionServerPlaybackContextOptionServerChallenge API_AVAILABLE(macos(10.15), ios(12.2)) API_UNAVAILABLE(tvos, watchos);
+
+/*!
+ @method        invalidatePersistableContentKey:options:completionHandler:
+ @abstract      Invalidates the persistable content key and creates a secure server playback context (SPC) that the client could send to the key server to verify the outcome of invalidation request.
+ @param         persistableContentKeyData
+                Persistable content key data that was previously created using -[AVContentKeyRequest persistableContentKeyFromKeyVendorResponse:options:error:] or obtained via AVContentKeySessionDelegate callback -contentKeySession:didUpdatePersistableContentKey:forContentKeyIdentifier:.
+ @param         options
+                Additional information necessary to generate the server playback context, or nil if none. See AVContentKeySessionServerPlaybackContextOption for supported options.
+ @param         handler
+                Once the server playback context is ready, this block will be called with the data or an error describing the failure.
+ @discussion    Once invalidated, a persistable content key cannot be used to answer key requests during later playback sessions.
+ */
+- (void)invalidatePersistableContentKey:(NSData *)persistableContentKeyData
+								options:(nullable NSDictionary<AVContentKeySessionServerPlaybackContextOption, id> *)options
+					  completionHandler:(void (^)(NSData * _Nullable secureTokenData, NSError * _Nullable error))handler API_AVAILABLE(macos(10.15), ios(12.2)) API_UNAVAILABLE(tvos, watchos);
+
+/*!
+ @method        invalidateAllPersistableContentKeysForApp:options:completionHandler:
+ @abstract      Invalidates all persistable content keys associated with the application and creates a secure server playback context (SPC) that the client could send to the key server to verify the outcome of invalidation request.
+ @param         appIdentifier
+                An opaque identifier for the application. The contents of this identifier depend on the particular protocol in use by the entity that controls the use of the media data.
+ @param         options
+                Additional information necessary to generate the server playback context, or nil if none. See AVContentKeySessionServerPlaybackContextOption for supported options.
+ @param         handler
+                Once the server playback context is ready, this block will be called with the data or an error describing the failure.
+ @discussion    Once invalidated, persistable content keys cannot be used to answer key requests during later playback sessions.
+ */
+- (void)invalidateAllPersistableContentKeysForApp:(NSData *)appIdentifier
+										  options:(nullable NSDictionary<AVContentKeySessionServerPlaybackContextOption, id> *)options
+								completionHandler:(void (^)(NSData * _Nullable secureTokenData, NSError * _Nullable error))handler API_AVAILABLE(macos(10.15), ios(12.2)) API_UNAVAILABLE(tvos, watchos);
 
 @end
 
@@ -8513,27 +9403,27 @@ AV_INIT_UNAVAILABLE
  @group         AVContentKeyRequestRetryReason string constants
  @brief         Used to specify a reason for asking the client to retry a content key request.
  */
-typedef NSString *AVContentKeyRequestRetryReason NS_STRING_ENUM API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED;
+typedef NSString *AVContentKeyRequestRetryReason NS_STRING_ENUM API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant      AVContentKeyRequestRetryReasonTimedOut
  @discussion    Indicates that the content key request should be retried because the key response was not set soon enough either due the initial request/response was taking too long, or a lease was expiring in the meantime.
  */
-AVF_EXPORT AVContentKeyRequestRetryReason const AVContentKeyRequestRetryReasonTimedOut API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED;
+AVF_EXPORT AVContentKeyRequestRetryReason const AVContentKeyRequestRetryReasonTimedOut API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant      AVContentKeyRequestRetryReasonReceivedResponseWithExpiredLease
  @discussion    Indicates that the content key request should be retried because a key response with expired lease was set on the previous content key request.
  */
-AVF_EXPORT AVContentKeyRequestRetryReason const AVContentKeyRequestRetryReasonReceivedResponseWithExpiredLease API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED;
+AVF_EXPORT AVContentKeyRequestRetryReason const AVContentKeyRequestRetryReasonReceivedResponseWithExpiredLease API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant      AVContentKeyRequestRetryReasonReceivedObsoleteContentKey
  @discussion    Indicates that the content key request should be retried because an obsolete key response was set on the previous content key request.
  */
-AVF_EXPORT AVContentKeyRequestRetryReason const AVContentKeyRequestRetryReasonReceivedObsoleteContentKey API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED;
+AVF_EXPORT AVContentKeyRequestRetryReason const AVContentKeyRequestRetryReasonReceivedObsoleteContentKey API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos);
 
-API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos)
 @protocol AVContentKeySessionDelegate <NSObject>
 
 /*!
@@ -8584,7 +9474,7 @@ API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
  @discussion    If the content key session provides an updated persistable content key data, the previous key data is no longer valid and cannot be used to answer future loading requests.
  */
 @optional
-- (void)contentKeySession:(AVContentKeySession *)session didUpdatePersistableContentKey:(NSData *)persistableContentKey forContentKeyIdentifier:(id)keyIdentifier API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos, watchos);
+- (void)contentKeySession:(AVContentKeySession *)session didUpdatePersistableContentKey:(NSData *)persistableContentKey forContentKeyIdentifier:(id)keyIdentifier API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @method        contentKeySession:contentKeyRequest:didFailWithError:
@@ -8624,7 +9514,7 @@ API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
  @discussion    Will be invoked by an AVContentKeySession when it is certain that the response client provided via -[AVContentKeyRequest processContentKeyResponse:] was successfully processed by the system.
  */
 @optional
-- (void)contentKeySession:(AVContentKeySession *)session contentKeyRequestDidSucceed:(AVContentKeyRequest *)keyRequest API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) __WATCHOS_PROHIBITED;
+- (void)contentKeySession:(AVContentKeySession *)session contentKeyRequestDidSucceed:(AVContentKeyRequest *)keyRequest API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method        contentKeySessionContentProtectionSessionIdentifierDidChange:
@@ -8642,7 +9532,7 @@ API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
  @discussion    Will be invoked by an AVContentKeySession when an expired session report is added to the storageURL
 */
 @optional
-- (void)contentKeySessionDidGenerateExpiredSessionReport:(AVContentKeySession *)session API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) __WATCHOS_PROHIBITED;
+- (void)contentKeySessionDidGenerateExpiredSessionReport:(AVContentKeySession *)session API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos);
 @end
 
 
@@ -8661,17 +9551,17 @@ API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
     Indicates that the request has encountered an error. See also the error property.
 */
 typedef NS_ENUM(NSInteger, AVContentKeyRequestStatus) {
-    AVContentKeyRequestStatusRequestingResponse,
-    AVContentKeyRequestStatusReceivedResponse,
-    AVContentKeyRequestStatusRenewed,
-	AVContentKeyRequestStatusRetried,
-    AVContentKeyRequestStatusCancelled,
-    AVContentKeyRequestStatusFailed
-} API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED;
+    AVContentKeyRequestStatusRequestingResponse = 0,
+    AVContentKeyRequestStatusReceivedResponse = 1,
+    AVContentKeyRequestStatusRenewed = 2,
+	AVContentKeyRequestStatusRetried = 3,
+    AVContentKeyRequestStatusCancelled = 4,
+    AVContentKeyRequestStatusFailed = 5
+} API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos);
 
 @class AVContentKeyRequestInternal;
 
-API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos)
 @interface AVContentKeyRequest : NSObject
 {
 @private
@@ -8703,6 +9593,12 @@ API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
  @abstract      Container- and protocol-specific data to be used to obtain a key response.
 */
 @property (nonatomic, readonly, nullable) NSData *initializationData;
+
+/*
+ @property      options
+ @abstract      Additional information specified while initiaing key loading using -processContentKeyRequestWithIdentifier:initializationData:options:.
+ */
+@property (readonly, copy) NSDictionary<NSString *, id> *options API_AVAILABLE(macos(10.14.4), ios(12.2), tvos(12.2)) API_UNAVAILABLE(watchos);
 
 /*
  @property      canProvidePersistableContentKey
@@ -8760,11 +9656,11 @@ API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
  @result		YES if sucessful. If NO, this request should be responded to via processContentKeyResponse: or processContentKeyResponseError:.
  @discussion	When you receive an AVContentKeyRequest via -contentKeySession:didProvideContentKeyRequest: and you want the resulting key response to produce a key that can persist across multiple playback sessions, you must invoke -respondByRequestingPersistableContentKeyRequest on that AVContentKeyRequest in order to signal that you want to process an AVPersistableContentKeyRequest instead. If the underlying protocol supports persistable content keys, in response your delegate will receive an AVPersistableContentKeyRequest via -contentKeySession:didProvidePersistableContentKeyRequest:. NSInternalInconsistencyException will be raised, if you are attempting to create and use a persistable key but your AVContentKeySession delegate does not respond to contentKeySession:didProvidePersistableContentKeyRequest:.
 */
-- (BOOL)respondByRequestingPersistableContentKeyRequestAndReturnError:(NSError **)outError API_AVAILABLE(ios(11.2)) API_UNAVAILABLE(macos, tvos, watchos);
+- (BOOL)respondByRequestingPersistableContentKeyRequestAndReturnError:(NSError **)outError API_AVAILABLE(macos(10.15), ios(11.2)) API_UNAVAILABLE(tvos, watchos);
 
 @end
 
-API_AVAILABLE(ios(10.3), tvos(10.3)) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(10.3), tvos(10.3)) API_UNAVAILABLE(watchos)
 @interface AVPersistableContentKeyRequest : AVContentKeyRequest
 
 /*!
@@ -8801,7 +9697,7 @@ API_AVAILABLE(ios(10.3), tvos(10.3)) __WATCHOS_PROHIBITED
  @class         AVContentKeyResponse
  @abstract      AVContentKeyResponse is used to represent the data returned from the key server when requesting a key for decrypting content.
 */
-API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos)
 @interface AVContentKeyResponse : NSObject
 {
 @private
@@ -8829,16 +9725,31 @@ API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED
  @result		A new AVContentKeyResponse holding Clear Key data.
  @discussion	The object created by this method is typically used with an AVContentKeyRequest created by an AVContentKeySession using keySystem AVContentKeySystemClearKey. It is passed to AVContentKeyRequest -processContentKeyResponse: in order to supply the decryptor with key data.
 */
-+ (instancetype)contentKeyResponseWithClearKeyData:(NSData *)keyData initializationVector:(nullable NSData *)initializationVector API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
++ (instancetype)contentKeyResponseWithClearKeyData:(NSData *)keyData initializationVector:(nullable NSData *)initializationVector API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+
+/*!
+ @method        contentKeyResponseWithAuthorizationTokenData:
+ @abstract      Create an AVContentKeyResponse from authorization token data when using AVContentKeySystemAuthorizationToken key system.
+ @param         authorizationTokenData
+				Data blob containing the authorization token.
+ @result        A new AVContentKeyResponse holding the authorization token data.
+ @discussion    The object created by this method is typically used with an AVContentKeyRequest created by an AVContentKeySession using keySystem AVContentKeySystemAuthorizationToken. It is passed to AVContentKeyRequest -processContentKeyResponse: in order to supply the authorization token data.
+ */
++ (instancetype) contentKeyResponseWithAuthorizationTokenData:(NSData *)authorizationTokenData API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 @end
 
-// Options keys for use with -[AVContentKeyRequest makeStreamingContentKeyRequestDataForApp:contentIdentifier:options:completionHandler:]
+/*!
+ Options keys for use with the following methods:
+	-[AVContentKeySession processContentKeyRequestWithIdentifier:initializationData:options:]
+	-[AVContentKeyRequest makeStreamingContentKeyRequestDataForApp:contentIdentifier:options:completionHandler:]
+ */
+
 /*!
  @constant      AVContentKeyRequestProtocolVersionsKey
  @abstract      Specifies the versions of the content protection protocol supported by the application as an NSArray of one or more NSNumber objects.
  */
-AVF_EXPORT NSString *const AVContentKeyRequestProtocolVersionsKey API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) __WATCHOS_PROHIBITED;
+AVF_EXPORT NSString *const AVContentKeyRequestProtocolVersionsKey API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos);
 
 /*!
   @protocol      AVContentKeyRecipient
@@ -8846,7 +9757,7 @@ AVF_EXPORT NSString *const AVContentKeyRequestProtocolVersionsKey API_AVAILABLE(
   @abstract
     Classes of objects that may require decryption keys for media data in order to enable processing, such as parsing or playback, conform to this protocol.
 */
-API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2), watchos(3.3))
+API_AVAILABLE(macos(10.12.4), ios(10.3), tvos(10.2)) API_UNAVAILABLE(watchos)
 @protocol AVContentKeyRecipient
 
 @required
@@ -8970,7 +9881,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  
     Note that the dictionary of settings is dependent on the current configuration of the receiver's AVCaptureSession and its inputs. The settings dictionary may change if the session's configuration changes. As such, you should configure your session first, then query the recommended video settings. As of iOS 8.3, movies produced with these settings successfully import into the iOS camera roll and sync to and from like devices via iTunes.
  */
-- (nullable NSDictionary<NSString *, id> *)recommendedVideoSettingsForAssetWriterWithOutputFileType:(AVFileType)outputFileType API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+- (nullable NSDictionary<NSString *, id> *)recommendedVideoSettingsForAssetWriterWithOutputFileType:(AVFileType)outputFileType API_AVAILABLE(macos(10.15), ios(7.0));
 
 /*!
  @method availableVideoCodecTypesForAssetWriterWithOutputFileType:
@@ -8985,7 +9896,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     This method allows you to query the available video codecs that may be used when specifying an AVVideoCodecKey in -recommendedVideoSettingsForVideoCodecType:assetWriterOutputFileType:. When specifying an outputFileType of AVFileTypeQuickTimeMovie, video codecs are ordered identically to -[AVCaptureMovieFileOutput availableVideoCodecTypes].
  */
-- (NSArray<AVVideoCodecType> *)availableVideoCodecTypesForAssetWriterWithOutputFileType:(AVFileType)outputFileType API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (NSArray<AVVideoCodecType> *)availableVideoCodecTypesForAssetWriterWithOutputFileType:(AVFileType)outputFileType API_AVAILABLE(macos(10.15), ios(11.0));
 
 /*!
  @method recommendedVideoSettingsForVideoCodecType:assetWriterOutputFileType:
@@ -9010,7 +9921,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  
     Note that the dictionary of settings is dependent on the current configuration of the receiver's AVCaptureSession and its inputs. The settings dictionary may change if the session's configuration changes. As such, you should configure your session first, then query the recommended video settings. As of iOS 8.3, movies produced with these settings successfully import into the iOS camera roll and sync to and from like devices via iTunes.
  */
-- (nullable NSDictionary *)recommendedVideoSettingsForVideoCodecType:(AVVideoCodecType)videoCodecType assetWriterOutputFileType:(AVFileType)outputFileType API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (nullable NSDictionary *)recommendedVideoSettingsForVideoCodecType:(AVVideoCodecType)videoCodecType assetWriterOutputFileType:(AVFileType)outputFileType API_AVAILABLE(macos(10.15), ios(11.0));
 
 /*!
  @property availableVideoCVPixelFormatTypes
@@ -9040,7 +9951,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     The value of this property is a CMTime specifying the minimum duration of each video frame output by the receiver, placing a lower bound on the amount of time that should separate consecutive frames. This is equivalent to the inverse of the maximum frame rate. A value of kCMTimeZero or kCMTimeInvalid indicates an unlimited maximum frame rate. The default value is kCMTimeInvalid. As of iOS 5.0, minFrameDuration is deprecated. Use AVCaptureConnection's videoMinFrameDuration property instead.
  */
-@property(nonatomic) CMTime minFrameDuration API_DEPRECATED("Use AVCaptureConnection's videoMinFrameDuration property instead.", ios(4.0, 5.0)) API_UNAVAILABLE(macos);
+@property(nonatomic) CMTime minFrameDuration API_DEPRECATED("Use AVCaptureConnection's videoMinFrameDuration property instead.", ios(4.0, 5.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property alwaysDiscardsLateVideoFrames
@@ -9051,6 +9962,26 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
     When the value of this property is YES, the receiver will immediately discard frames that are captured while the dispatch queue handling existing frames is blocked in the captureOutput:didOutputSampleBuffer:fromConnection: delegate method. When the value of this property is NO, delegates will be allowed more time to process old frames before new frames are discarded, but application memory usage may increase significantly as a result. The default value is YES.
  */
 @property(nonatomic) BOOL alwaysDiscardsLateVideoFrames;
+
+/*!
+ @property automaticallyConfiguresOutputBufferDimensions
+ @abstract
+    Indicates whether the receiver automatically configures the size of output buffers.
+ 
+ @discussion
+    Default value is YES. In most configurations, AVCaptureVideoDataOutput delivers full-resolution buffers, that is, buffers with the same dimensions as the source AVCaptureDevice's activeFormat's videoDimensions. When this property is set to YES, the receiver is free to configure the dimensions of the buffers delivered to -captureOutput:didOutputSampleBuffer:fromConnection:, such that they are a smaller preview size (roughly the size of the screen). For instance, when the AVCaptureSession's sessionPreset is set to AVCaptureSessionPresetPhoto, it is assumed that video data output buffers are being delivered as a preview proxy. Likewise, if an AVCapturePhotoOutput is present in the session with livePhotoCaptureEnabled, it is assumed that video data output is being used for photo preview, and thus preview-sized buffers are a better choice than full-res buffers. You can query deliversPreviewSizedOutputBuffers to find out whether automatic configuration of output buffer dimensions is currently downscaling buffers to a preview size. You can also query the videoSettings property to find out the exact width and height being delivered. If you wish to manually set deliversPreviewSizedOutputBuffers, you must first set automaticallyConfiguresOutputBufferDimensions to NO.
+ */
+@property(nonatomic) BOOL automaticallyConfiguresOutputBufferDimensions API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, watchos, tvos);
+
+/*!
+ @property deliversPreviewSizedOutputBuffers
+ @abstract
+    Indicates whether the receiver is currently configured to deliver preview sized buffers.
+ 
+ @discussion
+    If you wish to manually set deliversPreviewSizedOutputBuffers, you must first set automaticallyConfiguresOutputBufferDimensions to NO.
+ */
+@property(nonatomic) BOOL deliversPreviewSizedOutputBuffers API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, watchos, tvos);
 
 @end
 
@@ -9166,12 +10097,12 @@ NS_ASSUME_NONNULL_BEGIN
 	the value of the player's error property.
  */
 typedef NS_ENUM(NSInteger, AVPlayerStatus) {
-	AVPlayerStatusUnknown,
-	AVPlayerStatusReadyToPlay,
-	AVPlayerStatusFailed
+	AVPlayerStatusUnknown = 0,
+	AVPlayerStatusReadyToPlay = 1,
+	AVPlayerStatusFailed = 2
 };
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVPlayer : NSObject 
 {
 @private
@@ -9286,10 +10217,10 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 	In this state, playback is currently progressing and rate changes will take effect immediately. Should playback stall because of insufficient media data, timeControlStatus will change to AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate.
  */
 typedef NS_ENUM(NSInteger, AVPlayerTimeControlStatus) {
-	AVPlayerTimeControlStatusPaused,
-	AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate,
-	AVPlayerTimeControlStatusPlaying
-} NS_ENUM_AVAILABLE(10_12, 10_0);
+	AVPlayerTimeControlStatusPaused = 0,
+	AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate = 1,
+	AVPlayerTimeControlStatusPlaying = 2
+} API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 
 /*!
@@ -9299,7 +10230,7 @@ typedef NS_ENUM(NSInteger, AVPlayerTimeControlStatus) {
  
 When automaticallyWaitsToMinimizeStalling is YES, absent intervention in the form of invocations of -setRate: or -pause or, on iOS, an interruption that requires user intervention before playback can resume, the value of the property timeControlStatus automatically changes between AVPlayerTimeControlStatusPlaying and AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate depending on whether sufficient media data is available to continue playback. This property is key value observable.
 */
-@property (nonatomic, readonly) AVPlayerTimeControlStatus timeControlStatus NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, readonly) AVPlayerTimeControlStatus timeControlStatus API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 /*!
  @typedef AVPlayerWaitingReason
@@ -9315,7 +10246,7 @@ typedef NSString * AVPlayerWaitingReason NS_STRING_ENUM;
 	The player is waiting for playback because automaticallyWaitToMinimizeStalling is YES and playback at the specified rate would likely cause the playback buffer to become empty before playback completes. Playback will resume when 1) playback at the specified rate will likely complete without a stall or 2) the playback buffer becomes full, meaning no forther buffering of media data is possible.
 	When the value of automaticallyWaitsToMinimizeStalling is NO, timeControlStatus cannot become AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate for this reason.
  */
-AVF_EXPORT AVPlayerWaitingReason const AVPlayerWaitingToMinimizeStallsReason NS_AVAILABLE(10_12, 10_0);
+AVF_EXPORT AVPlayerWaitingReason const AVPlayerWaitingToMinimizeStallsReason API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 /*!
  @constant AVPlayerWaitingWhileEvaluatingBufferingRateReason
@@ -9324,7 +10255,7 @@ AVF_EXPORT AVPlayerWaitingReason const AVPlayerWaitingToMinimizeStallsReason NS_
 	The player is waiting for playback because automaticallyWaitToMinimizeStalling is YES and it has not yet determined if starting playback at the specified rate would likely cause the buffer to become empty. When the brief initial monitoring period is over, either playback will begin or the value of reasonForWaitingToPlayAtSpecifiedRate will switch to AVPlayerWaitingToMinimizeStallsReason.
 	Recommended practice is not to show UI indicating the waiting state to the user while the value of reasonForWaitingToPlayAtSpecifiedRate is AVPlayerWaitingWhileEvaluatingBufferingRateReason.
  */
-AVF_EXPORT AVPlayerWaitingReason const AVPlayerWaitingWhileEvaluatingBufferingRateReason NS_AVAILABLE(10_12, 10_0);
+AVF_EXPORT AVPlayerWaitingReason const AVPlayerWaitingWhileEvaluatingBufferingRateReason API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 /*!
  @constant AVPlayerWaitingWithNoItemToPlayReason
@@ -9332,7 +10263,7 @@ AVF_EXPORT AVPlayerWaitingReason const AVPlayerWaitingWhileEvaluatingBufferingRa
  @discussion
 	The player is waiting for playback because automaticallyWaitToMinimizeStalling is YES and the value of currentItem is nil. When an item becomes available, either because of a call to -replaceCurrentItemWithPlayerItem: or  -insertItem: afterItem:, playback will begin or the value of reasonForWaitingToPlay will change.
  */
-AVF_EXPORT AVPlayerWaitingReason const AVPlayerWaitingWithNoItemToPlayReason NS_AVAILABLE(10_12, 10_0);
+AVF_EXPORT AVPlayerWaitingReason const AVPlayerWaitingWithNoItemToPlayReason API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 
 /*!
@@ -9345,7 +10276,7 @@ AVF_EXPORT AVPlayerWaitingReason const AVPlayerWaitingWithNoItemToPlayReason NS_
     Possible values are AVPlayerWaitingWithNoItemToPlayReason, AVPlayerWaitingWhileEvaluatingBufferingRateReason, and AVPlayerWaitingToMinimizeStallsReason.
 */
 
-@property (nonatomic, readonly, nullable) AVPlayerWaitingReason reasonForWaitingToPlay NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, readonly, nullable) AVPlayerWaitingReason reasonForWaitingToPlay API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 
 /*!
@@ -9355,7 +10286,7 @@ AVF_EXPORT AVPlayerWaitingReason const AVPlayerWaitingWithNoItemToPlayReason NS_
  When the player's currentItem has a value of NO for playbackBufferEmpty, this method causes the value of rate to change to the specified rate, the value of timeControlStatus to change to AVPlayerTimeControlStatusPlaying, and the receiver to play the available media immediately, whether or not prior buffering of media data is sufficient to ensure smooth playback.
  If insufficient media data is buffered for playback to start (e.g. if the current item has a value of YES for playbackBufferEmpty), the receiver will act as if the buffer became empty during playback, except that no AVPlayerItemPlaybackStalledNotification will be posted.
  */
-- (void)playImmediatelyAtRate:(float)rate NS_AVAILABLE(10_12, 10_0);
+- (void)playImmediatelyAtRate:(float)rate API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 @end
 
@@ -9400,7 +10331,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 };
 
 /* indicates the action that the player should perform when playback of an item reaches its end time */
-@property (nonatomic) AVPlayerActionAtItemEnd actionAtItemEnd;
+@property AVPlayerActionAtItemEnd actionAtItemEnd;
 
 @end
 
@@ -9433,7 +10364,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 					set to NO. If the new request completes without being interrupted by another seek request or by any other operation the specified 
 					completion handler will be invoked with the finished parameter set to YES. 
  */
-- (void)seekToDate:(NSDate *)date completionHandler:(void (^)(BOOL finished))completionHandler NS_AVAILABLE(10_7, 5_0);
+- (void)seekToDate:(NSDate *)date completionHandler:(void (^)(BOOL finished))completionHandler API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
  @method			seekToTime:
@@ -9467,7 +10398,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 					set to NO. If the new request completes without being interrupted by another seek request or by any other operation the specified 
 					completion handler will be invoked with the finished parameter set to YES. 
  */
-- (void)seekToTime:(CMTime)time completionHandler:(void (^)(BOOL finished))completionHandler NS_AVAILABLE(10_7, 5_0);
+- (void)seekToTime:(CMTime)time completionHandler:(void (^)(BOOL finished))completionHandler API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
  @method			seekToTime:toleranceBefore:toleranceAfter:completionHandler:
@@ -9483,7 +10414,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 					request completes without being interrupted by another seek request or by any other operation the specified completion handler will be invoked with the 
 					finished parameter set to YES.
  */
-- (void)seekToTime:(CMTime)time toleranceBefore:(CMTime)toleranceBefore toleranceAfter:(CMTime)toleranceAfter completionHandler:(void (^)(BOOL finished))completionHandler NS_AVAILABLE(10_7, 5_0);
+- (void)seekToTime:(CMTime)time toleranceBefore:(CMTime)toleranceBefore toleranceAfter:(CMTime)toleranceAfter completionHandler:(void (^)(BOOL finished))completionHandler API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -9511,7 +10442,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
  You can allow the value of automaticallyWaitsToMinimizeStalling to remain YES if you use an AVAssetResourceLoader delegate to manage content keys for FairPlay Streaming, to provide dynamically-generated master playlists for HTTP Live Streaming, or to respond to authentication challenges, but not to load media data for playback.
 */
 
-@property (nonatomic) BOOL automaticallyWaitsToMinimizeStalling NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic) BOOL automaticallyWaitsToMinimizeStalling API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 
 
@@ -9532,7 +10463,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 					If hostClockTime is kCMTimeInvalid, the rate and time will be set together, but without external synchronization;
 					a host time in the near future will be used, allowing some time for media data loading.
 */
-- (void)setRate:(float)rate time:(CMTime)itemTime atHostTime:(CMTime)hostClockTime NS_AVAILABLE(10_8, 6_0);
+- (void)setRate:(float)rate time:(CMTime)itemTime atHostTime:(CMTime)hostClockTime API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /*!
 	@method			prerollAtRate:completionHandler:
@@ -9546,17 +10477,17 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 	@param completionHandler
 					The block that will be called when the preroll is either completed or is interrupted.
 */
-- (void)prerollAtRate:(float)rate completionHandler:(nullable void (^)(BOOL finished))completionHandler NS_AVAILABLE(10_8, 6_0);
+- (void)prerollAtRate:(float)rate completionHandler:(nullable void (^)(BOOL finished))completionHandler API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /*!
 	@method			cancelPendingPrerolls
 	@abstract		Cancel any pending preroll requests and invoke the corresponding completion handlers if present.
 	@discussion		Use this method to cancel and release the completion handlers for pending prerolls. The finished parameter of the completion handlers will be set to NO.
 */
-- (void)cancelPendingPrerolls NS_AVAILABLE(10_8, 6_0);
+- (void)cancelPendingPrerolls API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /* NULL by default.  if not NULL, overrides the automatic choice of master clock for item timebases. This is most useful for synchronizing video-only movies with audio played via other means. IMPORTANT: If you specify a master clock other than the appropriate audio device clock, audio may drift out of sync. */
-@property (nonatomic, retain, nullable) __attribute__((NSObject)) CMClockRef masterClock NS_AVAILABLE(10_8, 6_0);
+@property (nonatomic, retain, nullable) __attribute__((NSObject)) CMClockRef masterClock API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -9627,10 +10558,10 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 
    iOS note: Do not use this property to implement a volume slider for media playback. For that purpose, use MPVolumeView, which is customizable in appearance and provides standard media playback behaviors that users expect.
    This property is most useful on iOS to control the volume of the AVPlayer relative to other audio output, not for volume control by end users. */
-@property (nonatomic) float volume NS_AVAILABLE(10_7, 7_0);
+@property float volume API_AVAILABLE(macos(10.7), ios(7.0), tvos(9.0), watchos(1.0));
 
 /* indicates whether or not audio output of the player is muted. Only affects audio muting for the player instance and not for the device. */
-@property (nonatomic, getter=isMuted) BOOL muted NS_AVAILABLE(10_7, 7_0);
+@property (getter=isMuted) BOOL muted API_AVAILABLE(macos(10.7), ios(7.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -9644,7 +10575,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 
  By default, AVPlayer applies selection criteria based on system preferences. To override the default criteria for any media selection group, use -[AVPlayer setMediaSelectionCriteria:forMediaCharacteristic:].
 */
-@property (nonatomic) BOOL appliesMediaSelectionCriteriaAutomatically NS_AVAILABLE(10_9, 7_0);
+@property BOOL appliesMediaSelectionCriteriaAutomatically API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @method     setMediaSelectionCriteria:forMediaCharacteristic:
@@ -9661,7 +10592,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 
    Specific selections made by -[AVPlayerItem selectMediaOption:inMediaSelectionGroup:] within any group will override automatic selection in that group until -[AVPlayerItem selectMediaOptionAutomaticallyInMediaSelectionGroup:] is received.
 */
-- (void)setMediaSelectionCriteria:(nullable AVPlayerMediaSelectionCriteria *)criteria forMediaCharacteristic:(AVMediaCharacteristic)mediaCharacteristic NS_AVAILABLE(10_9, 7_0);
+- (void)setMediaSelectionCriteria:(nullable AVPlayerMediaSelectionCriteria *)criteria forMediaCharacteristic:(AVMediaCharacteristic)mediaCharacteristic API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @method     mediaSelectionCriteriaForMediaCharacteristic:
@@ -9669,7 +10600,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
  @param      mediaCharacteristic
   The media characteristic for which the selection criteria is to be returned. Supported values include AVMediaCharacteristicAudible, AVMediaCharacteristicLegible, and AVMediaCharacteristicVisual.
 */
-- (nullable AVPlayerMediaSelectionCriteria *)mediaSelectionCriteriaForMediaCharacteristic:(AVMediaCharacteristic)mediaCharacteristic NS_AVAILABLE(10_9, 7_0);
+- (nullable AVPlayerMediaSelectionCriteria *)mediaSelectionCriteriaForMediaCharacteristic:(AVMediaCharacteristic)mediaCharacteristic API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -9685,7 +10616,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 
 	Core Audio's kAudioDevicePropertyDeviceUID is a suitable source of audio output device unique IDs.
 */
-@property (nonatomic, copy, nullable) NSString *audioOutputDeviceUniqueID NS_AVAILABLE_MAC(10_9);
+@property (copy, nullable) NSString *audioOutputDeviceUniqueID API_AVAILABLE(macos(10.9)) API_UNAVAILABLE(ios, tvos, watchos);
 
 @end
 
@@ -9714,19 +10645,19 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 @interface AVPlayer (AVPlayerExternalPlaybackSupport)
 
 /* Indicates whether the player allows switching to "external playback" mode. The default value is YES. */
-@property (nonatomic) BOOL allowsExternalPlayback NS_AVAILABLE(10_11, 6_0);
+@property BOOL allowsExternalPlayback API_AVAILABLE(macos(10.11), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* Indicates whether the player is currently playing video in "external playback" mode. */
-@property (nonatomic, readonly, getter=isExternalPlaybackActive) BOOL externalPlaybackActive NS_AVAILABLE(10_11, 6_0);
+@property (nonatomic, readonly, getter=isExternalPlaybackActive) BOOL externalPlaybackActive API_AVAILABLE(macos(10.11), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* Indicates whether the player should automatically switch to "external playback" mode while the "external 
 	screen" mode is active in order to play video content and switching back to "external screen" mode as soon 
 	as playback is done. Brief transition may be visible on the external display when automatically switching 
 	between the two modes. The default value is NO. Has no effect if allowsExternalPlayback is NO. */
-@property (nonatomic) BOOL usesExternalPlaybackWhileExternalScreenIsActive NS_AVAILABLE_IOS(6_0);
+@property BOOL usesExternalPlaybackWhileExternalScreenIsActive API_AVAILABLE(ios(6.0), tvos(9.0)) API_UNAVAILABLE(macos, watchos);
 
 /* Video gravity strictly for "external playback" mode, one of AVLayerVideoGravity* defined in AVAnimation.h */
-@property (nonatomic, copy) AVLayerVideoGravity externalPlaybackVideoGravity NS_AVAILABLE_IOS(6_0);
+@property (nonatomic, copy) AVLayerVideoGravity externalPlaybackVideoGravity API_AVAILABLE(ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos) API_UNAVAILABLE(macos);
 
 @end
 
@@ -9736,16 +10667,16 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 
 /* Indicates whether the player allows AirPlay Video playback. The default value is YES. 
 	This property is deprecated. Use AVPlayer's -allowsExternalPlayback instead. */
-@property (nonatomic) BOOL allowsAirPlayVideo NS_DEPRECATED_IOS(5_0, 6_0);
+@property BOOL allowsAirPlayVideo API_DEPRECATED("No longer supported", ios(5.0, 6.0), tvos(9.0, 9.0)) API_UNAVAILABLE(watchos) API_UNAVAILABLE(macos);
 
 /* Indicates whether the player is currently playing video via AirPlay. 
 	This property is deprecated. Use AVPlayer's -externalPlaybackActive instead.*/
-@property (nonatomic, readonly, getter=isAirPlayVideoActive) BOOL airPlayVideoActive NS_DEPRECATED_IOS(5_0, 6_0);
+@property (nonatomic, readonly, getter=isAirPlayVideoActive) BOOL airPlayVideoActive API_DEPRECATED("No longer supported", ios(5.0, 6.0), tvos(9.0, 9.0)) API_UNAVAILABLE(watchos) API_UNAVAILABLE(macos);
 
 /* Indicates whether the player should automatically switch to AirPlay Video while AirPlay Screen is active in order to play video content, switching back to AirPlay Screen as soon as playback is done. 
 	The default value is NO. Has no effect if allowsAirPlayVideo is NO.
 	This property is deprecated. Use AVPlayer's -usesExternalPlaybackWhileExternalScreenIsActive instead. */
-@property (nonatomic) BOOL usesAirPlayVideoWhileAirPlayScreenIsActive NS_DEPRECATED_IOS(5_0, 6_0);
+@property BOOL usesAirPlayVideoWhileAirPlayScreenIsActive API_DEPRECATED("No longer supported", ios(5.0, 6.0), tvos(9.0, 9.0)) API_UNAVAILABLE(watchos) API_UNAVAILABLE(macos);
 
 @end
 
@@ -9774,7 +10705,7 @@ typedef NS_ENUM(NSInteger, AVPlayerActionAtItemEnd)
 		current item. These requirements are inherent to the content itself and cannot be externally specified.
 		If the current item does not require external protection, the value of this property will be NO.
  */
-@property (nonatomic, readonly) BOOL outputObscuredDueToInsufficientExternalProtection NS_AVAILABLE(10_12, 6_0);
+@property (nonatomic, readonly) BOOL outputObscuredDueToInsufficientExternalProtection API_AVAILABLE(macos(10.12), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -9793,7 +10724,7 @@ typedef NS_OPTIONS(NSInteger, AVPlayerHDRMode) {
 	AVPlayerHDRModeHLG				= 0x1,
 	AVPlayerHDRModeHDR10				= 0x2,
 	AVPlayerHDRModeDolbyVision		= 0x4,
-} API_AVAILABLE(ios(11.2), tvos(11.2)) API_UNAVAILABLE(macos, watchos);
+} API_AVAILABLE(ios(11.2), tvos(11.2)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos);
 
 @interface AVPlayer (AVPlayerPlaybackCapabilities)
 
@@ -9804,7 +10735,7 @@ typedef NS_OPTIONS(NSInteger, AVPlayerHDRMode) {
 	 @discussion
 		 This property indicates all of the HDR modes that the device can play.  Each value indicates that an appropriate HDR display is available for the specified HDR mode.  Additionally, the device must be capable of playing the specified HDR type.  This property does not indicate whether video contains HDR content, whether HDR video is currently playing, or whether video is playing on an HDR display.
 */
-@property (class, nonatomic, readonly) AVPlayerHDRMode availableHDRModes API_AVAILABLE(ios(11.2), tvos(11.2)) API_UNAVAILABLE(macos, watchos);
+@property (class, nonatomic, readonly) AVPlayerHDRMode availableHDRModes API_AVAILABLE(ios(11.2), tvos(11.2)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos);
 
 /*!
 	 @constant		AVPlayerAvailableHDRModesDidChangeNotification
@@ -9813,7 +10744,7 @@ typedef NS_OPTIONS(NSInteger, AVPlayerHDRMode) {
 	 @discussion
 		 This notification fires when a value is added or removed from the list of availableHDRModes.  This can be caused by display connection/disconnection or resource changes.
 */
-API_AVAILABLE(ios(11.2), tvos(11.2)) API_UNAVAILABLE(macos, watchos)
+API_AVAILABLE(ios(11.2), tvos(11.2)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos)
 AVF_EXPORT NSNotificationName const AVPlayerAvailableHDRModesDidChangeNotification;
 
 @end
@@ -9842,7 +10773,7 @@ AVF_EXPORT NSNotificationName const AVPlayerAvailableHDRModesDidChangeNotificati
 	 Default is YES on iOS.  Default is NO on macOS.
 	 Setting this property to NO does not force the display to sleep, it simply stops preventing display sleep.  Other apps or frameworks within your app may still be preventing display sleep for various reasons.
  */
-@property (nonatomic) BOOL preventsDisplaySleepDuringVideoPlayback API_AVAILABLE(ios(12.0), tvos(12.0), macos(10.14)) __WATCHOS_PROHIBITED;
+@property (nonatomic) BOOL preventsDisplaySleepDuringVideoPlayback API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -9864,7 +10795,7 @@ AVF_EXPORT NSNotificationName const AVPlayerAvailableHDRModesDidChangeNotificati
 
 		For further information about Media Accessibility preferences, see MediaAccessibility framework documentation.
  */
-@property (nonatomic, getter=isClosedCaptionDisplayEnabled) BOOL closedCaptionDisplayEnabled NS_DEPRECATED(10_7, 10_13, 4_0, 11_0, "Allow AVPlayer to enable closed captions automatically according to user preferences by ensuring that the value of appliesMediaSelectionCriteriaAutomatically is YES.");
+@property (getter=isClosedCaptionDisplayEnabled) BOOL closedCaptionDisplayEnabled API_DEPRECATED("Allow AVPlayer to enable closed captions automatically according to user preferences by ensuring that the value of appliesMediaSelectionCriteriaAutomatically is YES.", macos(10.7, 10.13), ios(4.0, 11.0), tvos(9.0, 11.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -9887,7 +10818,7 @@ AVF_EXPORT NSNotificationName const AVPlayerAvailableHDRModesDidChangeNotificati
 
 @class AVQueuePlayerInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_1)
+API_AVAILABLE(macos(10.7), ios(4.1), tvos(9.0), watchos(1.0))
 @interface AVQueuePlayer : AVPlayer 
 {
 @private
@@ -9978,7 +10909,7 @@ NS_ASSUME_NONNULL_END
  
     Framework:  AVFoundation
  
-    Copyright 2010-2017 Apple Inc. All rights reserved.
+    Copyright 2010-2019 Apple Inc. All rights reserved.
 */
 
 #import <AVFoundation/AVBase.h>
@@ -10297,6 +11228,16 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 - (void)addOutputWithNoConnections:(AVCaptureOutput *)output API_AVAILABLE(ios(8.0));
 
 /*!
+ @property connections
+ @abstract
+    An NSArray of AVCaptureConnections currently added to the receiver.
+ 
+ @discussion
+    The value of this property is an NSArray of AVCaptureConnections currently added to the receiver. Connections are formed implicitly by the receiver when a client calls -addInput: or -addOutput:. Connections are formed explicitly when a client calls -addConnection:.
+ */
+@property(nonatomic, readonly) NSArray<AVCaptureConnection *> *connections API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
+
+/*!
  @method canAddConnection:
  @abstract
     Returns whether the proposed connection can be added to the receiver.
@@ -10447,6 +11388,52 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 @end
 
 
+#pragma mark - AVCaptureMultiCamSession
+
+
+/*!
+ @class AVCaptureMultiCamSession
+ @abstract
+    A subclass of AVCaptureSession which supports simultaneous capture from multiple inputs of the same media type.
+ 
+ @discussion
+    AVCaptureMultiCamSession's sessionPreset is always AVCaptureSessionPresetInputPriority. Each input's activeFormat must be set to achieve the desired quality of service.
+ */
+API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos)
+@interface AVCaptureMultiCamSession : AVCaptureSession
+
+/*!
+ @property multiCamSupported
+    Indicates whether multicam session is supported on this platform.
+ 
+ @discussion
+    AVCaptureMultiCamSession is intended to be used with multiple cameras and is only supported on platforms with sufficient hardware bandwidth, system memory, and thermal performance. For single-camera use cases, AVCaptureSession should be used instead.
+ */
+@property(class, nonatomic, readonly, getter=isMultiCamSupported) BOOL multiCamSupported;
+
+/*!
+ @property hardwareCost
+ @abstract
+    Indicates the percentage of the session's available hardware budget currently in use.
+ 
+ @discussion
+    The value of this property is a float from 0.0 => 1.0 indicating how much of the session's available hardware is in use as a percentage, given the currently connected inputs and outputs and the features for which you've opted in. When your hardwareCost is greater than 1.0, the capture session cannot run your desired configuration due to hardware constraints, so you receive an AVCaptureSessionRuntimeErrorNotification when attempting to start it running. Default value is 0.
+ */
+@property(nonatomic, readonly) float hardwareCost;
+
+/*!
+ @property systemPressureCost
+ @abstract
+    Indicates the system pressure cost of your current configuration.
+ 
+ @discussion
+    The value of this property is a float whose nominal range is 0.0 => 1.0 indicating the system pressure cost of your current configuration. When your systemPressureCost is greater than 1.0, the capture session cannot run sustainably. It may be able to run for a brief period before needing to stop due to high system pressure. While running in an unsustainable configuration, you may monitor the session's systemPressureState and reduce pressure by reducing the frame rate, throttling your use of the GPU, etc. When the session reaches critical system pressure state, it must temporarily shut down, and you receive an AVCaptureSessionWasInterruptedNotification indicating the reason your session needed to stop. When system pressure alleviates, the session interruption ends.
+ */
+@property(nonatomic, readonly) float systemPressureCost;
+
+@end
+
+
 /*!
  @enum AVVideoFieldMode
  @abstract
@@ -10582,7 +11569,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     An AVCaptureConnection may involve one or more AVCaptureInputPorts producing data to the connection's AVCaptureOutput. This property is read-only. An AVCaptureConnection's output remains static for the life of the object. Note that a connection can either be to an output or a video preview layer, but never to both.
  */
-@property(nonatomic, readonly) AVCaptureOutput *output;
+@property(nonatomic, readonly, nullable) AVCaptureOutput *output;
 
 /*!
  @property videoPreviewLayer
@@ -10592,7 +11579,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     An AVCaptureConnection may involve one AVCaptureInputPort producing data to an AVCaptureVideoPreviewLayer object. This property is read-only. An AVCaptureConnection's videoPreviewLayer remains static for the life of the object. Note that a connection can either be to an output or a video preview layer, but never to both.
  */
-@property(nonatomic, readonly) AVCaptureVideoPreviewLayer *videoPreviewLayer API_AVAILABLE(ios(6.0));
+@property(nonatomic, readonly, nullable) AVCaptureVideoPreviewLayer *videoPreviewLayer API_AVAILABLE(ios(6.0));
 
 /*!
  @property enabled
@@ -10805,7 +11792,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     This property is only applicable to AVCaptureConnection instances involving video. On devices where the video stabilization feature is supported, only a subset of available source formats and resolutions may be available for stabilization. The videoStabilizationEnabled property returns YES if video stabilization is currently in use. This property is key-value observable. This property is deprecated. Use activeVideoStabilizationMode instead.
  */
-@property(nonatomic, readonly, getter=isVideoStabilizationEnabled) BOOL videoStabilizationEnabled API_DEPRECATED("Use activeVideoStabilizationMode instead.", ios(6.0, 8.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isVideoStabilizationEnabled) BOOL videoStabilizationEnabled API_DEPRECATED("Use activeVideoStabilizationMode instead.", ios(6.0, 8.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property enablesVideoStabilizationWhenAvailable
@@ -10815,7 +11802,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     This property is only applicable to AVCaptureConnection instances involving video. On devices where the video stabilization feature is supported, only a subset of available source formats and resolutions may be available for stabilization. By setting the enablesVideoStabilizationWhenAvailable property to YES, video flowing through the receiver is stabilized when available. Enabling video stabilization may introduce additional latency into the video capture pipeline. Clients may key-value observe the videoStabilizationEnabled property to know when stabilization is in use or not. The default value is NO. For apps linked before iOS 6.0, the default value is YES for a video connection attached to an AVCaptureMovieFileOutput instance. For apps linked on or after iOS 6.0, the default value is always NO. This property is deprecated. Use preferredVideoStabilizationMode instead.
  */
-@property(nonatomic) BOOL enablesVideoStabilizationWhenAvailable API_DEPRECATED("Use preferredVideoStabilizationMode instead.", ios(6.0, 8.0)) API_UNAVAILABLE(macos);
+@property(nonatomic) BOOL enablesVideoStabilizationWhenAvailable API_DEPRECATED("Use preferredVideoStabilizationMode instead.", ios(6.0, 8.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property cameraIntrinsicMatrixDeliverySupported
@@ -11211,7 +12198,7 @@ NS_ASSUME_NONNULL_BEGIN
 		• addMediaDataCollector:
 		• removeMediaDataCollector:
 */
-NS_CLASS_AVAILABLE(10_11_3, 9_3)
+API_AVAILABLE(macos(10.11.3), ios(9.3), tvos(9.3), watchos(2.3))
 @interface AVPlayerItemMediaDataCollector : NSObject
 {
 @private
@@ -11229,7 +12216,7 @@ NS_CLASS_AVAILABLE(10_11_3, 9_3)
 	@discussion
 		This class can be used to inform clients of the current set of AVMetadataGroups on an AVPlayerItem, and when new AVMetadataGroups become available - e.g. in a Live HLS stream.
 */
-NS_CLASS_AVAILABLE(10_11_3, 9_3)
+API_AVAILABLE(macos(10.11.3), ios(9.3), tvos(9.3), watchos(2.3))
 @interface AVPlayerItemMetadataCollector : AVPlayerItemMediaDataCollector
 {
 @private
@@ -11336,7 +12323,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion
     Instances of AVCaptureStillImageOutput can be used to capture, on demand, high quality snapshots from a realtime capture source. Clients can request a still image for the current time using the captureStillImageAsynchronouslyFromConnection:completionHandler: method. Clients can also configure still image outputs to produce still images in specific image formats.
  */
-API_AVAILABLE(macos(10.7)) API_DEPRECATED("Use AVCapturePhotoOutput instead.", ios(4.0, 10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
+API_DEPRECATED("Use AVCapturePhotoOutput instead.", macos(10.7, 10.15), ios(4.0, 10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 @interface AVCaptureStillImageOutput : AVCaptureOutput
 {
 @private
@@ -11387,7 +12374,7 @@ API_AVAILABLE(macos(10.7)) API_DEPRECATED("Use AVCapturePhotoOutput instead.", i
  @discussion
     The receiver's automaticallyEnablesStillImageStabilizationWhenAvailable property can only be set if this property returns YES. Its value may change as the session's -sessionPreset or input device's -activeFormat changes.
  */
-@property(nonatomic, readonly, getter=isStillImageStabilizationSupported) BOOL stillImageStabilizationSupported API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isStillImageStabilizationSupported) BOOL stillImageStabilizationSupported API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property automaticallyEnablesStillImageStabilizationWhenAvailable
@@ -11397,7 +12384,7 @@ API_AVAILABLE(macos(10.7)) API_DEPRECATED("Use AVCapturePhotoOutput instead.", i
  @discussion
     On a receiver where -isStillImageStabilizationSupported returns YES, image stabilization may be applied to reduce blur commonly found in low light photos. When stabilization is enabled, still image captures incur additional latency. The default value is YES when supported, NO otherwise. Setting this property throws an NSInvalidArgumentException if -isStillImageStabilizationSupported returns NO.
  */
-@property(nonatomic) BOOL automaticallyEnablesStillImageStabilizationWhenAvailable API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+@property(nonatomic) BOOL automaticallyEnablesStillImageStabilizationWhenAvailable API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property stillImageStabilizationActive
@@ -11407,7 +12394,7 @@ API_AVAILABLE(macos(10.7)) API_DEPRECATED("Use AVCapturePhotoOutput instead.", i
  @discussion
     On a receiver where -isStillImageStabilizationSupported returns YES, and automaticallyEnablesStillImageStabilizationWhenAvailable is set to YES, this property may be key-value observed, or queried from inside your key-value observation callback for the @"capturingStillImage" property, to find out if still image stabilization is being applied to the current capture.
  */
-@property(nonatomic, readonly, getter=isStillImageStabilizationActive) BOOL stillImageStabilizationActive API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isStillImageStabilizationActive) BOOL stillImageStabilizationActive API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property highResolutionStillImageOutputEnabled
@@ -11417,7 +12404,7 @@ API_AVAILABLE(macos(10.7)) API_DEPRECATED("Use AVCapturePhotoOutput instead.", i
  @discussion
     By default, AVCaptureStillImageOutput emits images with the same dimensions as its source AVCaptureDevice's activeFormat.formatDescription. However, if you set this property to YES, the receiver emits still images at its source AVCaptureDevice's activeFormat.highResolutionStillImageDimensions. Note that if you enable video stabilization (see AVCaptureConnection's preferredVideoStabilizationMode) for any output, the high resolution still images emitted by AVCaptureStillImageOutput may be smaller by 10 or more percent.
  */
-@property(nonatomic, getter=isHighResolutionStillImageOutputEnabled) BOOL highResolutionStillImageOutputEnabled API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, getter=isHighResolutionStillImageOutputEnabled) BOOL highResolutionStillImageOutputEnabled API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property capturingStillImage
@@ -11583,7 +12570,7 @@ API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHI
  @discussion
     AVCaptureStillImageOutput can only satisfy a limited number of image requests in a single bracket without exhausting system resources. The maximum number of still images that may be taken in a single bracket depends on the size of the images being captured, and consequently may vary with AVCaptureSession -sessionPreset and AVCaptureDevice -activeFormat. Some formats do not support bracketed capture and return a maxBracketedCaptureStillImageCount of 0. This read-only property is key-value observable. If you exceed -maxBracketedCaptureStillImageCount, then -captureStillImageBracketAsynchronouslyFromConnection:withSettingsArray:completionHandler: fails and the completionHandler is called [settings count] times with a NULL sample buffer and AVErrorMaximumStillImageCaptureRequestsExceeded.
  */
-@property(nonatomic, readonly) NSUInteger maxBracketedCaptureStillImageCount API_DEPRECATED("Use AVCapturePhotoOutput maxBracketedCapturePhotoCount instead.", ios(8.0, 10.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly) NSUInteger maxBracketedCaptureStillImageCount API_DEPRECATED("Use AVCapturePhotoOutput maxBracketedCapturePhotoCount instead.", ios(8.0, 10.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property lensStabilizationDuringBracketedCaptureSupported
@@ -11593,7 +12580,7 @@ API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHI
  @discussion
     The receiver's lensStabilizationDuringBracketedCaptureEnabled property can only be set if this property returns YES. Its value may change as the session's -sessionPreset or input device's -activeFormat changes. This read-only property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isLensStabilizationDuringBracketedCaptureSupported) BOOL lensStabilizationDuringBracketedCaptureSupported API_DEPRECATED("Use AVCapturePhotoOutput lensStabilizationDuringBracketedCaptureSupported instead.", ios(9.0, 10.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isLensStabilizationDuringBracketedCaptureSupported) BOOL lensStabilizationDuringBracketedCaptureSupported API_DEPRECATED("Use AVCapturePhotoOutput lensStabilizationDuringBracketedCaptureSupported instead.", ios(9.0, 10.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property lensStabilizationDuringBracketedCaptureEnabled
@@ -11603,7 +12590,7 @@ API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHI
  @discussion
     On a receiver where -isLensStabilizationDuringBracketedCaptureSupported returns YES, lens stabilization may be applied to the bracket to reduce blur commonly found in low light photos. When lens stabilization is enabled, bracketed still image captures incur additional latency. Lens stabilization is more effective with longer-exposure captures, and offers limited or no benefit for exposure durations shorter than 1/30 of a second. It is possible that during the bracket, the lens stabilization module may run out of correction range and therefore will not be active for every frame in the bracket. Each emitted CMSampleBuffer from the bracket will have an attachment of kCMSampleBufferAttachmentKey_StillImageLensStabilizationInfo indicating additional information about stabilization was applied to the buffer, if any. The default value of -isLensStabilizationDuringBracketedCaptureEnabled is NO. This value will be set to NO when -isLensStabilizationDuringBracketedCaptureSupported changes to NO. Setting this property throws an NSInvalidArgumentException if -isLensStabilizationDuringBracketedCaptureSupported returns NO. This property is key-value observable.
  */
-@property(nonatomic, getter=isLensStabilizationDuringBracketedCaptureEnabled) BOOL lensStabilizationDuringBracketedCaptureEnabled API_DEPRECATED("Use AVCapturePhotoOutput with AVCapturePhotoBracketSettings instead.", ios(9.0, 10.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, getter=isLensStabilizationDuringBracketedCaptureEnabled) BOOL lensStabilizationDuringBracketedCaptureEnabled API_DEPRECATED("Use AVCapturePhotoOutput with AVCapturePhotoBracketSettings instead.", ios(9.0, 10.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method prepareToCaptureStillImageBracketFromConnection:withSettingsArray:completionHandler:
@@ -11620,7 +12607,7 @@ API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHI
  @discussion
     -maxBracketedCaptureStillImageCount tells you the maximum number of images that may be taken in a single bracket given the current AVCaptureDevice/AVCaptureSession/AVCaptureStillImageOutput configuration. But before taking a still image bracket, additional resources may need to be allocated. By calling -prepareToCaptureStillImageBracketFromConnection:withSettingsArray:completionHandler: first, you are able to deterministically know when the receiver is ready to capture the bracket with the specified settings array.
  */
-- (void)prepareToCaptureStillImageBracketFromConnection:(AVCaptureConnection *)connection withSettingsArray:(NSArray<__kindof AVCaptureBracketedStillImageSettings *> *)settings completionHandler:(void (^)(BOOL prepared, NSError * _Nullable error))handler API_DEPRECATED("Use AVCapturePhotoOutput setPreparedPhotoSettingsArray:completionHandler: instead.", ios(8.0, 10.0)) API_UNAVAILABLE(macos);
+- (void)prepareToCaptureStillImageBracketFromConnection:(AVCaptureConnection *)connection withSettingsArray:(NSArray<__kindof AVCaptureBracketedStillImageSettings *> *)settings completionHandler:(void (^)(BOOL prepared, NSError * _Nullable error))handler API_DEPRECATED("Use AVCapturePhotoOutput setPreparedPhotoSettingsArray:completionHandler: instead.", ios(8.0, 10.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method captureStillImageBracketAsynchronouslyFromConnection:withSettingsArray:completionHandler:
@@ -11637,7 +12624,7 @@ API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHI
  @discussion
     If you have not called -prepareToCaptureStillImageBracketFromConnection:withSettingsArray:completionHandler: for this still image bracket request, the bracket may not be taken immediately, as the receiver may internally need to prepare resources.
  */
-- (void)captureStillImageBracketAsynchronouslyFromConnection:(AVCaptureConnection *)connection withSettingsArray:(NSArray<__kindof AVCaptureBracketedStillImageSettings *> *)settings completionHandler:(void (^)(CMSampleBufferRef _Nullable sampleBuffer, AVCaptureBracketedStillImageSettings * _Nullable stillImageSettings, NSError * _Nullable error))handler API_DEPRECATED("Use AVCapturePhotoOutput capturePhotoWithSettings:delegate: instead.", ios(8.0, 10.0)) API_UNAVAILABLE(macos);
+- (void)captureStillImageBracketAsynchronouslyFromConnection:(AVCaptureConnection *)connection withSettingsArray:(NSArray<__kindof AVCaptureBracketedStillImageSettings *> *)settings completionHandler:(void (^)(CMSampleBufferRef _Nullable sampleBuffer, AVCaptureBracketedStillImageSettings * _Nullable stillImageSettings, NSError * _Nullable error))handler API_DEPRECATED("Use AVCapturePhotoOutput capturePhotoWithSettings:delegate: instead.", ios(8.0, 10.0)) API_UNAVAILABLE(macos, uikitformac);
 
 @end
 
@@ -11658,14 +12645,14 @@ NS_ASSUME_NONNULL_END
 // Media types
 typedef NSString * AVMediaType NS_EXTENSIBLE_STRING_ENUM;
 
-AVF_EXPORT AVMediaType const AVMediaTypeVideo                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMediaType const AVMediaTypeAudio                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMediaType const AVMediaTypeText                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMediaType const AVMediaTypeClosedCaption         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMediaType const AVMediaTypeSubtitle              NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMediaType const AVMediaTypeTimecode              NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMediaType const AVMediaTypeMetadata              NS_AVAILABLE(10_8, 6_0);
-AVF_EXPORT AVMediaType const AVMediaTypeMuxed                 NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMediaType const AVMediaTypeVideo                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMediaType const AVMediaTypeAudio                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMediaType const AVMediaTypeText                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMediaType const AVMediaTypeClosedCaption         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMediaType const AVMediaTypeSubtitle              API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMediaType const AVMediaTypeTimecode              API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMediaType const AVMediaTypeMetadata              API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMediaType const AVMediaTypeMuxed                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaTypeMetadataObject
@@ -11698,9 +12685,9 @@ AVF_EXPORT AVMediaType const AVMediaTypeMuxed                 NS_AVAILABLE(10_7,
  If clients want to record a particular kind of metadata to a movie, they must manually form connections
  between a AVMediaTypeMetadata port and the movie file output using AVCaptureSession's -addConnection API.
 */
-AVF_EXPORT AVMediaType const AVMediaTypeMetadataObject API_AVAILABLE(ios(9.0), tvos(9.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED;
+AVF_EXPORT AVMediaType const AVMediaTypeMetadataObject API_AVAILABLE(ios(9.0), tvos(9.0)) API_UNAVAILABLE(macos, watchos);
 
-AVF_EXPORT AVMediaType const AVMediaTypeDepthData NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVMediaType const AVMediaTypeDepthData API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 
 // Media characteristics
@@ -11713,7 +12700,7 @@ typedef NSString * AVMediaCharacteristic NS_EXTENSIBLE_STRING_ENUM;
  AVMediaTypeVideo, AVMediaTypeSubtitle, AVMediaTypeClosedCaption are examples of media types with the characteristic AVMediaCharacteristicVisual.
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicVisual      NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicVisual      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaCharacteristicAudible
@@ -11722,7 +12709,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicVisual      NS_AVAIL
  AVMediaTypeAudio is a media type with the characteristic AVMediaCharacteristicAudible.
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicAudible     NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicAudible     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaCharacteristicLegible
@@ -11731,7 +12718,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicAudible     NS_AVAIL
  AVMediaTypeSubtitle and AVMediaTypeClosedCaption are examples of media types with the characteristic AVMediaCharacteristicLegible.
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicLegible     NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicLegible     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaCharacteristicFrameBased
@@ -11740,7 +12727,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicLegible     NS_AVAIL
  Frame-based content typically comprises discrete media samples that, once rendered, can remain current for indefinite periods of time without additional processing in support of "time-stretching". Further, any dependencies between samples are always explicitly signalled, so that the operations required to render any single sample can readily be performed on demand. AVMediaTypeVideo is the most common type of frame-based media. AVMediaTypeAudio is the most common counterexample. 
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicFrameBased  NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicFrameBased  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaCharacteristicUsesWideGamutColorSpace
@@ -11748,7 +12735,15 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicFrameBased  NS_AVAIL
  @discussion
  A wide color space such as AVVideo*_P3_D65 contains additional dynamic range that may benefit from special treatment when compositing. Care should be taken to avoid clamping. Non-wide spaces include AVVideo*_ITU_R_709_2 and AVVideo*_SMPTE_C.
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicUsesWideGamutColorSpace NS_AVAILABLE(10_12, 10_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicUsesWideGamutColorSpace API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
+
+/*!
+ @constant AVMediaCharacteristicContainsAlphaChannel
+ @abstract A media characteristic that indicates that a track contains an alpha channel.
+ @discussion
+ To determine whether alpha is straight or pre-multiplied, look for the format description extension with key kCMFormatDescriptionExtension_AlphaChannelMode.
+ */
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicContainsAlphaChannel API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant AVMediaCharacteristicIsMainProgramContent
@@ -11760,7 +12755,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicUsesWideGamutColorSp
 
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicIsMainProgramContent NS_AVAILABLE(10_8, 5_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicIsMainProgramContent API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaCharacteristicIsAuxiliaryContent
@@ -11773,7 +12768,20 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicIsMainProgramContent
 
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicIsAuxiliaryContent NS_AVAILABLE(10_8, 5_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicIsAuxiliaryContent API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
+
+/*!
+ @constant AVMediaCharacteristicIsOriginalContent
+ @abstract A media characteristic that indicates that a track or media selection option includes content that's marked by the content author as original to the principal production of the media, as opposed to supplementary or derivative content created by means of language translation or by other means.
+ @discussion
+ The value of this characteristic is @"public.original-content".
+ Example: an option that presents audio media with dialog in the principal language of the production may be tagged with this characteristic; audio media containing dialog dubbed in a language other than the principal language of the production typically would not be tagged with this characteristic.
+ Note for content authors: for QuickTime movie and .m4v files and for HTTP Live Streaming, a media option is considered to have the characteristic AVMediaCharacteristicIsOriginalContent only if it's explicitly tagged with the characteristic.
+ See the discussion of the tagging of tracks with media characteristics below.
+
+ Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
+*/
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicIsOriginalContent API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
 
 /*!
  @constant AVMediaCharacteristicContainsOnlyForcedSubtitles
@@ -11785,7 +12793,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicIsAuxiliaryContent N
 
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicContainsOnlyForcedSubtitles NS_AVAILABLE(10_8, 5_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicContainsOnlyForcedSubtitles API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaCharacteristicTranscribesSpokenDialogForAccessibility
@@ -11804,7 +12812,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicContainsOnlyForcedSu
 
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicTranscribesSpokenDialogForAccessibility NS_AVAILABLE(10_8, 5_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicTranscribesSpokenDialogForAccessibility API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaCharacteristicDescribesMusicAndSoundForAccessibility
@@ -11823,7 +12831,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicTranscribesSpokenDia
 
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicDescribesMusicAndSoundForAccessibility NS_AVAILABLE(10_8, 5_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicDescribesMusicAndSoundForAccessibility API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaCharacteristicEasyToRead
@@ -11838,7 +12846,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicDescribesMusicAndSou
 
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicEasyToRead NS_AVAILABLE(10_8, 6_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicEasyToRead API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaCharacteristicDescribesVideoForAccessibility
@@ -11851,7 +12859,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicEasyToRead NS_AVAILA
 
  Also see -[AVAssetTrack hasMediaCharacteristic:] and -[AVMediaSelectionOption hasMediaCharacteristic:].
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicDescribesVideoForAccessibility NS_AVAILABLE(10_8, 5_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicDescribesVideoForAccessibility API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVMediaCharacteristicLanguageTranslation
@@ -11862,7 +12870,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicDescribesVideoForAcc
  Note for content authors: for QuickTime movie and .m4v files a media option is considered to have the characteristic AVMediaCharacteristicLanguageTranslation only if it's explicitly tagged with that characteristic.
  See the discussion of the tagging of tracks with media characteristics below.
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicLanguageTranslation NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicLanguageTranslation API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 /*!
  @constant AVMediaCharacteristicDubbedTranslation
@@ -11874,10 +12882,10 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicLanguageTranslation 
  Note for content authors: for QuickTime movie and .m4v files a media option is considered to have the characteristic AVMediaCharacteristicDubbedTranslation only if it's explicitly tagged with that characteristic.
  See the discussion of the tagging of tracks with media characteristics below.
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicDubbedTranslation NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicDubbedTranslation API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 /*!
- @constant AVMediaCharacteristicVoiceOverTranslation NS_AVAILABLE(10_11, 9_0);
+ @constant AVMediaCharacteristicVoiceOverTranslation
  @abstract A media characteristic that indicates that a track or media selection option contains a language translation of originally or previously produced content, created by adding, in its designated language, a verbal interpretation of dialog and translations of other important information to a new mix of the audio content.
  @discussion
  Tracks to which this characteristic is assigned should typically also be assigned the characteristic AVMediaCharacteristicLanguageTranslation.
@@ -11886,7 +12894,7 @@ AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicDubbedTranslation NS
  Note for content authors: for QuickTime movie and .m4v files a media option is considered to have the characteristic AVMediaCharacteristicVoiceOverTranslation only if it's explicitly tagged with that characteristic.
  See the discussion of the tagging of tracks with media characteristics below.
 */
-AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicVoiceOverTranslation NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT AVMediaCharacteristic const AVMediaCharacteristicVoiceOverTranslation API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 /*
 	Tagging of tracks of .mov and .m4v files with media characteristics
@@ -11933,7 +12941,7 @@ typedef NSString * AVFileType NS_EXTENSIBLE_STRING_ENUM;
  The value of this UTI is @"com.apple.quicktime-movie".
  Files are identified with the .mov and .qt extensions.
  */
-AVF_EXPORT AVFileType const AVFileTypeQuickTimeMovie NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVFileType const AVFileTypeQuickTimeMovie API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeMPEG4
@@ -11942,7 +12950,7 @@ AVF_EXPORT AVFileType const AVFileTypeQuickTimeMovie NS_AVAILABLE(10_7, 4_0);
  The value of this UTI is @"public.mpeg-4".
  Files are identified with the .mp4 extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeMPEG4 NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVFileType const AVFileTypeMPEG4 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeAppleM4V
@@ -11950,7 +12958,7 @@ AVF_EXPORT AVFileType const AVFileTypeMPEG4 NS_AVAILABLE(10_7, 4_0);
  The value of this UTI is @"com.apple.m4v-video".
  Files are identified with the .m4v extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeAppleM4V NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVFileType const AVFileTypeAppleM4V API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeAppleM4A
@@ -11958,7 +12966,7 @@ AVF_EXPORT AVFileType const AVFileTypeAppleM4V NS_AVAILABLE(10_7, 4_0);
  The value of this UTI is @"com.apple.m4a-audio".
  Files are identified with the .m4a extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeAppleM4A NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVFileType const AVFileTypeAppleM4A API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileType3GPP
@@ -11967,7 +12975,7 @@ AVF_EXPORT AVFileType const AVFileTypeAppleM4A NS_AVAILABLE(10_7, 4_0);
  The value of this UTI is @"public.3gpp".
  Files are identified with the .3gp, .3gpp, and .sdv extensions.
  */
-AVF_EXPORT AVFileType const AVFileType3GPP NS_AVAILABLE(10_11, 4_0);
+AVF_EXPORT AVFileType const AVFileType3GPP API_AVAILABLE(macos(10.11), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileType3GPP2
@@ -11976,7 +12984,7 @@ AVF_EXPORT AVFileType const AVFileType3GPP NS_AVAILABLE(10_11, 4_0);
  The value of this UTI is @"public.3gpp2".
  Files are identified with the .3g2, .3gp2 extensions.
  */
-AVF_EXPORT AVFileType const AVFileType3GPP2 NS_AVAILABLE(10_11, 4_0);
+AVF_EXPORT AVFileType const AVFileType3GPP2 API_AVAILABLE(macos(10.11), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeCoreAudioFormat
@@ -11985,7 +12993,7 @@ AVF_EXPORT AVFileType const AVFileType3GPP2 NS_AVAILABLE(10_11, 4_0);
  The value of this UTI is @"com.apple.coreaudio-format".
  Files are identified with the .caf extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeCoreAudioFormat NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVFileType const AVFileTypeCoreAudioFormat API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeWAVE
@@ -11994,7 +13002,7 @@ AVF_EXPORT AVFileType const AVFileTypeCoreAudioFormat NS_AVAILABLE(10_7, 4_0);
  The value of this UTI is @"com.microsoft.waveform-audio".
  Files are identified with the .wav, .wave, and .bwf extensions.
  */
-AVF_EXPORT AVFileType const AVFileTypeWAVE NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVFileType const AVFileTypeWAVE API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeAIFF
@@ -12003,7 +13011,7 @@ AVF_EXPORT AVFileType const AVFileTypeWAVE NS_AVAILABLE(10_7, 4_0);
  The value of this UTI is @"public.aiff-audio".
  Files are identified with the .aif and .aiff extensions.
  */
-AVF_EXPORT AVFileType const AVFileTypeAIFF NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVFileType const AVFileTypeAIFF API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeAIFC
@@ -12012,7 +13020,7 @@ AVF_EXPORT AVFileType const AVFileTypeAIFF NS_AVAILABLE(10_7, 4_0);
  The value of this UTI is @"public.aifc-audio".
  Files are identified with the .aifc and .cdda extensions.
  */
-AVF_EXPORT AVFileType const AVFileTypeAIFC NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVFileType const AVFileTypeAIFC API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeAMR
@@ -12021,7 +13029,7 @@ AVF_EXPORT AVFileType const AVFileTypeAIFC NS_AVAILABLE(10_7, 4_0);
  The value of this UTI is @"org.3gpp.adaptive-multi-rate-audio".
  Files are identified with the .amr extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeAMR NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVFileType const AVFileTypeAMR API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeMPEGLayer3
@@ -12030,7 +13038,7 @@ AVF_EXPORT AVFileType const AVFileTypeAMR NS_AVAILABLE(10_7, 4_0);
  The value of this UTI is @"public.mp3".
  Files are identified with the .mp3 extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeMPEGLayer3 NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVFileType const AVFileTypeMPEGLayer3 API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeSunAU
@@ -12039,7 +13047,7 @@ AVF_EXPORT AVFileType const AVFileTypeMPEGLayer3 NS_AVAILABLE(10_9, 7_0);
  The value of this UTI is @"public.au-audio".
  Files are identified with the .au and .snd extensions.
  */
-AVF_EXPORT AVFileType const AVFileTypeSunAU NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVFileType const AVFileTypeSunAU API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeAC3
@@ -12048,7 +13056,7 @@ AVF_EXPORT AVFileType const AVFileTypeSunAU NS_AVAILABLE(10_9, 7_0);
  The value of this UTI is @"public.ac3-audio".
  Files are identified with the .ac3 extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeAC3 NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVFileType const AVFileTypeAC3 API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant AVFileTypeEnhancedAC3
@@ -12057,7 +13065,7 @@ AVF_EXPORT AVFileType const AVFileTypeAC3 NS_AVAILABLE(10_9, 7_0);
  The value of this UTI is @"public.enhanced-ac3-audio".
  Files are identified with the .eac3 extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeEnhancedAC3 NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT AVFileType const AVFileTypeEnhancedAC3 API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 /*!
  @constant AVFileTypeJPEG
@@ -12066,7 +13074,7 @@ AVF_EXPORT AVFileType const AVFileTypeEnhancedAC3 NS_AVAILABLE(10_11, 9_0);
  The value of this UTI is @"public.jpeg".
  Files are identified with the .jpg or .jpeg extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeJPEG NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVFileType const AVFileTypeJPEG API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @constant AVFileTypeDNG
@@ -12075,7 +13083,7 @@ AVF_EXPORT AVFileType const AVFileTypeJPEG NS_AVAILABLE(10_13, 11_0);
  The value of this UTI is @"com.adobe.raw-image".
  Files are identified with the .dng extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeDNG NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVFileType const AVFileTypeDNG API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @constant AVFileTypeHEIC
@@ -12084,7 +13092,7 @@ AVF_EXPORT AVFileType const AVFileTypeDNG NS_AVAILABLE(10_13, 11_0);
  The value of this UTI is @"public.heic".
  Files are identified with the .heic extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeHEIC NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVFileType const AVFileTypeHEIC API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @constant AVFileTypeAVCI
@@ -12093,7 +13101,7 @@ AVF_EXPORT AVFileType const AVFileTypeHEIC NS_AVAILABLE(10_13, 11_0);
  The value of this UTI is @"public.avci".
  Files are identified with the .avci extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeAVCI NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVFileType const AVFileTypeAVCI API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @constant AVFileTypeHEIF
@@ -12102,7 +13110,7 @@ AVF_EXPORT AVFileType const AVFileTypeAVCI NS_AVAILABLE(10_13, 11_0);
  The value of this UTI is @"public.heif".
  Files are identified with the .heif extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeHEIF NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVFileType const AVFileTypeHEIF API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @constant AVFileTypeTIFF
@@ -12111,7 +13119,7 @@ AVF_EXPORT AVFileType const AVFileTypeHEIF NS_AVAILABLE(10_13, 11_0);
  The value of this UTI is @"public.tiff".
  Files are identified with the .tiff or .tif extension.
  */
-AVF_EXPORT AVFileType const AVFileTypeTIFF NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVFileType const AVFileTypeTIFF API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /*!
  @constant AVStreamingKeyDeliveryContentKeyType
@@ -12119,7 +13127,7 @@ AVF_EXPORT AVFileType const AVFileTypeTIFF NS_AVAILABLE(10_13, 11_0);
  @discussion
  The value of this UTI is @"com.apple.streamingkeydelivery.contentkey".
  */
-AVF_EXPORT NSString * const AVStreamingKeyDeliveryContentKeyType NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT NSString * const AVStreamingKeyDeliveryContentKeyType API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 /*!
  @constant AVStreamingKeyDeliveryPersistentContentKeyType
@@ -12127,7 +13135,7 @@ AVF_EXPORT NSString * const AVStreamingKeyDeliveryContentKeyType NS_AVAILABLE(10
  @discussion
  The value of this UTI is @"com.apple.streamingkeydelivery.persistentcontentkey".
  */
-AVF_EXPORT NSString * const AVStreamingKeyDeliveryPersistentContentKeyType NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT NSString * const AVStreamingKeyDeliveryPersistentContentKeyType API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 
 // ==========  AVFoundation.framework/Headers/AVVideoSettings.h
@@ -12136,7 +13144,7 @@ AVF_EXPORT NSString * const AVStreamingKeyDeliveryPersistentContentKeyType NS_AV
 
 	Framework:  AVFoundation
  
-	Copyright 2010-2017 Apple Inc. All rights reserved.
+	Copyright 2010-2019 Apple Inc. All rights reserved.
 
 */
 
@@ -12165,7 +13173,7 @@ AVF_EXPORT NSString * const AVStreamingKeyDeliveryPersistentContentKeyType NS_AV
 	It is an error to add any other AVVideoSettings.h keys to an uncompressed video settings dictionary.
 */
 
-AVF_EXPORT NSString *const AVVideoCodecKey /* NSString (CMVideoCodecType) */				NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT NSString *const AVVideoCodecKey /* NSString (CMVideoCodecType) */				API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
   @typedef      AVVideoCodecType
@@ -12173,21 +13181,27 @@ AVF_EXPORT NSString *const AVVideoCodecKey /* NSString (CMVideoCodecType) */				
  */
 typedef NSString * AVVideoCodecType NS_STRING_ENUM;
 
-	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeHEVC /* @"hvc1" */                    API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
-	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeH264 /* @"avc1" */                    API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
-	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeJPEG /* @"jpeg" */                    API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
-	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeAppleProRes4444 /* @"ap4h" */         API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
-	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeAppleProRes422 /* @"apcn" */          API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeHEVC /* @"hvc1" */                    API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeH264 /* @"avc1" */                    API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeJPEG /* @"jpeg" */                    API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeAppleProRes4444 /* @"ap4h" */         API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeAppleProRes422 /* @"apcn" */          API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeAppleProRes422HQ /* @"apch" */		API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeAppleProRes422LT /* @"apcs" */		API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeAppleProRes422Proxy /* @"apco" */		API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
 
-	AVF_EXPORT NSString *const AVVideoCodecHEVC /* @"hvc1" */                               API_DEPRECATED_WITH_REPLACEMENT("AVVideoCodecTypeHEVC", macos(10.13, 10.13), ios(11.0, 11.0), tvos(11.0, 11.0)) __WATCHOS_PROHIBITED;
-	AVF_EXPORT NSString *const AVVideoCodecH264 /* @"avc1" */                               API_DEPRECATED_WITH_REPLACEMENT("AVVideoCodecTypeH264", macos(10.7, 10.13), ios(4.0, 11.0), tvos(9.0, 11.0)) __WATCHOS_PROHIBITED;
-	AVF_EXPORT NSString *const AVVideoCodecJPEG /* @"jpeg" */                               API_DEPRECATED_WITH_REPLACEMENT("AVVideoCodecTypeJPEG", macos(10.7, 10.13), ios(4.0, 11.0), tvos(9.0, 11.0)) __WATCHOS_PROHIBITED;
+	/* IMPORTANT NOTE: this constant is used to select the appropriate encoder, but is NOT used on the encoded content, which is backwards compatible and hence uses 'hvc1' as its codec type. */
+	AVF_EXPORT AVVideoCodecType const AVVideoCodecTypeHEVCWithAlpha /* @"muxa" */           API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+	AVF_EXPORT NSString *const AVVideoCodecHEVC /* @"hvc1" */                               API_DEPRECATED_WITH_REPLACEMENT("AVVideoCodecTypeHEVC", macos(10.13, 10.13), ios(11.0, 11.0), tvos(11.0, 11.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoCodecH264 /* @"avc1" */                               API_DEPRECATED_WITH_REPLACEMENT("AVVideoCodecTypeH264", macos(10.7, 10.13), ios(4.0, 11.0), tvos(9.0, 11.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoCodecJPEG /* @"jpeg" */                               API_DEPRECATED_WITH_REPLACEMENT("AVVideoCodecTypeJPEG", macos(10.7, 10.13), ios(4.0, 11.0), tvos(9.0, 11.0)) API_UNAVAILABLE(watchos);
 	AVF_EXPORT NSString *const AVVideoCodecAppleProRes4444 /* @"ap4h" */                    API_DEPRECATED_WITH_REPLACEMENT("AVVideoCodecTypeAppleProRes4444", macos(10.7, 10.13)) API_UNAVAILABLE(ios, tvos, watchos);
 	AVF_EXPORT NSString *const AVVideoCodecAppleProRes422 /* @"apcn" */                     API_DEPRECATED_WITH_REPLACEMENT("AVVideoCodecTypeAppleProRes422", macos(10.7, 10.13)) API_UNAVAILABLE(ios, tvos, watchos);
 
 // For best results, always use even number values for AVVideoWidthKey and AVVideoHeightKey when encoding to AVVideoCodecTypeH264 or any other format that uses 4:2:0 downsampling
-AVF_EXPORT NSString *const AVVideoWidthKey /* NSNumber (encoded pixels) */					NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT NSString *const AVVideoHeightKey /* NSNumber (encoded pixels) */					NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT NSString *const AVVideoWidthKey /* NSNumber (encoded pixels) */					API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVVideoHeightKey /* NSNumber (encoded pixels) */					API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant	AVVideoPixelAspectRatioKey
@@ -12197,9 +13211,9 @@ AVF_EXPORT NSString *const AVVideoHeightKey /* NSNumber (encoded pixels) */					
  
 	Note that prior to OS X 10.9 and iOS 7.0, this key could only be specified as part of the dictionary given for AVVideoCompressionPropertiesKey.  As of OS X 10.9 and iOS 7.0, the top level of an AVVideoSettings dictionary is the preferred place to specify this key.
 */
-AVF_EXPORT NSString *const AVVideoPixelAspectRatioKey										NS_AVAILABLE(10_7, 4_0);
-	AVF_EXPORT NSString *const AVVideoPixelAspectRatioHorizontalSpacingKey /* NSNumber */	NS_AVAILABLE(10_7, 4_0);
-	AVF_EXPORT NSString *const AVVideoPixelAspectRatioVerticalSpacingKey /* NSNumber */		NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT NSString *const AVVideoPixelAspectRatioKey										API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoPixelAspectRatioHorizontalSpacingKey /* NSNumber */	API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoPixelAspectRatioVerticalSpacingKey /* NSNumber */		API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant	AVVideoCleanApertureKey
@@ -12211,21 +13225,21 @@ AVF_EXPORT NSString *const AVVideoPixelAspectRatioKey										NS_AVAILABLE(10_7
  
 	Note that prior to OS X 10.9 and iOS 7.0, this key could only be specified as part of the dictionary given for AVVideoCompressionPropertiesKey.  As of OS X 10.9 and iOS 7.0, the top level of an AVVideoSettings dictionary is the preferred place to specify this key.
 */
-AVF_EXPORT NSString *const AVVideoCleanApertureKey											NS_AVAILABLE(10_7, 4_0);
-	AVF_EXPORT NSString *const AVVideoCleanApertureWidthKey /* NSNumber */					NS_AVAILABLE(10_7, 4_0);
-	AVF_EXPORT NSString *const AVVideoCleanApertureHeightKey /* NSNumber */					NS_AVAILABLE(10_7, 4_0);
-	AVF_EXPORT NSString *const AVVideoCleanApertureHorizontalOffsetKey /* NSNumber */		NS_AVAILABLE(10_7, 4_0);
-	AVF_EXPORT NSString *const AVVideoCleanApertureVerticalOffsetKey /* NSNumber */			NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT NSString *const AVVideoCleanApertureKey											API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoCleanApertureWidthKey /* NSNumber */					API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoCleanApertureHeightKey /* NSNumber */					API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoCleanApertureHorizontalOffsetKey /* NSNumber */		API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoCleanApertureVerticalOffsetKey /* NSNumber */			API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
-AVF_EXPORT NSString *const AVVideoScalingModeKey /* NSString */								NS_AVAILABLE(10_7, 5_0);
+AVF_EXPORT NSString *const AVVideoScalingModeKey /* NSString */								API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 	/* AVVideoScalingModeFit - Crop to remove edge processing region; preserve aspect ratio of cropped source by reducing specified width or height if necessary.  Will not scale a small source up to larger dimensions. */
-	AVF_EXPORT NSString *const AVVideoScalingModeFit										NS_AVAILABLE(10_7, 5_0);
+	AVF_EXPORT NSString *const AVVideoScalingModeFit										API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 	/* AVVideoScalingModeResize - Crop to remove edge processing region; scale remainder to destination area.  Does not preserve aspect ratio. */
-	AVF_EXPORT NSString *const AVVideoScalingModeResize										NS_AVAILABLE(10_7, 5_0);
+	AVF_EXPORT NSString *const AVVideoScalingModeResize										API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 	/* AVVideoScalingModeResizeAspect - Preserve aspect ratio of the source, and fill remaining areas with black to fit destination dimensions. */
-	AVF_EXPORT NSString *const AVVideoScalingModeResizeAspect								NS_AVAILABLE(10_7, 5_0);
+	AVF_EXPORT NSString *const AVVideoScalingModeResizeAspect								API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 	/* AVVideoScalingModeResizeAspectFill - Preserve aspect ratio of the source, and crop picture to fit destination dimensions. */
-	AVF_EXPORT NSString *const AVVideoScalingModeResizeAspectFill							NS_AVAILABLE(10_7, 5_0);
+	AVF_EXPORT NSString *const AVVideoScalingModeResizeAspectFill							API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*
 	Clients who specify AVVideoColorPropertiesKey must specify a color primary, transfer function, and Y'CbCr matrix.
@@ -12243,10 +13257,16 @@ AVF_EXPORT NSString *const AVVideoScalingModeKey /* NSString */								NS_AVAILA
  
 	If you require wide gamut HD colorimetry, you can use:
  
-		 AVVideoColorPrimaries_P3_D65
-		 AVVideoTransferFunction_ITU_R_709_2
-		 AVVideoYCbCrMatrix_ITU_R_709_2
+		AVVideoColorPrimaries_P3_D65
+		AVVideoTransferFunction_ITU_R_709_2
+		AVVideoYCbCrMatrix_ITU_R_709_2
  
+    If you require 10-bit wide gamut HD colorimetry, you can use:
+ 
+		AVVideoColorPrimaries_P3_D65
+		AVVideoTransferFunction_ITU_R_2100_HLG
+		AVVideoYCbCrMatrix_ITU_R_709_2
+
 	AVFoundation will color match if the source and destination color properties differ according to the following rules:
  
 	If you want to override the tagging of color properties in the video that you will be processing, set a value for AVVideoColorPropertiesKey:
@@ -12261,23 +13281,23 @@ AVF_EXPORT NSString *const AVVideoScalingModeKey /* NSString */								NS_AVAILA
  
 	 It is important that the source be tagged.
 */
-AVF_EXPORT NSString *const AVVideoColorPropertiesKey /* NSDictionary, all 3 below keys required */           NS_AVAILABLE(10_7, 10_0);
-	AVF_EXPORT NSString *const AVVideoColorPrimariesKey /* NSString */                                       NS_AVAILABLE(10_7, 10_0);
-		AVF_EXPORT NSString *const AVVideoColorPrimaries_ITU_R_709_2                                         NS_AVAILABLE(10_7, 10_0);
-		AVF_EXPORT NSString *const AVVideoColorPrimaries_EBU_3213                                            NS_AVAILABLE(10_7, NA);
-		AVF_EXPORT NSString *const AVVideoColorPrimaries_SMPTE_C                                             NS_AVAILABLE(10_7, 10_0);
-		AVF_EXPORT NSString *const AVVideoColorPrimaries_P3_D65                                              NS_AVAILABLE(10_12, 10_0);
-		AVF_EXPORT NSString *const AVVideoColorPrimaries_ITU_R_2020                                          NS_AVAILABLE(10_13, 11_0);
-	AVF_EXPORT NSString *const AVVideoTransferFunctionKey /* NSString */                                     NS_AVAILABLE(10_7, 10_0);
-		AVF_EXPORT NSString *const AVVideoTransferFunction_ITU_R_709_2                                       NS_AVAILABLE(10_7, 10_0);
-		AVF_EXPORT NSString *const AVVideoTransferFunction_SMPTE_240M_1995                                   NS_AVAILABLE(10_7, NA);
-		AVF_EXPORT NSString *const AVVideoTransferFunction_SMPTE_ST_2084_PQ                                  NS_AVAILABLE(10_13, 11_0);
-		AVF_EXPORT NSString *const AVVideoTransferFunction_ITU_R_2100_HLG                                    NS_AVAILABLE(10_13, 11_0);
-	AVF_EXPORT NSString *const AVVideoYCbCrMatrixKey /* NSString */                                          NS_AVAILABLE(10_7, 10_0);
-		AVF_EXPORT NSString *const AVVideoYCbCrMatrix_ITU_R_709_2                                            NS_AVAILABLE(10_7, 10_0);
-		AVF_EXPORT NSString *const AVVideoYCbCrMatrix_ITU_R_601_4                                            NS_AVAILABLE(10_7, 10_0);
-		AVF_EXPORT NSString *const AVVideoYCbCrMatrix_SMPTE_240M_1995                                        NS_AVAILABLE(10_7, NA);
-		AVF_EXPORT NSString *const AVVideoYCbCrMatrix_ITU_R_2020                                             NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT NSString *const AVVideoColorPropertiesKey /* NSDictionary, all 3 below keys required */           API_AVAILABLE(macos(10.7), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoColorPrimariesKey /* NSString */                                       API_AVAILABLE(macos(10.7), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoColorPrimaries_ITU_R_709_2                                         API_AVAILABLE(macos(10.7), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoColorPrimaries_EBU_3213                                            API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
+		AVF_EXPORT NSString *const AVVideoColorPrimaries_SMPTE_C                                             API_AVAILABLE(macos(10.7), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoColorPrimaries_P3_D65                                              API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoColorPrimaries_ITU_R_2020                                          API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoTransferFunctionKey /* NSString */                                     API_AVAILABLE(macos(10.7), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoTransferFunction_ITU_R_709_2                                       API_AVAILABLE(macos(10.7), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoTransferFunction_SMPTE_240M_1995                                   API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
+		AVF_EXPORT NSString *const AVVideoTransferFunction_SMPTE_ST_2084_PQ                                  API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoTransferFunction_ITU_R_2100_HLG                                    API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoYCbCrMatrixKey /* NSString */                                          API_AVAILABLE(macos(10.7), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoYCbCrMatrix_ITU_R_709_2                                            API_AVAILABLE(macos(10.7), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoYCbCrMatrix_ITU_R_601_4                                            API_AVAILABLE(macos(10.7), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoYCbCrMatrix_SMPTE_240M_1995                                        API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
+		AVF_EXPORT NSString *const AVVideoYCbCrMatrix_ITU_R_2020                                             API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant	AVVideoAllowWideColorKey
@@ -12287,7 +13307,7 @@ AVF_EXPORT NSString *const AVVideoColorPropertiesKey /* NSDictionary, all 3 belo
  
 	The default value, @NO, permits implicit color conversions to occur to a non-wide gamut color space.
  */
-AVF_EXPORT NSString *const AVVideoAllowWideColorKey /* NSNumber(BOOL)	*/					NS_AVAILABLE(10_12, 10_0);
+AVF_EXPORT NSString *const AVVideoAllowWideColorKey /* NSNumber(BOOL)	*/					API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant	AVVideoCompressionPropertiesKey
@@ -12298,11 +13318,11 @@ AVF_EXPORT NSString *const AVVideoAllowWideColorKey /* NSNumber(BOOL)	*/					NS_
  
 	Most keys can only be used for certain encoders.  Look at individual keys for details.
  */
-AVF_EXPORT NSString *const AVVideoCompressionPropertiesKey /* NSDictionary */                                NS_AVAILABLE(10_7, 4_0);
-	AVF_EXPORT NSString *const AVVideoAverageBitRateKey /* NSNumber (bits per second, H.264 only) */         NS_AVAILABLE(10_7, 4_0);
-	AVF_EXPORT NSString *const AVVideoQualityKey /* NSNumber (0.0-1.0, JPEG and HEIC only. With HEIC, 1.0 indicates lossless compression) */ NS_AVAILABLE(10_7, 5_0);
-	AVF_EXPORT NSString *const AVVideoMaxKeyFrameIntervalKey /* NSNumber (frames, 1 means key frames only, H.264 only) */ NS_AVAILABLE(10_7, 4_0);
-	AVF_EXPORT NSString *const AVVideoMaxKeyFrameIntervalDurationKey /* NSNumber (seconds, 0.0 means no limit, H.264 only) */ NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT NSString *const AVVideoCompressionPropertiesKey /* NSDictionary */                                API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoAverageBitRateKey /* NSNumber (bits per second, H.264 only) */         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoQualityKey /* NSNumber (0.0-1.0, JPEG and HEIC only. With HEIC, 1.0 indicates lossless compression) */ API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoMaxKeyFrameIntervalKey /* NSNumber (frames, 1 means key frames only, H.264 only) */ API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+	AVF_EXPORT NSString *const AVVideoMaxKeyFrameIntervalDurationKey /* NSNumber (seconds, 0.0 means no limit, H.264 only) */ API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 	/*!
 	 @constant	AVVideoAllowFrameReorderingKey
@@ -12315,24 +13335,24 @@ AVF_EXPORT NSString *const AVVideoCompressionPropertiesKey /* NSDictionary */   
 	 
 		The default is @YES, which means that the encoder decides whether to enable frame reordering.
 	 */
-	AVF_EXPORT NSString *const AVVideoAllowFrameReorderingKey /* NSNumber (BOOL) */							 NS_AVAILABLE(10_10, 7_0);
+	AVF_EXPORT NSString *const AVVideoAllowFrameReorderingKey /* NSNumber (BOOL) */							 API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
-	AVF_EXPORT NSString *const AVVideoProfileLevelKey /* NSString, profile/level constants are specific to a particular encoder. See VideoToolbox/VTCompressionProperties.h for additional profiles/levels that can used as the value of this key. */               NS_AVAILABLE(10_8, 4_0);
+	AVF_EXPORT NSString *const AVVideoProfileLevelKey /* NSString, profile/level constants are specific to a particular encoder. See VideoToolbox/VTCompressionProperties.h for additional profiles/levels that can used as the value of this key. */               API_AVAILABLE(macos(10.8), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 		/* HEVC profiles/levels are defined in VideoToolbox/VTCompressionProperties.h, e.g. kVTProfileLevel_HEVC_Main_AutoLevel. The constants defined there can be used as the value for the key AVVideoProfileLevelKey. */
 
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264Baseline30 /* Baseline Profile Level 3.0 */        NS_AVAILABLE(10_8, 4_0);
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264Baseline31 /* Baseline Profile Level 3.1 */        NS_AVAILABLE(10_8, 4_0);
-        AVF_EXPORT NSString *const AVVideoProfileLevelH264Baseline41 /* Baseline Profile Level 4.1 */        NS_AVAILABLE(10_8, 5_0);
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264BaselineAutoLevel /* Baseline Profile Auto Level */ NS_AVAILABLE(10_9, 7_0);
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264Main30 /* Main Profile Level 3.0 */                NS_AVAILABLE(10_8, 4_0);
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264Main31 /* Main Profile Level 3.1 */                NS_AVAILABLE(10_8, 4_0);
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264Main32 /* Main Profile Level 3.2 */                NS_AVAILABLE(10_8, 5_0);
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264Main41 /* Main Profile Level 4.1 */                NS_AVAILABLE(10_8, 5_0);
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264MainAutoLevel /* Main Profile Auto Level */        NS_AVAILABLE(10_9, 7_0);
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264High40 /* High Profile Level 4.0 */                NS_AVAILABLE(10_9, 6_0);
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264High41 /* High Profile Level 4.1 */                NS_AVAILABLE(10_9, 6_0);
-		AVF_EXPORT NSString *const AVVideoProfileLevelH264HighAutoLevel /* High Profile Auto Level */        NS_AVAILABLE(10_9, 7_0);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264Baseline30 /* Baseline Profile Level 3.0 */        API_AVAILABLE(macos(10.8), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264Baseline31 /* Baseline Profile Level 3.1 */        API_AVAILABLE(macos(10.8), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+        AVF_EXPORT NSString *const AVVideoProfileLevelH264Baseline41 /* Baseline Profile Level 4.1 */        API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264BaselineAutoLevel /* Baseline Profile Auto Level */ API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264Main30 /* Main Profile Level 3.0 */                API_AVAILABLE(macos(10.8), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264Main31 /* Main Profile Level 3.1 */                API_AVAILABLE(macos(10.8), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264Main32 /* Main Profile Level 3.2 */                API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264Main41 /* Main Profile Level 4.1 */                API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264MainAutoLevel /* Main Profile Auto Level */        API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264High40 /* High Profile Level 4.0 */                API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264High41 /* High Profile Level 4.1 */                API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoProfileLevelH264HighAutoLevel /* High Profile Auto Level */        API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 	/*!
 	 @constant	AVVideoH264EntropyModeKey
@@ -12341,9 +13361,9 @@ AVF_EXPORT NSString *const AVVideoCompressionPropertiesKey /* NSDictionary */   
 	 @discussion
 		If supported by an H.264 encoder, this property controls whether the encoder should use Context-based Adaptive Variable Length Coding (CAVLC) or Context-based Adaptive Binary Arithmetic Coding (CABAC).  CABAC generally gives better compression at the expense of higher computational overhead.  The default value is encoder-specific and may change depending on other encoder settings.  Care should be taken when using this property -- changes may result in a configuration which is not compatible with a requested Profile and Level.  Results in this case are undefined, and could include encode errors or a non-compliant output stream.
 	*/
-	AVF_EXPORT NSString *const AVVideoH264EntropyModeKey     /* NSString, H.264 only, one of: */			 NS_AVAILABLE(10_10, 7_0);
-		AVF_EXPORT NSString *const AVVideoH264EntropyModeCAVLC /* Context-based Adaptive Variable Length Coding */   NS_AVAILABLE(10_10, 7_0);
-		AVF_EXPORT NSString *const AVVideoH264EntropyModeCABAC /* Context-based Adaptive Binary Arithmetic Coding */ NS_AVAILABLE(10_10, 7_0);
+	AVF_EXPORT NSString *const AVVideoH264EntropyModeKey     /* NSString, H.264 only, one of: */			 API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoH264EntropyModeCAVLC /* Context-based Adaptive Variable Length Coding */   API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+		AVF_EXPORT NSString *const AVVideoH264EntropyModeCABAC /* Context-based Adaptive Binary Arithmetic Coding */ API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 	/*!
 	 @constant	AVVideoExpectedSourceFrameRateKey
@@ -12352,7 +13372,7 @@ AVF_EXPORT NSString *const AVVideoCompressionPropertiesKey /* NSDictionary */   
 	 @discussion
 		The frame rate is measured in frames per second. This is not used to control the frame rate; it is provided as a hint to the video encoder so that it can set up internal configuration before compression begins. The actual frame rate will depend on frame durations and may vary. This should be set if an AutoLevel AVVideoProfileLevelKey is used, or if the source content has a high frame rate (higher than 30 fps). The encoder might have to drop frames to satisfy bit stream requirements if this key is not specified.
 	 */
-	AVF_EXPORT NSString *const AVVideoExpectedSourceFrameRateKey /* NSNumber (frames per second) */				NS_AVAILABLE(10_10, 7_0);
+	AVF_EXPORT NSString *const AVVideoExpectedSourceFrameRateKey /* NSNumber (frames per second) */				API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 	/*!
 	 @constant	AVVideoAverageNonDroppableFrameRateKey
@@ -12365,7 +13385,7 @@ AVF_EXPORT NSString *const AVVideoCompressionPropertiesKey /* NSDictionary */   
  
 		[myVideoSettings setObject:@30 forKey:AVVideoAverageNonDroppableFrameRateKey];
 	 */
-	AVF_EXPORT NSString *const AVVideoAverageNonDroppableFrameRateKey /* NSNumber (frames per second) */		NS_AVAILABLE(10_10, 7_0);
+	AVF_EXPORT NSString *const AVVideoAverageNonDroppableFrameRateKey /* NSNumber (frames per second) */		API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant	AVVideoDecompressionPropertiesKey
@@ -12376,7 +13396,7 @@ AVF_EXPORT NSString *const AVVideoCompressionPropertiesKey /* NSDictionary */   
  
  Most keys can only be used for certain decoders.  Look at individual keys for details.
  */
-AVF_EXPORT NSString *const AVVideoDecompressionPropertiesKey /* NSDictionary */   API_AVAILABLE(macos(10.13)) __IOS_PROHIBITED __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+AVF_EXPORT NSString *const AVVideoDecompressionPropertiesKey /* NSDictionary */   API_AVAILABLE(macos(10.13)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@constant AVVideoEncoderSpecificationKey
@@ -12386,7 +13406,7 @@ AVF_EXPORT NSString *const AVVideoDecompressionPropertiesKey /* NSDictionary */ 
 	@discussion
 		The value for this key is a dictionary containing kVTVideoEncoderSpecification_* keys specified in the VideoToolbox framework.  This key should be specified at the top level of an AVVideoSettings dictionary.
  */
-AVF_EXPORT NSString *const AVVideoEncoderSpecificationKey /* NSDictionary */ NS_AVAILABLE(10_10, NA);
+AVF_EXPORT NSString *const AVVideoEncoderSpecificationKey /* NSDictionary */ API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, tvos, watchos);
 
 typedef NSString * AVVideoApertureMode NS_STRING_ENUM;
 
@@ -12396,7 +13416,7 @@ typedef NSString * AVVideoApertureMode NS_STRING_ENUM;
  @discussion
 	An image's clean aperture is a region of video free from transition artifacts caused by the encoding of the signal.
  */
-AVF_EXPORT AVVideoApertureMode const AVVideoApertureModeCleanAperture API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+AVF_EXPORT AVVideoApertureMode const AVVideoApertureModeCleanAperture API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant	AVVideoApertureModeProductionAperture
@@ -12404,7 +13424,7 @@ AVF_EXPORT AVVideoApertureMode const AVVideoApertureModeCleanAperture API_AVAILA
  @discussion
 	The image is not cropped to the clean aperture region, but it is scaled according to the pixel aspect ratio. Use this option when you want to see all the pixels in your video, including the edges.
  */
-AVF_EXPORT AVVideoApertureMode const AVVideoApertureModeProductionAperture API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+AVF_EXPORT AVVideoApertureMode const AVVideoApertureModeProductionAperture API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant	AVVideoApertureModeEncodedPixels
@@ -12412,7 +13432,7 @@ AVF_EXPORT AVVideoApertureMode const AVVideoApertureModeProductionAperture API_A
  @discussion
 	The image is not cropped to the clean aperture region and is not scaled according to the pixel aspect ratio. The encoded dimensions of the image description are displayed.
  */
-AVF_EXPORT AVVideoApertureMode const AVVideoApertureModeEncodedPixels API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+AVF_EXPORT AVVideoApertureMode const AVVideoApertureModeEncodedPixels API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 // ==========  AVFoundation.framework/Headers/AVAudioBuffer.h
 /*
 	File:           AVAudioBuffer.h
@@ -12436,22 +13456,22 @@ AVF_EXPORT AVVideoApertureMode const AVVideoApertureModeEncodedPixels API_AVAILA
 #import <AVFoundation/AVBase.h>
 #import <Foundation/Foundation.h>
 
-AVF_EXPORT NSErrorDomain const AVFoundationErrorDomain              NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT NSErrorDomain const AVFoundationErrorDomain              API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
-AVF_EXPORT NSString *const AVErrorDeviceKey                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT NSString *const AVErrorTimeKey                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT NSString *const AVErrorFileSizeKey                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT NSString *const AVErrorPIDKey                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT NSString *const AVErrorRecordingSuccessfullyFinishedKey  NS_AVAILABLE(10_7, 4_0); // an NSNumber carrying a BOOL indicating whether the recording is playable
-AVF_EXPORT NSString *const AVErrorMediaTypeKey                      NS_AVAILABLE(10_7, 4_3); // an NSString, as defined in AVMediaFormat.h
-AVF_EXPORT NSString *const AVErrorMediaSubTypeKey                   NS_AVAILABLE(10_7, 4_3); // an NSArray of NSNumbers carrying four character codes (4ccs) as defined in CoreAudioTypes.h for audio media and in CMFormatDescription.h for video media.
-AVF_EXPORT NSString *const AVErrorPresentationTimeStampKey          NS_AVAILABLE(10_10, 8_0); // an NSValue carrying a CMTime
-AVF_EXPORT NSString *const AVErrorPersistentTrackIDKey				NS_AVAILABLE(10_10, 8_0); // an NSNumber carrying a CMPersistentTrackID
-AVF_EXPORT NSString *const AVErrorFileTypeKey						NS_AVAILABLE(10_10, 8_0); // an NSString, as defined in AVMediaFormat.h
+AVF_EXPORT NSString *const AVErrorDeviceKey                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT NSString *const AVErrorTimeKey                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT NSString *const AVErrorFileSizeKey                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT NSString *const AVErrorPIDKey                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT NSString *const AVErrorRecordingSuccessfullyFinishedKey  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0)); // an NSNumber carrying a BOOL indicating whether the recording is playable
+AVF_EXPORT NSString *const AVErrorMediaTypeKey                      API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0)); // an NSString, as defined in AVMediaFormat.h
+AVF_EXPORT NSString *const AVErrorMediaSubTypeKey                   API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0)); // an NSArray of NSNumbers carrying four character codes (4ccs) as defined in CoreAudioTypes.h for audio media and in CMFormatDescription.h for video media.
+AVF_EXPORT NSString *const AVErrorPresentationTimeStampKey          API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0)); // an NSValue carrying a CMTime
+AVF_EXPORT NSString *const AVErrorPersistentTrackIDKey				API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0)); // an NSNumber carrying a CMPersistentTrackID
+AVF_EXPORT NSString *const AVErrorFileTypeKey						API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0)); // an NSString, as defined in AVMediaFormat.h
 
 #if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
 
-AVF_EXPORT NSString *const AVErrorDiscontinuityFlagsKey             NS_AVAILABLE(10_7, NA);
+AVF_EXPORT NSString *const AVErrorDiscontinuityFlagsKey             API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
 
 #endif // (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
 
@@ -12494,7 +13514,7 @@ typedef NS_ERROR_ENUM(AVFoundationErrorDomain, AVError) {
     AVErrorContentIsNotAuthorized                       = -11835,
     AVErrorApplicationIsNotAuthorized                   = -11836,
 #if TARGET_OS_IPHONE
-    AVErrorDeviceIsNotAvailableInBackground NS_DEPRECATED_IOS(4_3, 9_0, "AVCaptureSession no longer produces an AVCaptureSessionRuntimeErrorNotification with this error. See AVCaptureSessionInterruptionReasonVideoDeviceNotAvailableInBackground.") = -11837,
+    AVErrorDeviceIsNotAvailableInBackground API_DEPRECATED("AVCaptureSession no longer produces an AVCaptureSessionRuntimeErrorNotification with this error. See AVCaptureSessionInterruptionReasonVideoDeviceNotAvailableInBackground.", ios(4.3, 9.0), tvos(9.0, 9.0)) API_UNAVAILABLE(watchos) API_UNAVAILABLE(macos) = -11837,
 #endif
     AVErrorOperationNotSupportedForAsset                = -11838,
     
@@ -12513,28 +13533,29 @@ typedef NS_ERROR_ENUM(AVFoundationErrorDomain, AVError) {
     AVErrorFailedToLoadMediaData                        = -11849,
     AVErrorServerIncorrectlyConfigured                  = -11850,
 	AVErrorApplicationIsNotAuthorizedToUseDevice		= -11852,
-    AVErrorFailedToParse	NS_AVAILABLE(10_10, 8_0)		= -11853,
-	AVErrorFileTypeDoesNotSupportSampleReferences NS_AVAILABLE(10_10, 8_0)	= -11854,  // userInfo contains AVErrorFileTypeKey
-    AVErrorUndecodableMediaData NS_AVAILABLE(10_10, 8_0)  = -11855,
-    AVErrorAirPlayControllerRequiresInternet NS_AVAILABLE(10_10, 8_3) = -11856,
-    AVErrorAirPlayReceiverRequiresInternet NS_AVAILABLE(10_10, 8_3) = -11857,
-    AVErrorVideoCompositorFailed NS_AVAILABLE(10_11, 9_0) = -11858,
+    AVErrorFailedToParse	API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0))		= -11853,
+	AVErrorFileTypeDoesNotSupportSampleReferences API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0))	= -11854,  // userInfo contains AVErrorFileTypeKey
+    AVErrorUndecodableMediaData API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0))  = -11855,
+    AVErrorAirPlayControllerRequiresInternet API_AVAILABLE(macos(10.10), ios(8.3), tvos(9.0), watchos(1.3)) = -11856,
+    AVErrorAirPlayReceiverRequiresInternet API_AVAILABLE(macos(10.10), ios(8.3), tvos(9.0), watchos(1.3)) = -11857,
+    AVErrorVideoCompositorFailed API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0)) = -11858,
 #if TARGET_OS_IPHONE
-    AVErrorRecordingAlreadyInProgress NS_AVAILABLE_IOS(9_0) = -11859, // on iOS, AVCaptureMovieFileOutput only supports one recording at a time
+    AVErrorRecordingAlreadyInProgress API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0)) API_UNAVAILABLE(macos) = -11859, // on iOS, AVCaptureMovieFileOutput only supports one recording at a time
 #endif
-#if !TARGET_OS_IPHONE
-    AVErrorCreateContentKeyRequestFailed NS_AVAILABLE(10_11, NA) = -11860,
-#endif
-    AVErrorUnsupportedOutputSettings NS_AVAILABLE(10_12, 10_0) = -11861,
-	AVErrorOperationNotAllowed NS_AVAILABLE(10_12, 10_0) = -11862,
-	AVErrorContentIsUnavailable NS_AVAILABLE(10_13, 11_0) = -11863,
-	AVErrorFormatUnsupported NS_AVAILABLE(10_13, 11_0)  = -11864,
-	AVErrorMalformedDepth NS_AVAILABLE(10_13, 11_0)     = -11865,
-	AVErrorContentNotUpdated NS_AVAILABLE(10_13, 11_0)	= -11866,
-	AVErrorNoLongerPlayable	 NS_AVAILABLE(10_13, 11_0)	= -11867,
-	AVErrorNoCompatibleAlternatesForExternalDisplay API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED = -11868,
-	AVErrorNoSourceTrack API_AVAILABLE(macos(10.13.2), ios(11.2), tvos(11.2)) __WATCHOS_PROHIBITED = -11869,
-	AVErrorExternalPlaybackNotSupportedForAsset API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) __WATCHOS_PROHIBITED = -11870,
+	AVErrorCreateContentKeyRequestFailed API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) API_UNAVAILABLE(tvos, watchos) = -11860,
+	AVErrorUnsupportedOutputSettings API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0)) = -11861,
+	AVErrorOperationNotAllowed API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0)) = -11862,
+	AVErrorContentIsUnavailable API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = -11863,
+	AVErrorFormatUnsupported API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))  = -11864,
+	AVErrorMalformedDepth API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))     = -11865,
+	AVErrorContentNotUpdated API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))	= -11866,
+	AVErrorNoLongerPlayable	 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))	= -11867,
+	AVErrorNoCompatibleAlternatesForExternalDisplay API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) = -11868,
+	AVErrorNoSourceTrack API_AVAILABLE(macos(10.13.2), ios(11.2), tvos(11.2), watchos(4.2)) = -11869,
+	AVErrorExternalPlaybackNotSupportedForAsset API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0)) = -11870,
+	AVErrorOperationNotSupportedForPreset API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0)) = -11871,
+	AVErrorSessionHardwareCostOverage API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, tvos, watchos) = -11872,
+	AVErrorUnsupportedDeviceActiveFormat API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, tvos, watchos) = -11873,
 };
 // ==========  AVFoundation.framework/Headers/AVTime.h
 /*
@@ -12563,14 +13584,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSValue (NSValueAVFoundationExtensions)
 
-+ (NSValue *)valueWithCMTime:(CMTime)time NS_AVAILABLE(10_7, 4_0);
-@property (readonly) CMTime CMTimeValue NS_AVAILABLE(10_7, 4_0);
++ (NSValue *)valueWithCMTime:(CMTime)time API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+@property (readonly) CMTime CMTimeValue API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
-+ (NSValue *)valueWithCMTimeRange:(CMTimeRange)timeRange NS_AVAILABLE(10_7, 4_0);
-@property (readonly) CMTimeRange CMTimeRangeValue NS_AVAILABLE(10_7, 4_0);
++ (NSValue *)valueWithCMTimeRange:(CMTimeRange)timeRange API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+@property (readonly) CMTimeRange CMTimeRangeValue API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
-+ (NSValue *)valueWithCMTimeMapping:(CMTimeMapping)timeMapping NS_AVAILABLE(10_7, 4_0);
-@property (readonly) CMTimeMapping CMTimeMappingValue NS_AVAILABLE(10_7, 4_0);
++ (NSValue *)valueWithCMTimeMapping:(CMTimeMapping)timeMapping API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+@property (readonly) CMTimeMapping CMTimeMappingValue API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -12578,14 +13599,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSCoder (AVTimeCoding)
 
-- (void)encodeCMTime:(CMTime)time forKey:(NSString *)key NS_AVAILABLE(10_7, 4_0);
-- (CMTime)decodeCMTimeForKey:(NSString *)key NS_AVAILABLE(10_7, 4_0);
+- (void)encodeCMTime:(CMTime)time forKey:(NSString *)key API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+- (CMTime)decodeCMTimeForKey:(NSString *)key API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
-- (void)encodeCMTimeRange:(CMTimeRange)timeRange forKey:(NSString *)key NS_AVAILABLE(10_7, 4_0);
-- (CMTimeRange)decodeCMTimeRangeForKey:(NSString *)key NS_AVAILABLE(10_7, 4_0);
+- (void)encodeCMTimeRange:(CMTimeRange)timeRange forKey:(NSString *)key API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+- (CMTimeRange)decodeCMTimeRangeForKey:(NSString *)key API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
-- (void)encodeCMTimeMapping:(CMTimeMapping)timeMapping forKey:(NSString *)key NS_AVAILABLE(10_7, 4_0);
-- (CMTimeMapping)decodeCMTimeMappingForKey:(NSString *)key NS_AVAILABLE(10_7, 4_0);
+- (void)encodeCMTimeMapping:(CMTimeMapping)timeMapping forKey:(NSString *)key API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+- (CMTimeMapping)decodeCMTimeMappingForKey:(NSString *)key API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -12674,7 +13695,7 @@ AV_INIT_UNAVAILABLE
  
     transformedMetadataObjectForMetadataObject:connection: alters the visual properties of the provided metadata object to match the physical rotation / mirroring of the sample buffers provided by the receiver through the indicated connection. I.e., for video data output, adjusted metadata object coordinates are rotated/mirrored. For still image and movie file output, they are not.
  */
-- (nullable AVMetadataObject *)transformedMetadataObjectForMetadataObject:(AVMetadataObject *)metadataObject connection:(AVCaptureConnection *)connection API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos);
+- (nullable AVMetadataObject *)transformedMetadataObjectForMetadataObject:(AVMetadataObject *)metadataObject connection:(AVCaptureConnection *)connection API_AVAILABLE(macos(10.15), ios(6.0));
 
 /*!
  @method metadataOutputRectOfInterestForRect:
@@ -12689,7 +13710,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     AVCaptureMetadataOutput rectOfInterest is expressed as a CGRect where {0,0} represents the top left of the picture area, and {1,1} represents the bottom right on an unrotated picture. This convenience method converts a rectangle in the coordinate space of the receiver to a rectangle of interest in the coordinate space of an AVCaptureMetadataOutput whose AVCaptureDevice is providing input to the receiver. The conversion takes orientation, mirroring, and scaling into consideration. See -transformedMetadataObjectForMetadataObject:connection: for a full discussion of how orientation and mirroring are applied to sample buffers passing through the output.
  */
-- (CGRect)metadataOutputRectOfInterestForRect:(CGRect)rectInOutputCoordinates API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+- (CGRect)metadataOutputRectOfInterestForRect:(CGRect)rectInOutputCoordinates API_AVAILABLE(macos(10.15), ios(7.0));
 
 /*!
  @method rectForMetadataOutputRectOfInterest:
@@ -12704,7 +13725,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     AVCaptureMetadataOutput rectOfInterest is expressed as a CGRect where {0,0} represents the top left of the picture area, and {1,1} represents the bottom right on an unrotated picture. This convenience method converts a rectangle in the coordinate space of an AVCaptureMetadataOutput whose AVCaptureDevice is providing input to the coordinate space of the receiver. The conversion takes orientation, mirroring, and scaling into consideration. See -transformedMetadataObjectForMetadataObject:connection: for a full discussion of how orientation and mirroring are applied to sample buffers passing through the output.
  */
-- (CGRect)rectForMetadataOutputRectOfInterest:(CGRect)rectInMetadataOutputCoordinates API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+- (CGRect)rectForMetadataOutputRectOfInterest:(CGRect)rectInMetadataOutputCoordinates API_AVAILABLE(macos(10.15), ios(7.0));
 
 @end
 
@@ -12728,7 +13749,7 @@ typedef NS_ENUM(NSInteger, AVCaptureOutputDataDroppedReason) {
     AVCaptureOutputDataDroppedReasonLateData      = 1,
     AVCaptureOutputDataDroppedReasonOutOfBuffers  = 2,
     AVCaptureOutputDataDroppedReasonDiscontinuity = 3,
-} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+} API_AVAILABLE(macos(10.15), ios(11.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 NS_ASSUME_NONNULL_END
 // ==========  AVFoundation.framework/Headers/AVPlayerLooper.h
@@ -12737,7 +13758,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
 
-	Copyright 2016 Apple Inc. All rights reserved.
+	Copyright 2016-2018 Apple Inc. All rights reserved.
 
  */
 
@@ -12795,13 +13816,13 @@ NS_ASSUME_NONNULL_BEGIN
     Indicates that the looper is no longer looping because -disableLooping was invoked.
  */
 typedef NS_ENUM(NSInteger, AVPlayerLooperStatus) {
-    AVPlayerLooperStatusUnknown,
-    AVPlayerLooperStatusReady,
-    AVPlayerLooperStatusFailed,
-    AVPlayerLooperStatusCancelled
+    AVPlayerLooperStatusUnknown = 0,
+    AVPlayerLooperStatusReady = 1,
+    AVPlayerLooperStatusFailed = 2,
+    AVPlayerLooperStatusCancelled = 3
 };
 
-NS_CLASS_AVAILABLE(10_12, 10_0)
+API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos)
 @interface AVPlayerLooper : NSObject
 {
 @private
@@ -12935,7 +13956,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion
     When rendering effects to images produced by cameras, or performing computer vision tasks such as correcting images for geometric distortions, it is necessary to characterize the camera's calibration information, such as its pixel focal length, principal point, lens distortion characteristics, etc. AVCameraCalibrationData provides this information.
  */
-API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos)
 @interface AVCameraCalibrationData : NSObject
 {
 @private
@@ -12989,7 +14010,7 @@ AV_INIT_UNAVAILABLE
 /*!
  @property pixelSize
  @abstract
-    The size of one pixel in millimeters
+    The size of one pixel at intrinsicMatrixReferenceDimensions in millimeters.
  */
 @property(nonatomic, readonly) float pixelSize;
 
@@ -13020,7 +14041,7 @@ AV_INIT_UNAVAILABLE
 /*!
  @property lensDistortionCenter
  @abstract
-    A CGPoint describing the offset of the lens' distortion center from the top left.
+    A CGPoint describing the offset of the lens’ distortion center from the top left in intrinsicMatrixReferenceDimensions.
  
  @discussion
     Due to geometric distortions in the image, the center of the distortion may not be equal to the optical center (principal point) of the lens. When making an image rectilinear, the distortion center should be used rather than the optical center of the image. For more information, see the reference implementation below.
@@ -13129,6 +14150,8 @@ NS_ASSUME_NONNULL_END
 
 #import <AVFoundation/AVBase.h>
 #import <AVFoundation/AVAnimation.h>
+
+#if __has_include(<QuartzCore/CoreAnimation.h>)
 #import <QuartzCore/CoreAnimation.h>
 
 @class AVPlayer;
@@ -13136,7 +14159,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVPlayerLayer : CALayer
 {
 @private
@@ -13178,18 +14201,20 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 	@property		videoRect
 	@abstract		The current size and position of the video image as displayed within the receiver's bounds.
  */
-@property (nonatomic, readonly) CGRect videoRect NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) CGRect videoRect API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
 	@property		pixelBufferAttributes
 	@abstract		The client requirements for the visual output displayed in AVPlayerLayer during playback.  	
 	@discussion		Pixel buffer attribute keys are defined in <CoreVideo/CVPixelBuffer.h>
  */
-@property (nonatomic, copy, nullable) NSDictionary<NSString *, id> *pixelBufferAttributes NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, copy, nullable) NSDictionary<NSString *, id> *pixelBufferAttributes API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // __has_include(<QuartzCore/CoreAnimation.h>)
 // ==========  AVFoundation.framework/Headers/AVSampleBufferAudioRenderer.h
 /*
 	File:  AVSampleBufferAudioRenderer.h
@@ -13213,7 +14238,7 @@ NS_ASSUME_NONNULL_BEGIN
 	@discussion
 		An instance of AVSampleBufferAudioRenderer must be added to an AVSampleBufferRenderSynchronizer before the first sample buffer is enqueued.
 */
-API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
 @interface AVSampleBufferAudioRenderer : NSObject <AVQueuedSampleBufferRendering>
 {
 @private
@@ -13322,7 +14347,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED
  
 		This notification is delivered on an arbitrary thread.  If sample buffers are being enqueued with the renderer concurrently with the receipt of this notification, it is possible that one or more sample buffers will remain enqueued in the renderer.  This is generally undesirable, because the sample buffers that remain will likely have timestamps far ahead of the timebase's current time and so won't be rendered for some time.  The best practice is to invoke the -flush method, in a manner that is serialized with enqueueing sample buffers, after receiving this notification and before resuming the enqueueing of sample buffers.
  */
-AVF_EXPORT NSNotificationName const AVSampleBufferAudioRendererWasFlushedAutomaticallyNotification API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+AVF_EXPORT NSNotificationName const AVSampleBufferAudioRendererWasFlushedAutomaticallyNotification API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 	/*!
 		@constant		AVSampleBufferAudioRendererFlushTimeKey
@@ -13330,7 +14355,7 @@ AVF_EXPORT NSNotificationName const AVSampleBufferAudioRendererWasFlushedAutomat
 		@discussion
 			The value of this key is an NSValue wrapping a CMTime.
 	 */
-	AVF_EXPORT NSString * const AVSampleBufferAudioRendererFlushTimeKey API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+	AVF_EXPORT NSString * const AVSampleBufferAudioRendererFlushTimeKey API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 @end
 
@@ -13379,13 +14404,15 @@ typedef NSString * AVOutputSettingsPreset NS_STRING_ENUM;
  
  When source format information is supplied with these presets, the resulting video settings will not scale up the video from a smaller size.
  */
-AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPreset640x480		NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPreset960x540   	NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPreset1280x720  	NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPreset1920x1080		NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPreset3840x2160		NS_AVAILABLE(10_10, 9_0);
-AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPresetHEVC1920x1080	NS_AVAILABLE(10_13, 11_0);
-AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPresetHEVC3840x2160	NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPreset640x480					API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPreset960x540					API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPreset1280x720					API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPreset1920x1080					API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPreset3840x2160					API_AVAILABLE(macos(10.10), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPresetHEVC1920x1080				API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPresetHEVC1920x1080WithAlpha	API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPresetHEVC3840x2160				API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPresetHEVC3840x2160WithAlpha	API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 @class AVOutputSettingsAssistantInternal;
 
@@ -13398,7 +14425,7 @@ AVF_EXPORT AVOutputSettingsPreset const AVOutputSettingsPresetHEVC3840x2160	NS_A
  
 		The recommendations made by an instance get better as you tell it more about the format of your source data.  For example, if you set the sourceVideoFormat property, the recommendation made by the videoSettings property will ensure that your video frames are not scaled up from a smaller size.
  */
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVOutputSettingsAssistant : NSObject
 {
 @private
@@ -13417,7 +14444,7 @@ AV_INIT_UNAVAILABLE
  
 		On iOS, the returned array may be different between different device models.
  */
-+ (NSArray<AVOutputSettingsPreset> *)availableOutputSettingsPresets NS_AVAILABLE(10_10, 7_0);
++ (NSArray<AVOutputSettingsPreset> *)availableOutputSettingsPresets API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
 	@method outputSettingsAssistantWithPreset:
@@ -13515,7 +14542,7 @@ AV_INIT_UNAVAILABLE
  
 		It is an error to set this property to a value that is not positive or not numeric.  See CMTIME_IS_NUMERIC.
  */
-@property (nonatomic) CMTime sourceVideoMinFrameDuration NS_AVAILABLE(10_10, 7_0);
+@property (nonatomic) CMTime sourceVideoMinFrameDuration API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -13570,37 +14597,37 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion
     The AVCaptureSystemPressureLevel string constants describe varying levels of system pressure that affect capture hardware availability and/or quality.
  */
-typedef NSString *AVCaptureSystemPressureLevel NS_STRING_ENUM API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos, watchos, tvos) ;
+typedef NSString *AVCaptureSystemPressureLevel NS_STRING_ENUM API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @constant AVCaptureSystemPressureLevelNominal
     System pressure level is normal (not pressured).
  */
-AVF_EXPORT AVCaptureSystemPressureLevel const AVCaptureSystemPressureLevelNominal API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos, watchos, tvos) ;
+AVF_EXPORT AVCaptureSystemPressureLevel const AVCaptureSystemPressureLevelNominal API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @constant AVCaptureSystemPressureLevelFair
     System pressure is slightly elevated.
  */
-AVF_EXPORT AVCaptureSystemPressureLevel const AVCaptureSystemPressureLevelFair API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos, watchos, tvos) ;
+AVF_EXPORT AVCaptureSystemPressureLevel const AVCaptureSystemPressureLevelFair API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @constant AVCaptureSystemPressureLevelSerious
     System pressure is highly elevated. Capture performance may be impacted. Frame rate throttling is advised.
  */
-AVF_EXPORT AVCaptureSystemPressureLevel const AVCaptureSystemPressureLevelSerious API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos, watchos, tvos) ;
+AVF_EXPORT AVCaptureSystemPressureLevel const AVCaptureSystemPressureLevelSerious API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @constant AVCaptureSystemPressureLevelCritical
     System pressure is critically elevated. Capture quality and performance are significantly impacted. Frame rate throttling is highly advised.
  */
-AVF_EXPORT AVCaptureSystemPressureLevel const AVCaptureSystemPressureLevelCritical API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos, watchos, tvos) ;
+AVF_EXPORT AVCaptureSystemPressureLevel const AVCaptureSystemPressureLevelCritical API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @constant AVCaptureSystemPressureLevelShutdown
     System pressure is beyond critical. Capture must immediately stop.
  */
-AVF_EXPORT AVCaptureSystemPressureLevel const AVCaptureSystemPressureLevelShutdown API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos, watchos, tvos) ;
+AVF_EXPORT AVCaptureSystemPressureLevel const AVCaptureSystemPressureLevelShutdown API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @enum AVCaptureSystemPressureFactors
@@ -13621,7 +14648,7 @@ typedef NS_OPTIONS(NSUInteger, AVCaptureSystemPressureFactors) {
     AVCaptureSystemPressureFactorSystemTemperature      = (1UL << 0),
     AVCaptureSystemPressureFactorPeakPower              = (1UL << 1),
     AVCaptureSystemPressureFactorDepthModuleTemperature = (1UL << 2),
-} API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos, watchos, tvos) ;
+} API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 @class AVCaptureSystemPressureStateInternal;
 
@@ -13633,7 +14660,7 @@ typedef NS_OPTIONS(NSUInteger, AVCaptureSystemPressureFactors) {
  @discussion
     Beginning in iOS 11.1, AVCaptureDevice can report its current system pressure state. System pressure refers to a state in which capture quality is degraded or capture hardware availability is limited due to factors such as overall system temperature, insufficient battery charge for current peak power requirements, or camera module temperature.
  */
-API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos, watchos, tvos) 
+API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface AVCaptureSystemPressureState : NSObject
 {
 @private
@@ -13869,12 +14896,14 @@ NS_ASSUME_NONNULL_END
  
     Framework:  AVFoundation
  
-    Copyright 2016-2018 Apple Inc. All rights reserved.
+    Copyright 2016-2019 Apple Inc. All rights reserved.
 */
 
 #import <AVFoundation/AVCaptureOutputBase.h>
 #import <AVFoundation/AVVideoSettings.h>
+#import <AVFoundation/AVSemanticSegmentationMatte.h>
 #import <CoreMedia/CMSampleBuffer.h>
+#import <CoreMedia/CMTimeRange.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13898,7 +14927,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion
     Taking a photo is multi-step process. Clients wishing to build a responsive UI need to know about the progress of a photo capture request as it advances from capture to processing to finished delivery. AVCapturePhotoOutput informs clients of photo capture progress through a delegate protocol. To take a picture, a client instantiates and configures an AVCapturePhotoSettings object, then calls AVCapturePhotoOutput's -capturePhotoWithSettings:delegate:, passing a delegate to be informed when events relating to the photo capture occur (e.g., the photo is about to be captured, the photo has been captured but not processed yet, the Live Photo movie is ready, etc.).
  
-    Some AVCapturePhotoSettings properties are "Auto", such as autoStillImageStabilizationEnabled. When set to YES, the photo output decides at capture time whether the current scene and lighting conditions require still image stabilization. Thus the client doesn't know with certainty which features are enabled when making the capture request. With the first and each subsequent delegate callback, the client is provided an AVCaptureResolvedPhotoSettings instance that indicates the settings that were applied to the capture. All "Auto" features have now been resolved to on or off. The AVCaptureResolvedPhotoSettings object passed in the client's delegate callbacks has a uniqueID identical to the AVCapturePhotoSettings request. This uniqueID allows clients to pair unresolved and resolved settings objects. See AVCapturePhotoCaptureDelegate below for a detailed discussion of the delegate callbacks.
+    Some AVCapturePhotoSettings properties can be set to "Auto", such as flashMode. When set to AVCaptureFlashModeAuto, the photo output decides at capture time whether the current scene and lighting conditions require use of the flash. Thus the client doesn't know with certainty which features will be enabled when making the capture request. With the first and each subsequent delegate callback, the client is provided an AVCaptureResolvedPhotoSettings instance that indicates the settings that were applied to the capture. All "Auto" features have now been resolved to on or off. The AVCaptureResolvedPhotoSettings object passed in the client's delegate callbacks has a uniqueID identical to the AVCapturePhotoSettings request. This uniqueID allows clients to pair unresolved and resolved settings objects. See AVCapturePhotoCaptureDelegate below for a detailed discussion of the delegate callbacks.
  
     Enabling certain photo features (Live Photo capture and high resolution capture) requires a reconfiguration of the capture render pipeline. Clients wishing to opt in for these features should call -setLivePhotoCaptureEnabled: and/or -setHighResolutionCaptureEnabled: before calling -startRunning on the AVCaptureSession. Changing any of these properties while the session is running requires a disruptive reconfiguration of the capture render pipeline. Live Photo captures in progress will be ended immediately; unfulfilled photo requests will be aborted; video preview will temporarily freeze. If you wish to capture Live Photos containing sound, you must add an audio AVCaptureDeviceInput to your AVCaptureSession.
 
@@ -13908,7 +14937,7 @@ NS_ASSUME_NONNULL_BEGIN
  
     AVCapturePhotoOutput implicitly supports wide color photo capture, following the activeColorSpace of the source AVCaptureDevice. If the source device's activeColorSpace is AVCaptureColorSpace_P3_D65, photos are encoded with wide color information, unless you've specified an output format of '420v', which does not support wide color.
  */
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 @interface AVCapturePhotoOutput : AVCaptureOutput
 {
 @private
@@ -13937,7 +14966,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
     This method validates your settings and enforces the following rules in order to ensure deterministic behavior. If any of these rules are violated, a NSInvalidArgumentException is thrown.
     RAW rules:
         - If rawPhotoPixelFormatType is non-zero, it must be present in the receiver's -availableRawPhotoPixelFormatTypes array.
-        - If rawPhotoPixelFormatType is non-zero, autoStillImageStabilizationEnabled must be set to NO.
+        - If rawPhotoPixelFormatType is non-zero, photoQualityPrioritization must be set to AVCapturePhotoQualityPrioritizationSpeed (deprecated autoStillImageStabilizationEnabled must be set to NO).
         - If rawPhotoPixelFormatType is non-zero, your delegate must respond to -captureOutput:didFinishProcessingRawPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error:.
         - If rawPhotoPixelFormatType is non-zero, highResolutionPhotoEnabled may be YES or NO, but the setting only applies to the processed image, if you've specified one.
         - If rawPhotoPixelFormatType is non-zero, the videoZoomFactor of the source device and the videoScaleAndCropFactor of the photo output's video connection must both be 1.0. Ensure no zoom is applied before requesting a RAW capture, and don't change the zoom during RAW capture.
@@ -13948,6 +14977,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
         - If format has a AVVideoCodecKey, its value must be present in the receiver's -availablePhotoCodecTypes array.
         - If format is non-nil, your delegate must respond to -captureOutput:didFinishProcessingPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error:.
         - If processedFileType is specified, it must be present in -availablePhotoFileTypes and must support the format's specified kCVPixelBufferPixelFormatTypeKey (using -supportedPhotoPixelFormatTypesForFileType:) or AVVideoCodecKey (using -supportedPhotoCodecTypesForFileType:).
+        - The photoQualityPrioritization you specify may not be a greater number than the photo output's maxPhotoQualityPrioritization. You must set your AVCapturePhotoOutput maxPhotoQualityPrioritization up front.
     Flash rules:
         - The specified flashMode must be present in the receiver's -supportedFlashModes array.
     Live Photo rules:
@@ -13972,7 +15002,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
     @seealso setPreparedPhotoSettingsArray:completionHandler:
     Some types of photo capture, such as bracketed captures and RAW captures, require the receiver to allocate additional buffers or prepare other resources. To prevent photo capture requests from executing slowly due to lazy resource allocation, you may call -setPreparedPhotoSettingsArray:completionHandler: with an array of settings objects representative of the types of capture you will be performing (e.g., settings for a bracketed capture, RAW capture, and/or still image stabilization capture). By default, the receiver prepares sufficient resources to capture photos with default settings, +[AVCapturePhotoSettings photoSettings].
  */
-@property(nonatomic, readonly) NSArray<AVCapturePhotoSettings *> *preparedPhotoSettingsArray;
+@property(nonatomic, readonly) NSArray<AVCapturePhotoSettings *> *preparedPhotoSettingsArray API_UNAVAILABLE(macos);
 
 /*!
  @method setPreparedPhotoSettingsArray:completionHandler:
@@ -13993,7 +15023,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  
     Prepared settings persist across session starts/stops and committed configuration changes. This property participates in -[AVCaptureSession beginConfiguration] / -[AVCaptureSession commitConfiguration] deferred work behavior. That is, if you call -[AVCaptureSession beginConfiguration], change your session's input/output topology, and call this method, preparation is deferred until you call -[AVCaptureSession commitConfiguration], enabling you to atomically commit a new configuration as well as prepare to take photos in that new configuration.
  */
-- (void)setPreparedPhotoSettingsArray:(NSArray<AVCapturePhotoSettings *> *)preparedPhotoSettingsArray completionHandler:(nullable void (^)(BOOL prepared, NSError * _Nullable error))completionHandler;
+- (void)setPreparedPhotoSettingsArray:(NSArray<AVCapturePhotoSettings *> *)preparedPhotoSettingsArray completionHandler:(nullable void (^)(BOOL prepared, NSError * _Nullable error))completionHandler API_UNAVAILABLE(macos);
 
 /*!
  @property availablePhotoPixelFormatTypes
@@ -14023,7 +15053,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     If you wish to capture a RAW photo, you must ensure that the Bayer RAW format you want is present in the receiver's availableRawPhotoPixelFormatTypes array. If you've not yet added your receiver to an AVCaptureSession with a video source, no RAW formats are available. This property is key-value observable. RAW capture is not supported on all platforms.
  */
-@property(nonatomic, readonly) NSArray<NSNumber *> *availableRawPhotoPixelFormatTypes;
+@property(nonatomic, readonly) NSArray<NSNumber *> *availableRawPhotoPixelFormatTypes API_UNAVAILABLE(macos);
 
 /*!
  @property availablePhotoFileTypes
@@ -14043,7 +15073,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     If you wish to capture a RAW photo that is formatted for a particular file container, such as DNG, you must ensure that the fileType you desire is present in the receiver's availableRawPhotoFileTypes array. If you've not yet added your receiver to an AVCaptureSession with a video source, no file types are available. This property is key-value observable.
  */
-@property(nonatomic, readonly) NSArray<AVFileType> *availableRawPhotoFileTypes API_AVAILABLE(ios(11.0));
+@property(nonatomic, readonly) NSArray<AVFileType> *availableRawPhotoFileTypes API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @method supportedPhotoPixelFormatTypesForFileType:
@@ -14088,7 +15118,37 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     If you wish to capture a photo for storage in a particular file container, such as DNG, you must ensure that the RAW pixel format type you request is valid for that file type. If no RAW pixel format types are supported for a given fileType, an empty array is returned. If you've not yet added your receiver to an AVCaptureSession with a video source, no pixel format types are supported.
  */
-- (NSArray<NSNumber *> *)supportedRawPhotoPixelFormatTypesForFileType:(AVFileType)fileType API_AVAILABLE(ios(11.0));
+- (NSArray<NSNumber *> *)supportedRawPhotoPixelFormatTypesForFileType:(AVFileType)fileType API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+
+/*!
+ @enum AVCapturePhotoQualityPrioritization
+ @abstract
+    Constants indicating how photo quality should be prioritized against speed.
+
+ @constant AVCapturePhotoQualityPrioritizationSpeed
+    Indicates that speed of photo delivery is most important, even at the expense of quality.
+ @constant AVCapturePhotoQualityPrioritizationBalanced
+    Indicates that photo quality and speed of delivery are balanced in priority.
+ @constant AVCapturePhotoQualityPrioritizationQuality
+    Indicates that photo quality is paramount, even at the expense of shot-to-shot time.
+ */
+typedef NS_ENUM(NSInteger, AVCapturePhotoQualityPrioritization) {
+    AVCapturePhotoQualityPrioritizationSpeed    = 1,
+	AVCapturePhotoQualityPrioritizationBalanced = 2,
+	AVCapturePhotoQualityPrioritizationQuality  = 3,
+} API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ @property maxPhotoQualityPrioritization
+ @abstract
+    Indicates the highest quality the receiver should be prepared to output on a capture-by-capture basis.
+
+ @discussion
+    Default value is AVCapturePhotoQualityPrioritizationBalanced when attached to an AVCaptureSession, and AVCapturePhotoQualityPrioritizationSpeed when attached to an AVCaptureMultiCamSession. The AVCapturePhotoOutput is capable of applying a variety of techniques to improve photo quality (reduce noise, preserve detail in low light, freeze motion, etc). Some techniques improve image quality at the expense of speed (shot-to-shot time). Before starting your session, you may set this property to indicate the highest quality prioritization you intend to request when calling -capturePhotoWithSettings:delegate:. When configuring an AVCapturePhotoSettings object, you may not exceed this quality prioritization level, but you may select a lower (speedier) prioritization level.
+ 
+    Changing the maxPhotoQualityPrioritization while the session is running can result in a lengthy rebuild of the session in which video preview is disrupted.
+ */
+@property(nonatomic) AVCapturePhotoQualityPrioritization maxPhotoQualityPrioritization API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @property stillImageStabilizationSupported
@@ -14097,8 +15157,10 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
 
  @discussion
     This property may change as the session's -sessionPreset or source device's -activeFormat change. When still image stabilization is not supported, your capture requests always resolve stillImageStabilizationEnabled to NO. This property is key-value observable.
+ 
+    As of iOS 13 hardware, the AVCapturePhotoOutput is capable of applying a variety of multi-image fusion techniques to improve photo quality (reduce noise, preserve detail in low light, freeze motion, etc), all of which have been previously lumped under the stillImageStabilization moniker. This property should no longer be used as it no longer provides meaningful information about the techniques used to improve quality in a photo capture. Instead, you should use -maxPhotoQualityPrioritization to indicate the highest quality prioritization level you might request in a photo capture, understanding that the higher the quality, the longer the potential wait. You may also use AVCapturePhotoSettings' photoQualityPrioritization property to specify a prioritization level for a particular photo capture, and then query the AVCaptureResolvedPhotoSettings photoProcessingTimeRange property to find out how long it might take to receive the resulting photo in your delegate callback.
  */
-@property(nonatomic, readonly, getter=isStillImageStabilizationSupported) BOOL stillImageStabilizationSupported;
+@property(nonatomic, readonly, getter=isStillImageStabilizationSupported) BOOL stillImageStabilizationSupported API_DEPRECATED_WITH_REPLACEMENT("maxPhotoQualityPrioritization", ios(10.0, 13.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property isStillImageStabilizationScene
@@ -14107,8 +15169,10 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
 
  @discussion
     This property reports whether the current scene being previewed by the camera is dark enough to benefit from still image stabilization. You can influence this property's answers by setting the photoSettingsForSceneMonitoring property, indicating whether autoStillImageStabilization monitoring should be on or off. If you set autoStillImageStabilization to NO, isStillImageStabilizationScene always reports NO. If you set it to YES, this property returns YES or NO depending on the current scene's lighting conditions. Note that some very dark scenes do not benefit from still image stabilization, but do benefit from flash. By default, this property always returns NO unless you set photoSettingsForSceneMonitoring to a non-nil value. This property may be key-value observed.
+ 
+    As of iOS 13 hardware, the AVCapturePhotoOutput is capable of applying a variety of multi-image fusion techniques to improve photo quality (reduce noise, preserve detail in low light, freeze motion, etc), all of which have been previously lumped under the stillImageStabilization moniker. This property should no longer be used as it no longer provides meaningful information about the techniques used to improve quality in a photo capture. Instead, you should use -maxPhotoQualityPrioritization to indicate the highest quality prioritization level you might request in a photo capture, understanding that the higher the quality, the longer the potential wait. You may also use AVCapturePhotoSettings' photoQualityPrioritization property to specify a prioritization level for a particular photo capture, and then query the AVCaptureResolvedPhotoSettings photoProcessingTimeRange property to find out how long it might take to receive the resulting photo in your delegate callback.
  */
-@property(nonatomic, readonly) BOOL isStillImageStabilizationScene;
+@property(nonatomic, readonly) BOOL isStillImageStabilizationScene API_DEPRECATED_WITH_REPLACEMENT("maxPhotoQualityPrioritization", ios(10.0, 13.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property dualCameraFusionSupported
@@ -14118,7 +15182,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     This property may change as the session's -sessionPreset or source device's -activeFormat change. When using the AVCaptureDevice with deviceType AVCaptureDeviceTypeBuiltInDualCamera, the wide-angle and telephoto camera images can be fused together to improve image quality in some configurations. When DualCamera image fusion is not supported by the current configuration, your capture requests always resolve dualCameraFusionEnabled to NO. This property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isDualCameraFusionSupported) BOOL dualCameraFusionSupported API_AVAILABLE(ios(10.2));
+@property(nonatomic, readonly, getter=isDualCameraFusionSupported) BOOL dualCameraFusionSupported API_AVAILABLE(ios(10.2)) API_UNAVAILABLE(macos);
 
 /*!
  @property dualCameraDualPhotoDeliverySupported
@@ -14128,7 +15192,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     DualCamera dual photo delivery is only supported for certain AVCaptureSession sessionPresets and AVCaptureDevice activeFormats. When switching cameras or formats this property may change. When this property changes from YES to NO, dualCameraDualPhotoDeliveryEnabled also reverts to NO. If you've previously opted in for DualCamera dual photo delivery and then change configurations, you may need to set dualCameraDualPhotoDeliveryEnabled = YES again. This property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isDualCameraDualPhotoDeliverySupported) BOOL dualCameraDualPhotoDeliverySupported API_AVAILABLE(ios(11.0));
+@property(nonatomic, readonly, getter=isDualCameraDualPhotoDeliverySupported) BOOL dualCameraDualPhotoDeliverySupported API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property dualCameraDualPhotoDeliveryEnabled
@@ -14138,7 +15202,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default value is NO. This property may only be set to YES if dualCameraDualPhotoDeliverySupported is YES. DualCamera dual photo delivery requires a lengthy reconfiguration of the capture render pipeline, so if you intend to do any dual photo delivery captures, you should set this property to YES before calling -[AVCaptureSession startRunning]. See also -[AVCapturePhotoSettings dualCameraDualPhotoDeliveryEnabled].
  */
-@property(nonatomic, getter=isDualCameraDualPhotoDeliveryEnabled) BOOL dualCameraDualPhotoDeliveryEnabled API_AVAILABLE(ios(11.0));
+@property(nonatomic, getter=isDualCameraDualPhotoDeliveryEnabled) BOOL dualCameraDualPhotoDeliveryEnabled API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property cameraCalibrationDataDeliverySupported
@@ -14148,7 +15212,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Camera calibration data delivery (intrinsics, extrinsics, lens distortion characteristics, etc.) is only supported in certain configurations. In iOS 11, its value is only YES if dualCameraDualPhotoDeliveryEnabled is YES. This property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isCameraCalibrationDataDeliverySupported) BOOL cameraCalibrationDataDeliverySupported API_AVAILABLE(ios(11.0));
+@property(nonatomic, readonly, getter=isCameraCalibrationDataDeliverySupported) BOOL cameraCalibrationDataDeliverySupported API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property supportedFlashModes
@@ -14158,8 +15222,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     This property supersedes AVCaptureDevice's isFlashModeSupported: It returns an array of AVCaptureFlashMode constants. To test whether a particular flash mode is supported, use NSArray's containsObject API: [photoOutput.supportedFlashModes containsObject:@(AVCaptureFlashModeAuto)]. This property is key-value observable.
  */
-@property(nonatomic, readonly) NSArray<NSNumber *> *supportedFlashModes;
-
+@property(nonatomic, readonly) NSArray<NSNumber *> *supportedFlashModes API_UNAVAILABLE(macos);
 
 /*!
  @property autoRedEyeReductionSupported
@@ -14169,7 +15232,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Flash images may cause subjects' eyes to appear red, golden, or white. Automatic red-eye reduction detects and corrects for reflected light in eyes, at the cost of additional processing time per image. This property may change as the session's -sessionPreset or source device's -activeFormat change. When red-eye reduction is not supported, your capture requests always resolve redEyeReductionEnabled to NO. This property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isAutoRedEyeReductionSupported) BOOL autoRedEyeReductionSupported API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property(nonatomic, readonly, getter=isAutoRedEyeReductionSupported) BOOL autoRedEyeReductionSupported API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @property isFlashScene
@@ -14179,7 +15242,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     This property reports whether the current scene being previewed by the camera is dark enough to need the flash. If -supportedFlashModes only contains AVCaptureFlashModeOff, isFlashScene always reports NO. You can influence this property's answers by setting the photoSettingsForSceneMonitoring property, indicating the flashMode you wish to monitor. If you set flashMode to AVCaptureFlashModeOff, isFlashScene always reports NO. If you set it to AVCaptureFlashModeAuto or AVCaptureFlashModeOn, isFlashScene answers YES or NO based on the current scene's lighting conditions. By default, this property always returns NO unless you set photoSettingsForSceneMonitoring to a non-nil value. Note that there is some overlap in the light level ranges that benefit from still image stabilization and flash. If your photoSettingsForSceneMonitoring indicate that both still image stabilization and flash scenes should be monitored, still image stabilization takes precedence, and isFlashScene becomes YES at lower overall light levels. This property may be key-value observed.
  */
-@property(nonatomic, readonly) BOOL isFlashScene;
+@property(nonatomic, readonly) BOOL isFlashScene API_UNAVAILABLE(macos);
 
 /*!
  @property photoSettingsForSceneMonitoring
@@ -14187,9 +15250,9 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
     Settings that govern the behavior of isFlashScene and isStillImageStabilizationScene.
 
  @discussion
-    You can influence the return values of isFlashScene and isStillImageStabilizationScene by setting this property, indicating the flashMode and autoStillImageStabilizationEnabled values that should be considered for scene monitoring. For instance, if you set flashMode to AVCaptureFlashModeOff, isFlashScene always reports NO. If you set it to AVCaptureFlashModeAuto or AVCaptureFlashModeOn, isFlashScene answers YES or NO based on the current scene's lighting conditions. Note that there is some overlap in the light level ranges that benefit from still image stabilization and flash. If your photoSettingsForSceneMonitoring indicate that both still image stabilization and flash scenes should be monitored, still image stabilization takes precedence, and isFlashScene becomes YES at lower overall light levels. The default value for this property is nil. See isStillImageStabilizationScene and isFlashScene for further discussion.
+    You can influence the return values of isFlashScene and isStillImageStabilizationScene by setting this property, indicating the flashMode and photoQualityPrioritization values that should be considered for scene monitoring. For instance, if you set flashMode to AVCaptureFlashModeOff, isFlashScene always reports NO. If you set it to AVCaptureFlashModeAuto or AVCaptureFlashModeOn, isFlashScene answers YES or NO based on the current scene's lighting conditions. Note that there is some overlap in the light level ranges that benefit from still image stabilization and flash. If your photoSettingsForSceneMonitoring indicate that both still image stabilization and flash scenes should be monitored, still image stabilization takes precedence, and isFlashScene becomes YES at lower overall light levels. The default value for this property is nil. See isStillImageStabilizationScene and isFlashScene for further discussion.
  */
-@property(nonatomic, copy, nullable) AVCapturePhotoSettings *photoSettingsForSceneMonitoring;
+@property(nonatomic, copy, nullable) AVCapturePhotoSettings *photoSettingsForSceneMonitoring API_UNAVAILABLE(macos);
 
 /*!
  @property highResolutionCaptureEnabled
@@ -14199,7 +15262,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Some AVCaptureDeviceFormats support outputting higher resolution stills than their streaming resolution (See AVCaptureDeviceFormat.highResolutionStillImageDimensions). Under some conditions, AVCaptureSession needs to set up the photo render pipeline differently to support high resolution still image capture. If you intend to take high resolution still images at all, you should set this property to YES before calling -[AVCaptureSession startRunning]. Once you've opted in for high resolution capture, you are free to issue photo capture requests with or without highResolutionCaptureEnabled in the AVCapturePhotoSettings. If you have not set this property to YES and call capturePhotoWithSettings:delegate: with settings.highResolutionCaptureEnabled set to YES, an NSInvalidArgumentException will be thrown.
  */
-@property(nonatomic, getter=isHighResolutionCaptureEnabled) BOOL highResolutionCaptureEnabled;
+@property(nonatomic, getter=isHighResolutionCaptureEnabled) BOOL highResolutionCaptureEnabled API_UNAVAILABLE(macos);
 
 /*!
  @property maxBracketedCapturePhotoCount
@@ -14209,7 +15272,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
      AVCapturePhotoOutput can only satisfy a limited number of image requests in a single bracket without exhausting system resources. The maximum number of photos that may be taken in a single bracket depends on the size and format of the images being captured, and consequently may vary with AVCaptureSession -sessionPreset and AVCaptureDevice -activeFormat. Some formats do not support bracketed capture at all, and thus this property may return a value of 0. This read-only property is key-value observable. If you call -capturePhotoWithSettings:delegate: with a bracketedSettings whose count exceeds -maxBracketedCapturePhotoCount, an NSInvalidArgumentException is thrown.
  */
-@property(nonatomic, readonly) NSUInteger maxBracketedCapturePhotoCount;
+@property(nonatomic, readonly) NSUInteger maxBracketedCapturePhotoCount API_UNAVAILABLE(macos);
 
 /*!
  @property lensStabilizationDuringBracketedCaptureSupported
@@ -14219,7 +15282,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     The AVCapturePhotoBracketSettings lensStabilizationEnabled property may only be set if this property returns YES. Its value may change as the session's -sessionPreset or input device's -activeFormat changes. This read-only property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isLensStabilizationDuringBracketedCaptureSupported) BOOL lensStabilizationDuringBracketedCaptureSupported;
+@property(nonatomic, readonly, getter=isLensStabilizationDuringBracketedCaptureSupported) BOOL lensStabilizationDuringBracketedCaptureSupported API_UNAVAILABLE(macos);
 
 /*!
  @property livePhotoCaptureSupported
@@ -14229,7 +15292,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Live Photo capture is only supported for certain AVCaptureSession sessionPresets and AVCaptureDevice activeFormats. When switching cameras or formats this property may change. When this property changes from YES to NO, livePhotoCaptureEnabled also reverts to NO. If you've previously opted in for Live Photo capture and then change configurations, you may need to set livePhotoCaptureEnabled = YES again. 
  */
-@property(nonatomic, readonly, getter=isLivePhotoCaptureSupported) BOOL livePhotoCaptureSupported;
+@property(nonatomic, readonly, getter=isLivePhotoCaptureSupported) BOOL livePhotoCaptureSupported API_UNAVAILABLE(macos);
 
 /*!
  @property livePhotoCaptureEnabled
@@ -14239,7 +15302,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default value is NO. This property may only be set to YES if livePhotoCaptureSupported is YES. Live Photo capture requires a lengthy reconfiguration of the capture render pipeline, so if you intend to do any Live Photo captures at all, you should set livePhotoCaptureEnabled to YES before calling -[AVCaptureSession startRunning].
  */
-@property(nonatomic, getter=isLivePhotoCaptureEnabled) BOOL livePhotoCaptureEnabled;
+@property(nonatomic, getter=isLivePhotoCaptureEnabled) BOOL livePhotoCaptureEnabled API_UNAVAILABLE(macos);
 
 /*!
  @property livePhotoCaptureSuspended
@@ -14249,7 +15312,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     This property allows you to cut current Live Photo movie captures short (for instance, if you suddenly need to do something that you don't want to show up in the Live Photo movie, such as take a non Live Photo capture that makes a shutter sound). By default, livePhotoCaptureSuspended is NO. When you set livePhotoCaptureSuspended = YES, any Live Photo movie captures in progress are trimmed to the current time. Likewise, when you toggle livePhotoCaptureSuspended from YES to NO, subsequent Live Photo movie captures will not contain any samples earlier than the time you un-suspended Live Photo capture. Setting this property to YES throws an NSInvalidArgumentException if livePhotoCaptureEnabled is NO. This property may only be set while the session is running. Setting this property to YES when the session is not running will fail resulting in livePhotoCaptureSuspended being reverted to NO.
  */
-@property(nonatomic, getter=isLivePhotoCaptureSuspended) BOOL livePhotoCaptureSuspended;
+@property(nonatomic, getter=isLivePhotoCaptureSuspended) BOOL livePhotoCaptureSuspended API_UNAVAILABLE(macos);
 
 /*!
  @property livePhotoAutoTrimmingEnabled
@@ -14259,7 +15322,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     This property defaults to YES when livePhotoCaptureSupported is YES. Changing this property's value while your session is running will cause a lengthy reconfiguration of the session. You should set livePhotoAutoTrimmingEnabled to YES or NO before calling -[AVCaptureSession startRunning]. When set to YES, Live Photo movies are analyzed in real time and trimmed if there's excessive movement before or after the photo is taken. Nominally, Live Photos are approximately 3 seconds long. With trimming enabled, they may be shorter, depending on movement. This feature prevents common problems such as Live Photo movies containing shoe or pocket shots.
  */
-@property(nonatomic, getter=isLivePhotoAutoTrimmingEnabled) BOOL livePhotoAutoTrimmingEnabled;
+@property(nonatomic, getter=isLivePhotoAutoTrimmingEnabled) BOOL livePhotoAutoTrimmingEnabled API_UNAVAILABLE(macos);
 
 /*!
  @property availableLivePhotoVideoCodecTypes
@@ -14269,7 +15332,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Prior to iOS 11, all Live Photo movie video tracks are compressed using H.264. Beginning in iOS 11, you can select the Live Photo movie video compression format using one of the AVVideoCodecKey strings presented in this property. The system's default (preferred) video codec is always presented first in the list. If you've not yet added your receiver to an AVCaptureSession with a video source, no codecs are available. This property is key-value observable.
  */
-@property(nonatomic, readonly) NSArray<AVVideoCodecType> *availableLivePhotoVideoCodecTypes API_AVAILABLE(ios(11.0));
+@property(nonatomic, readonly) NSArray<AVVideoCodecType> *availableLivePhotoVideoCodecTypes API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @method JPEGPhotoDataRepresentationForJPEGSampleBuffer:previewPhotoSampleBuffer:
@@ -14286,7 +15349,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     AVCapturePhotoOutput's depecrated -captureOutput:didFinishProcessingPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error: callback delivers JPEG photos to clients as CMSampleBuffers. To re-package these buffers in a data format suitable for writing to a JPEG file, you may call this class method, optionally inserting your own metadata into the JPEG CMSampleBuffer first, and optionally passing a preview image to be written to the JPEG file format as a thumbnail image.
  */
-+ (nullable NSData *)JPEGPhotoDataRepresentationForJPEGSampleBuffer:(CMSampleBufferRef)JPEGSampleBuffer previewPhotoSampleBuffer:(nullable CMSampleBufferRef)previewPhotoSampleBuffer API_DEPRECATED("Use -[AVCapturePhoto fileDataRepresentation] instead.", ios(10.0, 11.0));
++ (nullable NSData *)JPEGPhotoDataRepresentationForJPEGSampleBuffer:(CMSampleBufferRef)JPEGSampleBuffer previewPhotoSampleBuffer:(nullable CMSampleBufferRef)previewPhotoSampleBuffer API_DEPRECATED_WITH_REPLACEMENT("-[AVCapturePhoto fileDataRepresentation]", ios(10.0, 11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method DNGPhotoDataRepresentationForRawSampleBuffer:previewPhotoSampleBuffer:
@@ -14303,7 +15366,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     AVCapturePhotoOutput's deprecated -captureOutput:didFinishProcessingRawPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error: callback delivers RAW photos to clients as CMSampleBuffers. To re-package these buffers in a data format suitable for writing to a DNG file, you may call this class method, optionally inserting your own metadata into the RAW CMSampleBuffer first, and optionally passing a preview image to be written to the DNG file format as a thumbnail image. Only RAW images from Apple built-in cameras are supported.
  */
-+ (nullable NSData *)DNGPhotoDataRepresentationForRawSampleBuffer:(CMSampleBufferRef)rawSampleBuffer previewPhotoSampleBuffer:(nullable CMSampleBufferRef)previewPhotoSampleBuffer API_DEPRECATED("Use -[AVCapturePhoto fileDataRepresentation] instead.", ios(10.0, 11.0));
++ (nullable NSData *)DNGPhotoDataRepresentationForRawSampleBuffer:(CMSampleBufferRef)rawSampleBuffer previewPhotoSampleBuffer:(nullable CMSampleBufferRef)previewPhotoSampleBuffer API_DEPRECATED_WITH_REPLACEMENT("-[AVCapturePhoto fileDataRepresentation]", ios(10.0, 11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 @end
 
@@ -14318,9 +15381,9 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
     A BOOL value specifying whether depth data delivery is supported.
 
  @discussion
-    Some cameras and configurations support the delivery of depth data (e.g. disparity maps) along with the photo. This property returns YES if the session's current configuration allows photos to be captured with depth data, from which depth-related filters may be applied. When switching cameras or formats this property may change. When this property changes from YES to NO, depthDataDeliveryEnabled also reverts to NO. If you've previously opted in for depth data delivery and then change configurations, you may need to set depthDataDeliveryEnabled = YES again.This property is key-value observable.
+    Some cameras and configurations support the delivery of depth data (e.g. disparity maps) along with the photo. This property returns YES if the session's current configuration allows photos to be captured with depth data, from which depth-related filters may be applied. When switching cameras or formats this property may change. When this property changes from YES to NO, depthDataDeliveryEnabled also reverts to NO. If you've previously opted in for depth data delivery and then change configurations, you may need to set depthDataDeliveryEnabled = YES again. This property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isDepthDataDeliverySupported) BOOL depthDataDeliverySupported API_AVAILABLE(ios(11.0));
+@property(nonatomic, readonly, getter=isDepthDataDeliverySupported) BOOL depthDataDeliverySupported API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property depthDataDeliveryEnabled
@@ -14330,7 +15393,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default is NO. Set to YES if you wish depth data to be delivered with your AVCapturePhotos. This property may only be set to YES if depthDataDeliverySupported is YES. Enabling depth data delivery requires a lengthy reconfiguration of the capture render pipeline, so if you intend to capture depth data, you should set this property to YES before calling -[AVCaptureSession startRunning].
  */
-@property(nonatomic, getter=isDepthDataDeliveryEnabled) BOOL depthDataDeliveryEnabled API_AVAILABLE(ios(11.0));
+@property(nonatomic, getter=isDepthDataDeliveryEnabled) BOOL depthDataDeliveryEnabled API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property portraitEffectsMatteDeliverySupported
@@ -14338,9 +15401,9 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
     A BOOL value specifying whether portrait effects matte delivery is supported.
 
  @discussion
-    Some cameras and configurations support the delivery of a matting image to augment depth data and aid in high quality portrait effect rendering (see AVPortraitEffectsMatte.h). This property returns YES if the session's current configuration allows photos to be captured with a portrait effects matte. When switching cameras or formats this property may change. When this property changes from YES to NO, portraitEffectsMatteDeliveryEnabled also reverts to NO. If you've previously opted in for portrait effects matte delivery and then change configurations, you may need to set portraitEffectsMatteDeliveryEnabled = YES again.This property is key-value observable.
+    Some cameras and configurations support the delivery of a matting image to augment depth data and aid in high quality portrait effect rendering (see AVPortraitEffectsMatte.h). This property returns YES if the session's current configuration allows photos to be captured with a portrait effects matte. When switching cameras or formats this property may change. When this property changes from YES to NO, portraitEffectsMatteDeliveryEnabled also reverts to NO. If you've previously opted in for portrait effects matte delivery and then change configurations, you may need to set portraitEffectsMatteDeliveryEnabled = YES again. This property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isPortraitEffectsMatteDeliverySupported) BOOL portraitEffectsMatteDeliverySupported API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+@property(nonatomic, readonly, getter=isPortraitEffectsMatteDeliverySupported) BOOL portraitEffectsMatteDeliverySupported API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @property portraitEffectsMatteDeliveryEnabled
@@ -14350,7 +15413,27 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default is NO. Set to YES if you wish portrait effects mattes to be delivered with your AVCapturePhotos. This property may only be set to YES if portraitEffectsMatteDeliverySupported is YES. Portrait effects matte generation requires depth to be present, so when enabling portrait effects matte delivery, you must also set depthDataDeliveryEnabled to YES. Enabling portrait effects matte delivery requires a lengthy reconfiguration of the capture render pipeline, so if you intend to capture portrait effects mattes, you should set this property to YES before calling -[AVCaptureSession startRunning].
  */
-@property(nonatomic, getter=isPortraitEffectsMatteDeliveryEnabled) BOOL portraitEffectsMatteDeliveryEnabled API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+@property(nonatomic, getter=isPortraitEffectsMatteDeliveryEnabled) BOOL portraitEffectsMatteDeliveryEnabled API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
+
+/*!
+ @property availableSemanticSegmentationMatteTypes
+ @abstract
+    An array of supported semantic segmentation matte types that may be captured and delivered along with your AVCapturePhotos.
+
+ @discussion
+    Some cameras and configurations support the delivery of semantic segmentation matting images (e.g. segmentations of the hair, skin, or teeth in the photo). This property returns an array of AVSemanticSegmentationMatteTypes available given the session's current configuration. When switching cameras or formats this property may change. When this property changes, enabledSemanticSegmentationMatteTypes reverts to an empty array. If you've previously opted in for delivery of one or more semantic segmentation mattes and then change configurations, you need to set up your enabledSemanticSegmentationMatteTypes again. This property is key-value observable.
+ */
+@property(nonatomic, readonly) NSArray<AVSemanticSegmentationMatteType> *availableSemanticSegmentationMatteTypes API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
+
+/*!
+ @property enabledSemanticSegmentationMatteTypes
+ @abstract
+    An array of semantic segmentation matte types which the photo render pipeline is prepared to deliver.
+
+ @discussion
+    Default is empty array. You may set this to the array of matte types you'd like to be delivered with your AVCapturePhotos. The array may only contain values present in availableSemanticSegmentationMatteTypes. Enabling semantic segmentation matte delivery requires a lengthy reconfiguration of the capture render pipeline, so if you intend to capture semantic segmentation mattes, you should set this property to YES before calling -[AVCaptureSession startRunning].
+ */
+@property(nonatomic) NSArray<AVSemanticSegmentationMatteType> *enabledSemanticSegmentationMatteTypes API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
 
 @end
 
@@ -14369,7 +15452,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  
     In the event of an error, all expected callbacks are fired with an appropriate error.
  */
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 @protocol AVCapturePhotoCaptureDelegate <NSObject>
 
 @optional
@@ -14456,7 +15539,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     If you've requested a single processed image (uncompressed or compressed) capture, the photo is delivered here. If you've requested a bracketed capture, this callback is fired bracketedSettings.count times (once for each photo in the bracket).
  */
-- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(nullable CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(nullable CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(nullable AVCaptureBracketedStillImageSettings *)bracketSettings error:(nullable NSError *)error API_DEPRECATED("Use -captureOutput:didFinishProcessingPhoto:error: instead.", ios(10.0, 11.0));
+- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(nullable CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(nullable CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(nullable AVCaptureBracketedStillImageSettings *)bracketSettings error:(nullable NSError *)error API_DEPRECATED_WITH_REPLACEMENT("-captureOutput:didFinishProcessingPhoto:error:", ios(10.0, 11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method captureOutput:didFinishProcessingRawPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error:
@@ -14479,7 +15562,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Single RAW image and bracketed RAW photos are delivered here. If you've requested a RAW bracketed capture, this callback is fired bracketedSettings.count times (once for each photo in the bracket).
  */
-- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingRawPhotoSampleBuffer:(nullable CMSampleBufferRef)rawSampleBuffer previewPhotoSampleBuffer:(nullable CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(nullable AVCaptureBracketedStillImageSettings *)bracketSettings error:(nullable NSError *)error API_DEPRECATED("Use -captureOutput:didFinishProcessingPhoto:error: instead.", ios(10.0, 11.0));
+- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingRawPhotoSampleBuffer:(nullable CMSampleBufferRef)rawSampleBuffer previewPhotoSampleBuffer:(nullable CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(nullable AVCaptureBracketedStillImageSettings *)bracketSettings error:(nullable NSError *)error API_DEPRECATED_WITH_REPLACEMENT("-captureOutput:didFinishProcessingPhoto:error:", ios(10.0, 11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method captureOutput:didFinishRecordingLivePhotoMovieForEventualFileAtURL:resolvedSettings:
@@ -14496,7 +15579,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     When this callback fires, no new media is being written to the file. If you are displaying a "Live" badge, this is an appropriate time to dismiss it. The movie file itself is not done being written until the -captureOutput:didFinishProcessingLivePhotoToMovieFileAtURL:duration:photoDisplayTime:resolvedSettings:error: callback fires.
  */
-- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishRecordingLivePhotoMovieForEventualFileAtURL:(NSURL *)outputFileURL resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings;
+- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishRecordingLivePhotoMovieForEventualFileAtURL:(NSURL *)outputFileURL resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings API_UNAVAILABLE(macos);
 
 /*!
  @method captureOutput:didFinishProcessingLivePhotoToMovieFileAtURL:duration:photoDisplayTime:resolvedSettings:error:
@@ -14519,7 +15602,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     When this callback fires, the movie on disk is fully finished and ready for consumption.
  */
-- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingLivePhotoToMovieFileAtURL:(NSURL *)outputFileURL duration:(CMTime)duration photoDisplayTime:(CMTime)photoDisplayTime resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings error:(nullable NSError *)error;
+- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingLivePhotoToMovieFileAtURL:(NSURL *)outputFileURL duration:(CMTime)duration photoDisplayTime:(CMTime)photoDisplayTime resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings error:(nullable NSError *)error API_UNAVAILABLE(macos);
 
 /*!
  @method captureOutput:didFinishCaptureForResolvedSettings:error:
@@ -14553,7 +15636,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     To take a picture, a client instantiates and configures an AVCapturePhotoSettings object, then calls AVCapturePhotoOutput's -capturePhotoWithSettings:delegate:, passing the settings and a delegate to be informed when events relating to the photo capture occur. Since AVCapturePhotoSettings has no reference to the AVCapturePhotoOutput instance with which it will be used, minimal validation occurs while you configure an AVCapturePhotoSettings instance. The bulk of the validation is executed when you call AVCapturePhotoOutput's -capturePhotoWithSettings:delegate:.
  */
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 @interface AVCapturePhotoSettings : NSObject <NSCopying>
 {
 @private
@@ -14569,7 +15652,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
     An instance of AVCapturePhotoSettings.
  
  @discussion
-    A default AVCapturePhotoSettings object has a format of AVVideoCodecTypeJPEG, a fileType of AVFileTypeJPEG, and autoStillImageStabilizationEnabled set to YES.
+    A default AVCapturePhotoSettings object has a format of AVVideoCodecTypeJPEG, a fileType of AVFileTypeJPEG, and photoQualityPrioritization set to AVCapturePhotoQualityPrioritizationBalanced.
  */
 + (instancetype)photoSettings;
 
@@ -14601,7 +15684,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     rawPixelFormatType must be one of the OSTypes contained in AVCapturePhotoOutput's -availableRawPhotoPixelFormatTypes array. See AVCapturePhotoOutput's -capturePhotoWithSettings:delegate: inline documentation for a discussion of restrictions on AVCapturePhotoSettings when requesting RAW capture.
  */
-+ (instancetype)photoSettingsWithRawPixelFormatType:(OSType)rawPixelFormatType;
++ (instancetype)photoSettingsWithRawPixelFormatType:(OSType)rawPixelFormatType API_UNAVAILABLE(macos);
 
 /*!
  @method photoSettingsWithRawPixelFormatType:processedFormat:
@@ -14618,7 +15701,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     rawPixelFormatType must be one of the OSTypes contained in AVCapturePhotoOutput's -availableRawPhotoPixelFormatTypes array. If you wish an uncompressed processedFormat, your dictionary must contain kCVPixelBufferPixelFormatTypeKey, and the processedFormat specified must be present in AVCapturePhotoOutput's -availablePhotoPixelFormatTypes array. kCVPixelBufferPixelFormatTypeKey is the only supported key when expressing uncompressed processedFormat. If you wish a compressed format, your dictionary must contain AVVideoCodecKey and the codec specified must be present in AVCapturePhotoOutput's -availablePhotoCodecTypes array. If you are specifying a compressed format, the AVVideoCompressionPropertiesKey is also supported, with a payload dictionary containing a single AVVideoQualityKey. Passing a nil processedFormat dictionary is analogous to calling +photoSettingsWithRawPixelFormatType:. See AVCapturePhotoOutput's -capturePhotoWithSettings:delegate: inline documentation for a discussion of restrictions on AVCapturePhotoSettings when requesting RAW capture.
  */
-+ (instancetype)photoSettingsWithRawPixelFormatType:(OSType)rawPixelFormatType processedFormat:(nullable NSDictionary<NSString *, id> *)processedFormat;
++ (instancetype)photoSettingsWithRawPixelFormatType:(OSType)rawPixelFormatType processedFormat:(nullable NSDictionary<NSString *, id> *)processedFormat API_UNAVAILABLE(macos);
 
 /*!
  @method photoSettingsWithRawPixelFormatType:processedFormat:fileType:
@@ -14639,7 +15722,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     rawPixelFormatType must be one of the OSTypes contained in AVCapturePhotoOutput's -availableRawPhotoPixelFormatTypes array. Set rawPixelFormatType to 0 if you do not desire a RAW photo callback. If you are specifying a rawFileType, it must be present in AVCapturePhotoOutput's -availableRawPhotoFileTypes array. If you wish an uncompressed processedFormat, your dictionary must contain kCVPixelBufferPixelFormatTypeKey, and the processedFormat specified must be present in AVCapturePhotoOutput's -availablePhotoPixelFormatTypes array. kCVPixelBufferPixelFormatTypeKey is the only supported key when expressing uncompressed processedFormat. If you wish a compressed format, your dictionary must contain AVVideoCodecKey and the codec specified must be present in AVCapturePhotoOutput's -availablePhotoCodecTypes array. If you are specifying a compressed format, the AVVideoCompressionPropertiesKey is also supported, with a payload dictionary containing a single AVVideoQualityKey. If you are specifying a processedFileType, it must be present in AVCapturePhotoOutput's -availablePhotoFileTypes array. Pass a nil processedFormat dictionary if you only desire a RAW photo capture. See AVCapturePhotoOutput's -capturePhotoWithSettings:delegate: inline documentation for a discussion of restrictions on AVCapturePhotoSettings when requesting RAW capture.
  */
-+ (instancetype)photoSettingsWithRawPixelFormatType:(OSType)rawPixelFormatType rawFileType:(nullable AVFileType)rawFileType processedFormat:(nullable NSDictionary<NSString *, id> *)processedFormat processedFileType:(nullable AVFileType)processedFileType API_AVAILABLE(ios(11.0));
++ (instancetype)photoSettingsWithRawPixelFormatType:(OSType)rawPixelFormatType rawFileType:(nullable AVFileType)rawFileType processedFormat:(nullable NSDictionary<NSString *, id> *)processedFormat processedFileType:(nullable AVFileType)processedFileType API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @method photoSettingsFromPhotoSettings:
@@ -14694,7 +15777,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     The rawPixelFormatType you specified in one of the creation methods. Returns 0 if you did not specify RAW capture. See AVCapturePhotoOutput's -capturePhotoWithSettings:delegate: inline documentation for a discussion of restrictions on AVCapturePhotoSettings when requesting RAW capture.
  */
-@property(readonly) OSType rawPhotoPixelFormatType;
+@property(readonly) OSType rawPhotoPixelFormatType API_UNAVAILABLE(macos);
 
 /*!
  @property rawFileType
@@ -14704,7 +15787,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     The formatting of data within a RAW photo buffer may be dependent on the file format intended for storage. To discover which RAW photo pixel format types are supported for a given file type, you may query AVCapturePhotoOutput's -supportedRawPhotoPixelFormatTypesForFileType:.
  */
-@property(nullable, readonly) AVFileType rawFileType API_AVAILABLE(ios(11.0));
+@property(nullable, readonly) AVFileType rawFileType API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property flashMode
@@ -14714,8 +15797,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     flashMode takes the place of the deprecated AVCaptureDevice -flashMode API. Setting AVCaptureDevice.flashMode has no effect on AVCapturePhotoOutput, which only pays attention to the flashMode specified in your AVCapturePhotoSettings. The default value is AVCaptureFlashModeOff. Flash modes are defined in AVCaptureDevice.h. If you specify a flashMode of AVCaptureFlashModeOn, it wins over autoStillImageStabilizationEnabled=YES. When the device becomes very hot, the flash becomes temporarily unavailable until the device cools down (see AVCaptureDevice's -flashAvailable). While the flash is unavailable, AVCapturePhotoOutput's -supportedFlashModes property still reports AVCaptureFlashModeOn and AVCaptureFlashModeAuto as being available, thus allowing you to specify a flashMode of AVCaptureModeOn. You should always check the AVCaptureResolvedPhotoSettings provided to you in the AVCapturePhotoCaptureDelegate callbacks, as the resolved flashEnabled property will tell you definitively if the flash is being used.
  */
-@property(nonatomic) AVCaptureFlashMode flashMode;
-
+@property(nonatomic) AVCaptureFlashMode flashMode API_UNAVAILABLE(macos);
 
 /*!
  @property autoRedEyeReductionEnabled
@@ -14725,7 +15807,17 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default is YES on platforms that support automatic red-eye reduction unless you are capturing a bracket using AVCapturePhotoBracketSettings or a RAW photo without a processed photo.  For RAW photos with a processed photo the red-eye reduction will be applied to the processed photo only (RAW photos by definition are not processed). When set to YES, red-eye reduction is applied as needed for flash captures if the photo output's autoRedEyeReductionSupported property returns YES.
  */
-@property(nonatomic, getter=isAutoRedEyeReductionEnabled) BOOL autoRedEyeReductionEnabled API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property(nonatomic, getter=isAutoRedEyeReductionEnabled) BOOL autoRedEyeReductionEnabled API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ @property photoQualityPrioritization
+ @abstract
+    Indicates how photo quality should be prioritized against speed of photo delivery.
+
+ @discussion
+    Default value is AVCapturePhotoQualityPrioritizationBalanced. The AVCapturePhotoOutput is capable of applying a variety of techniques to improve photo quality (reduce noise, preserve detail in low light, freeze motion, etc), depending on the source device's activeFormat. Some of these techniques can take significant processing time before the photo is returned to your delegate callback. The photoQualityPrioritization property allows you to specify your preferred quality vs speed of delivery. By default, speed and quality are considered to be of equal importance. When you specify AVCapturePhotoQualityPrioritizationSpeed, you indicate that speed should be prioritized at the expense of quality. Likewise, when you choose AVCapturePhotoQualityPrioritizationQuality, you signal your willingness to prioritize the very best quality at the expense of speed, and your readiness to wait (perhaps significantly) longer for the photo to be returned to your delegate.
+ */
+@property(nonatomic) AVCapturePhotoQualityPrioritization photoQualityPrioritization API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @property autoStillImageStabilizationEnabled
@@ -14734,8 +15826,10 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
 
  @discussion
     Default is YES unless you are capturing a RAW photo (RAW photos may not be processed by definition) or a bracket using AVCapturePhotoBracketSettings. When set to YES, still image stabilization is applied automatically in low light to counteract hand shake. If the device has optical image stabilization, autoStillImageStabilizationEnabled makes use of lens stabilization as well.
+ 
+    As of iOS 13 hardware, the AVCapturePhotoOutput is capable of applying a variety of multi-image fusion techniques to improve photo quality (reduce noise, preserve detail in low light, freeze motion, etc), all of which have been previously lumped under the stillImageStabilization moniker. This property should no longer be used as it no longer provides meaningful information about the techniques used to improve quality in a photo capture. Instead, you should use -photoQualityPrioritization to indicate your preferred quality vs speed.
  */
-@property(nonatomic, getter=isAutoStillImageStabilizationEnabled) BOOL autoStillImageStabilizationEnabled;
+@property(nonatomic, getter=isAutoStillImageStabilizationEnabled) BOOL autoStillImageStabilizationEnabled API_DEPRECATED_WITH_REPLACEMENT("photoQualityPrioritization", ios(10.0, 13.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property autoDualCameraFusionEnabled
@@ -14745,7 +15839,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default is YES unless you are capturing a RAW photo (RAW photos may not be processed by definition) or a bracket using AVCapturePhotoBracketSettings. When set to YES, and -[AVCapturePhotoOutput isDualCameraFusionSupported] is also YES, wide-angle and telephoto images may be fused to improve still image quality, depending on the current zoom factor, light levels, and focus position. You may determine whether DualCamera fusion is enabled for a particular capture request by inspecting the dualCameraFusionEnabled property of the AVCaptureResolvedPhotoSettings. Note that when using the deprecated AVCaptureStillImageOutput interface with the DualCamera, auto DualCamera fusion is always enabled and may not be turned off.
  */
-@property(nonatomic, getter=isAutoDualCameraFusionEnabled) BOOL autoDualCameraFusionEnabled API_AVAILABLE(ios(10.2));
+@property(nonatomic, getter=isAutoDualCameraFusionEnabled) BOOL autoDualCameraFusionEnabled API_AVAILABLE(ios(10.2)) API_UNAVAILABLE(macos);
 
 /*!
  @property dualCameraDualPhotoDeliveryEnabled
@@ -14755,7 +15849,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default is NO. When set to YES, your captureOutput:didFinishProcessingPhoto:error: callback will receive twice the number of callbacks, as both the telephoto image(s) and wide-angle image(s) are delivered. You may only set this property to YES if you've set your AVCapturePhotoOutput's dualCameraDualPhotoDeliveryEnabled property to YES, and your delegate responds to the captureOutput:didFinishProcessingPhoto:error: selector.
  */
-@property(nonatomic, getter=isDualCameraDualPhotoDeliveryEnabled) BOOL dualCameraDualPhotoDeliveryEnabled API_AVAILABLE(ios(11.0));
+@property(nonatomic, getter=isDualCameraDualPhotoDeliveryEnabled) BOOL dualCameraDualPhotoDeliveryEnabled API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property highResolutionPhotoEnabled
@@ -14765,7 +15859,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default is NO. By default, AVCapturePhotoOutput emits images with the same dimensions as its source AVCaptureDevice's activeFormat.formatDescription. However, if you set this property to YES, the AVCapturePhotoOutput emits images at its source AVCaptureDevice's activeFormat.highResolutionStillImageDimensions. Note that if you enable video stabilization (see AVCaptureConnection's preferredVideoStabilizationMode) for any output, the high resolution photos emitted by AVCapturePhotoOutput may be smaller by 10 or more percent. You may inspect your AVCaptureResolvedPhotoSettings in the delegate callbacks to discover the exact dimensions of the capture photo(s).
  */
-@property(nonatomic, getter=isHighResolutionPhotoEnabled) BOOL highResolutionPhotoEnabled;
+@property(nonatomic, getter=isHighResolutionPhotoEnabled) BOOL highResolutionPhotoEnabled API_UNAVAILABLE(macos);
 
 /*!
  @property depthDataDeliveryEnabled
@@ -14777,7 +15871,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  
     For best rendering results in Apple's Photos.app, portrait photos should be captured with both embedded depth data and a portrait effects matte (see portraitEffectsMatteDeliveryEnabled). When supported, it is recommended to opt in for both of these auxiliary images in your photo captures involving depth.
  */
-@property(nonatomic, getter=isDepthDataDeliveryEnabled) BOOL depthDataDeliveryEnabled API_AVAILABLE(ios(11.0));
+@property(nonatomic, getter=isDepthDataDeliveryEnabled) BOOL depthDataDeliveryEnabled API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property embedsDepthDataInPhoto
@@ -14787,7 +15881,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default is YES. When depthDataDeliveryEnabled is set to YES, this property specifies whether the included depth data should be written to the resulting photo's internal file structure. Depth data is currently only supported in HEIF and JPEG. This property is ignored if depthDataDeliveryEnabled is set to NO.
  */
-@property(nonatomic) BOOL embedsDepthDataInPhoto API_AVAILABLE(ios(11.0));
+@property(nonatomic) BOOL embedsDepthDataInPhoto API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property depthDataFiltered
@@ -14797,7 +15891,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default is YES. This property is ignored unless depthDataDeliveryEnabled is set to YES. Depth data maps may contain invalid pixel values due to a variety of factors including occlusions and low light. When depthDataFiltered is set to YES, the photo output interpolates missing data, filling in all holes.
  */
-@property(nonatomic, getter=isDepthDataFiltered) BOOL depthDataFiltered API_AVAILABLE(ios(11.0));
+@property(nonatomic, getter=isDepthDataFiltered) BOOL depthDataFiltered API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property cameraCalibrationDataDeliveryEnabled
@@ -14807,7 +15901,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default is NO. Set to YES if you wish to receive camera calibration data with your photo. Camera calibration data is delivered as a property of an AVCapturePhoto, so if you are using the CMSampleBuffer delegate callbacks rather than -captureOutput:didFinishProcessingPhoto:error:, an exception is thrown. Also, you may only set this property to YES if your AVCapturePhotoOutput's cameraCalibrationDataDeliverySupported property is YES. When requesting dual camera dual photo delivery plus camera calibration data, the wide and tele photos each contain camera calibration data for their respective camera. Note that AVCameraCalibrationData can be delivered as a property of an AVCapturePhoto or an AVDepthData, thus your delegate must respond to the captureOutput:didFinishProcessingPhoto:error: selector.
  */
-@property(nonatomic, getter=isCameraCalibrationDataDeliveryEnabled) BOOL cameraCalibrationDataDeliveryEnabled API_AVAILABLE(ios(11.0));
+@property(nonatomic, getter=isCameraCalibrationDataDeliveryEnabled) BOOL cameraCalibrationDataDeliveryEnabled API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property portraitEffectsMatteDeliveryEnabled
@@ -14819,7 +15913,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  
     For best rendering results in Apple's Photos.app, portrait photos should be captured with both embedded depth data (see depthDataDeliveryEnabled) and a portrait effects matte. When supported, it is recommended to opt in for both of these auxiliary images in your photo captures involving depth.
  */
-@property(nonatomic, getter=isPortraitEffectsMatteDeliveryEnabled) BOOL portraitEffectsMatteDeliveryEnabled API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+@property(nonatomic, getter=isPortraitEffectsMatteDeliveryEnabled) BOOL portraitEffectsMatteDeliveryEnabled API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @property embedsPortraitEffectsMatteInPhoto
@@ -14829,7 +15923,27 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Default is YES. When portraitEffectsMatteDeliveryEnabled is set to YES, this property specifies whether the included portrait effects matte should be written to the resulting photo's internal file structure. Portrait effects mattes are currently only supported in HEIF and JPEG. This property is ignored if portraitEffectsMatteDeliveryEnabled is set to NO.
  */
-@property(nonatomic) BOOL embedsPortraitEffectsMatteInPhoto API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+@property(nonatomic) BOOL embedsPortraitEffectsMatteInPhoto API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
+
+/*!
+ @property enabledSemanticSegmentationMatteTypes
+ @abstract
+    Specifies which types of AVSemanticSegmentationMatte should be captured along with the photo.
+
+ @discussion
+    Default is empty array. You may set this property to an array of AVSemanticSegmentationMatteTypes you'd like to capture. Throws an exception if -[AVCapturePhotoOutput enabledSemanticSegmentationMatteTypes] does not contain any of the AVSemanticSegmentationMatteTypes specified. In other words, when setting up a capture session, you opt in for the superset of segmentation matte types you might like to receive, and then on a shot-by-shot basis, you may opt in to all or a subset of the previously specified types by setting this property. An exception is also thrown during -[AVCapturePhotoOutput capturePhotoWithSettings:delegate:] if your delegate does not respond to the captureOutput:didFinishProcessingPhoto:error: selector. Setting this property to YES does not guarantee that the specified mattes will be present in the resulting AVCapturePhoto. If the photo's content lacks any persons, for instance, no hair, skin, or teeth mattes are generated, and the -[AVCapturePhoto semanticSegmentationMatteForType:] property returns nil. Note that setting this property to YES may add significant processing time to the delivery of your didFinishProcessingPhoto: callback.
+ */
+@property(nonatomic, copy) NSArray<AVSemanticSegmentationMatteType> *enabledSemanticSegmentationMatteTypes API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
+
+/*!
+ @property embedsSemanticSegmentationMattesInPhoto
+ @abstract
+    Specifies whether enabledSemanticSegmentationMatteTypes captured with this photo should be written to the photo's file structure.
+
+ @discussion
+    Default is YES. This property specifies whether the captured semantic segmentation mattes should be written to the resulting photo's internal file structure. Semantic segmentation mattes are currently only supported in HEIF and JPEG. This property is ignored if enabledSemanticSegmentationMatteTypes is set to an empty array.
+ */
+@property(nonatomic) BOOL embedsSemanticSegmentationMattesInPhoto API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
 
 /*!
  @property metadata
@@ -14839,7 +15953,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Valid metadata keys are found in <ImageIO/CGImageProperties.h>. AVCapturePhotoOutput inserts a base set of metadata into each photo it captures, such as kCGImagePropertyOrientation, kCGImagePropertyExifDictionary, and kCGImagePropertyMakerAppleDictionary. You may specify metadata keys and values that should be written to each photo in the capture request. If you've specified metadata that also appears in AVCapturePhotoOutput's base set, your value replaces the base value. An NSInvalidArgumentException is thrown if you specify keys other than those found in <ImageIO/CGImageProperties.h>.
  */
-@property(nonatomic, copy) NSDictionary<NSString *, id> *metadata API_AVAILABLE(ios(11.0));
+@property(nonatomic, copy) NSDictionary<NSString *, id> *metadata API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property livePhotoMovieFileURL
@@ -14849,7 +15963,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     A Live Photo movie is a short movie (with audio, if you've added an audio input to your session) containing the moments right before and after the still photo. A QuickTime movie file will be written to disk at the URL specified if it is a valid file URL accessible to your app's sandbox. You may only set this property if AVCapturePhotoOutput's livePhotoCaptureSupported property is YES. When you specify a Live Photo, your AVCapturePhotoCaptureDelegate object must implement -captureOutput:didFinishProcessingLivePhotoToMovieFileAtURL:duration:photoDisplayTime:resolvedSettings:error:.
  */
-@property(nonatomic, copy, nullable) NSURL *livePhotoMovieFileURL;
+@property(nonatomic, copy, nullable) NSURL *livePhotoMovieFileURL API_UNAVAILABLE(macos);
 
 /*!
  @property livePhotoVideoCodecType
@@ -14859,7 +15973,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     Prior to iOS 11, all Live Photo movie video tracks are compressed using H.264. Beginning in iOS 11, you can select the Live Photo movie video compression format by specifying one of the strings present in AVCapturePhotoOutput's availableLivePhotoVideoCodecTypes array.
  */
-@property(nonatomic, copy) AVVideoCodecType livePhotoVideoCodecType API_AVAILABLE(ios(11.0));
+@property(nonatomic, copy) AVVideoCodecType livePhotoVideoCodecType API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property livePhotoMovieMetadata
@@ -14869,7 +15983,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     An array of AVMetadataItems to be inserted into the top level of the Live Photo movie. The receiver makes immutable copies of the AVMetadataItems in the array. Live Photo movies always contain a AVMetadataQuickTimeMetadataKeyContentIdentifier which allow them to be paired with a similar identifier in the MakerNote of the photo complement. AVCapturePhotoSettings generates a unique content identifier for you. If you provide a metadata array containing an AVMetadataItem with keyspace = AVMetadataKeySpaceQuickTimeMetadata and key = AVMetadataQuickTimeMetadataKeyContentIdentifier, an NSInvalidArgumentException is thrown.
  */
-@property(nonatomic, copy, null_resettable) NSArray<AVMetadataItem *> *livePhotoMovieMetadata;
+@property(nonatomic, copy, null_resettable) NSArray<AVMetadataItem *> *livePhotoMovieMetadata API_UNAVAILABLE(macos);
 
 /*!
  @property availablePreviewPhotoPixelFormatTypes
@@ -14879,7 +15993,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     The array is sorted such that the preview format requiring the fewest conversions is presented first.
  */
-@property(nonatomic, readonly) NSArray<NSNumber *> *availablePreviewPhotoPixelFormatTypes;
+@property(nonatomic, readonly) NSArray<NSNumber *> *availablePreviewPhotoPixelFormatTypes API_UNAVAILABLE(macos);
 
 /*!
  @property previewPhotoFormat
@@ -14889,7 +16003,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     A dictionary of pixel buffer attributes specifying a smaller version of the RAW or processed photo for preview purposes. The kCVPixelBufferPixelFormatTypeKey is required and must be present in the receiver's -availablePreviewPhotoPixelFormatTypes array. Optional keys are { kCVPixelBufferWidthKey | kCVPixelBufferHeightKey }. If you wish to specify dimensions, you must add both width and height. Width and height are only honored up to the display dimensions. If you specify a width and height whose aspect ratio differs from the RAW or processed photo, the larger of the two dimensions is honored and aspect ratio of the RAW or processed photo is always preserved.
  */
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, id> *previewPhotoFormat;
+@property(nonatomic, copy, nullable) NSDictionary<NSString *, id> *previewPhotoFormat API_UNAVAILABLE(macos);
 
 /*!
  @property availableEmbeddedThumbnailPhotoCodecTypes
@@ -14899,7 +16013,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     The array is sorted such that the thumbnail codec type that is most backward compatible is listed first.
  */
-@property(nonatomic, readonly) NSArray<AVVideoCodecType> *availableEmbeddedThumbnailPhotoCodecTypes API_AVAILABLE(ios(11.0));
+@property(nonatomic, readonly) NSArray<AVVideoCodecType> *availableEmbeddedThumbnailPhotoCodecTypes API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property embeddedThumbnailPhotoFormat
@@ -14909,7 +16023,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     A dictionary of AVVideoSettings keys specifying a thumbnail (usually smaller) version of the processed photo to be embedded in that image before calling the AVCapturePhotoCaptureDelegate. This image is sometimes referred to as a "thumbnail image". The AVVideoCodecKey is required and must be present in the receiver's -availableEmbeddedThumbnailPhotoCodecTypes array. Optional keys are { AVVideoWidthKey | AVVideoHeightKey }. If you wish to specify dimensions, you must specify both width and height. If you specify a width and height whose aspect ratio differs from the processed photo, the larger of the two dimensions is honored and aspect ratio of the RAW or processed photo is always preserved. For RAW captures, use -rawEmbeddedThumbnailPhotoFormat to specify the thumbnail format you'd like to capture in the RAW image. For apps linked on or after iOS 12, the raw thumbnail format must be specified using the -rawEmbeddedThumbnailPhotoFormat API rather than -embeddedThumbnailPhotoFormat. Beginning in iOS 12, HEIC files may contain thumbnails up to the full resolution of the main image.
  */
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, id> *embeddedThumbnailPhotoFormat API_AVAILABLE(ios(11.0));
+@property(nonatomic, copy, nullable) NSDictionary<NSString *, id> *embeddedThumbnailPhotoFormat API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property availableRawEmbeddedThumbnailPhotoCodecTypes
@@ -14919,7 +16033,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     The array is sorted such that the thumbnail codec type that is most backward compatible is listed first.
  */
-@property(nonatomic, readonly) NSArray<AVVideoCodecType> *availableRawEmbeddedThumbnailPhotoCodecTypes API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+@property(nonatomic, readonly) NSArray<AVVideoCodecType> *availableRawEmbeddedThumbnailPhotoCodecTypes API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @property rawEmbeddedThumbnailPhotoFormat
@@ -14929,7 +16043,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     A dictionary of AVVideoSettings keys specifying a thumbnail (usually smaller) version of the RAW photo to be embedded in that image's DNG before calling back the AVCapturePhotoCaptureDelegate. The AVVideoCodecKey is required and must be present in the receiver's -availableRawEmbeddedThumbnailPhotoCodecTypes array. Optional keys are { AVVideoWidthKey | AVVideoHeightKey }. If you wish to specify dimensions, you must specify both width and height. If you specify a width and height whose aspect ratio differs from the RAW or processed photo, the larger of the two dimensions is honored and aspect ratio of the RAW or processed photo is always preserved. For apps linked on or after iOS 12, the raw thumbnail format must be specified using the -rawEmbeddedThumbnailPhotoFormat API rather than -embeddedThumbnailPhotoFormat. Beginning in iOS 12, DNG files may contain thumbnails up to the full resolution of the RAW image.
  */
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, id> *rawEmbeddedThumbnailPhotoFormat API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+@property(nonatomic, copy, nullable) NSDictionary<NSString *, id> *rawEmbeddedThumbnailPhotoFormat API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
 
 @end
 
@@ -15036,7 +16150,7 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROH
  @discussion
     When you initiate a photo capture request using -capturePhotoWithSettings:delegate:, some of your settings are not yet certain. For instance, auto flash and auto still image stabilization allow the AVCapturePhotoOutput to decide just in time whether to employ flash or still image stabilization, depending on the current scene. Once the request is issued, AVCapturePhotoOutput begins the capture, resolves the uncertain settings, and in its first callback informs you of its choices through an AVCaptureResolvedPhotoSettings object. This same object is presented to all the callbacks fired for a particular photo capture request. Its uniqueID property matches that of the AVCapturePhotoSettings instance you used to initiate the photo request.
  */
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 @interface AVCaptureResolvedPhotoSettings : NSObject
 {
 @private
@@ -15070,7 +16184,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     If you request a non-RAW capture, rawPhotoDimensions resolve to { 0, 0 }.
  */
-@property(readonly) CMVideoDimensions rawPhotoDimensions;
+@property(readonly) CMVideoDimensions rawPhotoDimensions API_UNAVAILABLE(macos);
 
 /*!
  @property previewDimensions
@@ -15080,7 +16194,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     If you don't request a preview image, previewDimensions resolve to { 0, 0 }.
  */
-@property(readonly) CMVideoDimensions previewDimensions;
+@property(readonly) CMVideoDimensions previewDimensions API_UNAVAILABLE(macos);
 
 /*!
  @property embeddedThumbnailDimensions
@@ -15090,7 +16204,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     If you don't request an embedded thumbnail image, embeddedThumbnailDimensions resolve to { 0, 0 }.
  */
-@property(readonly) CMVideoDimensions embeddedThumbnailDimensions API_AVAILABLE(ios(11.0));
+@property(readonly) CMVideoDimensions embeddedThumbnailDimensions API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property rawEmbeddedThumbnailDimensions
@@ -15100,7 +16214,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     If you don't request a raw embedded thumbnail image, rawEmbeddedThumbnailDimensions resolve to { 0, 0 }.
  */
-@property(readonly) CMVideoDimensions rawEmbeddedThumbnailDimensions API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+@property(readonly) CMVideoDimensions rawEmbeddedThumbnailDimensions API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @property portraitEffectsMatteDimensions
@@ -15110,7 +16224,17 @@ AV_INIT_UNAVAILABLE
  @discussion
     If you request a portrait effects matte by calling -[AVCapturePhotoSettings setPortraitEffectsMatteDeliveryEnabled:YES], portraitEffectsMatteDimensions resolve to the expected dimensions of the portrait effects matte, assuming one is generated (see -[AVCapturePhotoSettings portraitEffectsMatteDeliveryEnabled] for a discussion of why a portrait effects matte might not be delivered). If you don't request a portrait effects matte, portraitEffectsMatteDimensions always resolve to { 0, 0 }.
  */
-@property(readonly) CMVideoDimensions portraitEffectsMatteDimensions API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property(readonly) CMVideoDimensions portraitEffectsMatteDimensions API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ @method dimensionsForSemanticSegmentationMatteOfType:
+ @abstract
+    Queries the resolved dimensions of semantic segmentation mattes that will be delivered to the AVCapturePhoto in the -captureOutput:didFinishProcessingPhoto:error: AVCapturePhotoCaptureDelegate callback.
+
+ @discussion
+    If you request semantic segmentation mattes by calling -[AVCapturePhotoSettings setEnabledSemanticSegmentationMatteTypes:] with a non-empty array, the dimensions resolve to the expected dimensions for each of the mattes, assuming they are generated (see -[AVCapturePhotoSettings enabledSemanticSegmentationMatteTypes] for a discussion of why a particular matte might not be delivered). If you don't request any semantic segmentation mattes, the result will always be { 0, 0 }.
+ */
+- (CMVideoDimensions)dimensionsForSemanticSegmentationMatteOfType:(AVSemanticSegmentationMatteType)semanticSegmentationMatteType API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, watchos, tvos);
 
 /*!
  @property livePhotoMovieDimensions
@@ -15120,7 +16244,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     If you don't request Live Photo capture, livePhotoMovieDimensions resolve to { 0, 0 }.
  */
-@property(readonly) CMVideoDimensions livePhotoMovieDimensions;
+@property(readonly) CMVideoDimensions livePhotoMovieDimensions API_UNAVAILABLE(macos);
 
 /*!
  @property flashEnabled
@@ -15130,29 +16254,30 @@ AV_INIT_UNAVAILABLE
  @discussion
     When you specify AVCaptureFlashModeAuto as you AVCapturePhotoSettings.flashMode, you don't know if flash capture will be chosen until you inspect the AVCaptureResolvedPhotoSettings flashEnabled property. If the device becomes too hot, the flash becomes temporarily unavailable. You can key-value observe AVCaptureDevice's flashAvailable property to know when this occurs. If the flash is unavailable due to thermal issues, and you specify a flashMode of AVCaptureFlashModeOn, flashEnabled still resolves to NO until the device has sufficiently cooled off.
  */
-@property(readonly, getter=isFlashEnabled) BOOL flashEnabled;
-
+@property(readonly, getter=isFlashEnabled) BOOL flashEnabled API_UNAVAILABLE(macos);
 
 /*!
  @property redEyeReductionEnabled
  @abstract
     Indicates whether red-eye reduction will be applied as necessary when capturing the photo if flashEnabled is YES.
  */
-@property(readonly, getter=isRedEyeReductionEnabled) BOOL redEyeReductionEnabled API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property(readonly, getter=isRedEyeReductionEnabled) BOOL redEyeReductionEnabled API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @property stillImageStabilizationEnabled
  @abstract
     Indicates whether still image stabilization will be employed when capturing the photo.
+ 
+	As of iOS 13 hardware, the AVCapturePhotoOutput is capable of applying a variety of multi-image fusion techniques to improve photo quality (reduce noise, preserve detail in low light, freeze motion, etc), all of which have been previously lumped under the stillImageStabilization moniker. This property should no longer be used as it no longer provides meaningful information about the techniques used to improve quality in a photo capture. Instead, you should use -photoQualityPrioritization to indicate your preferred quality vs speed when configuring your AVCapturePhotoSettings. You may query -photoProcessingTimeRange to get an indication of how long the photo will take to process before delivery to your delegate.
  */
-@property(readonly, getter=isStillImageStabilizationEnabled) BOOL stillImageStabilizationEnabled;
+@property(readonly, getter=isStillImageStabilizationEnabled) BOOL stillImageStabilizationEnabled API_DEPRECATED_WITH_REPLACEMENT("photoProcessingTimeRange", ios(10.0, 13.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property dualCameraFusionEnabled
  @abstract
     Indicates whether DualCamera wide-angle and telephoto image fusion will be employed when capturing the photo.
  */
-@property(readonly, getter=isDualCameraFusionEnabled) BOOL dualCameraFusionEnabled API_AVAILABLE(ios(10.2));
+@property(readonly, getter=isDualCameraFusionEnabled) BOOL dualCameraFusionEnabled API_AVAILABLE(ios(10.2)) API_UNAVAILABLE(macos);
 
 /*!
  @property expectedPhotoCount
@@ -15160,6 +16285,13 @@ AV_INIT_UNAVAILABLE
     Indicates the number of times your -captureOutput:didFinishProcessingPhoto:error: callback will be called. For instance, if you've requested an auto exposure bracket of 3 with JPEG and RAW, the expectedPhotoCount is 6.
  */
 @property(readonly) NSUInteger expectedPhotoCount API_AVAILABLE(ios(11.0));
+
+/*!
+ @property photoProcessingTimeRange
+ @abstract
+    Indicates the processing time range you can expect for this photo to be delivered to your delegate. the .start field of the CMTimeRange is zero-based. In other words, if photoProcessingTimeRange.start is equal to .5 seconds, then the minimum processing time for this photo is .5 seconds. The .start field plus the .duration field of the CMTimeRange indicate the max expected processing time for this photo. Consider implementing a UI affordance if the max processing time is uncomfortably long.
+ */
+@property(readonly) CMTimeRange photoProcessingTimeRange API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos);
 
 @end
 
@@ -15178,7 +16310,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     Beginning in iOS 11, AVCapturePhotoOutput's AVCapturePhotoCaptureDelegate supports a simplified callback for delivering image data, namely -captureOutput:didFinishingProcessingPhoto:error:. This callback presents each image result for your capture request as an AVCapturePhoto object, an immutable wrapper from which various properties of the photo capture may be queried, such as the photo's preview pixel buffer, metadata, depth data, camera calibration data, and image bracket specific properties. AVCapturePhoto can wrap file-containerized photo results, such as HEVC encoded image data, containerized in the HEIC file format. CMSampleBufferRef, on the other hand, may only be used to express non file format containerized photo data. For this reason, the AVCapturePhotoCaptureDelegate protocol methods that return CMSampleBuffers have been deprecated in favor of -captureOutput:didFinishingProcessingPhoto:error:. A AVCapturePhoto wraps a single image result. For instance, if you've requested a bracketed capture of 3 images, your callback is called 3 times, each time delivering an AVCapturePhoto.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(11.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 @interface AVCapturePhoto : NSObject
 {
 @private
@@ -15205,7 +16337,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     Your AVCapturePhotoCaptureDelegate's -captureOutput:didFinishingProcessingPhoto:error: method may be called one or more times with image results, including RAW or non-RAW images. This property distinguishes RAW from non-RAW image results, for instance, if you've requested a RAW + JPEG capture.
  */
-@property(readonly, getter=isRawPhoto) BOOL rawPhoto;
+@property(readonly, getter=isRawPhoto) BOOL rawPhoto API_UNAVAILABLE(macos);
 
 /*!
  @property pixelBuffer
@@ -15225,7 +16357,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     If you requested a preview image by calling -[AVCapturePhotoSettings setPreviewPhotoFormat:] with a non-nil value, this property offers access to the resulting preview image pixel data, and is analogous to CMSampleBufferGetImageBuffer(). The pixel buffer contains only the minimal attachments required for correct display. Nil is returned if you did not request a preview image.
  */
-@property(nullable, readonly) CVPixelBufferRef previewPixelBuffer NS_RETURNS_INNER_POINTER;
+@property(nullable, readonly) CVPixelBufferRef previewPixelBuffer NS_RETURNS_INNER_POINTER API_UNAVAILABLE(macos);
 
 /*!
  @property embeddedThumbnailPhotoFormat
@@ -15235,7 +16367,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     If you requested an embedded thumbnail image by calling -[AVCapturePhotoSettings setEmbeddedThumbnailPhotoFormat:] with a non-nil value, this property offers access to the resolved embedded thumbnail AVVideoSettings dictionary. Nil is returned if you did not request an embedded thumbnail image.
  */
-@property(nullable, readonly) NSDictionary<NSString *, id> *embeddedThumbnailPhotoFormat;
+@property(nullable, readonly) NSDictionary<NSString *, id> *embeddedThumbnailPhotoFormat API_UNAVAILABLE(macos);
 
 /*!
  @property depthData
@@ -15245,7 +16377,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     If you requested depth data delivery by calling -[AVCapturePhotoSettings setDepthDataDeliveryEnabled:YES], this property offers access to the resulting AVDepthData object. Nil is returned if you did not request depth data delivery. Note that the depth data is only embedded in the photo's internal file format container if you set -[AVCapturePhotoSettings setEmbedsDepthDataInPhoto:YES].
  */
-@property(nullable, readonly) AVDepthData *depthData;
+@property(nullable, readonly) AVDepthData *depthData API_UNAVAILABLE(macos);
 
 /*!
  @property portraitEffectsMatte
@@ -15255,7 +16387,22 @@ AV_INIT_UNAVAILABLE
  @discussion
     If you requested portrait effects matte delivery by calling -[AVCapturePhotoSettings setPortraitEffectsMatteDeliveryEnabled:YES], this property offers access to the resulting AVPortraitEffectsMatte object. Nil is returned if you did not request portrait effects matte delivery. Note that the portrait effects matte is only embedded in the photo's internal file format container if you set -[AVCapturePhotoSettings setEmbedsPortraitEffectsMatteInPhoto:YES].
  */
-@property(nullable, readonly) AVPortraitEffectsMatte *portraitEffectsMatte API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+@property(nullable, readonly) AVPortraitEffectsMatte *portraitEffectsMatte API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
+
+/*!
+ @method semanticSegmentationMatteForType:
+ @abstract
+    An accessor for semantic segmentation mattes associated with this photo.
+ 
+ @param semanticSegmentationMatteType
+    The matte type of interest (hair, skin, etc).
+ @result
+    An instance of AVSemanticSegmentationMatte, or nil if none could be found for the specified type.
+ 
+ @discussion
+    If you requested one or more semantic segmentation mattes by calling -[AVCapturePhotoSettings setEnabledSemanticSegmentationMatteTypes:] with a non-empty array of types, this property offers access to the resulting AVSemanticSegmentationMatte objects. Nil is returned if you did not request semantic segmentation matte delivery, or if no mattes of the specified type are available. Note that semantic segmentation mattes are only embedded in the photo's internal file format container if you call -[AVCapturePhotoSettings setEmbedsSemanticSegmentationMattesInPhoto:YES].
+ */
+- (nullable AVSemanticSegmentationMatte *)semanticSegmentationMatteForType:(AVSemanticSegmentationMatteType)semanticSegmentationMatteType API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, tvos, watchos);
 
 /*!
  @property metadata
@@ -15265,7 +16412,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     Valid metadata keys are found in <ImageIO/CGImageProperties.h>, such as kCGImagePropertyOrientation, kCGImagePropertyExifDictionary, kCGImagePropertyMakerAppleDictionary, etc.
  */
-@property(readonly) NSDictionary<NSString *, id> *metadata;
+@property(readonly) NSDictionary<NSString *, id> *metadata API_UNAVAILABLE(macos);
 
 /*!
  @property cameraCalibrationData
@@ -15273,9 +16420,9 @@ AV_INIT_UNAVAILABLE
     An AVCameraCalibrationData object representing the calibration information for the camera providing the photo.
 
  @discussion
-    Camera calibration data is only present if you call -[AVCapturePhotoSettings setCameraCalibrationDataDeliveryEnabled:YES]. When requesting dualCameraDualPhotoDeliveryEnabled plus cameraCalibrationDataDeliveryEnabled, camera calibration information is delivered with both photos. Telephoto camera calibration data is presented with the telephoto AVCapturePhoto, and wide-angle camera calibration data is presented with the wide AVCapturePhoto.
+    Camera calibration data is only present if you set AVCapturePhotoSettings.setCameraCalibrationDataDeliveryEnabled to YES. When requesting dualCameraDualPhotoDeliveryEnabled plus cameraCalibrationDataDeliveryEnabled, camera calibration information is delivered with both photos. Telephoto camera calibration data is presented with the telephoto AVCapturePhoto, and wide-angle camera calibration data is presented with the wide AVCapturePhoto.
  */
-@property(nullable, readonly) AVCameraCalibrationData *cameraCalibrationData;
+@property(nullable, readonly) AVCameraCalibrationData *cameraCalibrationData API_UNAVAILABLE(macos);
 
 /*!
  @property resolvedSettings
@@ -15305,7 +16452,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     When taking a dual photo capture from the DualCamera, you may query this property to find out the source of the photo: AVCaptureDeviceTypeBuiltInWideCamera, or AVCaptureDeviceTypeBuiltInTelephotoCamera. For all other types of capture, the source device type is equal to the -[AVCaptureDevice deviceType] of the AVCaptureDevice to which the AVCapturePhotoOutput is connected. May return nil if the source of the photo is not an AVCaptureDevice.
  */
-@property(nullable, readonly) AVCaptureDeviceType sourceDeviceType;
+@property(nullable, readonly) AVCaptureDeviceType sourceDeviceType API_UNAVAILABLE(macos);
 
 @end
 
@@ -15333,7 +16480,7 @@ AV_INIT_UNAVAILABLE
  @result
     An NSData containing bits in the file container's format, or nil if the flattening process fails.
  */
-- (nullable NSData *)fileDataRepresentationWithCustomizer:(id<AVCapturePhotoFileDataRepresentationCustomizer>)customizer API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+- (nullable NSData *)fileDataRepresentationWithCustomizer:(id<AVCapturePhotoFileDataRepresentationCustomizer>)customizer API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @method fileDataRepresentationWithReplacementMetadata:replacementEmbeddedThumbnailPhotoFormat:replacementEmbeddedThumbnailPixelBuffer:replacementDepthData:
@@ -15351,7 +16498,7 @@ AV_INIT_UNAVAILABLE
  @result
     An NSData containing bits in the file container's format, or nil if the flattening process fails.
  */
-- (nullable NSData *)fileDataRepresentationWithReplacementMetadata:(nullable NSDictionary<NSString *, id> *)replacementMetadata replacementEmbeddedThumbnailPhotoFormat:(nullable NSDictionary<NSString *, id> *)replacementEmbeddedThumbnailPhotoFormat replacementEmbeddedThumbnailPixelBuffer:(nullable CVPixelBufferRef)replacementEmbeddedThumbnailPixelBuffer replacementDepthData:(nullable AVDepthData *)replacementDepthData API_DEPRECATED("Use fileDataRepresentationWithCustomizer: instead", ios(11.0, 12.0));
+- (nullable NSData *)fileDataRepresentationWithReplacementMetadata:(nullable NSDictionary<NSString *, id> *)replacementMetadata replacementEmbeddedThumbnailPhotoFormat:(nullable NSDictionary<NSString *, id> *)replacementEmbeddedThumbnailPhotoFormat replacementEmbeddedThumbnailPixelBuffer:(nullable CVPixelBufferRef)replacementEmbeddedThumbnailPixelBuffer replacementDepthData:(nullable AVDepthData *)replacementDepthData API_DEPRECATED_WITH_REPLACEMENT("fileDataRepresentationWithCustomizer:", ios(11.0, 12.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method CGImageRepresentation
@@ -15377,7 +16524,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     Each time you access this method, AVCapturePhoto generates a new CGImageRef. This CGImageRepresentation is a RGB rendering of the previewPixelBuffer property. If you did not request a preview photo by setting the -[AVCapturePhotoSettings previewPhotoFormat] property, this method returns nil. Note that the physical rotation of the CGImageRef matches that of the main image. Exif orientation has not been applied. If you wish to apply rotation when working with UIImage, you can do so by querying the photo's metadata[kCGImagePropertyOrientation] value, and passing it as the orientation parameter to +[UIImage imageWithCGImage:scale:orientation:].
  */
-- (nullable CGImageRef)previewCGImageRepresentation API_AVAILABLE(ios(11.0));
+- (nullable CGImageRef)previewCGImageRepresentation API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 @end
 
@@ -15416,7 +16563,7 @@ typedef NS_ENUM(NSInteger, AVCaptureLensStabilizationStatus) {
  @discussion
     When specifying a bracketed capture using AVCapturePhotoBracketSettings, you specify an array of AVCaptureBracketedStillImageSettings -- one per image in the bracket. This property indicates the AVCaptureBracketedStillImageSettings associated with this particular photo, or nil if this photo is not part of a bracketed capture.
  */
-@property(nullable, readonly) AVCaptureBracketedStillImageSettings *bracketSettings API_AVAILABLE(ios(11.0));
+@property(nullable, readonly) AVCaptureBracketedStillImageSettings *bracketSettings API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property sequenceCount
@@ -15426,7 +16573,7 @@ typedef NS_ENUM(NSInteger, AVCaptureLensStabilizationStatus) {
  @discussion
     If this photo is part of a bracketed capture (invoked using AVCapturePhotoBracketSettings), this property indicates the current result's count in the sequence, starting with 1 for the first result, or 0 if this photo is not part of a bracketed capture.
  */
-@property(readonly) NSInteger sequenceCount API_AVAILABLE(ios(11.0));
+@property(readonly) NSInteger sequenceCount API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 /*!
  @property lensStabilizationStatus
@@ -15436,7 +16583,7 @@ typedef NS_ENUM(NSInteger, AVCaptureLensStabilizationStatus) {
  @discussion
     In configurations where lens stabilization (OIS) is unsupported, AVCaptureLensStabilizationStatusUnsupported is returned. If lens stabilization is supported, but this photo is not part of a bracketed capture in which -[AVCapturePhotoBracketSettings setLensStabilizationEnabled:YES] was called, AVCaptureLensStabilizationStatusOff is returned. Otherwise a lens stabilization status is returned indicating how lens stabilization was applied during the capture.
  */
-@property(readonly) AVCaptureLensStabilizationStatus lensStabilizationStatus API_AVAILABLE(ios(11.0));
+@property(readonly) AVCaptureLensStabilizationStatus lensStabilizationStatus API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
 
 @end
 
@@ -15449,7 +16596,7 @@ typedef NS_ENUM(NSInteger, AVCaptureLensStabilizationStatus) {
  @discussion
     AVCapturePhoto is a wrapper representing a file-containerized photo in memory. If you simply wish to flatten the photo to an NSData to be written to a file, you may call -[AVCapturePhoto fileDataRepresentation]. For more complex flattening operations in which you wish to replace or strip metadata, you should call -[AVCapturePhoto fileDataRepresentationWithCustomizer:] instead, providing a delegate for customized stripping / replacing behavior. This delegate's methods are called synchronously before the flattening process commences.
  */
-API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos) 
+API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(tvos, watchos) API_UNAVAILABLE(macos)
 @protocol AVCapturePhotoFileDataRepresentationCustomizer <NSObject>
 
 @optional
@@ -15515,6 +16662,23 @@ API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos)
  */
 - (nullable AVPortraitEffectsMatte *)replacementPortraitEffectsMatteForPhoto:(AVCapturePhoto *)photo;
 
+/*!
+ @method replacementSemanticSegmentationMatteOfType:forPhoto:
+ @abstract
+    A callback in which you may provide a replacement semantic segmentation matte of the indicated type, or strip the existing one from the flattened file data representation.
+ 
+ @param semanticSegmentationMatteType
+    The type of semantic segmentation matte to be replaced or stripped.
+ @param photo
+    The calling instance of AVCapturePhoto.
+ @return
+    An instance of AVSemanticSegmentationMatte. To preserve the existing matte, return [photo semanticSegmentationMatteForType:semanticSegmentationMatteType]. To strip the existing one, return nil. To replace, provide a replacement AVPortraitEffectsMatte instance.
+
+ @discussion
+    This callback is optional. If your delegate does not implement this callback, the existing semantic segmentation matte of the specified type in the in-memory AVCapturePhoto container will be written to the file data representation.
+ */
+- (nullable AVSemanticSegmentationMatte *)replacementSemanticSegmentationMatteOfType:(AVSemanticSegmentationMatteType)semanticSegmentationMatteType forPhoto:(AVCapturePhoto *)photo API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, tvos, watchos);
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -15534,7 +16698,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
  
-	Copyright 2010-2016 Apple Inc. All rights reserved.
+	Copyright 2010-2018 Apple Inc. All rights reserved.
 
 */
 
@@ -15568,10 +16732,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef NS_ENUM(NSInteger, AVAssetReaderStatus) {
     AVAssetReaderStatusUnknown = 0,
-    AVAssetReaderStatusReading,
-    AVAssetReaderStatusCompleted,
-    AVAssetReaderStatusFailed,
-    AVAssetReaderStatusCancelled,
+    AVAssetReaderStatusReading = 1,
+    AVAssetReaderStatusCompleted = 2,
+    AVAssetReaderStatusFailed = 3,
+    AVAssetReaderStatusCancelled = 4,
 };
 
 /*!
@@ -15588,7 +16752,7 @@ typedef NS_ENUM(NSInteger, AVAssetReaderStatus) {
 	
 	AVAssetReaderAudioMixOutput mixes multiple audio tracks of the asset after reading them, while AVAssetReaderVideoCompositionOutput composites multiple video tracks after reading them.
  */
-NS_CLASS_AVAILABLE(10_7, 4_1)
+API_AVAILABLE(macos(10.7), ios(4.1), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetReader : NSObject
 {
 @private
@@ -15761,7 +16925,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion
     Constants indicating the type of an AVMetadataObject.
  */
-typedef NSString * AVMetadataObjectType NS_STRING_ENUM API_AVAILABLE(macos(10.10), ios(6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+typedef NSString * AVMetadataObjectType NS_STRING_ENUM API_AVAILABLE(macos(10.10), ios(6.0)) API_UNAVAILABLE(tvos, watchos);
 
 
 #pragma mark - AVMetadataObject
@@ -15778,7 +16942,7 @@ typedef NSString * AVMetadataObjectType NS_STRING_ENUM API_AVAILABLE(macos(10.10
  
     The concrete AVMetadataFaceObject is used by AVCaptureMetadataOutput for face detection.
  */
-API_AVAILABLE(macos(10.10), ios(6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
+API_AVAILABLE(macos(10.10), ios(6.0)) API_UNAVAILABLE(tvos, watchos)
 @interface AVMetadataObject : NSObject
 {
 @private
@@ -15838,7 +17002,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     AVMetadataFaceObject objects return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeFace API_AVAILABLE(macos(10.10), ios(6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeFace API_AVAILABLE(macos(10.10), ios(6.0)) API_UNAVAILABLE(tvos, watchos);
 
 
 #pragma mark - AVMetadataFaceObject
@@ -15855,7 +17019,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeFace API_AVAILABLE(mac
  
     On supported platforms, AVCaptureMetadataOutput outputs arrays of detected face objects. See AVCaptureOutput.h.
  */
-API_AVAILABLE(macos(10.10), ios(6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
+API_AVAILABLE(macos(10.10), ios(6.0)) API_UNAVAILABLE(tvos, watchos) 
 @interface AVMetadataFaceObject : AVMetadataObject <NSCopying>
 {
 @private
@@ -15917,7 +17081,7 @@ API_AVAILABLE(macos(10.10), ios(6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from UPC-E codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeUPCECode API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeUPCECode API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeCode39Code
@@ -15927,7 +17091,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeUPCECode API_AVAILABLE
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from Code 39 codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode39Code API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode39Code API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeCode39Mod43Code
@@ -15937,7 +17101,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode39Code API_AVAILAB
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from Code 39 mod 43 codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode39Mod43Code API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode39Mod43Code API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeEAN13Code
@@ -15947,7 +17111,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode39Mod43Code API_AV
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from EAN-13 (including UPC-A) codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeEAN13Code API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeEAN13Code API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeEAN8Code
@@ -15957,7 +17121,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeEAN13Code API_AVAILABL
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from EAN-8 codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeEAN8Code API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeEAN8Code API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeCode93Code
@@ -15967,7 +17131,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeEAN8Code API_AVAILABLE
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from Code 93 codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode93Code API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode93Code API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeCode128Code
@@ -15977,7 +17141,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode93Code API_AVAILAB
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from Code 128 codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode128Code API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode128Code API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypePDF417Code
@@ -15987,7 +17151,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeCode128Code API_AVAILA
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from PDF417 codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypePDF417Code API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypePDF417Code API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeQRCode
@@ -15997,7 +17161,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypePDF417Code API_AVAILAB
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from QR codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeQRCode API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeQRCode API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeAztecCode
@@ -16007,7 +17171,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeQRCode API_AVAILABLE(i
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from Aztec codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeAztecCode API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeAztecCode API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeInterleaved2of5Code
@@ -16017,7 +17181,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeAztecCode API_AVAILABL
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from Interleaved 2 of 5 codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeInterleaved2of5Code API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeInterleaved2of5Code API_AVAILABLE(macos(10.15), ios(8.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeITF14Code
@@ -16027,7 +17191,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeInterleaved2of5Code AP
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from ITF14 codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeITF14Code API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeITF14Code API_AVAILABLE(macos(10.15), ios(8.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @constant AVMetadataObjectTypeDataMatrixCode
@@ -16037,7 +17201,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeITF14Code API_AVAILABL
  @discussion
     AVMetadataMachineReadableCodeObject objects generated from DataMatrix codes return this constant as their type.
  */
-AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeDataMatrixCode API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeDataMatrixCode API_AVAILABLE(macos(10.15), ios(8.0)) API_UNAVAILABLE(tvos, watchos);
 
 
 #pragma mark - AVMetadataMachineReadableCodeObject
@@ -16054,7 +17218,7 @@ AVF_EXPORT AVMetadataObjectType const AVMetadataObjectTypeDataMatrixCode API_AVA
  
     On supported platforms, AVCaptureMetadataOutput outputs arrays of detected machine readable code objects. See AVCaptureMetadataOutput.h.
  */
-API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(7.0)) API_UNAVAILABLE(tvos, watchos)
 @interface AVMetadataMachineReadableCodeObject : AVMetadataObject
 {
 @private
@@ -16096,7 +17260,7 @@ API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHI
  @discussion
     The value may be nil if an abstract representation of a machine readable code object is not defined for the code type or could not be detected.
  */
-@property(readonly, nullable) CIBarcodeDescriptor *descriptor API_AVAILABLE(ios(11.0));
+@property(readonly, nullable) CIBarcodeDescriptor *descriptor API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
 @end
 
@@ -16121,7 +17285,7 @@ NS_ASSUME_NONNULL_END
 							The constant is a small, non-zero, positive value which avoids CoreAnimation
 							from replacing 0.0 with CACurrentMediaTime().
 */
-AVF_EXPORT const CFTimeInterval AVCoreAnimationBeginTimeAtZero NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT const CFTimeInterval AVCoreAnimationBeginTimeAtZero API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 typedef NSString * AVLayerVideoGravity NS_STRING_ENUM;
 
@@ -16131,7 +17295,7 @@ typedef NSString * AVLayerVideoGravity NS_STRING_ENUM;
 	@discussion		AVLayerVideoGravityResizeAspect may be used when setting the videoGravity
                     property of an AVPlayerLayer or AVCaptureVideoPreviewLayer instance.
  */
-AVF_EXPORT AVLayerVideoGravity const AVLayerVideoGravityResizeAspect NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVLayerVideoGravity const AVLayerVideoGravityResizeAspect API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 
 /*!
@@ -16140,7 +17304,7 @@ AVF_EXPORT AVLayerVideoGravity const AVLayerVideoGravityResizeAspect NS_AVAILABL
     @discussion     AVLayerVideoGravityResizeAspectFill may be used when setting the videoGravity
                     property of an AVPlayerLayer or AVCaptureVideoPreviewLayer instance.
  */
-AVF_EXPORT AVLayerVideoGravity const AVLayerVideoGravityResizeAspectFill NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVLayerVideoGravity const AVLayerVideoGravityResizeAspectFill API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
 	@constant		AVLayerVideoGravityResize
@@ -16148,7 +17312,7 @@ AVF_EXPORT AVLayerVideoGravity const AVLayerVideoGravityResizeAspectFill NS_AVAI
     @discussion     AVLayerVideoGravityResize may be used when setting the videoGravity
                     property of an AVPlayerLayer or AVCaptureVideoPreviewLayer instance.
  */
-AVF_EXPORT AVLayerVideoGravity const AVLayerVideoGravityResize NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVLayerVideoGravity const AVLayerVideoGravityResize API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 // ==========  AVFoundation.framework/Headers/AVAudioUnitEQ.h
 /*
 	File:           AVAudioUnitEQ.h
@@ -16178,13 +17342,766 @@ AVF_EXPORT AVLayerVideoGravity const AVLayerVideoGravityResize NS_AVAILABLE(10_7
 #import <AVFoundation/AVCapturePhotoOutput.h>
 #import <AVFoundation/AVCaptureStillImageOutput.h>
 #import <AVFoundation/AVCaptureVideoDataOutput.h>
+// ==========  AVFoundation.framework/Headers/AVMovie.h
+/*
+	File:			AVMovie.h
+
+	Framework:		AVFoundation
+ 
+	Copyright 2009-2019 Apple Inc. All rights reserved.
+
+*/
+
+#import <AVFoundation/AVBase.h>
+#import <AVFoundation/AVMediaFormat.h>
+
+#import <AVFoundation/AVAsset.h>
+#import <AVFoundation/AVMovieTrack.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+    @class			AVMovie
+
+    @abstract		AVMovie represents the audiovisual containers in a file that conforms to the QuickTime movie file format or to one of the related ISO base media file formats (such as MPEG-4).
+
+	@discussion     AVMovie supports operations involving the format-specific portions of the QuickTime Movie model that are not supported by AVAsset. For instance, you can retrieve the movie header from an existing QuickTime movie file. You can also use AVMovie to write a movie header into a new file, thereby creating a reference movie.
+  
+                    A mutable subclass of AVMovie, AVMutableMovie, provides methods that support the familiar Movie editing model; for instance, you can use AVMutableMovie to copy media data from one track and paste that data into another track. You can also use AVMutableMovie to establish track references from one track to another (for example, to set one track as a chapter track of another track). If you want to perform editing operations on individual tracks, you can use the associated classes AVMovieTrack and AVMutableMovieTrack.
+ 
+                    You need to use AVMovie and AVMutableMovie only when operating on format-specific features of a QuickTime or ISO base media file. You generally do not need to use these classes just to open and play QuickTime movie files or ISO base media files. Instead, you can use the classes AVURLAsset and AVPlayerItem. If however you already have an AVMutableMovie and want to play it or inspect it, you can make an immutable snapshot of the AVMutableMovie like this:
+ 
+			 // myMutableMovie is of type AVMutableMovie; the client wants to inspect and play it in its current state
+			 AVMovie *immutableSnapshotOfMyMovie = [myMutableMovie copy];
+			 AVPlayerItem *playerItemForSnapshotOfMovie = [[AVPlayerItem alloc] initWithAsset:immutableSnapshotOfMyMovie]; 
+ 
+ 					When performing media insertions, AVMutableMovie interleaves the media data from the tracks in the source asset in order to create movie files that are optimized for playback. It's possible, however, that performing a series of media insertions may result in a movie file that is not optimally interleaved. You can create a well-interleaved, self-contained, fast-start movie file from an instance of AVMutableMovie by passing that instance to an AVAssetExportSession using the export preset AVAssetExportPresetPassthrough and setting the setShouldOptimizeForNetworkUse property to YES.
+*/
+
+// Keys for options dictionary for use with various AVMovie initialization methods
+
+/*!
+  @constant		AVMovieReferenceRestrictionsKey
+  @abstract
+	Indicates the restrictions used by the movie when resolving references to external media data. The value of this key is an NSNumber wrapping an AVAssetReferenceRestrictions enum value or the logical combination of multiple such values. See AVAsset.h for the declaration of the AVAssetReferenceRestrictions enum.
+  @discussion
+	Some movies can contain references to media data stored outside the movie's container, for example in another file. This key can be used to specify a policy to use when these references are encountered. If a movie contains one or more references of a type that is forbidden by the reference restrictions, loading of movie properties will fail. In addition, such a movie cannot be used with other AVFoundation modules, such as AVPlayerItem or AVAssetExportSession.
+*/
+AVF_EXPORT NSString *const AVMovieReferenceRestrictionsKey API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+@class AVMovieInternal;
+@class AVMediaDataStorage;
+@class AVMetadataItem;
+
+#pragma mark --- AVMovie ---
+API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos)
+@interface AVMovie : AVAsset <NSCopying, NSMutableCopying>
+{
+@private
+	AVMovieInternal *_movie;
+}
+
+/*!
+	@method			movieTypes
+	@abstract		Provides the file types the AVMovie class understands.
+	@result			An NSArray of UTIs identifying the file types the AVMovie class understands.
+*/
++ (NSArray<AVFileType> *)movieTypes;
+
+/*!
+	@method			movieWithURL:options:
+	@abstract		Creates an AVMovie object from a movie header stored in a QuickTime movie file or ISO base media file.
+	@param			URL
+					An NSURL object that specifies a file containing a movie header.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMovie object. Currently no keys are defined.
+	@result			An AVMovie object
+	@discussion     By default, the defaultMediaDataStorage property will be nil and each associated AVMovieTrack's mediaDataStorage property will be nil.
+                    If you want to create an AVMutableMovie from a file and then append sample buffers to any of its tracks, you must first set one of these properties 
+                    to indicate where the sample data should be written.
+*/
++ (instancetype)movieWithURL:(NSURL *)URL options:(nullable NSDictionary<NSString *, id> *)options;
+
+/*!
+	@method			initWithURL:options:
+	@abstract		Creates an AVMovie object from a movie header stored in a QuickTime movie file or ISO base media file.
+	@param			URL
+					An NSURL object that specifies a file containing a movie header.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMovie object. Currently no keys are defined.
+	@result			An AVMovie object
+	@discussion     By default, the defaultMediaDataStorage property will be nil and each associated AVMovieTrack's mediaDataStorage property will be nil.
+                    If you want to create an AVMutableMovie from a file and then append sample buffers to any of its tracks, you must first set one of these properties 
+                    to indicate where the sample data should be written.
+*/
+- (instancetype)initWithURL:(NSURL *)URL options:(nullable NSDictionary<NSString *, id> *)options NS_DESIGNATED_INITIALIZER;
+
+/*!
+	@method			movieWithData:options:
+	@abstract		Creates an AVMovie object from a movie header stored in an NSData object.
+	@param			data
+					An NSData object containing a movie header.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMovie object. Currently no keys are defined.
+	@result			An AVMovie object
+	@discussion     You can use this method to operate on movie headers that are not stored in files; this might include movie headers on the pasteboard (which do not contain media data). In general you should avoid loading an entire movie file with its media data into an instance of NSData! By default, the defaultMediaDataStorage property will be nil and each associated AVMovieTrack's mediaDataStorage property will be nil.
+                    If you want to create an AVMutableMovie from an NSData object and then append sample buffers to any of its tracks, you must first set one of these properties to indicate where the sample data should be written.
+*/
++ (instancetype)movieWithData:(NSData *)data options:(nullable NSDictionary<NSString *, id> *)options API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+	@method			initWithData:options:
+	@abstract		Creates an AVMovie object from a movie header stored in an NSData object.
+	@param			data
+					An NSData object containing a movie header.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMovie object. Currently no keys are defined.
+	@result			An AVMovie object
+	@discussion     You can use this method to operate on movie headers that are not stored in files. In general you should avoid loading an entire movie file with its media data into an instance of NSData!
+ 
+                    By default, the defaultMediaDataStorage property will be nil and each associated AVMovieTrack's mediaDataStorage property will be nil. If you want to create an AVMutableMovie from an NSData object and then append sample buffers to any of its tracks, you must first set one of these properties to indicate where the sample data should be written.
+*/
+- (instancetype)initWithData:(NSData *)data options:(nullable NSDictionary<NSString *, id> *)options NS_DESIGNATED_INITIALIZER API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+	@property       URL
+	@abstract       The URL with which the instance of AVMovie was initialized; may be nil.
+*/
+@property (nonatomic, readonly, nullable) NSURL *URL;
+
+/*!
+	@property       data
+	@abstract       The data block with which the instance of AVMovie was initialized; may be nil.
+*/
+@property (nonatomic, readonly, nullable) NSData *data API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+	@property       defaultMediaDataStorage
+	@abstract       The default storage container for media data added to a movie.
+	@discussion     The value of this property is an AVMediaDataStorage object that indicates where sample data that is added to a movie should be written by default.
+*/
+@property (nonatomic, readonly, nullable) AVMediaDataStorage *defaultMediaDataStorage API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+	@property       tracks
+	@abstract       The tracks in a movie.
+	@discussion     The value of this property is an array of tracks the movie contains; the tracks are of type AVMovieTrack.
+*/
+@property (nonatomic, readonly) NSArray<AVMovieTrack *> *tracks;
+
+/*!
+	@property       canContainMovieFragments
+	@abstract       Indicates whether the movie file is capable of being extended by fragments.
+	@discussion     The value of this property is YES if an 'mvex' box is present in the 'moov' box. The 'mvex' box is necessary in order to signal the possible presence of later 'moof' boxes.
+*/
+@property (nonatomic, readonly) BOOL canContainMovieFragments;
+
+/*!
+	@property       containsMovieFragments
+	@abstract       Indicates whether the movie file is extended by at least one movie fragment.
+	@discussion     The value of this property is YES if canContainMovieFragments is YES and at least one 'moof' box is present after the 'moov' box.
+*/
+@property (nonatomic, readonly) BOOL containsMovieFragments API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+@end
+
+/*!
+	@enum			AVMovieWritingOptions
+	@abstract		These options can be passed into writeMovieHeaderToURL:fileType:options:error: to control the writing of a movie header to a destination URL.
+	@constant		AVMovieWritingAddMovieHeaderToDestination
+					Writing the movie header will remove any existing movie header in the destination file and add a new movie header, preserving any other data in the file. If the destination file was empty, a file type box will be written at the beginning of the file.
+	@constant		AVMovieWritingTruncateDestinationToMovieHeaderOnly
+					If set, writing the movie header will truncate all existing data in the destination file and write a new movie header, thereby creating a pure reference movie file. A file type box will be written at the beginning of the file.
+	@discussion     You would not want to use the AVMovieWritingTruncateDestinationToMovieHeaderOnly option if you had written sample data to the destination file using (for example) -[AVMutableMovie insertTimeRange:ofAsset:atTime:copySampleData:error:] with copySampleData set to YES, since that data would be lost.
+ */
+typedef NS_OPTIONS(NSUInteger, AVMovieWritingOptions) {
+	AVMovieWritingAddMovieHeaderToDestination =					0,
+	AVMovieWritingTruncateDestinationToMovieHeaderOnly =		(1UL << 0)
+} API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+@interface AVMovie (AVMovieMovieHeaderSupport)
+
+/*!
+	@method			movieHeaderWithFileType:error:
+	@abstract		Creates an NSData object containing the movie header of the AVMovie object.
+	@param			fileType
+					A UTI indicating the specific file format of the movie header (e.g. AVFileTypeQuickTimeMovie for a QuickTime movie).
+	@param			outError
+					If an error occurs reading the movie header, describes the nature of the failure.
+	@result			An NSData object.
+	@discussion     The movie header will be a pure reference movie, with no base URL, suitable for use on the pasteboard.
+*/
+- (nullable NSData *)movieHeaderWithFileType:(AVFileType)fileType error:(NSError * _Nullable * _Nullable)outError API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+	@method			writeMovieHeaderToURL:fileType:options:error:
+	@abstract		Writes the movie header to a destination URL.
+	@param			URL
+					An NSURL object indicating where to write the movie header.
+	@param			fileType
+					A UTI indicating the specific file format (e.g. AVFileTypeQuickTimeMovie for a QuickTime movie).
+	@param			options
+                    An NSUInteger whose bits specify options for the writing of the movie header. See AVMovieWritingOptions above.
+	@param			outError
+					If an error occurs writing the movie header, describes the nature of the failure.
+	@discussion		Note that modifications to instances of AVMutableMovie, to their constituent AVMutableMovieTracks, or to their collections of metadata are committed to storage when their movie headers are written.
+*/
+- (BOOL)writeMovieHeaderToURL:(NSURL *)URL fileType:(AVFileType)fileType options:(AVMovieWritingOptions)options error:(NSError * _Nullable * _Nullable)outError API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+	@method			isCompatibleWithFileType:
+	@abstract		Indicates whether a movie header for the AVMovie object can be created for the specified file type.
+	@param			fileType
+					A UTI indicating a movie file format (e.g. AVFileTypeQuickTimeMovie for a QuickTime movie).
+	@discussion     This method returns a BOOL that indicates whether a movie header of the specified type can be created for the receiver. For example, this method returns NO if the movie contains tracks whose media types or media subtypes are not allowed by the specified file type.
+*/
+- (BOOL)isCompatibleWithFileType:(AVFileType)fileType API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+@end
+
+@interface AVMovie (AVMovieTrackInspection)
+
+/*!
+  @method		trackWithTrackID:
+  @abstract		Provides an instance of AVMovieTrack that represents the track of the specified trackID.
+  @param		trackID
+				The trackID of the requested AVMovieTrack.
+  @result		An instance of AVMovieTrack; may be nil if no track of the specified trackID is available.
+  @discussion	Becomes callable without blocking when the key @"tracks" has been loaded
+*/
+- (nullable AVMovieTrack *)trackWithTrackID:(CMPersistentTrackID)trackID;
+
+/*!
+  @method		tracksWithMediaType:
+  @abstract		Provides an array of AVMovieTracks of the asset that present media of the specified media type.
+  @param		mediaType
+				The media type according to which the receiver filters its AVMovieTracks. (Media types are defined in AVMediaFormat.h)
+  @result		An NSArray of AVMovieTracks; may be empty if no tracks of the specified media type are available.
+  @discussion	Becomes callable without blocking when the key @"tracks" has been loaded
+*/
+- (NSArray<AVMovieTrack *> *)tracksWithMediaType:(AVMediaType)mediaType;
+
+/*!
+  @method		tracksWithMediaCharacteristic:
+  @abstract		Provides an array of AVMovieTracks of the asset that present media with the specified characteristic.
+  @param		mediaCharacteristic
+				The media characteristic according to which the receiver filters its AVMovieTracks. (Media characteristics are defined in AVMediaFormat.h)
+  @result		An NSArray of AVMovieTracks; may be empty if no tracks with the specified characteristic are available.
+  @discussion	Becomes callable without blocking when the key @"tracks" has been loaded
+*/
+- (NSArray<AVMovieTrack *> *)tracksWithMediaCharacteristic:(AVMediaCharacteristic)mediaCharacteristic;
+
+@end
+
+
+@class AVAsset;
+@class AVMovieTrack;
+@class AVMutableMovieTrack;
+@class AVMutableMovieInternal;
+
+#pragma mark --- AVMutableMovie ---
+/*!
+    @class			AVMutableMovie
+
+    @abstract       AVMutableMovie adds to its immutable superclass, AVMovie, several categories of methods for editing QuickTime movie files, e.g. inserting and removing time ranges of media, adding and removing tracks, and modifying the metadata collections stored therein.
+
+	@discussion     By default, after creating an AVMutableMovie the defaultMediaDataStorage property will be nil and each associated AVMutableMovieTrack's mediaDataStorage property will be nil. If you want to create an AVMutableMovie from a file and then append sample buffers to any of its tracks, you must first set one of these properties to indicate where the sample data should be written.
+*/
+
+API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos)
+@interface AVMutableMovie : AVMovie
+{
+@private
+    AVMutableMovieInternal *_mutableMovieInternal;
+}
+
+/*!
+	@method			movieWithURL:options:error:
+	@abstract		Creates an AVMutableMovie object from a movie header stored in a QuickTime movie file or ISO base media file.
+	@param			URL
+					An NSURL object that specifies a file containing a movie header.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMutableMovie object. Currently no keys are defined.
+	@param			outError
+					If an error occurs creating a movie, describes the nature of the failure.
+	@result			An AVMutableMovie object
+	@discussion     By default, the defaultMediaDataStorage property will be nil and each associated AVMutableMovieTrack's mediaDataStorage property will be nil.
+                    If you want to create an AVMutableMovie from a file and then append sample buffers to any of its tracks, you must first set one of these properties 
+                    to indicate where the sample data should be written.
+*/
++ (nullable instancetype)movieWithURL:(NSURL *)URL options:(nullable NSDictionary<NSString *, id> *)options error:(NSError * _Nullable * _Nullable)outError;
+
+/*!
+	@method			initWithURL:options:error:
+	@abstract		Creates an AVMutableMovie object from a movie header stored in a QuickTime movie file or ISO base media file.
+	@param			URL
+					An NSURL object that specifies a file containing a movie header.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMutableMovie object. Currently no keys are defined.
+	@param			outError
+					If an error occurs creating a movie, describes the nature of the failure.
+	@result			An AVMutableMovie object
+	@discussion     By default, the defaultMediaDataStorage property will be nil and each associated AVMutableMovieTrack's mediaDataStorage property will be nil.
+                    If you want to create an AVMutableMovie from a file and then append sample buffers to any of its tracks, you must first set one of these properties 
+                    to indicate where the sample data should be written.
+*/
+- (nullable instancetype)initWithURL:(NSURL *)URL options:(nullable NSDictionary<NSString *, id> *)options error:(NSError * _Nullable * _Nullable)outError NS_DESIGNATED_INITIALIZER;
+
+/*!
+	@method			movieWithData:options:error:
+	@abstract		Creates an AVMutableMovie object from a movie header stored in an NSData object.
+	@param			data
+					An NSData object containing a movie header.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMutableMovie object. Currently no keys are defined.
+	@param			outError
+					If an error occurs creating a movie, describes the nature of the failure.
+	@result			An AVMutableMovie object
+	@discussion     You can use this method to operate on movie headers that are not stored in files. In general you should avoid loading an entire movie file with its media data into an instance of NSData!
+ 
+                    By default, the defaultMediaDataStorage property will be nil and each associated AVMutableMovieTrack's mediaDataStorage property will be nil. If you want to create an AVMutableMovie from an NSData object and then append sample buffers to any of its tracks, you must first set one of these properties to indicate where the sample data should be written.
+*/
++ (nullable instancetype)movieWithData:(NSData *)data options:(nullable NSDictionary<NSString *, id> *)options error:(NSError * _Nullable * _Nullable)outError API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+	@method			initWithData:options:error:
+	@abstract		Creates an AVMutableMovie object from a movie header stored in an NSData object.
+	@param			data
+					An NSData object containing a movie header.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMutableMovie object. Currently no keys are defined.
+	@param			outError
+					If an error occurs creating a movie, describes the nature of the failure.
+	@result			An AVMutableMovie object
+	@discussion     You can use this method to operate on movie headers that are not stored in files. In general you should avoid loading an entire movie file with its media data into an instance of NSData!
+ 
+                    By default, the defaultMediaDataStorage property will be nil and each associated AVMutableMovieTrack's mediaDataStorage property will be nil. If you want to create an AVMutableMovie from an NSData object and then append sample buffers to any of its tracks, you must first set one of these properties to indicate where the sample data should be written.
+*/
+- (nullable instancetype)initWithData:(NSData *)data options:(nullable NSDictionary<NSString *, id> *)options error:(NSError * _Nullable * _Nullable)outError NS_DESIGNATED_INITIALIZER;
+
+/*!
+	@method			movieWithSettingsFromMovie:options:error:
+	@abstract		Creates an AVMutableMovie object without tracks (and therefore without media).
+	@param			movie
+					If you wish to transfer settings from an existing movie (including movie userdata and metadata, preferred rate, preferred volume, etc.), pass a reference to an AVMovie object representing that movie. Otherwise pass nil. The userdata and metadata from the source movie may need to be converted if the format of that movie differs from fileType; you may wish to inspect the userdata or metadata of the receiver to ensure that important data was copied.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMutableMovie object. Currently no keys are defined; pass nil for default initialization behavior.
+	@param			outError
+					If an error occurs creating a movie, describes the nature of the failure.
+	@result			An AVMutableMovie object
+	@discussion
+                    By default, the defaultMediaDataStorage property will be nil and each associated AVMovieTrack's mediaDataStorage property will be nil.
+                    If you want to create an AVMutableMovie from an NSData object and then append sample buffers to any of its tracks, you must first set one of these properties to indicate where the sample data should be written.
+*/
++ (nullable instancetype)movieWithSettingsFromMovie:(nullable AVMovie *)movie options:(nullable NSDictionary<NSString *, id> *)options error:(NSError * _Nullable * _Nullable)outError;
+
+/*!
+	@method			initWithSettingsFromMovie:options:error:
+	@abstract		Creates an AVMutableMovie object without tracks (and therefore without media).
+	@param			movie
+					If you wish to transfer settings from an existing movie (including movie userdata and metadata, preferred rate, preferred volume, etc.), pass a reference to an AVMovie object representing that movie. Otherwise pass nil. The userdata and metadata from the source movie may need to be converted if the format of that movie differs from fileType; you may wish to inspect the userdata or metadata of the receiver to ensure that important data was copied.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMutableMovie object. Currently no keys are defined; pass nil for default initialization behavior.
+	@param			outError
+					If an error occurs creating a movie, describes the nature of the failure.
+	@result			An AVMutableMovie object
+	@discussion
+                    By default, the defaultMediaDataStorage property will be nil and each associated AVMovieTrack's mediaDataStorage property will be nil.
+                    If you want to create an AVMutableMovie from an NSData object and then append sample buffers to any of its tracks, you must first set one of these properties to indicate where the sample data should be written.
+*/
+- (nullable instancetype)initWithSettingsFromMovie:(nullable AVMovie *)movie options:(nullable NSDictionary<NSString *, id> *)options error:(NSError * _Nullable * _Nullable)outError NS_DESIGNATED_INITIALIZER;
+
+/*!
+	@property       preferredRate
+	@abstract       The natural rate at which the movie is to be played; often but not always 1.0.
+*/
+@property (nonatomic) float preferredRate;
+
+/*!
+	@property       preferredVolume
+	@abstract       The preferred volume of the audible media data of the movie; often but not always 1.0.
+*/
+@property (nonatomic) float preferredVolume;
+
+/*!
+	@property       preferredTransform
+	@abstract       A CGAffineTransform indicating the transform specified in the movie's storage container as the preferred transformation of the visual media data for display purposes; the value is often but not always CGAffineTransformIdentity.
+*/
+@property (nonatomic) CGAffineTransform preferredTransform;
+
+/*!
+	@property       timescale
+	@abstract       For file types that contain a 'moov' atom, such as QuickTime Movie files, specifies the time scale of the movie.
+	@discussion		The default movie time scale is 600. In certain cases, you may want to set this to a different value. For instance, a movie that
+					contains a single audio track should typically have the movie time scale set to the media time scale of that track.
+ 
+					This property should be set on a new empty movie before any edits are performed on the movie.
+*/
+@property (nonatomic, readwrite) CMTimeScale timescale;
+
+/*!
+	@property       tracks
+	@abstract       The tracks in a mutable movie.
+	@discussion     The value of this property is an array of tracks the mutable movie contains; the tracks are of type AVMutableMovieTrack.
+*/
+@property (nonatomic, readonly) NSArray<AVMutableMovieTrack *> *tracks;
+
+@end
+
+    
+@interface AVMutableMovie (AVMutableMovieMovieLevelEditing)
+
+/*!
+	@property       modified
+	@abstract       Whether a movie has been modified.
+	@discussion     The value of this property is a BOOL that indicates whether the AVMutableMovie object has been modified since it was created, was last written, or had its modified state cleared via a call to setModified:NO.
+*/
+@property (nonatomic, getter=isModified) BOOL modified;
+
+/*!
+	@property       defaultMediaDataStorage
+	@abstract       The default storage container for media data added to a movie.
+	@discussion     The value of this property is an AVMediaDataStorage object that indicates where sample data that is added to a movie should be written, for any track for whose mediaDataStorage property is nil.
+*/
+@property (nonatomic, copy, nullable) AVMediaDataStorage *defaultMediaDataStorage;
+
+/*!
+	@property		interleavingPeriod
+	@abstract		A CMTime that indicates the duration for interleaving runs of samples of each track.
+	@discussion		The default interleaving period is 0.5 seconds.
+ */
+@property (nonatomic) CMTime interleavingPeriod;
+
+/*!
+	@method			insertTimeRange:ofAsset:atTime:copySampleData:error:
+	@abstract		Inserts all the tracks of a timeRange of an asset into a movie.
+	@param			timeRange
+					The time range of the asset to be inserted.
+	@param			asset
+					An AVAsset object indicating the source of the inserted media. Only instances of AVURLAsset and AVComposition are supported.
+					Must not be nil.
+	@param			startTime
+					The time in the target movie at which the media is to be inserted.
+	@param			copySampleData
+                    A BOOL value that indicates whether sample data is to be copied from the source to the destination during edits.
+					If YES, the sample data is written to the location specified by the track property mediaDataStorage if non-nil,
+					or else by the movie property defaultMediaDataStorage if non-nil; if both are nil, the method will fail and return NO.
+					If NO, sample data will not be written and sample references to the samples in their original container will be added as necessary. 
+					Note that in this case, this method will fail if the source AVAsset is not able to provide sample reference information for the original container.
+	@param			outError
+					If the insertion fails, an NSError object that describes the nature of the failure.
+	@result			A BOOL value that indicates the success of the insertion.
+	@discussion		This method may add new tracks to the target movie to ensure that all tracks of the asset are represented in the inserted timeRange.
+					Existing content at the specified startTime will be pushed out by the duration of timeRange.
+*/
+- (BOOL)insertTimeRange:(CMTimeRange)timeRange ofAsset:(AVAsset *)asset atTime:(CMTime)startTime copySampleData:(BOOL)copySampleData error:(NSError * _Nullable * _Nullable)outError;
+
+/*!
+	@method			insertEmptyTimeRange:
+	@abstract		Adds an empty time range to the target movie.
+	@param			timeRange
+					The time range to be made empty. Note that you cannot add empty time ranges to the end of a movie.
+*/
+- (void)insertEmptyTimeRange:(CMTimeRange)timeRange;
+
+/*!
+	@method			removeTimeRange:
+	@abstract		Removes a specified time range from a movie.
+	@param			timeRange
+					The time range to be removed.
+*/
+- (void)removeTimeRange:(CMTimeRange)timeRange;
+
+/*!
+	@method			scaleTimeRange:toDuration:
+	@abstract		Changes the duration of a time range of a movie.
+	@param			timeRange
+					The time range to be scaled.
+	@param			duration
+					The new duration of the time range.
+*/
+- (void)scaleTimeRange:(CMTimeRange)timeRange toDuration:(CMTime)duration;
+
+@end
+
+
+@interface AVMutableMovie (AVMutableMovieTrackLevelEditing)
+
+/*!
+	@method			mutableTrackCompatibleWithTrack:
+	@abstract		Provides a reference to a track of a mutable movie into which any time range of an AVAssetTrack
+					can be inserted (via -[AVMutableMovieTrack insertTimeRange:ofTrack:atTime:copySampleData:error:]).
+	@param			track
+					A reference to the AVAssetTrack from which a time range may be inserted.
+	@result			An AVMutableMovieTrack that can accommodate the insertion.
+					If no such track is available, the result is nil. A new track of the same media type
+					as the AVAssetTrack can be created via -addMutableTrackWithMediaType:copySettingsFromTrack:options:,
+					and this new track will be compatible.
+	@discussion		For best performance, the number of tracks in a movie should be kept to a minimum, corresponding to the
+					number for which media data must be presented in parallel. If media data of the same type is to be presented
+					serially, even from multiple assets, a single track of that media type should be used. This method,
+					-mutableTrackCompatibleWithTrack:, can help the client to identify an existing target track for an insertion.
+*/
+- (nullable AVMutableMovieTrack *)mutableTrackCompatibleWithTrack:(AVAssetTrack *)track;
+
+/*!
+	@method			addMutableTrackWithMediaType:copySettingsFromTrack:options:
+	@abstract		Adds an empty track to the target movie.
+	@param			mediaType
+					The media type of the new track (e.g. AVMediaTypeVideo for a video track).
+	@param			track
+					If you wish to transfer settings from an existing track, including track userdata and metadata, width, height, preferred volume, etc., pass a reference to an AVAssetTrack representing that track. Otherwise pass nil.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the new AVMutableMovieTrack object. Currently no keys are defined; pass nil for default initialization behavior.
+	@result			An AVMutableMovieTrack object
+    @discussion		The trackID of the newly added track is a property of the returned instance of AVMutableMovieTrack.
+*/
+- (nullable AVMutableMovieTrack *)addMutableTrackWithMediaType:(AVMediaType)mediaType copySettingsFromTrack:(nullable AVAssetTrack *)track options:(nullable NSDictionary<NSString *, id> *)options;
+
+/*!
+	@method			addMutableTracksCopyingSettingsFromTracks:options:
+	@abstract		Adds one or more empty tracks to the target movie, copying track settings from the source tracks.
+	@param			existingTracks
+					An array of AVAssetTrack objects.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the new AVMutableMovieTrack objects. Currently no keys are defined; pass nil for default initialization behavior.
+	@result			An array of AVMutableMovieTrack objects; the index of a track in this array is the same as the index of its source track in the existingTracks array.
+    @discussion		This method creates one or more empty tracks in the target movie and configures those tracks with settings (such as track userdata and metadata, width, height, and preferred volume) copied from the source tracks in the existingTracks array. Also, properties involving pairs of tracks (such as track references) are copied from the source tracks to the target tracks.
+*/
+- (NSArray<AVMutableMovieTrack *> *)addMutableTracksCopyingSettingsFromTracks:(NSArray<AVAssetTrack *> *)existingTracks options:(nullable NSDictionary<NSString *, id> *)options;
+
+/*!
+	@method			removeTrack:
+	@abstract		Removes a track from the target movie.
+	@param			track
+					The track to be removed.
+*/
+- (void)removeTrack:(AVMovieTrack *)track;
+
+@end
+
+
+@interface AVMutableMovie (AVMutableMovieMetadataEditing)
+
+/*!
+	@property       metadata
+	@abstract       A collection of metadata stored by the movie.
+	@discussion     The value of this property is an array of AVMetadataItem objects representing the collection of metadata stored by the movie.
+*/
+@property (nonatomic, copy) NSArray<AVMetadataItem *> *metadata;
+
+@end
+
+@interface AVMutableMovie (AVMutableMovieTrackInspection)
+
+/*!
+  @method		trackWithTrackID:
+  @abstract		Provides an instance of AVMutableMovieTrack that represents the track of the specified trackID.
+  @param		trackID
+				The trackID of the requested AVMutableMovieTrack.
+  @result		An instance of AVMutableMovieTrack; may be nil if no track of the specified trackID is available.
+  @discussion	Becomes callable without blocking when the key @"tracks" has been loaded
+*/
+- (nullable AVMutableMovieTrack *)trackWithTrackID:(CMPersistentTrackID)trackID;
+
+/*!
+  @method		tracksWithMediaType:
+  @abstract		Provides an array of AVMutableMovieTracks of the asset that present media of the specified media type.
+  @param		mediaType
+				The media type according to which the receiver filters its AVMutableMovieTracks. (Media types are defined in AVMediaFormat.h)
+  @result		An NSArray of AVMutableMovieTracks; may be empty if no tracks of the specified media type are available.
+  @discussion	Becomes callable without blocking when the key @"tracks" has been loaded
+*/
+- (NSArray<AVMutableMovieTrack *> *)tracksWithMediaType:(AVMediaType)mediaType;
+
+/*!
+  @method		tracksWithMediaCharacteristic:
+  @abstract		Provides an array of AVMutableMovieTracks of the asset that present media with the specified characteristic.
+  @param		mediaCharacteristic
+				The media characteristic according to which the receiver filters its AVMutableMovieTracks. (Media characteristics are defined in AVMediaFormat.h)
+  @result		An NSArray of AVMutableMovieTracks; may be empty if no tracks with the specified characteristic are available.
+  @discussion	Becomes callable without blocking when the key @"tracks" has been loaded
+*/
+- (NSArray<AVMutableMovieTrack *> *)tracksWithMediaCharacteristic:(AVMediaCharacteristic)mediaCharacteristic;
+
+@end
+
+
+#pragma mark --- AVMediaDataStorage ---
+@class AVMediaDataStorageInternal;
+API_AVAILABLE(macos(10.11), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos)
+@interface AVMediaDataStorage : NSObject {
+@private
+	AVMediaDataStorageInternal			*_mediaDataStorageInternal;
+}
+AV_INIT_UNAVAILABLE
+
+/*!
+	@method			initWithURL:options:
+	@abstract		Creates an AVMediaDataStorage object associated with a file URL.
+	@param			URL
+					An NSURL object that specifies a file where sample data that is added to a movie or track should be written.
+	@param			options
+					An NSDictionary object that contains keys for specifying options for the initialization of the AVMediaDataStorage object. Currently no keys are defined.
+	@result			An AVMediaDataStorage object
+*/
+- (instancetype)initWithURL:(NSURL *)URL options:(nullable NSDictionary<NSString *, id> *)options NS_DESIGNATED_INITIALIZER;
+
+/*!
+	@method			URL
+	@abstract       The URL from which the receiver was initialized; may be nil.
+*/
+- (nullable NSURL *)URL;
+
+@end
+
+
+#pragma mark --- AVFragmentedMovie ---
+/*!
+	@class			AVFragmentedMovie
+ 
+	@abstract		A subclass of AVMovie for handling fragmented movie files. An AVFragmentedMovie is capable of changing the values of certain of its properties and those of its tracks, if it's associated with an instance of AVFragmentedMovieMinder when one or more movie fragments are appended to the movie file.
+*/
+
+/*!
+ @constant       AVFragmentedMovieContainsMovieFragmentsDidChangeNotification
+ @abstract       Posted after the value of @"containsMovieFragments" has already been loaded and the AVFragmentedMovie is added to an AVFragmentedMovieMinder, either when 1) movie fragments are detected in the movie file on disk after it had previously contained none or when 2) no movie fragments are detected in the movie file on disk after it had previously contained one or more.
+*/
+AVF_EXPORT NSString *const AVFragmentedMovieContainsMovieFragmentsDidChangeNotification API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+ @constant       AVFragmentedMovieDurationDidChangeNotification
+ @abstract       Posted when the duration of an AVFragmentedMovie changes while it's being minded by an AVFragmentedMovieMinder, but only for changes that occur after the status of the value of @"duration" has reached AVKeyValueStatusLoaded.
+*/
+AVF_EXPORT NSString *const AVFragmentedMovieDurationDidChangeNotification API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+/*!
+ @constant       AVFragmentedMovieWasDefragmentedNotification
+ @abstract       Posted when the movie file on disk is defragmented while an AVFragmentedMovie is being minded by an AVFragmentedMovieMinder, but only if the defragmentation occurs after the status of the value of @"canContainMovieFragments" has reached AVKeyValueStatusLoaded.
+*/
+AVF_EXPORT NSString *const AVFragmentedMovieWasDefragmentedNotification API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos);
+
+@class AVFragmentedMovieInternal;
+
+API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos)
+@interface AVFragmentedMovie : AVMovie <AVFragmentMinding>
+{
+@private
+}
+
+/*!
+	@property       tracks
+	@abstract       The tracks in a movie.
+	@discussion     The value of this property is an array of tracks the movie contains; the tracks are of type AVFragmentedMovieTrack.
+*/
+@property (nonatomic, readonly) NSArray<AVFragmentedMovieTrack *> *tracks;
+
+@end
+
+@interface AVFragmentedMovie (AVFragmentedMovieTrackInspection)
+
+/*!
+  @method		trackWithTrackID:
+  @abstract		Provides an instance of AVFragmentedMovieTrack that represents the track of the specified trackID.
+  @param		trackID
+				The trackID of the requested AVFragmentedMovieTrack.
+  @result		An instance of AVFragmentedMovieTrack; may be nil if no track of the specified trackID is available.
+  @discussion	Becomes callable without blocking when the key @"tracks" has been loaded
+*/
+- (nullable AVFragmentedMovieTrack *)trackWithTrackID:(CMPersistentTrackID)trackID;
+
+/*!
+  @method		tracksWithMediaType:
+  @abstract		Provides an array of AVFragmentedMovieTracks of the asset that present media of the specified media type.
+  @param		mediaType
+				The media type according to which the receiver filters its AVFragmentedMovieTracks. (Media types are defined in AVMediaFormat.h)
+  @result		An NSArray of AVFragmentedMovieTracks; may be empty if no tracks of the specified media type are available.
+  @discussion	Becomes callable without blocking when the key @"tracks" has been loaded
+*/
+- (NSArray<AVFragmentedMovieTrack *> *)tracksWithMediaType:(AVMediaType)mediaType;
+
+/*!
+  @method		tracksWithMediaCharacteristic:
+  @abstract		Provides an array of AVFragmentedMovieTracks of the asset that present media with the specified characteristic.
+  @param		mediaCharacteristic
+				The media characteristic according to which the receiver filters its AVFragmentedMovieTracks. (Media characteristics are defined in AVMediaFormat.h)
+  @result		An NSArray of AVFragmentedMovieTracks; may be empty if no tracks with the specified characteristic are available.
+  @discussion	Becomes callable without blocking when the key @"tracks" has been loaded
+*/
+- (NSArray<AVFragmentedMovieTrack *> *)tracksWithMediaCharacteristic:(AVMediaCharacteristic)mediaCharacteristic;
+
+@end
+
+#pragma mark --- AVFragmentedMovieMinder ---
+/*!
+	@class			AVFragmentedMovieMinder
+	@abstract		A class that periodically checks whether additional movie fragments have been appended to fragmented movie files.
+	@discussion		AVFragmentedMovieMinder is identical to AVFragmentedAssetMinder except that it's capable of minding only assets of class AVFragmentedMovie.
+*/
+
+API_AVAILABLE(macos(10.10), ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos)
+@interface AVFragmentedMovieMinder : AVFragmentedAssetMinder
+
+/*!
+	@method			fragmentedMovieMinderWithMovie:mindingInterval:
+	@abstract       Creates an AVFragmentedMovieMinder, adds the specified movie to it, and sets the mindingInterval to the specified value.
+	@param			movie
+					An instance of AVFragmentedMovie to add to the AVFragmentedMovieMinder
+	@param			mindingInterval
+					The initial minding interval of the AVFragmentedMovieMinder.
+	@result			A new instance of AVFragmentedMovieMinder.
+*/
++ (instancetype)fragmentedMovieMinderWithMovie:(AVFragmentedMovie *)movie mindingInterval:(NSTimeInterval)mindingInterval;
+
+/*!
+	@method			initWithMovie:mindingInterval:
+	@abstract       Creates an AVFragmentedMovieMinder, adds the specified movie to it, and sets the mindingInterval to the specified value.
+	@param			movie
+					An instance of AVFragmentedMovie to add to the AVFragmentedMovieMinder
+	@param			mindingInterval
+					The initial minding interval of the AVFragmentedMovieMinder.
+	@result			A new instance of AVFragmentedMovieMinder.
+*/
+- (instancetype)initWithMovie:(AVFragmentedMovie *)movie mindingInterval:(NSTimeInterval)mindingInterval NS_DESIGNATED_INITIALIZER;
+
+/*!
+	@property       mindingInterval
+	@abstract       An NSTimeInterval indicating how often a check for additional movie fragments should be performed. The default interval is 10.0.
+*/
+@property (nonatomic) NSTimeInterval mindingInterval;
+
+/*!
+	@property       movies
+	@abstract       An NSArray of the AVFragmentedMovie objects being minded.
+*/
+@property (nonatomic, readonly) NSArray<AVFragmentedMovie *> *movies;
+
+/*!
+	@method			addFragmentedMovie:
+	@abstract		Adds a fragmented movie to the array of movies being minded.
+	@param			movie
+					The fragmented movie to add to the minder.
+*/
+- (void)addFragmentedMovie:(AVFragmentedMovie *)movie;
+
+/*!
+	@method			removeFragmentedMovie:
+	@abstract		Removes a fragmented movie from the array of movies being minded.
+	@param			movie
+					The fragmented movie to remove from the minder.
+*/
+- (void)removeFragmentedMovie:(AVFragmentedMovie *)movie;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  AVFoundation.framework/Headers/AVAssetExportSession.h
 /*
 	File:  AVAssetExportSession.h
 
 	Framework:  AVFoundation
  
-	Copyright 2010-2017 Apple Inc. All rights reserved.
+	Copyright 2010-2018 Apple Inc. All rights reserved.
 
 */
 
@@ -16238,53 +18155,56 @@ NS_ASSUME_NONNULL_BEGIN
 /* These export options can be used to produce movie files with video size appropriate to the device.
    The export will not scale the video up from a smaller size. The video will be compressed using
    H.264 and the audio will be compressed using AAC.  */
-AVF_EXPORT NSString *const AVAssetExportPresetLowQuality         NS_AVAILABLE(10_11, 4_0);
-AVF_EXPORT NSString *const AVAssetExportPresetMediumQuality      NS_AVAILABLE(10_11, 4_0);
-AVF_EXPORT NSString *const AVAssetExportPresetHighestQuality     NS_AVAILABLE(10_11, 4_0);
+AVF_EXPORT NSString *const AVAssetExportPresetLowQuality         API_AVAILABLE(macos(10.11), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetMediumQuality      API_AVAILABLE(macos(10.11), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetHighestQuality     API_AVAILABLE(macos(10.11), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* These export options can be used to produce movie files with video size appropriate to the device.
    The export will not scale the video up from a smaller size. The video will be compressed using
    HEVC and the audio will be compressed using AAC.  */
-AVF_EXPORT NSString *const AVAssetExportPresetHEVCHighestQuality NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT NSString *const AVAssetExportPresetHEVCHighestQuality 			API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetHEVCHighestQualityWithAlpha	API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 /* These export options can be used to produce movie files with the specified video size.
    The export will not scale the video up from a smaller size. The video will be compressed using
    H.264 and the audio will be compressed using AAC.  Some devices cannot support some sizes. */
-AVF_EXPORT NSString *const AVAssetExportPreset640x480           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT NSString *const AVAssetExportPreset960x540           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT NSString *const AVAssetExportPreset1280x720          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT NSString *const AVAssetExportPreset1920x1080         NS_AVAILABLE(10_7, 5_0);
-AVF_EXPORT NSString *const AVAssetExportPreset3840x2160         NS_AVAILABLE(10_10, 9_0);
+AVF_EXPORT NSString *const AVAssetExportPreset640x480           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVAssetExportPreset960x540           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVAssetExportPreset1280x720          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVAssetExportPreset1920x1080         API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVAssetExportPreset3840x2160         API_AVAILABLE(macos(10.10), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* These export options can be used to produce movie files with the specified video size.
    The export will not scale the video up from a smaller size. The video will be compressed using
    HEVC and the audio will be compressed using AAC.  Some devices cannot support some sizes. */
-AVF_EXPORT NSString *const AVAssetExportPresetHEVC1920x1080     NS_AVAILABLE(10_13, 11_0);
-AVF_EXPORT NSString *const AVAssetExportPresetHEVC3840x2160     NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT NSString *const AVAssetExportPresetHEVC1920x1080				API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetHEVC1920x1080WithAlpha	API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetHEVC3840x2160				API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetHEVC3840x2160WithAlpha	API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 /*  This export option will produce an audio-only .m4a file with appropriate iTunes gapless playback data */
-AVF_EXPORT NSString *const AVAssetExportPresetAppleM4A			NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT NSString *const AVAssetExportPresetAppleM4A			API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* This export option will cause the media of all tracks to be passed through to the output exactly as stored in the source asset, except for
    tracks for which passthrough is not possible, usually because of constraints of the container format as indicated by the specified outputFileType.
    This option is not included in the arrays returned by -allExportPresets and -exportPresetsCompatibleWithAsset. */
-AVF_EXPORT NSString *const AVAssetExportPresetPassthrough		NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT NSString *const AVAssetExportPresetPassthrough		API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 #if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
 
 /* These export options are used to produce files that can be played on the specified Apple devices. 
 	These presets are available for Desktop export only.
 	The files should have .m4v extensions (or .m4a for exports with audio only sources). */
-AVF_EXPORT NSString *const AVAssetExportPresetAppleM4VCellular	NS_AVAILABLE(10_7, NA);
-AVF_EXPORT NSString *const AVAssetExportPresetAppleM4ViPod		NS_AVAILABLE(10_7, NA);
-AVF_EXPORT NSString *const AVAssetExportPresetAppleM4V480pSD	NS_AVAILABLE(10_7, NA);
-AVF_EXPORT NSString *const AVAssetExportPresetAppleM4VAppleTV	NS_AVAILABLE(10_7, NA);
-AVF_EXPORT NSString *const AVAssetExportPresetAppleM4VWiFi		NS_AVAILABLE(10_7, NA);
-AVF_EXPORT NSString *const AVAssetExportPresetAppleM4V720pHD	NS_AVAILABLE(10_7, NA);
-AVF_EXPORT NSString *const AVAssetExportPresetAppleM4V1080pHD	NS_AVAILABLE(10_8, NA);
+AVF_EXPORT NSString *const AVAssetExportPresetAppleM4VCellular	API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetAppleM4ViPod		API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetAppleM4V480pSD	API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetAppleM4VAppleTV	API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetAppleM4VWiFi		API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetAppleM4V720pHD	API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
+AVF_EXPORT NSString *const AVAssetExportPresetAppleM4V1080pHD	API_AVAILABLE(macos(10.8)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /* This export option will produce a QuickTime movie with Apple ProRes 422 video and LPCM audio. */
-AVF_EXPORT NSString *const AVAssetExportPresetAppleProRes422LPCM	NS_AVAILABLE(10_7, NA);
+AVF_EXPORT NSString *const AVAssetExportPresetAppleProRes422LPCM	API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, tvos, watchos);
 
 #endif // (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
 
@@ -16298,15 +18218,15 @@ AVF_EXPORT NSString *const AVAssetExportPresetAppleProRes422LPCM	NS_AVAILABLE(10
 @class AVMetadataItem;
 
 typedef NS_ENUM(NSInteger, AVAssetExportSessionStatus) {
-	AVAssetExportSessionStatusUnknown,
-    AVAssetExportSessionStatusWaiting,
-    AVAssetExportSessionStatusExporting,
-    AVAssetExportSessionStatusCompleted,
-    AVAssetExportSessionStatusFailed,
-    AVAssetExportSessionStatusCancelled
+	AVAssetExportSessionStatusUnknown = 0,
+    AVAssetExportSessionStatusWaiting = 1,
+    AVAssetExportSessionStatusExporting = 2,
+    AVAssetExportSessionStatusCompleted = 3,
+    AVAssetExportSessionStatusFailed = 4,
+    AVAssetExportSessionStatusCancelled = 5
 };
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetExportSession : NSObject
 {
 @private
@@ -16322,7 +18242,7 @@ AV_INIT_UNAVAILABLE
 	@result						An instance of AVAssetExportSession.
 	@discussion					If the specified asset belongs to a mutable subclass of AVAsset, AVMutableComposition or AVMutableMovie, the results of any export-related operation are undefined if you mutate the asset after the operation commences. These operations include but are not limited to: 1) testing the compatibility of export presets with the asset, 2) calculating the maximum duration or estimated length of the output file, and 3) the export operation itself.
 */
-+ (nullable instancetype)exportSessionWithAsset:(AVAsset *)asset presetName:(NSString *)presetName NS_AVAILABLE(10_7, 4_1);
++ (nullable instancetype)exportSessionWithAsset:(AVAsset *)asset presetName:(NSString *)presetName API_AVAILABLE(macos(10.7), ios(4.1), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
 	@method						initWithAsset:presetName:
@@ -16340,7 +18260,7 @@ AV_INIT_UNAVAILABLE
 @property (nonatomic, readonly) NSString *presetName;
 
 /* Indicates the instance of AVAsset with which the AVExportSession was initialized  */
-@property (nonatomic, retain, readonly) AVAsset *asset NS_AVAILABLE(10_8, 5_0);
+@property (nonatomic, retain, readonly) AVAsset *asset API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* Indicates the type of file to be written by the session.
    The value of this property must be set before you invoke -exportAsynchronouslyWithCompletionHandler:; otherwise -exportAsynchronouslyWithCompletionHandler: will raise an NSInternalInconsistencyException.
@@ -16427,7 +18347,7 @@ AV_INIT_UNAVAILABLE
 	@param outputFileType		An AVFileType indicating a file type to check; or nil, to query whether there are any compatible types.
 	@param completionHandler	A block called with the compatibility result.
  */
-+ (void)determineCompatibilityOfExportPreset:(NSString *)presetName withAsset:(AVAsset *)asset outputFileType:(nullable AVFileType)outputFileType completionHandler:(void (^)(BOOL compatible))handler NS_AVAILABLE(10_9, 6_0);
++ (void)determineCompatibilityOfExportPreset:(NSString *)presetName withAsset:(AVAsset *)asset outputFileType:(nullable AVFileType)outputFileType completionHandler:(void (^)(BOOL compatible))handler API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -16444,7 +18364,7 @@ AV_INIT_UNAVAILABLE
 								Called when the inspection completes with an array of file types the ExportSession can write.  Note that this may have a count of zero.
 	@discussion					This method is different than the supportedFileTypes property in that it performs an inspection of the AVAsset in order to determine its compatibility with each of the session's supported file types.
 */
-- (void)determineCompatibleFileTypesWithCompletionHandler:(void (^)(NSArray<AVFileType> *compatibleFileTypes))handler NS_AVAILABLE(10_9, 6_0);
+- (void)determineCompatibleFileTypesWithCompletionHandler:(void (^)(NSArray<AVFileType> *compatibleFileTypes))handler API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -16454,13 +18374,31 @@ AV_INIT_UNAVAILABLE
 @property (nonatomic) CMTimeRange timeRange;
 
 /* Provides an estimate of the maximum duration of exported media that is possible given the source asset, the export preset, and the current value of fileLengthLimit.  The export will not stop when it reaches this maximum duration; set the timeRange property to export only a certain time range.  */
-@property (nonatomic, readonly) CMTime maxDuration API_AVAILABLE(macos(10.14), ios(4.0), tvos(9.0)) __WATCHOS_PROHIBITED;
+@property (nonatomic, readonly) CMTime maxDuration API_DEPRECATED_WITH_REPLACEMENT("estimateMaximumDurationWithCompletionHandler", macos(10.14, API_TO_BE_DEPRECATED), ios(4.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(watchos);
 
-/* Indicates the estimated byte size of exported file. Returns zero when export preset is AVAssetExportPresetPassthrough or AVAssetExportPresetAppleProRes422LPCM. This property will also return zero if a numeric value (ie. not invalid, indefinite, or infinite) for the timeRange property has not been set. */
-@property (nonatomic, readonly) long long estimatedOutputFileLength NS_AVAILABLE(10_9, 5_0);
+/* Indicates the estimated byte size of exported file.  Returns zero when export preset is AVAssetExportPresetPassthrough or AVAssetExportPresetAppleProRes422LPCM.  This property will also return zero if a numeric value (ie. not invalid, indefinite, or infinite) for the timeRange property has not been set.  Note that the returned value does not take into account the source asset information.  For a more accurate estimation, use estimateOutputFileLengthWithCompletionHandler. */
+@property (nonatomic, readonly) long long estimatedOutputFileLength API_DEPRECATED_WITH_REPLACEMENT("estimateOutputFileLengthWithCompletionHandler", macos(10.9, API_TO_BE_DEPRECATED), ios(5.0, API_TO_BE_DEPRECATED), tvos(5.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(watchos);
 
 /* Indicates the file length that the output of the session should not exceed.  Depending on the content of the source asset, it is possible for the output to slightly exceed the file length limit.  The length of the output file should be tested if you require that a strict limit be observed before making use of the output.  See also maxDuration and timeRange. */
-@property (nonatomic) long long fileLengthLimit API_AVAILABLE(macos(10.14), ios(4.0), tvos(9.0)) __WATCHOS_PROHIBITED;
+@property (nonatomic) long long fileLengthLimit API_AVAILABLE(macos(10.14), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+
+/*!
+	@method						estimateMaximumDurationWithCompletionHandler:
+	@abstract					Starts the asynchronous execution of estimating the maximum duration of the export based on the asset, preset, and fileLengthLimit associated with the export session.
+	@discussion 				If fileLengthLimit is not set on the export session, fileLengthLimit will be assumed to be the maximum file size specified by the preset (if any); else infinite.
+	@param						completionHandler
+								A block called with the estimated maximum duration, or kCMTimeInvalid if an error occurs.  The error parameter will be non-nil if an error occurs.
+*/
+- (void)estimateMaximumDurationWithCompletionHandler:(void (^)(CMTime estimatedMaximumDuration, NSError * _Nullable error ))handler API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+/*!
+	@method						estimateOutputFileLengthWithCompletionHandler:
+	@abstract 					Starts the asynchronous execution of estimating the output file length of the export based on the asset, preset, and timeRange associated with the export session.
+	@discussion 				If timeRange is not set on the export session, timeRange will be assumed to be the full time range of the asset.
+	@param						completionHandler
+								A block called with the estimated output file length in bytes, if it can be accurately determined; 0 otherwise.  The error parameter will be non-nil if an error occurs.
+ */
+- (void)estimateOutputFileLengthWithCompletionHandler:(void (^)(int64_t estimatedOutputFileLength, NSError * _Nullable error ))handler API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -16474,7 +18412,7 @@ AV_INIT_UNAVAILABLE
 /* Specifies a filter object to be used during export to determine which metadata items should be transferred from the source asset.
    If the value of this key is nil, no filter will be applied.  This is the default.
    The filter will not be applied to metadata set with via the metadata property.  To apply the filter to metadata before it is set on the metadata property, see the methods in AVMetadataItem's AVMetadataItemArrayFiltering category. */
-@property (nonatomic, retain, nullable) AVMetadataItemFilter *metadataItemFilter NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, retain, nullable) AVMetadataItemFilter *metadataItemFilter API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -16483,7 +18421,7 @@ AV_INIT_UNAVAILABLE
 /* Indicates the processing algorithm used to manage audio pitch for scaled audio edits.
    Constants for various time pitch algorithms, e.g. AVAudioTimePitchAlgorithmSpectral, are defined in AVAudioProcessingSettings.h. An NSInvalidArgumentException will be raised if this property is set to a value other than the constants defined in that file.
    The default value is AVAudioTimePitchAlgorithmSpectral. */
-@property (nonatomic, copy) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, copy) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /* Indicates whether non-default audio mixing is enabled for export and supplies the parameters for audio mixing.  Ignored when export preset is AVAssetExportPresetPassthrough. */
 @property (nonatomic, copy, nullable) AVAudioMix *audioMix;
@@ -16492,7 +18430,7 @@ AV_INIT_UNAVAILABLE
 @property (nonatomic, copy, nullable) AVVideoComposition *videoComposition;
 
 /* Indicates the custom video compositor instance used, if any */
-@property (nonatomic, readonly, nullable) id <AVVideoCompositing> customVideoCompositor NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly, nullable) id <AVVideoCompositing> customVideoCompositor API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -16510,7 +18448,7 @@ AV_INIT_UNAVAILABLE
 
 		This property cannot be set after the export has started.
 */
-@property (nonatomic) BOOL canPerformMultiplePassesOverSourceMediaData NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) BOOL canPerformMultiplePassesOverSourceMediaData API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
 	@property directoryForTemporaryFiles
@@ -16524,7 +18462,7 @@ AV_INIT_UNAVAILABLE
 	
 		This property cannot be set after the export has started.  The export will fail if the URL points to a location that is not a directory, does not exist, is not on the local file system, or if a file cannot be created in this directory (for example, due to insufficient permissions or sandboxing restrictions).
 */
-@property (nonatomic, copy, nullable) NSURL *directoryForTemporaryFiles NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, copy, nullable) NSURL *directoryForTemporaryFiles API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -16611,7 +18549,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
  
-	Copyright 2010-2018 Apple Inc. All rights reserved.
+	Copyright 2010-2019 Apple Inc. All rights reserved.
 
 */
 
@@ -16636,7 +18574,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AVAssetTrackInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVAssetTrack : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
 {
 @private
@@ -16667,10 +18605,10 @@ AV_INIT_UNAVAILABLE
 @property (nonatomic, readonly) NSArray *formatDescriptions;
 
 /* Indicates whether the receiver is playable in the current environment; if YES, an AVPlayerItemTrack of an AVPlayerItem initialized with the receiver's asset can be enabled for playback.  */
-@property (nonatomic, readonly, getter=isPlayable) BOOL playable NS_AVAILABLE(10_8, 5_0);
+@property (nonatomic, readonly, getter=isPlayable) BOOL playable API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /* Indicates whether the receiver is decodable in the current environment; if YES, the track can be decoded even though decoding may be too slow for real time playback.  */
-@property (nonatomic, readonly, getter=isDecodable) BOOL decodable NS_AVAILABLE(10_13, 11_0);
+@property (nonatomic, readonly, getter=isDecodable) BOOL decodable API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 /* indicates whether the track is enabled according to state stored in its container or construct;
    note that its presentation state can be changed from this default via AVPlayerItemTrack */
@@ -16740,6 +18678,9 @@ AV_INIT_UNAVAILABLE
 /* indicates the volume specified in the track's storage container as the preferred volume of the audible media data */
 @property (nonatomic, readonly) float preferredVolume;
 
+/* indicates whether this audio track has dependencies (e.g. kAudioFormatMPEGD_USAC) */
+@property (nonatomic, readonly) BOOL hasAudioSampleDependencies;
+
 @end
 
 
@@ -16753,13 +18694,13 @@ AV_INIT_UNAVAILABLE
 @property (nonatomic, readonly) float nominalFrameRate;
 
 /* indicates the minimum duration of the track's frames; the value will be kCMTimeInvalid if the minimum frame duration is not known or cannot be calculated */
-@property (nonatomic, readonly) CMTime minFrameDuration NS_AVAILABLE(10_10, 7_0);
+@property (nonatomic, readonly) CMTime minFrameDuration API_AVAILABLE(macos(10.10), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
 	@property       requiresFrameReordering
 	@abstract       Indicates whether samples in the track may have different values for their presentation and decode timestamps.
 */
-@property (nonatomic, readonly) BOOL requiresFrameReordering NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readonly) BOOL requiresFrameReordering API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -16801,7 +18742,7 @@ AV_INIT_UNAVAILABLE
 
 /* Provides access to an array of AVMetadataItems for all metadata identifiers for which a value is available; items can be filtered according to language via +[AVMetadataItem metadataItemsFromArray:filteredAndSortedAccordingToPreferredLanguages:] and according to identifier via +[AVMetadataItem metadataItemsFromArray:filteredByIdentifier:].
 */
-@property (nonatomic, readonly) NSArray<AVMetadataItem *> *metadata NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readonly) NSArray<AVMetadataItem *> *metadata API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* provides an NSArray of NSStrings, each representing a format of metadata that's available for the track (e.g. QuickTime userdata, etc.)
    Metadata formats are defined in AVMetadataItem.h. */
@@ -16839,7 +18780,7 @@ typedef NSString * AVTrackAssociationType NS_STRING_ENUM;
 	Example: Using AVTrackAssociationTypeAudioFallback, a stereo audio track with media subtype kAudioFormatMPEG4AAC could be nominated as the "fallback" for an audio track encoding the same source material but with media subtype kAudioFormatAC3 and a 5.1 channel layout.  This would ensure that all clients are capable of playing back some form of the audio.
 
  */
-AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeAudioFallback NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeAudioFallback API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*
  @constant		AVTrackAssociationTypeChapterList
@@ -16848,7 +18789,7 @@ AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeAudioFallback NS_A
  @discussion
 	This association is not symmetric; when used with -[AVAssetWriterInput addTrackAssociationWithTrackOfInput:type:], the receiver should be an instance of AVAssetWriterInput with a corresponding track that has renderable content while the input parameter should be an instance of AVAssetWriterInput with a corresponding track that contains chapter metadata.
  */
-AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeChapterList NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeChapterList API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*
  @constant		AVTrackAssociationTypeForcedSubtitlesOnly
@@ -16857,7 +18798,7 @@ AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeChapterList NS_AVA
  @discussion
 	Associations of type AVTrackAssociationTypeForcedSubtitlesOnly are supported only between subtitle tracks.  This association is not symmetric; when used with -[AVAssetWriterInput addTrackAssociationWithTrackOfInput:type:], the receiver should be an instance of AVAssetWriterInput with a corresponding subtitle track that contains non-forced subtitles, and the input parameter should be an instance of AVAssetWriterInput with a corresponding subtitle track that contains forced subtitles only.
  */
-AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeForcedSubtitlesOnly NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeForcedSubtitlesOnly API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*
  @constant		AVTrackAssociationTypeSelectionFollower
@@ -16866,7 +18807,7 @@ AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeForcedSubtitlesOnl
  @discussion
 	This association is not symmetric; when used with -[AVAssetWriterInput addTrackAssociationWithTrackOfInput:type:], the input parameter should be an instance of AVAssetWriterInput whose selection may depend on the selection of the receiver.  In the example above, the receiver would be the instance of AVAssetWriterInput corresponding with the audio track and the input parameter would be the instance of AVAssetWriterInput corresponding with the subtitle track.
  */
-AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeSelectionFollower NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeSelectionFollower API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*
  @constant		AVTrackAssociationTypeTimecode
@@ -16875,7 +18816,7 @@ AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeSelectionFollower 
  @discussion
 	This association is not symmetric; when used with -[AVAssetWriterInput addTrackAssociationWithTrackOfInput:type:], the receiver should be an instance of AVAssetWriterInput with a corresponding track that may be a video track or an audio track while the input parameter should be an instance of AVAssetWriterInput with a corresponding timecode track.
  */
-AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeTimecode NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeTimecode API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*
 @constant		AVTrackAssociationTypeMetadataReferent
@@ -16885,11 +18826,11 @@ AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeTimecode NS_AVAILA
 	This track association is optional for AVAssetTracks with the mediaType AVMediaTypeMetadata. When a metadata track lacks this track association, its contents are assumed to describe or annotate the asset as a whole.
 	This association is not symmetric; when used with -[AVAssetWriterInput addTrackAssociationWithTrackOfInput:type:], the receiver should be an instance of AVAssetWriterInput with mediaType AVMediaTypeMetadata while the input parameter should be an instance of AVAssetWriterInput that's used to create the track to which the contents of the receiver's corresponding metadata track refer.
 */
-AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeMetadataReferent NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeMetadataReferent API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* Provides an NSArray of NSStrings, each representing a type of track association that the receiver has with one or more of the other tracks of the asset (e.g. AVTrackAssociationTypeChapterList, AVTrackAssociationTypeTimecode, etc.).
    Track association types are defined immediately above. */
-@property (nonatomic, readonly) NSArray<AVTrackAssociationType> *availableTrackAssociationTypes NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) NSArray<AVTrackAssociationType> *availableTrackAssociationTypes API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
 	@method			associatedTracksOfType:
@@ -16899,7 +18840,7 @@ AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeMetadataReferent N
 	@result			An NSArray containing AVAssetTracks; may be empty if there is no associated tracks of the specified type.
 	@discussion		Becomes callable without blocking when the key @"availableTrackAssociationTypes" has been loaded.
 */
-- (NSArray<AVAssetTrack *> *)associatedTracksOfType:(AVTrackAssociationType)trackAssociationType NS_AVAILABLE(10_9, 7_0);
+- (NSArray<AVAssetTrack *> *)associatedTracksOfType:(AVTrackAssociationType)trackAssociationType API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -16911,7 +18852,7 @@ AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeMetadataReferent N
 @interface AVAssetTrack (AVAssetTrackSampleCursorProvision)
 
 /* Indicates whether the receiver can provide instances of AVSampleCursor for traversing its media samples and discovering information about them. */
-@property (nonatomic, readonly) BOOL canProvideSampleCursors NS_AVAILABLE_MAC(10_10);
+@property (nonatomic, readonly) BOOL canProvideSampleCursors API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@method			makeSampleCursorWithPresentationTimeStamp:
@@ -16921,22 +18862,25 @@ AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeMetadataReferent N
 	@result			An instance of AVSampleCursor.
 	@discussion		If the receiver's asset has a value of YES for providesPreciseDurationAndTiming, the sample cursor will be accurately positioned at the receiver's last media sample with presentation timestamp less than or equal to the desired timestamp, or, if there are no such samples, the first sample in presentation order.
 					If the receiver's asset has a value of NO for providesPreciseDurationAndTiming, and it is prohibitively expensive to locate the precise sample at the desired timestamp, the sample cursor may be approximately positioned.
+ 					This method will return nil if there are no samples in the track.
 */
-- (nullable AVSampleCursor *)makeSampleCursorWithPresentationTimeStamp:(CMTime)presentationTimeStamp NS_AVAILABLE_MAC(10_10);
+- (nullable AVSampleCursor *)makeSampleCursorWithPresentationTimeStamp:(CMTime)presentationTimeStamp API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@method			makeSampleCursorAtFirstSampleInDecodeOrder:
 	@abstract		Creates an instance of AVSampleCursor and positions it at the receiver's first media sample in decode order.
 	@result			An instance of AVSampleCursor.
+	@discussion		This method will return nil if there are no samples in the track.
 */
-- (nullable AVSampleCursor *)makeSampleCursorAtFirstSampleInDecodeOrder NS_AVAILABLE_MAC(10_10);
+- (nullable AVSampleCursor *)makeSampleCursorAtFirstSampleInDecodeOrder API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
 	@method			makeSampleCursorAtLastSampleInDecodeOrder:
 	@abstract		Creates an instance of AVSampleCursor and positions it at the receiver's last media sample in decode order.
 	@result			An instance of AVSampleCursor.
+	@discussion		This method will return nil if there are no samples in the track.
 */
-- (nullable AVSampleCursor *)makeSampleCursorAtLastSampleInDecodeOrder NS_AVAILABLE_MAC(10_10);
+- (nullable AVSampleCursor *)makeSampleCursorAtLastSampleInDecodeOrder API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, tvos, watchos);
 
 @end
 
@@ -16953,19 +18897,19 @@ AVF_EXPORT AVTrackAssociationType const AVTrackAssociationTypeMetadataReferent N
  @constant       AVAssetTrackTimeRangeDidChangeNotification
  @abstract       Posted when the timeRange of an AVFragmentedAssetTrack changes while the associated instance of AVFragmentedAsset is being minded by an AVFragmentedAssetMinder, but only for changes that occur after the status of the value of @"timeRange" has reached AVKeyValueStatusLoaded.
 */
-AVF_EXPORT NSString *const AVAssetTrackTimeRangeDidChangeNotification NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT NSString *const AVAssetTrackTimeRangeDidChangeNotification API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 /*!
  @constant       AVAssetTrackSegmentsDidChangeNotification
  @abstract       Posted when the array of segments of an AVFragmentedAssetTrack changes while the associated instance of AVFragmentedAsset is being minded by an AVFragmentedAssetMinder, but only for changes that occur after the status of the value of @"segments" has reached AVKeyValueStatusLoaded.
 */
-AVF_EXPORT NSString *const AVAssetTrackSegmentsDidChangeNotification NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT NSString *const AVAssetTrackSegmentsDidChangeNotification API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 /*!
  @constant       AVAssetTrackTrackAssociationsDidChangeNotification
  @abstract       Posted when the collection of track associations of an AVAssetTrack changes, but only for changes that occur after the status of the value of @"availableTrackAssociationTypes" has reached AVKeyValueStatusLoaded.
 */
-AVF_EXPORT NSString *const AVAssetTrackTrackAssociationsDidChangeNotification NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT NSString *const AVAssetTrackTrackAssociationsDidChangeNotification API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 #pragma mark --- AVFragmentedAssetTrack ---
 /*!
@@ -16976,7 +18920,7 @@ AVF_EXPORT NSString *const AVAssetTrackTrackAssociationsDidChangeNotification NS
 
 @class AVFragmentedAssetTrackInternal;
 
-API_AVAILABLE(macos(10.11), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos)
+API_AVAILABLE(macos(10.11), ios(12.0), tvos(12.0), watchos(6.0))
 @interface AVFragmentedAssetTrack : AVAssetTrack
 {
 @private
@@ -17004,323 +18948,323 @@ typedef NSString * AVMetadataKeySpace NS_EXTENSIBLE_STRING_ENUM;
 typedef NSString * AVMetadataKey NS_EXTENSIBLE_STRING_ENUM;
 
 // CommonMetadata
-AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceCommon                                 NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceCommon                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 // Metadata common keys
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyTitle                                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyCreator                                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeySubject                                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyDescription                                NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyPublisher                                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyContributor                                NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyCreationDate                               NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyLastModifiedDate                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyType                                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyFormat                                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyIdentifier                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeySource                                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyLanguage                                   NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyRelation                                   NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyLocation                                   NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyCopyrights                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyAlbumName                                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyAuthor                                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyArtist                                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyArtwork                                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyMake                                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyModel                                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataCommonKeySoftware                                   NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyTitle                                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyCreator                                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeySubject                                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyDescription                                API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyPublisher                                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyContributor                                API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyCreationDate                               API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyLastModifiedDate                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyType                                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyFormat                                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyIdentifier                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeySource                                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyLanguage                                   API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyRelation                                   API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyLocation                                   API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyCopyrights                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyAlbumName                                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyAuthor                                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyArtist                                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyArtwork                                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyMake                                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeyModel                                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataCommonKeySoftware                                   API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 // QuickTimeUserData
-AVF_EXPORT AVMetadataFormat const AVMetadataFormatQuickTimeUserData                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceQuickTimeUserData                      NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMetadataFormat const AVMetadataFormatQuickTimeUserData                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceQuickTimeUserData                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 // QuickTimeUserData keys
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyAlbum                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyArranger                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyArtist                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyAuthor                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyChapter                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyComment                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyComposer                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyCopyright                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyCreationDate                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyDescription                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyDirector                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyDisclaimer                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyEncodedBy                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyFullName                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyGenre                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyHostComputer                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyInformation                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyKeywords                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyMake                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyModel                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyOriginalArtist                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyOriginalFormat                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyOriginalSource                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyPerformers                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyProducer                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyPublisher                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyProduct                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeySoftware                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeySpecialPlaybackRequirements     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyTrack                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyWarning                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyWriter                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyURLLink                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyLocationISO6709                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyTrackName                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyCredits                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyPhonogramRights                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyTaggedCharacteristic            NS_AVAILABLE(10_8, 5_0);
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyAlbum                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyArranger                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyArtist                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyAuthor                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyChapter                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyComment                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyComposer                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyCopyright                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyCreationDate                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyDescription                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyDirector                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyDisclaimer                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyEncodedBy                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyFullName                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyGenre                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyHostComputer                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyInformation                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyKeywords                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyMake                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyModel                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyOriginalArtist                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyOriginalFormat                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyOriginalSource                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyPerformers                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyProducer                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyPublisher                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyProduct                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeySoftware                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeySpecialPlaybackRequirements     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyTrack                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyWarning                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyWriter                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyURLLink                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyLocationISO6709                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyTrackName                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyCredits                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyPhonogramRights                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeUserDataKeyTaggedCharacteristic            API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 // ISO UserData
-AVF_EXPORT AVMetadataFormat const AVMetadataFormatISOUserData                                NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceISOUserData                            NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVMetadataFormat const AVMetadataFormatISOUserData                                API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceISOUserData                            API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 // ISO UserData keys (includes 3GPP keys)
-AVF_EXPORT AVMetadataKey const AVMetadataISOUserDataKeyCopyright                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataISOUserDataKeyTaggedCharacteristic                  NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataKey const AVMetadataISOUserDataKeyCopyright                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataISOUserDataKeyTaggedCharacteristic                  API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant		AVMetadataISOUserDataKeyDate
  @abstract		ISO User data key for the content creation date/time.
  @discussion	The value is date and time, formatted according to ISO 8601, when the content was created. For clips captured by recording devices, this is typically the date and time when the clip’s recording started. When stored in AV(Mutable)MetadataItem, the value type must be either NSDate or NSString. When NSString is used, the value uses one of ISO 8601 formats such as "2016-01-11T17:31:10Z".
 */
-AVF_EXPORT AVMetadataKey const AVMetadataISOUserDataKeyDate                                  NS_AVAILABLE(10_12, 10_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyCopyright                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyAuthor                                NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyPerformer                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyGenre                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyRecordingYear                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyLocation                              NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyTitle                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyDescription                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyCollection                            NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyUserRating                            NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyThumbnail                             NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyAlbumAndTrack                         NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyKeywordList                           NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyMediaClassification                   NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyMediaRating                           NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVMetadataKey const AVMetadataISOUserDataKeyDate                                  API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyCopyright                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyAuthor                                API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyPerformer                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyGenre                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyRecordingYear                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyLocation                              API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyTitle                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyDescription                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyCollection                            API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyUserRating                            API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyThumbnail                             API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyAlbumAndTrack                         API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyKeywordList                           API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyMediaClassification                   API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadata3GPUserDataKeyMediaRating                           API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 // QuickTimeMetadata
-AVF_EXPORT AVMetadataFormat const AVMetadataFormatQuickTimeMetadata                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceQuickTimeMetadata                      NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMetadataFormat const AVMetadataFormatQuickTimeMetadata                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceQuickTimeMetadata                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 // QuickTimeMetadata keys. For more information, see the QuickTime File Format Specification, available as part of the Mac OS X Reference Library at http://developer.apple.com/library/mac/navigation/
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyAuthor                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyComment                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCopyright                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCreationDate                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyDirector                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyDisplayName                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyInformation                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyKeywords                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyProducer                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyPublisher                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyAlbum                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyArtist                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyArtwork                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyDescription                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeySoftware                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyYear                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyGenre                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyiXML                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationISO6709                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyMake                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyModel                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyArranger                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyEncodedBy                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyOriginalArtist                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyPerformer                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyComposer                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCredits                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyPhonogramRights                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCameraIdentifier                NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCameraFrameReadoutTime          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyTitle                           NS_AVAILABLE(10_7, 4_3);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCollectionUser                  NS_AVAILABLE(10_7, 4_3);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyRatingUser                      NS_AVAILABLE(10_7, 4_3);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationName                    NS_AVAILABLE(10_7, 4_3);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationBody                    NS_AVAILABLE(10_7, 4_3);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationNote                    NS_AVAILABLE(10_7, 4_3);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationRole                    NS_AVAILABLE(10_7, 4_3);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationDate                    NS_AVAILABLE(10_7, 4_3);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyDirectionFacing                 NS_AVAILABLE(10_7, 4_3);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyDirectionMotion                 NS_AVAILABLE(10_7, 4_3);
-AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyContentIdentifier               NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyAuthor                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyComment                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCopyright                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCreationDate                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyDirector                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyDisplayName                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyInformation                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyKeywords                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyProducer                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyPublisher                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyAlbum                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyArtist                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyArtwork                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyDescription                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeySoftware                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyYear                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyGenre                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyiXML                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationISO6709                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyMake                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyModel                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyArranger                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyEncodedBy                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyOriginalArtist                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyPerformer                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyComposer                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCredits                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyPhonogramRights                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCameraIdentifier                API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCameraFrameReadoutTime          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyTitle                           API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyCollectionUser                  API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyRatingUser                      API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationName                    API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationBody                    API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationNote                    API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationRole                    API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyLocationDate                    API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyDirectionFacing                 API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyDirectionMotion                 API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataQuickTimeMetadataKeyContentIdentifier               API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 // iTunesMetadata
-AVF_EXPORT AVMetadataFormat const AVMetadataFormatiTunesMetadata                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceiTunes                                 NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMetadataFormat const AVMetadataFormatiTunesMetadata                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceiTunes                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 // iTunesMetadata keys
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAlbum                              NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyArtist                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyUserComment                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyCoverArt                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyCopyright                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyReleaseDate                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyEncodedBy                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyPredefinedGenre                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyUserGenre                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeySongName                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyTrackSubTitle                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyEncodingTool                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyComposer                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAlbumArtist                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAccountKind                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAppleID                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyArtistID                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeySongID                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyDiscCompilation                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyDiscNumber                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyGenreID                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyGrouping                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyPlaylistID                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyContentRating                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyBeatsPerMin                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyTrackNumber                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyArtDirector                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyArranger                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAuthor                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyLyrics                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAcknowledgement                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyConductor                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyDescription                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyDirector                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyEQ                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyLinerNotes                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyRecordCompany                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyOriginalArtist                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyPhonogramRights                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyProducer                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyPerformer                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyPublisher                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeySoundEngineer                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeySoloist                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyCredits                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyThanks                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyOnlineExtras                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyExecProducer                       NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAlbum                              API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyArtist                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyUserComment                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyCoverArt                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyCopyright                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyReleaseDate                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyEncodedBy                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyPredefinedGenre                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyUserGenre                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeySongName                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyTrackSubTitle                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyEncodingTool                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyComposer                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAlbumArtist                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAccountKind                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAppleID                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyArtistID                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeySongID                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyDiscCompilation                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyDiscNumber                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyGenreID                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyGrouping                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyPlaylistID                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyContentRating                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyBeatsPerMin                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyTrackNumber                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyArtDirector                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyArranger                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAuthor                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyLyrics                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyAcknowledgement                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyConductor                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyDescription                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyDirector                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyEQ                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyLinerNotes                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyRecordCompany                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyOriginalArtist                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyPhonogramRights                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyProducer                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyPerformer                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyPublisher                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeySoundEngineer                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeySoloist                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyCredits                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyThanks                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyOnlineExtras                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataiTunesMetadataKeyExecProducer                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 // ID3Metadata
-AVF_EXPORT AVMetadataFormat const AVMetadataFormatID3Metadata                                NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceID3                                    NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMetadataFormat const AVMetadataFormatID3Metadata                                API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceID3                                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 // ID3Metadata keys
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyAudioEncryption                       /* AENC Audio encryption */                                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyAttachedPicture                       /* APIC Attached picture */                                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyAudioSeekPointIndex                   /* ASPI Audio seek point index */                               NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyComments                              /* COMM Comments */                                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyCommercial                            /* COMR Commercial frame */                                     NS_AVAILABLE(10_11, 9_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyCommerical                            /* COMR Commercial frame */                                     NS_DEPRECATED(10_7, 10_11, 4_0, 9_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEncryption                            /* ENCR Encryption method registration */                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEqualization                          /* EQUA Equalization */                                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEqualization2                         /* EQU2 Equalisation (2) */                                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEventTimingCodes                      /* ETCO Event timing codes */                                   NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyGeneralEncapsulatedObject             /* GEOB General encapsulated object */                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyGroupIdentifier                       /* GRID Group identification registration */                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInvolvedPeopleList_v23                /* IPLS Involved people list */                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyLink                                  /* LINK Linked information */                                   NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyMusicCDIdentifier                     /* MCDI Music CD identifier */                                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyMPEGLocationLookupTable               /* MLLT MPEG location lookup table */                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOwnership                             /* OWNE Ownership frame */                                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPrivate                               /* PRIV Private frame */                                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPlayCounter                           /* PCNT Play counter */                                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPopularimeter                         /* POPM Popularimeter */                                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPositionSynchronization               /* POSS Position synchronisation frame */                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyRecommendedBufferSize                 /* RBUF Recommended buffer size */                              NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyRelativeVolumeAdjustment              /* RVAD Relative volume adjustment */                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyRelativeVolumeAdjustment2             /* RVA2 Relative volume adjustment (2) */                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyReverb                                /* RVRB Reverb */                                               NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySeek                                  /* SEEK Seek frame */                                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySignature                             /* SIGN Signature frame */                                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySynchronizedLyric                     /* SYLT Synchronized lyric/text */                              NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySynchronizedTempoCodes                /* SYTC Synchronized tempo codes */                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyAlbumTitle                            /* TALB Album/Movie/Show title */                               NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyBeatsPerMinute                        /* TBPM BPM (beats per minute) */                               NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyComposer                              /* TCOM Composer */                                             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyContentType                           /* TCON Content type */                                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyCopyright                             /* TCOP Copyright message */                                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyDate                                  /* TDAT Date */                                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEncodingTime                          /* TDEN Encoding time */                                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPlaylistDelay                         /* TDLY Playlist delay */                                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalReleaseTime                   /* TDOR Original release time */                                NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyRecordingTime                         /* TDRC Recording time */                                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyReleaseTime                           /* TDRL Release time */                                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTaggingTime                           /* TDTG Tagging time */                                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEncodedBy                             /* TENC Encoded by */                                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyLyricist                              /* TEXT Lyricist/Text writer */                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyFileType                              /* TFLT File type */                                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTime                                  /* TIME Time */                                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInvolvedPeopleList_v24                /* TIPL Involved people list */                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyContentGroupDescription               /* TIT1 Content group description */                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTitleDescription                      /* TIT2 Title/songname/content description */                   NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySubTitle                              /* TIT3 Subtitle/Description refinement */                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInitialKey                            /* TKEY Initial key */                                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyLanguage                              /* TLAN Language(s) */                                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyLength                                /* TLEN Length */                                               NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyMusicianCreditsList                   /* TMCL Musician credits list */                                NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyMediaType                             /* TMED Media type */                                           NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyMood                                  /* TMOO Mood */                                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalAlbumTitle                    /* TOAL Original album/movie/show title */                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalFilename                      /* TOFN Original filename */                                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalLyricist                      /* TOLY Original lyricist(s)/text writer(s) */                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalArtist                        /* TOPE Original artist(s)/performer(s) */                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalReleaseYear                   /* TORY Original release year */                                NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyFileOwner                             /* TOWN File owner/licensee */                                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyLeadPerformer                         /* TPE1 Lead performer(s)/Soloist(s) */                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyBand                                  /* TPE2 Band/orchestra/accompaniment */                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyConductor                             /* TPE3 Conductor/performer refinement */                       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyModifiedBy                            /* TPE4 Interpreted, remixed, or otherwise modified by */       NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPartOfASet                            /* TPOS Part of a set */                                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyProducedNotice                        /* TPRO Produced notice */                                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPublisher                             /* TPUB Publisher */                                            NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTrackNumber                           /* TRCK Track number/Position in set */                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyRecordingDates                        /* TRDA Recording dates */                                      NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInternetRadioStationName              /* TRSN Internet radio station name */                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInternetRadioStationOwner             /* TRSO Internet radio station owner */                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySize                                  /* TSIZ Size */                                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyAlbumSortOrder                        /* TSOA Album sort order */                                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPerformerSortOrder                    /* TSOP Performer sort order */                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTitleSortOrder                        /* TSOT Title sort order */                                     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInternationalStandardRecordingCode    /* TSRC ISRC (international standard recording code) */         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEncodedWith                           /* TSSE Software/Hardware and settings used for encoding */     NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySetSubtitle                           /* TSST Set subtitle */                                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyYear                                  /* TYER Year */                                                 NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyUserText                              /* TXXX User defined text information frame */                  NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyUniqueFileIdentifier                  /* UFID Unique file identifier */                               NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTermsOfUse                            /* USER Terms of use */                                         NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyUnsynchronizedLyric                   /* USLT Unsynchronized lyric/text transcription */              NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyCommercialInformation                 /* WCOM Commercial information */                               NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyCopyrightInformation                  /* WCOP Copyright/Legal information */                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOfficialAudioFileWebpage              /* WOAF Official audio file webpage */                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOfficialArtistWebpage                 /* WOAR Official artist/performer webpage */                    NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOfficialAudioSourceWebpage            /* WOAS Official audio source webpage */                        NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOfficialInternetRadioStationHomepage  /* WORS Official Internet radio station homepage */             NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPayment                               /* WPAY Payment */                                              NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOfficialPublisherWebpage              /* WPUB Publishers official webpage */                          NS_AVAILABLE(10_7, 4_0);
-AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyUserURL                               /* WXXX User defined URL link frame */                          NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyAudioEncryption                       /* AENC Audio encryption */                                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyAttachedPicture                       /* APIC Attached picture */                                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyAudioSeekPointIndex                   /* ASPI Audio seek point index */                               API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyComments                              /* COMM Comments */                                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyCommercial                            /* COMR Commercial frame */                                     API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyCommerical                            /* COMR Commercial frame */                                     API_DEPRECATED("No longer supported", macos(10.7, 10.11), ios(4.0, 9.0), tvos(9.0, 9.0), watchos(1.0, 1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEncryption                            /* ENCR Encryption method registration */                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEqualization                          /* EQUA Equalization */                                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEqualization2                         /* EQU2 Equalisation (2) */                                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEventTimingCodes                      /* ETCO Event timing codes */                                   API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyGeneralEncapsulatedObject             /* GEOB General encapsulated object */                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyGroupIdentifier                       /* GRID Group identification registration */                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInvolvedPeopleList_v23                /* IPLS Involved people list */                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyLink                                  /* LINK Linked information */                                   API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyMusicCDIdentifier                     /* MCDI Music CD identifier */                                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyMPEGLocationLookupTable               /* MLLT MPEG location lookup table */                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOwnership                             /* OWNE Ownership frame */                                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPrivate                               /* PRIV Private frame */                                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPlayCounter                           /* PCNT Play counter */                                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPopularimeter                         /* POPM Popularimeter */                                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPositionSynchronization               /* POSS Position synchronisation frame */                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyRecommendedBufferSize                 /* RBUF Recommended buffer size */                              API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyRelativeVolumeAdjustment              /* RVAD Relative volume adjustment */                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyRelativeVolumeAdjustment2             /* RVA2 Relative volume adjustment (2) */                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyReverb                                /* RVRB Reverb */                                               API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySeek                                  /* SEEK Seek frame */                                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySignature                             /* SIGN Signature frame */                                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySynchronizedLyric                     /* SYLT Synchronized lyric/text */                              API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySynchronizedTempoCodes                /* SYTC Synchronized tempo codes */                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyAlbumTitle                            /* TALB Album/Movie/Show title */                               API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyBeatsPerMinute                        /* TBPM BPM (beats per minute) */                               API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyComposer                              /* TCOM Composer */                                             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyContentType                           /* TCON Content type */                                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyCopyright                             /* TCOP Copyright message */                                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyDate                                  /* TDAT Date */                                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEncodingTime                          /* TDEN Encoding time */                                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPlaylistDelay                         /* TDLY Playlist delay */                                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalReleaseTime                   /* TDOR Original release time */                                API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyRecordingTime                         /* TDRC Recording time */                                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyReleaseTime                           /* TDRL Release time */                                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTaggingTime                           /* TDTG Tagging time */                                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEncodedBy                             /* TENC Encoded by */                                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyLyricist                              /* TEXT Lyricist/Text writer */                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyFileType                              /* TFLT File type */                                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTime                                  /* TIME Time */                                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInvolvedPeopleList_v24                /* TIPL Involved people list */                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyContentGroupDescription               /* TIT1 Content group description */                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTitleDescription                      /* TIT2 Title/songname/content description */                   API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySubTitle                              /* TIT3 Subtitle/Description refinement */                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInitialKey                            /* TKEY Initial key */                                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyLanguage                              /* TLAN Language(s) */                                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyLength                                /* TLEN Length */                                               API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyMusicianCreditsList                   /* TMCL Musician credits list */                                API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyMediaType                             /* TMED Media type */                                           API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyMood                                  /* TMOO Mood */                                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalAlbumTitle                    /* TOAL Original album/movie/show title */                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalFilename                      /* TOFN Original filename */                                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalLyricist                      /* TOLY Original lyricist(s)/text writer(s) */                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalArtist                        /* TOPE Original artist(s)/performer(s) */                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOriginalReleaseYear                   /* TORY Original release year */                                API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyFileOwner                             /* TOWN File owner/licensee */                                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyLeadPerformer                         /* TPE1 Lead performer(s)/Soloist(s) */                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyBand                                  /* TPE2 Band/orchestra/accompaniment */                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyConductor                             /* TPE3 Conductor/performer refinement */                       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyModifiedBy                            /* TPE4 Interpreted, remixed, or otherwise modified by */       API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPartOfASet                            /* TPOS Part of a set */                                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyProducedNotice                        /* TPRO Produced notice */                                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPublisher                             /* TPUB Publisher */                                            API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTrackNumber                           /* TRCK Track number/Position in set */                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyRecordingDates                        /* TRDA Recording dates */                                      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInternetRadioStationName              /* TRSN Internet radio station name */                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInternetRadioStationOwner             /* TRSO Internet radio station owner */                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySize                                  /* TSIZ Size */                                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyAlbumSortOrder                        /* TSOA Album sort order */                                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPerformerSortOrder                    /* TSOP Performer sort order */                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTitleSortOrder                        /* TSOT Title sort order */                                     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyInternationalStandardRecordingCode    /* TSRC ISRC (international standard recording code) */         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyEncodedWith                           /* TSSE Software/Hardware and settings used for encoding */     API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeySetSubtitle                           /* TSST Set subtitle */                                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyYear                                  /* TYER Year */                                                 API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyUserText                              /* TXXX User defined text information frame */                  API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyUniqueFileIdentifier                  /* UFID Unique file identifier */                               API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyTermsOfUse                            /* USER Terms of use */                                         API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyUnsynchronizedLyric                   /* USLT Unsynchronized lyric/text transcription */              API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyCommercialInformation                 /* WCOM Commercial information */                               API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyCopyrightInformation                  /* WCOP Copyright/Legal information */                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOfficialAudioFileWebpage              /* WOAF Official audio file webpage */                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOfficialArtistWebpage                 /* WOAR Official artist/performer webpage */                    API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOfficialAudioSourceWebpage            /* WOAS Official audio source webpage */                        API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOfficialInternetRadioStationHomepage  /* WORS Official Internet radio station homepage */             API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyPayment                               /* WPAY Payment */                                              API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyOfficialPublisherWebpage              /* WPUB Publishers official webpage */                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataID3MetadataKeyUserURL                               /* WXXX User defined URL link frame */                          API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));
 
 // Icecast/ShoutCAST streaming metadata
-AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceIcy                                    NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceIcy                                    API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
-AVF_EXPORT AVMetadataKey const AVMetadataIcyMetadataKeyStreamTitle                           NS_AVAILABLE(10_10, 8_0);
-AVF_EXPORT AVMetadataKey const AVMetadataIcyMetadataKeyStreamURL                             NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataKey const AVMetadataIcyMetadataKeyStreamTitle                           API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVMetadataKey const AVMetadataIcyMetadataKeyStreamURL                             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 // HTTP Live Streaming metadata
-AVF_EXPORT AVMetadataFormat const AVMetadataFormatHLSMetadata                                NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataFormat const AVMetadataFormatHLSMetadata                                API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 // HLS Metadata does not define its own keySpace or keys. Use of the keySpace AVMetadataKeySpaceQuickTimeMetadata and its keys is recommended.
-AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceHLSDateRange                           NS_AVAILABLE(10_11_3, 9_3);
+AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceHLSDateRange                           API_AVAILABLE(macos(10.11.3), ios(9.3), tvos(9.3), watchos(2.3));
 
 // Keys for metadata provided by AudioToolbox's AudioFile interface. See <AudioToolbox/AudioFile.h>
-AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceAudioFile                              NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVMetadataKeySpace const AVMetadataKeySpaceAudioFile                              API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 // Metadata format for AVMetadataItems of unknown provenance. This can occur when metadata is provided generically by an intermediate interface, such as AudioToolbox's AudioFile interface.
-AVF_EXPORT AVMetadataFormat const AVMetadataFormatUnknown                                    NS_AVAILABLE(10_13, 11_0);
+AVF_EXPORT AVMetadataFormat const AVMetadataFormatUnknown                                    API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
 // Extra attribute keys
 typedef NSString * AVMetadataExtraAttributeKey NS_EXTENSIBLE_STRING_ENUM;
@@ -17330,14 +19274,14 @@ typedef NSString * AVMetadataExtraAttributeKey NS_EXTENSIBLE_STRING_ENUM;
  @abstract
 	When present in an item's extraAttributes dictionary, identifies the resource to be used as the item's value. Values for this key are of type NSString.
 */
-AVF_EXPORT AVMetadataExtraAttributeKey const AVMetadataExtraAttributeValueURIKey             NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataExtraAttributeKey const AVMetadataExtraAttributeValueURIKey             API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /*!
  @constant		AVMetadataExtraAttributeBaseURIKey
  @abstract
 	When present in an item's extraAttributes dictionary, identifies the base URI against which other URIs related to the item are to be resolved, e.g. AVMetadataExtraAttributeValueURIKey. Values for this key are of type NSString.
 */
-AVF_EXPORT AVMetadataExtraAttributeKey const AVMetadataExtraAttributeBaseURIKey              NS_AVAILABLE(10_10, 8_0);
+AVF_EXPORT AVMetadataExtraAttributeKey const AVMetadataExtraAttributeBaseURIKey              API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /*!
 	@constant		AVMetadataExtraAttributeInfoKey
@@ -17347,7 +19291,7 @@ AVF_EXPORT AVMetadataExtraAttributeKey const AVMetadataExtraAttributeBaseURIKey 
 					TXXX, WXXX, APIC, GEOB: carries the Description
 					PRIV: carries the Owner Identifier
  */
-AVF_EXPORT AVMetadataExtraAttributeKey const AVMetadataExtraAttributeInfoKey                 NS_AVAILABLE(10_11, 9_0);
+AVF_EXPORT AVMetadataExtraAttributeKey const AVMetadataExtraAttributeInfoKey                 API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 // ==========  AVFoundation.framework/Headers/AVAudioFormat.h
 /*
@@ -17365,7 +19309,7 @@ AVF_EXPORT AVMetadataExtraAttributeKey const AVMetadataExtraAttributeInfoKey    
 
 	Framework:  AVFoundation
  
-	Copyright 2011-2017 Apple Inc. All rights reserved.
+	Copyright 2011-2019 Apple Inc. All rights reserved.
 
 */
 
@@ -17398,7 +19342,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AVPlayerItemOutputInternal;
 
-NS_CLASS_AVAILABLE(10_8, 6_0)
+API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0))
 @interface AVPlayerItemOutput : NSObject
 {
 	@private
@@ -17444,7 +19388,7 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 	@result			The equivalent item time.
  */
 
-- (CMTime)itemTimeForCVTimeStamp:(CVTimeStamp)timestamp NS_AVAILABLE(10_8, NA);
+- (CMTime)itemTimeForCVTimeStamp:(CVTimeStamp)timestamp API_AVAILABLE(macos(10.8)) API_UNAVAILABLE(ios, tvos, watchos);
 
 #endif // !TARGET_OS_IPHONE
 
@@ -17456,7 +19400,7 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
  
 		 Whenever any output is added to an AVPlayerItem that has suppressesPlayerRendering set to YES, the media data supplied to the output will not be rendered by AVPlayer. Other media data associated with the item but not provided to such an output is not affected. For example, if an output of class AVPlayerItemVideoOutput with a value of YES for suppressesPlayerRendering is added to an AVPlayerItem, video media for that item will not be rendered by the AVPlayer, while audio media, subtitle media, and other kinds of media, if present, will be rendered.
 */
-@property (nonatomic, readwrite) BOOL suppressesPlayerRendering NS_AVAILABLE(10_8, 6_0);
+@property (nonatomic, readwrite) BOOL suppressesPlayerRendering API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -17521,7 +19465,7 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 
 @class AVPlayerItemVideoOutputInternal;
 
-NS_CLASS_AVAILABLE(10_8, 6_0)
+API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVPlayerItemVideoOutput : AVPlayerItemOutput
 {
 @private
@@ -17553,7 +19497,7 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 	@result			An instance of AVPlayerItemVideoOutput.
  */
 
-- (instancetype)initWithOutputSettings:(nullable NSDictionary<NSString *, id> *)outputSettings NS_AVAILABLE(10_12, 10_0) NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithOutputSettings:(nullable NSDictionary<NSString *, id> *)outputSettings API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos) NS_DESIGNATED_INITIALIZER;
 
 /*!
 	@method			hasNewPixelBufferForItemTime:
@@ -17610,7 +19554,7 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 	@property		delegate
 	@abstract		The receiver's delegate.
  */
-@property (nonatomic, readonly, assign, nullable) id<AVPlayerItemOutputPullDelegate> delegate;
+@property (readonly, weak, nullable) id<AVPlayerItemOutputPullDelegate> delegate;
 
 /*!
 	@property		delegateQueue
@@ -17637,7 +19581,7 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 		This method is invoked once after the sender is messaged requestNotificationOfMediaDataChangeWithAdvanceInterval:.
   */
 
-- (void)outputMediaDataWillChange:(AVPlayerItemOutput *)sender NS_AVAILABLE(10_8, 6_0);
+- (void)outputMediaDataWillChange:(AVPlayerItemOutput *)sender API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
  
  /*!
 	@method			outputSequenceWasFlushed:
@@ -17646,7 +19590,7 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 		This method is invoked after any seeking and change in playback direction. If you are maintaining any queued future samples, copied previously, you may want to discard these after receiving this message.
   */
 
-- (void)outputSequenceWasFlushed:(AVPlayerItemOutput *)output NS_AVAILABLE(10_8, 6_0);
+- (void)outputSequenceWasFlushed:(AVPlayerItemOutput *)output API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -17660,7 +19604,7 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 	@discussion
 		An instance of AVPlayerItemLegibleOutput is typically initialized using the -init method.
  */
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVPlayerItemLegibleOutput : AVPlayerItemOutput
 {
 @private
@@ -17737,7 +19681,7 @@ typedef NSString * AVPlayerItemLegibleOutputTextStylingResolution NS_STRING_ENUM
  @constant		AVPlayerItemLegibleOutputTextStylingResolutionDefault
  @abstract		Specify this level of text styling resolution to receive attributed strings from an AVPlayerItemLegibleOutput that include the same level of styling information that AVFoundation would use itself to render text within an AVPlayerLayer. The text styling will accommodate user-level Media Accessibility settings.
  */
-AVF_EXPORT AVPlayerItemLegibleOutputTextStylingResolution const AVPlayerItemLegibleOutputTextStylingResolutionDefault NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVPlayerItemLegibleOutputTextStylingResolution const AVPlayerItemLegibleOutputTextStylingResolutionDefault API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @constant		AVPlayerItemLegibleOutputTextStylingResolutionSourceAndRulesOnly
@@ -17745,7 +19689,7 @@ AVF_EXPORT AVPlayerItemLegibleOutputTextStylingResolution const AVPlayerItemLegi
  @discussion
 	This level of resolution excludes styling provided by the user-level Media Accessibility settings. You would typically use it if you wish to override the styling specified in source media. If you do this, you are strongly encouraged to allow your custom styling in turn to be overriden by user preferences for text styling that are available as Media Accessibility settings.
  */
-AVF_EXPORT AVPlayerItemLegibleOutputTextStylingResolution const AVPlayerItemLegibleOutputTextStylingResolutionSourceAndRulesOnly NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVPlayerItemLegibleOutputTextStylingResolution const AVPlayerItemLegibleOutputTextStylingResolutionSourceAndRulesOnly API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property		textStylingResolution
@@ -17782,7 +19726,7 @@ AVF_EXPORT AVPlayerItemLegibleOutputTextStylingResolution const AVPlayerItemLegi
 	@discussion
 		For each media subtype in the array passed in to -initWithMediaSubtypesForNativeRepresentation:, the delegate will receive sample buffers carrying data in its native format via the nativeSamples parameter, if there is media data of that subtype in the media resource.  For all other media subtypes present in the media resource, the delegate will receive attributed strings in a common format via the strings parameter.  See <CoreMedia/CMTextMarkup.h> for the string attributes that are used in the attributed strings.
  */
-- (void)legibleOutput:(AVPlayerItemLegibleOutput *)output didOutputAttributedStrings:(NSArray<NSAttributedString *> *)strings nativeSampleBuffers:(NSArray *)nativeSamples forItemTime:(CMTime)itemTime NS_AVAILABLE(10_9, 7_0);
+- (void)legibleOutput:(AVPlayerItemLegibleOutput *)output didOutputAttributedStrings:(NSArray<NSAttributedString *> *)strings nativeSampleBuffers:(NSArray *)nativeSamples forItemTime:(CMTime)itemTime API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -17816,7 +19760,7 @@ AVF_EXPORT AVPlayerItemLegibleOutputTextStylingResolution const AVPlayerItemLegi
 	@discussion
 		Setting the value of suppressesPlayerRendering on an instance of AVPlayerItemMetadataOutput has no effect.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0))
 @interface AVPlayerItemMetadataOutput : AVPlayerItemOutput
 {
 @private
@@ -17895,7 +19839,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 		Note that if the item carries multiple metadata tracks containing metadata with the same metadata identifiers, this method can be invoked for each one separately, each with reference to the associated AVPlayerItemTrack.
 		Note that the associated AVPlayerItemTrack parameter can be nil which implies that the metadata describes the asset as a whole, not just a single track of the asset.
  */
-- (void)metadataOutput:(AVPlayerItemMetadataOutput *)output didOutputTimedMetadataGroups:(NSArray<AVTimedMetadataGroup *> *)groups fromPlayerItemTrack:(nullable AVPlayerItemTrack *)track NS_AVAILABLE(10_10, 8_0);
+- (void)metadataOutput:(AVPlayerItemMetadataOutput *)output didOutputTimedMetadataGroups:(NSArray<AVTimedMetadataGroup *> *)groups fromPlayerItemTrack:(nullable AVPlayerItemTrack *)track API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -17939,7 +19883,7 @@ NS_ASSUME_NONNULL_BEGIN
 	@group		AVAssetDownloadedAssetEvictionPriority string constants
 	@brief		Used by AVAssetDownloadStorageManagementPolicy.
 */
-typedef NSString *AVAssetDownloadedAssetEvictionPriority NS_STRING_ENUM API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos, watchos);
+typedef NSString *AVAssetDownloadedAssetEvictionPriority NS_STRING_ENUM API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
 	@enum		AVAssetDownloadedAssetEvictionPriority
@@ -17950,10 +19894,10 @@ typedef NSString *AVAssetDownloadedAssetEvictionPriority NS_STRING_ENUM API_AVAI
 	@constant	AVAssetDownloadedAssetEvictionPriorityDefault
 				Used to mark assets have the default priority. They will be the first to be purged.
 */
-AVF_EXPORT AVAssetDownloadedAssetEvictionPriority const AVAssetDownloadedAssetEvictionPriorityImportant				API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos, watchos);
-AVF_EXPORT AVAssetDownloadedAssetEvictionPriority const AVAssetDownloadedAssetEvictionPriorityDefault				API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos, watchos);
+AVF_EXPORT AVAssetDownloadedAssetEvictionPriority const AVAssetDownloadedAssetEvictionPriorityImportant				API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+AVF_EXPORT AVAssetDownloadedAssetEvictionPriority const AVAssetDownloadedAssetEvictionPriorityDefault				API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos);
 
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos, watchos)
+API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos)
 @interface AVAssetDownloadStorageManager : NSObject
 
 /*!
@@ -17990,7 +19934,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos, watchos)
  */
 @class AVAssetDownloadStorageManagementPolicyInternal;
 
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos, watchos)
+API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos)
 @interface AVAssetDownloadStorageManagementPolicy : NSObject <NSCopying, NSMutableCopying> {
 @private
 	AVAssetDownloadStorageManagementPolicyInternal    *_storageManagementPolicy;
@@ -18018,7 +19962,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos, watchos)
  
 	@discussion	System will put in best-effort to evict all the assets based on expirationDate before evicting based on priority.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos, watchos)
+API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(tvos, watchos)
 @interface AVMutableAssetDownloadStorageManagementPolicy : AVAssetDownloadStorageManagementPolicy
 
 /*
@@ -18081,17 +20025,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AVMetadataItemInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVMetadataItem : NSObject <AVAsynchronousKeyValueLoading, NSCopying, NSMutableCopying>
 {
 	AVMetadataItemInternal	*_priv;
 }
 
 /* Indicates the identifier of the metadata item. Publicly defined identifiers are declared in AVMetadataIdentifiers.h. */
-@property (nonatomic, readonly, copy, nullable) AVMetadataIdentifier identifier NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readonly, copy, nullable) AVMetadataIdentifier identifier API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* indicates the IETF BCP 47 (RFC 4646) language identifier of the metadata item; may be nil if no language tag information is available */
-@property (nonatomic, readonly, copy, nullable) NSString *extendedLanguageTag NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readonly, copy, nullable) NSString *extendedLanguageTag API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* indicates the locale of the metadata item; may be nil if no locale information is available for the metadata item */
 @property (nonatomic, readonly, copy, nullable) NSLocale *locale;
@@ -18100,10 +20044,10 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 @property (nonatomic, readonly) CMTime time;
 
 /* indicates the duration of the metadata item */
-@property (nonatomic, readonly) CMTime duration NS_AVAILABLE(10_7, 4_2);
+@property (nonatomic, readonly) CMTime duration API_AVAILABLE(macos(10.7), ios(4.2), tvos(9.0), watchos(1.0));
 
 /* indicates the data type of the metadata item's value.  Publicly defined data types are declared in <CoreMedia/CMMetadata.h> */
-@property (nonatomic, readonly, copy, nullable) NSString *dataType NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readonly, copy, nullable) NSString *dataType API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* provides the value of the metadata item */
 @property (nonatomic, readonly, copy, nullable) id<NSObject, NSCopying> value;
@@ -18117,7 +20061,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 @interface AVMetadataItem (AVMetadataItemDateRepresentation)
 
 /* indicates the start date of the timed metadata; nil if no date is indicated */
-@property (nonatomic, readonly, copy, nullable) NSDate *startDate NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readonly, copy, nullable) NSDate *startDate API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 @end
 
@@ -18143,9 +20087,9 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 /* The following two methods of the AVAsynchronousKeyValueLoading protocol are re-declared here so that they can be annotated with availability information. See AVAsynchronousKeyValueLoading.h for documentation. */
 
-- (AVKeyValueStatus)statusOfValueForKey:(NSString *)key error:(NSError * _Nullable * _Nullable)outError NS_AVAILABLE(10_7, 4_2);
+- (AVKeyValueStatus)statusOfValueForKey:(NSString *)key error:(NSError * _Nullable * _Nullable)outError API_AVAILABLE(macos(10.7), ios(4.2), tvos(9.0), watchos(1.0));
 
-- (void)loadValuesAsynchronouslyForKeys:(NSArray<NSString *> *)keys completionHandler:(nullable void (^)(void))handler NS_AVAILABLE(10_7, 4_2);
+- (void)loadValuesAsynchronouslyForKeys:(NSArray<NSString *> *)keys completionHandler:(nullable void (^)(void))handler API_AVAILABLE(macos(10.7), ios(4.2), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -18161,7 +20105,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 				An array of language identifiers in order of preference, each of which is an IETF BCP 47 (RFC 4646) language identifier. Use +[NSLocale preferredLanguages] to obtain the user's list of preferred languages.
  @result		An instance of NSArray containing metadata items of the specified NSArray that match a preferred language, sorted according to the order of preference of the language each matches.
 */
-+ (NSArray<AVMetadataItem *> *)metadataItemsFromArray:(NSArray<AVMetadataItem *> *)metadataItems filteredAndSortedAccordingToPreferredLanguages:(NSArray<NSString *> *)preferredLanguages NS_AVAILABLE(10_8, 6_0);
++ (NSArray<AVMetadataItem *> *)metadataItemsFromArray:(NSArray<AVMetadataItem *> *)metadataItems filteredAndSortedAccordingToPreferredLanguages:(NSArray<NSString *> *)preferredLanguages API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /*!
 	@method			metadataItemsFromArray:filteredByIdentifier:
@@ -18172,7 +20116,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 	The identifier that must be matched for a metadata item to be copied to the output array. Items are considered a match not only when their identifiers are equal to the specified identifier, and also when their identifiers conform to the specified identifier.
 	@result			An instance of NSArray containing the metadata items of the target NSArray that match the specified identifier.
 */
-+ (NSArray<AVMetadataItem *> *)metadataItemsFromArray:(NSArray<AVMetadataItem *> *)metadataItems filteredByIdentifier:(AVMetadataIdentifier)identifier NS_AVAILABLE(10_10, 8_0);
++ (NSArray<AVMetadataItem *> *)metadataItemsFromArray:(NSArray<AVMetadataItem *> *)metadataItems filteredByIdentifier:(AVMetadataIdentifier)identifier API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /*!
 	@method			metadataItemsFromArray:filteredByMetadataItemFilter:
@@ -18183,7 +20127,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 					The AVMetadataItemFilter object for filtering the metadataItems.
 	@result			An instance of NSArray containing the metadata items of the target NSArray that have not been removed by metadataItemFilter.
 */
-+ (NSArray<AVMetadataItem *> *)metadataItemsFromArray:(NSArray<AVMetadataItem *> *)metadataItems filteredByMetadataItemFilter:(AVMetadataItemFilter *)metadataItemFilter NS_AVAILABLE(10_9, 7_0);
++ (NSArray<AVMetadataItem *> *)metadataItemsFromArray:(NSArray<AVMetadataItem *> *)metadataItems filteredByMetadataItemFilter:(AVMetadataItemFilter *)metadataItemFilter API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -18202,13 +20146,13 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  
 		For custom identifiers, the keySpace AVMetadataKeySpaceQuickTimeMetadata is recommended.  This keySpace defines its key values to be expressed as reverse-DNS strings, which allows third parties to define their own keys in a well established way that avoids collisions.
 */
-+ (nullable AVMetadataIdentifier)identifierForKey:(id)key keySpace:(AVMetadataKeySpace)keySpace NS_AVAILABLE(10_10, 8_0);
++ (nullable AVMetadataIdentifier)identifierForKey:(id)key keySpace:(AVMetadataKeySpace)keySpace API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* provides the metadata keySpace indicated by the identifier  */
-+ (nullable AVMetadataKeySpace)keySpaceForIdentifier:(AVMetadataIdentifier)identifier NS_AVAILABLE(10_10, 8_0);
++ (nullable AVMetadataKeySpace)keySpaceForIdentifier:(AVMetadataIdentifier)identifier API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* provides the metadata key indicated by the identifier  */
-+ (nullable id)keyForIdentifier:(AVMetadataIdentifier)identifier NS_AVAILABLE(10_10, 8_0);
++ (nullable id)keyForIdentifier:(AVMetadataIdentifier)identifier API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* indicates the key of the metadata item */
 @property (nonatomic, readonly, copy, nullable) id<NSObject, NSCopying> key;
@@ -18234,17 +20178,17 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @class AVMutableMetadataItemInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVMutableMetadataItem : AVMetadataItem
 {
 	AVMutableMetadataItemInternal	*_mutablePriv;
 }
 
 /* Indicates the identifier of the metadata item. Publicly defined identifiers are declared in AVMetadataIdentifiers.h. */
-@property (nonatomic, readwrite, copy, nullable) AVMetadataIdentifier identifier NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readwrite, copy, nullable) AVMetadataIdentifier identifier API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* indicates the IETF BCP 47 (RFC 4646) language identifier of the metadata item; may be nil if no language tag information is available */
-@property (nonatomic, readwrite, copy, nullable) NSString *extendedLanguageTag NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readwrite, copy, nullable) NSString *extendedLanguageTag API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* indicates the locale of the metadata item; may be nil if no locale information is available for the metadata item */
 @property (nonatomic, readwrite, copy, nullable) NSLocale *locale;
@@ -18253,10 +20197,10 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 @property (nonatomic, readwrite) CMTime time;
 
 /* indicates the duration of the metadata item */
-@property (nonatomic, readwrite) CMTime duration NS_AVAILABLE(10_7, 4_2);
+@property (nonatomic, readwrite) CMTime duration API_AVAILABLE(macos(10.7), ios(4.2), tvos(9.0), watchos(1.0));
 
 /* indicates the data type of the metadata item's value.  Publicly defined data types are declared in <CoreMedia/CMMetadata.h> */
-@property (nonatomic, readwrite, copy, nullable) NSString *dataType NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, readwrite, copy, nullable) NSString *dataType API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /* provides the value of the metadata item */
 @property (nonatomic, readwrite, copy, nullable) id<NSObject, NSCopying> value;
@@ -18275,7 +20219,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 @interface AVMutableMetadataItem (AVMutableMetadataItemDateRepresentation)
 
 /* indicates the start date of the timed metadata; nil if no date is indicated */
-@property (nonatomic, readwrite, copy, nullable) NSDate *startDate NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readwrite, copy, nullable) NSDate *startDate API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 @end
 
@@ -18305,13 +20249,13 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  		This method is intended for the creation of metadata items for optional display purposes, when there is no immediate need to load specific metadata values. For example, see the interface for navigation markers as consumed by AVPlayerViewController. It's not intended for the creation of metadata items with values that are required immediately, such as metadata items that are provided for impending serialization operations (e.g. via -[AVAssetExportSession setMetadata:] and other similar methods defined on AVAssetWriter and AVAssetWriterInput). 
 		When -loadValuesAsynchronouslyForKeys:completionHandler: is invoked on an AVMetadataItem created via +metadataItemWithPropertiesOfMetadataItem:valueLoadingHandler: and @"value" is among the keys for which loading is requested, the block you provide as the value loading handler will be executed on an arbitrary dispatch queue, off the main thread. The handler can perform I/O and other necessary operations to obtain the value. If loading of the value succeeds, provide the value by invoking -[AVMetadataItemValueRequest respondWithValue:]. If loading of the value fails, provide an instance of NSError that describes the failure by invoking -[AVMetadataItemValueRequest respondWithError:].
 */
-+ (AVMetadataItem *)metadataItemWithPropertiesOfMetadataItem:(AVMetadataItem *)metadataItem valueLoadingHandler:(void (^)(AVMetadataItemValueRequest *valueRequest))handler NS_AVAILABLE(10_11, 9_0);
++ (AVMetadataItem *)metadataItemWithPropertiesOfMetadataItem:(AVMetadataItem *)metadataItem valueLoadingHandler:(void (^)(AVMetadataItemValueRequest *valueRequest))handler API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 @end
 
 @class AVMetadataItemValueRequestInternal;
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0))
 @interface AVMetadataItemValueRequest : NSObject {
 @private
 	AVMetadataItemValueRequestInternal	*_valueRequest;
@@ -18348,7 +20292,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 @class AVMetadataItemFilterInternal;
 
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVMetadataItemFilter : NSObject {
 @private
 	AVMetadataItemFilterInternal	*_itemFilterInternal __attribute__((unused));
@@ -18463,7 +20407,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     This method returns an array of AVCaptureDevice instances for input devices currently connected and available for capture. The returned array contains all devices that are available at the time the method is called. Applications should observe AVCaptureDeviceWasConnectedNotification and AVCaptureDeviceWasDisconnectedNotification to be notified when the list of available devices has changed.
  */
-+ (NSArray<AVCaptureDevice *> *)devices API_DEPRECATED("Use AVCaptureDeviceDiscoverySession instead.", ios(4.0, 10.0));
++ (NSArray<AVCaptureDevice *> *)devices API_DEPRECATED("Use AVCaptureDeviceDiscoverySession instead.", ios(4.0, 10.0), macos(10.7, 10.15));
 
 /*!
  @method devicesWithMediaType:
@@ -18478,7 +20422,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     This method returns an array of AVCaptureDevice instances for input devices currently connected and available for capture that provide media of the given type. Media type constants are defined in AVMediaFormat.h. The returned array contains all devices that are available at the time the method is called. Applications should observe AVCaptureDeviceWasConnectedNotification and AVCaptureDeviceWasDisconnectedNotification to be notified when the list of available devices has changed.
  */
-+ (NSArray<AVCaptureDevice *> *)devicesWithMediaType:(AVMediaType)mediaType API_DEPRECATED("Use AVCaptureDeviceDiscoverySession instead.", ios(4.0, 10.0));
++ (NSArray<AVCaptureDevice *> *)devicesWithMediaType:(AVMediaType)mediaType API_DEPRECATED("Use AVCaptureDeviceDiscoverySession instead.", ios(4.0, 10.0), macos(10.7, 10.15));
 
 /*!
  @method defaultDeviceWithMediaType:
@@ -18805,19 +20749,25 @@ typedef NS_ENUM(NSInteger, AVCaptureDevicePosition) {
  @discussion
     The AVCaptureDeviceType string constants are intended to be used in combination with the AVCaptureDeviceDiscoverySession class to obtain a list of devices matching certain search criteria.
  */
-typedef NSString *AVCaptureDeviceType NS_STRING_ENUM API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+typedef NSString *AVCaptureDeviceType NS_STRING_ENUM API_AVAILABLE(macos(10.15), ios(10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+
+/*!
+ @constant AVCaptureDeviceTypeExternalUnknown
+ 	An unknown device type.
+ */
+AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeExternalUnknown API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
  @constant AVCaptureDeviceTypeBuiltInMicrophone
     A built-in microphone.
  */
-AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeBuiltInMicrophone API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeBuiltInMicrophone API_AVAILABLE(macos(10.15), ios(10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 /*!
  @constant AVCaptureDeviceTypeBuiltInWideAngleCamera
     A built-in wide angle camera device. These devices are suitable for general purpose use.
  */
-AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeBuiltInWideAngleCamera API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeBuiltInWideAngleCamera API_AVAILABLE(macos(10.15), ios(10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 /*!
  @constant AVCaptureDeviceTypeBuiltInTelephotoCamera
@@ -18853,7 +20803,7 @@ AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeBuiltInTrueDepthCamera A
  @constant AVCaptureDeviceTypeBuiltInDuoCamera
     A deprecated synonym for AVCaptureDeviceTypeBuiltInDualCamera. Please use AVCaptureDeviceTypeBuiltInDualCamera instead.
  */
-AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeBuiltInDuoCamera API_DEPRECATED("Use AVCaptureDeviceTypeBuiltInDualCamera instead.", ios(10.0, 10.2)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeBuiltInDuoCamera API_DEPRECATED("Use AVCaptureDeviceTypeBuiltInDualCamera instead.", ios(10.0, 10.2)) API_UNAVAILABLE(macos, uikitformac) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 
 @interface AVCaptureDevice (AVCaptureDeviceType)
@@ -18866,7 +20816,7 @@ AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeBuiltInDuoCamera API_DEP
  @discussion
     A capture device's type never changes.
  */
-@property(nonatomic, readonly) AVCaptureDeviceType deviceType API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly) AVCaptureDeviceType deviceType API_AVAILABLE(macos(10.15), ios(10.0));
 
 /*!
  @method defaultDeviceWithDeviceType:mediaType:position:
@@ -18885,7 +20835,7 @@ AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeBuiltInDuoCamera API_DEP
  @discussion
     This method returns the default device of the given combination of device type, media type, and position currently available on the system.
  */
-+ (nullable AVCaptureDevice *)defaultDeviceWithDeviceType:(AVCaptureDeviceType)deviceType mediaType:(nullable AVMediaType)mediaType position:(AVCaptureDevicePosition)position API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos);
++ (nullable AVCaptureDevice *)defaultDeviceWithDeviceType:(AVCaptureDeviceType)deviceType mediaType:(nullable AVMediaType)mediaType position:(AVCaptureDevicePosition)position API_AVAILABLE(macos(10.15), ios(10.0));
 
 @end
 
@@ -18900,7 +20850,34 @@ AVF_EXPORT AVCaptureDeviceType const AVCaptureDeviceTypeBuiltInDuoCamera API_DEP
  @discussion
     This property indicates whether the capture device is currently subject to an elevated system pressure condition. When system pressure reaches AVCaptureSystemPressureLevelShutdown, the capture device cannot continue to provide input, so the AVCaptureSession becomes interrupted until the pressured state abates. System pressure can be effectively mitigated by lowering the device's activeVideoMinFrameDuration in response to changes in the systemPressureState. Clients are encouraged to implement frame rate throttling to bring system pressure down if their capture use case can tolerate a reduced frame rate.
  */
-@property(nonatomic, readonly) AVCaptureSystemPressureState *systemPressureState API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos, watchos, tvos) ;
+@property(nonatomic, readonly) AVCaptureSystemPressureState *systemPressureState API_AVAILABLE(ios(11.1)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+
+@end
+
+
+@interface AVCaptureDevice (AVCaptureDeviceVirtual)
+
+/*!
+ @property virtualDevice
+ @abstract
+    A property indicating whether the receiver is a virtual device consisting of constituent physical devices.
+ 
+ @discussion
+    Two examples of virtual devices are:
+        The Dual Camera, which supports seamlessly switching between a wide and telephoto camera while zooming and generating depth data from the disparities between the different points of view of the physical cameras.
+        The TrueDepth Camera, which generates depth data from disparities between a YUV camera and an Infrared camera pointed in the same direction.
+ */
+@property(nonatomic, readonly, getter=isVirtualDevice) BOOL virtualDevice API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ @property constituentDevices
+ @abstract
+    An array of constituent physical devices comprising a virtual device.
+ 
+ @discussion
+    When called on a device for which virtualDevice == NO, an empty array is returned.
+ */
+@property(nonatomic, readonly) NSArray<AVCaptureDevice *> *constituentDevices API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
@@ -18944,7 +20921,7 @@ typedef NS_ENUM(NSInteger, AVCaptureFlashMode) {
  @discussion
     The value of this property is a BOOL indicating whether the receiver's flash is currently available. The flash may become unavailable if, for example, the device overheats and needs to cool off. This property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isFlashAvailable) BOOL flashAvailable API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isFlashAvailable) BOOL flashAvailable API_AVAILABLE(macos(10.15), ios(5.0));
 
 /*!
  @property flashActive
@@ -18954,7 +20931,7 @@ typedef NS_ENUM(NSInteger, AVCaptureFlashMode) {
  @discussion
     The value of this property is a BOOL indicating whether the receiver's flash is currently active. When the flash is active, it will flash if a still image is captured. When a still image is captured with the flash active, exposure and white balance settings are overridden for the still. This is true even when using AVCaptureExposureModeCustom and/or AVCaptureWhiteBalanceModeLocked. This property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isFlashActive) BOOL flashActive API_DEPRECATED("Use AVCapturePhotoOutput's -isFlashScene instead.", ios(5.0, 10.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isFlashActive) BOOL flashActive API_DEPRECATED("Use AVCapturePhotoOutput's -isFlashScene instead.", ios(5.0, 10.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method isFlashModeSupported:
@@ -19009,7 +20986,7 @@ typedef NS_ENUM(NSInteger, AVCaptureTorchMode) {
  @constant AVCaptureMaxAvailableTorchLevel
     A special value that may be passed to -setTorchModeWithLevel:error: to set the torch to the maximum level currently available. Under thermal duress, the maximum available torch level may be less than 1.0.
  */
-AVF_EXPORT const float AVCaptureMaxAvailableTorchLevel API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+AVF_EXPORT const float AVCaptureMaxAvailableTorchLevel API_AVAILABLE(macos(10.15), ios(6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 
 @interface AVCaptureDevice (AVCaptureDeviceTorch)
@@ -19032,7 +21009,7 @@ AVF_EXPORT const float AVCaptureMaxAvailableTorchLevel API_AVAILABLE(ios(6.0)) A
  @discussion
     The value of this property is a BOOL indicating whether the receiver's torch is currently available. The torch may become unavailable if, for example, the device overheats and needs to cool off. This property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isTorchAvailable) BOOL torchAvailable API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isTorchAvailable) BOOL torchAvailable API_AVAILABLE(macos(10.15), ios(5.0));
 
 /*!
  @property torchActive
@@ -19042,7 +21019,7 @@ AVF_EXPORT const float AVCaptureMaxAvailableTorchLevel API_AVAILABLE(ios(6.0)) A
  @discussion
     The value of this property is a BOOL indicating whether the receiver's torch is currently active. If the current torchMode is AVCaptureTorchModeAuto and isTorchActive is YES, the torch will illuminate once a recording starts (see AVCaptureOutput.h -startRecordingToOutputFileURL:recordingDelegate:). This property is key-value observable.
  */
-@property(nonatomic, readonly, getter=isTorchActive) BOOL torchActive API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isTorchActive) BOOL torchActive API_AVAILABLE(macos(10.15), ios(6.0));
 
 /*!
  @property torchLevel
@@ -19052,7 +21029,7 @@ AVF_EXPORT const float AVCaptureMaxAvailableTorchLevel API_AVAILABLE(ios(6.0)) A
  @discussion
     The value of this property is a float indicating the receiver's torch level from 0.0 (off) -> 1.0 (full). This property is key-value observable.
  */
-@property(nonatomic, readonly) float torchLevel API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly) float torchLevel API_AVAILABLE(macos(10.15), ios(5.0));
 
 /*!
  @method isTorchModeSupported:
@@ -19087,7 +21064,7 @@ AVF_EXPORT const float AVCaptureMaxAvailableTorchLevel API_AVAILABLE(ios(6.0)) A
  @discussion
     This method sets the torch mode to AVCaptureTorchModeOn at a specified level. torchLevel must be a value between 0 and 1, or the special value AVCaptureMaxAvailableTorchLevel. The specified value may not be available if the iOS device is too hot. This method throws an NSInvalidArgumentException if set to an unsupported level. If the specified level is valid, but unavailable, the method returns NO with AVErrorTorchLevelUnavailable. -setTorchModeOnWithLevel:error: throws an NSGenericException if called without first obtaining exclusive access to the receiver using lockForConfiguration:. Clients can observe automatic changes to the receiver's torchMode by key value observing the torchMode property.
  */
-- (BOOL)setTorchModeOnWithLevel:(float)torchLevel error:(NSError * _Nullable * _Nullable)outError API_AVAILABLE(ios(6.0)) API_UNAVAILABLE(macos);
+- (BOOL)setTorchModeOnWithLevel:(float)torchLevel error:(NSError * _Nullable * _Nullable)outError API_AVAILABLE(macos(10.15), ios(6.0));
 
 @end
 
@@ -19291,7 +21268,7 @@ typedef NS_ENUM(NSInteger, AVCaptureExposureMode) {
     AVCaptureExposureModeLocked                            = 0,
     AVCaptureExposureModeAutoExpose                        = 1,
     AVCaptureExposureModeContinuousAutoExposure            = 2,
-    AVCaptureExposureModeCustom NS_ENUM_AVAILABLE_IOS(8_0) = 3,
+    AVCaptureExposureModeCustom API_AVAILABLE(macos(10.15), ios(8.0)) = 3,
 } API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 
@@ -19318,7 +21295,7 @@ typedef NS_ENUM(NSInteger, AVCaptureExposureMode) {
     Indicates current exposure mode of the receiver, if it has adjustable exposure.
  
  @discussion
-    The value of this property is an AVCaptureExposureMode that determines the receiver's exposure mode, if it has adjustable exposure. -setExposureMode: throws an NSInvalidArgumentException if set to an unsupported value (see -isExposureModeSupported:). -setExposureMode: throws an NSGenericException if called without first obtaining exclusive access to the receiver using lockForConfiguration:. When using AVCaptureStillImageOutput with automaticallyEnablesStillImageStabilizationWhenAvailable set to YES (the default behavior), the receiver's ISO and exposureDuration values may be overridden by automatic still image stabilization values if the scene is dark enough to warrant still image stabilization. To ensure that the receiver's ISO and exposureDuration values are honored while in AVCaptureExposureModeCustom or AVCaptureExposureModeLocked, you must set AVCaptureStillImageOutput's automaticallyEnablesStillImageStabilizationWhenAvailable property to NO. Clients can observe automatic changes to the receiver's exposureMode by key value observing this property.
+    The value of this property is an AVCaptureExposureMode that determines the receiver's exposure mode, if it has adjustable exposure. -setExposureMode: throws an NSInvalidArgumentException if set to an unsupported value (see -isExposureModeSupported:). -setExposureMode: throws an NSGenericException if called without first obtaining exclusive access to the receiver using lockForConfiguration:. When using AVCapturePhotoOutput and capturing photos with AVCapturePhotoSettings' photoQualityPrioritization property set to AVCapturePhotoQualityPrioritizationBalanced or higher, the receiver's ISO and exposureDuration values may be overridden when exposing the photo if the scene is dark enough to warrant some form of multi-image fusion to improve quality. To ensure that the receiver's ISO and exposureDuration values are honored while in AVCaptureExposureModeCustom or AVCaptureExposureModeLocked, you must set your AVCapturePhotoSettings.photoQualityPrioritization property to AVCapturePhotoQualityPrioritizationSpeed. The same rule applies if you are using the deprecated AVCapturePhotoSettings.autoStillImageStabilizationEnabled property; you must set it to NO to preserve your custom exposure values in the photo capture. Likewise if you're using AVCaptureStillImageOutput, automaticallyEnablesStillImageStabilizationWhenAvailable must be set to NO to preserve your custom exposure values in a still image capture. Clients can observe automatic changes to the receiver's exposureMode by key value observing this property.
  */
 @property(nonatomic) AVCaptureExposureMode exposureMode;
 
@@ -19352,7 +21329,7 @@ typedef NS_ENUM(NSInteger, AVCaptureExposureMode) {
  
     On some devices, the auto exposure algorithm picks a different max exposure duration for a given format depending whether you used the -[AVCaptureSession setSessionPreset:] API or the -[AVCaptureDevice setActiveFormat:] API to set the format. To ensure uniform default handling of max exposure duration, you can set your AVCaptureDeviceInput's unifiedAutoExposureDefaultsEnabled property to YES.
  */
-@property(nonatomic) CMTime activeMaxExposureDuration API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+@property(nonatomic) CMTime activeMaxExposureDuration API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @property adjustingExposure
@@ -19419,7 +21396,7 @@ AVF_EXPORT const float AVCaptureISOCurrent API_AVAILABLE(ios(8.0)) API_UNAVAILAB
     A block to be called when both exposureDuration and ISO have been set to the values specified and exposureMode is set to AVCaptureExposureModeCustom. If setExposureModeCustomWithDuration:ISO:completionHandler: is called multiple times, the completion handlers will be called in FIFO order. The block receives a timestamp which matches that of the first buffer to which all settings have been applied. Note that the timestamp is synchronized to the device clock, and thus must be converted to the master clock prior to comparison with the timestamps of buffers delivered via an AVCaptureVideoDataOutput. The client may pass nil for the handler parameter if knowledge of the operation's completion is not required.
  
  @discussion
-    This is the only way of setting exposureDuration and ISO. This method throws an NSRangeException if either exposureDuration or ISO is set to an unsupported level. This method throws an NSGenericException if called without first obtaining exclusive access to the receiver using lockForConfiguration:. When using AVCaptureStillImageOutput with automaticallyEnablesStillImageStabilizationWhenAvailable set to YES (the default behavior), the receiver's ISO and exposureDuration values may be overridden by automatic still image stabilization values if the scene is dark enough to warrant still image stabilization. To ensure that the receiver's ISO and exposureDuration values are honored while in AVCaptureExposureModeCustom or AVCaptureExposureModeLocked, you must set AVCaptureStillImageOutput's automaticallyEnablesStillImageStabilizationWhenAvailable property to NO.
+    This is the only way of setting exposureDuration and ISO. This method throws an NSRangeException if either exposureDuration or ISO is set to an unsupported level. This method throws an NSGenericException if called without first obtaining exclusive access to the receiver using lockForConfiguration:. When using AVCapturePhotoOutput to capture photos, note that the photoQualityPrioritization property of AVCapturePhotoSettings defaults to AVCapturePhotoQualityPrioritizationBalanced, which allows photo capture to temporarily override the capture device's ISO and exposureDuration values if the scene is dark enough to warrant some form of multi-image fusion to improve quality. To ensure that the receiver's ISO and exposureDuration values are honored while in AVCaptureExposureModeCustom or AVCaptureExposureModeLocked, you must set your AVCapturePhotoSettings.photoQualityPrioritization property to AVCapturePhotoQualityPrioritizationSpeed. The same rule applies if you use the deprecated AVCapturePhotoSettings.autoStillImageStabilizationEnabled property or AVCaptureStillImageOutput.automaticallyEnablesStillImageStabilizationWhenAvailable property. You must set them to NO to preserve your custom or locked exposure settings.
  */
 - (void)setExposureModeCustomWithDuration:(CMTime)duration ISO:(float)ISO completionHandler:(nullable void (^)(CMTime syncTime))handler API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos);
 
@@ -20000,9 +21977,9 @@ typedef NS_ENUM(NSInteger, AVCaptureDeviceTransportControlsPlaybackMode) {
     The P3 D65 wide color space which uses Illuminant D65 as the white point.
  */
 typedef NS_ENUM(NSInteger, AVCaptureColorSpace) {
-    AVCaptureColorSpace_sRGB   = 0,
-    AVCaptureColorSpace_P3_D65 = 1,
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+    AVCaptureColorSpace_sRGB       = 0,
+    AVCaptureColorSpace_P3_D65     = 1,
+} API_AVAILABLE(macos(10.15), ios(10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 
 @interface AVCaptureDevice (AVCaptureDeviceColorSpaceSupport)
@@ -20015,7 +21992,7 @@ typedef NS_ENUM(NSInteger, AVCaptureColorSpace) {
  @discussion
     By default, an AVCaptureDevice attached to an AVCaptureSession is automatically configured for wide color by the AVCaptureSession (see AVCaptureSession automaticallyConfiguresCaptureDeviceForWideColor). You may also set the activeColorSpace manually. To prevent the AVCaptureSession from undoing your work, remember to set AVCaptureSession's automaticallyConfiguresCaptureDeviceForWideColor property to NO. Changing the receiver's activeColorSpace while the session is running requires a disruptive reconfiguration of the capture render pipeline. Movie captures in progress will be ended immediately; unfulfilled photo requests will be aborted; video preview will temporarily freeze. -setActiveColorSpace: throws an NSGenericException if called without first obtaining exclusive access to the receiver using -lockForConfiguration:.
  */
-@property(nonatomic) AVCaptureColorSpace activeColorSpace API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos);
+@property(nonatomic) AVCaptureColorSpace activeColorSpace API_AVAILABLE(macos(10.15), ios(10.0));
 
 @end
 
@@ -20076,6 +22053,32 @@ typedef NS_ENUM(NSInteger, AVCaptureColorSpace) {
 @end
 
 
+@interface AVCaptureDevice (AVCaptureDeviceCalibration)
+
+/*!
+ @method extrinsicMatrixFromDevice:toDevice:
+ @abstract
+    An NSData containing the relative extrinsic matrix from one AVCaptureDevice to another.
+ @param fromDevice
+    The AVCaptureDevice to use as the source. Must be non nil or an NSInvalidArgumentException is thrown.
+ @param toDevice
+    The AVCaptureDevice to use as the destination. Must be non nil or an NSInvalidArgumentException is thrown.
+ 
+ @discussion
+    The extrinsic matrix consists of a unitless 3x3 rotation matrix (R) on the left and a translation (t) 3x1 column vector on the right. The translation vector's units are millimeters. The extrinsics of the "toDevice" camera are expressed with respect to a reference camera "fromDevice". If X_from is a 3D point in "fromCamera"'s coordinate system, then it can be projected into "toCamera"'s coordinate system with X_to = [R | t] * X_from. Note that a matrix_float4x3 matrix is column major with 3 rows and 4 columns. The extrinsicMatrix is only provided for physical cameras for which factory calibrations exist. Virtual device cameras return nil.
+               /                       \
+       /   \   | r1,1  r1,2  r1,3 | t1 |
+       |R|t| = | r2,1  r2,2  r2,3 | t2 |
+       \   /   | r3,1  r3,2  r3,3 | t3 |
+               \                       /
+
+    Note that if you enable video stabilization (see AVCaptureConnection.preferredVideoStabilizationMode), the pixels in stabilized video frames no longer match the relative extrinsicMatrix from one device to another due to warping. The extrinsicMatrix and camera intrinsics should only be used when video stabilization is disabled.
+ */
++ (nullable NSData *)extrinsicMatrixFromDevice:(AVCaptureDevice *)fromDevice toDevice:(AVCaptureDevice *)toDevice API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
+
+@end
+
+
 #pragma mark - AVCaptureDeviceDiscoverySession
 
 /*!
@@ -20086,7 +22089,7 @@ typedef NS_ENUM(NSInteger, AVCaptureColorSpace) {
  @discussion
     This class allows clients to discover devices by providing certain search criteria. The objective of this class is to help find devices by device type and optionally by media type or position and allow you to key-value observe changes to the returned devices list.
  */
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
+API_AVAILABLE(macos(10.15), ios(10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
 @interface AVCaptureDeviceDiscoverySession : NSObject
 
 AV_INIT_UNAVAILABLE
@@ -20119,6 +22122,16 @@ AV_INIT_UNAVAILABLE
     The returned array contains only devices that are available at the time the method is called. Applications can key-value observe this property to be notified when the list of available devices has changed. For apps linked against iOS 10, the devices returned are unsorted. For apps linked against iOS 11 or later, the devices are sorted by AVCaptureDeviceType, matching the order specified in the deviceTypes parameter of +[AVCaptureDeviceDiscoverySession discoverySessionWithDeviceTypes:mediaType:position:]. If a position of AVCaptureDevicePositionUnspecified is specified, the results are further ordered by position in the AVCaptureDevicePosition enum.
  */
 @property(nonatomic, readonly) NSArray<AVCaptureDevice *> *devices;
+
+/*!
+ @property supportedMultiCamDeviceSets
+ @abstract
+    An array of sets of AVCaptureDevices that are allowed to be used simultaneously in an AVCaptureMultiCamSession.
+ 
+ @discussion
+    When using an AVCaptureMultiCamSession, multiple cameras may be used as device inputs to the session, so long as they are included in one of the supportedMultiCamDeviceSets.
+ */
+@property(nonatomic, readonly) NSArray<NSSet<AVCaptureDevice *> *> *supportedMultiCamDeviceSets API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
 
 @end
 
@@ -20225,7 +22238,7 @@ typedef NS_ENUM(NSInteger, AVCaptureAutoFocusSystem) {
     AVCaptureAutoFocusSystemNone              = 0,
     AVCaptureAutoFocusSystemContrastDetection = 1,
     AVCaptureAutoFocusSystemPhaseDetection    = 2,
-} API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+} API_AVAILABLE(macos(10.15), ios(8.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
 
 
 #pragma mark - AVCaptureDeviceFormat
@@ -20283,7 +22296,7 @@ AV_INIT_UNAVAILABLE
 /*!
  @property videoFieldOfView
  @abstract
-    A property indicating the format's field of view.
+    A property indicating the format's horizontal field of view.
  
  @discussion
     videoFieldOfView is a float value indicating the receiver's field of view in degrees. If field of view is unknown, a value of 0 is returned.
@@ -20321,7 +22334,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     videoStabilizationSupported is a BOOL indicating whether the format can be stabilized using AVCaptureConnection -setEnablesVideoStabilizationWhenAvailable. This property is deprecated. Use isVideoStabilizationModeSupported: instead.
  */
-@property(nonatomic, readonly, getter=isVideoStabilizationSupported) BOOL videoStabilizationSupported API_DEPRECATED("Use isVideoStabilizationModeSupported: instead.", ios(7.0, 8.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly, getter=isVideoStabilizationSupported) BOOL videoStabilizationSupported API_DEPRECATED("Use isVideoStabilizationModeSupported: instead.", ios(7.0, 8.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property videoMaxZoomFactor
@@ -20408,6 +22421,16 @@ AV_INIT_UNAVAILABLE
 @property(nonatomic, readonly) CMVideoDimensions highResolutionStillImageDimensions API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos);
 
 /*!
+ @property highestPhotoQualitySupported
+ @abstract
+    A boolean value specifying whether this format supports the highest possible photo quality that can be delivered on the current platform.
+ 
+ @discussion
+    Of the many formats supported by an AVCaptureDevice, only a few of them are designated as "photo" formats which can produce the highest possible quality, such as still image stabilization and Live Photos. If you intend to connect an AVCaptureDeviceInput to an AVCapturePhotoOutput and receive the best possible images, you should ensure that you are either using the AVCaptureSessionPresetPhoto as your preset, or if using the parallel AVCaptureDevice activeFormat API, select as your activeFormat one for which this property is YES.
+ */
+@property(nonatomic, readonly, getter=isHighestPhotoQualitySupported) BOOL highestPhotoQualitySupported API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
+
+/*!
  @property autoFocusSystem
  @abstract
     A property indicating the autofocus system.
@@ -20415,7 +22438,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     This read-only property indicates the autofocus system.
  */
-@property(nonatomic, readonly) AVCaptureAutoFocusSystem autoFocusSystem API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly) AVCaptureAutoFocusSystem autoFocusSystem API_AVAILABLE(macos(10.15), ios(8.0));
 
 /*!
  @property supportedColorSpaces
@@ -20425,7 +22448,7 @@ AV_INIT_UNAVAILABLE
  @discussion
     This read-only property indicates the receiver's supported color spaces as an array of AVCaptureColorSpace constants sorted from narrow to wide color.
  */
-@property(nonatomic, readonly) NSArray<NSNumber *> *supportedColorSpaces API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly) NSArray<NSNumber *> *supportedColorSpaces API_AVAILABLE(macos(10.15), ios(10.0));
 
 /*!
  @property videoMinZoomFactorForDepthDataDelivery
@@ -20480,7 +22503,22 @@ AV_INIT_UNAVAILABLE
  @discussion
     Some depth formats are capable of producing an auxiliary matting image (similar to an auxiliary depth image) tuned for high quality portrait effects rendering (see AVPortraitEffectsMatte.h). If this property's value is YES, you may request portrait effects matte delivery in your photos using the AVCapturePhotoOutput, provided this format is selected as the activeDepthDataFormat.
  */
-@property(nonatomic, readonly, getter=isPortraitEffectsMatteStillImageDeliverySupported) BOOL portraitEffectsMatteStillImageDeliverySupported API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+@property(nonatomic, readonly, getter=isPortraitEffectsMatteStillImageDeliverySupported) BOOL portraitEffectsMatteStillImageDeliverySupported API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
+
+@end
+
+
+@interface AVCaptureDeviceFormat (AVCaptureDeviceFormatMultiCamAdditions)
+
+/*!
+ @property multiCamSupported
+ @abstract
+    A property indicating whether this format is supported in an AVCaptureMultiCamSession.
+ 
+ @discussion
+   When using an AVCaptureSession (single camera capture), any of the formats in the device's -formats array may be set as the -activeFormat. However, when used with an AVCaptureMultiCamSession, the device's -activeFormat may only be set to one of the formats for which multiCamSupported answers YES. This limited subset of capture formats are known to run sustainably in a multi camera capture scenario.
+ */
+@property(nonatomic, readonly, getter=isMultiCamSupported) BOOL multiCamSupported API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
 
 @end
 
@@ -20574,6 +22612,8 @@ NS_ASSUME_NONNULL_END
 */
 
 #import <AVFoundation/AVBase.h>
+
+#if __has_include(<QuartzCore/CoreAnimation.h>)
 #import <QuartzCore/CAAnimation.h>
 
 @class AVPlayerItem;
@@ -20581,7 +22621,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVSynchronizedLayer : CALayer
 {
 @private
@@ -20601,13 +22641,15 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // __has_include(<QuartzCore/CoreAnimation.h>)
 // ==========  AVFoundation.framework/Headers/AVPlayerItem.h
 /*
     File:  AVPlayerItem.h
 
 	Framework:  AVFoundation
  
-	Copyright 2010-2018 Apple Inc. All rights reserved.
+	Copyright 2010-2019 Apple Inc. All rights reserved.
 
 */
 
@@ -20620,7 +22662,9 @@ NS_ASSUME_NONNULL_END
 	@discussion
 	  Note that inspection of media assets is provided by AVAsset.
 	  This class is intended to represent presentation state for an asset that's played by an AVPlayer and to permit observation of that state.
-
+ 
+  	  It is important to avoid key-value observation with a key path containing the asset's property.  Observe the AVPlayerItem's property instead.  For example, use the "duration" key path instead of the "asset.duration" key path.
+ 
 	  To allow clients to add and remove their objects as key-value observers safely, AVPlayerItem serializes notifications of
 	  changes that occur dynamically during playback on the same dispatch queue on which notifications of playback state changes
 	  are serialized by its associated AVPlayer. By default, this queue is the main queue. See dispatch_get_main_queue().
@@ -20644,15 +22688,17 @@ NS_ASSUME_NONNULL_BEGIN
 /* Note that NSNotifications posted by AVPlayerItem may be posted on a different thread from the one on which the observer was registered. */
 
 // notifications                                                                                description
-AVF_EXPORT NSString *const AVPlayerItemTimeJumpedNotification			 NS_AVAILABLE(10_7, 5_0);	// the item's current time has changed discontinuously
-AVF_EXPORT NSString *const AVPlayerItemDidPlayToEndTimeNotification      NS_AVAILABLE(10_7, 4_0);   // item has played to its end time
-AVF_EXPORT NSString *const AVPlayerItemFailedToPlayToEndTimeNotification NS_AVAILABLE(10_7, 4_3);   // item has failed to play to its end time
-AVF_EXPORT NSString *const AVPlayerItemPlaybackStalledNotification       NS_AVAILABLE(10_9, 6_0);    // media did not arrive in time to continue playback
-AVF_EXPORT NSString *const AVPlayerItemNewAccessLogEntryNotification	 NS_AVAILABLE(10_9, 6_0);	// a new access log entry has been added
-AVF_EXPORT NSString *const AVPlayerItemNewErrorLogEntryNotification		 NS_AVAILABLE(10_9, 6_0);	// a new error log entry has been added
+AVF_EXPORT NSString *const AVPlayerItemTimeJumpedNotification			 API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0), watchos(1.0));	// the item's current time has changed discontinuously
+AVF_EXPORT NSString *const AVPlayerItemDidPlayToEndTimeNotification      API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0));   // item has played to its end time
+AVF_EXPORT NSString *const AVPlayerItemFailedToPlayToEndTimeNotification API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));   // item has failed to play to its end time
+AVF_EXPORT NSString *const AVPlayerItemPlaybackStalledNotification       API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0), watchos(1.0));    // media did not arrive in time to continue playback
+AVF_EXPORT NSString *const AVPlayerItemNewAccessLogEntryNotification	 API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0), watchos(1.0));	// a new access log entry has been added
+AVF_EXPORT NSString *const AVPlayerItemNewErrorLogEntryNotification		 API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0), watchos(1.0));	// a new error log entry has been added
+AVF_EXPORT NSNotificationName const AVPlayerItemRecommendedTimeOffsetFromLiveDidChangeNotification		 API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));	// the value of recommendedTimeOffsetFromLive has changed
+
 
 // notification userInfo key                                                                    type
-AVF_EXPORT NSString *const AVPlayerItemFailedToPlayToEndTimeErrorKey     NS_AVAILABLE(10_7, 4_3);   // NSError
+AVF_EXPORT NSString *const AVPlayerItemFailedToPlayToEndTimeErrorKey     API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));   // NSError
 
 /*!
  @enum AVPlayerItemStatus
@@ -20669,9 +22715,9 @@ AVF_EXPORT NSString *const AVPlayerItemFailedToPlayToEndTimeErrorKey     NS_AVAI
 	the player item's error property.
  */
 typedef NS_ENUM(NSInteger, AVPlayerItemStatus) {
-	AVPlayerItemStatusUnknown,
-	AVPlayerItemStatusReadyToPlay,
-	AVPlayerItemStatusFailed
+	AVPlayerItemStatusUnknown = 0,
+	AVPlayerItemStatusReadyToPlay = 1,
+	AVPlayerItemStatusFailed = 2
 };
 
 @class AVPlayer;
@@ -20685,7 +22731,7 @@ typedef NS_ENUM(NSInteger, AVPlayerItemStatus) {
 @class AVPlayerItemInternal;
 @protocol AVVideoCompositing;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVPlayerItem : NSObject <NSCopying>
 {
 @private
@@ -20720,7 +22766,7 @@ AV_INIT_UNAVAILABLE
  @result		An instance of AVPlayerItem.
  @discussion	The value of each key in automaticallyLoadedAssetKeys will be automatically be loaded by the underlying AVAsset before the receiver achieves the status AVPlayerItemStatusReadyToPlay; i.e. when the item is ready to play, the value of -[[AVPlayerItem asset] statusOfValueForKey:error:] will be one of the terminal status values greater than AVKeyValueStatusLoading.
  */
-+ (instancetype)playerItemWithAsset:(AVAsset *)asset automaticallyLoadedAssetKeys:(nullable NSArray<NSString *> *)automaticallyLoadedAssetKeys NS_AVAILABLE(10_9, 7_0);
++ (instancetype)playerItemWithAsset:(AVAsset *)asset automaticallyLoadedAssetKeys:(nullable NSArray<NSString *> *)automaticallyLoadedAssetKeys API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @method		initWithURL:
@@ -20750,7 +22796,7 @@ AV_INIT_UNAVAILABLE
  @result		An instance of AVPlayerItem
  @discussion	The value of each key in automaticallyLoadedAssetKeys will be automatically be loaded by the underlying AVAsset before the receiver achieves the status AVPlayerItemStatusReadyToPlay; i.e. when the item is ready to play, the value of -[[AVPlayerItem asset] statusOfValueForKey:error:] will be one of the terminal status values greater than AVKeyValueStatusLoading.
  */
-- (instancetype)initWithAsset:(AVAsset *)asset automaticallyLoadedAssetKeys:(nullable NSArray<NSString *> *)automaticallyLoadedAssetKeys NS_DESIGNATED_INITIALIZER NS_AVAILABLE(10_9, 7_0);
+- (instancetype)initWithAsset:(AVAsset *)asset automaticallyLoadedAssetKeys:(nullable NSArray<NSString *> *)automaticallyLoadedAssetKeys NS_DESIGNATED_INITIALIZER API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property status
@@ -20763,7 +22809,7 @@ AV_INIT_UNAVAILABLE
 	a new instance needs to be created in its place. When this happens, clients can check the value of the error
 	property to determine the nature of the failure. This property is key value observable.
  */
-@property (nonatomic, readonly) AVPlayerItemStatus status;
+@property (readonly) AVPlayerItemStatus status;
 
 /*!
  @property error
@@ -20774,7 +22820,7 @@ AV_INIT_UNAVAILABLE
 	The value of this property is an NSError that describes what caused the receiver to no longer be able to be played.
 	If the receiver's status is not AVPlayerItemStatusFailed, the value of this property is nil.
  */
-@property (nonatomic, readonly, nullable) NSError *error;
+@property (readonly, nullable) NSError *error;
 
 @end
 
@@ -20799,7 +22845,7 @@ AV_INIT_UNAVAILABLE
 	Before the underlying media resource has been sufficiently loaded, its value is an empty NSArray. Use key-value observation to obtain
 	a valid array of tracks as soon as it becomes available.
  */
-@property (nonatomic, readonly) NSArray<AVPlayerItemTrack *> *tracks;
+@property (readonly) NSArray<AVPlayerItemTrack *> *tracks;
 
 /*!
  @property duration
@@ -20816,7 +22862,7 @@ AV_INIT_UNAVAILABLE
 	obtain a valid duration as soon as it becomes available. (Note that the value of duration may remain kCMTimeIndefinite,
 	e.g. for live streams.)
  */
-@property (nonatomic, readonly) CMTime duration NS_AVAILABLE(10_7, 4_3);
+@property (readonly) CMTime duration API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
 
 /*!
  @property presentationSize
@@ -20831,7 +22877,7 @@ AV_INIT_UNAVAILABLE
 	Before the underlying media resource is sufficiently loaded, its value is CGSizeZero. Use key-value observation to obtain a valid
 	presentationSize as soon as it becomes available. (Note that the value of presentationSize may remain CGSizeZero, e.g. for audio-only items.)
  */
-@property (nonatomic, readonly) CGSize presentationSize;
+@property (readonly) CGSize presentationSize;
 
 /*!
  @property timedMetadata
@@ -20840,7 +22886,7 @@ AV_INIT_UNAVAILABLE
    Notifications of changes are available via key-value observation.
    As an optimization for playback, AVPlayerItem may omit the processing of timed metadata when no observer of this property is registered. Therefore, when no such observer is registered, the value of the timedMetadata property may remain nil regardless of the contents of the underlying media.
  */
-@property (nonatomic, readonly, nullable) NSArray<AVMetadataItem *> *timedMetadata;
+@property (nonatomic, readonly, nullable) NSArray<AVMetadataItem *> *timedMetadata API_DEPRECATED("Use AVPlayerItemMetadataOutput to obtain timed metadata", macos(10.7, 10.15), ios(4.0, 13.0), tvos(9.0, 13.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property automaticallyLoadedAssetKeys
@@ -20848,7 +22894,7 @@ AV_INIT_UNAVAILABLE
  @discussion
    The value of each key in automaticallyLoadedAssetKeys will be automatically be loaded by the underlying AVAsset before the receiver achieves the status AVPlayerItemStatusReadyToPlay; i.e. when the item is ready to play, the value of -[[AVPlayerItem asset] statusOfValueForKey:error:] will be AVKeyValueStatusLoaded. If loading of any of the values fails, the status of the AVPlayerItem will change instead to AVPlayerItemStatusFailed..
  */
-@property (nonatomic, readonly) NSArray<NSString *> *automaticallyLoadedAssetKeys NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) NSArray<NSString *> *automaticallyLoadedAssetKeys API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -20858,28 +22904,56 @@ AV_INIT_UNAVAILABLE
 /* For releases of OS X prior to 10.9 and releases of iOS prior to 7.0, indicates whether the item can be played at rates greater than 1.0.
    Starting with OS X 10.9 and iOS 7.0, all AVPlayerItems with status AVPlayerItemReadyToPlay can be played at rates between 1.0 and 2.0, inclusive, even if canPlayFastForward is NO; for those releases canPlayFastForward indicates whether the item can be played at rates greater than 2.0.
 */
-@property (nonatomic, readonly) BOOL canPlayFastForward NS_AVAILABLE(10_8, 5_0);
+@property (readonly) BOOL canPlayFastForward API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /* indicates whether the item can be played at rates between 0.0 and 1.0 */
-@property (nonatomic, readonly) BOOL canPlaySlowForward NS_AVAILABLE(10_8, 6_0);
+@property (readonly) BOOL canPlaySlowForward API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /* indicates whether the item can be played at rate -1.0 */
-@property (nonatomic, readonly) BOOL canPlayReverse NS_AVAILABLE(10_8, 6_0);
+@property (readonly) BOOL canPlayReverse API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /* indicates whether the item can be played at rates less between 0.0 and -1.0 */
-@property (nonatomic, readonly) BOOL canPlaySlowReverse NS_AVAILABLE(10_8, 6_0);
+@property (readonly) BOOL canPlaySlowReverse API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /* indicates whether the item can be played at rates less than -1.0 */
-@property (nonatomic, readonly) BOOL canPlayFastReverse NS_AVAILABLE(10_8, 5_0);
+@property (readonly) BOOL canPlayFastReverse API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /* Indicates whether the item supports stepping forward; see -stepByCount:. Once the item has become ready to play, the value of canStepForward does not change even when boundary conditions are reached, such as when the item's currentTime is its end time. */
-@property (nonatomic, readonly) BOOL canStepForward NS_AVAILABLE(10_8, 6_0);
+@property (readonly) BOOL canStepForward API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /* indicates whether the item supports stepping backward; see -stepByCount:. Once the item has become ready to play, the value of canStepBackward does not change even when boundary conditions are reached, such as when the item's currentTime is equal to kCMTimeZero. */
-@property (nonatomic, readonly) BOOL canStepBackward NS_AVAILABLE(10_8, 6_0);
+@property (readonly) BOOL canStepBackward API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
+
+/*!
+ @property		configuredTimeOffsetFromLive
+ @abstract		Indicates how close to the latest content in a live stream playback will begin after a live start or a seek to kCMTimePositiveInfinity.
+ @discussion	For non-live assets this value is kCMTimeInvalid.
+ */
+@property CMTime configuredTimeOffsetFromLive API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property		recommendedTimeOffsetFromLive
+ @abstract		A recommended value for configuredTimeOffsetFromLive, based on observed network conditions.
+ @discussion	For non-live assets this value is kCMTimeInvalid.
+ */
+@property (nonatomic, readonly) CMTime recommendedTimeOffsetFromLive API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property		automaticallyPreservesTimeOffsetFromLive
+ @abstract		Indicates that after the player spends a period of time buffering media, it will skip forward if necessary to restore the playhead's distance from the live edge of the presentation to what it was when buffering began.
+ @discussion
+  If the value of this property is YES and the player must buffer media from the network in order to resume playback, the player will seek forward if necessary before resuming playback to restore the position that the playhead had when rebuffering began, relative to the end of the current AVPlayerItem's seekableTimeRange. 
+
+  This behavior applies to media buffering that occurs as a consequence of starting playback, seeking, and recovering from a playback stall.
+
+  Note that if the network cannot deliver media quickly enough to maintain the playback rate, playback may stall interminably.
+ 
+ This property value has no effect if the asset is not a live stream. The default value of this property is NO.
+ */
+
+@property (nonatomic) BOOL automaticallyPreservesTimeOffsetFromLive API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0),watchos(6.0));
 
 @end
-
 
 @interface AVPlayerItem (AVPlayerItemTimeControl)
 
@@ -20906,7 +22980,7 @@ AV_INIT_UNAVAILABLE
 
 	The value of this property has no effect on playback when the rate is negative.
  */
-@property (nonatomic) CMTime forwardPlaybackEndTime;
+@property CMTime forwardPlaybackEndTime;
 
 /*!
  @property reversePlaybackEndTime
@@ -20923,14 +22997,14 @@ AV_INIT_UNAVAILABLE
 
 	The value of this property has no effect on playback when the rate is positive.
  */
-@property (nonatomic) CMTime reversePlaybackEndTime;
+@property CMTime reversePlaybackEndTime;
 
 /*!
  @property seekableTimeRanges
  @abstract This property provides a collection of time ranges that the player item can seek to. The ranges provided might be discontinous.
  @discussion Returns an NSArray of NSValues containing CMTimeRanges.
  */
-@property (nonatomic, readonly) NSArray<NSValue *> *seekableTimeRanges;
+@property (readonly) NSArray<NSValue *> *seekableTimeRanges;
 
 /*!
  @method			seekToTime:completionHandler:
@@ -20943,7 +23017,7 @@ AV_INIT_UNAVAILABLE
  					completion handler will be invoked with the finished parameter set to YES. 
 					If the seek time is outside of seekable time ranges as indicated by seekableTimeRanges property, the seek request will be cancelled and the completion handler will be invoked with the finished parameter set to NO.
  */
-- (void)seekToTime:(CMTime)time completionHandler:(void (^_Nullable)(BOOL finished))completionHandler NS_AVAILABLE(10_7, 5_0);
+- (void)seekToTime:(CMTime)time completionHandler:(void (^_Nullable)(BOOL finished))completionHandler API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
  @method			seekToTime:toleranceBefore:toleranceAfter:completionHandler:
@@ -20961,7 +23035,7 @@ AV_INIT_UNAVAILABLE
 					finished parameter set to YES.
 					If the seek time is outside of seekable time ranges as indicated by seekableTimeRanges property, the seek request will be cancelled and the completion handler will be invoked with the finished parameter set to NO.
  */
-- (void)seekToTime:(CMTime)time toleranceBefore:(CMTime)toleranceBefore toleranceAfter:(CMTime)toleranceAfter completionHandler:(void (^_Nullable)(BOOL finished))completionHandler NS_AVAILABLE(10_7, 5_0);
+- (void)seekToTime:(CMTime)time toleranceBefore:(CMTime)toleranceBefore toleranceAfter:(CMTime)toleranceAfter completionHandler:(void (^_Nullable)(BOOL finished))completionHandler API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
  @method			cancelPendingSeeks
@@ -20969,7 +23043,7 @@ AV_INIT_UNAVAILABLE
  @discussion		Use this method to cancel and release the completion handlers of pending seeks. The finished parameter of the completion handlers will
  					be set to NO.
  */
-- (void)cancelPendingSeeks NS_AVAILABLE(10_7, 5_0);
+- (void)cancelPendingSeeks API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
 	@method	currentDate
@@ -20992,7 +23066,7 @@ AV_INIT_UNAVAILABLE
  @param			completionHandler	The block to invoke when seek operation is complete
  @result		Returns true if the playhead was moved to the supplied date.
  */
-- (BOOL)seekToDate:(NSDate *)date completionHandler:(void (^_Nullable)(BOOL finished))completionHandler NS_AVAILABLE(10_9, 6_0);
+- (BOOL)seekToDate:(NSDate *)date completionHandler:(void (^_Nullable)(BOOL finished))completionHandler API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0), watchos(1.0));
 
 /*!
  @method		stepByCount:
@@ -21011,7 +23085,7 @@ AV_INIT_UNAVAILABLE
    You can examine the timebase to discover the relationship between the item's time and the master clock used for drift synchronization.
    This timebase is read-only; you cannot set its time or rate to affect playback.  The value of this property may change during playback.
  */
-@property (nonatomic, readonly, nullable) __attribute__((NSObject)) CMTimebaseRef timebase NS_AVAILABLE(10_8, 6_0);
+@property (nonatomic, readonly, nullable) __attribute__((NSObject)) CMTimebaseRef timebase API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -21024,7 +23098,7 @@ AV_INIT_UNAVAILABLE
  @property videoComposition
  @abstract Indicates the video composition settings to be applied during playback.
  */
-@property (nonatomic, copy, nullable) AVVideoComposition *videoComposition;
+@property (nonatomic, copy, nullable) AVVideoComposition *videoComposition API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property customVideoCompositor
@@ -21033,7 +23107,7 @@ AV_INIT_UNAVAILABLE
  	This property is nil if there is no video compositor, or if the internal video compositor is in use. This reference can be used to provide
 	extra context to the custom video compositor instance if required.
  */
-@property (nonatomic, readonly, nullable) id<AVVideoCompositing> customVideoCompositor NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly, nullable) id<AVVideoCompositing> customVideoCompositor API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property seekingWaitsForVideoCompositionRendering
@@ -21050,7 +23124,7 @@ AV_INIT_UNAVAILABLE
    This property has no effect on items for which videoComposition is nil.
 
  */
-@property (nonatomic) BOOL seekingWaitsForVideoCompositionRendering NS_AVAILABLE(10_9, 6_0);
+@property BOOL seekingWaitsForVideoCompositionRendering API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property textStyleRules
@@ -21060,7 +23134,7 @@ AV_INIT_UNAVAILABLE
  
 	This property has an effect only for tracks with media subtype kCMSubtitleFormatType_WebVTT.
 */
-@property (nonatomic, copy, nullable) NSArray<AVTextStyleRule *> *textStyleRules NS_AVAILABLE(10_9, 6_0);
+@property (copy, nullable) NSArray<AVTextStyleRule *> *textStyleRules API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property	videoApertureMode
@@ -21068,7 +23142,7 @@ AV_INIT_UNAVAILABLE
  @discussion
 	See AVVideoApertureMode constants defined in AVVideoSettings.h. Default is AVVideoApertureModeCleanAperture.
  */
-@property (nonatomic, copy) AVVideoApertureMode videoApertureMode API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+@property (copy) AVVideoApertureMode videoApertureMode API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -21082,7 +23156,15 @@ AV_INIT_UNAVAILABLE
    Constants for various time pitch algorithms, e.g. AVAudioTimePitchSpectral, are defined in AVAudioProcessingSettings.h.
    The default value on iOS is AVAudioTimePitchAlgorithmLowQualityZeroLatency and on OS X is AVAudioTimePitchAlgorithmSpectral.
 */
-@property (nonatomic, copy) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm NS_AVAILABLE(10_9, 7_0);
+@property (copy) AVAudioTimePitchAlgorithm audioTimePitchAlgorithm API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
+
+/*!
+ @property		audioSpatializationAllowed
+ @abstract		Indicates whether audio spatialization is allowed
+ @discussion
+ 	When audio spatialization is allowed for an AVPlayerItem, the AVPlayer may render multichannel audio if available even if the output device doesn't support multichannel audio on its own, via use of a synthetic channel layout. When audio spatialization is not allowed, the AVPlayer must render audio with a channel layout that best matches the capabilities of the output device. This property is not observable. Defaults to YES.
+ */
+@property (nonatomic, assign, getter=isAudioSpatializationAllowed) BOOL audioSpatializationAllowed API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @property audioMix
@@ -21102,7 +23184,7 @@ AV_INIT_UNAVAILABLE
  @abstract This property provides a collection of time ranges for which the player has the media data readily available. The ranges provided might be discontinuous.
  @discussion Returns an NSArray of NSValues containing CMTimeRanges.
  */
-@property (nonatomic, readonly) NSArray<NSValue *> *loadedTimeRanges;
+@property (readonly) NSArray<NSValue *> *loadedTimeRanges;
 
 /*!
  @property playbackLikelyToKeepUp
@@ -21114,7 +23196,7 @@ AV_INIT_UNAVAILABLE
 	keep up. It is left to the application programmer to decide to continue media playback or not. 
 	See playbackBufferFull below.
   */
-@property (nonatomic, readonly, getter=isPlaybackLikelyToKeepUp) BOOL playbackLikelyToKeepUp;
+@property (readonly, getter=isPlaybackLikelyToKeepUp) BOOL playbackLikelyToKeepUp;
 
 /*! 
  @property playbackBufferFull
@@ -21123,10 +23205,10 @@ AV_INIT_UNAVAILABLE
 	Despite the playback buffer reaching capacity there might not exist sufficient statistical 
 	data to support a playbackLikelyToKeepUp prediction of YES. See playbackLikelyToKeepUp above.
  */
-@property (nonatomic, readonly, getter=isPlaybackBufferFull) BOOL playbackBufferFull;
+@property (readonly, getter=isPlaybackBufferFull) BOOL playbackBufferFull;
 
 /* indicates that playback has consumed all buffered media and that playback will stall or end */
-@property (nonatomic, readonly, getter=isPlaybackBufferEmpty) BOOL playbackBufferEmpty;
+@property (readonly, getter=isPlaybackBufferEmpty) BOOL playbackBufferEmpty;
 
 /*!
  @property canUseNetworkResourcesForLiveStreamingWhilePaused
@@ -21136,7 +23218,7 @@ AV_INIT_UNAVAILABLE
  
 	For clients linked on or after OS X 10.11 or iOS 9.0, the default value is NO.  To minimize power usage, avoid setting this property to YES when you do not need playback state to stay up to date while paused.
  */
-@property (nonatomic, assign) BOOL canUseNetworkResourcesForLiveStreamingWhilePaused NS_AVAILABLE(10_11, 9_0);
+@property (assign) BOOL canUseNetworkResourcesForLiveStreamingWhilePaused API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 /*!
 @property	preferredForwardBufferDuration
@@ -21145,7 +23227,7 @@ AV_INIT_UNAVAILABLE
 			Note that setting this property to a low value will increase the chance that playback will stall and re-buffer, while setting it to a high value will increase demand on system resources.
 			Note that the system may buffer less than the value of this property in order to manage resource consumption.
 */
-@property (nonatomic) NSTimeInterval preferredForwardBufferDuration NS_AVAILABLE(10_12, 10_0);
+@property NSTimeInterval preferredForwardBufferDuration API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 @end
 
@@ -21161,7 +23243,7 @@ AV_INIT_UNAVAILABLE
 
 	If network bandwidth consumption cannot be lowered to meet the preferredPeakBitRate, it will be reduced as much as possible while continuing to play the item.
 */
-@property (nonatomic) double preferredPeakBitRate NS_AVAILABLE(10_10, 8_0);
+@property double preferredPeakBitRate API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property preferredMaximumResolution
@@ -21170,7 +23252,7 @@ AV_INIT_UNAVAILABLE
 	The default value is CGSizeZero, which indicates that the client enforces no limit on video resolution. Other values indicate a preferred maximum video resolution.
 	It only applies to HTTP Live Streaming asset.
  */
-@property (nonatomic) CGSize preferredMaximumResolution NS_AVAILABLE(10_13, 11_0);
+@property CGSize preferredMaximumResolution API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -21189,7 +23271,7 @@ AV_INIT_UNAVAILABLE
    all media selection options in the group.
    Note that if multiple options within a group meet your criteria for selection according to locale or other considerations, and if these options are otherwise indistinguishable to you according to media characteristics that are meaningful for your application, content is typically authored so that the first available option that meets your criteria is appropriate for selection.
  */
-- (void)selectMediaOption:(nullable AVMediaSelectionOption *)mediaSelectionOption inMediaSelectionGroup:(AVMediaSelectionGroup *)mediaSelectionGroup NS_AVAILABLE(10_8, 5_0);
+- (void)selectMediaOption:(nullable AVMediaSelectionOption *)mediaSelectionOption inMediaSelectionGroup:(AVMediaSelectionGroup *)mediaSelectionGroup API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
  @method		selectMediaOptionAutomaticallyInMediaSelectionGroup:
@@ -21199,13 +23281,13 @@ AV_INIT_UNAVAILABLE
  @discussion
    Has no effect unless the appliesMediaSelectionCriteriaAutomatically property of the associated AVPlayer is YES and unless automatic media selection has previously been overridden via -[AVPlayerItem selectMediaOption:inMediaSelectionGroup:].
  */
-- (void)selectMediaOptionAutomaticallyInMediaSelectionGroup:(AVMediaSelectionGroup *)mediaSelectionGroup NS_AVAILABLE(10_9, 7_0);
+- (void)selectMediaOptionAutomaticallyInMediaSelectionGroup:(AVMediaSelectionGroup *)mediaSelectionGroup API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
   @property		currentMediaSelection
   @abstract		Provides an instance of AVMediaSelection carrying current selections for each of the receiver's media selection groups.
 */
-@property (nonatomic, readonly) AVMediaSelection *currentMediaSelection NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readonly) AVMediaSelection *currentMediaSelection API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0), watchos(2.0));
 
 @end
 
@@ -21227,7 +23309,7 @@ AV_INIT_UNAVAILABLE
 				An AVPlayerItemNewAccessLogEntryNotification will be posted when new logging information becomes available. However, accessLog might already return a non-nil value even before the first notification is posted.
  @result		An autoreleased AVPlayerItemAccessLog instance.
  */
-- (nullable AVPlayerItemAccessLog *)accessLog NS_AVAILABLE(10_7, 4_3);
+- (nullable AVPlayerItemAccessLog *)accessLog API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
 
 /*!
  @method		errorLog
@@ -21236,7 +23318,7 @@ AV_INIT_UNAVAILABLE
  				If nil is returned then there is no logging information currently available for this AVPlayerItem.
  @result		An autoreleased AVPlayerItemErrorLog instance.
  */
-- (nullable AVPlayerItemErrorLog *)errorLog NS_AVAILABLE(10_7, 4_3);
+- (nullable AVPlayerItemErrorLog *)errorLog API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -21255,7 +23337,7 @@ AV_INIT_UNAVAILABLE
 				An instance of AVPlayerItemOutput
  */
 
-- (void)addOutput:(AVPlayerItemOutput *)output NS_AVAILABLE(10_8, 6_0);
+- (void)addOutput:(AVPlayerItemOutput *)output API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /*!
  @method		removeOutput:
@@ -21264,14 +23346,14 @@ AV_INIT_UNAVAILABLE
 				An instance of AVPlayerItemOutput
  */
 
-- (void)removeOutput:(AVPlayerItemOutput *)output NS_AVAILABLE(10_8, 6_0);
+- (void)removeOutput:(AVPlayerItemOutput *)output API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		outputs
  @abstract		The collection of associated outputs.
  */
 
-@property (nonatomic, readonly) NSArray<AVPlayerItemOutput *> *outputs NS_AVAILABLE(10_8, 6_0);
+@property (nonatomic, readonly) NSArray<AVPlayerItemOutput *> *outputs API_AVAILABLE(macos(10.8), ios(6.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -21287,7 +23369,7 @@ AV_INIT_UNAVAILABLE
  @param			collector
 				An instance of AVPlayerItemMediaDataCollector
 */
-- (void)addMediaDataCollector:(AVPlayerItemMediaDataCollector *)collector NS_AVAILABLE(10_11_3, 9_3);
+- (void)addMediaDataCollector:(AVPlayerItemMediaDataCollector *)collector API_AVAILABLE(macos(10.11.3), ios(9.3), tvos(9.3), watchos(2.3));
 
 /*!
  @method		removeMediaDataCollector:
@@ -21295,13 +23377,13 @@ AV_INIT_UNAVAILABLE
  @param			collector
 				An instance of AVPlayerItemMediaDataCollector
 */
-- (void)removeMediaDataCollector:(AVPlayerItemMediaDataCollector *)collector NS_AVAILABLE(10_11_3, 9_3);
+- (void)removeMediaDataCollector:(AVPlayerItemMediaDataCollector *)collector API_AVAILABLE(macos(10.11.3), ios(9.3), tvos(9.3), watchos(2.3));
 
 /*!
  @property		mediaDataCollectors
  @abstract		The collection of associated mediaDataCollectors.
 */
-@property (nonatomic, readonly) NSArray<AVPlayerItemMediaDataCollector *> *mediaDataCollectors NS_AVAILABLE(10_11_3, 9_3);;
+@property (nonatomic, readonly) NSArray<AVPlayerItemMediaDataCollector *> *mediaDataCollectors API_AVAILABLE(macos(10.11.3), ios(9.3), tvos(9.3), watchos(2.3));
 
 @end
 
@@ -21315,7 +23397,7 @@ AV_INIT_UNAVAILABLE
 					The time seeked to may differ from the specified time for efficiency. For sample accurate seeking see seekToTime:toleranceBefore:toleranceAfter:.
 					If the seek time is outside of seekable time ranges as indicated by seekableTimeRanges property, the seek request will be cancelled.
  */
-- (void)seekToTime:(CMTime)time NS_DEPRECATED(10_7, 10_13, 4_0, 11_0, "Use -seekToTime:completionHandler:, passing nil for the completionHandler if you don't require notification of completion");
+- (void)seekToTime:(CMTime)time API_DEPRECATED("Use -seekToTime:completionHandler:, passing nil for the completionHandler if you don't require notification of completion", macos(10.7, 10.13), ios(4.0, 11.0), tvos(9.0, 11.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method			seekToTime:toleranceBefore:toleranceAfter:
@@ -21331,7 +23413,7 @@ AV_INIT_UNAVAILABLE
 					within the seekable ranges.
 					If the seek time is outside of seekable time ranges as indicated by seekableTimeRanges property, the seek request will be cancelled.
  */
-- (void)seekToTime:(CMTime)time toleranceBefore:(CMTime)toleranceBefore toleranceAfter:(CMTime)toleranceAfter NS_DEPRECATED(10_7, 10_13, 4_0, 11_0, "Use -seekToTime:toleranceBefore:toleranceAfter:completionHandler:, passing nil for the completionHandler if you don't require notification of completion");
+- (void)seekToTime:(CMTime)time toleranceBefore:(CMTime)toleranceBefore toleranceAfter:(CMTime)toleranceAfter API_DEPRECATED("Use -seekToTime:toleranceBefore:toleranceAfter:completionHandler:, passing nil for the completionHandler if you don't require notification of completion", macos(10.7, 10.13), ios(4.0, 11.0), tvos(9.0, 11.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method		seekToDate
@@ -21343,7 +23425,7 @@ AV_INIT_UNAVAILABLE
  @param			date	The new position for the playhead.
  @result		Returns true if the playhead was moved to the supplied date.
  */
-- (BOOL)seekToDate:(NSDate *)date NS_DEPRECATED(10_7, 10_13, 4_0, 11_0, "Use -seekToDate:completionHandler:, passing nil for the completionHandler if you don't require notification of completion");
+- (BOOL)seekToDate:(NSDate *)date API_DEPRECATED("Use -seekToDate:completionHandler:, passing nil for the completionHandler if you don't require notification of completion", macos(10.7, 10.13), ios(4.0, 11.0), tvos(9.0, 11.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method		selectedMediaOptionInMediaSelectionGroup:
@@ -21353,7 +23435,7 @@ AV_INIT_UNAVAILABLE
  @discussion
    If the value of the property allowsEmptySelection of the AVMediaSelectionGroup is YES, the currently selected option in the group may be nil.
  */
-- (nullable AVMediaSelectionOption *)selectedMediaOptionInMediaSelectionGroup:(AVMediaSelectionGroup *)mediaSelectionGroup NS_DEPRECATED(10_8, 10_13, 5_0, 11_0, "Use currentMediaSelection to obtain an instance of AVMediaSelection, which encompasses the currently selected AVMediaSelectionOption in each of the available AVMediaSelectionGroups");
+- (nullable AVMediaSelectionOption *)selectedMediaOptionInMediaSelectionGroup:(AVMediaSelectionGroup *)mediaSelectionGroup API_DEPRECATED("Use currentMediaSelection to obtain an instance of AVMediaSelection, which encompasses the currently selected AVMediaSelectionOption in each of the available AVMediaSelectionGroups", macos(10.8, 10.13), ios(5.0, 11.0), tvos(9.0, 11.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -21366,7 +23448,7 @@ AV_INIT_UNAVAILABLE
  				of AVPlayerItemAccessLogEvent instances. Each AVPlayerItemAccessLogEvent instance collates the data 
  				that relates to each uninterrupted period of playback.
 */
-NS_CLASS_AVAILABLE(10_7, 4_3)
+API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0))
 @interface AVPlayerItemAccessLog : NSObject <NSCopying>
 {
 @private
@@ -21409,7 +23491,7 @@ AV_INIT_UNAVAILABLE
  @abstract		An AVPlayerItemErrorLog provides methods to retrieve the error log in a format suitable for serialization.
  @discussion	An AVPlayerItemErrorLog provides data to identify if, and when, network resource playback failures occured.
 */
-NS_CLASS_AVAILABLE(10_7, 4_3)
+API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0))
 @interface AVPlayerItemErrorLog : NSObject <NSCopying>
 {
 @private
@@ -21453,7 +23535,7 @@ AV_INIT_UNAVAILABLE
 				fields of each log event. None of the properties of this class are observable.
 */
 
-NS_CLASS_AVAILABLE(10_7, 4_3)
+API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0))
 @interface AVPlayerItemAccessLogEvent : NSObject <NSCopying>
 {
 @private
@@ -21468,7 +23550,7 @@ AV_INIT_UNAVAILABLE
  				This property is not observable.
  				This property is deprecated. Use numberOfMediaRequests instead.
  */
-@property (nonatomic, readonly) NSInteger numberOfSegmentsDownloaded NS_DEPRECATED(10_7, 10_9, 4_3, 7_0);
+@property (nonatomic, readonly) NSInteger numberOfSegmentsDownloaded API_DEPRECATED("No longer supported", macos(10.7, 10.9), ios(4.3, 7.0), tvos(9.0, 9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property		numberOfMediaRequests
@@ -21478,7 +23560,7 @@ AV_INIT_UNAVAILABLE
 				For progressive-style HTTP media downloads, a count of HTTP GET (byte-range) requests for the resource.
  				This property is not observable. 
  */
-@property (nonatomic, readonly) NSInteger numberOfMediaRequests NS_AVAILABLE(10_9, 6_0);
+@property (nonatomic, readonly) NSInteger numberOfMediaRequests API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		playbackStartDate
@@ -21566,7 +23648,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "c-transfer-duration".
 				This property is not observable.
  */
-@property (nonatomic, readonly) NSTimeInterval transferDuration NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) NSTimeInterval transferDuration API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		observedBitrate
@@ -21590,7 +23672,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "sc-indicated-avg-bitrate".
  This property is not observable.
  */
-@property (nonatomic, readonly) double indicatedAverageBitrate NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, readonly) double indicatedAverageBitrate API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 /*!
  @property		averageVideoBitrate
@@ -21598,7 +23680,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "c-avg-video-bitrate".
  This property is not observable.
  */
-@property (nonatomic, readonly) double averageVideoBitrate NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, readonly) double averageVideoBitrate API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property		averageAudioBitrate
@@ -21606,7 +23688,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "c-avg-audio-bitrate".
  This property is not observable.
  */
-@property (nonatomic, readonly) double averageAudioBitrate NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, readonly) double averageAudioBitrate API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 /*!
  @property		numberOfDroppedVideoFrames
@@ -21622,7 +23704,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "c-startup-time".
 				This property is not observable.
  */
-@property (nonatomic, readonly) NSTimeInterval startupTime NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) NSTimeInterval startupTime API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		downloadOverdue
@@ -21630,7 +23712,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "c-overdue".
 				This property is not observable.
  */
-@property (nonatomic, readonly) NSInteger downloadOverdue NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) NSInteger downloadOverdue API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		observedMaxBitrate
@@ -21638,7 +23720,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "c-observed-max-bitrate".
 				This property is not observable.
  */
-@property (nonatomic, readonly) double observedMaxBitrate NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) double observedMaxBitrate API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		observedMinBitrate
@@ -21646,7 +23728,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "c-observed-min-bitrate".
 				This property is not observable.
  */
-@property (nonatomic, readonly) double observedMinBitrate NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) double observedMinBitrate API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		observedBitrateStandardDeviation
@@ -21654,7 +23736,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "c-observed-bitrate-sd".
 				This property is not observable.
  */
-@property (nonatomic, readonly) double observedBitrateStandardDeviation NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) double observedBitrateStandardDeviation API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		playbackType
@@ -21662,7 +23744,7 @@ AV_INIT_UNAVAILABLE
  @discussion	If nil is returned the playback type is unknown. Corresponds to "s-playback-type".
 				This property is not observable.
  */
-@property (nonatomic, readonly, nullable) NSString *playbackType NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly, nullable) NSString *playbackType API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		mediaRequestsWWAN
@@ -21670,7 +23752,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "sc-wwan-count".
 				This property is not observable.
  */
-@property (nonatomic, readonly) NSInteger mediaRequestsWWAN NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) NSInteger mediaRequestsWWAN API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 /*!
  @property		switchBitrate
@@ -21678,7 +23760,7 @@ AV_INIT_UNAVAILABLE
  @discussion	Value is negative if unknown. Corresponds to "c-switch-bitrate".
 				This property is not observable.
  */
-@property (nonatomic, readonly) double switchBitrate NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) double switchBitrate API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 
 @end
 
@@ -21688,7 +23770,7 @@ AV_INIT_UNAVAILABLE
  @discussion	An AVPlayerItemErrorLogEvent provides named properties for accessing the data
 				fields of each log event. None of the properties of this class are observable.
 */
-NS_CLASS_AVAILABLE(10_7, 4_3)
+API_AVAILABLE(macos(10.7), ios(4.3), tvos(9.0), watchos(1.0))
 @interface AVPlayerItemErrorLogEvent : NSObject <NSCopying>
 {
 @private
@@ -21761,7 +23843,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
  
-	Copyright 2010-2018 Apple Inc. All rights reserved.
+	Copyright 2010-2019 Apple Inc. All rights reserved.
 
 */
 
@@ -21786,7 +23868,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class AVAssetResourceRenewalRequest;
 @class AVAssetResourceLoaderInternal;
 
-NS_CLASS_AVAILABLE(10_9, 6_0)
+API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetResourceLoader : NSObject {
 @private
 	AVAssetResourceLoaderInternal *_resourceLoader;
@@ -21827,7 +23909,7 @@ AV_INIT_UNAVAILABLE
 
 /*!
 	@protocol		AVAssetResourceLoaderDelegate
-	@abstract		The AVAssetResourceLoaderDelegate protocol defines methods that allow your code to handle resource loading requests coming from an AVULRAsset.
+	@abstract		The AVAssetResourceLoaderDelegate protocol defines methods that allow your code to handle resource loading requests coming from an AVURLAsset.
 */
 
 @class NSURLAuthenticationChallenge;
@@ -21853,7 +23935,7 @@ AV_INIT_UNAVAILABLE
   If an AVURLAsset is added to an AVContentKeySession object and a delegate is set on its AVAssetResourceLoader, that delegate's resourceLoader:shouldWaitForLoadingOfRequestedResource: method must specify which custom URL requests should be handled as content keys. This is done by returning YES and passing either AVStreamingKeyDeliveryPersistentContentKeyType or AVStreamingKeyDeliveryContentKeyType into -[AVAssetResourceLoadingContentInformationRequest setContentType:] and then calling -[AVAssetResourceLoadingRequest finishLoading].
 
 */
-- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest NS_AVAILABLE(10_9, 6_0);
+- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method 		resourceLoader:shouldWaitForRenewalOfRequestedResource:
@@ -21871,7 +23953,7 @@ AV_INIT_UNAVAILABLE
  
   If an AVURLAsset is added to an AVContentKeySession object and a delegate is set on its AVAssetResourceLoader, that delegate's resourceLoader:shouldWaitForRenewalOfRequestedResource:renewalRequest method must specify which custom URL requests should be handled as content keys. This is done by returning YES and passing either AVStreamingKeyDeliveryPersistentContentKeyType or AVStreamingKeyDeliveryContentKeyType into -[AVAssetResourceLoadingContentInformationRequest setContentType:] and then calling -[AVAssetResourceLoadingRequest finishLoading].
 */
-- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForRenewalOfRequestedResource:(AVAssetResourceRenewalRequest *)renewalRequest NS_AVAILABLE(10_10, 8_0);
+- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForRenewalOfRequestedResource:(AVAssetResourceRenewalRequest *)renewalRequest API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method 		resourceLoader:didCancelLoadingRequest:
@@ -21880,7 +23962,7 @@ AV_INIT_UNAVAILABLE
 				The loading request that has been cancelled. 
  @discussion	Previously issued loading requests can be cancelled when data from the resource is no longer required or when a loading request is superseded by new requests for data from the same resource. For example, if to complete a seek operation it becomes necessary to load a range of bytes that's different from a range previously requested, the prior request may be cancelled while the delegate is still handling it.
 */
-- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest NS_AVAILABLE(10_9, 7_0);
+- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method 		resourceLoader:shouldWaitForResponseToAuthenticationChallenge:
@@ -21893,7 +23975,7 @@ AV_INIT_UNAVAILABLE
   Delegates receive this message when assistance is required of the application to respond to an authentication challenge.
   If the result is YES, the resource loader expects you to send an appropriate response, either subsequently or immediately, to the NSURLAuthenticationChallenge's sender, i.e. [authenticationChallenge sender], via use of one of the messages defined in the NSURLAuthenticationChallengeSender protocol (see NSAuthenticationChallenge.h). If you intend to respond to the authentication challenge after your handling of -resourceLoader:shouldWaitForResponseToAuthenticationChallenge: returns, you must retain the instance of NSURLAuthenticationChallenge until after your response has been made.
 */
-- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForResponseToAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge NS_AVAILABLE(10_10, 8_0);
+- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForResponseToAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @method 		resourceLoader:didCancelAuthenticationChallenge:
@@ -21901,7 +23983,7 @@ AV_INIT_UNAVAILABLE
  @param 		authenticationChallenge
 				The authentication challenge that has been cancelled. 
 */
-- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge NS_AVAILABLE(10_10, 8_0);
+- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -21917,7 +23999,7 @@ AV_INIT_UNAVAILABLE
 @class AVAssetResourceLoadingRequestor;
 @class AVAssetResourceLoadingRequestorInternal;
 
-API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0))
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetResourceLoadingRequestor : NSObject {
 @private
 	AVAssetResourceLoadingRequestorInternal *_requestor;
@@ -21946,7 +24028,7 @@ AV_INIT_UNAVAILABLE
 @class AVAssetResourceLoadingContentInformationRequest;
 @class AVAssetResourceLoadingDataRequest;
 
-NS_CLASS_AVAILABLE(10_9, 6_0)
+API_AVAILABLE(macos(10.9), ios(6.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetResourceLoadingRequest : NSObject {
 @private
 	AVAssetResourceLoadingRequestInternal *_loadingRequest;
@@ -21971,45 +24053,45 @@ AV_INIT_UNAVAILABLE
  @abstract		Indicates whether the request has been cancelled.
  @discussion	The value of this property becomes YES when the resource loader cancels the loading of a request, just prior to sending the message -resourceLoader:didCancelLoadingRequest: to its delegate.
 */
-@property (nonatomic, readonly, getter=isCancelled) BOOL cancelled NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly, getter=isCancelled) BOOL cancelled API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*! 
  @property 		contentInformationRequest
  @abstract		An instance of AVAssetResourceLoadingContentInformationRequest that you should populate with information about the resource. The value of this property will be nil if no such information is being requested.
 */
-@property (nonatomic, readonly, nullable) AVAssetResourceLoadingContentInformationRequest *contentInformationRequest NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly, nullable) AVAssetResourceLoadingContentInformationRequest *contentInformationRequest API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*! 
  @property 		dataRequest
  @abstract		An instance of AVAssetResourceLoadingDataRequest that indicates the range of resource data that's being requested. The value of this property will be nil if no data is being requested.
 */
-@property (nonatomic, readonly, nullable) AVAssetResourceLoadingDataRequest *dataRequest NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly, nullable) AVAssetResourceLoadingDataRequest *dataRequest API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*! 
  @property 		response
  @abstract		Set the value of this property to an instance of NSURLResponse indicating a response to the loading request. If no response is needed, leave the value of this property set to nil.
 */
-@property (nonatomic, copy, nullable) NSURLResponse *response NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, copy, nullable) NSURLResponse *response API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*! 
  @property 		redirect
  @abstract		Set the value of this property to an instance of NSURLRequest indicating a redirection of the loading request to another URL. If no redirection is needed, leave the value of this property set to nil.
  @discussion	AVAssetResourceLoader supports redirects to HTTP URLs only. Redirects to other URLs will result in a loading failure.
 */
-@property (nonatomic, copy, nullable) NSURLRequest *redirect NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, copy, nullable) NSURLRequest *redirect API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*!
  @property 		requestor
  @abstract		The AVAssetResourceLoadingRequestor that made this request
  */
-@property (nonatomic, readonly) AVAssetResourceLoadingRequestor *requestor API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
+@property (nonatomic, readonly) AVAssetResourceLoadingRequestor *requestor API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) API_UNAVAILABLE(watchos);
 
 /*! 
  @method 		finishLoading   
  @abstract		Causes the receiver to treat the processing of the request as complete.
  @discussion	If a dataRequest is present and the resource does not contain the full extent of the data that has been requested according to the values of the requestedOffset and requestedLength properties of the dataRequest, or if requestsAllDataToEndOfResource has a value of YES, you may invoke -finishLoading after you have provided as much of the requested data as the resource contains.
 */
-- (void)finishLoading NS_AVAILABLE(10_9, 7_0);
+- (void)finishLoading API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*! 
  @method 		finishLoadingWithError:   
@@ -22030,7 +24112,7 @@ AV_INIT_UNAVAILABLE
  When an AVURLAsset needs to renew a resource (because contentInformationRequest.renewalDate has been set on a previous loading request), it asks its AVAssetResourceLoader object to assist. The resource loader encapsulates the request information by creating an instance of this object, which it then hands to its delegate for processing. The delegate uses the information in this object to perform the request and report on the success or failure of the operation.
 
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetResourceRenewalRequest : AVAssetResourceLoadingRequest
 
 @end
@@ -22048,7 +24130,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 
 @class AVAssetResourceLoadingContentInformationRequestInternal;
 
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetResourceLoadingContentInformationRequest : NSObject {
 @private
 	AVAssetResourceLoadingContentInformationRequestInternal *_contentInformationRequest;
@@ -22067,7 +24149,7 @@ AV_INIT_UNAVAILABLE
  @abstract		An array showing the types of data which will be accepted as a valid response for the requested resource.
  @discussion	If allowedContentTypes is nonnil and the contentType property is not in allowedContentTypes, an exception will be raised.
 */
-@property (nonatomic, readonly, nullable) NSArray <NSString *> *allowedContentTypes API_AVAILABLE(ios(11.2), tvos(11.2), macos(10.13.2), watchos(4.2));
+@property (nonatomic, readonly, nullable) NSArray <NSString *> *allowedContentTypes API_AVAILABLE(macos(10.13.2), ios(11.2), tvos(11.2)) API_UNAVAILABLE(watchos);
 
 /*! 
  @property 		contentLength
@@ -22088,7 +24170,7 @@ AV_INIT_UNAVAILABLE
  @abstract		For resources that expire, the date at which a new AVAssetResourceLoadingRequest will be issued for a renewal of this resource, if the media system still requires it.
  @discussion	Before you finish loading an AVAssetResourceLoadingRequest, if the resource is prone to expiry you should set the value of this property to the date at which a renewal should be triggered. This value should be set sufficiently early enough to allow an AVAssetResourceRenewalRequest, delivered to your delegate via -resourceLoader:shouldWaitForRenewalOfRequestedResource:, to finish before the actual expiry time. Otherwise media playback may fail.
  */
-@property (nonatomic, copy, nullable) NSDate *renewalDate NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, copy, nullable) NSDate *renewalDate API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -22107,7 +24189,7 @@ AV_INIT_UNAVAILABLE
 
 @class AVAssetResourceLoadingDataRequestInternal;
 
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAssetResourceLoadingDataRequest : NSObject {
 @private
 	AVAssetResourceLoadingDataRequestInternal *_dataRequest;
@@ -22134,7 +24216,7 @@ AV_INIT_UNAVAILABLE
  @abstract		Specifies that the entire remaining length of the resource from requestedOffset to the end of the resource is being requested.
  @discussion	When requestsAllDataToEndOfResource has a value of YES, you should disregard the value of requestedLength and incrementally provide as much data starting from the requestedOffset as the resource contains, until you have provided all of the available data successfully and invoked -finishLoading, until you have encountered a failure and invoked -finishLoadingWithError:, or until you have received -resourceLoader:didCancelLoadingRequest: for the AVAssetResourceLoadingRequest from which the AVAssetResourceLoadingDataRequest was obtained.
 */
-@property (nonatomic, readonly) BOOL requestsAllDataToEndOfResource NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, readonly) BOOL requestsAllDataToEndOfResource API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 /*! 
  @property 		currentOffset
@@ -22147,7 +24229,7 @@ AV_INIT_UNAVAILABLE
  @abstract		Provides data to the receiver.
  @param			data
  				An instance of NSData containing some or all of the requested bytes.
- @discussion	May be invoked multiple times on the same instance of AVAssetResourceLoadingDataRequest to provide the full range of requested data incrementally. Upon each invocation, the value of currentOffset will be updated to accord with the amount of data provided.
+ @discussion	May be invoked multiple times on the same instance of AVAssetResourceLoadingDataRequest to provide the full range of requested data incrementally. Upon each invocation, the value of currentOffset will be updated to accord with the amount of data provided. When calling this method, the application releases ownership of the data object; buffer reuse is not allowed.
 */
 - (void)respondWithData:(NSData *)data;
 
@@ -22160,7 +24242,7 @@ AV_INIT_UNAVAILABLE
  @abstract		When YES, eligible content keys will be loaded as eagerly as possible, potentially handled by the delegate. Setting to YES may result in network activity.
  @discussion	Any work done as a result of setting this property will be performed asynchronously.
 */
-@property (nonatomic) BOOL preloadsEligibleContentKeys NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic) BOOL preloadsEligibleContentKeys API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -22193,7 +24275,7 @@ AV_INIT_UNAVAILABLE
  @result		The persistable content key data that may be stored offline to answer future loading requests of the same content key.
  @discussion	The data returned from this method may be used to immediately satisfy an AVAssetResourceLoadingDataRequest, as well as any subsequent requests for the same key url. The value of AVAssetResourceLoadingContentInformationRequest.contentType must be set to AVStreamingKeyDeliveryPersistentContentKeyType when responding with data created with this method.
 */
-- (nullable NSData *)persistentContentKeyFromKeyVendorResponse:(NSData *)keyVendorResponse options:(nullable NSDictionary<NSString *, id> *)options error:(NSError **)outError NS_AVAILABLE_IOS(9_0);
+- (nullable NSData *)persistentContentKeyFromKeyVendorResponse:(NSData *)keyVendorResponse options:(nullable NSDictionary<NSString *, id> *)options error:(NSError **)outError API_AVAILABLE(macos(10.15), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -22202,7 +24284,7 @@ AV_INIT_UNAVAILABLE
  @constant		AVAssetResourceLoadingRequestStreamingContentKeyRequestRequiresPersistentKey
  @abstract		Specifies whether the content key request should require a persistable key to be returned from the key vendor. Value should be a NSNumber created with +[NSNumber numberWithBool:].
 */
-AVF_EXPORT NSString *const AVAssetResourceLoadingRequestStreamingContentKeyRequestRequiresPersistentKey API_AVAILABLE(ios(9.0), tvos(9.0)) __WATCHOS_PROHIBITED;
+AVF_EXPORT NSString *const AVAssetResourceLoadingRequestStreamingContentKeyRequestRequiresPersistentKey API_AVAILABLE(macos(10.14), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 @interface AVAssetResourceLoadingRequest (AVAssetResourceLoadingRequestDeprecated)
 
@@ -22221,7 +24303,7 @@ AVF_EXPORT NSString *const AVAssetResourceLoadingRequestStreamingContentKeyReque
 					-[AVAssetResourceLoadingDataRequest respondWithData:] to provide data, and
 					-[AVAssetResourceLoadingRequest finishLoading] to indicate that loading is finished.
 */
-- (void)finishLoadingWithResponse:(nullable NSURLResponse *)response data:(nullable NSData *)data redirect:(nullable NSURLRequest *)redirect NS_DEPRECATED_IOS(6_0, 7_0);
+- (void)finishLoadingWithResponse:(nullable NSURLResponse *)response data:(nullable NSData *)data redirect:(nullable NSURLRequest *)redirect API_DEPRECATED("No longer supported", ios(6.0, 7.0), tvos(9.0, 9.0)) API_UNAVAILABLE(watchos) API_UNAVAILABLE(macos);
 
 @end
 
@@ -22232,7 +24314,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
  
-	Copyright 2013-2017 Apple Inc. All rights reserved.
+	Copyright 2013-2018 Apple Inc. All rights reserved.
 
 */
 
@@ -22253,10 +24335,10 @@ NS_ASSUME_NONNULL_BEGIN
 		Indicates that the receiver cannot currently enqueue or render sample buffers because of an error.
  */
 typedef NS_ENUM(NSInteger, AVQueuedSampleBufferRenderingStatus) {
-	AVQueuedSampleBufferRenderingStatusUnknown,
-	AVQueuedSampleBufferRenderingStatusRendering,
-	AVQueuedSampleBufferRenderingStatusFailed
-} API_AVAILABLE(macos(10.10), ios(8.0), tvos(10.2)) __WATCHOS_PROHIBITED;
+	AVQueuedSampleBufferRenderingStatusUnknown = 0,
+	AVQueuedSampleBufferRenderingStatusRendering = 1,
+	AVQueuedSampleBufferRenderingStatusFailed = 2
+} API_AVAILABLE(macos(10.10), ios(8.0), tvos(10.2), watchos(1.0));
 
 /*
 	@protocol		AVQueuedSampleBufferRendering
@@ -22264,7 +24346,7 @@ typedef NS_ENUM(NSInteger, AVQueuedSampleBufferRenderingStatus) {
 	@discussion
 		AVSampleBufferDisplayLayer and AVSampleBufferAudioRenderer conform to this protocol.  When used in conjunction with an AVSampleBufferRenderSynchronizer, an object conforming to AVQueuedSampleBufferRendering can only be attached to a single synchronizer.
 */
-API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
 @protocol AVQueuedSampleBufferRendering <NSObject>
 
 /*!
@@ -22350,7 +24432,7 @@ NS_ASSUME_NONNULL_END
 
 	Framework:  AVFoundation
  
-	Copyright 2010-2018 Apple Inc. All rights reserved.
+	Copyright 2010-2019 Apple Inc. All rights reserved.
 
 */
 
@@ -22358,11 +24440,13 @@ NS_ASSUME_NONNULL_END
 #import <AVFoundation/AVAssetTrack.h>
 #import <CoreMedia/CMTime.h>
 #import <CoreMedia/CMTimeRange.h>
+#import <CoreMedia/CMFormatDescription.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class AVAsset;
 @class AVComposition;
+@class AVCompositionTrackFormatDescriptionReplacement;
 
 /*!
     @class          AVCompositionTrack
@@ -22373,7 +24457,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class AVCompositionTrackInternal;
 @class AVCompositionTrackSegment;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVCompositionTrack : AVAssetTrack
 {
 @private
@@ -22399,6 +24483,13 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  */
 - (nullable AVCompositionTrackSegment *)segmentForTrackTime:(CMTime)trackTime;
 
+/*!
+	@property		formatDescriptionReplacements
+	@abstract		An array of AVCompositionTrackFormatDescriptionReplacement objects indicating original format descriptions and their replacements.
+	@discussion     The value of this property is an array of AVCompositionTrackFormatDescriptionReplacement objects, each of which specifies an original format description together with its replacement format description (as specified by a previous call to -replaceFormatDescription:withFormatDescription:). Only format descriptions that are to be replaced will occur as the originalFormatDescription elements in the AVCompositionTrackFormatDescriptionReplacement objects in this array.
+*/
+@property (readonly) NSArray <AVCompositionTrackFormatDescriptionReplacement *> *formatDescriptionReplacements API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
 @end
 
 
@@ -22410,7 +24501,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @class AVMutableCompositionTrackInternal;
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVMutableCompositionTrack : AVCompositionTrack
 {
 @private
@@ -22501,7 +24592,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
     @discussion
       This method is equivalent to (but more efficient than) calling -insertTimeRange:ofTrack:atTime:error: for each timeRange/track pair. If this method returns an error, none of the time ranges will be inserted into the composition track. To specify an empty time range, pass NSNull for the track and a time range of starting at kCMTimeInvalid with a duration of the desired empty edit.
 */
-- (BOOL)insertTimeRanges:(NSArray<NSValue *> *)timeRanges ofTracks:(NSArray<AVAssetTrack *> *)tracks atTime:(CMTime)startTime error:(NSError * _Nullable * _Nullable)outError NS_AVAILABLE(10_8, 5_0);
+- (BOOL)insertTimeRanges:(NSArray<NSValue *> *)timeRanges ofTracks:(NSArray<AVAssetTrack *> *)tracks atTime:(CMTime)startTime error:(NSError * _Nullable * _Nullable)outError API_AVAILABLE(macos(10.8), ios(5.0), tvos(9.0), watchos(1.0));
 
 /*!
     @method         insertEmptyTimeRange:
@@ -22572,6 +24663,37 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 
 @end
 
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0))
+@interface AVCompositionTrackFormatDescriptionReplacement : NSObject <NSSecureCoding>
+
+/*!
+    @property       originalFormatDescription
+    @abstract       The original format description.
+*/
+@property (readonly) CMFormatDescriptionRef originalFormatDescription;
+
+/*!
+    @property       replacementFormatDescription
+    @abstract       The replacement format description.
+*/
+@property (readonly) CMFormatDescriptionRef replacementFormatDescription;
+
+@end
+
+@interface AVMutableCompositionTrack (AVMutableCompositionTrackFormatDescriptionReplacement)
+/*!
+	@method			replaceFormatDescription:withFormatDescription:
+	@abstract		Replaces one of the receiver's format descriptions with another format description or cancels a previous replacement.
+	@param			originalFormatDescription
+					A CMFormatDescription occurring in the underlying asset track.
+	@param			replacementFormatDescription
+					A CMFormatDescription to replace the specified format description or NULL to indicate that a previous replacement of originalFormatDescription should be cancelled.
+	@discussion     You can use this method to make surgical changes to a track's format descriptions, such as adding format description extensions to a format description or changing the audio channel layout of an audio track. You should note that a format description can have extensions of type kCMFormatDescriptionExtension_VerbatimSampleDescription and kCMFormatDescriptionExtension_VerbatimISOSampleEntry; if you modify a copy of a format description, you should delete those extensions from the copy or your changes might be ignored.
+*/
+- (void)replaceFormatDescription:(CMFormatDescriptionRef)originalFormatDescription withFormatDescription:(nullable CMFormatDescriptionRef)replacementFormatDescription API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+@end
+
 NS_ASSUME_NONNULL_END
 // ==========  AVFoundation.framework/Headers/AVAsynchronousKeyValueLoading.h
 /*
@@ -22579,7 +24701,7 @@ NS_ASSUME_NONNULL_END
  
     Framework:  AVFoundation
  
-	Copyright 2010-2016 Apple Inc. All rights reserved.
+	Copyright 2010-2018 Apple Inc. All rights reserved.
  
  */
 
@@ -22589,11 +24711,11 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, AVKeyValueStatus) {
-	AVKeyValueStatusUnknown,
-	AVKeyValueStatusLoading,
-	AVKeyValueStatusLoaded,
-	AVKeyValueStatusFailed,
-	AVKeyValueStatusCancelled
+	AVKeyValueStatusUnknown = 0,
+	AVKeyValueStatusLoading = 1,
+	AVKeyValueStatusLoaded = 2,
+	AVKeyValueStatusFailed = 3,
+	AVKeyValueStatusCancelled = 4
 };
 
 /*!
@@ -22690,10 +24812,10 @@ typedef NSString * AVAudioTimePitchAlgorithm NS_STRING_ENUM;
                 Variable rate from 1/32 to 32.
  
 */
-AVF_EXPORT AVAudioTimePitchAlgorithm const AVAudioTimePitchAlgorithmLowQualityZeroLatency API_AVAILABLE(ios(7.0), tvos(9.0)) API_UNAVAILABLE(macos) __WATCHOS_PROHIBITED;
-AVF_EXPORT AVAudioTimePitchAlgorithm const AVAudioTimePitchAlgorithmTimeDomain NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVAudioTimePitchAlgorithm const AVAudioTimePitchAlgorithmSpectral NS_AVAILABLE(10_9, 7_0);
-AVF_EXPORT AVAudioTimePitchAlgorithm const AVAudioTimePitchAlgorithmVarispeed NS_AVAILABLE(10_9, 7_0);
+AVF_EXPORT AVAudioTimePitchAlgorithm const AVAudioTimePitchAlgorithmLowQualityZeroLatency API_AVAILABLE(ios(7.0), tvos(9.0), watchos(1.0)) API_UNAVAILABLE(macos);
+AVF_EXPORT AVAudioTimePitchAlgorithm const AVAudioTimePitchAlgorithmTimeDomain API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVAudioTimePitchAlgorithm const AVAudioTimePitchAlgorithmSpectral API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
+AVF_EXPORT AVAudioTimePitchAlgorithm const AVAudioTimePitchAlgorithmVarispeed API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0));
 // ==========  AVFoundation.framework/Headers/AVPlayerItemTrack.h
 /*
 	File:  AVPlayerItemTrack.h
@@ -22727,7 +24849,7 @@ NS_ASSUME_NONNULL_BEGIN
 		clients must serialize their access with the associated AVPlayer's notification queue. In the common case, such serialization
 		is naturally achieved by invoking AVPlayerItemTrack's various methods on the main thread or queue.
 */
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0), watchos(1.0))
 @interface AVPlayerItemTrack : NSObject
 {
 @private
@@ -22754,7 +24876,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @abstract		If the media type of the assetTrack is AVMediaTypeVideo, indicates the current frame rate of the track as it plays, in units of frames per second. If the item is not playing, or if the media type of the track is not video, the value of this property is 0.
  @discussion	This property is not observable.
 */
-@property (nonatomic, readonly) float currentVideoFrameRate NS_AVAILABLE(10_9, 7_0);
+@property (nonatomic, readonly) float currentVideoFrameRate API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
 #if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
 
@@ -22762,7 +24884,7 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
  @constant		AVPlayerItemTrackVideoFieldModeDeinterlaceFields
  @abstract		Use with videoFieldMode property to request deinterlacing of video fields.
 */
-AVF_EXPORT NSString *const AVPlayerItemTrackVideoFieldModeDeinterlaceFields NS_AVAILABLE_MAC(10_10);
+AVF_EXPORT NSString *const AVPlayerItemTrackVideoFieldModeDeinterlaceFields API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
  @property		videoFieldMode
@@ -22770,7 +24892,7 @@ AVF_EXPORT NSString *const AVPlayerItemTrackVideoFieldModeDeinterlaceFields NS_A
  @discussion	A value of nil indicates default processing of video frames. If you want video fields to be deinterlaced, set videoFieldMode to AVPlayerItemTrackVideoFieldModeDeinterlaceFields.
  				You can test whether video being played has multiple fields by examining the underlying AVAssetTrack's format descriptions. See -[AVAssetTrack formatDescriptions] and, for video format descriptions, kCMFormatDescriptionExtension_FieldCount.
 */
-@property (nonatomic, copy, nullable) NSString *videoFieldMode NS_AVAILABLE_MAC(10_10);
+@property (nonatomic, copy, nullable) NSString *videoFieldMode API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, tvos, watchos);
 
 #endif
 
@@ -22793,7 +24915,7 @@ NS_ASSUME_NONNULL_END
  
 	Framework:  AVFoundation
  
-	Copyright 2012-2018 Apple Inc. All rights reserved.
+	Copyright 2012-2016 Apple Inc. All rights reserved.
  
  */
 
@@ -22812,22 +24934,28 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(9.0), watchos(1.0))
 @interface AVPlayerMediaSelectionCriteria : NSObject {
 @private
 	void *_criteriaInternal;
 }
 
-/* An NSArray of NSStrings containing language identifiers, in order of desirability, that are preferred for selection. Can be nil. Languages can be indicated via BCP 47 language identifiers or via ISO 639-2/T language codes. If no option with any of the preferred languages is available, a selection will be made according to indications for the default enabling and disabling of media options as stored in the asset.
-   When making selections, AVPlayer treats the preference for languages as the paramount criterion.
+/* An NSArray of NSStrings containing language identifiers, in order of desirability, that are preferred for selection. Can be nil. Languages can be indicated via BCP 47 language identifiers or via ISO 639-2/T language codes.
+	If no option in a media selection group with any of the preferred languages is available, the default option in the group will be considered the best match.
+   When making selections, AVPlayer treats language preferences as criteria that supersede preferred media characteristics.
  */
 @property (nonatomic, readonly, nullable) NSArray<NSString *> *preferredLanguages;
 
-/* An NSArray of NSStrings indicating additional media characteristics, in order of desirability, that are preferred when selecting media with the characteristic for which the receiver is set on the AVPlayer as the selection criteria. Can be nil. See AVMediaFormat.h for declarations of media characteristics of the form AVMediaCharacteristic*. For example, desirable characteristics of legible media may include AVMediaCharacteristicTranscribesSpokenDialogForAccessibility and AVMediaCharacteristicDescribesMusicAndSoundForAccessibility. Simiarly, desirable characteristics of audible media may include AVMediaCharacteristicDescribesVideoForAccessibility.
-   If no option is found that possesses all of the desired characteristics, the option that best matches the desired characteristics will be selected.
-   When making automatic selections, AVPlayer treats the preference for additional media characteristics as a criterion that's secondary to language preference.
+/* An NSArray of AVMediaCharacteristics indicating additional media characteristics, in order of desirability, that are preferred when selecting media with the characteristic for which the receiver is set on the AVPlayer as the selection criteria. Can be nil. See AVMediaFormat.h for declarations of media characteristics of the form AVMediaCharacteristic*. For example, desirable characteristics of legible media may include AVMediaCharacteristicTranscribesSpokenDialogForAccessibility and AVMediaCharacteristicDescribesMusicAndSoundForAccessibility. Simiarly, desirable characteristics of audible media may include AVMediaCharacteristicDescribesVideoForAccessibility.
+   When making automatic selections, AVPlayer treats preferred media characteristics as criteria that are superseded by language preferences.
  */
 @property (nonatomic, readonly, nullable) NSArray<AVMediaCharacteristic> *preferredMediaCharacteristics;
+
+/* An NSArray of AVMediaCharacteristics indicating media characteristics that are considered essential when selecting media with the characteristic for which the receiver is set on the AVPlayer as the selection criteria. Can be nil. See AVMediaFormat.h for declarations of media characteristics of the form AVMediaCharacteristic*. For example, principal characteristics of audible media may include AVMediaCharacteristicIsOriginalContent.
+   If no option in a media selection group that possesses all of the principal media characteristics is available, the default option in the group will be considered the best match.
+   When making automatic selections, AVPlayer treats principal media characteristics as criteria that supersede both language preferences and preferred media characteristics. Use principal media characteristics with caution; use cases in support of accessibility features are normally satisfied via the use of a combination of language preferences and preferred characteristics, not via the use of principal media characteristics.
+ */
+@property (nonatomic, readonly, nullable) NSArray<AVMediaCharacteristic> *principalMediaCharacteristics API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
 
 /*!
   @method		initWithPreferredLanguages:preferredMediaCharacteristics:
@@ -22835,10 +24963,24 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
   @param		preferredLanguages
 				An NSArray of NSStrings containing language identifiers, in order of desirability, that are preferred for selection. Can be nil.
   @param		preferredMediaCharacteristics
-				An NSArray of NSStrings indicating additional media characteristics, in order of desirability, that are preferred when selecting media with the characteristic for which the receiver is set on the AVPlayer as the selection criteria. Can be nil.
+				An NSArray of AVMediaCharacteristics indicating additional media characteristics, in order of desirability, that are preferred when selecting media with the characteristic for which the receiver is set on the AVPlayer as the selection criteria. Can be nil.
   @result		An instance of AVPlayerMediaSelectionCriteria.
 */
 - (instancetype)initWithPreferredLanguages:(nullable NSArray<NSString *> *)preferredLanguages preferredMediaCharacteristics:(nullable NSArray<AVMediaCharacteristic> *)preferredMediaCharacteristics;
+
+/*!
+  @method		initWithPrincipalMediaCharacteristics:principalMediaCharacteristics:preferredLanguages:preferredMediaCharacteristics:
+  @abstract		Creates an instance of AVPlayerMediaSelectionCriteria.
+  @param		principalMediaCharacteristics
+				An NSArray of AVMediaCharacteristics indicating media characteristics that are considered essential when selecting media with the characteristic for which the receiver is set on the AVPlayer as the selection criteria. Can be nil.
+  @param		preferredLanguages
+				An NSArray of NSStrings containing language identifiers, in order of desirability, that are preferred for selection. Can be nil.
+  @param		preferredMediaCharacteristics
+				An NSArray of AVMediaCharacteristics indicating additional media characteristics, in order of desirability, that are preferred when selecting media with the characteristic for which the receiver is set on the AVPlayer as the selection criteria. Can be nil.
+   @result		An instance of AVPlayerMediaSelectionCriteria.
+   @discussion  Note that even though principal media characteristics, when present, will override language preferences when making a selection within a specific media selection group, language preferences may still pertain to selections in other groups. For example, language preferences for the group that corresponds to the audible characteristic may be considered when choosing whether or not to select non-forced subtitles for translation purposes.
+*/
+- (instancetype)initWithPrincipalMediaCharacteristics:(nullable NSArray<AVMediaCharacteristic> *)principalMediaCharacteristics preferredLanguages:(nullable NSArray<NSString *> *)preferredLanguages preferredMediaCharacteristics:(nullable NSArray<AVMediaCharacteristic> *)preferredMediaCharacteristics API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
 
 @end
 
@@ -22876,7 +25018,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, AVDepthDataQuality) {
     AVDepthDataQualityLow    = 0,
     AVDepthDataQualityHigh   = 1,
-} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 /*
  @enum AVDepthDataAccuracy
@@ -22894,7 +25036,7 @@ typedef NS_ENUM(NSInteger, AVDepthDataQuality) {
 typedef NS_ENUM(NSInteger, AVDepthDataAccuracy) {
     AVDepthDataAccuracyRelative    = 0,
     AVDepthDataAccuracyAbsolute    = 1,
-} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+} API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
 @class AVDepthDataInternal;
 
@@ -22917,7 +25059,7 @@ typedef NS_ENUM(NSInteger, AVDepthDataAccuracy) {
  
     When capturing depth data from a camera using AVCaptureDepthDataOutput, AVDepthData objects are delivered to your AVCaptureDepthDataOutputDelegate in a streaming fashion. When capturing depth data along with photos using AVCapturePhotoOutput, depth data is delivered to your AVCapturePhotoCaptureDelegate as a property of an AVCapturePhoto (see -[AVCapturePhotoCaptureDelegate captureOutput:didFinishProcessingPhoto:error:]). When working with image files containing depth information, AVDepthData may be instantiated using information obtained from ImageIO. When editing images containing depth information, derivative AVDepthData objects may be instantiated reflecting the edits that have been performed.
  */
-API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos)
 @interface AVDepthData : NSObject
 {
 @private
@@ -23508,7 +25650,7 @@ API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED
  @discussion
     Returns an NSArray of NSStrings listing the allowable keys in the receiver's setOutputSettings:forConnection: dictionary.
  */
-- (NSArray<NSString *> *)supportedOutputSettingsKeysForConnection:(AVCaptureConnection *)connection API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos, watchos);
+- (NSArray<NSString *> *)supportedOutputSettingsKeysForConnection:(AVCaptureConnection *)connection API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos, watchos);
 
 /*!
  @method outputSettingsForConnection:
@@ -23699,7 +25841,7 @@ NS_ASSUME_NONNULL_END
  @param	boundingRect		The bounding CGRect you wish to fit into. 
  */
 
-AVF_EXPORT CGRect AVMakeRectWithAspectRatioInsideRect(CGSize aspectRatio, CGRect boundingRect) NS_AVAILABLE(10_7, 4_0);
+AVF_EXPORT CGRect AVMakeRectWithAspectRatioInsideRect(CGSize aspectRatio, CGRect boundingRect) API_AVAILABLE(macos(10.7), ios(4.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 // ==========  AVFoundation.framework/Frameworks/AVFAudio.framework/Headers/AVAudioUnitSampler.h
 /*
 	File:		AVAudioUnitSampler.h
@@ -24300,6 +26442,12 @@ _player = [[AVAudioPlayerNode alloc] init];
 */
 @property (nonatomic, getter=isAutoShutdownEnabled) BOOL autoShutdownEnabled API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0)) API_UNAVAILABLE(watchos);
 
+/*! @property attachedNodes
+	@abstract
+		Set of all nodes attached to the engine.
+ */
+@property (readonly, copy) NSSet<AVAudioNode *> *attachedNodes API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
 #pragma mark -
 #pragma mark Manual Rendering Mode
 
@@ -24307,7 +26455,7 @@ _player = [[AVAudioPlayerNode alloc] init];
 	@abstract
 		Set the engine to operate in manual rendering mode with the specified render format and
 		maximum frame count.
-	@param format
+	@param pcmFormat
 		The format of the output PCM audio data from the engine
 	@param maximumFrameCount
 		The maximum number of PCM sample frames the engine will be asked to produce in any single
@@ -24623,7 +26771,7 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watch
     @abstract Create an AVAudioUnitGenerator object.
     
     @param audioComponentDescription
-    @abstract AudioComponentDescription of the audio unit to be instantiated.
+    AudioComponentDescription of the audio unit to be instantiated.
     @discussion
     The componentType must be kAudioUnitType_Generator or kAudioUnitType_RemoteGenerator
 */
@@ -24926,8 +27074,6 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watch
     Range: 0 -> 127
  @param channel
     channel number to which the events are sent.
- @discussion
- 
  */
 - (void)sendProgramChange:(uint8_t)program bankMSB:(uint8_t)bankMSB bankLSB:(uint8_t)bankLSB onChannel:(uint8_t)channel;
 
@@ -24994,7 +27140,7 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watch
     @abstract Create an AVAudioUnitEffect object.
     
     @param audioComponentDescription
-    @abstract AudioComponentDescription of the audio unit to be instantiated.
+    AudioComponentDescription of the audio unit to be instantiated.
     @discussion
     The componentType must be one of these types
     kAudioUnitType_Effect
@@ -25095,8 +27241,6 @@ typedef NS_ENUM(NSInteger, AVAudioQuality) {
  
  Copyright (c) 2014-2015 Apple Inc. All Rights Reserved.
  */
-
-#if !0
 
 #import <AVFAudio/AVAudioTypes.h>
 
@@ -25339,8 +27483,6 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watch
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif // !TARGET_OS_BRIDGE
 // ==========  AVFoundation.framework/Frameworks/AVFAudio.framework/Headers/AVAudioSequencer.h
 /*
 	File:		AVAudioSequencer.h
@@ -25348,8 +27490,6 @@ NS_ASSUME_NONNULL_END
 
 	Copyright (c) 2015 Apple Inc. All Rights Reserved.
 */
-
-#if !0
 
 #import <Foundation/Foundation.h>
 
@@ -25435,18 +27575,22 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watch
 /*! @method loadFromURL:options:error:
 	@abstract Load the file referenced by the URL and add the events to the sequence
 	@param fileURL
+        the URL to the file
 	@param options
 		determines how the file's contents are mapped to tracks inside the sequence
 	@param outError
+        on exit, if an error occurs, a description of the error
 */
 - (BOOL)loadFromURL:(NSURL *)fileURL options:(AVMusicSequenceLoadOptions)options error:(NSError **)outError;
 
 /*! @method loadFromData:options:error:
 	@abstract Parse the data and add the its events to the sequence
 	@param data
+        the data to load from
 	@param options
 		determines how the contents are mapped to tracks inside the sequence
 	@param outError
+        on exit, if an error occurs, a description of the error
 */
 - (BOOL)loadFromData:(NSData *)data options:(AVMusicSequenceLoadOptions)options error:(NSError **)outError;
 
@@ -25461,6 +27605,7 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watch
 		if the file already exists, YES will cause it to be overwritten with the new data.
 		Otherwise the call will fail with a permission error.
 	@param outError
+        on exit, if an error occurs, a description of the error
 	@discussion
 		Only MIDI events are written when writing to the MIDI file. MIDI files are normally beat
 		based, but can also have a SMPTE (or real-time rather than beat time) representation.
@@ -25718,8 +27863,6 @@ typedef NS_ENUM(NSInteger, AVMusicTrackLoopCount) {
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif // !TARGET_OS_BRIDGE
 // ==========  AVFoundation.framework/Frameworks/AVFAudio.framework/Headers/AVMIDIPlayer.h
 /*
  	File:		AVMIDIPlayer.h
@@ -25727,8 +27870,6 @@ NS_ASSUME_NONNULL_END
  
  	Copyright (c) 2014-2015 Apple Inc. All Rights Reserved.
 */
-
-#if !0
 
 #import <Foundation/Foundation.h>
 
@@ -25817,8 +27958,6 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watch
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif // !TARGET_OS_BRIDGE
 // ==========  AVFoundation.framework/Frameworks/AVFAudio.framework/Headers/AVAudioSession.h
 /*
 	File:  AVAudioSession.h
@@ -25835,6 +27974,7 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/NSDate.h> /* for NSTimeInterval */
 #import <Foundation/NSObject.h>
 #import <CoreAudio/CoreAudioTypes.h>
+#import <CoreAudioTypes/AudioSessionTypes.h>
 #import <os/availability.h>
 #import <os/base.h>
 
@@ -26138,88 +28278,73 @@ typedef NS_ENUM(NSUInteger, AVAudioSessionIOType)
 
 /*!
 	@enum		AVAudioSessionRouteSharingPolicy
- 	@abstract   Starting in iOS 11, tvOS 11, and watchOS 5, the route sharing policy allows a session
+	@abstract   Starting in iOS 11, tvOS 11, and watchOS 5, the route sharing policy allows a session
 		to specify that its output audio should be routed somewhere other than the default system output,
 		when appropriate alternative routes are available.
 	@constant	AVAudioSessionRouteSharingPolicyDefault
 		Follow normal rules for routing audio output.
-	@constant	AVAudioSessionRouteSharingPolicyLongForm
+	@constant	AVAudioSessionRouteSharingPolicyLongFormAudio
 		Route output to the shared long-form audio output. A session whose primary use case is as a
 		music or podcast player may use this value to play to the same output as the built-in Music (iOS), 
 		Podcasts, or iTunes (macOS) applications. Typically applications that use this policy will also
 		want sign up for remote control events as documented in “Event Handling Guide for UIKit Apps” 
 		and will want to utilize MediaPlayer framework’s MPNowPlayingInfoCenter class. All applications
-		on the system that use the long-form route sharing policy will have their audio routed to the
+		on the system that use the long-form audio route sharing policy will have their audio routed to the
 		same location.
 		Apps running on watchOS using this policy will also be able to play audio in the background,
- 		as long as an eligible audio route can be activated. Apps running on watchOS using this policy
- 		must use -activateWithOptions:completionHandler: instead of -setActive:withOptions:error: in
-  		order to ensure	that the user will be given the opportunity to pick an appropriate audio route
- 		in cases where the system is unable to automatically pick the route.
+		as long as an eligible audio route can be activated. Apps running on watchOS using this policy
+		must use -activateWithOptions:completionHandler: instead of -setActive:withOptions:error: in
+		order to ensure that the user will be given the opportunity to pick an appropriate audio route
+		in cases where the system is unable to automatically pick the route.
+	@constant	AVAudioSessionRouteSharingPolicyLongForm
+		Deprecated. Replaced by AVAudioSessionRouteSharingPolicyLongFormAudio.
 	@constant	AVAudioSessionRouteSharingPolicyIndependent
 		Applications should not attempt to set this value directly. On iOS, this value will be set by
 		the system in cases where route picker UI is used to direct video to a wireless route.
+	@constant	AVAudioSessionRouteSharingPolicyLongFormVideo
+		Route output to the shared long-form video output. A session whose primary use case is as a
+		movie or other long-form video content player may use this value to play to the same output as
+		other long-form video content applications such as the built-in TV (iOS) application. Applications
+		that use this policy will also want to also set the AVInitialRouteSharingPolicy key
+		in their Info.plist to "LongFormVideo". All applications on the system that use the long-form video
+		route sharing policy will have their audio and video routed to the same location (e.g. AppleTV when
+		an AirPlay route is selected). Video content not using this route sharing policy will remain local
+		to the playback device even when long form video content is being routed to AirPlay.
 */
 typedef NS_ENUM(NSUInteger, AVAudioSessionRouteSharingPolicy)
 {
-	AVAudioSessionRouteSharingPolicyDefault			= 0,
-	AVAudioSessionRouteSharingPolicyLongForm		= 1,
-	AVAudioSessionRouteSharingPolicyIndependent		= 2,
+	AVAudioSessionRouteSharingPolicyDefault = 0,
+	AVAudioSessionRouteSharingPolicyLongFormAudio = 1,
+	AVAudioSessionRouteSharingPolicyLongForm API_DEPRECATED_WITH_REPLACEMENT("AVAudioSessionRouteSharingPolicyLongFormAudio", ios(11.0, 13.0), watchos(4.0, 6.0), tvos(11.0, 13.0)) API_UNAVAILABLE(macos) = AVAudioSessionRouteSharingPolicyLongFormAudio,
+	AVAudioSessionRouteSharingPolicyIndependent = 2,
+	AVAudioSessionRouteSharingPolicyLongFormVideo API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(watchos, tvos, macos) = 3,
 };
 
-/*!
-	@enum AVAudioSession error codes
-	@abstract   These are the error codes returned from the AVAudioSession API.
-	@constant   AVAudioSessionErrorCodeNone
-		Operation succeeded.
-	@constant   AVAudioSessionErrorCodeMediaServicesFailed
-		The app attempted to use the audio session during or after a Media Services failure.  App should
- 		wait for a AVAudioSessionMediaServicesWereResetNotification and then rebuild all its state.
-	@constant	AVAudioSessionErrorCodeIsBusy
- 		The app attempted to set its audio session inactive or change its AVAudioSessionIOType, but it is still actively playing and/or recording.
- 	@constant	AVAudioSessionErrorCodeIncompatibleCategory
- 		The app tried to perform an operation on a session but its category does not support it.
- 		For instance, if the app calls setPreferredInputNumberOfChannels: while in a playback-only category.
-	@constant	AVAudioSessionErrorCodeCannotInterruptOthers
-		The app's audio session is non-mixable and trying to go active while in the background.
- 		This is allowed only when the app is the NowPlaying app.
-	@constant	AVAudioSessionErrorCodeMissingEntitlement
-		The app does not have the required entitlements to perform an operation.
-	@constant	AVAudioSessionErrorCodeSiriIsRecording
- 		The app tried to do something with the audio session that is not allowed while Siri is recording.
- 	@constant	AVAudioSessionErrorCodeCannotStartPlaying
-		The app is not allowed to start recording and/or playing, usually because of a lack of audio key in
- 		its Info.plist.  This could also happen if the app has this key but uses a category that can't record 
- 		and/or play in the background (AVAudioSessionCategoryAmbient, AVAudioSessionCategorySoloAmbient, etc.).
-	@constant	AVAudioSessionErrorCodeCannotStartRecording
-		The app is not allowed to start recording, usually because it is starting a mixable recording from the
- 		background and is not an Inter-App Audio app.
-	@constant	AVAudioSessionErrorCodeBadParam
- 		An illegal value was used for a property.
-	@constant	AVAudioSessionErrorCodeInsufficientPriority
- 		The app was not allowed to set the audio category because another app (Phone, etc.) is controlling it.
-	@constant	AVAudioSessionErrorCodeResourceNotAvailable
-		The operation failed because the device does not have sufficient hardware resources to complete the action. 
-		For example, the operation requires audio input hardware, but the device has no audio input available.
-	@constant	AVAudioSessionErrorCodeUnspecified
- 		An unspecified error has occurred.
-*/
 
-typedef NS_ENUM(NSInteger, AVAudioSessionErrorCode)
+/*!
+ @enum AVAudioSessionPromptStyle values
+ @abstract
+ The prompt style is a hint to sessions that use AVAudioSessionModeVoicePrompt to modify the type of
+ prompt they play in response to other audio activity on the system, such as Siri or phone calls.
+ Sessions that issue voice prompts are encouraged to pay attention to changes in the prompt style and
+ modify their prompts in response. Apple encourages the use of non-verbal prompts when the Short
+ style is requested.
+ @constant AVAudioSessionPromptStyleNone
+ Indicates that another session is actively using microphone input and would be negatively impacted
+ by having prompts play at that time. For example if Siri is recognizing speech, having navigation or
+ exercise prompts play, could interfere with its ability to accurately recognize the user’s speech.
+ Client sessions should refrain from playing any prompts while the prompt style is None.
+ @constant AVAudioSessionPromptStyleShort
+ Indicates one of three states: Siri is active but not recording, voicemail playback is active, or
+ voice call is active. Short, non-verbal versions of prompts should be used.
+ @constant AVAudioSessionPromptStyleNormal
+ Indicates that normal (long, verbal) versions of prompts may be used.
+ */
+typedef NS_ENUM(NSUInteger, AVAudioSessionPromptStyle)
 {
-	AVAudioSessionErrorCodeNone							=  0,
-	AVAudioSessionErrorCodeMediaServicesFailed			= 'msrv',			/* 0x6D737276, 1836282486	*/
-	AVAudioSessionErrorCodeIsBusy						= '!act',			/* 0x21616374, 560030580	*/
-	AVAudioSessionErrorCodeIncompatibleCategory			= '!cat',			/* 0x21636174, 560161140	*/
-	AVAudioSessionErrorCodeCannotInterruptOthers		= '!int',			/* 0x21696E74, 560557684	*/
-	AVAudioSessionErrorCodeMissingEntitlement			= 'ent?',			/* 0x656E743F, 1701737535	*/
-	AVAudioSessionErrorCodeSiriIsRecording				= 'siri',			/* 0x73697269, 1936290409	*/
-	AVAudioSessionErrorCodeCannotStartPlaying			= '!pla',			/* 0x21706C61, 561015905	*/
-	AVAudioSessionErrorCodeCannotStartRecording			= '!rec',			/* 0x21726563, 561145187	*/
-	AVAudioSessionErrorCodeBadParam						= -50,
-	AVAudioSessionErrorCodeInsufficientPriority			= '!pri',			/* 0x21707269, 561017449	*/
-	AVAudioSessionErrorCodeResourceNotAvailable			= '!res',			/* 0x21726573, 561145203	*/
-	AVAudioSessionErrorCodeUnspecified					= 'what'			/* 0x77686174, 2003329396	*/
+    AVAudioSessionPromptStyleNone = 'none',
+    AVAudioSessionPromptStyleShort = 'shrt',
+    AVAudioSessionPromptStyleNormal = 'nrml',
 };
 
 #pragma mark -- AVAudioSession interface --
@@ -26244,12 +28369,12 @@ OS_EXPORT API_AVAILABLE(ios(3.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos
 - (BOOL)setActive:(BOOL)active withOptions:(AVAudioSessionSetActiveOptions)options error:(NSError **)outError API_AVAILABLE(ios(6.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos);
 
 /* Asynchronously activate the session. This is relatively time consuming operation. The completion handler will be called when the activation completes or
- if an error occurs while attempting to activate the session. If the session is configured to use AVAudioSessionRouteSharingPolicyLongForm on watchOS, this method
+ if an error occurs while attempting to activate the session. If the session is configured to use AVAudioSessionRouteSharingPolicyLongFormAudio on watchOS, this method
  will also cause a route picker to be presented to the user in cases where an appropriate output route has not already been selected automatically.
- watchOS apps using AVAudioSessionRouteSharingPolicyLongForm should be prepared for this method to fail if no eligible audio route can be activated or if the user
+ watchOS apps using AVAudioSessionRouteSharingPolicyLongFormAudio should be prepared for this method to fail if no eligible audio route can be activated or if the user
  cancels the route picker view.
  */
-- (void)activateWithOptions:(AVAudioSessionActivationOptions)options completionHandler:(void (^)(BOOL activated, NSError * _Nullable error))handler API_AVAILABLE(watchos(5.0)) API_UNAVAILABLE(ios, tvos) API_UNAVAILABLE(macos);
+- (void)activateWithOptions:(AVAudioSessionActivationOptions)options completionHandler:(void (^)(BOOL activated, NSError * _Nullable error))handler API_AVAILABLE(watchos(5.0)) API_UNAVAILABLE(ios, tvos) API_UNAVAILABLE(macos, uikitformac);
 
 // Get the list of categories available on the device.  Certain categories may be unavailable on particular devices.  For example,
 // AVAudioSessionCategoryRecord will not be available on devices that have no support for audio input.
@@ -26332,6 +28457,17 @@ Note: This property is closely related to AVAudioSessionSilenceSecondaryAudioHin
 /* Get the set of input ports that are available for routing. Note that this property only applies to the session's current category and mode.
    For example, if the session's current category is AVAudioSessionCategoryPlayback, there will be no available inputs.  */
 @property (readonly, nullable) NSArray<AVAudioSessionPortDescription *> *availableInputs API_AVAILABLE(ios(7.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos);
+
+/* The prompt style is a hint to sessions using AVAudioSessionModeVoicePrompt to alter the type of prompts they issue in
+ response to other audio activity on the system, such as Siri and phone calls. This property is key-value observable.
+ */
+@property(readonly) AVAudioSessionPromptStyle promptStyle API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0)) API_UNAVAILABLE(macos);
+
+// Set allowHapticsAndSystemSoundsDuringRecording to YES in order to allow system sounds and haptics to play while the session is actively using audio input.
+// Default value is NO.
+- (BOOL)setAllowHapticsAndSystemSoundsDuringRecording:(BOOL)inValue error:(NSError **)outError API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0)) API_UNAVAILABLE(macos);
+
+@property(readonly) BOOL allowHapticsAndSystemSoundsDuringRecording API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0)) API_UNAVAILABLE(macos);
 
 @end
 
@@ -26761,19 +28897,19 @@ OS_EXPORT API_AVAILABLE(ios(6.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos
 @property (assign, nullable) id<AVAudioSessionDelegate> delegate API_DEPRECATED("No longer supported", ios(4.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos);
 
 /* AVAudioSession is a singleton. Use +sharedInstance instead of -init */
-- (instancetype)init API_DEPRECATED_WITH_REPLACEMENT("+sharedInstance", ios(3.0, 10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos);
+- (instancetype)init API_DEPRECATED_WITH_REPLACEMENT("+sharedInstance", ios(3.0, 10.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos, uikitformac);
 
-- (BOOL)setActive:(BOOL)active withFlags:(NSInteger)flags error:(NSError **)outError API_DEPRECATED_WITH_REPLACEMENT("-setActive:withOptions:error:", ios(4.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos);
+- (BOOL)setActive:(BOOL)active withFlags:(NSInteger)flags error:(NSError **)outError API_DEPRECATED_WITH_REPLACEMENT("-setActive:withOptions:error:", ios(4.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos, uikitformac);
 
 //isInputAvailable
-@property (readonly) BOOL inputIsAvailable API_DEPRECATED_WITH_REPLACEMENT("isInputAvailable", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos); /* is input hardware available or not? */
+@property (readonly) BOOL inputIsAvailable API_DEPRECATED_WITH_REPLACEMENT("isInputAvailable", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos, uikitformac); /* is input hardware available or not? */
 
 /* deprecated.  Use the corresponding properties without "Hardware" in their names. */
-@property (readonly) double currentHardwareSampleRate API_DEPRECATED_WITH_REPLACEMENT("sampleRate", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos);
-@property (readonly) NSInteger currentHardwareInputNumberOfChannels API_DEPRECATED_WITH_REPLACEMENT("inputNumberOfChannels", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos);
-@property (readonly) NSInteger currentHardwareOutputNumberOfChannels API_DEPRECATED_WITH_REPLACEMENT("outputNumberOfChannels", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos);
-- (BOOL)setPreferredHardwareSampleRate:(double)sampleRate error:(NSError **)outError API_DEPRECATED_WITH_REPLACEMENT("setPreferredSampleRate:error:", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos);
-@property (readonly) double preferredHardwareSampleRate API_DEPRECATED_WITH_REPLACEMENT("preferredSampleRate", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos);
+@property (readonly) double currentHardwareSampleRate API_DEPRECATED_WITH_REPLACEMENT("sampleRate", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos, uikitformac);
+@property (readonly) NSInteger currentHardwareInputNumberOfChannels API_DEPRECATED_WITH_REPLACEMENT("inputNumberOfChannels", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos, uikitformac);
+@property (readonly) NSInteger currentHardwareOutputNumberOfChannels API_DEPRECATED_WITH_REPLACEMENT("outputNumberOfChannels", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos, uikitformac);
+- (BOOL)setPreferredHardwareSampleRate:(double)sampleRate error:(NSError **)outError API_DEPRECATED_WITH_REPLACEMENT("setPreferredSampleRate:error:", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos,uikitformac);
+@property (readonly) double preferredHardwareSampleRate API_DEPRECATED_WITH_REPLACEMENT("preferredSampleRate", ios(3.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos, uikitformac);
 
 @end
 
@@ -26809,32 +28945,122 @@ enum {
 	AVAudioSessionSetActiveFlags_NotifyOthersOnDeactivation API_DEPRECATED_WITH_REPLACEMENT("AVAudioSessionSetActiveOptions", ios(4.0, 6.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED API_UNAVAILABLE(macos) = 1
 };
 
-enum {
-	AVAudioSessionErrorInsufficientPriority API_DEPRECATED_WITH_REPLACEMENT("AVAudioSessionErrorCodeInsufficientPriority", ios(7.0, 12.0)) API_UNAVAILABLE(macos) = AVAudioSessionErrorCodeInsufficientPriority
-};
-
 NS_ASSUME_NONNULL_END
 
 #elif defined(__OBJC__) && TARGET_OS_OSX
 #import <AVFAudio/AVAudioSession_i386.h>
 #endif // __OBJC2__
+// ==========  AVFoundation.framework/Frameworks/AVFAudio.framework/Headers/AVAudioSourceNode.h
+//
+//  AVAudioSourceNode.h
+//  AVFAudio
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#if __OBJC2__
+
+#import <AVFAudio/AVAudioNode.h>
+#import <AVFAudio/AVAudioMixing.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class AVAudioFormat;
+
+/*! @typedef AVAudioSourceNodeRenderBlock
+    @abstract Block to supply audio data to AVAudioSourceNode
+    @param isSilence
+        The client may use this flag to indicate that the buffer it vends contains only silence.
+        The receiver of the buffer can then use the flag as a hint as to whether the buffer needs
+        to be processed or not.
+        Note that because the flag is only a hint, when setting the silence flag, the originator of
+        a buffer must also ensure that it contains silence (zeroes).
+    @param timestamp
+        The HAL time at which the audio data will be rendered. If there is a sample rate conversion
+        or time compression/expansion downstream, the sample time will not be valid.
+    @param frameCount
+        The number of sample frames of audio data requested.
+    @param outputData
+        The output data.
+
+        The caller must supply valid buffers in outputData's mBuffers' mData and mDataByteSize.
+        mDataByteSize must be consistent with frameCount. This block may provide output in those
+        specified buffers, or it may replace the mData pointers with pointers to memory which it
+        owns and guarantees will remain valid until the next render cycle.
+    @return
+        An OSStatus result code. If an error is returned, the audio data should be assumed to be
+        invalid.
+ */
+typedef OSStatus (^AVAudioSourceNodeRenderBlock)(BOOL *isSilence, const AudioTimeStamp *timestamp, AVAudioFrameCount frameCount, AudioBufferList *outputData) API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0)) ;
+
+/*!
+    @class AVAudioSourceNode
+    @abstract AVAudioSourceNode wraps a client provided block to supply audio.
+    @discussion
+        With AVAudioSourceNode the client can supply audio data for rendering through an
+        AVAudioSourceNodeRenderBlock block.
+        This is similar to setting the input callback on an Audio Unit with the
+        kAudioUnitProperty_SetRenderCallback property.
+ */
+OS_EXPORT API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0)) 
+@interface AVAudioSourceNode : AVAudioNode <AVAudioMixing>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/*! @method initWithRenderBlock:
+    @abstract Create a node with a render block.
+    @param block
+        The block to supply audio data to the output.
+    @discussion
+        The block can be called on realtime or non-realtime threads depending on the engine’s
+        operating mode and it is the client's responsibility to handle it in a thread-safe manner.
+
+        The audio format for the output bus will be set from the connection format when connecting
+        to another node.
+
+        The audio format for the block will be set to the node's output format. If node is
+        reconnected with a different output format, the audio format for the block will also change.
+ */
+- (instancetype)initWithRenderBlock:(AVAudioSourceNodeRenderBlock)block NS_DESIGNATED_INITIALIZER;
+
+/*! @method initWithRenderBlock:format:
+    @abstract Create a node with a render block.
+    @param block
+        The block to supply audio data to the output.
+    @param format
+        The format of the PCM audio data that will be supplied by the block.
+    @discussion
+        The block can be called on realtime or non-realtime threads depending on the engine’s
+        operating mode and it is the client's responsibility to handle it in a thread-safe manner.
+
+        The audio format for the output bus will be set from the connection format when connecting
+        to another node.
+
+        AVAudioSourceNode supports different audio formats for the block and output, but only
+        Linear PCM conversions are supported (sample rate, bit depth, interleaving).
+ */
+- (instancetype)initWithRenderBlock:(AVAudioSourceNodeRenderBlock)block format:(AVAudioFormat*)format NS_DESIGNATED_INITIALIZER;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
 // ==========  AVFoundation.framework/Frameworks/AVFAudio.framework/Headers/AVSpeechSynthesis.h
 /*
  File:  AVSpeechSynthesis.h
  
  Framework:  AVFoundation
  
- Copyright 2013-2015 Apple Inc. All rights reserved.
+ Copyright 2013-2018 Apple Inc. All rights reserved.
  */
-
-#if !0
 
 #import <AVFoundation/AVBase.h>
 #import <Foundation/Foundation.h>
 
 #ifdef __OBJC2__
 
-@class AVAudioSessionChannelDescription;
+@class AVAudioSession, AVAudioSessionChannelDescription, AVAudioBuffer;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26848,6 +29074,12 @@ typedef NS_ENUM(NSInteger, AVSpeechSynthesisVoiceQuality) {
     AVSpeechSynthesisVoiceQualityEnhanced
 } NS_ENUM_AVAILABLE(10_14, 9_0);
 
+typedef NS_ENUM(NSInteger, AVSpeechSynthesisVoiceGender) {
+    AVSpeechSynthesisVoiceGenderUnspecified,
+    AVSpeechSynthesisVoiceGenderMale,
+    AVSpeechSynthesisVoiceGenderFemale
+} NS_ENUM_AVAILABLE(10_15, 13_0);
+
 AVF_EXPORT const float AVSpeechUtteranceMinimumSpeechRate API_AVAILABLE(ios(7.0), watchos(1.0), tvos(7.0), macos(10.14));
 AVF_EXPORT const float AVSpeechUtteranceMaximumSpeechRate API_AVAILABLE(ios(7.0), watchos(1.0), tvos(7.0), macos(10.14));
 AVF_EXPORT const float AVSpeechUtteranceDefaultSpeechRate API_AVAILABLE(ios(7.0), watchos(1.0), tvos(7.0), macos(10.14));
@@ -26858,6 +29090,8 @@ AVF_EXPORT NSString *const AVSpeechSynthesisVoiceIdentifierAlex API_AVAILABLE(io
 
 //NSString, containing International Phonetic Alphabet (IPA) symbols. Controls pronunciation of a certain word or phrase, e.g. a proper name.
 AVF_EXPORT NSString *const AVSpeechSynthesisIPANotationAttribute API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0), macos(10.14));
+
+typedef void (^AVSpeechSynthesizerBufferCallback)(AVAudioBuffer *buffer) NS_SWIFT_NAME(AVSpeechSynthesizer.BufferCallback);
 
 @protocol AVSpeechSynthesizerDelegate;
 
@@ -26879,7 +29113,7 @@ NS_CLASS_AVAILABLE(10_14, 7_0)
 /*!
  @method        voiceWithLanguage:
  @abstract      Use a BCP-47 language tag to specify the desired language and region.
- @param			language
+ @param			languageCode
  Specifies the BCP-47 language tag that represents the voice.
  @discussion
  The default is the system's region and language.
@@ -26905,6 +29139,12 @@ NS_CLASS_AVAILABLE(10_14, 7_0)
 @property(nonatomic, readonly) NSString *identifier API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0), macos(10.14));
 @property(nonatomic, readonly) NSString *name API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0), macos(10.14));
 @property(nonatomic, readonly) AVSpeechSynthesisVoiceQuality quality API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0), macos(10.14));
+@property(nonatomic, readonly) AVSpeechSynthesisVoiceGender gender API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0), macos(10.15));
+
+// This is a dictionary of properties that can be used to create an AVAudioFile using -[AVAudioFile initForWriting:settings:commonFormat:interleaved:error:]
+// The data provided by AVSpeechSynthesizerBufferCallback will be in this specified format when using this voice.
+// The AVAudioCommonFormat and interleaved properties can be determined by properties within the settings dictionary.
+@property(nonatomic, readonly) NSDictionary<NSString *, id> *audioFileSettings API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0), macos(10.15));
 
 @end
 
@@ -26940,7 +29180,6 @@ NS_CLASS_AVAILABLE(10_14, 7_0)
 @property(nonatomic) NSTimeInterval preUtteranceDelay;    // Default is 0.0
 @property(nonatomic) NSTimeInterval postUtteranceDelay;   // Default is 0.0
 
-
 @end
 
 /*!
@@ -26963,6 +29202,10 @@ NS_CLASS_AVAILABLE(10_14, 7_0)
    Enqueing the same AVSpeechUtterance that is already enqueued or is speaking will raise an exception. */
 - (void)speakUtterance:(AVSpeechUtterance *)utterance;
 
+// Use this method to receive audio buffers that can be used to store or further process synthesized speech.
+// The dictionary provided by -[AVSpeechSynthesisVoice audioFileSettings] can be used to create an AVAudioFile.
+- (void)writeUtterance:(AVSpeechUtterance *)utterance toBufferCallback:(AVSpeechSynthesizerBufferCallback)bufferCallback API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0), macos(10.15)) ;
+
 /* These methods will operate on the speech utterance that is speaking. Returns YES if it succeeds, NO for failure. */
 
 /* Call stopSpeakingAtBoundary: to interrupt current speech and clear the queue. */
@@ -26973,7 +29216,16 @@ NS_CLASS_AVAILABLE(10_14, 7_0)
 // Specify the audio channels to be used for synthesized speech as described by the channel descriptions in AVAudioSession's current route.
 // Speech audio will be replicated to each specified channel.
 // Default is nil, which implies system defaults.
-@property(nonatomic, retain, nullable) NSArray<AVAudioSessionChannelDescription *> *outputChannels API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0), macos(10.14));
+@property(nonatomic, retain, nullable) NSArray<AVAudioSessionChannelDescription *> *outputChannels API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos) ;
+
+// A separate audio session is used for AVSpeechSynthesizer.
+// Use this audio session to set the category and options.
+// The active state of this audio session will be managed internally by AVSpeechSynthesizer.
+@property(nonatomic, readonly) AVAudioSession *synthesizerAudioSession API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0)) API_UNAVAILABLE(macos) ;
+
+// Set to YES to send synthesized speech into an outgoing telephony audio stream.
+// If there's no active call, setting this property has no effect.
+@property(nonatomic, assign) BOOL mixToTelephonyUplink  API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos, macos);
 
 @end
 
@@ -26998,7 +29250,6 @@ NS_ASSUME_NONNULL_END
 
 #endif // __OBJC2__
 
-#endif // !TARGET_OS_BRIDGE
 // ==========  AVFoundation.framework/Frameworks/AVFAudio.framework/Headers/AVAudioFile.h
 /*
 	File:		AVAudioFile.h
@@ -27473,6 +29724,37 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @end
 
 
+/*! @enum AVAudioEnvironmentOutputType
+ @abstract   Types of output for AVAudio3DMixingRenderingAlgorithmAuto
+ @discussion
+    The output type determines the rendering method for any input bus using
+    AVAudio3DMixingRenderingAlgorithmAuto.
+ 
+    AVAudioEnvironmentOutputTypeAuto
+        Automatically detect playback route and pick the correct output type when possible.
+        Wired output defaults to AVAudioEnvironmentOutputTypeHeadphones and Manual Rendering
+        with a two-channel output layout defaults to AVAudioEnvironmentOutputTypeExternalSpeakers.
+ 
+    AVAudioEnvironmentOutputTypeHeadphones
+        Render for headphones.
+ 
+    AVAudioEnvironmentOutputTypeBuiltInSpeakers
+        Render for built-in speakers on the current hardware. The output will not be suitable
+        for playback on other hardware. On iOS devices, the rendering may be specific to
+        device orientation. Manual Rendering modes may not provide the intended rendering if
+        the orientation changes between rendering the audio and playing it back.
+ 
+    AVAudioEnvironmentOutputTypeExternalSpeakers
+        Render for external speakers based on the environment node's output channel layout.
+ */
+typedef NS_ENUM(NSInteger, AVAudioEnvironmentOutputType) {
+    AVAudioEnvironmentOutputTypeAuto                = 0,
+    AVAudioEnvironmentOutputTypeHeadphones          = 1,
+    AVAudioEnvironmentOutputTypeBuiltInSpeakers     = 2,
+    AVAudioEnvironmentOutputTypeExternalSpeakers    = 3
+} API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+
 /*!
     @class AVAudioEnvironmentNode
     @abstract Mixer node that simulates a 3D environment
@@ -27486,26 +29768,32 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
         In addition, this node also defines properties for distance attenuation and reverberation 
         that help characterize the environment.
  
-        It is important to note that only inputs with a mono channel connection format to the 
-        environment node are spatialized. If the input is stereo, the audio is passed through 
-        without being spatialized. Currently inputs with connection formats of more than 2 channels 
-        are not supported.
+        It is important to note that AVAudio3DMixingSourceMode affects how inputs with different channel
+        configurations are rendered. By default, only inputs with a mono channel are spatialized.
  
-        In order to set the environment node’s output to a multichannel format, use an AVAudioFormat 
-        having one of the following AudioChannelLayoutTags.
- 
-        kAudioChannelLayoutTag_AudioUnit_4
-        kAudioChannelLayoutTag_AudioUnit_5_0;
-        kAudioChannelLayoutTag_AudioUnit_6_0;
-        kAudioChannelLayoutTag_AudioUnit_7_0;
-        kAudioChannelLayoutTag_AudioUnit_7_0_Front;
-        kAudioChannelLayoutTag_AudioUnit_8;
+        In order to set the environment node’s output to a multichannel format, use an AVAudioFormat
+        with a desired AudioChannelLayout.
 */
 
 OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface AVAudioEnvironmentNode : AVAudioNode <AVAudioMixing>
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
+
+/*! @property outputType
+    @abstract Type of output hardware to be used with AVAudio3DMixingRenderingAlgorithmAuto
+    @discussion
+        Output hardware cannot be automatically determined in Manual Rendering modes or for wired
+        output. This property can be used to override the output type if the correct type is known.
+ 
+        Selecting an output type that does not match the actual hardware can produce unexpected
+        results, especially with AVAudioEnvironmentOutputTypeBuiltInSpeakers. An app choosing
+        a value other than AVAudio3DMixingOutputTypeAuto should listen to route change
+        notifications and update the output type accordingly.
+ 
+        Default:    AVAudio3DMixingOutputTypeAuto
+ */
+@property (nonatomic) AVAudioEnvironmentOutputType outputType API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos) ;
 
 /*! @property outputVolume
 	@abstract The mixer's output volume.
@@ -27599,19 +29887,14 @@ NS_ASSUME_NONNULL_END
 #import <AVFoundation/AVAudioFormat.h>
 #import <Foundation/Foundation.h>
 #import <AVFAudio/AVAudioSettings.h>
-
-#if (TARGET_OS_IPHONE && __has_include(<AVFoundation/AVAudioSession.h>))
 #import <AVFAudio/AVAudioSession.h>
-#endif // #if TARGET_OS_EMBEDDED
 
 #import <Availability.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class NSData, NSURL, NSError;
-#if (TARGET_OS_IPHONE && __has_include(<AVFoundation/AVAudioSession.h>))
 @class AVAudioSessionChannelDescription;
-#endif
 @protocol AVAudioPlayerDelegate;
 
 OS_EXPORT API_AVAILABLE(macos(10.7), ios(2.2), watchos(3.0), tvos(9.0))
@@ -27652,7 +29935,7 @@ OS_EXPORT API_AVAILABLE(macos(10.7), ios(2.2), watchos(3.0), tvos(9.0))
 @property(copy, nullable) NSString *currentDevice API_AVAILABLE(macos(10.13)) API_UNAVAILABLE(ios, watchos, tvos);
 
 /* the delegate will be sent messages from the AVAudioPlayerDelegate protocol */ 
-@property(assign, nullable) id<AVAudioPlayerDelegate> delegate;
+@property(weak, nullable) id<AVAudioPlayerDelegate> delegate;
 
 /* one of these properties will be non-nil based on the init... method used */
 @property(readonly, nullable) NSURL *url; /* returns nil if object was not created with a URL */
@@ -27695,12 +29978,10 @@ Any negative number will loop indefinitely until stopped.
 - (float)peakPowerForChannel:(NSUInteger)channelNumber; /* returns peak power in decibels for a given channel */
 - (float)averagePowerForChannel:(NSUInteger)channelNumber; /* returns average power in decibels for a given channel */
 
-#if (TARGET_OS_IPHONE && !0 && __has_include(<AVFoundation/AVAudioSession.h>))
 /* The channels property lets you assign the output to play to specific channels as described by AVAudioSession's channels property */
 /* This property is nil valued until set. */
 /* The array must have the same number of channels as returned by the numberOfChannels property. */
-@property(nonatomic, copy, nullable) NSArray<AVAudioSessionChannelDescription *> *channelAssignments API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0)); /* Array of AVAudioSessionChannelDescription objects */
-#endif
+@property(nonatomic, copy, nullable) NSArray<AVAudioSessionChannelDescription *> *channelAssignments API_AVAILABLE(ios(7.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos) ; /* Array of AVAudioSessionChannelDescription objects */
 
 @end
 
@@ -27758,6 +30039,8 @@ NS_ASSUME_NONNULL_END
 #import <AVFAudio/AVAudioRecorder.h>
 #import <AVFAudio/AVAudioSequencer.h>
 #import <AVFAudio/AVAudioSettings.h>
+#import <AVFAudio/AVAudioSinkNode.h>
+#import <AVFAudio/AVAudioSourceNode.h>
 #import <AVFAudio/AVAudioTime.h>
 #import <AVFAudio/AVAudioTypes.h>
 #import <AVFAudio/AVAudioUnit.h>
@@ -27774,10 +30057,84 @@ NS_ASSUME_NONNULL_END
 #import <AVFAudio/AVAudioUnitTimePitch.h>
 #import <AVFAudio/AVAudioUnitVarispeed.h>
 #import <AVFAudio/AVMIDIPlayer.h>
+#import <AVFAudio/AVSpeechSynthesis.h>
 
 #if TARGET_OS_IPHONE
 #import <AVFAudio/AVAudioSession.h>
-#import <AVFAudio/AVSpeechSynthesis.h>
+#endif
+// ==========  AVFoundation.framework/Frameworks/AVFAudio.framework/Headers/AVAudioSinkNode.h
+//
+//  AVAudioSinkNode.h
+//  AVFAudio
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#if __OBJC2__
+
+#import <AVFAudio/AVAudioNode.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class AVAudioFormat;
+
+/*! @typedef AVAudioSinkNodeReceiverBlock
+    @abstract Block to receive audio data from AVAudioSinkNode
+    @param timestamp
+        The time at which the input data will be rendered.
+    @param frameCount
+        The number of sample frames of input provided.
+    @param inputData
+        The input audio data.
+
+        The engine will supply valid buffers in inputData's mBuffers' mData and mDataByteSize.
+        mDataByteSize will be consistent with frameCount.
+
+        The pointer to the AudioBufferList is only valid within the scope of this block.
+    @return
+        An OSStatus result code. If an error is returned, the input data should be assumed to be
+        invalid.
+ */
+typedef OSStatus (^AVAudioSinkNodeReceiverBlock)(const AudioTimeStamp *timestamp, AVAudioFrameCount frameCount, const AudioBufferList *inputData) API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0)) ;
+
+/*! @class AVAudioSinkNode
+    @abstract AVAudioSinkNode wraps a client provided block to receive input audio on the audio IO thread.
+    @discussion
+        AVAudioSinkNode is restricted to be used in the input chain and does not support format
+        conversion. Hence when connecting to an AVAudioSinkNode node, the format for the connection
+        should be the output scope format of the input node.
+
+        This node is only supported when the engine is rendering to the audio device and not in
+        manual rendering mode.
+
+        AVAudioSinkNode does not have an output bus and therefore it does not support tapping.
+ */
+OS_EXPORT API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0)) 
+@interface AVAudioSinkNode : AVAudioNode
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/*! @method initWithReceiverBlock:
+    @abstract Create a node with a receiver block.
+    @param block
+        The block that receives audio data from the input.
+    @discussion
+        The receiver block is called when the input data is available.
+
+        The block will be called on the realtime thread and it is the client's responsibility to
+        handle it in a thread-safe manner and to not make any blocking calls.
+
+        The audio format for the input bus will be set from the connection format when connecting
+        to another node.
+
+        The audio format for the data received by the block will be set to the node's input format.
+ */
+- (instancetype)initWithReceiverBlock:(AVAudioSinkNodeReceiverBlock)block NS_DESIGNATED_INITIALIZER;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 #endif
 // ==========  AVFoundation.framework/Frameworks/AVFAudio.framework/Headers/AVAudioConnectionPoint.h
 /*
@@ -27957,8 +30314,6 @@ AVAudioFormat *format = [input outputFormatForBus: 0];
 	@abstract Destroy a tap.
 	@param bus
 		the node output bus whose tap is to be destroyed
-	@return
-		YES for success.
 */
 - (void)removeTapOnBus:(AVAudioNodeBus)bus;
 
@@ -28094,6 +30449,7 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watch
     @param url
         NSURL of the .aupreset file.
 	@param outError
+        A pointer to a NSError object
     @discussion
         If the .aupreset file cannot be successfully loaded, an error is returned.
 */
@@ -28343,8 +30699,8 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 /*!	@property packetCount
 	@abstract The current number of compressed packets in the buffer.
 	@discussion
-		You may modify the packet length as part of an operation that modifies its contents.
-		The packet length must be less than or equal to the packetCapacity.
+		You may modify the packetCount as part of an operation that modifies its contents.
+		The packetCount must be less than or equal to the packetCapacity.
 */
 @property (nonatomic) AVAudioPacketCount packetCount;
 
@@ -28465,6 +30821,35 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @property (nonatomic, readonly, nullable) AudioUnit audioUnit;
 #endif
 
+/*! @property voiceProcessingEnabled
+    @abstract
+        Indicates whether voice processing is enabled.
+*/
+@property (nonatomic, readonly, getter=isVoiceProcessingEnabled) BOOL voiceProcessingEnabled API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*! @method setVoiceProcessingEnabled:error:
+    @abstract
+        Enable or disable voice processing on the IO node.
+    @param outError
+        On exit, if the IO node cannot enable or diable voice processing, a description of the error
+    @return
+        YES for success
+    @discussion
+        If enabled, the input node does signal processing on the incoming audio (taking out any
+        of the audio that is played from the device at a given time from the incoming audio).
+        Disabling this mode on either of the IO nodes automatically disabled it on the other IO node.
+
+        Voice processing requires both input and output nodes to be in the voice processing mode.
+        Enabling this mode on either of the IO nodes automatically enables it on the other IO node.
+        Voice processing is only supported when the engine is rendering to the audio device and not
+        in the manual rendering mode.
+        Voice processing can only be be enabled or disabled when the engine is in a stopped state.
+
+        The output format of the input node and the input format of the output node have to be
+        the same and they can only be changed when the engine is in a stopped state.
+ */
+- (BOOL)setVoiceProcessingEnabled:(BOOL)enabled error:(NSError **)outError API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
 @end
 
 
@@ -28511,6 +30896,32 @@ API_AVAILABLE(macos(10.10), ios(8.0), watchos(4.0), tvos(11.0))
 		and makes this method ineffective.
 */
 - (BOOL)setManualRenderingInputPCMFormat:(AVAudioFormat *)format inputBlock:(AVAudioIONodeInputBlock)block API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
+
+/*! @property voiceProcessingBypassed
+    @abstract
+       Bypass all processing done by the voice processing unit.
+    @discussion
+       Querying this property when voice processing is disabled will return false.
+ */
+@property (nonatomic, getter=isVoiceProcessingBypassed) BOOL voiceProcessingBypassed API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*! @property voiceProcessingAGCEnabled
+    @abstract
+        Enable automatic gain control on the processed microphone/uplink
+        signal. Enabled by default.
+    @discussion
+        Querying this property when voice processing is disabled will return false.
+ */
+@property (nonatomic, getter=isVoiceProcessingAGCEnabled) BOOL voiceProcessingAGCEnabled API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*! @property voiceProcessingInputMuted
+    @abstract
+        Mutes the input of the voice processing unit.
+    @discussion
+        Querying this property when voice processing is disabled will return false.
+    */
+@property (nonatomic, getter=isVoiceProcessingInputMuted) BOOL voiceProcessingInputMuted API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
 @end
 
 /*! @class AVAudioOutputNode
@@ -28837,7 +31248,6 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 	@abstract Prepares previously scheduled file regions or buffers for playback.
 	@param frameCount
 		The number of sample frames of data to be prepared before returning.
-	@discussion
 */		
 - (void)prepareWithFrameCount:(AVAudioFrameCount)frameCount;
 
@@ -28936,10 +31346,7 @@ NS_ASSUME_NONNULL_END
 #import <AVFoundation/AVAudioFormat.h>
 #import <Foundation/Foundation.h>
 #import <AVFAudio/AVAudioSettings.h>
-
-#if TARGET_OS_IPHONE
 #import <AVFAudio/AVAudioSession.h>
-#endif // #if TARGET_OS_EMBEDDED
 
 #import <Availability.h>
 
@@ -28949,7 +31356,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSURL, NSError;
 
 
-API_AVAILABLE(macos(10.7), ios(3.0), watchos(4.0)) API_UNAVAILABLE(tvos) 
+API_AVAILABLE(macos(10.7), ios(3.0), watchos(4.0)) API_UNAVAILABLE(tvos)
 @interface AVAudioRecorder : NSObject {
 @private
     void *_impl;
@@ -28987,7 +31394,7 @@ API_AVAILABLE(macos(10.7), ios(3.0), watchos(4.0)) API_UNAVAILABLE(tvos)
 @property(readonly) AVAudioFormat *format API_AVAILABLE(macos(10.12), ios(10.0), watchos(4.0)) API_UNAVAILABLE(tvos);
 
 /* the delegate will be sent messages from the AVAudioRecorderDelegate protocol */ 
-@property(assign, nullable) id<AVAudioRecorderDelegate> delegate;
+@property(weak, nullable) id<AVAudioRecorderDelegate> delegate;
 
 /* get the current time of the recording - only valid while recording */
 @property(readonly) NSTimeInterval currentTime;
@@ -29003,18 +31410,16 @@ API_AVAILABLE(macos(10.7), ios(3.0), watchos(4.0)) API_UNAVAILABLE(tvos)
 - (float)peakPowerForChannel:(NSUInteger)channelNumber; /* returns peak power in decibels for a given channel */
 - (float)averagePowerForChannel:(NSUInteger)channelNumber; /* returns average power in decibels for a given channel */
 
-#if TARGET_OS_IPHONE
 /* The channels property lets you assign the output to record specific channels as described by AVAudioSession's channels property */
 /* This property is nil valued until set. */
 /* The array must have the same number of channels as returned by the numberOfChannels property. */
-@property(nonatomic, copy, nullable) NSArray<AVAudioSessionChannelDescription *> *channelAssignments API_AVAILABLE(macos(10.9), ios(7.0), watchos(4.0)) API_UNAVAILABLE(tvos); /* Array of AVAudioSessionChannelDescription objects */
-#endif
+@property(nonatomic, copy, nullable) NSArray<AVAudioSessionChannelDescription *> *channelAssignments API_AVAILABLE(ios(7.0), watchos(4.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos); /* Array of AVAudioSessionChannelDescription objects */
 
 @end
 
 
 /* A protocol for delegates of AVAudioRecorder */
-API_AVAILABLE(macos(10.7), ios(3.0), watchos(4.0)) API_UNAVAILABLE(tvos) 
+API_AVAILABLE(macos(10.7), ios(3.0), watchos(4.0)) API_UNAVAILABLE(tvos)
 @protocol AVAudioRecorderDelegate <NSObject>
 @optional 
 
@@ -29108,7 +31513,7 @@ typedef void (^AVAudioNodeCompletionHandler)(void);
 /*!	@typedef AVAudioNodeBus
 	@abstract The index of a bus on an AVAudioNode.
 	@discussion
-		@link AVAudioNode @/link objects potentially have multiple input and/or output busses.
+		AVAudioNode objects potentially have multiple input and/or output busses.
 		AVAudioNodeBus represents a bus as a zero-based index.
 */
 typedef NSUInteger AVAudioNodeBus;
@@ -29129,8 +31534,7 @@ struct AVAudio3DPoint {
 };
 typedef struct AVAudio3DPoint AVAudio3DPoint;
 
-/*!	@method AVAudioMake3DPoint
-    @abstract Creates and returns an AVAudio3DPoint object
+/*! @abstract Creates and returns an AVAudio3DPoint object
 */
 NS_INLINE AVAudio3DPoint AVAudioMake3DPoint(float x, float y, float z) {
     AVAudio3DPoint p;
@@ -29148,8 +31552,7 @@ NS_INLINE AVAudio3DPoint AVAudioMake3DPoint(float x, float y, float z) {
 */
 typedef struct AVAudio3DPoint AVAudio3DVector;
 
-/*!	@method AVAudio3DVector
-    @abstract Creates and returns an AVAudio3DVector object
+/*! @abstract Creates and returns an AVAudio3DVector object
 */
 NS_INLINE AVAudio3DVector AVAudioMake3DVector(float x, float y, float z) {
     AVAudio3DVector v;
@@ -29172,8 +31575,7 @@ struct AVAudio3DVectorOrientation {
 };
 typedef struct AVAudio3DVectorOrientation AVAudio3DVectorOrientation;
 
-/*!	@method AVAudioMake3DVectorOrientation
-    @abstract Creates and returns an AVAudio3DVectorOrientation object
+/*! @abstract Creates and returns an AVAudio3DVectorOrientation object
 */
 NS_INLINE AVAudio3DVectorOrientation AVAudioMake3DVectorOrientation(AVAudio3DVector forward, AVAudio3DVector up) {
     AVAudio3DVectorOrientation o;
@@ -29211,8 +31613,7 @@ struct AVAudio3DAngularOrientation {
 };
 typedef struct AVAudio3DAngularOrientation AVAudio3DAngularOrientation;
 
-/*!	@method AVAudioMake3DAngularOrientation
-    @abstract Creates and returns an AVAudio3DAngularOrientation object
+/*! @abstract Creates and returns an AVAudio3DAngularOrientation object
 */
 NS_INLINE AVAudio3DAngularOrientation AVAudioMake3DAngularOrientation(float yaw, float pitch, float roll) {
     AVAudio3DAngularOrientation o;
@@ -29381,7 +31782,6 @@ typedef AVAudioBuffer * __nullable (^AVAudioConverterInputBlock)(AVAudioPacketCo
 	@class AVAudioConverter
 	@abstract
 		AVAudioConverter converts streams of audio between various formats.
-	@discussion
 */
 OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface AVAudioConverter : NSObject {
@@ -29952,8 +32352,9 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
         AVAudio3DMixingRenderingAlgorithmEqualPowerPanning is the simplest panning algorithm and also 
         the least expensive computationally.
  
-        With the exception of AVAudio3DMixingRenderingAlgorithmSoundField, while the mixer is
-        rendering to multi channel hardware, audio data will only be rendered to channels 1 & 2.
+        When rendering to multi-channel hardware, audio data will only be rendered to channels 1 & 2
+        with all rendering algorithms except AVAudio3DMixingRenderingAlgorithmSoundField and
+        AVAudio3DMixingRenderingAlgorithmAuto.
  
         AVAudio3DMixingRenderingAlgorithmEqualPowerPanning
             EqualPowerPanning merely pans the data of the mixer bus into a stereo field. This 
@@ -29982,8 +32383,17 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
  
         AVAudio3DMixingRenderingAlgorithmStereoPassThrough
             StereoPassThrough should be used when no localization is desired for the source data. 
-            Setting this algorithm tells the mixer to take mono/stereo input and pass it directly to 
-            channels 1 & 2 without localization.
+            Setting this algorithm tells the mixer to pass the input channels to output without
+            localization. If the input and output AudioChannelLayouts differ, mixing is done
+            according to the kAudioFormatProperty_MatrixMixMap property of the layouts.
+ 
+        AVAudio3DMixingRenderingAlgorithmAuto
+            Automatically pick the highest-quality rendering algorithm available for current playback
+            hardware. The algorithm may not be identical to other existing algorithms and may change
+            in the future as new algorithms are developed. When using Manual Rendering modes or
+            wired output, it may be necessary to manually set the AVAudioEnvironmentNode's output
+            type. Multi-channel rendering requires setting a channel layout on the
+            AVAudioEnvironmentNode's output.
  
 */
 typedef NS_ENUM(NSInteger, AVAudio3DMixingRenderingAlgorithm) {
@@ -29992,8 +32402,68 @@ typedef NS_ENUM(NSInteger, AVAudio3DMixingRenderingAlgorithm) {
     AVAudio3DMixingRenderingAlgorithmHRTF                   = 2,
     AVAudio3DMixingRenderingAlgorithmSoundField             = 3,
     AVAudio3DMixingRenderingAlgorithmStereoPassThrough      = 5,
-    AVAudio3DMixingRenderingAlgorithmHRTFHQ                 = 6
+    AVAudio3DMixingRenderingAlgorithmHRTFHQ                 = 6,
+    AVAudio3DMixingRenderingAlgorithmAuto   API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos)     = 7
 } NS_ENUM_AVAILABLE(10_10, 8_0);
+
+
+/*! @enum AVAudio3DMixingSourceMode
+    @abstract   Source types available per input bus of the environment node
+    @discussion
+        The source types differ in how the individual channels of an input bus are distributed
+        in space.
+ 
+        AVAudio3DMixingSourceModeSpatializeIfMono
+            A mono input bus is rendered as a point source at the location of the source node.
+            An input bus with more than one channel is bypassed. This corresponds to legacy
+            behavior and is equivalent to AVAudio3DMixingSourceModePointSource for a mono bus
+            and AVAudio3DMixingSourceModeBypass for a bus with more than one channel.
+ 
+        AVAudio3DMixingSourceModeBypass
+            No spatial rendering. If input and output AudioChannelLayouts are equivalent, all
+            input channels are directly copied to corresponding output channels. If the input and
+            output AudioChannelLayouts differ, mixing is done according to the
+            kAudioFormatProperty_MatrixMixMap property of the layouts. No occlusion, obstruction,
+            or reverb is applied in this mode.
+ 
+        AVAudio3DMixingSourceModePointSource
+            All channels of the bus are rendered as a single source at the location of the source
+            node.
+ 
+        AVAudio3DMixingSourceModeAmbienceBed
+            The input channels are spatialized around the listener as far-field sources anchored to
+            global space. This means that the rendering depends on listener orientation but not on
+            listener position. The directions of the input channels are specified by the
+            AudioChannelLayout of the bus. The rotation of the whole bed in the global space is
+            controlled by the direction of the source node.
+*/
+typedef NS_ENUM(NSInteger, AVAudio3DMixingSourceMode) {
+    AVAudio3DMixingSourceModeSpatializeIfMono   = 0,
+    AVAudio3DMixingSourceModeBypass             = 1,
+    AVAudio3DMixingSourceModePointSource        = 2,
+    AVAudio3DMixingSourceModeAmbienceBed        = 3
+} API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+
+/*! @enum AVAudio3DMixingPointSourceInHeadMode
+    @abstract In-head modes available for AVAudio3DMixingSourceModePointSource in AVAudio3DMixingRenderingAlgorithmAuto
+    @discussion
+        The in-head modes differ in what happens when a point source moves inside the
+        listener's head while using AVAudio3DMixingRenderingAlgorithmAuto.
+
+        AVAudio3DMixingPointSourceInHeadModeMono
+            A point source remains a single mono source inside the listener's head regardless
+            of the channels it consists of.
+
+        AVAudio3DMixingPointSourceInHeadModeBypass
+            A point source splits into bypass inside the listener's head. This enables transitions
+            between traditional, non-spatialized rendering and spatialized sources outside the
+            listener's head.
+ */
+typedef NS_ENUM(NSInteger, AVAudio3DMixingPointSourceInHeadMode) {
+    AVAudio3DMixingPointSourceInHeadModeMono    = 0,
+    AVAudio3DMixingPointSourceInHeadModeBypass  = 1
+} API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 
 /*! @protocol   AVAudio3DMixing
@@ -30012,6 +32482,22 @@ typedef NS_ENUM(NSInteger, AVAudio3DMixingRenderingAlgorithm) {
         Mixer:      AVAudioEnvironmentNode
 */
 @property (nonatomic) AVAudio3DMixingRenderingAlgorithm renderingAlgorithm API_UNAVAILABLE(watchos);
+
+/*! @property sourceMode
+    @abstract Controls how individual channels of an input bus are rendered
+    @discussion
+        Default:    AVAudio3DMixingSourceModeSpatializeIfMono
+        Mixer:      AVAudioEnvironmentNode
+*/
+@property (nonatomic) AVAudio3DMixingSourceMode sourceMode API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos) ;
+
+/*! @property pointSourceInHeadMode
+    @abstract In-head rendering choice for AVAudio3DMixingSourceModePointSource in AVAudio3DMixingRenderingAlgorithmAuto
+    @discussion
+        Default:    AVAudio3DMixingPointSourceInHeadModeMono
+        Mixer:      AVAudioEnvironmentNode
+ */
+@property (nonatomic) AVAudio3DMixingPointSourceInHeadMode pointSourceInHeadMode API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos) ;
 
 /*! @property rate
     @abstract Changes the playback rate of the input signal
@@ -30498,7 +32984,7 @@ OS_EXPORT API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watch
     @abstract create an AVAudioUnitTimeEffect object
     
     @param audioComponentDescription
-    @abstract AudioComponentDescription of the audio unit to be initialized
+    AudioComponentDescription of the audio unit to be initialized
     @discussion 
     The componentType must be kAudioUnitType_FormatConverter
 */

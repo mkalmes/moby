@@ -104,6 +104,61 @@ API_AVAILABLE(macos(10.11), ios(8.0)) API_UNAVAILABLE(watchos, tvos)
 
 NS_ASSUME_NONNULL_END
 
+// ==========  NetworkExtension.framework/Headers/NEFilterSettings.h
+/*
+ * Copyright (c) 2019 Apple Inc.
+ * All rights reserved.
+ */
+
+#ifndef __NE_INDIRECT__
+#error "Please import the NetworkExtension module instead of this file directly."
+#endif
+
+#import <NetworkExtension/NEFilterDataProvider.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class NEFilterRule;
+
+/*!
+ * @interface NEFilterSettings
+ * @discussion The NEFilterSettings class declares the programmatic interface for an object that contains filter settings.
+ *
+ * NEFilterSettings is used by NEFilterDataProviders to communicate the desired settings for the filter to the framework. The framework takes care of applying the contained settings to the system.
+ */
+API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos)
+@interface NEFilterSettings : NSObject <NSSecureCoding,NSCopying>
+
+/*!
+ * @method initWithRules:defaultAction:
+ * @discussion Initialize a newly-allocated NEFilterSettings object with a set of filtering rules and a default filter action to takke if none
+ *    of the rules match.
+ * @param rules An NSArray containing an ordered list of NEFilterRule objects. The maximum number of rules that this array can contain is 1000.
+ * @param defaultAction The NEFilterAction to take for flows of network data that do not match any of the specified rules. The default defaultAction is
+ *     NEFilterActionFilterData. If defaultAction is NEFilterActionAllow or NEFilterActionDrop, then the rules array must contain at least one NEFilterRule.
+ * @return the newly-initialized NEFilterSettings object.
+ */
+- (instancetype)initWithRules:(NSArray<NEFilterRule *> *)rules defaultAction:(NEFilterAction)defaultAction API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property rules
+ * @discussion An NSArray containing an ordered list of NEFilterRuleObjects. After the NEFilterSettings are applied to the system,
+ *     each network flow is matched against these rules in order, and the NEFilterAction of the first rule that matches is taken:
+ *         NEFilterActionAllow: Allow the flow of data to proceed on its journey through the networking stack without consulting this provider.
+ *         NEFilterActionDrop: Drop the flow without consulting this provider.
+ *         NEFilterActionFilterData: Call this provider's handleNewFlow: method with the flow.
+ */
+@property (readonly, copy) NSArray<NEFilterRule *> *rules API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property defaultAction
+ * @discussion An NEFilterAction containing the default action to take for flows of network data that do not match any of the specified rules.
+ */
+@property (readonly) NEFilterAction defaultAction API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  NetworkExtension.framework/Headers/NEDNSProxyProvider.h
 /*
  * Copyright (c) 2017-2018 Apple Inc.
@@ -132,7 +187,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * NEDNSProxyProvider is part of NetworkExtension.framework
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos)
 @interface NEDNSProxyProvider : NEProvider
 
 /*!
@@ -141,7 +196,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @param options A dictionary containing keys and values passed by the provider's containing app. If the containing app did not start the proxy then this parameter will be nil.
  * @param completionHandler A block that must be called when the process of starting the proxy is complete. If the proxy cannot be started then the subclass' implementation of this method must pass a non-nil NSError object to this block. A value of nil passed to the completion handler indicates that the proxy was successfully started.
  */
-- (void)startProxyWithOptions:(nullable NSDictionary<NSString *,id> *)options completionHandler:(void (^)(NSError * __nullable error))completionHandler API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (void)startProxyWithOptions:(nullable NSDictionary<NSString *,id> *)options completionHandler:(void (^)(NSError * __nullable error))completionHandler API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method stopProxyWithReason:completionHandler:
@@ -149,14 +204,14 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @param reason An NEProviderStopReason indicating why the proxy is being stopped.
  * @param completionHandler A block that must be called when the proxy is completely stopped.
  */
-- (void)stopProxyWithReason:(NEProviderStopReason)reason completionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (void)stopProxyWithReason:(NEProviderStopReason)reason completionHandler:(void (^)(void))completionHandler API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method cancelProxyWithError:
  * @discussion This function is called by proxy provider implementations to stop the proxy when a network error is encountered that renders the proxy no longer viable. Subclasses should not override this method.
  * @param error An NSError object containing details about the error that the proxy provider implementation encountered.
  */
-- (void)cancelProxyWithError:(nullable NSError *)error API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (void)cancelProxyWithError:(nullable NSError *)error API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method handleNewFlow:
@@ -164,13 +219,26 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @param flow The new flow
  * @return YES if the proxy implementation has retained the flow and intends to handle the flow data. NO if the proxy implementation has not retained the flow and will not handle the flow data. In this case the flow is terminated.
  */
-- (BOOL)handleNewFlow:(NEAppProxyFlow *)flow API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (BOOL)handleNewFlow:(NEAppProxyFlow *)flow API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @method handleNewUDPFlow:initialRemoteEndpoint:
+ * @discussion This function is called by the framework to deliver a new UDP data flow to the proxy provider implementation. Subclasses can override this method to perform whatever steps are necessary to ready the proxy to receive
+ *     data from the flow. The proxy provider implementation indicates that the proxy is ready to handle flow data by calling -[NEAppProxyFlow openWithLocalEndpoint:completionHandler:] on the flow. If the proxy implementation decides
+ *     to not handle the flow and instead terminate it, the subclass implementation of this method should return NO. If the proxy implementation decides to handle the flow, the subclass implementation of this method should return YES.
+ *     In this case the proxy implementation is responsible for retaining the NEAppProxyUDPFlow object.
+ *     The default implementation of this method calls -[NEAppProxyProvider handleNewFlow:] and returns its result.
+ * @param flow The new UDP flow
+ * @param remoteEndpoint The initial remote endpoint provided by the proxied app when the flow was opened.
+ * @return YES if the proxy implementation has retained the flow and intends to handle the flow data. NO if the proxy implementation has not retained the flow and will not handle the flow data. In this case the flow is terminated.
+ */
+- (BOOL)handleNewUDPFlow:(NEAppProxyUDPFlow *)flow initialRemoteEndpoint:(NWEndpoint *)remoteEndpoint API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @property systemDNSSettings
  * @discussion The current system DNS settings. Use KVO to watch for changes.
  */
-@property (readonly, nullable) NSArray<NEDNSSettings *> *systemDNSSettings API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (readonly, nullable) NSArray<NEDNSSettings *> *systemDNSSettings API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
@@ -387,7 +455,7 @@ NS_ASSUME_NONNULL_END
 
 // ==========  NetworkExtension.framework/Headers/NEFilterDataProvider.h
 /*
- * Copyright (c) 2015-2018 Apple Inc.
+ * Copyright (c) 2015-2019 Apple Inc.
  * All rights reserved.
  */
 
@@ -404,6 +472,7 @@ NS_ASSUME_NONNULL_END
 @class NEFilterFlow;
 @class NEFilterBrowserFlow;
 @class NEFilterSocketFlow;
+@class NEFilterSettings;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -418,7 +487,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @interface NEFilterDataProvider
  * @discussion The NEFilterDataProvider class declares the programmatic interface for an object that evaluates network data flows based on a set of locally-available rules and makes decisions about whether to block or allow the flows.
  */
-API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
 @interface NEFilterDataProvider : NEFilterProvider
 
 /*!
@@ -427,27 +496,27 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @param flow An NEFilterFlow object containing details about the new flow.
  * @return An NEFilterNewFlowVerdict object containing the veridct for the new flow.
  */
-- (NEFilterNewFlowVerdict *)handleNewFlow:(NEFilterFlow *)flow API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (NEFilterNewFlowVerdict *)handleNewFlow:(NEFilterFlow *)flow API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method handleInboundDataFromFlow:readBytesStartOffset:readBytes:
  * @discussion This function is called by the framework when a filtering decision needs to be made about some inbound data that the filter previously requested access to via the NEFilterFlowDataVerdict or the NEFilterNewFlowVerdict. Subclasses must override this method.
  * @param flow The NEFilterFlow from which the data was read.
- * @param offset The offset in bytes from the start of the flow's data of readBytes.
+ * @param offset The offset in bytes from the start of the flow's inbound data at which readBytes begins.
  * @param readBytes The data that was read.
  * @return An NEFilterFlowDataVerdict containing the verdict for the flow.
  */
-- (NEFilterDataVerdict *)handleInboundDataFromFlow:(NEFilterFlow *)flow readBytesStartOffset:(NSUInteger)offset readBytes:(NSData *)readBytes API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (NEFilterDataVerdict *)handleInboundDataFromFlow:(NEFilterFlow *)flow readBytesStartOffset:(NSUInteger)offset readBytes:(NSData *)readBytes API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method handleOutboundDataFromFlow:readBytesStartOffset:readBytes:
  * @discussion This function is called by the framework when a filtering decision needs to be made about some outbound data that the filter previously requested access to via the NEFilterFlowDataVerdict or the NEFilterNewFlowVerdict. Subclasses must override this method.
  * @param flow The NEFilterFlow from which the data was read.
- * @param offset The offset in bytes from the start of the flow's data of readBytes.
+ * @param offset The offset in bytes from the start of the flow's outbound data at which readBytes begins.
  * @param readBytes The data that was read.
  * @return An NEFilterFlowDataVerdict containing the verdict for the flow.
  */
-- (NEFilterDataVerdict *)handleOutboundDataFromFlow:(NEFilterFlow *)flow readBytesStartOffset:(NSUInteger)offset readBytes:(NSData *)readBytes API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (NEFilterDataVerdict *)handleOutboundDataFromFlow:(NEFilterFlow *)flow readBytesStartOffset:(NSUInteger)offset readBytes:(NSData *)readBytes API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method handleInboundDataCompleteForFlow:
@@ -455,7 +524,7 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @param flow The flow
  * @return The final NEFilterFlowDataVerdict verdict for the flow.
  */
-- (NEFilterDataVerdict *)handleInboundDataCompleteForFlow:(NEFilterFlow *)flow API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (NEFilterDataVerdict *)handleInboundDataCompleteForFlow:(NEFilterFlow *)flow API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method handleOutboundDataCompleteForFlow:
@@ -463,7 +532,7 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @param flow The flow
  * @return The final NEFilterFlowDataVerdict verdict for the flow.
  */
-- (NEFilterDataVerdict *)handleOutboundDataCompleteForFlow:(NEFilterFlow *)flow API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (NEFilterDataVerdict *)handleOutboundDataCompleteForFlow:(NEFilterFlow *)flow API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method handleRemediationForFlow:
@@ -479,6 +548,26 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  */
 - (void)handleRulesChanged API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
+/*!
+ * @method applyFilterRules:defaultAction:withCompletionHandler:
+ * @discussion The provider calls this function to apply the current set of filtering rules associated with the provider and also change the default filtering action.
+ * @param settings A NEFilterSettings object containing the filter settings to apply to the system. Pass nil to revert to the default settings, which are an
+ *     empty list of rules and a default action of NEFilterActionFilterData.
+ * @param completionHandler A block that will be executed when the settings have been applied to the system. If an error occurs then the error parameter will be non-nil.
+ */
+- (void)applySettings:(nullable NEFilterSettings *)settings completionHandler:(void (^)(NSError * _Nullable error))completionHandler API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @method resumeFlow:withVerdict:
+ * @discussion This function is called by the provider to resume a flow that was previously paused by the provider returning a pause verdict.
+ * @param flow The flow to resume
+ * @param verdict The next NEFilterDataVerdict for the flow. This verdict is used as the verdict corresponding to the
+ *    flow handler callback (handleNewFlow:, handleInboundDataFromFlow:, etc.) that returned the pause verdict that
+ *    paused the flow. This must be either a NEFilterDataVerdict or a NEFilterNewFlowVerdict. It is invalid to resume
+ *    a flow that is not paused.
+ */
+- (void)resumeFlow:(NEFilterFlow *)flow withVerdict:(NEFilterVerdict *)verdict API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
 @end
 
 /*!
@@ -487,7 +576,7 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  *
  * NEFilterDataVerdict is part of NetworkExtension.framework
  */
-API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
 @interface NEFilterDataVerdict : NEFilterVerdict <NSSecureCoding,NSCopying>
 
 /*!
@@ -495,14 +584,14 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @discussion This class method returns a verdict indicating that the flow should be allowed.
  * @return The NEFilterDataVerdict object.
  */
-+ (NEFilterDataVerdict *) allowVerdict API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
++ (NEFilterDataVerdict *)allowVerdict API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method dropVerdict
  * @discussion This class method returns a verdict indicating that the flow should be dropped.
  * @return The NEFilterDataVerdict object.
  */
-+ (NEFilterDataVerdict *) dropVerdict API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
++ (NEFilterDataVerdict *)dropVerdict API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method remediateVerdictWithRemediationURLMapKey:remediationButtonTextMapKey:
@@ -520,7 +609,7 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @param peekBytes The number of bytes after the end of the bytes passed that the filter wants to see in the next call to -[NEFilterDataProvider handleOutboundDataFromFlow:readBytesStartOffset:readBytes:] or -[NEFilterDataProvider handleInboundDataFromFlow:readBytesStartOffset:readBytes:].
  * @return The data flow verdict.
  */
-+ (NEFilterDataVerdict *)dataVerdictWithPassBytes:(NSUInteger)passBytes peekBytes:(NSUInteger)peekBytes API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
++ (NEFilterDataVerdict *)dataVerdictWithPassBytes:(NSUInteger)passBytes peekBytes:(NSUInteger)peekBytes API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method needRulesVerdict
@@ -528,6 +617,16 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @return The NEFilterDataVerdict object.
  */
 + (NEFilterDataVerdict *)needRulesVerdict API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+
+/*!
+ * @method pauseVerdict
+ * @discussion This class method returns a verdict indicating that none of the data provider's handler callbacks shall be called for the flow until after the flow is resumed
+ *     by a call to -[NEFilterDataProvider resumeFlow:withVerdict:]. TCP flows may be paused indefinitely. UDP flows will be dropped if not resumed within 10 seconds of
+ *     being paused. It is invalid to pause a flow that is already paused.
+ * @return The NEFilterDataVerdict object.
+ */
++ (NEFilterDataVerdict *)pauseVerdict API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
 @end
 
 /*!
@@ -917,6 +1016,46 @@ NS_ASSUME_NONNULL_END
 #endif // __NWTCPConnection_h_
 
 #endif // __NE_TAPI__
+// ==========  NetworkExtension.framework/Headers/NETransparentProxyManager.h
+/*
+ * Copyright (c) 2019 Apple Inc.
+ * All rights reserved.
+ */
+
+#ifndef __NE_INDIRECT__
+#error "Please import the NetworkExtension module instead of this file directly."
+#endif
+
+#import <NetworkExtension/NEVPNManager.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * @file NETransparentProxyManager.h
+ * @discussion This file declares the NETransparentProxyManager API. The NETransparentProxyManager API is used to configure and control transparent proxies provided by NEAppProxyProviders.
+ *
+ * This API is part of NetworkExtension.framework
+ */
+
+/*!
+ * @interface NETransparentProxyManager
+ * @discussion The NETransparentProxyManager class declares the programmatic interface for an object that is used to configure and control transparent proxies provided by NEAppProxyProviders.
+ *
+ * Instances of this class are thread safe.
+ */
+API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos)
+@interface NETransparentProxyManager : NEVPNManager
+
+/*!
+ * @method loadAllFromPreferencesWithCompletionHandler:
+ * @discussion This function asynchronously reads all of the transparent proxy configurations associated with the calling app that have previously been saved to disk and returns them as NETransparentProxyManager objects.
+ * @param completionHandler A block that takes an array NETransparentProxyManager objects. The array passed to the block may be empty if no transparent proxy configurations were successfully read from the disk.  The NSError passed to this block will be nil if the load operation succeeded, non-nil otherwise.
+ */
++ (void)loadAllFromPreferencesWithCompletionHandler:(void (^)(NSArray<NETransparentProxyManager *> * __nullable managers, NSError * __nullable error))completionHandler API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  NetworkExtension.framework/Headers/NEAppRule.h
 /*
  * Copyright (c) 2013-2015, 2018 Apple Inc.
@@ -1067,13 +1206,19 @@ API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
  * @property filterBrowsers
  * @discussion If YES, the filter plugin will be allowed to filter browser traffic. If NO, the filter plugin will not see any browser flows. Defaults to NO. At least one of filterBrowsers and filterSockets should be set to YES to make the filter take effect.
  */
-@property BOOL filterBrowsers API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
+@property BOOL filterBrowsers API_DEPRECATED("filterBrowsers is not supported on macOS", macos(10.11, 10.15)) API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @property filterSockets
  * @discussion If YES, the filter plugin will be allowed to filter socket traffic. If NO, the filter plugin will not see any socket flows. Defaults to NO. At least one of filterBrowsers and filterSockets should be set to YES to make the filter take effect.
  */
-@property BOOL filterSockets API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
+@property BOOL filterSockets API_AVAILABLE(ios(9.0), macos(10.15)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @property filterPackets
+ * @discussion If YES, a NEFilterPacketProvider will be instantiated and will be allowed to filter packets.
+ */
+@property BOOL filterPackets API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
  * @property vendorConfiguration
@@ -1110,6 +1255,24 @@ API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
  * @discussion The optional certificate identity keychain reference associated with the filter.
  */
 @property (copy, nullable) NSData *identityReference API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @property filterDataProviderBundleIdentifier
+ * @discussion A string containing the bundle identifier of the NEFilterDataProvider app extension or system extension.
+ *     If this property is nil, then the bundle identifier of the NEFilterDataProvider extension in the calling app's
+ *     bundle is used, and if the calling app's bundle contains more than one NEFilterDataProvider extension then which one will
+ *     be used is undefined.
+ */
+@property (copy, nullable) NSString *filterDataProviderBundleIdentifier API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property filterPacketProviderBundleIdentifier
+ * @discussion A string containing the bundle identifier of the NEFilterPacketProvider app extension or system extension.
+ *     If this property is nil, then the bundle identifier of the NEFilterPacketProvider extension in the calling app's
+ *     bundle is used, and if the calling app's bundle contains more than one NEFilterPacketProvider extension then which one will
+ *     be used is undefined.
+ */
+@property (copy, nullable) NSString *filterPacketProviderBundleIdentifier API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 @end
 
@@ -1298,7 +1461,7 @@ NS_ASSUME_NONNULL_END
 #endif // __NE_TAPI__
 // ==========  NetworkExtension.framework/Headers/NEVPNProtocolIKEv2.h
 /*
- * Copyright (c) 2014-2015, 2018 Apple Inc.
+ * Copyright (c) 2014-2015, 2018-2019 Apple Inc.
  * All rights reserved.
  */
 
@@ -1327,6 +1490,8 @@ typedef NS_ENUM(NSInteger, NEVPNIKEv2EncryptionAlgorithm) {
 	NEVPNIKEv2EncryptionAlgorithmAES128GCM API_AVAILABLE(macos(10.11), ios(8.3)) API_UNAVAILABLE(watchos, tvos) = 5,
 	/*! @const NEVPNIKEv2EncryptionAlgorithmAES256GCM Advanced Encryption Standard 256 bit (AES256GCM) */
 	NEVPNIKEv2EncryptionAlgorithmAES256GCM API_AVAILABLE(macos(10.11), ios(8.3)) API_UNAVAILABLE(watchos, tvos) = 6,
+	/*! @const NEVPNIKEv2EncryptionAlgorithmChaCha20Poly1305 ChaCha20 and Poly1305 (ChaCha20Poly1305) */
+	NEVPNIKEv2EncryptionAlgorithmChaCha20Poly1305 API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos) = 7,
 } API_AVAILABLE(macos(10.11), ios(8.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
@@ -1390,6 +1555,8 @@ typedef NS_ENUM(NSInteger, NEVPNIKEv2DiffieHellmanGroup) {
 	NEVPNIKEv2DiffieHellmanGroup20 = 20,
 	/*! @const NEVPNIKEv2DiffieHellmanGroup21 Diffie Hellman group 21 (521-bit random ECP) */
 	NEVPNIKEv2DiffieHellmanGroup21 = 21,
+	/*! @const NEVPNIKEv2DiffieHellmanGroup31 Diffie Hellman group 31 (Curve25519) */
+	NEVPNIKEv2DiffieHellmanGroup31 API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos) = 31,
 } API_AVAILABLE(macos(10.11), ios(8.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
@@ -1405,6 +1572,8 @@ typedef NS_ENUM(NSInteger, NEVPNIKEv2CertificateType) {
     NEVPNIKEv2CertificateTypeECDSA384 = 3,
     /*! @const NEVPNIKEv2CertificateTypeECDSA521 ECDSA with p-521 curve */
     NEVPNIKEv2CertificateTypeECDSA521 = 4,
+	/*! @const NEVPNIKEv2CertificateTypeEd25519 Edwards 25519 curve */
+	NEVPNIKEv2CertificateTypeEd25519 API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos) = 5,
 } API_AVAILABLE(macos(10.11), ios(8.3)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
@@ -1550,6 +1719,15 @@ API_AVAILABLE(macos(10.11), ios(8.0)) API_UNAVAILABLE(watchos, tvos)
  * @discussion Sets a maximum TLS version to allow for EAP-TLS authentication. Default is NEVPNIKEv2TLSVersionDefault.
  */
 @property NEVPNIKEv2TLSVersion maximumTLSVersion API_AVAILABLE(macos(10.13), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @property enableFallback
+ * @discussion Enable Fallback is used to support Wi-Fi Assist. Wi-Fi Assist allows connections for foreground apps to switch over
+ *     to Cellular Data when WiFi connectivity is poor. By setting the EnableFallback key, the device will bring up a tunnel over
+ *     Cellular Data to carry traffic that is eligible for Wi-Fi Assist and also requires VPN. Enabling fallback requires that the
+ *     server support multiple tunnels for a single user. Default is NO.
+ */
+@property BOOL enableFallback API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
 @end
 
@@ -2450,7 +2628,6 @@ API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
 @end
 
 NS_ASSUME_NONNULL_END
-
 // ==========  NetworkExtension.framework/Headers/NEPacketTunnelProvider.h
 /*
  * Copyright (c) 2015, 2018 Apple Inc.
@@ -2543,7 +2720,7 @@ NS_ASSUME_NONNULL_END
 
 // ==========  NetworkExtension.framework/Headers/NetworkExtension.h
 /*
- * Copyright (c) 2014-2015, 2017-2018 Apple Inc.
+ * Copyright (c) 2014-2015, 2017-2019 Apple Inc.
  * All rights reserved.
  */
 
@@ -2567,13 +2744,17 @@ NS_ASSUME_NONNULL_END
 #import <NetworkExtension/NEFilterDataProvider.h>
 #import <NetworkExtension/NEFilterFlow.h>
 #import <NetworkExtension/NEFilterManager.h>
+#import <NetworkExtension/NEFilterPacketProvider.h>
 #import <NetworkExtension/NEFilterProvider.h>
 #import <NetworkExtension/NEFilterProviderConfiguration.h>
+#import <NetworkExtension/NEFilterRule.h>
+#import <NetworkExtension/NEFilterSettings.h>
 #import <NetworkExtension/NEFlowMetaData.h>
 #import <NetworkExtension/NEHotspotHelper.h>
 #import <NetworkExtension/NEHotspotConfigurationManager.h>
 #import <NetworkExtension/NEIPv4Settings.h>
 #import <NetworkExtension/NEIPv6Settings.h>
+#import <NetworkExtension/NENetworkRule.h>
 #import <NetworkExtension/NEOnDemandRule.h>
 #import <NetworkExtension/NEPacket.h>
 #import <NetworkExtension/NEPacketTunnelFlow.h>
@@ -2581,6 +2762,8 @@ NS_ASSUME_NONNULL_END
 #import <NetworkExtension/NEPacketTunnelProvider.h>
 #import <NetworkExtension/NEProvider.h>
 #import <NetworkExtension/NEProxySettings.h>
+#import <NetworkExtension/NETransparentProxyManager.h>
+#import <NetworkExtension/NETransparentProxyNetworkSettings.h>
 #import <NetworkExtension/NETunnelProvider.h>
 #import <NetworkExtension/NETunnelProviderManager.h>
 #import <NetworkExtension/NETunnelProviderSession.h>
@@ -2716,6 +2899,18 @@ API_AVAILABLE(macos(10.11), ios(8.0)) API_UNAVAILABLE(watchos, tvos)
  */
 @property (copy, nullable) NEProxySettings *proxySettings API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
+/*!
+ * @property includeAllNetworks
+ * @discussion If YES, all traffic will be sent over the tunnel, and all traffic will be dropped if the tunnel is down. The default is NO.
+ */
+@property BOOL includeAllNetworks API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property excludeLocalNetworks
+ * @discussion If YES, all traffic destined for local networks will be excluded from the tunnel. The default is NO.
+ */
+@property BOOL excludeLocalNetworks API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -2777,6 +2972,150 @@ API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
 
 NS_ASSUME_NONNULL_END
 
+// ==========  NetworkExtension.framework/Headers/NENetworkRule.h
+/*
+ * Copyright (c) 2019 Apple Inc.
+ * All rights reserved.
+ */
+
+#ifndef __NE_INDIRECT__
+#error "Please import the NetworkExtension module instead of this file directly."
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * @file NENetworkRule.h
+ * @discussion This file declares the NENetworkRule API. The NENetworkRule API is used to specify a rule that matches network traffic.
+ *
+ * This API is part of NetworkExtension.framework
+ */
+
+/*!
+ * @typedef NENetworkRuleProtocol
+ * @abstract IP protocols
+ */
+typedef NS_ENUM(NSInteger, NENetworkRuleProtocol) {
+	/*! @const NENetworkRuleProtocolAny Matches TCP and UDP traffic */
+	NENetworkRuleProtocolAny = 0,
+	/*! @const NENetworkRuleProtocolTCP Matches TCP traffic */
+	NENetworkRuleProtocolTCP = 1,
+	/*! @const NENetworkRuleProtocolUDP Matches UDP traffic */
+	NENetworkRuleProtocolUDP = 2,
+} NS_SWIFT_NAME(NENetworkRule.Protocol) API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @typedef NETrafficDirection
+ * @abstract The direction of network traffic
+ */
+typedef NS_ENUM(NSInteger, NETrafficDirection) {
+	/*! @const NETrafficDirectionAny Any direction */
+	NETrafficDirectionAny = 0,
+	/*! @const NETrafficDirectionInbound Inbound direction */
+	NETrafficDirectionInbound = 1,
+	/*! @const NETrafficDirectionOutbound Outbound direction */
+	NETrafficDirectionOutbound = 2,
+} API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos);
+
+@class NWHostEndpoint;
+
+/*!
+ * @interface NENetworkRule
+ * @discussion The NENetworkRule class declares the programmatic interface of an object that contains a specification of a rule that matches the attributes of network traffic.
+ */
+API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos)
+@interface NENetworkRule : NSObject <NSSecureCoding,NSCopying>
+
+/*!
+ * @method initWithDestinationNetwork:prefix:protocol
+ * @discussion Initialize a newly-allocated NENetworkRule object that matches network traffic destined for a host within a specific network.
+ * @param networkEndpoint An endpoint object that contains the port and address or network that the rule matches. This endpoint must contain an address, not a hostname.
+ *        If the port string of the endpoint is "0" or is the empty string, then the rule will match traffic on any port destined for the given address or network.
+ * @param destinationPrefix An integer that in combination with the address in the endpoint specifies the destination network that the rule matches.
+ * @param protocol A NENetworkRuleProtocol value indicating the protocol that the rule matches.
+ * @return The initialized NENetworkRule instance.
+ */
+- (instancetype)initWithDestinationNetwork:(NWHostEndpoint *)networkEndpoint prefix:(NSUInteger)destinationPrefix protocol:(NENetworkRuleProtocol)protocol API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @method initWithDestinationHost:protocol:
+ * @discussion Initialize a newly-allocated NENetworkRule object that matches network traffic destined for a host within a specific DNS domain.
+ * @param hostEndpoint An endpoint object that contains the port and hostname or domain that the rule matches. This endpoint must contain a hostname, not an address.
+ *    If the port string of the NWHostEndpoint is "0" or is the empty string, then the rule will match traffic on any port destined for the given hostname or domain.
+ *    If the hostname string of the endpoint consists of a single label, then the rule will match traffic destined to the specific host with that single label as its name.
+ *    If the hostname string of the endpoint consists of 2 or more labels, then the rule will match traffic destined to hosts within the domain specified by the hostname string.
+ *    Examples:
+ *        [[NENetworkRule alloc] initWithDestinationHost:[NWHostEndpoint endpointWithHostname:@"com" port:@"0"] protocol:NENetworkRuleProtocolAny] - matches all TCP and UDP traffic to the host named "com".
+ *        [[NENetworkRule alloc] initWithDestinationHost:[NWHostEndpoint endpointWithHostname:@"example.com" port:@"0"] protocol:NENetworkRuleProtocolAny] - matches all TCP and UDP traffic to hosts in the "example.com" DNS domain, including all DNS queries for names in the example.com DNS domain.
+ *        [[NENetworkRule alloc] initWithDestinationHost:[NWHostEndpoint endpointWithHostname:@"example.com" port:@"53"] protocol:NENetworkRuleProtocolAny] - matches all DNS queries/responses for hosts in the "example.com" domain.
+ *        [[NENetworkRule alloc] initWithDestinationHost:[NWHostEndpoint endpointWithHostname:@"example.com" port:@"443"] protocol:NENetworkRuleProtocolTCP] - matches all TCP port 443 traffic to hosts in the "example.com" domain.
+ * @param protocol A NENetworkRuleProtocol value indicating the protocol that the rule matches.
+ * @return The initialized NENetworkRule instance.
+ */
+- (instancetype)initWithDestinationHost:(NWHostEndpoint *)hostEndpoint protocol:(NENetworkRuleProtocol)protocol API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @method initWithRemoteNetwork:prefix:localNetwork:prefix:interface:protocol:direction:
+ * @discussion Initialize a newly-allocated NENetworkRule object that matches traffic by remote network, local network, protocol, and direction.
+ * @param remoteNetwork An endpoint object that contains the remote port and the remote address or network that the rule matches. This endpoint must contain an address, not a hostname.
+ *    If the port string of the endpoint is "0" or is the empty string, then the rule will match traffic on any port coming from the remote network.
+ *    Pass nil to cause the rule to match any remote network.
+ * @param remotePrefix An integer that in combination with the address in remoteNetwork specifies the remote network that the rule matches.
+ * @param localNetwork An endpoint object that contains the local port and the local address or network that the rule matches. This endpoint must contain an address, not a hostname.
+ *    If the port string of the endpoint is "0" or is the empty string, then the rule will match traffic on any port coming from the local network.
+ *    Pass nil to cause the rule to match any local network.
+ * @param localPrefix An integer that in combination with the address in localNetwork specifies the local network that the rule matches. This parameter
+ *    is ignored if localNetwork is nil.
+ * @param protocol A NENetworkRuleProtocol value indicating the protocol that the rule matches.
+ * @param direction A NETrafficDirection value indicating the direction of network traffic that the rule matches.
+ * @return The initialized NENetworkRule instance.
+ */
+- (instancetype)initWithRemoteNetwork:(nullable NWHostEndpoint *)remoteNetwork
+						 remotePrefix:(NSUInteger)remotePrefix
+						 localNetwork:(nullable NWHostEndpoint *)localNetwork
+						  localPrefix:(NSUInteger)localPrefix
+							 protocol:(NENetworkRuleProtocol)protocol
+							direction:(NETrafficDirection)direction API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property matchRemoteEndpoint
+ * @discussion The remote endpoint that the rule matches.
+ */
+@property (readonly, nullable) NWHostEndpoint *matchRemoteEndpoint API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property matchRemotePrefix
+ * @discussion A number that specifies the remote sub-network that the rule matches. This property is set to NSNotFound for rules where matchRemoteEndpoint does not contain an IP address.
+ */
+@property (readonly) NSUInteger matchRemotePrefix API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property matchLocalNetwork
+ * @discussion The local network that the rule matches.
+ */
+@property (readonly, nullable) NWHostEndpoint *matchLocalNetwork API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property matchLocalPrefix
+ * @discussion A number that specifies the local sub-network that the rule matches. This property is set to NSNotFound for rules with a nil matchLocalNetwork property.
+ */
+@property (readonly) NSUInteger matchLocalPrefix API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property matchProtocol
+ * @discussion A NENetworkRuleProtocol value containing the protocol that the rule matches.
+ */
+@property (readonly) NENetworkRuleProtocol matchProtocol API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property matchDirection
+ * @discussion A NETrafficDirection value indicating the network traffic direction that the rule matches.
+ */
+@property (readonly) NETrafficDirection matchDirection API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  NetworkExtension.framework/Headers/NEProxySettings.h
 /*
  * Copyright (c) 2013-2015, 2018 Apple Inc.
@@ -3097,7 +3436,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @interface NETunnelNetworkSettings
  * @discussion The NETunnelNetworkSettings class declares the programmatic interface for an object that contains network settings.
  *
- * NETunnelNetworkSettings is used by NETunnelProviders to communicate the desired network settings for tunnel to the framework. The framework takes care of applying the contained settings to the system.
+ * NETunnelNetworkSettings is used by NETunnelProviders to communicate the desired network settings for the tunnel to the framework. The framework takes care of applying the contained settings to the system.
  *
  * Instances of this class are thread safe.
  */
@@ -3148,6 +3487,8 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 @class NEAppProxyFlow;
+@class NEAppProxyUDPFlow;
+@class NWEndpoint;
 
 /*!
  * @file NEAppProxyProvider
@@ -3194,6 +3535,19 @@ API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
  */
 - (BOOL)handleNewFlow:(NEAppProxyFlow *)flow API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
+/*!
+ * @method handleNewUDPFlow:initialRemoteEndpoint:
+ * @discussion This function is called by the framework to deliver a new UDP data flow to the proxy provider implementation. Subclasses can override this method to perform whatever steps are necessary to ready the proxy to receive
+ *     data from the flow. The proxy provider implementation indicates that the proxy is ready to handle flow data by calling -[NEAppProxyFlow openWithLocalEndpoint:completionHandler:] on the flow. If the proxy implementation decides
+ *     to not handle the flow and instead terminate it, the subclass implementation of this method should return NO. If the proxy implementation decides to handle the flow, the subclass implementation of this method should return YES.
+ *     In this case the proxy implementation is responsible for retaining the NEAppProxyUDPFlow object.
+ *     The default implementation of this method calls -[NEAppProxyProvider handleNewFlow:] and returns its result.
+ * @param flow The new UDP flow
+ * @param remoteEndpoint The initial remote endpoint provided by the proxied app when the flow was opened.
+ * @return YES if the proxy implementation has retained the flow and intends to handle the flow data. NO if the proxy implementation has not retained the flow and will not handle the flow data. In this case the flow is terminated.
+ */
+- (BOOL)handleNewUDPFlow:(NEAppProxyUDPFlow *)flow initialRemoteEndpoint:(NWEndpoint *)remoteEndpoint API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos);
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -3239,13 +3593,13 @@ typedef NS_ENUM(NSInteger, NEDNSProxyManagerError) {
 	NEDNSProxyManagerErrorConfigurationStale = 3,
 	/*! @const NEDNSProxyManagerErrorConfigurationCannotBeRemoved The DNS proxy configuration cannot be removed. */
 	NEDNSProxyManagerErrorConfigurationCannotBeRemoved = 4,
-} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+} API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*! @const NEDNSProxyManagerErrorDomain The DNS proxy error domain */
-NEDNSPROXY_EXPORT NSString * const NEDNSProxyErrorDomain API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+NEDNSPROXY_EXPORT NSString * const NEDNSProxyErrorDomain API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*! @const NEDNSProxyConfigurationDidChangeNotification Name of the NSNotification that is posted when the DNS proxy configuration changes. */
-NEDNSPROXY_EXPORT NSString * const NEDNSProxyConfigurationDidChangeNotification API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+NEDNSPROXY_EXPORT NSString * const NEDNSProxyConfigurationDidChangeNotification API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @interface NEDNSProxyManager
@@ -3255,53 +3609,53 @@ NEDNSPROXY_EXPORT NSString * const NEDNSProxyConfigurationDidChangeNotification 
  *
  * Instances of this class are thread safe.
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos)
 @interface NEDNSProxyManager : NSObject
 
 /*!
  * @method sharedManager
  * @return The singleton NEDNSProxyManager object for the calling process.
  */
-+ (NEDNSProxyManager *)sharedManager API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
++ (NEDNSProxyManager *)sharedManager API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method loadFromPreferencesWithCompletionHandler:
  * @discussion This function loads the current DNS proxy configuration from the caller's DNS proxy preferences.
  * @param completionHandler A block that will be called when the load operation is completed. The NSError passed to this block will be nil if the load operation succeeded, non-nil otherwise.
  */
-- (void)loadFromPreferencesWithCompletionHandler:(void (^)(NSError * __nullable error))completionHandler API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (void)loadFromPreferencesWithCompletionHandler:(void (^)(NSError * __nullable error))completionHandler API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method removeFromPreferencesWithCompletionHandler:
  * @discussion This function removes the DNS proxy configuration from the caller's DNS proxy preferences. If the DNS proxy is enabled, the DNS proxy becomes disabled.
  * @param completionHandler A block that will be called when the remove operation is completed. The NSError passed to this block will be nil if the remove operation succeeded, non-nil otherwise.
  */
-- (void)removeFromPreferencesWithCompletionHandler:(void (^)(NSError * __nullable error))completionHandler API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (void)removeFromPreferencesWithCompletionHandler:(void (^)(NSError * __nullable error))completionHandler API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method saveToPreferencesWithCompletionHandler:
  * @discussion This function saves the DNS proxy configuration in the caller's DNS proxy preferences. If the DNS proxy is enabled, it will become active.
  * @param completionHandler A block that will be called when the save operation is completed. The NSError passed to this block will be nil if the save operation succeeded, non-nil otherwise.
  */
-- (void)saveToPreferencesWithCompletionHandler:(void (^)(NSError * __nullable error))completionHandler API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (void)saveToPreferencesWithCompletionHandler:(void (^)(NSError * __nullable error))completionHandler API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @property localizedDescription
  * @discussion A string containing a description of the DNS proxy.
  */
-@property (copy, nullable) NSString *localizedDescription API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (copy, nullable) NSString *localizedDescription API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @property providerProtocol
  * @discussion An NEDNSProxyProviderProtocol object containing the provider-specific portion of the DNS proxy configuration.
  */
-@property (strong, nullable) NEDNSProxyProviderProtocol *providerProtocol API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (strong, nullable) NEDNSProxyProviderProtocol *providerProtocol API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @property enabled
  * @discussion Toggles the enabled status of the DNS proxy. Setting this property will disable DNS proxy configurations of other apps. This property will be set to NO when other DNS proxy configurations are enabled.
  */
-@property (getter=isEnabled) BOOL enabled API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (getter=isEnabled) BOOL enabled API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
@@ -3309,7 +3663,7 @@ NS_ASSUME_NONNULL_END
 
 // ==========  NetworkExtension.framework/Headers/NEFilterProvider.h
 /*
- * Copyright (c) 2015-2018 Apple Inc.
+ * Copyright (c) 2015-2019 Apple Inc.
  * All rights reserved.
  */
 
@@ -3321,6 +3675,7 @@ NS_ASSUME_NONNULL_END
 #import <NetworkExtension/NEFilterFlow.h>
 
 @class NEFilterProviderConfiguration;
+@class NEFilterReport;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -3359,7 +3714,7 @@ NEFILTER_EXPORT NSString const *NEFilterProviderRemediationMapRemediationButtonT
  *
  * NEFilterProvider is part of NetworkExtension.framework
  */
-API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
 @interface NEFilterProvider : NEProvider
 
 /*!
@@ -3370,7 +3725,7 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * filter was started successfully, subclass implementations must pass the nil value to this block. If an error occurred
  * while starting the filter, sublcass implementations must pass a non-nil NSError containing more details about the error.
  */
-- (void)startFilterWithCompletionHandler:(void (^)(NSError * __nullable error))completionHandler API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (void)startFilterWithCompletionHandler:(void (^)(NSError * __nullable error))completionHandler API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method stopFilterWithReason:completionHandler:
@@ -3380,7 +3735,7 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @param completionHandler A block that must be called when the process of stopping the filter is complete.
  */
 - (void)stopFilterWithReason:(NEProviderStopReason)reason
-		   completionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+		   completionHandler:(void (^)(void))completionHandler API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @property filterConfiguration
@@ -3388,7 +3743,15 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * property can change during the lifetime of a filter. Filter implementations can use KVO to be notified when the
  * configuration changes.
  */
-@property (readonly) NEFilterProviderConfiguration *filterConfiguration API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (readonly) NEFilterProviderConfiguration *filterConfiguration API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @method handleReport:
+ * @discussion This function is called by the framework when the data provider extension returns a verdict with the report property set to True.
+ *     Subclass implementations may override this method to handle the flow report.
+ * @param report The report being delivered.
+ */
+- (void)handleReport:(NEFilterReport *)report API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
@@ -3399,17 +3762,19 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  *
  * NEFilterVerdict is part of NetworkExtension.framework
  */
-API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
 @interface NEFilterVerdict : NSObject <NSSecureCoding,NSCopying>
 
 /*!
  * @property shouldReport
- * @discussion Whether or not to send a report to the control provider's -[NEFilterControlProvider handleReport:]
- * method when processing this verdict. Since the data provider does not need to wait for a response from the control
- * provider before continuing to process the flow, this is a more efficient way to report a flow to the control provider
- * than returning a "need rules" verdict. If the verdict originates in the control provider, this property has no
- * effect. This property applies when the action taken upon a flow is allow, deny, remediate, or filterData (filterData
- * for new flows only).
+ * @discussion Whether or not to send a report to the control provider's -[NEFilterProvider handleReport:]
+ * method when processing this verdict and when the flow is closed. Since the data provider does not need to wait
+ * for a response from the control provider before continuing to process the flow, this is a more efficient way to
+ * report a flow to the control provider than returning a "need rules" verdict. If the verdict originates in the
+ * control provider, this property has no effect. This property applies when the action taken upon a flow is allow,
+ * deny, remediate, or filterData (filterData for new flows only). Setting this flag on a verdict for a socket
+ * flow will also cause the data provider's -[NEFilterProvider handleReport:] method to be called when the flow
+ * is closed.
  */
 @property BOOL shouldReport API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
@@ -3422,7 +3787,7 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  *
  * NEFilterNewFlowVerdict is part of NetworkExtension.framework
  */
-API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
 @interface NEFilterNewFlowVerdict : NEFilterVerdict <NSSecureCoding,NSCopying>
 
 /*!
@@ -3439,14 +3804,14 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @discussion This class method returns a verdict indicating that the flow should be allowed.
  * @return The NEFilterNewFlowVerdict object.
  */
-+ (NEFilterNewFlowVerdict *) allowVerdict API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
++ (NEFilterNewFlowVerdict *) allowVerdict API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method dropVerdict
  * @discussion This class method returns a verdict indicating that the flow should be dropped.
  * @return The NEFilterNewFlowVerdict object.
  */
-+ (NEFilterNewFlowVerdict *) dropVerdict API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
++ (NEFilterNewFlowVerdict *) dropVerdict API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 /*!
  * @method remediateVerdictWithRemediationURLMapKey:remediationButtonTextMapKey:
  * @discussion This class method returns a verdict indicating that a "content blocked" page should be displayed to
@@ -3480,7 +3845,16 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
 + (NEFilterNewFlowVerdict *)filterDataVerdictWithFilterInbound:(BOOL)filterInbound
 											  peekInboundBytes:(NSUInteger)peekInboundBytes
 												filterOutbound:(BOOL)filterOutbound
-											 peekOutboundBytes:(NSUInteger)peekOutboundBytes API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+											 peekOutboundBytes:(NSUInteger)peekOutboundBytes API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @method pauseVerdict
+ * @discussion This class method returns a verdict indicating that none of the data provider's handler callbacks shall be called for the flow until after the flow is resumed
+ *     by a call to -[NEFilterDataProvider resumeFlow:withVerdict:]. TCP flows may be paused indefinitely. UDP flows will be dropped if not resumed within 10 seconds of
+ *     being paused. It is invalid to pause a flow that is already paused.
+ * @return The NEFilterNewFlowVerdict object.
+ */
++ (NEFilterNewFlowVerdict *)pauseVerdict API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 @end
 
@@ -3530,16 +3904,29 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  */
 typedef NS_ENUM(NSInteger, NEFilterAction){
 	/*! @const NEFilterActionInvalid Invalid action, represents an error */
-	NEFilterActionInvalid = 0,
+	NEFilterActionInvalid API_AVAILABLE(macos(10.15), ios(11.0)) = 0,
 	/*! @const NEFilterActionAllow Allowing the flow */
-	NEFilterActionAllow = 1,
+	NEFilterActionAllow API_AVAILABLE(macos(10.15), ios(11.0)) = 1,
 	/*! @const NEFilterActionDrop Dropping the flow */
-	NEFilterActionDrop = 2,
+	NEFilterActionDrop API_AVAILABLE(macos(10.15), ios(11.0)) = 2,
 	/*! @const NEFilterActionRemediate Remediating the flow (a "content blocked" page displayed to the user) */
-	NEFilterActionRemediate = 3,
+	NEFilterActionRemediate API_AVAILABLE(ios(11.0)) = 3,
 	/*! @const NEFilterActionFilterData Filtering data on the flow */
-	NEFilterActionFilterData = 4,
-} API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+	NEFilterActionFilterData API_AVAILABLE(macos(10.15), ios(11.0)) = 4,
+} API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @typedef NEFilterReportEvent
+ * @abstract A NEFilterReportEvent represents the event that is being reported by the NEFilterReport.
+ */
+typedef NS_ENUM(NSInteger, NEFilterReportEvent) {
+	/*! @const NEFilterReportEventNewFlow The report is reporting a new flow */
+	NEFilterReportEventNewFlow = 1,
+	/*! @const NEFilterReportEventDataDecision The report is reporting a pass/block decision made after analyzing some amount of a flow's data */
+	NEFilterReportEventDataDecision = 2,
+	/*! @const NEFilterReportEventFlowClosed The report is reporting that a flow has been closed */
+	NEFilterReportEventFlowClosed = 3,
+} NS_SWIFT_NAME(NEFilterReport.Event) API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @interface NEFilterReport
@@ -3548,20 +3935,38 @@ typedef NS_ENUM(NSInteger, NEFilterAction){
  *
  * NEFilterReport is part of NetworkExtension.framework
  */
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos)
 @interface NEFilterReport : NSObject <NSSecureCoding,NSCopying>
 
 /*!
  * @property flow
  * @discussion The flow on which the described action was taken.
  */
-@property (readonly, nullable) NEFilterFlow *flow;
+@property (readonly, nullable) NEFilterFlow *flow API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @property action
  * @discussion The action taken upon the reported flow.
  */
-@property (readonly) NEFilterAction action;
+@property (readonly) NEFilterAction action API_AVAILABLE(macos(10.15), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @property type
+ * @discussion The type of the report.
+ */
+@property (readonly) NEFilterReportEvent event API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @property bytesInboundCount
+ * @discussion The number of inbound bytes received from the flow. This property is only non-zero when the report event is NEFilterReportEventFlowClosed.
+ */
+@property (readonly) NSUInteger bytesInboundCount API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @property bytesOutboundCount
+ * @discussion The number of outbound bytes sent on the flow. This property is only non-zero when the report event is NEFilterReportEventFlowClosed.
+ */
+@property (readonly) NSUInteger bytesOutboundCount API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
@@ -3633,7 +4038,7 @@ NS_ASSUME_NONNULL_END
 
 // ==========  NetworkExtension.framework/Headers/NEFilterManager.h
 /*
- * Copyright (c) 2013-2015, 2018 Apple Inc.
+ * Copyright (c) 2013-2015, 2018, 2019 Apple Inc.
  * All rights reserved.
  */
 
@@ -3661,7 +4066,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class NEFilterProviderConfiguration;
 
 /*!
- * @typedef NEFilterError
+ * @typedef NEFilterManagerError
  * @abstract Filter error codes
  */
 typedef NS_ENUM(NSInteger, NEFilterManagerError) {
@@ -3680,6 +4085,17 @@ NEFILTER_EXPORT NSString * const NEFilterErrorDomain API_AVAILABLE(macos(10.11),
 
 /*! @const NEFilterConfigurationDidChangeNotification Name of the NSNotification that is posted when the filter configuration changes. */
 NEFILTER_EXPORT NSString * const NEFilterConfigurationDidChangeNotification API_AVAILABLE(macos(10.11), ios(8.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @typedef NEFilterManagerGrade
+ * @abstract Filter grade
+ */
+typedef NS_ENUM(NSInteger, NEFilterManagerGrade) {
+	/*! @const NEFilterManagerGradeFirewall The filter acts as a firewall, blocking some network traffic. Firewall grade filters see network traffic before other filter grades. */
+	NEFilterManagerGradeFirewall = 1,
+	/*! @const NEFilterManagerGradeInspector The filter acts as an inspector of network traffic. Inspector grade filters see network traffic after firewall grade filters. */
+	NEFilterManagerGradeInspector = 2,
+} NS_SWIFT_NAME(NEFilterManager.Grade) API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
  * @interface NEFilterManager
@@ -3733,9 +4149,16 @@ API_AVAILABLE(macos(10.11), ios(8.0)) API_UNAVAILABLE(watchos, tvos)
 
 /*!
  * @property enabled
- * @discussion Toggles the enabled status of the filter. Setting this property will disable filter configurations of other apps. This property will be set to NO when other filter configurations are enabled.
+ * @discussion Toggles the enabled status of the filter. On iOS, setting this property will disable filter configurations of other apps, and this property will be set to NO when other filter configurations are enabled.
+ *     On macOS, up to 4 filter configurations of the same grade can be enabled simultaneously.
  */
 @property (getter=isEnabled) BOOL enabled API_AVAILABLE(macos(10.11), ios(8.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @property grade
+ * @discussion The grade of the filter. The default grade is NEFilterManagerGradeFirewall.
+ */
+@property NEFilterManagerGrade grade API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 @end
 
@@ -3859,6 +4282,8 @@ NS_ASSUME_NONNULL_END
 #endif
 
 #import <netinet/in.h>
+#import <NetworkExtension/NENetworkRule.h>
+#import "NEFilterFlow.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -3897,6 +4322,12 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0))
  * @discussion The protocol family of the packet (such as AF_INET or AF_INET6).
  */
 @property (readonly) sa_family_t protocolFamily API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+
+/*!
+ * @property direction
+ * @discussion The direction of the packet.
+ */
+@property (readonly) NETrafficDirection direction API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
  * @property metadata
@@ -3978,7 +4409,7 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @param flow An NEFilterFlow object containing details about the flow that requires a rules update.
  * @param completionHandler A block that must be called when the NEFilterControlProvider is ready for the NEFilterDataProvider to re-process the new flow. NEFilterControlVerdict stores the verdict through which the control provider determines if a flow needs to be dropped or allowed. The verdict also indicates if the control plugin wants the data plugin to update its rules and handle the verdict.
  */
-- (void)handleNewFlow:(NEFilterFlow *)flow completionHandler:(void (^)(NEFilterControlVerdict *))completionHandler API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+- (void)handleNewFlow:(NEFilterFlow *)flow completionHandler:(void (^)(NEFilterControlVerdict *))completionHandler API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @method notifyRulesChanged
@@ -3986,12 +4417,6 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  */
 - (void)notifyRulesChanged API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
-/*!
- * @method handleReport:
- * @discussion This function is called by the framework when the data provider extension returns a verdict with the report property set to True. Subclass implementations may override this method to handle the flow report.
- * @param report The report being delivered
- */
-- (void)handleReport:(NEFilterReport *)report API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
 @end
 
 NS_ASSUME_NONNULL_END
@@ -4106,9 +4531,119 @@ API_AVAILABLE(macos(10.11), ios(9.0))
 
 NS_ASSUME_NONNULL_END
 
+// ==========  NetworkExtension.framework/Headers/NETransparentProxyNetworkSettings.h
+/*
+ * Copyright (c) 2019 Apple Inc.
+ * All rights reserved.
+ */
+
+#ifndef __NE_INDIRECT__
+#error "Please import the NetworkExtension module instead of this file directly."
+#endif
+
+#import <NetworkExtension/NETunnelNetworkSettings.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * @file NETransparentProxyNetworkSettings.h
+ * @discussion This file declares the NETransparentProxyNetworkSettings API. The NETransparentProxyNetworkSettings API is used to specify the network traffic that will be routed through a transparent proxy.
+ *
+ * This API is part of NetworkExtension.framework
+ */
+
+@class NENetworkRule;
+
+/*!
+ * @interface NETransparentProxyNetworkSettings
+ * @discussion The NETransparentProxyNetworkSettings class declares the programmatic interface for an object that contains network settings.
+ *
+ * NETransparentProxyNetworkSettings is used by NEAppProxyProviders to communicate the desired network settings for the proxy to the framework. The framework takes care of applying the contained settings to the system.
+ *
+ * Instances of this class are thread safe.
+ */
+API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos)
+@interface NETransparentProxyNetworkSettings : NETunnelNetworkSettings
+
+/*!
+ * @property includedNetworkRules
+ * @discussion An array of NENetworkRule objects that collectively specify the traffic that will be routed through the transparent proxy. The following restrictions
+ *    apply to each NENetworkRule in this list:
+ *    Restrictions for rules with an address endpoint:
+ *        If the port string of the endpoint is "0" or is the empty string, then the address of the endpoint must be a non-wildcard address (i.e. "0.0.0.0" or "::").
+ *        If the address is a wildcard address (i.e. "0.0.0.0" or "::"), then the port string of the endpoint must be non-empty and must not be "0".
+ *        A port string of "53" is not allowed. Destination Domain-based rules must be used to match DNS traffic.
+ *        The matchLocalNetwork property must be nil.
+ *        The matchDirection property must be NETrafficDirectionOutbound.
+ */
+@property (copy, nullable) NSArray<NENetworkRule *> *includedNetworkRules API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property excludedNetworkRules
+ * @discussion An array of NENetworkRule objects that collectively specify the traffic that will not be routed through the transparent proxy. The following restrictions
+ *    apply to each NENetworkRule in this list:
+ *    Restrictions for rules with an address endpoint:
+ *        If the port string of the endpoint is "0" or is the empty string, then the address of the endpoint must be a non-wildcard address (i.e. "0.0.0.0" or "::").
+ *        If the address is a wildcard address (i.e. "0.0.0.0" or "::"), then the port string of the endpoint must be non-empty and must not be "0".
+ *        A port string of "53" is not allowed. Destination Domain-based rules must be used to match DNS traffic.
+ *        The matchLocalNetwork property must be nil.
+ *        The matchDirection property must be NETrafficDirectionOutbound.
+ */
+@property (copy, nullable) NSArray<NENetworkRule *> *excludedNetworkRules API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  NetworkExtension.framework/Headers/NEFilterRule.h
+/*
+ * Copyright (c) 2019 Apple Inc.
+ * All rights reserved.
+ */
+
+#ifndef __NE_INDIRECT__
+#error "Please import the NetworkExtension module instead of this file directly."
+#endif
+
+#import <NetworkExtension/NEFilterDataProvider.h>
+
+@class NENetworkRule;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * @interface NEFilterRule
+ * @discussion The NEFilterRule class declares the programmatic interface of an object that defines a rule for matching network traffic and the action to take when the rule matches.
+ */
+API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos)
+@interface NEFilterRule : NSObject <NSSecureCoding,NSCopying>
+
+/*!
+ * @method initWithNetworkRule:action:
+ * @discussion Initialize a newly-allocated NEFilterRule object
+ * @param networkRule A NENetworkRule object that defines the network traffic characteristics that this rule matches.
+ * @param action The action to take when this rule matches.
+ */
+- (instancetype)initWithNetworkRule:(NENetworkRule *)networkRule action:(NEFilterAction)action API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property matchNetworkRule
+ * @discussion The NENetworkRule that defines the network traffic characteristics that this rule matches.
+ */
+@property (readonly, copy) NENetworkRule *networkRule API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @property action
+ * @discussion The action to take when this rule matches network traffic.
+ */
+@property (readonly) NEFilterAction action API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+@end
+
+
+NS_ASSUME_NONNULL_END
 // ==========  NetworkExtension.framework/Headers/NETunnelProvider.h
 /*
- * Copyright (c) 2015, 2018 Apple Inc.
+ * Copyright (c) 2015, 2018, 2019 Apple Inc.
  * All rights reserved.
  */
 
@@ -4159,6 +4694,8 @@ typedef NS_ENUM(NSInteger, NETunnelProviderRoutingMethod) {
 	NETunnelProviderRoutingMethodDestinationIP = 1,
 	/*! @const NETunnelProviderRoutingMethodSourceApplication Route network traffic to the tunnel based on source application */
 	NETunnelProviderRoutingMethodSourceApplication = 2,
+	/*! @const NETunnelProviderRoutingMethodNetworkRule Route traffic to the tunnel (or proxy) based on NENetworkRule objects specified by the provider */
+	NETunnelProviderRoutingMethodNetworkRule API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos) = 3,
 } API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 
@@ -4523,6 +5060,8 @@ NS_ASSUME_NONNULL_END
 #error "Please import the NetworkExtension module instead of this file directly."
 #endif
 
+#import <NetworkExtension/NENetworkRule.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 /*!
@@ -4545,13 +5084,13 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * NEFilterFlow is part of NetworkExtension.framework
  */
-API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
 @interface NEFilterFlow : NSObject <NSSecureCoding,NSCopying>
 /*!
  * @property URL
  * @discussion The flow's HTTP request URL. Will be nil if the flow did not originate from WebKit.
  */
-@property (readonly, nullable) NSURL *URL API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (readonly, nullable) NSURL *URL API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @property sourceAppUniqueIdentifier
@@ -4571,6 +5110,18 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  */
 @property (readonly, nullable) NSString *sourceAppVersion API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
+/*!
+ *	@property direction
+ *	@discussion Initial direciton of the flow (outgoing or incoming flow)
+ */
+@property (readonly) NETrafficDirection direction API_AVAILABLE(macos(10.15), ios(13.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ *	@property sourceAppAuditToken
+ *	@discussion Audit token of the source application of the flow.
+ */
+@property (readonly, nullable) NSData *sourceAppAuditToken API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
 @end
 
 /*!
@@ -4580,18 +5131,18 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * NEFilterBrowserFlow is part of NetworkExtension.framework
  */
 API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
-@interface NEFilterBrowserFlow :  NEFilterFlow <NSSecureCoding,NSCopying>
+@interface NEFilterBrowserFlow : NEFilterFlow <NSSecureCoding,NSCopying>
 /*!
  *	@property request
  *	@discussion The NSURLRequest of the flow. This property is always nil for the control providers.
  */
-@property (readonly, nullable) NSURLRequest *request API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
+@property (readonly, nullable) NSURLRequest *request API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
 /*!
  *	@property response
  *	@discussion The NSURLResponse of the flow. This will be nil until the request is sent to the server and the response headers are received. And this property is always nil for the control providers.
  */
-@property (readonly, nullable) NSURLResponse *response API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
+@property (readonly, nullable) NSURLResponse *response API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
 /*!
  *	@property parentURL
  *	@discussion The parent URL for the current flow which is created to load the sub frames because the flow with the parent URL was allowed. Will be nil if the parent flow does not exist.
@@ -4605,46 +5156,146 @@ API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
  *
  * NEFilterSocketFlow is part of NetworkExtension.framework
  */
-API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
 @interface NEFilterSocketFlow : NEFilterFlow <NSSecureCoding,NSCopying>
 /*!
  * @property remoteEndpoint
  * @discussion The flow's remote endpoint. This endpoint object may be nil when [NEFilterDataProvider handleNewFlow:] is invoked and if so will be populated upon receiving network data.
 		In such a case, filtering on the flow may still be performed based on its socket type, socket family or socket protocol.
  */
-@property (readonly, nullable) NWEndpoint *remoteEndpoint API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (readonly, nullable) NWEndpoint *remoteEndpoint API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @property localEndpoint
  * @discussion The flow's local endpoint. This endpoint object may be nil when [NEFilterDataProvider handleNewFlow:] is invoked and if so will be populated upon receiving network data.
 		In such a case, filtering on the flow may still be performed based on its socket type, socket family or socket protocol.
  */
-@property (readonly, nullable) NWEndpoint *localEndpoint API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (readonly, nullable) NWEndpoint *localEndpoint API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  *	@property socketFamily
  *	@discussion Socket family of the socket flow, such as PF_INET.
  */
-@property int socketFamily API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (readonly) int socketFamily API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  *	@property socketType
  *	@discussion Socket type of the socket flow, such as SOCK_STREAM.
  */
-@property int socketType API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (readonly) int socketType API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  *	@property socketProtocol
  *	@discussion Socket protocol of the socket flow, such as IPPROTO_TCP.
  */
-@property int socketProtocol API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (readonly) int socketProtocol API_AVAILABLE(macos(10.15), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 @end
 
 NS_ASSUME_NONNULL_END
 
+// ==========  NetworkExtension.framework/Headers/NEFilterPacketProvider.h
+/*
+ * Copyright (c) 2018 Apple Inc.
+ * All rights reserved.
+ */
+
+#ifndef __NE_INDIRECT__
+#error "Please import the NetworkExtension module instead of this file directly."
+#endif
+
+#import <Network/Network.h>
+#import <NetworkExtension/NEFilterProvider.h>
+#import <NetworkExtension/NENetworkRule.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * @file NEFilterPacketProvider.h
+ * @discussion This file declares the NEFilterPacketProvider API. The NEFilterPacketProvider API is used to implement custom network packet filters.
+ *
+ * This API is part of NetworkExtension.framework.
+ */
+
+@class NEFilterPacketSet;
+@class NEPacket;
+
+/*!
+ * @interface NEFilterPacketContext
+ * @discussion The NEFilterPacketContext class identifies the current filtering context.
+ */
+API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos)
+@interface NEFilterPacketContext : NSObject
+@end
+
+/*!
+ * @typedef NEFilterPacketProviderVerdict
+ * @abstract Verdict for a packet
+ */
+typedef NS_ENUM(NSInteger, NEFilterPacketProviderVerdict) {
+	/*! @const NEFilterPacketProviderVerdictAllow Allow a packet */
+	NEFilterPacketProviderVerdictAllow = 0,
+	/*! @const NEFilterPacketProviderVerdictDrop Drop a packet */
+	NEFilterPacketProviderVerdictDrop = 1,
+	/* @const NEFilterPacketProviderVerdictDelay Delay a packet until a future verdict */
+	NEFilterPacketProviderVerdictDelay = 2,
+} NS_SWIFT_NAME(NEFilterPacketProvider.Verdict) API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @typedef NEFilterPacketHandler
+ * @discussion A block that makes a filtering decision about a network packet.
+ * @param context The context of the current packet filter.
+ * @param interface The ingress or egress interface of the packet.
+ * @param direction The direction of the packet.
+ * @param packetBytes The packet bytes.
+ * @param packetLength The length of packetBytes.
+ * @return A NEFilterPacketProviderVerdict. If the returned verdict is NEFilterPacketProviderVerdictDelay, then the framework assumes that the block already called -[NEFilterPacketProvider delayCurrentPacket] to obtain a reference to the packet.
+ */
+typedef NEFilterPacketProviderVerdict (^NEFilterPacketHandler)(NEFilterPacketContext *context, _Nonnull nw_interface_t interface, NETrafficDirection direction, const void *packetBytes, const size_t packetLength)
+API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @interface NEFilterPacketProvider
+ * @discussion The NEFilterPacketProvider class declares the programmatic interface for an object that evaluates network packets decisions about whether to block, allow, or delay the packets.
+ */
+API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos)
+@interface NEFilterPacketProvider : NEFilterProvider
+
+/*!
+ * @property packetHandler
+ * @discussion A block to be set to handle each packet received or to be sent.  A verdict
+ *             to allow, drop or delay must be returned to indicate the treatment of
+ *             the packet.  Since there may be multiple filtering sources presenting
+ *             frames to the provider, this packet handler may be executed by multiple
+ *			   simultaneous threads.  This packet handler must be able to handle execution
+ *			   in a multi-threaded environment.
+ */
+@property (strong, nullable) NEFilterPacketHandler packetHandler API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @method delayCurrentPacket
+ * @discussion This function is used to delay a packet currently presented by packetHandler.
+ *             This function is only valid within the packetHandler block and a verdict of
+ *             NEFilterPacketProviderVerdictDelay must be returned after a packet is delayed.  A delayed
+ *             packet will be prevented from continuing its journey through the networking stack until
+ *             it is either allowed by calling allow() or is dropped by being released.
+ * @param context The context of the current packet filter which is passed to the packetHandler block.
+ *		   The packetHandler block must pass this context when calling delayCurrentPacket().
+ */
+- (NEPacket *)delayCurrentPacket:(NEFilterPacketContext *)context API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/*!
+ * @method allowPacket:
+ * @discussion This function is used to allow a previously-delayed packet to continue its journey into or out of the networking stack.
+ * @param packet A NEPacket object that contains the data of the packet that was previously delayed by the NEFilterPacketProvider.
+ */
+- (void)allowPacket:(NEPacket *)packet API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  NetworkExtension.framework/Headers/NEHotspotConfigurationManager.h
 /*
- * Copyright © 2017-2018 Apple Inc.
+ * Copyright © 2017-2019 Apple Inc.
  * All rights reserved.
  */
 
@@ -4668,6 +5319,12 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+#if defined(__cplusplus)
+#define NEHSCFG_EXPORT extern "C"
+#else
+#define NEHSCFG_EXPORT extern
+#endif
 
 /*!
  * @typedef NEHotspotConfigurationEAPType
@@ -4905,6 +5562,12 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 @property (copy) NSNumber * lifeTimeInDays API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
 /*!
+ * @property hidden
+ * @discussion if set to YES the system will perform active scan of the SSID. Default is NO.
+ */
+@property BOOL hidden API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, watchos, tvos);
+
+/*!
  * @method initWithSSID:
  * @discussion
  *   A designated initializer to instantiate a new NEHotspotConfiguration object.
@@ -4958,6 +5621,9 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
 
 @end
 
+/*! @const NEHotspotConfigurationErrorDomain The Hotspot Configuration error domain */
+NEHSCFG_EXPORT NSString * const NEHotspotConfigurationErrorDomain API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
+
 /*!
  * @typedef NEHotspotConfigurationError
  * @abstract Hotspot Configuration error codes
@@ -4977,7 +5643,7 @@ API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos)
  * @const NEHotspotConfigurationErrorAlreadyAssociated Wi-Fi is already associated.
  * @const NEHotspotConfigurationErrorApplicationIsNotInForeground The application is not in the foreground.
  */
-typedef NS_ENUM(NSInteger, NEHotspotConfigurationError) {
+typedef NS_ERROR_ENUM(NEHotspotConfigurationErrorDomain, NEHotspotConfigurationError) {
 	NEHotspotConfigurationErrorInvalid 				= 0,
 	NEHotspotConfigurationErrorInvalidSSID 				= 1,
 	NEHotspotConfigurationErrorInvalidWPAPassphrase 		= 2,
@@ -5078,6 +5744,12 @@ API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
  * @discussion A string containing the signing identifier (almost always equivalent to the bundle identifier) of the source app of the flow. The string may be empty in cases where the flow originates from a system process.
  */
 @property (readonly) NSString *sourceAppSigningIdentifier API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ *	@property sourceAppAuditToken
+ *	@discussion Audit token of the source application of the flow.
+ */
+@property (readonly, nullable) NSData *sourceAppAuditToken API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 @end
 
@@ -5194,6 +5866,10 @@ typedef NS_ENUM(NSInteger, NEProviderStopReason) {
 	NEProviderStopReasonUserSwitch = 13,
 	/*! @const NEProviderStopReasonConnectionFailed Failed to establish connection. */
 	NEProviderStopReasonConnectionFailed = 14,
+	/*! @const NEProviderStopReasonSleep The device went to sleep and disconnectOnSleep is enabled in the configuration */
+	NEProviderStopReasonSleep API_AVAILABLE(macos(10.15), ios(13.0)) = 15,
+	/*! @const NEProviderStopReasonAppUpdate The NEProvider is being updated */
+	NEProviderStopReasonAppUpdate API_AVAILABLE(macos(10.15), ios(13.0)) = 16,
 } API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!
@@ -5254,6 +5930,34 @@ API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, tvos)
  * @param completionHandler A block that is executed when the user acknowledges the message. If this method is called on a NEFilterDataProvider instance or the message cannot be displayed, then the completion handler block will be executed immediately with success parameter set to NO. If the message was successfully displayed to the user, then the completion handler block is executed with the success parameter set to YES when the user dismisses the message.
  */
 - (void)displayMessage:(NSString *)message completionHandler:(void (^)(BOOL success))completionHandler API_DEPRECATED_WITH_REPLACEMENT("UILocalNotification", macos(10.12, 10.14), ios(10.0, 12.0)) API_UNAVAILABLE(watchos, tvos);
+
+/*!
+ * @method startSystemExtensionMode
+ * @discussion Start the Network Extension machinery in a system extension (.system bundle). This class method will cause the calling system extension to start handling
+ *    requests from nesessionmanager to instantiate appropriate NEProvider sub-class instances. The system extension must declare a mapping of Network Extension extension points to
+ *    NEProvider sub-class instances in its Info.plist:
+ *        Key: NetworkExtension
+ *        Type: Dictionary containing information about the NetworkExtension capabilities of the system extension.
+ *
+ *            Key: NEProviderClasses
+ *            Type: Dictionary mapping NetworkExtension extension point identifiers to NEProvider sub-classes
+ *
+ *    Example:
+ *
+ *        <key>NetworkExtension</key>
+ *        <dict>
+ *            <key>NEProviderClasses</key>
+ *            <dict>
+ *                <key>com.apple.networkextension.app-proxy</key>
+ *                <string>$(PRODUCT_MODULE_NAME).AppProxyProvider</string>
+ *                <key>com.apple.networkextension.filter-data</key>
+ *                <string>$(PRODUCT_MODULE_NAME).FilterDataProvider</string>
+ *            </dict>
+ *        </dict>
+ *
+ *    This method should be called as early as possible after the system extension starts.
+ */
++ (void)startSystemExtensionMode API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
  * @property defaultPath

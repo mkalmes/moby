@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  @abstract      CLSScoreItem represents user generated score information.
  */
 
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSScoreItem : CLSActivityItem
 
 /*!
@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion    See @c CLSContext for more details.
  */
 
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSObject : NSObject <NSSecureCoding>
 
 /*!
@@ -77,6 +77,7 @@ API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
 - (instancetype)init NS_UNAVAILABLE;
 
 @end
+
 
 NS_ASSUME_NONNULL_END
 // ==========  ClassKit.framework/Headers/CLSContext.h
@@ -115,18 +116,18 @@ typedef NS_ENUM(NSInteger, CLSContextType) {
     CLSContextTypeAudio,
     CLSContextTypeVideo,
 
-} API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+} API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
-typedef NSString * CLSContextTopic NS_STRING_ENUM API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+typedef NSString * CLSContextTopic NS_STRING_ENUM API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
-CLS_EXTERN CLSContextTopic const CLSContextTopicMath API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSContextTopic const CLSContextTopicScience API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSContextTopic const CLSContextTopicLiteracyAndWriting API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSContextTopic const CLSContextTopicWorldLanguage API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSContextTopic const CLSContextTopicSocialScience API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSContextTopic const CLSContextTopicComputerScienceAndEngineering API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSContextTopic const CLSContextTopicArtsAndMusic API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSContextTopic const CLSContextTopicHealthAndFitness API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+CLS_EXTERN CLSContextTopic const CLSContextTopicMath API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSContextTopic const CLSContextTopicScience API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSContextTopic const CLSContextTopicLiteracyAndWriting API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSContextTopic const CLSContextTopicWorldLanguage API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSContextTopic const CLSContextTopicSocialScience API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSContextTopic const CLSContextTopicComputerScienceAndEngineering API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSContextTopic const CLSContextTopicArtsAndMusic API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSContextTopic const CLSContextTopicHealthAndFitness API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 
 /*!
@@ -137,7 +138,7 @@ CLS_EXTERN CLSContextTopic const CLSContextTopicHealthAndFitness API_AVAILABLE(i
                 (2) Activity, holds user generated data that pertains to this context.
 
  */
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSContext : CLSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -153,7 +154,7 @@ API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
  @abstract      Alternative deep link URL using universal links.
  @discussion    If your app supports universal links, you can supply them here to link the content this context represents.
  */
-@property (nullable, nonatomic, strong) NSURL *universalLinkURL API_AVAILABLE(ios(11.4)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (nullable, nonatomic, strong) NSURL *universalLinkURL API_AVAILABLE(ios(11.4)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @abstract      Type of this context
@@ -258,7 +259,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @protocol CLSDataStoreDelegate <NSObject>
 
 @required
@@ -285,7 +286,7 @@ API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
 /*!
  @abstract      The data store maintains and syncs your app's contexts.
  */
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSDataStore : NSObject
 
 /*!
@@ -324,9 +325,15 @@ API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
   */
 - (void)saveWithCompletion:(nullable void(^)(NSError * _Nullable error))completion;
 
+/*!
+ @abstract      Complete all assigned actvities.
+ @discussion    Marks all of the currently active assigned activities for this contextPath as complete.
+ */
+- (void)completeAllAssignedActivitiesMatching:(NSArray<NSString *> *)contextPath API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+
 @end
 
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSDataStore (Contexts)
 
 
@@ -372,7 +379,7 @@ NS_ASSUME_NONNULL_BEGIN
  @abstract      CLSActivityItem is used to gather information about the activity generated by a user.
  */
 
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSActivityItem : CLSObject
 
 /*!
@@ -409,12 +416,13 @@ typedef NS_ENUM(NSInteger, CLSBinaryValueType) {
     CLSBinaryValueTypeTrueFalse = 0,
     CLSBinaryValueTypePassFail,
     CLSBinaryValueTypeYesNo,
-} API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+    CLSBinaryValueTypeCorrectIncorrect API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos),
+} API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @abstract      CLSBinaryItem represents user generated information that is true or false, pass or fail, yes or no.
  */
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSBinaryItem : CLSActivityItem
 
 /*!
@@ -467,7 +475,7 @@ NS_ASSUME_NONNULL_END
 #endif
 
 
-CLS_EXTERN NSString * const CLSErrorCodeDomain API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+CLS_EXTERN NSString * const CLSErrorCodeDomain API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @enum      CLSErrorCode
@@ -481,6 +489,7 @@ CLS_EXTERN NSString * const CLSErrorCodeDomain API_AVAILABLE(ios(11.3)) API_UNAV
  @constant  CLSErrorCodeLimits                       Limits exceeded.
  @constant  CLSErrorCodeInvalidCreate                Attempted to save new object that already exists in the data store.
  @constant  CLSErrorCodeInvalidUpdate                Failed to save updated object in the data store.
+ @constant  CLSErrorCodePartialFailure               Returned if an operation resulted in a mix of successes and failures.
  */
 typedef NS_ERROR_ENUM(CLSErrorCodeDomain, CLSErrorCode) {
     CLSErrorCodeNone = 0,
@@ -492,29 +501,29 @@ typedef NS_ERROR_ENUM(CLSErrorCodeDomain, CLSErrorCode) {
     CLSErrorCodeLimits,
     CLSErrorCodeInvalidCreate,
     CLSErrorCodeInvalidUpdate,
-    CLSErrorCodePartialFailure,
-} API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+    CLSErrorCodePartialFailure
+} API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
-typedef NSString * CLSErrorUserInfoKey NS_EXTENSIBLE_STRING_ENUM API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+typedef NSString * CLSErrorUserInfoKey NS_EXTENSIBLE_STRING_ENUM API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @abstract   Any object that caused a failure will be available in - [NSError userInfo]; under this key.
  */
-CLS_EXTERN CLSErrorUserInfoKey const CLSErrorObjectKey API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+CLS_EXTERN CLSErrorUserInfoKey const CLSErrorObjectKey API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @abstract   If multiple objects cause errors we return an error with code `CLSErrorCodePartialFailure` which will contain an array of errors in - [NSError userInfo]; under this key.
  */
-CLS_EXTERN CLSErrorUserInfoKey const CLSErrorUnderlyingErrorsKey API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+CLS_EXTERN CLSErrorUserInfoKey const CLSErrorUnderlyingErrorsKey API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
-typedef NSString * CLSPredicateKeyPath NS_EXTENSIBLE_STRING_ENUM API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+typedef NSString * CLSPredicateKeyPath NS_EXTENSIBLE_STRING_ENUM API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
-CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathDateCreated API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathIdentifier API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathTitle API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathUniversalLinkURL API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathTopic API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
-CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathParent API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathDateCreated API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathIdentifier API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathTitle API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathUniversalLinkURL API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathTopic API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
+CLS_EXTERN CLSPredicateKeyPath const CLSPredicateKeyPathParent API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 #endif // CLSDEFINES_H
 // ==========  ClassKit.framework/Headers/NSUserActivity+CLSDeepLinks.h
@@ -535,14 +544,14 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  @abstract      Returns whether the user activity is a ClassKit deep link.
  */
-@property (nonatomic, assign, readonly) BOOL isClassKitDeepLink API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (nonatomic, assign, readonly) BOOL isClassKitDeepLink API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 /*!
  @abstract      Returns the context identifier path you should deep link to.
  @discussion    For example for the context identifier path @c @["swift-programming-book", @c "chapter1"],
                 your app should direct the user to @em chapter1 in @em swift-programming-book.
  */
-@property (nullable, nonatomic, strong, readonly) NSArray<NSString *> *contextIdentifierPath API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos);
+@property (nullable, nonatomic, strong, readonly) NSArray<NSString *> *contextIdentifierPath API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
@@ -571,7 +580,7 @@ NS_ASSUME_NONNULL_BEGIN
              (2) Duration, used to measure the length of time a user spent on this activity. Use @c -start and @c -stop methods.
              (3) Activity Items, used to gather information about the activity generated by a user.
  */
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSActivity : CLSObject
 
 /*!
@@ -613,7 +622,7 @@ API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
 
 @end
 
-API_AVAILABLE(ios(11.3))
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSActivity (Activation)
 
 /*!
@@ -635,7 +644,7 @@ API_AVAILABLE(ios(11.3))
 
 @end
 
-API_AVAILABLE(ios(11.3))
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSContext (Activity)
 
 /*!
@@ -649,6 +658,43 @@ API_AVAILABLE(ios(11.3))
  @discussion    Creates a new activity and sets it as the current activity.
  */
 - (CLSActivity *)createNewActivity;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ClassKit.framework/Headers/CLSContextProvider.h
+//
+//  CLSContextProvider.h
+//  ClassKit
+//
+//  Created by Baskaran Subramaniam on 10/02/18.
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <ClassKit/CLSDefines.h>
+
+
+@class CLSContext;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ @abstract      The CLSContext provider protocol.
+ @discussion    The app extension that provides CLSContexts should adopt this protocol.
+ */
+API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
+@protocol CLSContextProvider
+
+@required
+
+/*!
+ @abstract      This method asks the app extension to update CLSContexts that are descendants of a given context.
+ @param         context     A CLSContext whose descendants are to be updated
+ @param         completion  A completion block the extension should call with an optional error to indicate success or failure.
+ @discussion    The extension may choose to modify, delete, or create some or all descendants of the given context. The host app may call this method as the user selects a context.
+ */
+- (void)updateDescendantsOfContext:(CLSContext *)context completion:(void(^)(NSError * _Nullable error))completion;
 
 @end
 
@@ -671,6 +717,7 @@ NS_ASSUME_NONNULL_END
 #import <ClassKit/CLSQuantityItem.h>
 #import <ClassKit/CLSDataStore.h>
 #import <ClassKit/NSUserActivity+CLSDeepLinks.h>
+#import <ClassKit/CLSContextProvider.h>
 // ==========  ClassKit.framework/Headers/CLSQuantityItem.h
 //
 //  CLSQuantityItem.h
@@ -687,7 +734,7 @@ NS_ASSUME_NONNULL_BEGIN
  @abstract      CLSQuantityItem represents user generated quantity information.
  */
 
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
+API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos) API_UNAVAILABLE(watchos, tvos)
 @interface CLSQuantityItem : CLSActivityItem
 
 /*!

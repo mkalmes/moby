@@ -43,6 +43,7 @@
 @constant     kJSTypeNumber     A primitive number value.
 @constant     kJSTypeString     A primitive string value.
 @constant     kJSTypeObject     An object value (meaning that this JSValueRef is a JSObjectRef).
+@constant     kJSTypeSymbol     A primitive symbol value.
 */
 typedef enum {
     kJSTypeUndefined,
@@ -50,7 +51,8 @@ typedef enum {
     kJSTypeBoolean,
     kJSTypeNumber,
     kJSTypeString,
-    kJSTypeObject
+    kJSTypeObject,
+    kJSTypeSymbol API_AVAILABLE(macos(10.15), ios(13.0))
 } JSType;
 
 /*!
@@ -81,7 +83,7 @@ typedef enum {
     kJSTypedArrayTypeFloat64Array,
     kJSTypedArrayTypeArrayBuffer,
     kJSTypedArrayTypeNone,
-} JSTypedArrayType CF_ENUM_AVAILABLE(10_12, 10_0);
+} JSTypedArrayType API_AVAILABLE(macos(10.12), ios(10.0));
 
 #ifdef __cplusplus
 extern "C" {
@@ -150,6 +152,7 @@ JS_EXPORT bool JSValueIsString(JSContextRef ctx, JSValueRef value);
 */
 JS_EXPORT bool JSValueIsObject(JSContextRef ctx, JSValueRef value);
 
+
 /*!
 @function
 @abstract Tests whether a JavaScript value is an object with a given class in its class chain.
@@ -167,7 +170,7 @@ JS_EXPORT bool JSValueIsObjectOfClass(JSContextRef ctx, JSValueRef value, JSClas
 @param value    The JSValue to test.
 @result         true if value is an array, otherwise false.
 */
-JS_EXPORT bool JSValueIsArray(JSContextRef ctx, JSValueRef value) CF_AVAILABLE(10_11, 9_0);
+JS_EXPORT bool JSValueIsArray(JSContextRef ctx, JSValueRef value) API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
 @function
@@ -176,7 +179,7 @@ JS_EXPORT bool JSValueIsArray(JSContextRef ctx, JSValueRef value) CF_AVAILABLE(1
 @param value    The JSValue to test.
 @result         true if value is a date, otherwise false.
 */
-JS_EXPORT bool JSValueIsDate(JSContextRef ctx, JSValueRef value) CF_AVAILABLE(10_11, 9_0);
+JS_EXPORT bool JSValueIsDate(JSContextRef ctx, JSValueRef value) API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
 @function
@@ -186,7 +189,7 @@ JS_EXPORT bool JSValueIsDate(JSContextRef ctx, JSValueRef value) CF_AVAILABLE(10
 @param exception    A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
 @result             A value of type JSTypedArrayType that identifies value's Typed Array type, or kJSTypedArrayTypeNone if the value is not a Typed Array object.
  */
-JS_EXPORT JSTypedArrayType JSValueGetTypedArrayType(JSContextRef ctx, JSValueRef value, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT JSTypedArrayType JSValueGetTypedArrayType(JSContextRef ctx, JSValueRef value, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /* Comparing values */
 
@@ -277,7 +280,7 @@ JS_EXPORT JSValueRef JSValueMakeString(JSContextRef ctx, JSStringRef string);
  @param string   The JSString containing the JSON string to be parsed.
  @result         A JSValue containing the parsed value, or NULL if the input is invalid.
  */
-JS_EXPORT JSValueRef JSValueMakeFromJSONString(JSContextRef ctx, JSStringRef string) CF_AVAILABLE(10_7, 7_0);
+JS_EXPORT JSValueRef JSValueMakeFromJSONString(JSContextRef ctx, JSStringRef string) API_AVAILABLE(macos(10.7), ios(7.0));
 
 /*!
  @function
@@ -288,7 +291,7 @@ JS_EXPORT JSValueRef JSValueMakeFromJSONString(JSContextRef ctx, JSStringRef str
  @param exception A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result         A JSString with the result of serialization, or NULL if an exception is thrown.
  */
-JS_EXPORT JSStringRef JSValueCreateJSONString(JSContextRef ctx, JSValueRef value, unsigned indent, JSValueRef* exception) CF_AVAILABLE(10_7, 7_0);
+JS_EXPORT JSStringRef JSValueCreateJSONString(JSContextRef ctx, JSValueRef value, unsigned indent, JSValueRef* exception) API_AVAILABLE(macos(10.7), ios(7.0));
 
 /* Converting to primitive values */
 
@@ -509,7 +512,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 #endif
 // ==========  JavaScriptCore.framework/Headers/JSContext.h
 /*
- * Copyright (C) 2013 Apple Inc. All rights reserved.
+ * Copyright (C) 2013-2019 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -541,7 +544,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 
 #if JSC_OBJC_API_ENABLED
 
-@class JSVirtualMachine, JSValue;
+@class JSScript, JSVirtualMachine, JSValue, JSContext;
 
 /*!
 @interface
@@ -549,7 +552,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
  JavaScript execution takes place within a context, and all JavaScript values
  are tied to a context.
 */
-NS_CLASS_AVAILABLE(10_9, 7_0)
+JS_EXPORT API_AVAILABLE(macos(10.9), ios(7.0))
 @interface JSContext : NSObject
 
 /*!
@@ -588,7 +591,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 @param sourceURL A URL for the script's source file. Used by debuggers and when reporting exceptions. This parameter is informative only: it does not change the behavior of the script.
 @result The last value generated by the script.
 */
-- (JSValue *)evaluateScript:(NSString *)script withSourceURL:(NSURL *)sourceURL NS_AVAILABLE(10_10, 8_0);
+- (JSValue *)evaluateScript:(NSString *)script withSourceURL:(NSURL *)sourceURL API_AVAILABLE(macos(10.10), ios(8.0));
 
 /*!
 @methodgroup Callback Accessors
@@ -611,7 +614,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
  a callback from JavaScript this method will return nil.
 @result The currently executing JavaScript function or nil if there isn't one.
 */
-+ (JSValue *)currentCallee NS_AVAILABLE(10_10, 8_0);
++ (JSValue *)currentCallee API_AVAILABLE(macos(10.10), ios(8.0));
 
 /*!
 @method
@@ -686,8 +689,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 @property
 @discussion Name of the JSContext. Exposed when remote debugging the context.
 */
-@property (copy) NSString *name NS_AVAILABLE(10_10, 8_0);
-
+@property (copy) NSString *name API_AVAILABLE(macos(10.10), ios(8.0));
 @end
 
 /*!
@@ -741,6 +743,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 @result The C API equivalent of this JSContext.
 */
 @property (readonly) JSGlobalContextRef JSGlobalContextRef;
+
 @end
 
 #endif
@@ -1052,63 +1055,6 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 - (NSDictionary *)toDictionary;
 
 /*!
-@methodgroup Accessing Properties
-*/
-/*!
-@method
-@abstract Access a property of a JSValue.
-@result The JSValue for the requested property or the JSValue <code>undefined</code> 
- if the property does not exist.
-*/
-- (JSValue *)valueForProperty:(NSString *)property;
-
-/*!
-@method
-@abstract Set a property on a JSValue.
-*/
-- (void)setValue:(id)value forProperty:(NSString *)property;
-
-/*!
-@method
-@abstract Delete a property from a JSValue.
-@result YES if deletion is successful, NO otherwise.
-*/
-- (BOOL)deleteProperty:(NSString *)property;
-
-/*!
-@method
-@abstract Check if a JSValue has a property.
-@discussion This method has the same function as the JavaScript operator <code>in</code>.
-@result Returns YES if property is present on the value.
-*/
-- (BOOL)hasProperty:(NSString *)property;
-
-/*!
-@method
-@abstract Define properties with custom descriptors on JSValues.
-@discussion This method may be used to create a data or accessor property on an object.
- This method operates in accordance with the Object.defineProperty method in the 
- JavaScript language.
-*/
-- (void)defineProperty:(NSString *)property descriptor:(id)descriptor;
-
-/*!
-@method
-@abstract Access an indexed (numerical) property on a JSValue.
-@result The JSValue for the property at the specified index. 
- Returns the JavaScript value <code>undefined</code> if no property exists at that index. 
-*/
-- (JSValue *)valueAtIndex:(NSUInteger)index;
-
-/*!
-@method
-@abstract Set an indexed (numerical) property on a JSValue.
-@discussion For JSValues that are JavaScript arrays, indices greater than 
- UINT_MAX - 1 will not affect the length of the array.
-*/
-- (void)setValue:(id)value atIndex:(NSUInteger)index;
-
-/*!
 @functiongroup Checking JavaScript Types
 */
 
@@ -1155,13 +1101,13 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 @property
 @abstract Check if a JSValue is an array.
 */ 
-@property (readonly) BOOL isArray NS_AVAILABLE(10_11, 9_0);
+@property (readonly) BOOL isArray API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
 @property
 @abstract Check if a JSValue is a date.
 */ 
-@property (readonly) BOOL isDate NS_AVAILABLE(10_11, 9_0);
+@property (readonly) BOOL isDate API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
 @method
@@ -1301,6 +1247,68 @@ Create a JSValue from a CGRect.
 @result The new CGSize.
 */
 - (CGSize)toSize;
+
+@end
+
+/*!
+ @category
+ @discussion These methods enable querying properties on a JSValue.
+ */
+@interface JSValue (PropertyAccess)
+
+/*!
+ @method
+ @abstract Access a property of a JSValue.
+ @result The JSValue for the requested property or the JSValue <code>undefined</code>
+ if the property does not exist.
+ */
+- (JSValue *)valueForProperty:(NSString *)property;
+
+/*!
+ @method
+ @abstract Set a property on a JSValue.
+ */
+- (void)setValue:(id)value forProperty:(NSString *)property;
+
+/*!
+ @method
+ @abstract Delete a property from a JSValue.
+ @result YES if deletion is successful, NO otherwise.
+ */
+- (BOOL)deleteProperty:(NSString *)property;
+
+/*!
+ @method
+ @abstract Check if a JSValue has a property.
+ @discussion This method has the same function as the JavaScript operator <code>in</code>.
+ @result Returns YES if property is present on the value.
+ */
+- (BOOL)hasProperty:(NSString *)property;
+
+/*!
+ @method
+ @abstract Define properties with custom descriptors on JSValues.
+ @discussion This method may be used to create a data or accessor property on an object.
+ This method operates in accordance with the Object.defineProperty method in the
+ JavaScript language.
+ */
+- (void)defineProperty:(NSString *)property descriptor:(id)descriptor;
+
+/*!
+ @method
+ @abstract Access an indexed (numerical) property on a JSValue.
+ @result The JSValue for the property at the specified index.
+ Returns the JavaScript value <code>undefined</code> if no property exists at that index.
+ */
+- (JSValue *)valueAtIndex:(NSUInteger)index;
+
+/*!
+ @method
+ @abstract Set an indexed (numerical) property on a JSValue.
+ @discussion For JSValues that are JavaScript arrays, indices greater than
+ UINT_MAX - 1 will not affect the length of the array.
+ */
+- (void)setValue:(id)value atIndex:(NSUInteger)index;
 
 @end
 
@@ -1487,15 +1495,12 @@ JS_EXPORT extern NSString * const JSPropertyDescriptorSetKey;
 #endif /* !TARGET_OS_IPHONE && __MAC_OS_X_VERSION_MIN_REQUIRED < 101100 */
 
 #if defined(BUILDING_GTK__)
-#undef CF_AVAILABLE
-#define CF_AVAILABLE(_mac, _ios)
-#undef CF_ENUM_AVAILABLE
-#define CF_ENUM_AVAILABLE(_mac, _ios)
+#undef API_AVAILABLE
+#define API_AVAILABLE(...)
 #endif
 
 #else
-#define CF_AVAILABLE(_mac, _ios)
-#define CF_ENUM_AVAILABLE(_mac, _ios)
+#define API_AVAILABLE(...)
 #endif
 
 #endif /* __WebKitAvailability__ */
@@ -1707,7 +1712,7 @@ JS_EXPORT extern NSString * const JSPropertyDescriptorSetKey;
   - Any lowercase letter that had followed a colon will be capitalized.
 
  Under the default conversion a selector <code>doFoo:withBar:</code> will be exported as
- <code>doFooWithBar</code>. The default conversion may be overriden using the JSExportAs
+ <code>doFooWithBar</code>. The default conversion may be overridden using the JSExportAs
  macro, for example to export a method <code>doFoo:withBar:</code> as <code>doFoo</code>:
 
 <pre>
@@ -1787,7 +1792,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 @result The new JSManagedValue.
 */
 + (JSManagedValue *)managedValueWithValue:(JSValue *)value;
-+ (JSManagedValue *)managedValueWithValue:(JSValue *)value andOwner:(id)owner NS_AVAILABLE(10_10, 8_0);
++ (JSManagedValue *)managedValueWithValue:(JSValue *)value andOwner:(id)owner API_AVAILABLE(macos(10.10), ios(8.0));
 
 /*!
 @method
@@ -2409,7 +2414,7 @@ JS_EXPORT JSObjectRef JSObjectMakeConstructor(JSContextRef ctx, JSClassRef jsCla
  @discussion The behavior of this function does not exactly match the behavior of the built-in Array constructor. Specifically, if one argument 
  is supplied, this function returns an array with one element.
  */
-JS_EXPORT JSObjectRef JSObjectMakeArray(JSContextRef ctx, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception) CF_AVAILABLE(10_6, 7_0);
+JS_EXPORT JSObjectRef JSObjectMakeArray(JSContextRef ctx, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception) API_AVAILABLE(macos(10.6), ios(7.0));
 
 /*!
  @function
@@ -2420,7 +2425,7 @@ JS_EXPORT JSObjectRef JSObjectMakeArray(JSContextRef ctx, size_t argumentCount, 
  @param exception A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result A JSObject that is a Date.
  */
-JS_EXPORT JSObjectRef JSObjectMakeDate(JSContextRef ctx, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception) CF_AVAILABLE(10_6, 7_0);
+JS_EXPORT JSObjectRef JSObjectMakeDate(JSContextRef ctx, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception) API_AVAILABLE(macos(10.6), ios(7.0));
 
 /*!
  @function
@@ -2431,7 +2436,7 @@ JS_EXPORT JSObjectRef JSObjectMakeDate(JSContextRef ctx, size_t argumentCount, c
  @param exception A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result A JSObject that is a Error.
  */
-JS_EXPORT JSObjectRef JSObjectMakeError(JSContextRef ctx, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception) CF_AVAILABLE(10_6, 7_0);
+JS_EXPORT JSObjectRef JSObjectMakeError(JSContextRef ctx, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception) API_AVAILABLE(macos(10.6), ios(7.0));
 
 /*!
  @function
@@ -2442,7 +2447,7 @@ JS_EXPORT JSObjectRef JSObjectMakeError(JSContextRef ctx, size_t argumentCount, 
  @param exception A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result A JSObject that is a RegExp.
  */
-JS_EXPORT JSObjectRef JSObjectMakeRegExp(JSContextRef ctx, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception) CF_AVAILABLE(10_6, 7_0);
+JS_EXPORT JSObjectRef JSObjectMakeRegExp(JSContextRef ctx, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception) API_AVAILABLE(macos(10.6), ios(7.0));
 
 /*!
 @function
@@ -2504,9 +2509,9 @@ JS_EXPORT JSValueRef JSObjectGetProperty(JSContextRef ctx, JSObjectRef object, J
 @param ctx The execution context to use.
 @param object The JSObject whose property you want to set.
 @param propertyName A JSString containing the property's name.
-@param value A JSValue to use as the property's value.
-@param exception A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
+@param value A JSValueRef to use as the property's value.
 @param attributes A logically ORed set of JSPropertyAttributes to give to the property.
+@param exception A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
 */
 JS_EXPORT void JSObjectSetProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propertyName, JSValueRef value, JSPropertyAttributes attributes, JSValueRef* exception);
 
@@ -2865,7 +2870,7 @@ extern "C" {
  JSContextGroup's run loop once it has been created.
 @result The created JSContextGroup.
 */
-JS_EXPORT JSContextGroupRef JSContextGroupCreate(void) CF_AVAILABLE(10_6, 7_0);
+JS_EXPORT JSContextGroupRef JSContextGroupCreate(void) API_AVAILABLE(macos(10.6), ios(7.0));
 
 /*!
 @function
@@ -2873,14 +2878,14 @@ JS_EXPORT JSContextGroupRef JSContextGroupCreate(void) CF_AVAILABLE(10_6, 7_0);
 @param group The JSContextGroup to retain.
 @result A JSContextGroup that is the same as group.
 */
-JS_EXPORT JSContextGroupRef JSContextGroupRetain(JSContextGroupRef group) CF_AVAILABLE(10_6, 7_0);
+JS_EXPORT JSContextGroupRef JSContextGroupRetain(JSContextGroupRef group) API_AVAILABLE(macos(10.6), ios(7.0));
 
 /*!
 @function
 @abstract Releases a JavaScript context group.
 @param group The JSContextGroup to release.
 */
-JS_EXPORT void JSContextGroupRelease(JSContextGroupRef group) CF_AVAILABLE(10_6, 7_0);
+JS_EXPORT void JSContextGroupRelease(JSContextGroupRef group) API_AVAILABLE(macos(10.6), ios(7.0));
 
 /*!
 @function
@@ -2895,7 +2900,7 @@ JS_EXPORT void JSContextGroupRelease(JSContextGroupRef group) CF_AVAILABLE(10_6,
  NULL to use the default object class.
 @result A JSGlobalContext with a global object of class globalObjectClass.
 */
-JS_EXPORT JSGlobalContextRef JSGlobalContextCreate(JSClassRef globalObjectClass) CF_AVAILABLE(10_5, 7_0);
+JS_EXPORT JSGlobalContextRef JSGlobalContextCreate(JSClassRef globalObjectClass) API_AVAILABLE(macos(10.5), ios(7.0));
 
 /*!
 @function
@@ -2909,7 +2914,7 @@ JS_EXPORT JSGlobalContextRef JSGlobalContextCreate(JSClassRef globalObjectClass)
 @result A JSGlobalContext with a global object of class globalObjectClass and a context
  group equal to group.
 */
-JS_EXPORT JSGlobalContextRef JSGlobalContextCreateInGroup(JSContextGroupRef group, JSClassRef globalObjectClass) CF_AVAILABLE(10_6, 7_0);
+JS_EXPORT JSGlobalContextRef JSGlobalContextCreateInGroup(JSContextGroupRef group, JSClassRef globalObjectClass) API_AVAILABLE(macos(10.6), ios(7.0));
 
 /*!
 @function
@@ -2940,7 +2945,7 @@ JS_EXPORT JSObjectRef JSContextGetGlobalObject(JSContextRef ctx);
 @param ctx The JSContext whose group you want to get.
 @result ctx's group.
 */
-JS_EXPORT JSContextGroupRef JSContextGetGroup(JSContextRef ctx) CF_AVAILABLE(10_6, 7_0);
+JS_EXPORT JSContextGroupRef JSContextGetGroup(JSContextRef ctx) API_AVAILABLE(macos(10.6), ios(7.0));
 
 /*!
 @function
@@ -2948,7 +2953,7 @@ JS_EXPORT JSContextGroupRef JSContextGetGroup(JSContextRef ctx) CF_AVAILABLE(10_
 @param ctx The JSContext whose global context you want to get.
 @result ctx's global context.
 */
-JS_EXPORT JSGlobalContextRef JSContextGetGlobalContext(JSContextRef ctx) CF_AVAILABLE(10_7, 7_0);
+JS_EXPORT JSGlobalContextRef JSContextGetGlobalContext(JSContextRef ctx) API_AVAILABLE(macos(10.7), ios(7.0));
 
 /*!
 @function
@@ -2958,7 +2963,7 @@ JS_EXPORT JSGlobalContextRef JSContextGetGlobalContext(JSContextRef ctx) CF_AVAI
 @discussion A JSGlobalContext's name is exposed for remote debugging to make it
 easier to identify the context you would like to attach to.
 */
-JS_EXPORT JSStringRef JSGlobalContextCopyName(JSGlobalContextRef ctx) CF_AVAILABLE(10_10, 8_0);
+JS_EXPORT JSStringRef JSGlobalContextCopyName(JSGlobalContextRef ctx) API_AVAILABLE(macos(10.10), ios(8.0));
 
 /*!
 @function
@@ -2966,7 +2971,7 @@ JS_EXPORT JSStringRef JSGlobalContextCopyName(JSGlobalContextRef ctx) CF_AVAILAB
 @param ctx The JSGlobalContext that you want to name.
 @param name The remote debugging name to set on ctx.
 */
-JS_EXPORT void JSGlobalContextSetName(JSGlobalContextRef ctx, JSStringRef name) CF_AVAILABLE(10_10, 8_0);
+JS_EXPORT void JSGlobalContextSetName(JSGlobalContextRef ctx, JSStringRef name) API_AVAILABLE(macos(10.10), ios(8.0));
 
 #ifdef __cplusplus
 }
@@ -3021,7 +3026,7 @@ extern "C" {
  @param exception    A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result             A JSObjectRef that is a Typed Array with all elements set to zero or NULL if there was an error.
  */
-JS_EXPORT JSObjectRef JSObjectMakeTypedArray(JSContextRef ctx, JSTypedArrayType arrayType, size_t length, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT JSObjectRef JSObjectMakeTypedArray(JSContextRef ctx, JSTypedArrayType arrayType, size_t length, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @function
@@ -3036,7 +3041,7 @@ JS_EXPORT JSObjectRef JSObjectMakeTypedArray(JSContextRef ctx, JSTypedArrayType 
  @result                   A JSObjectRef Typed Array whose backing store is the same as the one pointed to by bytes or NULL if there was an error.
  @discussion               If an exception is thrown during this function the bytesDeallocator will always be called.
  */
-JS_EXPORT JSObjectRef JSObjectMakeTypedArrayWithBytesNoCopy(JSContextRef ctx, JSTypedArrayType arrayType, void* bytes, size_t byteLength, JSTypedArrayBytesDeallocator bytesDeallocator, void* deallocatorContext, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT JSObjectRef JSObjectMakeTypedArrayWithBytesNoCopy(JSContextRef ctx, JSTypedArrayType arrayType, void* bytes, size_t byteLength, JSTypedArrayBytesDeallocator bytesDeallocator, void* deallocatorContext, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @function
@@ -3047,7 +3052,7 @@ JS_EXPORT JSObjectRef JSObjectMakeTypedArrayWithBytesNoCopy(JSContextRef ctx, JS
  @param exception    A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result             A JSObjectRef that is a Typed Array or NULL if there was an error. The backing store of the Typed Array will be buffer.
  */
-JS_EXPORT JSObjectRef JSObjectMakeTypedArrayWithArrayBuffer(JSContextRef ctx, JSTypedArrayType arrayType, JSObjectRef buffer, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT JSObjectRef JSObjectMakeTypedArrayWithArrayBuffer(JSContextRef ctx, JSTypedArrayType arrayType, JSObjectRef buffer, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @function
@@ -3060,7 +3065,7 @@ JS_EXPORT JSObjectRef JSObjectMakeTypedArrayWithArrayBuffer(JSContextRef ctx, JS
  @param exception    A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result             A JSObjectRef that is a Typed Array or NULL if there was an error. The backing store of the Typed Array will be buffer.
  */
-JS_EXPORT JSObjectRef JSObjectMakeTypedArrayWithArrayBufferAndOffset(JSContextRef ctx, JSTypedArrayType arrayType, JSObjectRef buffer, size_t byteOffset, size_t length, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT JSObjectRef JSObjectMakeTypedArrayWithArrayBufferAndOffset(JSContextRef ctx, JSTypedArrayType arrayType, JSObjectRef buffer, size_t byteOffset, size_t length, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @function
@@ -3071,7 +3076,7 @@ JS_EXPORT JSObjectRef JSObjectMakeTypedArrayWithArrayBufferAndOffset(JSContextRe
  @result             A pointer to the raw data buffer that serves as object's backing store or NULL if object is not a Typed Array object.
  @discussion         The pointer returned by this function is temporary and is not guaranteed to remain valid across JavaScriptCore API calls.
  */
-JS_EXPORT void* JSObjectGetTypedArrayBytesPtr(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT void* JSObjectGetTypedArrayBytesPtr(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @function
@@ -3081,7 +3086,7 @@ JS_EXPORT void* JSObjectGetTypedArrayBytesPtr(JSContextRef ctx, JSObjectRef obje
  @param exception    A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result             The length of the Typed Array object or 0 if the object is not a Typed Array object.
  */
-JS_EXPORT size_t JSObjectGetTypedArrayLength(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT size_t JSObjectGetTypedArrayLength(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @function
@@ -3091,7 +3096,7 @@ JS_EXPORT size_t JSObjectGetTypedArrayLength(JSContextRef ctx, JSObjectRef objec
  @param exception    A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result             The byte length of the Typed Array object or 0 if the object is not a Typed Array object.
  */
-JS_EXPORT size_t JSObjectGetTypedArrayByteLength(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT size_t JSObjectGetTypedArrayByteLength(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @function
@@ -3101,7 +3106,7 @@ JS_EXPORT size_t JSObjectGetTypedArrayByteLength(JSContextRef ctx, JSObjectRef o
  @param exception    A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result             The byte offset of the Typed Array object or 0 if the object is not a Typed Array object.
  */
-JS_EXPORT size_t JSObjectGetTypedArrayByteOffset(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT size_t JSObjectGetTypedArrayByteOffset(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @function
@@ -3111,7 +3116,7 @@ JS_EXPORT size_t JSObjectGetTypedArrayByteOffset(JSContextRef ctx, JSObjectRef o
  @param exception    A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result             A JSObjectRef with a JSTypedArrayType of kJSTypedArrayTypeArrayBuffer or NULL if object is not a Typed Array.
  */
-JS_EXPORT JSObjectRef JSObjectGetTypedArrayBuffer(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT JSObjectRef JSObjectGetTypedArrayBuffer(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 // ------------- Array Buffer functions -------------
 
@@ -3127,7 +3132,7 @@ JS_EXPORT JSObjectRef JSObjectGetTypedArrayBuffer(JSContextRef ctx, JSObjectRef 
  @result                   A JSObjectRef Array Buffer whose backing store is the same as the one pointed to by bytes or NULL if there was an error.
  @discussion               If an exception is thrown during this function the bytesDeallocator will always be called.
  */
-JS_EXPORT JSObjectRef JSObjectMakeArrayBufferWithBytesNoCopy(JSContextRef ctx, void* bytes, size_t byteLength, JSTypedArrayBytesDeallocator bytesDeallocator, void* deallocatorContext, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT JSObjectRef JSObjectMakeArrayBufferWithBytesNoCopy(JSContextRef ctx, void* bytes, size_t byteLength, JSTypedArrayBytesDeallocator bytesDeallocator, void* deallocatorContext, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @function
@@ -3137,7 +3142,7 @@ JS_EXPORT JSObjectRef JSObjectMakeArrayBufferWithBytesNoCopy(JSContextRef ctx, v
  @result           A pointer to the raw data buffer that serves as object's backing store or NULL if object is not an Array Buffer object.
  @discussion       The pointer returned by this function is temporary and is not guaranteed to remain valid across JavaScriptCore API calls.
  */
-JS_EXPORT void* JSObjectGetArrayBufferBytesPtr(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT void* JSObjectGetArrayBufferBytesPtr(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @function
@@ -3147,7 +3152,7 @@ JS_EXPORT void* JSObjectGetArrayBufferBytesPtr(JSContextRef ctx, JSObjectRef obj
  @param exception  A pointer to a JSValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
  @result           The number of bytes stored in the data object.
  */
-JS_EXPORT size_t JSObjectGetArrayBufferByteLength(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) CF_AVAILABLE(10_12, 10_0);
+JS_EXPORT size_t JSObjectGetArrayBufferByteLength(JSContextRef ctx, JSObjectRef object, JSValueRef* exception) API_AVAILABLE(macos(10.12), ios(10.0));
 
 #ifdef __cplusplus
 }

@@ -14,13 +14,13 @@
  @constant   NKIssueDownloadCompletedNotification
  @abstract   Notification when an issue's assets have all been downloaded.
  */
-extern __attribute__((visibility ("default"))) NSString * __nonnull const NKIssueDownloadCompletedNotification NS_AVAILABLE_IOS(5_0);
+extern __attribute__((visibility ("default"))) NSString * __nonnull const NKIssueDownloadCompletedNotification NS_DEPRECATED_IOS(5.0, 13.0, "Use the Remote Notifications Background Modes instead: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/pushing_updates_to_your_app_silently");
 
 typedef NS_ENUM(NSInteger, NKIssueContentStatus) {
     NKIssueContentStatusNone,
     NKIssueContentStatusDownloading,
     NKIssueContentStatusAvailable,
-} NS_ENUM_AVAILABLE_IOS(5_0);
+} NS_ENUM_DEPRECATED_IOS(5.0, 13.0, "Use the Remote Notifications Background Modes instead: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/pushing_updates_to_your_app_silently");
 
 
 /*!
@@ -38,7 +38,8 @@ typedef NS_ENUM(NSInteger, NKIssueContentStatus) {
  -[NKLibrary addIssueWithName:date:].
  */
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE_IOS(5_0) @interface NKIssue : NSObject
+NS_CLASS_DEPRECATED_IOS(5.0, 13.0, "Use the Remote Notifications Background Modes instead: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/pushing_updates_to_your_app_silently")
+@interface NKIssue : NSObject
 
 /*!
  @property   downloadingAssets
@@ -104,13 +105,14 @@ NS_ASSUME_NONNULL_END
  @discussion This category provides a convenient way to look up an
  NKAssetDownload that is related to a NSURLConnection.
  */
+
 @interface NSURLConnection (NKAssetDownloadAdditions)
 
 /*!
  @property   newsstandAssetDownload
  @abstract   A pointer to the asset download that this connection is associated with.
  */
-@property (readonly, weak, nullable) NKAssetDownload *newsstandAssetDownload NS_AVAILABLE_IOS(5_0);
+@property (readonly, weak, nullable) NKAssetDownload *newsstandAssetDownload NS_DEPRECATED_IOS(5.0, 13.0, "Use Remote notifications Background Modes instead: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/pushing_updates_to_your_app_silently");
 
 @end
 // ==========  NewsstandKit.framework/Headers/NewsstandKit.h
@@ -154,7 +156,8 @@ NS_ASSUME_NONNULL_END
  in the URL specified by -[NKIssue contentURL].
  */
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE_IOS(5_0) @interface NKAssetDownload : NSObject
+NS_CLASS_DEPRECATED_IOS(5.0, 13.0, "Use the Remote Notifications Background Modes instead: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/pushing_updates_to_your_app_silently")
+@interface NKAssetDownload : NSObject
 
 /*!
  @property   issue
@@ -218,7 +221,8 @@ NS_ASSUME_NONNULL_END
  -[NKAssetDownload downloadWithDelegate:].
  */
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE_IOS(5_0) @interface NKLibrary : NSObject
+NS_CLASS_DEPRECATED_IOS(5.0, 13.0, "Use the Remote Notifications Background Modes instead: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/pushing_updates_to_your_app_silently")
+@interface NKLibrary : NSObject
 
 /*!
  @property   issues

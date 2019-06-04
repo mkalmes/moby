@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NSString * CAScrollLayerScrollMode NS_STRING_ENUM;
+typedef NSString * CAScrollLayerScrollMode NS_TYPED_ENUM;
 
 API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CAScrollLayer : CALayer
@@ -126,9 +126,10 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NSString * CALayerContentsGravity NS_STRING_ENUM;
-typedef NSString * CALayerContentsFormat NS_STRING_ENUM;
-typedef NSString * CALayerContentsFilter NS_STRING_ENUM;
+typedef NSString * CALayerContentsGravity NS_TYPED_ENUM;
+typedef NSString * CALayerContentsFormat NS_TYPED_ENUM;
+typedef NSString * CALayerContentsFilter NS_TYPED_ENUM;
+typedef NSString * CALayerCornerCurve NS_TYPED_ENUM;
 
 /* Bit definitions for `edgeAntialiasingMask' property. */
 
@@ -595,6 +596,18 @@ API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @property CACornerMask maskedCorners
   API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
 
+/* Defines the curve used for rendering the rounded corners of the layer.
+ * Defaults to 'kCACornerCurveCircular'. */
+
+@property(copy) CALayerCornerCurve cornerCurve
+  API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/* Expansion scale factor applied to the rounded corner bounding box size
+ * when specific corner curve is used. */
+
++ (CGFloat)cornerCurveExpansionFactor:(CALayerCornerCurve)curve
+  API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
 /* The width of the layer's border, inset from the layer bounds. The
  * border is composited above the layer's content and sublayers and
  * includes the effects of the `cornerRadius' property. Defaults to
@@ -978,6 +991,13 @@ CA_EXTERN CALayerContentsFilter const kCAFilterLinear
 CA_EXTERN CALayerContentsFilter const kCAFilterTrilinear
     API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0));
 
+/** Corner curve names. **/
+
+CA_EXTERN CALayerCornerCurve const kCACornerCurveCircular
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+CA_EXTERN CALayerCornerCurve const kCACornerCurveContinuous
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
 /** Layer event names. **/
 
 CA_EXTERN NSString * const kCAOnOrderIn
@@ -1004,7 +1024,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NSString * CAMediaTimingFunctionName NS_STRING_ENUM;
+typedef NSString * CAMediaTimingFunctionName NS_TYPED_ENUM;
 
 /* Represents one segment of a function describing a timing curve. The
  * function maps an input time normalized to the range [0,1] to an
@@ -1131,8 +1151,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NSString * CATextLayerTruncationMode NS_STRING_ENUM;
-typedef NSString * CATextLayerAlignmentMode NS_STRING_ENUM;
+typedef NSString * CATextLayerTruncationMode NS_TYPED_ENUM;
+typedef NSString * CATextLayerAlignmentMode NS_TYPED_ENUM;
 
 API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface CATextLayer : CALayer
@@ -1146,9 +1166,10 @@ API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 
 @property(nullable, copy) id string;
 
-/* The font to use, currently may be either a CTFontRef, a CGFontRef,
- * or a string naming the font. Defaults to the Helvetica font. Only
- * used when the `string' property is not an NSAttributedString. */
+/* The font to use, currently may be either a CTFontRef (toll-free
+ * bridged from UIFont), a CGFontRef, or a string naming the font.
+ * Defaults to the Helvetica font. Only used when the `string' property
+ * is not an NSAttributedString. */
 
 @property(nullable) CFTypeRef font;
 
@@ -1295,9 +1316,9 @@ NS_ASSUME_NONNULL_END
 
 #import <QuartzCore/CALayer.h>
 
-typedef NSString * CAEmitterLayerEmitterShape NS_STRING_ENUM;
-typedef NSString * CAEmitterLayerEmitterMode NS_STRING_ENUM;
-typedef NSString * CAEmitterLayerRenderMode NS_STRING_ENUM;
+typedef NSString * CAEmitterLayerEmitterShape NS_TYPED_ENUM;
+typedef NSString * CAEmitterLayerEmitterMode NS_TYPED_ENUM;
+typedef NSString * CAEmitterLayerRenderMode NS_TYPED_ENUM;
 
 @class CAEmitterCell;
 
@@ -1439,7 +1460,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Class representing a timer bound to the display vsync. **/
 
-API_AVAILABLE(macos(10.14), ios(3.1), watchos(2.0), tvos(9.0))
+API_AVAILABLE(ios(3.1), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos)
 @interface CADisplayLink : NSObject
 {
 @private
@@ -1481,7 +1502,7 @@ API_AVAILABLE(macos(10.14), ios(3.1), watchos(2.0), tvos(9.0))
 /* The next timestamp that the client should target their render for. */
 
 @property(readonly, nonatomic) CFTimeInterval targetTimestamp
-    API_AVAILABLE(macos(10.14), ios(10.0), watchos(3.0), tvos(10.0));
+    API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0));
 
 /* When true the object is prevented from firing. Initial state is
  * false. */
@@ -1540,7 +1561,7 @@ NS_ASSUME_NONNULL_END
 
 @class NSString;
 
-typedef NSString * CAMediaTimingFillMode NS_STRING_ENUM;
+typedef NSString * CAMediaTimingFillMode NS_TYPED_ENUM;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1979,9 +2000,9 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NSString * CAShapeLayerFillRule NS_STRING_ENUM;
-typedef NSString * CAShapeLayerLineJoin NS_STRING_ENUM;
-typedef NSString * CAShapeLayerLineCap NS_STRING_ENUM;
+typedef NSString * CAShapeLayerFillRule NS_TYPED_ENUM;
+typedef NSString * CAShapeLayerLineJoin NS_TYPED_ENUM;
+typedef NSString * CAShapeLayerLineCap NS_TYPED_ENUM;
 
 /* The shape layer draws a cubic Bezier spline in its coordinate space.
  *
@@ -2110,7 +2131,7 @@ NS_ASSUME_NONNULL_END
 #import <QuartzCore/CABase.h>
 #import <Foundation/NSObject.h>
 
-typedef NSString * CAValueFunctionName NS_STRING_ENUM;
+typedef NSString * CAValueFunctionName NS_TYPED_ENUM;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -2208,7 +2229,7 @@ NS_ASSUME_NONNULL_BEGIN
 /* This is an object that conforms to the MTLTexture protocol and will
  * typically be used to create an MTLRenderTargetDescriptor. */
 
-@property(readonly) id <MTLTexture> texture;
+@property(readonly) id<MTLTexture> texture;
 
 /* This is the CAMetalLayer responsible for displaying the drawable */
 
@@ -2228,11 +2249,16 @@ API_AVAILABLE(macos(10.11), ios(8.0), watchos(2.0), tvos(9.0))
 
 /* This property determines which MTLDevice the MTLTexture objects for
  * the drawables will be created from.
- * On iOS this defaults to the device returned by MTLCreateSystemDefaultDevice().
- * On MacOS this defaults to nil and must be set explicitly before asking for
+ * On iOS this defaults to MTLCreateSystemDefaultDevice().
+ * On macOS this defaults to nil and must be set explicitly before asking for
  * the first drawable. */
 
-@property(nullable, retain) id <MTLDevice> device;
+@property(nullable, retain) id<MTLDevice> device;
+
+/* This property returns the preferred MTLDevice for this CAMetalLayer. */
+
+@property(nullable, readonly) id<MTLDevice> preferredDevice
+  API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
 
 /* This property controls the pixel format of the MTLTexture objects.
  * The two supported values are MTLPixelFormatBGRA8Unorm and
@@ -2256,19 +2282,21 @@ API_AVAILABLE(macos(10.11), ios(8.0), watchos(2.0), tvos(9.0))
 
 @property CGSize drawableSize;
 
-/* Get the swap queue's next available drawable. Always blocks until a drawable is available.
- * Can return nil under the following conditions:
+/* Get the swap queue's next available drawable. Always blocks until a drawable
+ * is available. Can return nil under the following conditions:
  *     1) The layer has an invalid combination of drawable properties.
- *     2) All drawables in the swap queue are in-use and the 1 second timeout has elapsed.
- *        (except when `allowsNextDrawableTimeout' is set to NO)
+ *     2) All drawables in the swap queue are in-use and the 1 second timeout
+ *        has elapsed. (except when `allowsNextDrawableTimeout' is set to NO)
  *     3) Process is out of memory. */
 
-- (nullable id <CAMetalDrawable>)nextDrawable;
+- (nullable id<CAMetalDrawable>)nextDrawable;
 
-/* Controls the number maximum number of drawables in the swap queue. The default value is 3.
- * Values set outside of range [2, 3] are ignored and an exception will be thrown. */
+/* Controls the number maximum number of drawables in the swap queue. The
+ * default value is 3. Values set outside of range [2, 3] are ignored and an
+ * exception will be thrown. */
 
-@property NSUInteger maximumDrawableCount API_AVAILABLE(macos(10.13.2), ios(11.2), watchos(4.2), tvos(11.2));
+@property NSUInteger maximumDrawableCount
+  API_AVAILABLE(macos(10.13.2), ios(11.2), watchos(4.2), tvos(11.2));
 
 /* When false (the default value) changes to the layer's render buffer
  * appear on-screen asynchronously to normal layer updates. When true,
@@ -2277,14 +2305,21 @@ API_AVAILABLE(macos(10.11), ios(8.0), watchos(2.0), tvos(9.0))
 
 @property BOOL presentsWithTransaction;
 
+/* The colorspace of the rendered frames. If nil, no colormatching occurs.
+ * If non-nil, the rendered content will be colormatched to the colorspace of
+ * the context containing this layer (typically the display's colorspace). */
+
+@property (nullable) CGColorSpaceRef colorspace;
 
 
 
-/* Controls if `-nextDrawable' is allowed to timeout after 1 second and return nil if
- * the system does not have a free drawable available. The default value is YES.
- * If set to NO, then `-nextDrawable' will block forever until a free drawable is available. */
+/* Controls if `-nextDrawable' is allowed to timeout after 1 second and return
+ * nil if * the system does not have a free drawable available. The default
+ * value is YES. If set to NO, then `-nextDrawable' will block forever until a
+ * free drawable is available. */
 
-@property BOOL allowsNextDrawableTimeout API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
+@property BOOL allowsNextDrawableTimeout
+  API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
 
 @end
 
@@ -2439,7 +2474,7 @@ NS_ASSUME_NONNULL_END
 #include <TargetConditionals.h>
 
 #if TARGET_OS_OSX
-# define CA_OSX_VERSION(v) ((v) > 0 && MAC_OS_X_VERSION_MIN_REQUIRED >= (v))
+# define CA_OSX_VERSION(v) ((v) > 0 && __MAC_OS_X_VERSION_MAX_ALLOWED >= (v))
 #else
 # define CA_OSX_VERSION(v) (0)
 #endif
@@ -2502,9 +2537,11 @@ NS_ASSUME_NONNULL_END
 #endif
 
 #ifdef CA_BUILD_TESTABLE
+#  define CA_TEST 1
 #  define CA_TESTABLE CA_EXTERN
 #  define CA_TESTABLE_CLASS __attribute__((visibility("default")))
 #else
+#  define CA_TEST 0
 #  define CA_TESTABLE CA_HIDDEN
 #  define CA_TESTABLE_CLASS CA_HIDDEN
 #endif
@@ -2593,7 +2630,7 @@ CA_EXTERN_C_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NSString * CAGradientLayerType NS_STRING_ENUM;
+typedef NSString * CAGradientLayerType NS_TYPED_ENUM;
 
 API_AVAILABLE(macos(10.6), ios(3.0), watchos(2.0), tvos(9.0))
 @interface CAGradientLayer : CALayer
@@ -2667,10 +2704,10 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NSString * CAAnimationCalculationMode NS_STRING_ENUM;
-typedef NSString * CAAnimationRotationMode NS_STRING_ENUM;
-typedef NSString * CATransitionType NS_STRING_ENUM;
-typedef NSString * CATransitionSubtype NS_STRING_ENUM;
+typedef NSString * CAAnimationCalculationMode NS_TYPED_ENUM;
+typedef NSString * CAAnimationRotationMode NS_TYPED_ENUM;
+typedef NSString * CATransitionType NS_TYPED_ENUM;
+typedef NSString * CATransitionSubtype NS_TYPED_ENUM;
 
 /** The base animation class. **/
 

@@ -9,6 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SFVoiceAnalytics;
 @class SFSpeechRecognitionResult;
 @class SFTranscription;
 
@@ -18,9 +19,9 @@ typedef NS_ENUM(NSInteger, SFSpeechRecognitionTaskState) {
     SFSpeechRecognitionTaskStateFinishing = 2,      // No more audio is being recorded, but more recognition results may arrive
     SFSpeechRecognitionTaskStateCanceling = 3,      // No more recognition reuslts will arrive, but recording may not have stopped yet
     SFSpeechRecognitionTaskStateCompleted = 4,      // No more results will arrive, and recording is stopped.
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0), macos(10.15));
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), macos(10.15))
 @interface SFSpeechRecognitionTask : NSObject
 
 @property (nonatomic, readonly) SFSpeechRecognitionTaskState state;
@@ -41,7 +42,7 @@ API_AVAILABLE(ios(10.0))
 @end
 
 // Recognition result receiver, to be used for complex or multi-utterance speech recognition requests
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), macos(10.15))
 @protocol SFSpeechRecognitionTaskDelegate <NSObject>
 
 @optional
@@ -76,7 +77,7 @@ NS_ASSUME_NONNULL_END
 //
 
 
-#import <AVFoundation/AVAudioBuffer.h>
+#import <AVFoundation/AVFoundation.h>
 #import <Foundation/Foundation.h>
 
 #import <Speech/SFSpeechRecognitionTaskHint.h>
@@ -95,9 +96,9 @@ typedef NS_ENUM(NSInteger, SFSpeechRecognizerAuthorizationStatus) {
     SFSpeechRecognizerAuthorizationStatusDenied,
     SFSpeechRecognizerAuthorizationStatusRestricted,
     SFSpeechRecognizerAuthorizationStatusAuthorized,
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0), macos(10.15));
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), macos(10.15))
 @interface SFSpeechRecognizer : NSObject
 
 // Locales which support speech recognition.
@@ -112,6 +113,9 @@ API_AVAILABLE(ios(10.0))
 
 @property (nonatomic, readonly, getter=isAvailable) BOOL available;
 @property (nonatomic, readonly, copy) NSLocale *locale;
+
+// True if this recognition can handle requests with requiresOnDeviceRecognition set to true
+@property (nonatomic) BOOL supportsOnDeviceRecognition API_AVAILABLE(ios(13));
 
 @property (nonatomic, weak) id<SFSpeechRecognizerDelegate> delegate;
 
@@ -135,7 +139,7 @@ API_AVAILABLE(ios(10.0))
 
 @end
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), macos(10.15))
 @protocol SFSpeechRecognizerDelegate <NSObject>
 @optional
 
@@ -160,7 +164,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 // A request for a speech recognition from an audio source
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), macos(10.15))
 @interface SFSpeechRecognitionRequest : NSObject
 
 @property (nonatomic) SFSpeechRecognitionTaskHint taskHint;
@@ -175,10 +179,16 @@ API_AVAILABLE(ios(10.0))
 // String which can be used to identify the receiver by the developer
 @property (nonatomic, copy, nullable) NSString *interactionIdentifier;
 
+// If true, speech recogition will not send any audio over the Internet
+// This will reduce accuracy but enables certain applications where it is
+// inappropriate to transmit user speech to a remote service.
+// Default is false
+@property (nonatomic) BOOL requiresOnDeviceRecognition API_AVAILABLE(ios(13), macos(10.15));
+
 @end
 
 // A request to recognize speech from a recorded audio file
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), macos(10.15))
 @interface SFSpeechURLRecognitionRequest : SFSpeechRecognitionRequest
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -191,7 +201,7 @@ API_AVAILABLE(ios(10.0))
 @end
 
 // A request to recognize speech from arbitrary audio buffers
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), macos(10.15))
 @interface SFSpeechAudioBufferRecognitionRequest : SFSpeechRecognitionRequest
 
 // Preferred audio format for optimal speech recognition
@@ -221,7 +231,7 @@ typedef NS_ENUM(NSInteger, SFSpeechRecognitionTaskHint) {
     SFSpeechRecognitionTaskHintDictation = 1,       // General dictation/keyboard-style
     SFSpeechRecognitionTaskHintSearch = 2,          // Search-style requests
     SFSpeechRecognitionTaskHintConfirmation = 3,    // Short, confirmation-style requests ("Yes", "No", "Maybe")
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0), macos(10.15));
 // ==========  Speech.framework/Headers/SFTranscriptionSegment.h
 //
 //  SFTranscriptionSegment.h
@@ -232,8 +242,10 @@ typedef NS_ENUM(NSInteger, SFSpeechRecognitionTaskHint) {
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SFVoiceAnalytics;
+
 // Substrings of a hypothesized transcription
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), macos(10.15))
 @interface SFTranscriptionSegment : NSObject <NSCopying, NSSecureCoding>
 
 @property (nonatomic, readonly, copy) NSString *substring;
@@ -249,6 +261,48 @@ API_AVAILABLE(ios(10.0))
 // Other possible interpretations of this segment
 @property (nonatomic, readonly) NSArray<NSString *> *alternativeSubstrings;
 
+@property (nonatomic, nullable, readonly) SFVoiceAnalytics *voiceAnalytics API_AVAILABLE(ios(13.0), macos(10.15));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Speech.framework/Headers/SFVoiceAnalytics.h
+//  SFVoiceAnalytics.h
+//  Copyright (c) 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+// An acoustic feature
+API_AVAILABLE(ios(13), macos(10.15))
+@interface SFAcousticFeature : NSObject <NSCopying, NSSecureCoding>
+
+// Array of feature values per audio frame, corresponding to a segment of recorded audio
+@property (nonatomic, readonly, copy) NSArray<NSNumber *> *acousticFeatureValuePerFrame;
+
+// Duration of an audio frame
+@property (nonatomic, readonly) NSTimeInterval frameDuration;
+
+@end
+
+// Voice analytics corresponding to a segment of recorded audio
+API_AVAILABLE(ios(13), macos(10.15))
+@interface SFVoiceAnalytics : NSObject <NSCopying, NSSecureCoding>
+
+// Jitter measures vocal stability and is measured as an absolute difference between consecutive periods, divided by the average period. It is expressed as a percentage
+@property (nonatomic, readonly, copy) SFAcousticFeature *jitter;
+
+// Shimmer measures vocal stability and is measured in decibels
+@property (nonatomic, readonly, copy) SFAcousticFeature *shimmer;
+
+// Pitch measures the highness and lowness of tone and is measured in logarithm of normalized pitch estimates
+@property (nonatomic, readonly, copy) SFAcousticFeature *pitch;
+
+// Voicing measures the probability of whether a frame is voiced or not and is measured as a probability
+@property (nonatomic, readonly, copy) SFAcousticFeature *voicing;
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -261,6 +315,7 @@ NS_ASSUME_NONNULL_END
 
 #import <Foundation/Foundation.h>
 
+#import <Speech/SFVoiceAnalytics.h>
 #import <Speech/SFSpeechRecognitionResult.h>
 #import <Speech/SFSpeechRecognitionRequest.h>
 #import <Speech/SFSpeechRecognitionTask.h>
@@ -283,13 +338,19 @@ NS_ASSUME_NONNULL_BEGIN
 @class SFTranscriptionSegment;
 
 // A hypothesized text form of a speech recording
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), macos(10.15))
 @interface SFTranscription : NSObject <NSCopying, NSSecureCoding>
 
 // Contains the entire recognition, formatted into a single user-displayable string
 @property (nonatomic, readonly, copy) NSString *formattedString;
 
 @property (nonatomic, readonly, copy) NSArray<SFTranscriptionSegment *> *segments;
+
+// Measures the number of words spoken per minute
+@property (nonatomic, readonly) double speakingRate API_AVAILABLE(ios(13.0), macos(10.15));
+
+// Measures average pause between words (in seconds)
+@property (nonatomic, readonly) NSTimeInterval averagePauseDuration API_AVAILABLE(ios(13.0), macos(10.15));
 
 @end
 
@@ -308,7 +369,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SFTranscription;
 
 // A recognized utterance, corresponding to a segment of recorded audio with speech and containing one or more transcriptions hypotheses
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(ios(10.0), macos(10.15))
 @interface SFSpeechRecognitionResult : NSObject <NSCopying, NSSecureCoding>
 
 @property (nonatomic, readonly, copy) SFTranscription *bestTranscription;

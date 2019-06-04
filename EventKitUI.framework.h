@@ -133,15 +133,27 @@ NS_ASSUME_NONNULL_END
 #define EVENTKITUI_CLASS_AVAILABLE(_iphoneIntro) __attribute__((visibility("default"))) NS_CLASS_AVAILABLE(NA, _iphoneIntro)
 
 #ifndef EKUI_HAS_HEADER
-#define EKUI_HAS_HEADER(include_path) (defined(__has_include) && __has_include(include_path))
+#if defined(__has_include)
+#define EKUI_HAS_HEADER(include_path) (__has_include(include_path))
+#else
+#define EKUI_HAS_HEADER(include_path) (0)
+#endif
 #endif
 
 #ifndef EKUI_IS_IOS
-#define EKUI_IS_IOS (defined(TARGET_OS_IOS) && TARGET_OS_IOS)
+#if defined(TARGET_OS_IOS)
+#define EKUI_IS_IOS (TARGET_OS_IOS)
+#else
+#define EKUI_IS_IOS (0)
+#endif
 #endif
 
 #ifndef EKUI_IS_SIMULATOR
-#define EKUI_IS_SIMULATOR (defined(TARGET_OS_SIMULATOR) && TARGET_OS_SIMULATOR)
+#if defined(TARGET_OS_SIMULATOR)
+#define EKUI_IS_SIMULATOR (TARGET_OS_SIMULATOR)
+#else
+#define EKUI_IS_SIMULATOR (0)
+#endif
 #endif
 // ==========  EventKitUI.framework/Headers/EKCalendarChooser.h
 //
@@ -169,9 +181,8 @@ typedef NS_ENUM(NSInteger, EKCalendarChooserDisplayStyle) {
 
 @protocol EKCalendarChooserDelegate;
 
-NS_EXTENSION_UNAVAILABLE_IOS("EventKitUI is not supported in extensions")
-EVENTKITUI_CLASS_AVAILABLE(5_0)
-@interface EKCalendarChooser : UIViewController
+
+EVENTKITUI_EXTERN @interface EKCalendarChooser : UIViewController
 
 - (id)initWithSelectionStyle:(EKCalendarChooserSelectionStyle)selectionStyle
                 displayStyle:(EKCalendarChooserDisplayStyle)displayStyle
@@ -332,3 +343,26 @@ NS_ASSUME_NONNULL_END
 
 EVENTKITUI_EXTERN NSBundle *EventKitUIBundle(void);
 
+// ==========  EventKitUI.framework/Headers/UIFont+EKDayOccurrenceView.h
+//
+//  UIFont+EKDayOccurrenceView.h
+//  EventKitUI
+//
+//  Created by harry-dev on 4/18/19.
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface UIFont (EKDayOccurrenceView)
+
+@property (nonatomic, readonly, class) UIFont *ek_defaultOccurrenceSecondaryTextFont;
+
++ (UIFont *)ek_defaultOccurrencePrimaryTextFontForSizeClass:(UIUserInterfaceSizeClass)sizeClass;
++ (UIFont *)ek_defaultOccurrenceSmallPrimaryTextFontForSizeClass:(UIUserInterfaceSizeClass)sizeClass;
+
+@end
+
+NS_ASSUME_NONNULL_END

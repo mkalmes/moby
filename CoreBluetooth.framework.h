@@ -28,6 +28,7 @@ CB_EXTERN_CLASS @interface CBManager : NSObject
  *  @constant CBManagerStatePoweredOff    Bluetooth is currently powered off.
  *  @constant CBManagerStatePoweredOn     Bluetooth is currently powered on and available to use.
  *
+ *	@seealso  authorization
  */
 typedef NS_ENUM(NSInteger, CBManagerState) {
 	CBManagerStateUnknown = 0,
@@ -46,6 +47,34 @@ typedef NS_ENUM(NSInteger, CBManagerState) {
  *
  */
 @property(nonatomic, assign, readonly) CBManagerState state;
+
+/*!
+ *  @enum CBManagerAuthorization
+ *
+ *  @discussion Represents the current authorization state of a CBManager.
+ *
+ *  @constant CBManagerAuthorizationStatusNotDetermined			User has not yet made a choice with regards to this application.
+ *  @constant CBManagerAuthorizationStatusRestricted			This application is not authorized to use bluetooth. The user cannot change this application’s status,
+ * 																possibly due to active restrictions such as parental controls being in place.
+ *  @constant CBManagerAuthorizationStatusDenied				User has explicitly denied this application from using bluetooth.
+ *  @constant CBManagerAuthorizationStatusAuthorizedAlways		User has authorized this application to use bluetooth always.
+ *
+ */
+typedef NS_ENUM(NSInteger, CBManagerAuthorization) {
+	CBManagerAuthorizationNotDetermined = 0,
+	CBManagerAuthorizationRestricted,
+	CBManagerAuthorizationDenied,
+	CBManagerAuthorizationAllowedAlways
+} NS_ENUM_AVAILABLE(10_15, 13_0);
+
+/*!
+ *  @property authorization
+ *
+ *  @discussion The current authorization of the manager, initially set to <code>CBManagerAuthorizationNotDetermined</code>.
+ *				Updates are provided by required delegate method {@link managerDidUpdateState:}.
+ *  @seealso	state
+ */
+@property(nonatomic, assign, readonly) CBManagerAuthorization authorization;
 
 @end
 // ==========  CoreBluetooth.framework/Headers/CBPeer.h
@@ -377,6 +406,26 @@ CB_EXTERN NSString * const CBConnectPeripheralOptionNotifyOnNotificationKey NS_A
 CB_EXTERN NSString * const CBConnectPeripheralOptionStartDelayKey NS_AVAILABLE(10_13, 6_0);
 
 /*!
+ *  @const CBConnectPeripheralOptionEnableTransportBridgingKey
+ *
+ *  @discussion An NSNumber (Boolean) indicating that the system will bring up classic transport profiles when low energy transport for peripheral is connected.
+ *
+ *  @see        connectPeripheral:
+ *
+ */
+CB_EXTERN NSString * const CBConnectPeripheralOptionEnableTransportBridgingKey NS_AVAILABLE_IOS(13_0);
+
+/*!
+ *  @const CBConnectPeripheralOptionRequiresANCS
+ *
+ *  @discussion An NSNumber (Boolean) indicating that the ANCS (Apple Notification Center Service) is required for the peripheral is connected.
+ *
+ *  @see        connectPeripheral:
+ *
+ */
+CB_EXTERN NSString * const CBConnectPeripheralOptionRequiresANCS NS_AVAILABLE_IOS(13_0);
+
+/*!
  *  @const  CBCentralManagerRestoredStatePeripheralsKey
  *
  *  @discussion An NSArray of <code>CBPeripheral</code> objects containing all peripherals that were connected or pending connection at the time the
@@ -410,6 +459,34 @@ CB_EXTERN NSString * const CBCentralManagerRestoredStateScanServicesKey NS_AVAIL
  *
  */
 CB_EXTERN NSString * const CBCentralManagerRestoredStateScanOptionsKey NS_AVAILABLE(10_13, 7_0);
+
+
+typedef NSString * CBConnectionEventMatchingOption NS_TYPED_ENUM;
+
+/*!
+ *  @const  CBConnectionEventMatchingOptionServiceUUIDs
+ *
+ *  @discussion An NSArray of <code>CBUUID</code> objects respresenting service UUIDs. A connected peer with any matching service UUIDs will result
+ *         		in a call to {@link centralManager:connectionEventDidOccur:}.
+ *              A maximum of 4 services can be registered.
+ *
+ *  @see		centralManager:connectionEventDidOccur:forPeripheral:
+ *	@seealso	registerForConnectionEventsWithOptions:
+ *
+ */
+CB_EXTERN CBConnectionEventMatchingOption const CBConnectionEventMatchingOptionServiceUUIDs NS_AVAILABLE_IOS(13_0);
+
+/*!
+ *  @const  CBConnectionEventMatchingOptionPeripheralUUIDs
+ *
+ *  @discussion An NSArray of <code>NSUUID</code> objects respresenting <i>peripheral</i> identifiers. A connected peer with any matching identifier(s) will result
+ *         		in a call to {@link centralManager:connectionEventDidOccur:}.
+ *
+ *  @see		centralManager:connectionEventDidOccur:forPeripheral:
+ *	@seealso	registerForConnectionEventsWithOptions:
+ *
+ */
+CB_EXTERN CBConnectionEventMatchingOption const CBConnectionEventMatchingOptionPeripheralUUIDs NS_AVAILABLE_IOS(13_0);
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreBluetooth.framework/Headers/CBCentral.h
@@ -827,6 +904,32 @@ typedef NS_ENUM(NSInteger, CBCentralManagerState) {
 	CBCentralManagerStatePoweredOn = CBManagerStatePoweredOn,
 } NS_DEPRECATED(10_7, 10_13, 5_0, 10_0, "Use CBManagerState instead");
 
+/*!
+ *  @enum CBConnectionEvent
+ *
+ *  @discussion Represents the connection state of a peer.
+ *
+ *  @constant CBConnectionEventPeerDisconnected	Peer is disconnected.
+ *  @constant CBConnectionEventPeerConnected	Peer is connected.
+ *
+ */
+typedef NS_ENUM(NSInteger, CBConnectionEvent) {
+	CBConnectionEventPeerDisconnected = 0,
+	CBConnectionEventPeerConnected	= 1,
+};
+
+/*!
+ *  @enum CBCentralManagerFeature
+ *
+ *  @discussion The set of device specific features.
+ *
+ *	@constant CBCentralManagerFeatureExtendedScanAndConnect      The hardware supports extended scans and enhanced connection creation
+ *
+ */
+typedef NS_OPTIONS(NSUInteger, CBCentralManagerFeature) {
+	CBCentralManagerFeatureExtendedScanAndConnect = 1UL << 0,
+} NS_ENUM_AVAILABLE_IOS(13_0) NS_SWIFT_NAME(CBCentralManager.Feature);
+
 @protocol CBCentralManagerDelegate;
 @class CBUUID, CBPeripheral;
 
@@ -854,6 +957,16 @@ CB_EXTERN_CLASS @interface CBCentralManager : CBManager
  *
  */
 @property(nonatomic, assign, readonly) BOOL isScanning NS_AVAILABLE(10_13, 9_0);
+
+/*!
+ *  @method supportsFeatures
+ *
+ *  @param features	One or more features you would like to check if supported.
+ *
+ *  @discussion     Returns a boolean value representing the support for the provided features.
+ *
+ */
++ (BOOL)supportsFeatures:(CBCentralManagerFeature)features NS_AVAILABLE_IOS(13_0) NS_SWIFT_NAME(supports(_:));
 
 - (instancetype)init;
 
@@ -955,6 +1068,8 @@ CB_EXTERN_CLASS @interface CBCentralManager : CBManager
  *  @seealso            CBConnectPeripheralOptionNotifyOnConnectionKey
  *  @seealso            CBConnectPeripheralOptionNotifyOnDisconnectionKey
  *  @seealso            CBConnectPeripheralOptionNotifyOnNotificationKey
+ *  @seealso            CBConnectPeripheralOptionEnableTransportBridgingKey
+ *	@seealso			CBConnectPeripheralOptionRequiresANCS
  *
  */
 - (void)connectPeripheral:(CBPeripheral *)peripheral options:(nullable NSDictionary<NSString *, id> *)options;
@@ -971,6 +1086,20 @@ CB_EXTERN_CLASS @interface CBCentralManager : CBManager
  *
  */
 - (void)cancelPeripheralConnection:(CBPeripheral *)peripheral;
+
+/*!
+ *  @method registerForConnectionEventsWithOptions:
+ *
+ *  @param options		A dictionary specifying connection event options.
+ *
+ *  @discussion     	Calls {@link centralManager:connectionEventDidOccur:forPeripheral:} when a connection event occurs matching any of the given options.
+ *                      Passing nil in the option parameter clears any prior registered matching options.
+ *
+ *  @see				centralManager:connectionEventDidOccur:forPeripheral:
+ *  @seealso        	CBConnectionEventMatchingOptionServiceUUIDs
+ *  @seealso            CBConnectionEventMatchingOptionPeripheralUUIDs
+ */
+- (void)registerForConnectionEventsWithOptions:(nullable NSDictionary<CBConnectionEventMatchingOption, id> *)options NS_AVAILABLE_IOS(13_0);
 
 
 @end
@@ -1078,6 +1207,29 @@ CB_EXTERN_CLASS @interface CBCentralManager : CBManager
  *
  */
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(nullable NSError *)error;
+
+/*!
+ *  @method centralManager:connectionEventDidOccur:forPeripheral:
+ *
+ *  @param central      The central manager providing this information.
+ *  @param event		The <code>CBConnectionEvent</code> that has occurred.
+ *  @param peripheral   The <code>CBPeripheral</code> that caused the event.
+ *
+ *  @discussion         This method is invoked upon the connection or disconnection of a peripheral that matches any of the options provided in {@link registerForConnectionEventsWithOptions:}.
+ *
+ */
+- (void)centralManager:(CBCentralManager *)central connectionEventDidOccur:(CBConnectionEvent)event forPeripheral:(CBPeripheral *)peripheral NS_AVAILABLE_IOS(13_0);
+
+/*!
+ *  @method centralManager:didUpdateANCSAuthorizationForPeripheral:
+ *
+ *  @param central      The central manager providing this information.
+ *  @param peripheral   The <code>CBPeripheral</code> that caused the event.
+ *
+ *  @discussion         This method is invoked when the authorization status changes for a peripheral connected with {@link connectPeripheral:} option {@link CBConnectPeripheralOptionRequiresANCS}.
+ *
+ */
+- (void)centralManager:(CBCentralManager *)central didUpdateANCSAuthorizationForPeripheral:(CBPeripheral *)peripheral NS_AVAILABLE_IOS(13_0);
 
 @end
 
@@ -1192,7 +1344,7 @@ typedef NS_ENUM(NSInteger, CBPeripheralManagerAuthorizationStatus) {
 	CBPeripheralManagerAuthorizationStatusRestricted,
 	CBPeripheralManagerAuthorizationStatusDenied,
 	CBPeripheralManagerAuthorizationStatusAuthorized,		
-} NS_ENUM_AVAILABLE(10_9, 7_0);
+} NS_DEPRECATED(10_9, 10_15, 7_0, 13_0, "Use CBManagerAuthorization instead");
 
 /*!
  *  @enum CBPeripheralManagerState
@@ -1280,7 +1432,8 @@ CB_EXTERN_CLASS @interface CBPeripheralManager : CBManager
  *
  *  @see		CBPeripheralManagerAuthorizationStatus
  */
-+ (CBPeripheralManagerAuthorizationStatus)authorizationStatus NS_AVAILABLE(10_9, 7_0);
++ (CBPeripheralManagerAuthorizationStatus)authorizationStatus NS_DEPRECATED(10_9, 10_15, 7_0, 13_0, "Use CBManagerAuthorization instead");
+
 
 - (instancetype)init;
 
@@ -1632,6 +1785,7 @@ CB_EXTERN_CLASS @interface CBPeripheralManager : CBManager
  *
  */
 - (void)peripheralManager:(CBPeripheralManager *)peripheral didOpenL2CAPChannel:(nullable CBL2CAPChannel *)channel error:(nullable NSError *)error;
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -2072,11 +2226,20 @@ CB_EXTERN_CLASS @interface CBPeripheral : CBPeer
 /*!
  *  @property canSendWriteWithoutResponse
  *
- *  @discussion YES if the remote device has space to send a write without response.  If this value is NO,
+ *  @discussion YES if the remote device has space to send a write without response. If this value is NO,
  *				the value will be set to YES after the current writes have been flushed, and
  *				<link>peripheralIsReadyToSendWriteWithoutResponse:</link> will be called.
  */
-@property(readonly) BOOL canSendWriteWithoutResponse;
+@property(readonly) BOOL canSendWriteWithoutResponse NS_AVAILABLE(10_13, 11_0);
+
+/*!
+ *  @property ancsAuthorized
+ *
+ *  @discussion YES if the remote device has been authorized to receive data over ANCS (Apple Notification Service Center) protocol.  If this value is NO,
+ *                the value will be set to YES after a user authorization occurs and
+ *                <link>didUpdateANCSAuthorizationForPeripheral:</link> will be called.
+ */
+@property(readonly) BOOL ancsAuthorized NS_AVAILABLE_IOS(13_0);
 
 /*!
  *  @method readRSSI

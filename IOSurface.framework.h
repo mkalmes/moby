@@ -7,15 +7,15 @@
  *
  */
 
-#ifndef _IOSURFACE_BASE_H
-#define _IOSURFACE_BASE_H
+#ifndef IOSURFACE_BASE_H
+#define IOSURFACE_BASE_H
 
 #include <sys/cdefs.h>
 
 #include <Availability.h>
 #include <TargetConditionals.h>
 
-#if !(defined(MAC_OS_X_VERSION_10_14) || defined(__IPHONE_12_0)) || defined(IOSFC_BUILDING_IOSFC)
+#if !(defined(MAC_OS_X_VERSION_10_15) || defined(__IPHONE_13_0)) || defined(IOSFC_BUILDING_IOSFC)
 #  define IOSFC_DEPRECATED 
 #  define IOSFC_DEPRECATED_MSG(s)
 #  define IOSFC_IOS_DEPRECATED_MSG(s)
@@ -57,8 +57,8 @@
  *
  */
 
-#ifndef _IOSURFACE_TYPES_H
-#define _IOSURFACE_TYPES_H
+#ifndef IOSURFACE_TYPES_H
+#define IOSURFACE_TYPES_H
 
 #include <IOSurface/IOSurfaceBase.h>
 
@@ -124,8 +124,8 @@ enum {
  *
  */
 
-#ifndef _IOSURFACE_OBJC_H
-#define _IOSURFACE_OBJC_H 1
+#ifndef IOSURFACE_OBJC_H
+#define IOSURFACE_OBJC_H 1
 
 #if defined(__OBJC__)
 
@@ -348,8 +348,8 @@ NS_ASSUME_NONNULL_END
  *
  */
 
-#ifndef _IOSURFACE_REF_H
-#define _IOSURFACE_REF_H 1
+#ifndef IOSURFACE_REF_H
+#define IOSURFACE_REF_H 1
 
 #include <IOSurface/IOSurfaceBase.h>
 #include <IOSurface/IOSurfaceTypes.h>

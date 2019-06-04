@@ -7,9 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import <UIKit/UIImage.h>
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.11), ios(8)) API_UNAVAILABLE_BEGIN(uikitformac)
 
 @class PHAdjustmentData, PHContentEditingInput, PHContentEditingOutput;
 
@@ -34,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+API_AVAILABLE_END API_UNAVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  PhotosUI.framework/Headers/PHEditingExtensionContext.h
 //
@@ -43,9 +46,9 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2014 Apple Inc. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-NS_CLASS_AVAILABLE(NA, 8_0)
+OS_EXPORT API_DEPRECATED("No longer supported. This class will be removed in an upcoming release.", ios(8, 13)) API_UNAVAILABLE(uikitformac)
 @interface PHEditingExtensionContext : NSExtensionContext
 
 @end
@@ -62,11 +65,11 @@ NS_CLASS_AVAILABLE(NA, 8_0)
 
 #import <TargetConditionals.h>
 
-#if !TARGET_OS_TV
+#import <PhotosUI/PHLivePhotoView.h>
+
 #import <PhotosUI/PHContentEditingController.h>
 #import <PhotosUI/PHEditingExtensionContext.h>
-#endif
-#import <PhotosUI/PHLivePhotoView.h>
+
 
 #endif
 // ==========  PhotosUI.framework/Headers/PHLivePhotoView.h
@@ -77,25 +80,29 @@ NS_CLASS_AVAILABLE(NA, 8_0)
 //  Copyright © 2015 Apple Inc. All rights reserved.
 //
 
+#import <TargetConditionals.h>
+
 #import <Photos/Photos.h>
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(ios(9.1), tvos(10))
 
 @protocol PHLivePhotoViewDelegate;
 
 typedef NS_OPTIONS(NSUInteger, PHLivePhotoBadgeOptions) {
     PHLivePhotoBadgeOptionsOverContent  = 1 << 0,               ///< Include treatments so this image can be shown directly over the content of the Live Photo
     PHLivePhotoBadgeOptionsLiveOff      = 1 << 1,               ///< To indicate that the Live Photo aspect is turned off and it will be treated as a still (e.g. for sharing)
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(9_1, 10_0);
+};
 
 typedef NS_ENUM(NSInteger, PHLivePhotoViewPlaybackStyle) {
     PHLivePhotoViewPlaybackStyleUndefined = 0,
     PHLivePhotoViewPlaybackStyleFull,
     PHLivePhotoViewPlaybackStyleHint,
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(9_1, 10_0);
+};
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_1, 10_0)
+
+OS_EXPORT
 @interface PHLivePhotoView : UIView
 
 /// System badge images representing Live Photo content
@@ -106,19 +113,21 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_1, 10_0)
 /// Live photo displayed in the receiver.
 @property (readwrite, nonatomic, strong, nullable) PHLivePhoto *livePhoto;
 
+
 /// Indicates whether the audio of the Live Photo is muted.
 @property (readwrite, nonatomic, assign, getter=isMuted) BOOL muted;
 
 /// Gesture used to trigger playback. By default, added to the receiver. Can be moved to a different view.
 @property (readonly, nonatomic, strong) UIGestureRecognizer *playbackGestureRecognizer;
 
-// The following methods allow the client to manually trigger playback. If the live photo is changed during playback, it will be immediately interrupted.
+/// The following methods allow the client to manually trigger playback. If the live photo is changed during playback, it will be immediately interrupted.
 - (void)startPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle;
 - (void)stopPlayback;
 
 @end
 
 
+OS_EXPORT
 @protocol PHLivePhotoViewDelegate <NSObject>
 @optional
 
@@ -128,5 +137,5 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_1, 10_0)
 
 @end
 
-
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END

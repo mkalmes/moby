@@ -11,7 +11,7 @@
 
 #import <UIKit/UIKit.h>
 
-NS_CLASS_AVAILABLE_IOS(8_0)
+API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, tvos, watchos)
 @interface CABTMIDILocalPeripheralViewController : UIViewController
 @end
 // ==========  CoreAudioKit.framework/Headers/CoreAudioKit.h
@@ -29,6 +29,7 @@ NS_CLASS_AVAILABLE_IOS(8_0)
 //
 //  Copyright © 2015 Apple Inc. All rights reserved.
 //
+#if __OBJC2__
 
 #import <AudioUnit/AudioUnit.h>
 #import <Foundation/NSExtensionRequestHandling.h>
@@ -43,7 +44,7 @@ typedef NSViewController AUViewControllerBase;
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos)
 @interface AUViewController : AUViewControllerBase <NSExtensionRequestHandling>
 @end
 
@@ -57,7 +58,7 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 
 		See the documentation for supportedViewConfigurations.
 */
-NS_CLASS_AVAILABLE(10_13, 11_0)
+API_AVAILABLE(macos(10.13), ios(11.0)) API_UNAVAILABLE(watchos)
 @interface AUAudioUnitViewConfiguration : NSObject <NSSecureCoding>
 
 /*!	@method		initWithWidth
@@ -95,6 +96,7 @@ NS_CLASS_AVAILABLE(10_13, 11_0)
 
 @end
 
+API_AVAILABLE(macos(10.12), ios(10.0)) API_UNAVAILABLE(watchos)
 @interface AUAudioUnit (AUAudioUnit_ViewController)
 /*!	@method	requestViewControllerWithCompletionHandler:
 	@brief	Obtains an audio unit's view controller (and thereby a view).
@@ -128,7 +130,7 @@ NS_CLASS_AVAILABLE(10_13, 11_0)
 		In case an empty set is returned from this method, it is considered that the plugin only 
 		supports the largest available view configuration.
 */
-- (NSIndexSet *)supportedViewConfigurations:(NSArray<AUAudioUnitViewConfiguration *> *)availableViewConfigurations API_AVAILABLE(macosx(10.13), ios(11.0));
+- (NSIndexSet *)supportedViewConfigurations:(NSArray<AUAudioUnitViewConfiguration *> *)availableViewConfigurations API_AVAILABLE(macosx(10.13), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*!	@method		selectViewConfiguration
 	@param		viewConfiguration
@@ -145,11 +147,14 @@ NS_CLASS_AVAILABLE(10_13, 11_0)
 		Audio Units should override this method with the logic needed to adapt their view controller 
 		to the requested configuration.
 */
-- (void)selectViewConfiguration:(AUAudioUnitViewConfiguration *)viewConfiguration API_AVAILABLE(macosx(10.13), ios(11.0));
+- (void)selectViewConfiguration:(AUAudioUnitViewConfiguration *)viewConfiguration API_AVAILABLE(macosx(10.13), ios(11.0)) API_UNAVAILABLE(watchos, tvos);
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
+
 // ==========  CoreAudioKit.framework/Headers/CAInterAppAudioTransportView.h
 // =================================================================================================
 // CAInterAppAudioTransportView.h
@@ -164,9 +169,10 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIKit.h>
 #import <AudioUnit/AudioUnit.h>
 
-NS_CLASS_AVAILABLE_IOS(8_0)
 
 NS_ASSUME_NONNULL_BEGIN
+
+API_DEPRECATED("Inter-App Audio API is deprecated in favor of Audio Units", ios(8.0, 13.0)) API_UNAVAILABLE(uikitformac, macos, tvos, watchos)
 @interface CAInterAppAudioTransportView : UIView
 @property(getter=isEnabled)							BOOL enabled;
 
@@ -202,9 +208,9 @@ NS_ASSUME_NONNULL_END
 #import <AudioUnit/AudioUnit.h>
 #import <UIKit/UIKit.h>
 
-NS_CLASS_AVAILABLE_IOS(8_0)
-
 NS_ASSUME_NONNULL_BEGIN
+
+API_DEPRECATED("Inter-App Audio API is deprecated in favor of Audio Units", ios(8.0, 13.0)) API_UNAVAILABLE(uikitformac, macos, tvos, watchos)
 @interface CAInterAppAudioSwitcherView : UIView
 @property (getter = isShowingAppNames) BOOL showingAppNames; // Defaults to NO
 
@@ -228,6 +234,6 @@ NS_ASSUME_NONNULL_END
 
 #import <UIKit/UIKit.h>
 
-NS_CLASS_AVAILABLE_IOS(8_0)
+API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, watchos)
 @interface CABTMIDICentralViewController : UITableViewController
 @end

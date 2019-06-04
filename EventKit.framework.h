@@ -12,9 +12,15 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <EventKit/EKTypes.h>
 
+
+
 NS_ASSUME_NONNULL_BEGIN
 
-@class EKEventStore, EKSource, NSColor;
+@class EKEventStore, EKSource;
+#if TARGET_OS_OSX
+@class NSColor;
+#endif
+
 
 /*!
     @class       EKCalendar
@@ -90,20 +96,20 @@ NS_CLASS_AVAILABLE(10_8, 4_0)
 */
 @property(nonatomic, readonly, getter=isImmutable) BOOL immutable NS_AVAILABLE(10_8, 5_0);
 
-#if TARGET_OS_IPHONE
 /*!
     @property   color
     @abstract   Returns the calendar color as a CGColorRef.
     @discussion This will be nil for new calendars until you set it.
 */
-@property(null_unspecified, nonatomic) CGColorRef CGColor;
-#else
+@property(null_unspecified, nonatomic) CGColorRef CGColor API_AVAILABLE(ios(4.0), macos(10.15), watchos(2.0));
+
+#if TARGET_OS_OSX
 /*!
-    @property   color
-    @abstract   Returns the calendar color as a NSColor.
-    @discussion This will be nil for new calendars until you set it.
-*/
-@property(null_unspecified, nonatomic, copy) NSColor *color;
+ @property   color
+ @abstract   Returns the calendar color as a NSColor.
+ @discussion This will be nil for new calendars until you set it.
+ */
+@property(null_unspecified, nonatomic, copy) NSColor *color API_AVAILABLE(macos(10.8));
 #endif
 
 /*!
@@ -428,7 +434,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
                 method, that you're interested in.
     @see        initWithSources:
  */
-@property (nonatomic, readonly) NSArray<EKSource *> *delegateSources NS_AVAILABLE(10_11, NA);
+@property (nonatomic, readonly) NSArray<EKSource *> *delegateSources NS_AVAILABLE(10_11, 12_0);
 
 /*!
     @property   sources
@@ -569,7 +575,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
     @param      span        The span to use (this event, or this and future events).
     @param      error       If an error occurs, this will contain a valid NSError object on exit.
 */
-- (BOOL)saveEvent:(EKEvent *)event span:(EKSpan)span error:(NSError **)error NS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED;
+- (BOOL)saveEvent:(EKEvent *)event span:(EKSpan)span error:(NSError **)error NS_AVAILABLE(10_14, 4_0) __WATCHOS_PROHIBITED;
 
 /*!
     @method     removeEvent:span:error:
@@ -588,7 +594,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
     @param      span        The span to use (this event, or this and future events).
     @param      error       If an error occurs, this will contain a valid NSError object on exit.
 */
-- (BOOL)removeEvent:(EKEvent *)event span:(EKSpan)span error:(NSError **)error NS_AVAILABLE(NA, 4_0) __WATCHOS_PROHIBITED;
+- (BOOL)removeEvent:(EKEvent *)event span:(EKSpan)span error:(NSError **)error NS_AVAILABLE(10_14, 4_0) __WATCHOS_PROHIBITED;
 
 // These variants of the above allow you to batch changes by passing NO to commit. You can commit
 // all changes later with [EKEventStore commit:]
@@ -1799,6 +1805,11 @@ EVENTKIT_EXTERN NSString *const EKErrorDomain NS_AVAILABLE(10_8, 4_0);
     @constant   EKErrorProcedureAlarmsNotMutable        Procedure alarms may not be created or modified.
     @constant   EKErrorEventStoreNotAuthorized          The user has not authorized your application to access their events and/or reminders.
     @constant   EKErrorOSNotSupported                   The action is not supported on the current operating system.
+    @constant   EKErrorInvalidCalendar                  The given calendar is invalid or nil.
+    @constant   EKErrorNotificationsCollectionFlagNotSet  The given notification collection does not have the EKNotificationsCollectionFlag set.
+    @constant   EKErrorSourceMismatch                     The source for an object does not match its containers source.
+    @constant   EKErrorNotificationCollectionMismatch     The notification collection containing a given notification does not match the collection we are trying to save.
+    @constant   EKErrorNotificationSavedWithoutCollection The notification is being saved without first adding it to a notification collection and saving the collection.
 */
 
 #if __IPHONE_4_0 <= __IPHONE_OS_VERSION_MAX_ALLOWED || !TARGET_OS_IPHONE
@@ -1834,7 +1845,12 @@ typedef NS_ENUM(NSInteger, EKErrorCode) {
     EKErrorProcedureAlarmsNotMutable,
     EKErrorEventStoreNotAuthorized,
     EKErrorOSNotSupported,
-
+    EKErrorInvalidInviteReplyCalendar,
+    EKErrorNotificationsCollectionFlagNotSet,
+    EKErrorSourceMismatch,
+    EKErrorNotificationCollectionMismatch,
+    EKErrorNotificationSavedWithoutCollection,
+    
     EKErrorLast // used internally
 };
 #endif
@@ -1851,12 +1867,13 @@ typedef NS_ENUM(NSInteger, EKErrorCode) {
 #import <EventKit/EKTypes.h>
 
 #if TARGET_OS_IPHONE
-#if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH && !TARGET_OS_UIKITFORMAC
 #import <AddressBook/ABPerson.h>
 #endif
 #else
-#import <AddressBook/AddressBook.h>
+@class ABPerson, ABAddressBook;
 #endif
+
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1922,26 +1939,27 @@ NS_CLASS_AVAILABLE(10_8, 4_0)
 @property(nonatomic, readonly) NSPredicate *contactPredicate NS_AVAILABLE(10_11, 9_0);
 
 #if TARGET_OS_IPHONE
-#if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH && !TARGET_OS_UIKITFORMAC
 /*!
-    @method     ABRecordWithAddressBook
-    @abstract   Returns the ABRecordRef that represents this participant.
-    @discussion This method returns the ABRecordRef that represents this participant,
-                if a match can be found based on email address in the address book
-                passed. If we cannot find the participant, nil is returned.
-*/
+ @method     ABRecordWithAddressBook
+ @abstract   Returns the ABRecordRef that represents this participant.
+ @discussion This method returns the ABRecordRef that represents this participant,
+ if a match can be found based on email address in the address book
+ passed. If we cannot find the participant, nil is returned.
+ */
 - (nullable ABRecordRef)ABRecordWithAddressBook:(ABAddressBookRef)addressBook NS_DEPRECATED_IOS(4_0, 9_0, "Use contactPredicate instead") CF_RETURNS_NOT_RETAINED;
 #endif
 #else
 /*!
-    @method     ABPersonInAddressBook
-    @abstract   Returns the ABPerson that represents this participant.
-    @discussion This method returns the ABPerson that represents this participant,
-                if a match can be found based on email address in the address book
-                passed. If we cannot find the participant, nil is returned.
+ @method     ABPersonInAddressBook
+ @abstract   Returns the ABPerson that represents this participant.
+ @discussion This method returns the ABPerson that represents this participant,
+ if a match can be found based on email address in the address book
+ passed. If we cannot find the participant, nil is returned.
  */
 - (nullable ABPerson *)ABPersonInAddressBook:(ABAddressBook *)addressBook NS_DEPRECATED_MAC(10_8, 10_11, "Use contactPredicate instead");
 #endif
+
 
 @end
 

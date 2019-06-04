@@ -391,7 +391,7 @@ typedef SInt16 CFBundleRefNum;
 #endif
 
 CF_EXPORT
-CFBundleRefNum CFBundleOpenBundleResourceMap(CFBundleRef bundle);
+CFBundleRefNum CFBundleOpenBundleResourceMap(CFBundleRef bundle) API_DEPRECATED("The Carbon Resource Manager is deprecated. This should only be used to access Resource Manager-style resources in old bundles.", macosx(10.0, 10.15)) API_UNAVAILABLE(ios, watchos, tvos);
    /* This function opens the non-localized and the localized resource files */
    /* (if any) for the bundle, creates and makes current a single read-only */
    /* resource map combining both, and returns a reference number for it. */
@@ -399,12 +399,12 @@ CFBundleRefNum CFBundleOpenBundleResourceMap(CFBundleRef bundle);
    /* and returns distinct reference numbers.  */
 
 CF_EXPORT
-SInt32 CFBundleOpenBundleResourceFiles(CFBundleRef bundle, CFBundleRefNum *refNum, CFBundleRefNum *localizedRefNum);
+SInt32 CFBundleOpenBundleResourceFiles(CFBundleRef bundle, CFBundleRefNum *refNum, CFBundleRefNum *localizedRefNum) API_DEPRECATED("The Carbon Resource Manager is deprecated. This should only be used to access Resource Manager-style resources in old bundles.", macosx(10.0, 10.15)) API_UNAVAILABLE(ios, watchos, tvos);
    /* Similar to CFBundleOpenBundleResourceMap(), except that it creates two */
    /* separate resource maps and returns reference numbers for both. */
 
 CF_EXPORT
-void CFBundleCloseBundleResourceMap(CFBundleRef bundle, CFBundleRefNum refNum);
+void CFBundleCloseBundleResourceMap(CFBundleRef bundle, CFBundleRefNum refNum) API_DEPRECATED("The Carbon Resource Manager is deprecated. This should only be used to access Resource Manager-style resources in old bundles.", macosx(10.0, 10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -663,23 +663,23 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #if !defined(__COREFOUNDATION_CFAVAILABILITY__)
 #define __COREFOUNDATION_CFAVAILABILITY__ 1
 
-#if DEPLOYMENT_RUNTIME_SWIFT
+#if __has_include(<CoreFoundation/TargetConditionals.h>)
 #include <CoreFoundation/TargetConditionals.h>
-#else
+#elif __has_include(<TargetConditionals.h>)
 #include <TargetConditionals.h>
+#else
+#error Missing header TargetConditionals.h
 #endif
 
-#if DEPLOYMENT_RUNTIME_SWIFT
-#define API_AVAILABLE(...)
-#define API_DEPRECATED(...)
-#else
-#if (TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE || TARGET_OS_WIN32)
+#if __has_include(<Availability.h>) && __has_include(<os/availability.h>) && __has_include(<AvailabilityMacros.h>)
 #include <Availability.h>
 #include <os/availability.h>
-
 // Even if unused, these must remain here for compatibility, because projects rely on them being included.
 #include <AvailabilityMacros.h>
-#endif
+#else
+#define API_AVAILABLE(...)
+#define API_DEPRECATED(...)
+#define API_UNAVAILABLE(...)
 #endif
 
 #ifndef __has_feature
@@ -695,7 +695,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 // The arguments to these availability macros is a version number, e.g. 10_6, 3_0 or 'NA'
 // To use a deprecation message with the macro, add a string as the last argument.
 #if __has_feature(attribute_availability_with_version_underscores) || (__has_feature(attribute_availability_with_message) && __clang__ && __clang_major__ >= 7)
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 // This section is for compilers targeting OS X which support attribute_availability_with_message
 
 #define CF_AVAILABLE(_mac, _ios) __attribute__((availability(macosx,introduced=_mac)))
@@ -705,7 +705,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define CF_DEPRECATED_MAC(_macIntro, _macDep, ...) __attribute__((availability(macosx,introduced=_macIntro,deprecated=_macDep,message="" __VA_ARGS__)))
 #define CF_DEPRECATED_IOS(_iosIntro, _iosDep, ...) __attribute__((availability(macosx,unavailable)))
 
-#elif (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+#elif TARGET_OS_IPHONE
 // This section is for compilers targeting iOS which support attribute_availability_with_message
 
 #define CF_AVAILABLE(_mac, _ios) __attribute__((availability(ios,introduced=_ios)))
@@ -717,7 +717,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 #endif
 
-#elif (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+#elif TARGET_OS_OSX || TARGET_OS_IPHONE
 // This section is for OS X or iOS, and compilers without support for attribute_availability_with_message. We fall back to Availability.h.
 
 #ifndef __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_0
@@ -762,6 +762,17 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define CF_ENUM_DEPRECATED(_macIntro, _macDep, _iosIntro, _iosDep, ...)
 #define CF_ENUM_DEPRECATED_MAC(_macIntro, _macDep, ...)
 #define CF_ENUM_DEPRECATED_IOS(_iosIntro, _iosDep, ...)
+#endif
+
+// "Soft" deprecation.
+#ifndef API_TO_BE_DEPRECATED
+/// This macro is used as a version number in API that will be deprecated in an upcoming release. We call this API "soft deprecated". Soft deprecation is an intermediate step before formal deprecation, used as a way to give you a heads-up about the API before you start getting a compiler warning.
+/// You can find all places in your code that use soft deprecated API by redefining the value of this macro to your current minimum deployment target, for example:
+///   (macOS)
+///    clang -DAPI_TO_BE_DEPRECATED=10.12 other compiler flags
+///   (iOS)
+///    clang -DAPI_TO_BE_DEPRECATED=11.0 other compiler flags
+#define API_TO_BE_DEPRECATED 100000
 #endif
 
 // Enums and Options
@@ -916,7 +927,7 @@ CF_EXPORT CFTypeID CFNotificationCenterGetTypeID(void);
 
 CF_EXPORT CFNotificationCenterRef CFNotificationCenterGetLocalCenter(void);
 
-#if TARGET_OS_OSX || TARGET_OS_WIN32
+#if TARGET_OS_OSX || 0
 CF_EXPORT CFNotificationCenterRef CFNotificationCenterGetDistributedCenter(void);
 #endif
 
@@ -958,6 +969,394 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 #endif /* ! __COREFOUNDATION_CFNOTIFICATIONCENTER__ */
 
+// ==========  CoreFoundation.framework/Headers/CFUserNotification.h
+/*	CFUserNotification.h
+	Copyright (c) 2000-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
+*/
+
+#if !defined(__COREFOUNDATION_CFUSERNOTIFICATION__)
+#define __COREFOUNDATION_CFUSERNOTIFICATION__ 1
+
+#include <CoreFoundation/CFBase.h>
+#include <CoreFoundation/CFDate.h>
+#include <CoreFoundation/CFDictionary.h>
+#include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFURL.h>
+#include <CoreFoundation/CFRunLoop.h>
+
+CF_IMPLICIT_BRIDGING_ENABLED
+CF_EXTERN_C_BEGIN
+
+typedef struct CF_BRIDGED_MUTABLE_TYPE(id) __CFUserNotification * CFUserNotificationRef;
+
+/* A CFUserNotification is a notification intended to be presented to a 
+user at the console (if one is present).  This is for the use of processes
+that do not otherwise have user interfaces, but may need occasional
+interaction with a user.  There is a parallel API for this functionality
+at the System framework level, described in UNCUserNotification.h.
+
+The contents of the notification can include a header, a message, textfields,
+a popup button, radio buttons or checkboxes, a progress indicator, and up to
+three ordinary buttons.  All of these items are optional, but a default
+button will be supplied even if not specified unless the
+kCFUserNotificationNoDefaultButtonFlag is set.
+
+The contents of the notification are specified in the dictionary used to
+create the notification, whose keys should be taken from the list of constants
+below, and whose values should be either strings or arrays of strings
+(except for kCFUserNotificationProgressIndicatorValueKey, in which case the
+value should be a number between 0 and 1, for a "definite" progress indicator,
+or a boolean, for an "indefinite" progress indicator).  Additionally, URLs can
+optionally be supplied for an icon, a sound, and a bundle whose Localizable.strings
+files will be used to localize strings.
+    
+Certain request flags are specified when a notification is created.
+These specify an alert level for the notification, determine whether
+radio buttons or check boxes are to be used, specify which if any of these
+are checked by default, specify whether any of the textfields are to
+be secure textfields, and determine which popup item should be selected
+by default.  A timeout is also specified, which determines how long the
+notification should be supplied to the user (if zero, it will not timeout).
+    
+A CFUserNotification is dispatched for presentation when it is created.
+If any reply is required, it may be awaited in one of two ways:  either
+synchronously, using CFUserNotificationReceiveResponse, or asynchronously,
+using a run loop source.  CFUserNotificationReceiveResponse has a timeout
+parameter that determines how long it will block (zero meaning indefinitely)
+and it may be called as many times as necessary until a response arrives.
+If a notification has not yet received a response, it may be updated with
+new information, or it may be cancelled.  Notifications may not be reused.
+    
+When a response arrives, it carries with it response flags that describe
+which button was used to dismiss the notification, which checkboxes or
+radio buttons were checked, and what the selection of the popup was.
+It also carries a response dictionary, which describes the contents
+of the textfields.  */
+    
+typedef void (*CFUserNotificationCallBack)(CFUserNotificationRef userNotification, CFOptionFlags responseFlags);
+
+CF_EXPORT
+CFTypeID CFUserNotificationGetTypeID(void) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+CFUserNotificationRef CFUserNotificationCreate(CFAllocatorRef allocator, CFTimeInterval timeout, CFOptionFlags flags, SInt32 *error, CFDictionaryRef dictionary) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+SInt32 CFUserNotificationReceiveResponse(CFUserNotificationRef userNotification, CFTimeInterval timeout, CFOptionFlags *responseFlags) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+CFStringRef CFUserNotificationGetResponseValue(CFUserNotificationRef userNotification, CFStringRef key, CFIndex idx) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+CFDictionaryRef CFUserNotificationGetResponseDictionary(CFUserNotificationRef userNotification) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+SInt32 CFUserNotificationUpdate(CFUserNotificationRef userNotification, CFTimeInterval timeout, CFOptionFlags flags, CFDictionaryRef dictionary) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+SInt32 CFUserNotificationCancel(CFUserNotificationRef userNotification) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+CFRunLoopSourceRef CFUserNotificationCreateRunLoopSource(CFAllocatorRef allocator, CFUserNotificationRef userNotification, CFUserNotificationCallBack callout, CFIndex order) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+/* Convenience functions for handling the simplest and most common cases:  
+a one-way notification, and a notification with up to three buttons. */
+    
+CF_EXPORT
+SInt32 CFUserNotificationDisplayNotice(CFTimeInterval timeout, CFOptionFlags flags, CFURLRef iconURL, CFURLRef soundURL, CFURLRef localizationURL, CFStringRef alertHeader, CFStringRef alertMessage, CFStringRef defaultButtonTitle) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+SInt32 CFUserNotificationDisplayAlert(CFTimeInterval timeout, CFOptionFlags flags, CFURLRef iconURL, CFURLRef soundURL, CFURLRef localizationURL, CFStringRef alertHeader, CFStringRef alertMessage, CFStringRef defaultButtonTitle, CFStringRef alternateButtonTitle, CFStringRef otherButtonTitle, CFOptionFlags *responseFlags) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+
+/* Flags */
+
+CF_ENUM(CFOptionFlags) {
+    kCFUserNotificationStopAlertLevel API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos)    = 0,
+    kCFUserNotificationNoteAlertLevel API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos)    = 1,
+    kCFUserNotificationCautionAlertLevel API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos) = 2,
+    kCFUserNotificationPlainAlertLevel API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos)   = 3
+};
+
+CF_ENUM(CFOptionFlags) {
+    kCFUserNotificationDefaultResponse API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos)   = 0,
+    kCFUserNotificationAlternateResponse API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos) = 1,
+    kCFUserNotificationOtherResponse API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos)     = 2,
+    kCFUserNotificationCancelResponse API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos)    = 3
+};
+
+CF_ENUM(CFOptionFlags) {
+    kCFUserNotificationNoDefaultButtonFlag API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos) = (1UL << 5),
+    kCFUserNotificationUseRadioButtonsFlag API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos) = (1UL << 6)
+};
+
+CF_INLINE CFOptionFlags CFUserNotificationCheckBoxChecked(CFIndex i) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos) {return ((CFOptionFlags)(1UL << (8 + i)));}
+CF_INLINE CFOptionFlags CFUserNotificationSecureTextField(CFIndex i) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos) {return ((CFOptionFlags)(1UL << (16 + i)));}
+CF_INLINE CFOptionFlags CFUserNotificationPopUpSelection(CFIndex n) API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos) {return ((CFOptionFlags)(n << 24));}
+
+
+/* Keys */
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationIconURLKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationSoundURLKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationLocalizationURLKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationAlertHeaderKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationAlertMessageKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationDefaultButtonTitleKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationAlternateButtonTitleKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationOtherButtonTitleKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationProgressIndicatorValueKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationPopUpTitlesKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationTextFieldTitlesKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationCheckBoxTitlesKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationTextFieldValuesKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationPopUpSelectionKey	API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXPORT
+const CFStringRef kCFUserNotificationAlertTopMostKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+        
+CF_EXPORT
+const CFStringRef kCFUserNotificationKeyboardTypesKey API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, watchos, tvos);
+
+CF_EXTERN_C_END
+CF_IMPLICIT_BRIDGING_DISABLED
+
+#endif /* ! __COREFOUNDATION_CFUSERNOTIFICATION__ */
+
+// ==========  CoreFoundation.framework/Headers/CFXMLNode.h
+/*	CFXMLNode.h
+	Copyright (c) 1998-2018, Apple Inc. and the Swift project authors
+ 
+	Portions Copyright (c) 2014-2018, Apple Inc. and the Swift project authors
+	Licensed under Apache License v2.0 with Runtime Library Exception
+	See http://swift.org/LICENSE.txt for license information
+	See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
+*/
+
+/*  CFXMLParser (and thus CFXMLNode) are deprecated as of Mac OS X 10.8 and iOS 6.0. The suggested replacements are the Foundation classes NSXMLParser and NSXMLDocument, or the libxml2 library. */
+
+#include <TargetConditionals.h>
+
+#if TARGET_OS_OSX
+
+#if !defined(__COREFOUNDATION_CFXMLNODE__)
+#define __COREFOUNDATION_CFXMLNODE__ 1
+
+#include <CoreFoundation/CFArray.h>
+#include <CoreFoundation/CFDictionary.h>
+#include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFTree.h>
+#include <CoreFoundation/CFURL.h>
+
+CF_IMPLICIT_BRIDGING_ENABLED
+CF_EXTERN_C_BEGIN
+
+#define __CFXMLNode_DEPRECATION_MSG "CFXMLNode is deprecated, use NSXMLParser, NSXMLDocument or libxml2 library instead"
+
+CF_ENUM(CFIndex) {
+	kCFXMLNodeCurrentVersion = 1
+};
+
+typedef const struct __CFXMLNode * CFXMLNodeRef;
+typedef CFTreeRef CFXMLTreeRef;
+
+/*  An CFXMLNode describes an individual XML construct - like a tag, or a comment, or a string
+    of character data.  Each CFXMLNode contains 3 main pieces of information - the node's type,
+    the data string, and a pointer to an additional data structure.  The node's type ID is an enum
+    value of type CFXMLNodeTypeID.  The data string is always a CFStringRef; the meaning of the
+    string is dependent on the node's type ID. The format of the additional data is also dependent
+    on the node's type; in general, there is a custom structure for each type that requires
+    additional data.  See below for the mapping from type ID to meaning of the data string and
+    structure of the additional data.  Note that these structures are versioned, and may change
+    as the parser changes.  The current version can always be identified by kCFXMLNodeCurrentVersion;
+    earlier versions can be identified and used by passing earlier values for the version number
+    (although the older structures would have been removed from the header).
+
+    An CFXMLTree is simply a CFTree whose context data is known to be an CFXMLNodeRef.  As
+    such, an CFXMLTree can be used to represent an entire XML document; the CFTree
+    provides the tree structure of the document, while the CFXMLNodes identify and describe
+    the nodes of the tree.  An XML document can be parsed to a CFXMLTree, and a CFXMLTree
+    can generate the data for the equivalent XML document - see CFXMLParser.h for more
+    information on parsing XML.
+    */
+
+/* Type codes for the different possible XML nodes; this list may grow.*/
+typedef CF_ENUM(CFIndex, CFXMLNodeTypeCode) {
+    kCFXMLNodeTypeDocument = 1,
+    kCFXMLNodeTypeElement = 2,
+    kCFXMLNodeTypeAttribute = 3,
+    kCFXMLNodeTypeProcessingInstruction = 4,
+    kCFXMLNodeTypeComment = 5,
+    kCFXMLNodeTypeText = 6,
+    kCFXMLNodeTypeCDATASection = 7,
+    kCFXMLNodeTypeDocumentFragment = 8,
+    kCFXMLNodeTypeEntity = 9,
+    kCFXMLNodeTypeEntityReference = 10,
+    kCFXMLNodeTypeDocumentType = 11,
+    kCFXMLNodeTypeWhitespace = 12,
+    kCFXMLNodeTypeNotation = 13,
+    kCFXMLNodeTypeElementTypeDeclaration = 14,
+    kCFXMLNodeTypeAttributeListDeclaration = 15
+};
+
+typedef struct {
+    CFDictionaryRef attributes;
+    CFArrayRef attributeOrder;
+    Boolean isEmpty;
+    char _reserved[3];
+} CFXMLElementInfo;
+
+typedef struct {
+    CFStringRef dataString;
+} CFXMLProcessingInstructionInfo;
+
+typedef struct {
+    CFURLRef sourceURL;
+    CFStringEncoding encoding;
+} CFXMLDocumentInfo;
+
+typedef struct {
+    CFURLRef systemID;
+    CFStringRef publicID;
+} CFXMLExternalID;
+
+typedef struct {
+    CFXMLExternalID externalID;
+} CFXMLDocumentTypeInfo;
+
+typedef struct {
+    CFXMLExternalID externalID;
+} CFXMLNotationInfo;
+
+typedef struct {
+    /* This is expected to change in future versions */
+    CFStringRef contentDescription;
+} CFXMLElementTypeDeclarationInfo;
+
+typedef struct {
+    /* This is expected to change in future versions */
+    CFStringRef attributeName;
+    CFStringRef typeString;
+    CFStringRef defaultString;
+} CFXMLAttributeDeclarationInfo;
+
+typedef struct {
+    CFIndex numberOfAttributes;
+    CFXMLAttributeDeclarationInfo *attributes;
+} CFXMLAttributeListDeclarationInfo;
+
+typedef CF_ENUM(CFIndex, CFXMLEntityTypeCode) {
+    kCFXMLEntityTypeParameter,       /* Implies parsed, internal */
+    kCFXMLEntityTypeParsedInternal,
+    kCFXMLEntityTypeParsedExternal,
+    kCFXMLEntityTypeUnparsed,
+    kCFXMLEntityTypeCharacter
+};
+
+typedef struct {
+    CFXMLEntityTypeCode entityType;
+    CFStringRef replacementText;     /* NULL if entityType is external or unparsed */
+    CFXMLExternalID entityID;          /* entityID.systemID will be NULL if entityType is internal */
+    CFStringRef notationName;        /* NULL if entityType is parsed */
+} CFXMLEntityInfo;
+
+typedef struct {
+    CFXMLEntityTypeCode entityType;
+} CFXMLEntityReferenceInfo;
+
+/*
+ dataTypeCode                       meaning of dataString                format of infoPtr
+ ===========                        =====================                =================
+ kCFXMLNodeTypeDocument             <currently unused>                   CFXMLDocumentInfo *
+ kCFXMLNodeTypeElement              tag name                             CFXMLElementInfo *
+ kCFXMLNodeTypeAttribute            <currently unused>                   <currently unused>
+ kCFXMLNodeTypeProcessingInstruction   name of the target                   CFXMLProcessingInstructionInfo *
+ kCFXMLNodeTypeComment              text of the comment                  NULL
+ kCFXMLNodeTypeText                 the text's contents                  NULL
+ kCFXMLNodeTypeCDATASection         text of the CDATA                    NULL
+ kCFXMLNodeTypeDocumentFragment     <currently unused>                   <currently unused>
+ kCFXMLNodeTypeEntity               name of the entity                   CFXMLEntityInfo *
+ kCFXMLNodeTypeEntityReference      name of the referenced entity        CFXMLEntityReferenceInfo *
+ kCFXMLNodeTypeDocumentType         name given as top-level element      CFXMLDocumentTypeInfo *
+ kCFXMLNodeTypeWhitespace           text of the whitespace               NULL
+ kCFXMLNodeTypeNotation             notation name                        CFXMLNotationInfo *
+ kCFXMLNodeTypeElementTypeDeclaration     tag name                       CFXMLElementTypeDeclarationInfo *
+ kCFXMLNodeTypeAttributeListDeclaration   tag name                       CFXMLAttributeListDeclarationInfo *
+*/
+
+CF_EXPORT
+CFTypeID CFXMLNodeGetTypeID(void) API_DEPRECATED(__CFXMLNode_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Creates a new node based on xmlType, dataString, and additionalInfoPtr.  version (together with xmlType) determines the expected structure of additionalInfoPtr */
+CF_EXPORT
+CFXMLNodeRef CFXMLNodeCreate(CFAllocatorRef alloc, CFXMLNodeTypeCode xmlType, CFStringRef dataString, const void *additionalInfoPtr, CFIndex version) API_DEPRECATED(__CFXMLNode_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Creates a copy of origNode (which may not be NULL). */
+CF_EXPORT
+CFXMLNodeRef CFXMLNodeCreateCopy(CFAllocatorRef alloc, CFXMLNodeRef origNode) API_DEPRECATED(__CFXMLNode_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+CF_EXPORT
+CFXMLNodeTypeCode CFXMLNodeGetTypeCode(CFXMLNodeRef node) API_DEPRECATED(__CFXMLNode_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+CF_EXPORT
+CFStringRef CFXMLNodeGetString(CFXMLNodeRef node) API_DEPRECATED(__CFXMLNode_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+CF_EXPORT
+const void *CFXMLNodeGetInfoPtr(CFXMLNodeRef node) API_DEPRECATED(__CFXMLNode_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+CF_EXPORT
+CFIndex CFXMLNodeGetVersion(CFXMLNodeRef node) API_DEPRECATED(__CFXMLNode_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* CFXMLTreeRef */
+
+/* Creates a childless, parentless tree from node */
+CF_EXPORT
+CFXMLTreeRef CFXMLTreeCreateWithNode(CFAllocatorRef allocator, CFXMLNodeRef node) API_DEPRECATED(__CFXMLNode_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Extracts and returns the node stored in xmlTree */
+CF_EXPORT
+CFXMLNodeRef CFXMLTreeGetNode(CFXMLTreeRef xmlTree) API_DEPRECATED(__CFXMLNode_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+#undef __CFXMLNode_DEPRECATION_MSG
+    
+CF_EXTERN_C_END
+CF_IMPLICIT_BRIDGING_DISABLED
+
+#endif /* ! __COREFOUNDATION_CFXMLNODE__ */
+
+#endif /* TARGET_OS_OSX */
 // ==========  CoreFoundation.framework/Headers/CFArray.h
 /*	CFArray.h
 	Copyright (c) 1998-2018, Apple Inc. All rights reserved.
@@ -2206,7 +2605,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <CoreFoundation/CFUtilities.h>
 #include <CoreFoundation/CFBundle.h>
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE) || TARGET_OS_WIN32
+#if TARGET_OS_OSX || TARGET_OS_IPHONE || 0
 #include <CoreFoundation/CFMessagePort.h>
 #include <CoreFoundation/CFPlugIn.h>
 #include <CoreFoundation/CFRunLoop.h>
@@ -2214,15 +2613,15 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <CoreFoundation/CFSocket.h>
 #include <CoreFoundation/CFMachPort.h>
 
-#ifndef CF_OPEN_SOURCE
 #include <CoreFoundation/CFAttributedString.h>
 #include <CoreFoundation/CFNotificationCenter.h>
+#ifndef CF_OPEN_SOURCE
 #include <CoreFoundation/CFURLEnumerator.h>
 #endif
 
 #endif
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+#if TARGET_OS_OSX || TARGET_OS_IPHONE
 #ifndef CF_OPEN_SOURCE
 #include <CoreFoundation/CFFileSecurity.h>
 #include <CoreFoundation/CFStringTokenizer.h>
@@ -2230,17 +2629,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif
 #endif
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
 #include <CoreFoundation/CFUserNotification.h>
 #include <CoreFoundation/CFXMLNode.h>
 #include <CoreFoundation/CFXMLParser.h>
-#endif
-
-#ifndef CF_OPEN_SOURCE
-#if TARGET_OS_WIN32
-#include <CoreFoundation/CFWindowsNamedPipe.h>
-#endif
-#endif
 
 #endif /* ! __COREFOUNDATION_COREFOUNDATION__ */
 
@@ -2929,7 +3320,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 #include <CoreFoundation/CFBase.h>
 
-#if (TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE) || CF_BUILDING_CF || NSBUILDINGFOUNDATION
+#if TARGET_OS_MAC || CF_BUILDING_CF || NSBUILDINGFOUNDATION
 
 #if !defined(__COREFOUNDATION_CFFILESECURITY__)
 #define __COREFOUNDATION_CFFILESECURITY__ 1
@@ -4205,7 +4596,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 #include <CoreFoundation/CFBase.h>
 
-#if (TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE) || CF_BUILDING_CF || NSBUILDINGFOUNDATION
+#if TARGET_OS_MAC || CF_BUILDING_CF || NSBUILDINGFOUNDATION
 
 #if !defined(__COREFOUNDATION_CFURLENUMERATOR__)
 #define __COREFOUNDATION_CFURLENUMERATOR__ 1
@@ -4235,6 +4626,7 @@ typedef CF_OPTIONS(CFOptionFlags, CFURLEnumeratorOptions) {
     kCFURLEnumeratorIncludeDirectoriesPreOrder      = 1UL << 4, /* With this option set, a recursive directory enumerator will return directory URLs when CFURLEnumeratorGetNextURL() returns kCFURLEnumeratorSuccess before any of the directory's descendants are visited (pre-order). */
     kCFURLEnumeratorIncludeDirectoriesPostOrder     = 1UL << 5, /* With this option set, a recursive directory enumerator will return directory URLs when CFURLEnumeratorGetNextURL() returns kCFURLEnumeratorDirectoryPostOrderSuccess after all of directory's descendants have been visited (post-order). */
     /* Note: if both kCFURLEnumeratorIncludeDirectoriesPreOrder and kCFURLEnumeratorIncludeDirectoriesPostOrder are used, directories will be seen twice (even empty directories and directories whose descendants are skipped) -- once when kCFURLEnumeratorSuccess is returned and once when kCFURLEnumeratorDirectoryPostOrderSuccess is returned. */
+    kCFURLEnumeratorGenerateRelativePathURLs API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) = 1UL << 6, /* The directory enumerator always generates file path URLs relative to the directory URL. This can reduce the size of each URL object returned during enumeration. */
 };
 
 /* CFURLEnumeratorCreateForDirectoryURL - Creates a directory enumerator, flat or recursive. Client specifies the directory URL to enumerate, a bit array of options, and an optional array of property keys to pre-fetch for the found URLs. Specifying pre-fetch properties allows the implementation to optimize device access by using bulk operations when available. Pre-fetching more properties than are actually needed may degrade performance.
@@ -4456,9 +4848,7 @@ CF_EXTERN_C_END
 /* This is a definition of IUnknown as a pure abstract virtual C++ class.  This class will work only with compilers that can produce COM-compatible object layouts for C++ classes.  egcs can not do this.  MetroWerks can do this (if you subclass from __comobject) */
 
 class IUnknown
-#if defined(__MWERKS__) && TARGET_OS_WIN32
- : __comobject
-#endif
+
 {
     public:
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, LPVOID *ppv) = 0;
@@ -4665,7 +5055,7 @@ typedef struct {
     SInt8 hour;
     SInt8 minute;
     double second;
-} CFGregorianDate CF_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead");
+} CFGregorianDate API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 typedef struct {
     SInt32 years;
@@ -4674,41 +5064,41 @@ typedef struct {
     SInt32 hours;
     SInt32 minutes;
     double seconds;
-} CFGregorianUnits CF_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead");
+} CFGregorianUnits API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 typedef CF_OPTIONS(CFOptionFlags, CFGregorianUnitFlags) {
-    kCFGregorianUnitsYears CF_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead") = (1UL << 0),
-    kCFGregorianUnitsMonths CF_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead") = (1UL << 1),
-    kCFGregorianUnitsDays CF_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead") = (1UL << 2),
-    kCFGregorianUnitsHours CF_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead") = (1UL << 3),
-    kCFGregorianUnitsMinutes CF_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead") = (1UL << 4),
-    kCFGregorianUnitsSeconds CF_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead") = (1UL << 5),
-    kCFGregorianAllUnits CF_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead") = 0x00FFFFFF
+    kCFGregorianUnitsYears API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = (1UL << 0),
+    kCFGregorianUnitsMonths API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = (1UL << 1),
+    kCFGregorianUnitsDays API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = (1UL << 2),
+    kCFGregorianUnitsHours API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = (1UL << 3),
+    kCFGregorianUnitsMinutes API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = (1UL << 4),
+    kCFGregorianUnitsSeconds API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = (1UL << 5),
+    kCFGregorianAllUnits API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = 0x00FFFFFF
 };
 
 CF_EXPORT
-Boolean CFGregorianDateIsValid(CFGregorianDate gdate, CFOptionFlags unitFlags) CF_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead");
+Boolean CFGregorianDateIsValid(CFGregorianDate gdate, CFOptionFlags unitFlags) API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 CF_EXPORT
-CFAbsoluteTime CFGregorianDateGetAbsoluteTime(CFGregorianDate gdate, CFTimeZoneRef tz) CF_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead");
+CFAbsoluteTime CFGregorianDateGetAbsoluteTime(CFGregorianDate gdate, CFTimeZoneRef tz) API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 CF_EXPORT
-CFGregorianDate CFAbsoluteTimeGetGregorianDate(CFAbsoluteTime at, CFTimeZoneRef tz) CF_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead");
+CFGregorianDate CFAbsoluteTimeGetGregorianDate(CFAbsoluteTime at, CFTimeZoneRef tz) API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 CF_EXPORT
-CFAbsoluteTime CFAbsoluteTimeAddGregorianUnits(CFAbsoluteTime at, CFTimeZoneRef tz, CFGregorianUnits units) CF_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead");
+CFAbsoluteTime CFAbsoluteTimeAddGregorianUnits(CFAbsoluteTime at, CFTimeZoneRef tz, CFGregorianUnits units) API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 CF_EXPORT
-CFGregorianUnits CFAbsoluteTimeGetDifferenceAsGregorianUnits(CFAbsoluteTime at1, CFAbsoluteTime at2, CFTimeZoneRef tz, CFOptionFlags unitFlags) CF_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead");
+CFGregorianUnits CFAbsoluteTimeGetDifferenceAsGregorianUnits(CFAbsoluteTime at1, CFAbsoluteTime at2, CFTimeZoneRef tz, CFOptionFlags unitFlags) API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 CF_EXPORT
-SInt32 CFAbsoluteTimeGetDayOfWeek(CFAbsoluteTime at, CFTimeZoneRef tz) CF_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead");
+SInt32 CFAbsoluteTimeGetDayOfWeek(CFAbsoluteTime at, CFTimeZoneRef tz) API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 CF_EXPORT
-SInt32 CFAbsoluteTimeGetDayOfYear(CFAbsoluteTime at, CFTimeZoneRef tz) CF_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead");
+SInt32 CFAbsoluteTimeGetDayOfYear(CFAbsoluteTime at, CFTimeZoneRef tz) API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 CF_EXPORT
-SInt32 CFAbsoluteTimeGetWeekOfYear(CFAbsoluteTime at, CFTimeZoneRef tz) CF_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use CFCalendar or NSCalendar API instead");
+SInt32 CFAbsoluteTimeGetWeekOfYear(CFAbsoluteTime at, CFTimeZoneRef tz) API_DEPRECATED("Use CFCalendar or NSCalendar API instead", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 CF_EXTERN_C_END
 
@@ -6145,7 +6535,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define __COREFOUNDATION_CFBYTEORDER__ 1
 
 #include <CoreFoundation/CFBase.h>
-#if ((TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) && !defined(CF_USE_OSBYTEORDER_H)
+#if (TARGET_OS_OSX || TARGET_OS_IPHONE) && !defined(CF_USE_OSBYTEORDER_H)
 #include <libkern/OSByteOrder.h>
 #define CF_USE_OSBYTEORDER_H 1
 #endif
@@ -6580,11 +6970,9 @@ typedef struct {
     CFStringRef	(*copyDescription)(const void *info);
 } CFSocketContext;
 
-#if TARGET_OS_WIN32
-typedef uintptr_t CFSocketNativeHandle;
-#else
+
 typedef int CFSocketNativeHandle;
-#endif
+
 
 CF_EXPORT CFTypeID	CFSocketGetTypeID(void);
 
@@ -6970,8 +7358,7 @@ CFStringRef CFURLCopyPassword(CFURLRef anURL);
 /* corresponding characters.  If charactersToLeaveEscaped is NULL, */
 /* then no escape sequences are removed at all */
 CF_EXPORT
-CFStringRef CFURLCopyParameterString(CFURLRef anURL, CFStringRef charactersToLeaveEscaped);
-
+CFStringRef CFURLCopyParameterString(CFURLRef anURL, CFStringRef charactersToLeaveEscaped) API_DEPRECATED("The CFURLCopyParameterString function is deprecated. Post deprecation for applications linked with or after the macOS 10.15, and for all iOS, watchOS, and tvOS applications, CFURLCopyParameterString will always return NULL, and the CFURLCopyPath(), CFURLCopyStrictPath(), and CFURLCopyFileSystemPath() functions will return the complete path including the semicolon separator and params component if the URL string contains them.", macosx(10.2,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
 CF_EXPORT
 CFStringRef CFURLCopyQueryString(CFURLRef anURL, CFStringRef charactersToLeaveEscaped);
 
@@ -7119,7 +7506,7 @@ CF_EXPORT
 CFStringRef CFURLCreateStringByAddingPercentEscapes(CFAllocatorRef allocator, CFStringRef originalString, CFStringRef charactersToLeaveUnescaped, CFStringRef legalURLCharactersToBeEscaped, CFStringEncoding encoding) API_DEPRECATED("Use [NSString stringByAddingPercentEncodingWithAllowedCharacters:] instead, which always uses the recommended UTF-8 encoding, and which encodes for a specific URL component or subcomponent (since each URL component or subcomponent has different rules for what characters are valid).", macos(10.0,10.11), ios(2.0,9.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
 
-#if (TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE) || CF_BUILDING_CF || NSBUILDINGFOUNDATION
+#if TARGET_OS_MAC || CF_BUILDING_CF || NSBUILDINGFOUNDATION
 CF_IMPLICIT_BRIDGING_DISABLED
 
 /*
@@ -7185,7 +7572,7 @@ CF_IMPLICIT_BRIDGING_ENABLED
 #endif
 
 #ifndef CF_OPEN_SOURCE
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+#if TARGET_OS_OSX || TARGET_OS_IPHONE
 
 struct FSRef;
 
@@ -7201,7 +7588,7 @@ Boolean CFURLGetFSRef(CFURLRef url, struct FSRef *fsRef) API_DEPRECATED("Not sup
 #endif
 
 
-#if (TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE) || CF_BUILDING_CF || NSBUILDINGFOUNDATION
+#if TARGET_OS_MAC || CF_BUILDING_CF || NSBUILDINGFOUNDATION
 CF_IMPLICIT_BRIDGING_DISABLED
 
 /* Resource access
@@ -7568,7 +7955,7 @@ const CFStringRef kCFURLDocumentIdentifierKey API_AVAILABLE(macos(10.10), ios(8.
 
 CF_EXPORT
 const CFStringRef kCFURLAddedToDirectoryDateKey API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
-    /* The date the resource was created, or renamed into or within its parent directory. Note that inconsistent behavior may be observed when this attribute is requested on hard-linked items. This property is not supported by all volumes. (Read-only, value type CFDate) */
+    /* The date the resource was created, or renamed into or within its parent directory. Note that inconsistent behavior may be observed when this attribute is requested on hard-linked items. This property is not supported by all volumes. (Read-only before macOS 10.15, iOS 13.0, watchOS 6.0, and tvOS 13.0; Read-write after, value type CFDate) */
 
 CF_EXPORT
 const CFStringRef kCFURLQuarantinePropertiesKey API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, watchos, tvos);
@@ -7873,17 +8260,18 @@ const CFStringRef kCFURLUbiquitousItemDownloadingStatusCurrent API_AVAILABLE(mac
 typedef CF_OPTIONS(CFOptionFlags, CFURLBookmarkCreationOptions) {
     kCFURLBookmarkCreationMinimalBookmarkMask = ( 1UL << 9 ), // creates bookmark data with "less" information, which may be smaller but still be able to resolve in certain ways
     kCFURLBookmarkCreationSuitableForBookmarkFile = ( 1UL << 10 ), // include the properties required by CFURLWriteBookmarkDataToFile() in the bookmark data created
-    kCFURLBookmarkCreationWithSecurityScope CF_ENUM_AVAILABLE(10_7, NA) = ( 1UL << 11 ), // Mac OS X 10.7.3 and later, include information in the bookmark data which allows the same sandboxed process to access the resource after being relaunched
-    kCFURLBookmarkCreationSecurityScopeAllowOnlyReadAccess CF_ENUM_AVAILABLE(10_7, NA) = ( 1UL << 12 ), // Mac OS X 10.7.3 and later, if used with kCFURLBookmarkCreationWithSecurityScope, at resolution time only read access to the resource will be granted
+    kCFURLBookmarkCreationWithSecurityScope API_AVAILABLE(macos(10.7))  API_UNAVAILABLE(ios, watchos, tvos) = ( 1UL << 11 ), // Mac OS X 10.7.3 and later, include information in the bookmark data which allows the same sandboxed process to access the resource after being relaunched
+    kCFURLBookmarkCreationSecurityScopeAllowOnlyReadAccess API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, watchos, tvos) = ( 1UL << 12 ), // Mac OS X 10.7.3 and later, if used with kCFURLBookmarkCreationWithSecurityScope, at resolution time only read access to the resource will be granted
     
     // deprecated
-    kCFURLBookmarkCreationPreferFileIDResolutionMask CF_ENUM_DEPRECATED(10_6, 10_9, 4_0, 7_0, "kCFURLBookmarkCreationPreferFileIDResolutionMask does nothing and has no effect on bookmark resolution" ) = ( 1UL << 8 ),
+    kCFURLBookmarkCreationPreferFileIDResolutionMask
+    API_DEPRECATED("kCFURLBookmarkCreationPreferFileIDResolutionMask does nothing and has no effect on bookmark resolution", macos(10.6,10.9), ios(4.0,7.0)) = ( 1UL << 8 ),
 } API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 typedef CF_OPTIONS(CFOptionFlags, CFURLBookmarkResolutionOptions) {
     kCFURLBookmarkResolutionWithoutUIMask = ( 1UL << 8 ), // don't perform any user interaction during bookmark resolution
     kCFURLBookmarkResolutionWithoutMountingMask = ( 1UL << 9 ), // don't mount a volume during bookmark resolution
-    kCFURLBookmarkResolutionWithSecurityScope CF_ENUM_AVAILABLE(10_7, NA) = ( 1UL << 10 ), // Mac OS X 10.7.3 and later, use the secure information included at creation time to provide the ability to access the resource in a sandboxed process.
+    kCFURLBookmarkResolutionWithSecurityScope API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, watchos, tvos) = ( 1UL << 10 ), // Mac OS X 10.7.3 and later, use the secure information included at creation time to provide the ability to access the resource in a sandboxed process.
     
     kCFBookmarkResolutionWithoutUIMask = kCFURLBookmarkResolutionWithoutUIMask,
     kCFBookmarkResolutionWithoutMountingMask = kCFURLBookmarkResolutionWithoutMountingMask,
@@ -7940,7 +8328,7 @@ Boolean CFURLStartAccessingSecurityScopedResource(CFURLRef url) API_AVAILABLE(ma
 CF_EXPORT
 void CFURLStopAccessingSecurityScopedResource(CFURLRef url) API_AVAILABLE(macos(10.7), ios(8.0), watchos(2.0), tvos(9.0)); // On OSX, available in MacOS X 10.7.3 and later
 
-#endif /* TARGET_OS_MAC || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE */
+#endif
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -7997,7 +8385,295 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 #endif /* ! __COREFOUNDATION_CFBITVECTOR__ */
 
+// ==========  CoreFoundation.framework/Headers/CFXMLParser.h
+/*	CFXMLParser.h
+	Copyright (c) 1998-2018, Apple Inc. All rights reserved.
+*/
+
+/*  CFXMLParser is deprecated as of Mac OS X 10.8. The suggested replacements are the Foundation classes NSXMLParser and NSXMLDocument, or the libxml2 library. */
+
+#include <TargetConditionals.h>
+
+#if TARGET_OS_OSX
+
+#if !defined(__COREFOUNDATION_CFXMLPARSER__)
+#define __COREFOUNDATION_CFXMLPARSER__ 1
+
+#include <CoreFoundation/CFBase.h>
+#include <CoreFoundation/CFArray.h>
+#include <CoreFoundation/CFData.h>
+#include <CoreFoundation/CFDictionary.h>
+#include <CoreFoundation/CFTree.h>
+#include <CoreFoundation/CFURL.h>
+#include <CoreFoundation/CFXMLNode.h>
+
+CF_IMPLICIT_BRIDGING_ENABLED
+CF_EXTERN_C_BEGIN
+
+#define __CFXMLParser_DEPRECATION_MSG "CFXMLParser is deprecated, use NSXMLParser, NSXMLDocument or libxml2 library instead"
+
+typedef struct __CFXMLParser * CFXMLParserRef;
+
+/* These are the various options you can configure the parser with.  These are
+   chosen such that an option flag of 0 (kCFXMLParserNoOptions) leaves the XML
+   as "intact" as possible (reports all structures; performs no replacements).
+   Hence, to make the parser do the most work, returning only the pure element
+   tree, set the option flag to kCFXMLParserAllOptions.
+
+kCFXMLParserValidateDocument -
+   validate the document against its grammar from the DTD, reporting any errors.
+   Currently not supported.
+
+kCFXMLParserSkipMetaData -
+   silently skip over metadata constructs (the DTD and comments)
+
+kCFXMLParserReplacePhysicalEntities -
+   replace declared entities like &lt;.  Note that other than the 5 predefined
+   entities (lt, gt, quot, amp, apos), these must be defined in the DTD.
+   Currently not supported.
+
+kCFXMLParserSkipWhitespace -
+   skip over all whitespace that does not abut non-whitespace character data.
+   In other words, given <foo>  <bar> blah </bar></foo>, the whitespace between
+   foo's open tag and bar's open tag would be suppressed, but the whitespace
+   around blah would be preserved.
+
+kCFXMLParserAddImpliedAttributes -
+   where the DTD specifies implied attribute-value pairs for a particular element,
+   add those pairs to any occurances of the element in the element tree.
+   Currently not supported.
+*/
+
+typedef CF_OPTIONS(CFOptionFlags, CFXMLParserOptions) {
+    kCFXMLParserValidateDocument = (1UL << 0),
+    kCFXMLParserSkipMetaData = (1UL << 1),
+    kCFXMLParserReplacePhysicalEntities = (1UL << 2),
+    kCFXMLParserSkipWhitespace = (1UL << 3),
+    kCFXMLParserResolveExternalEntities = (1UL << 4),
+    kCFXMLParserAddImpliedAttributes = (1UL << 5),
+    kCFXMLParserAllOptions = 0x00FFFFFF,
+    kCFXMLParserNoOptions = 0
+};
+
+/* This list is expected to grow */
+typedef CF_OPTIONS(CFIndex, CFXMLParserStatusCode) {
+    kCFXMLStatusParseNotBegun = -2,
+    kCFXMLStatusParseInProgress = -1,
+    kCFXMLStatusParseSuccessful = 0,
+    kCFXMLErrorUnexpectedEOF = 1,
+    kCFXMLErrorUnknownEncoding,
+    kCFXMLErrorEncodingConversionFailure,
+    kCFXMLErrorMalformedProcessingInstruction,
+    kCFXMLErrorMalformedDTD,
+    kCFXMLErrorMalformedName,
+    kCFXMLErrorMalformedCDSect,
+    kCFXMLErrorMalformedCloseTag,
+    kCFXMLErrorMalformedStartTag,
+    kCFXMLErrorMalformedDocument,
+    kCFXMLErrorElementlessDocument,
+    kCFXMLErrorMalformedComment,
+    kCFXMLErrorMalformedCharacterReference,
+    kCFXMLErrorMalformedParsedCharacterData,
+    kCFXMLErrorNoData
+};
+
+
+/*  These functions are called as a parse progresses.
+
+createXMLStructure -
+  called as new XML structures are encountered by the parser.  May return NULL to indicate
+  that the given structure should be skipped; if NULL is returned for a given structure,
+  only minimal parsing is done for that structure (enough to correctly determine its end,
+  and to extract any data necessary for the remainder of the parse, such as Entity definitions).
+  createXMLStructure (or indeed, any of the tree-creation callbacks) will not be called for any
+  children of the skipped structure.  The only exception is that the top-most element will always
+  be reported even if NULL was returned for the document as a whole.  NOTE: for performance reasons,
+  the node passed to createXMLStructure cannot be safely retained by the client; the node as
+  a whole must be copied (via CFXMLNodeCreateCopy), or its contents must be extracted and copied.
+
+addChild -
+  called as children are parsed and are ready to be added to the tree.  If createXMLStructure
+  returns NULL for a given structure, that structure is omitted entirely, and addChild will
+  NOT be called for either a NULL child or parent.
+
+endXMLStructure -
+  called once a structure (and all its children) are completely parsed.  As elements are encountered,
+  createXMLStructure is called for them first, then addChild to add the new structure to its parent,
+  then addChild (potentially several times) to add the new structure's children to it, then finally 
+  endXMLStructure to show that the structure has been fully parsed.
+
+createXMLStructure, addChild, and endXMLStructure are all REQUIRED TO BE NON-NULL.
+
+resolveExternalEntity -
+  called when external entities are referenced (NOT when they are simply defined).  If the function
+  pointer is NULL, the parser uses its internal routines to try and resolve the entity.  If the
+  function pointer is set, and the function returns NULL, a place holder for the external entity
+  is inserted into the tree.  In this manner, the parser's client can prevent any external network 
+  or file accesses.
+
+handleError - called as errors/warnings are encountered in the data stream.  At some point, we will
+  have an enum of the expected errors, some of which will be fatal, others of which will not.  If
+  the function pointer is NULL, the parser will silently attempt to recover.  The
+  handleError function may always return false to force the parser to stop; if handleError returns
+  true, the parser will attempt to recover (fatal errors will still cause the parse to abort
+  immediately).
+*/
+
+typedef void *		(*CFXMLParserCreateXMLStructureCallBack)(CFXMLParserRef parser, CFXMLNodeRef nodeDesc, void *info);
+typedef void		(*CFXMLParserAddChildCallBack)(CFXMLParserRef parser, void *parent, void *child, void *info);
+typedef void		(*CFXMLParserEndXMLStructureCallBack)(CFXMLParserRef parser, void *xmlType, void *info);
+typedef CFDataRef	(*CFXMLParserResolveExternalEntityCallBack)(CFXMLParserRef parser, CFXMLExternalID *extID, void *info);
+typedef Boolean		(*CFXMLParserHandleErrorCallBack)(CFXMLParserRef parser, CFXMLParserStatusCode error, void *info);
+typedef struct {
+    CFIndex                                  version;
+    CFXMLParserCreateXMLStructureCallBack    createXMLStructure;
+    CFXMLParserAddChildCallBack              addChild;
+    CFXMLParserEndXMLStructureCallBack       endXMLStructure;
+    CFXMLParserResolveExternalEntityCallBack resolveExternalEntity;
+    CFXMLParserHandleErrorCallBack           handleError;
+} CFXMLParserCallBacks;
+
+typedef const void *	(*CFXMLParserRetainCallBack)(const void *info);
+typedef void		(*CFXMLParserReleaseCallBack)(const void *info);
+typedef CFStringRef	(*CFXMLParserCopyDescriptionCallBack)(const void *info);
+typedef struct {
+    CFIndex				version;
+    void *				info;
+    CFXMLParserRetainCallBack		retain;
+    CFXMLParserReleaseCallBack		release;
+    CFXMLParserCopyDescriptionCallBack	copyDescription;
+} CFXMLParserContext;
+
+CF_EXPORT
+CFTypeID CFXMLParserGetTypeID(void) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Creates a parser which will parse the given data with the given options.  xmlData may not be NULL. 
+   dataSource should be the URL from which the data came, and may be NULL; it is used to resolve any
+   relative references found in xmlData. versionOfNodes determines which version CFXMLNodes are produced
+   by the parser; see CFXMLNode.h for more details.  callBacks are the callbacks called by the parser as
+   the parse progresses; callBacks, callBacks->createXMLStructure, callBacks->addChild, and
+   callBacks->endXMLStructure must all be non-NULL.  context determines what if any info pointer is
+   passed to the callbacks as the parse progresses; context may be NULL.  */
+CF_EXPORT
+CFXMLParserRef CFXMLParserCreate(CFAllocatorRef allocator, CFDataRef xmlData, CFURLRef dataSource, CFOptionFlags parseOptions, CFIndex versionOfNodes, CFXMLParserCallBacks *callBacks, CFXMLParserContext *context) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Arguments as above, except that the data to be parsed is loaded directly 
+   from dataSource.  dataSource may not be NULL.  */
+CF_EXPORT
+CFXMLParserRef CFXMLParserCreateWithDataFromURL(CFAllocatorRef allocator, CFURLRef dataSource, CFOptionFlags parseOptions, CFIndex versionOfNodes, CFXMLParserCallBacks *callBacks, CFXMLParserContext *context) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+CF_EXPORT
+void CFXMLParserGetContext(CFXMLParserRef parser, CFXMLParserContext *context) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+CF_EXPORT
+void CFXMLParserGetCallBacks(CFXMLParserRef parser, CFXMLParserCallBacks *callBacks) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+CF_EXPORT
+CFURLRef CFXMLParserGetSourceURL(CFXMLParserRef parser) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Returns the character index of the current parse location */
+CF_EXPORT
+CFIndex CFXMLParserGetLocation(CFXMLParserRef parser) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Returns the line number of the current parse location */
+CF_EXPORT
+CFIndex CFXMLParserGetLineNumber(CFXMLParserRef parser) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Returns the top-most object returned by the createXMLStructure callback */
+CF_EXPORT
+void *CFXMLParserGetDocument(CFXMLParserRef parser) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Get the status code or a user-readable description of the last error that occurred in a parse.
+   If no error has occurred, a null description string is returned.  See the enum above for
+   possible status returns */
+CF_EXPORT
+CFXMLParserStatusCode CFXMLParserGetStatusCode(CFXMLParserRef parser) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+CF_EXPORT
+CFStringRef CFXMLParserCopyErrorDescription(CFXMLParserRef parser) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Cause any in-progress parse to abort with the given error code and description.  errorCode
+   must be positive, and errorDescription may not be NULL.  Cannot be called asynchronously
+   (i.e. must be called from within a parser callback) */
+CF_EXPORT
+void CFXMLParserAbort(CFXMLParserRef parser, CFXMLParserStatusCode errorCode, CFStringRef errorDescription) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Starts a parse of the data the parser was created with; returns success or failure.
+   Upon success, use CFXMLParserGetDocument() to get the product of the parse.  Upon
+   failure, use CFXMLParserGetErrorCode() or CFXMLParserCopyErrorDescription() to get
+   information about the error.  It is an error to call CFXMLParserParse() while a
+   parse is already underway. */
+CF_EXPORT
+Boolean CFXMLParserParse(CFXMLParserRef parser) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* These functions provide a higher-level interface.  The XML data is parsed to a
+   special CFTree (an CFXMLTree) with known contexts and callbacks.  See CFXMLNode.h
+   for full details on using an CFXMLTree and the CFXMLNodes contained therein.
+*/
+/* Parse to an CFXMLTreeRef.  parseOptions are as above. versionOfNodes determines
+   what version CFXMLNodes are used to populate the tree.  */
+CF_EXPORT
+CFXMLTreeRef CFXMLTreeCreateFromData(CFAllocatorRef allocator, CFDataRef xmlData, CFURLRef dataSource, CFOptionFlags parseOptions, CFIndex versionOfNodes) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* As above, with the additional by-reference pass of a CFDictionaryRef containing
+   various error information (see below). The caller is responsible for releasing the
+   returned dictionary. If the error dictionary is not desired, pass NULL. */
+CF_EXPORT
+CFXMLTreeRef CFXMLTreeCreateFromDataWithError(CFAllocatorRef allocator, CFDataRef xmlData, CFURLRef dataSource, CFOptionFlags parseOptions, CFIndex versionOfNodes, CFDictionaryRef *errorDict) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Loads the data to be parsed directly from dataSource.  Arguments as above. */
+CF_EXPORT
+CFXMLTreeRef CFXMLTreeCreateWithDataFromURL(CFAllocatorRef allocator, CFURLRef dataSource, CFOptionFlags parseOptions, CFIndex versionOfNodes) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Generate the XMLData (ready to be written to whatever permanent storage is to be
+   used) from an CFXMLTree.  Will NOT regenerate entity references (except those
+   required for syntactic correctness) if they were replaced at the parse time;
+   clients that wish this should walk the tree and re-insert any entity references
+   that should appear in the final output file. */
+CF_EXPORT
+CFDataRef CFXMLTreeCreateXMLData(CFAllocatorRef allocator, CFXMLTreeRef xmlTree) API_DEPRECATED(__CFXMLParser_DEPRECATION_MSG, macos(10.0,10.8), ios(2.0,6.0), watchos(2.0,2.0), tvos(9.0,9.0));
+
+/* Escaping and unescaping XML entities in CFStrings. The standard XML entities
+   are always replaced.  */
+/* Creates a CFString by replacing entities that appear in the entities dictionary.
+   Dictionary keys are the entities themselves, and the values should be CFStrings
+   containing the expansion. Pass NULL for entitiesDictionary to indicate no entities
+   other than the standard five. */
+CF_EXPORT
+CFStringRef CFXMLCreateStringByEscapingEntities(CFAllocatorRef allocator, CFStringRef string, CFDictionaryRef entitiesDictionary);
+
+CF_EXPORT
+CFStringRef CFXMLCreateStringByUnescapingEntities(CFAllocatorRef allocator, CFStringRef string, CFDictionaryRef entitiesDictionary);
+
+/* CFXMLTreeCreateFromDataWithError error dictionary key constants. */
+CF_EXPORT const CFStringRef kCFXMLTreeErrorDescription;
+    /* value is a CFString containing the readable error string. */
+
+CF_EXPORT const CFStringRef kCFXMLTreeErrorLineNumber;
+    /* value is a CFNumber containing the line on which the error appears. */
+
+CF_EXPORT const CFStringRef kCFXMLTreeErrorLocation;
+    /* value is a CFNumber containing the byte location at which the error occurred. */
+
+CF_EXPORT const CFStringRef kCFXMLTreeErrorStatusCode;
+    /* value is a CFNumber containing the error status code. */
+
+CF_EXTERN_C_END
+CF_IMPLICIT_BRIDGING_DISABLED
+#undef __CFXMLParser_DEPRECATION_MSG
+#endif /* ! __COREFOUNDATION_CFXMLPARSER__ */
+
+#endif /* TARGET_OS_OSX */
 // ==========  CoreFoundation.framework/Headers/CFAttributedString.h
+// This source file is part of the Swift.org open source project
+//
+// Copyright (c) 2014 - 2015 Apple Inc. and the Swift project authors
+// Licensed under Apache License v2.0 with Runtime Library Exception
+//
+// See http://swift.org/LICENSE.txt for license information
+// See http://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
+//
+
 /*	CFAttributedString.h
 	Copyright (c) 2004-2018, Apple Inc. All rights reserved.
 */
@@ -8163,7 +8839,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <CoreFoundation/CFArray.h>
 #include <CoreFoundation/CFDate.h>
 #include <CoreFoundation/CFString.h>
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+#if TARGET_OS_OSX || TARGET_OS_IPHONE
 #include <mach/port.h>
 #endif
 
@@ -8258,7 +8934,7 @@ typedef struct {
     CFStringRef	(*copyDescription)(const void *info);
     Boolean	(*equal)(const void *info1, const void *info2);
     CFHashCode	(*hash)(const void *info);
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+#if TARGET_OS_OSX || TARGET_OS_IPHONE
     mach_port_t	(*getPort)(void *info);
     void *	(*perform)(void *msg, CFIndex size, CFAllocatorRef allocator, void *info);
 #else
@@ -8487,44 +9163,53 @@ equivalents in the encoding the compiler will use to interpret them (for instanc
 O-umlaut is \303\226 in UTF-8). UTF-8 is the recommended encoding here, 
 since it is the default choice with Mac OS X developer tools.
 */
-#if TARGET_OS_WIN32
-#undef __CONSTANT_CFSTRINGS__
-#endif
+
 
 #if DEPLOYMENT_RUNTIME_SWIFT
+
+#if TARGET_OS_MAC
+#define _CF_CONSTANT_STRING_SWIFT_CLASS $s15SwiftFoundation19_NSCFConstantStringCN
+#else
+#define _CF_CONSTANT_STRING_SWIFT_CLASS $s10Foundation19_NSCFConstantStringCN
+#endif
+
+CF_EXPORT void *_CF_CONSTANT_STRING_SWIFT_CLASS[];
+
 struct __CFConstStr {
     struct {
         uintptr_t _cfisa;
-        uint32_t _swift_strong_rc;
-        uint32_t _swift_weak_rc;
-        uint8_t _cfinfo[4];
-        uint8_t _pad[4];
+        uintptr_t _swift_rc;
+#if defined(__LP64__) || defined(__LLP64__)
+        uint64_t _cfinfoa;
+#else // 32-bit:
+        uint32_t _cfinfoa;
+#endif // defined(__LP64__) || defined(__LLP64__)
     } _base;
     uint8_t *_ptr;
 #if defined(__LP64__) && defined(__BIG_ENDIAN__)
     uint64_t _length;
-#else
+#else // 32-bit:
     uint32_t _length;
-#endif
+#endif // defined(__LP64__) || defined(__LLP64__)
 };
 
-#if DEPLOYMENT_TARGET_LINUX
+#if TARGET_OS_LINUX
 #define CONST_STRING_LITERAL_SECTION __attribute__((section(".cfstrlit.data")))
 #else
 #define CONST_STRING_LITERAL_SECTION
-#endif
+#endif // TARGET_OS_LINUX
 
 #if __BIG_ENDIAN__
 #define CFSTR(cStr)  ({ \
-static struct __CFConstStr str CONST_STRING_LITERAL_SECTION = {{(uintptr_t)&__CFConstantStringClassReference, _CF_CONSTANT_OBJECT_STRONG_RC, 0, {0x00, 0x00, 0x07, 0xc8}, {0x00, 0x00, 0x00, 0x00}}, (uint8_t *)(cStr), sizeof(cStr) - 1}; \
-(CFStringRef)&str; \
+    static struct __CFConstStr str CONST_STRING_LITERAL_SECTION = {{(uintptr_t)&_CF_CONSTANT_STRING_SWIFT_CLASS, _CF_CONSTANT_OBJECT_STRONG_RC, 0x00000000C8070000}, (uint8_t *)(cStr), sizeof(cStr) - 1}; \
+    (CFStringRef)&str; \
 })
-#else
+#else // Little endian:
 #define CFSTR(cStr)  ({ \
-static struct __CFConstStr str CONST_STRING_LITERAL_SECTION = {{(uintptr_t)&__CFConstantStringClassReference, _CF_CONSTANT_OBJECT_STRONG_RC, 0, {0xc8, 0x07, 0x00, 0x00}, {0x00, 0x00, 0x00, 0x00}}, (uint8_t *)(cStr), sizeof(cStr) - 1}; \
-(CFStringRef)&str; \
+    static struct __CFConstStr str CONST_STRING_LITERAL_SECTION = {{(uintptr_t)&_CF_CONSTANT_STRING_SWIFT_CLASS, _CF_CONSTANT_OBJECT_STRONG_RC, 0x07C8}, (uint8_t *)(cStr), sizeof(cStr) - 1}; \
+    (CFStringRef)&str; \
 })
-#endif
+#endif // __BIG_ENDIAN__
 
 #else
 
@@ -8536,7 +9221,7 @@ static struct __CFConstStr str CONST_STRING_LITERAL_SECTION = {{(uintptr_t)&__CF
 
 #endif
 
-#if defined(__GNUC__) && (__GNUC__*10+__GNUC_MINOR__ >= 42) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1) && !defined(__INTEL_COMPILER) && (TARGET_OS_MAC || TARGET_OS_EMBEDDED)
+#if defined(__GNUC__) && (__GNUC__*10+__GNUC_MINOR__ >= 42) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1) && !defined(__INTEL_COMPILER) && TARGET_OS_MAC
 #define CF_FORMAT_FUNCTION(F,A) __attribute__((format(CFString, F, A)))
 #define CF_FORMAT_ARGUMENT(A) __attribute__((format_arg(A)))
 #else
@@ -9612,21 +10297,21 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #define __has_extension(x) 0
 #endif
 
-#if defined(__GNUC__) || TARGET_OS_WIN32
+#if defined(__GNUC__) || 0
 #include <stdint.h>
 #include <stdbool.h>
 #endif
 
-#if __BLOCKS__ && ((TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if __BLOCKS__ && (TARGET_OS_OSX || TARGET_OS_IPHONE)
 #include <Block.h>
 #endif
 
 #ifndef CF_OPEN_SOURCE
-  #if defined(__CF_USE_FRAMEWORK_INCLUDES__) || ((TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+  #if defined(__CF_USE_FRAMEWORK_INCLUDES__) || (TARGET_OS_OSX || TARGET_OS_IPHONE)
     #include <MacTypes.h>
   #endif
 #else
-  #if ((TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) && !DEPLOYMENT_RUNTIME_SWIFT
+  #if (TARGET_OS_OSX || TARGET_OS_IPHONE) && !DEPLOYMENT_RUNTIME_SWIFT
     #include <libkern/OSTypes.h>
   #endif
 #endif
@@ -9681,21 +10366,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif
 #endif
 
-#if TARGET_OS_WIN32
-    #if !defined(CF_EXPORT)
-        #if defined(CF_BUILDING_CF) && defined(__cplusplus)
-            #define CF_EXPORT extern "C" __declspec(dllexport)
-        #elif defined(CF_BUILDING_CF) && !defined(__cplusplus)
-            #define CF_EXPORT extern __declspec(dllexport)
-        #elif defined(__cplusplus)
-            #define CF_EXPORT extern "C" __declspec(dllimport)
-        #else
-            #define CF_EXPORT extern __declspec(dllimport)
-        #endif
-    #endif
-#else
+
 #define CF_EXPORT extern
-#endif
+
 
 CF_EXTERN_C_BEGIN
 
@@ -9726,8 +10399,6 @@ CF_EXTERN_C_BEGIN
 	#define CF_INLINE static inline
     #elif defined(_MSC_VER)
         #define CF_INLINE static __inline
-    #elif TARGET_OS_WIN32
-	#define CF_INLINE static __inline__
     #endif
 #endif
 
@@ -9866,6 +10537,12 @@ CF_EXTERN_C_BEGIN
 #define CF_NO_TAIL_CALL __attribute__((not_tail_called))
 #else
 #define CF_NO_TAIL_CALL
+#endif
+
+#if __has_attribute(warn_unused_result)
+#define CF_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#else
+#define CF_WARN_UNUSED_RESULT
 #endif
 
 #if !__has_feature(objc_generics_variance)
@@ -10235,10 +10912,8 @@ CFTypeRef CFMakeCollectable(CFTypeRef cf) CF_AUTOMATED_REFCOUNT_UNAVAILABLE;
 
 #if DEPLOYMENT_RUNTIME_SWIFT
 
-#define _CF_SWIFT_RC_PINNED_FLAG 0x1
-#define _CF_SWIFT_RC_FLAGS_COUNT 2
-#define _CF_CONSTANT_OBJECT_STRONG_RC ((1 << _CF_SWIFT_RC_FLAGS_COUNT) | _CF_SWIFT_RC_PINNED_FLAG)
-
+#define _CF_SWIFT_RC_PINNED_FLAG (0x1)
+#define _CF_CONSTANT_OBJECT_STRONG_RC ((uintptr_t)_CF_SWIFT_RC_PINNED_FLAG)
 #endif
 
 CF_EXTERN_C_END

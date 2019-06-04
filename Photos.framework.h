@@ -10,23 +10,8 @@
 #define Photos_PhotosTypes_h
 
 #import <Foundation/Foundation.h>
-#import <Photos/PhotosDefines.h>
 
-#if TARGET_OS_OSX
-typedef CF_ENUM( int16_t, FigEXIFCustomRenderedValue ) {
-    kFigEXIFCustomRenderedValue_NotCustom                        = 0,
-    kFigEXIFCustomRenderedValue_Custom                            = 1,
-    // CustomRendered values above 1 are defined in the Exif spec as "Reserved"
-    kFigEXIFCustomRenderedValue_HDRImage                        = 2, // Set on the HDR sbuf metadata when "Keep Normal Photo" is off
-    kFigEXIFCustomRenderedValue_HDRPlusEV0_HDRImage                = 3, // Set on the HDR sbuf metadata when "Keep Normal Photo" is on
-    kFigEXIFCustomRenderedValue_HDRPlusEV0_EV0Image                = 4, // Set on the EV0 sbuf metadata when "Keep Normal Photo" is on
-    // Leaving a hole here, reserved for some future HDR hotness, maybe
-    kFigEXIFCustomRenderedValue_PanoramaImage                    = 6,
-    kFigEXIFCustomRenderedValue_SDOFImage                        = 7, // Set on the SDOF sbuf metadata when only an SDOF is requested
-    kFigEXIFCustomRenderedValue_SDOFPlusOriginal_SDOFImage        = 8, // Set on the SDOF sbuf metadata when both an SDOF and an original are requested
-    kFigEXIFCustomRenderedValue_SDOFPlusOriginal_OriginalImage    = 9, // Set on the original sbuf metadata when both an SDOF and an original are requested
-};
-#endif
+API_AVAILABLE_BEGIN(macos(10.11), ios(8), tvos(10))
 
 #pragma mark - PHCollectionListTypes
 
@@ -34,20 +19,23 @@ typedef NS_ENUM(NSInteger, PHImageContentMode) {
     PHImageContentModeAspectFit = 0,
     PHImageContentModeAspectFill = 1,
     PHImageContentModeDefault = PHImageContentModeAspectFit
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 typedef NS_ENUM(NSInteger, PHCollectionListType) {
-    PHCollectionListTypeMomentList    = 1,
+
+    PHCollectionListTypeMomentList    API_DEPRECATED("Will be removed in a future release", ios(8, 13), tvos(10, 13)) API_UNAVAILABLE(macos) = 1,
+
     PHCollectionListTypeFolder        = 2,
     PHCollectionListTypeSmartFolder   = 3,
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 typedef NS_ENUM(NSInteger, PHCollectionListSubtype) {
     
     // PHCollectionListTypeMomentList subtypes
-    PHCollectionListSubtypeMomentListCluster    = 1,
-    PHCollectionListSubtypeMomentListYear       = 2,
-    
+
+    PHCollectionListSubtypeMomentListCluster    API_DEPRECATED("Will be removed in a future release", ios(8, 13), tvos(10, 13)) API_UNAVAILABLE(macos) = 1,
+    PHCollectionListSubtypeMomentListYear       API_DEPRECATED("Will be removed in a future release", ios(8, 13), tvos(10, 13)) API_UNAVAILABLE(macos) = 2,
+
     // PHCollectionListTypeFolder subtypes
     PHCollectionListSubtypeRegularFolder        = 100,
     
@@ -57,7 +45,7 @@ typedef NS_ENUM(NSInteger, PHCollectionListSubtype) {
     
     // Used for fetching if you don't care about the exact subtype
     PHCollectionListSubtypeAny = NSIntegerMax
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 #pragma mark - PHCollection types
 
@@ -69,15 +57,17 @@ typedef NS_ENUM(NSInteger, PHCollectionEditOperation) {
     PHCollectionEditOperationRearrangeContent = 5, // Change the order of things
     PHCollectionEditOperationDelete           = 6, // Deleting of the container, not the content
     PHCollectionEditOperationRename           = 7, // Renaming of the container, not the content
-} PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 #pragma mark - PHAssetCollection types
 
 typedef NS_ENUM(NSInteger, PHAssetCollectionType) {
     PHAssetCollectionTypeAlbum      = 1,
     PHAssetCollectionTypeSmartAlbum = 2,
-    PHAssetCollectionTypeMoment     = 3,
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+
+    PHAssetCollectionTypeMoment     API_DEPRECATED("Will be removed in a future release", ios(8, 13), tvos(10, 13)) API_UNAVAILABLE(macos) = 3,
+
+};
 
 typedef NS_ENUM(NSInteger, PHAssetCollectionSubtype) {
     
@@ -103,15 +93,17 @@ typedef NS_ENUM(NSInteger, PHAssetCollectionSubtype) {
     PHAssetCollectionSubtypeSmartAlbumBursts     = 207,
     PHAssetCollectionSubtypeSmartAlbumSlomoVideos = 208,
     PHAssetCollectionSubtypeSmartAlbumUserLibrary = 209,
-    PHAssetCollectionSubtypeSmartAlbumSelfPortraits PHOTOS_AVAILABLE_IOS_TVOS(9_0, 10_0) = 210,
-    PHAssetCollectionSubtypeSmartAlbumScreenshots PHOTOS_AVAILABLE_IOS_TVOS(9_0, 10_0) = 211,
-    PHAssetCollectionSubtypeSmartAlbumDepthEffect PHOTOS_AVAILABLE_IOS_TVOS(10_2, 10_1) = 212,
-    PHAssetCollectionSubtypeSmartAlbumLivePhotos PHOTOS_AVAILABLE_IOS_TVOS(10_3, 10_2) = 213,
-    PHAssetCollectionSubtypeSmartAlbumAnimated PHOTOS_AVAILABLE_IOS_TVOS(11_0, 11_0) = 214,
-    PHAssetCollectionSubtypeSmartAlbumLongExposures PHOTOS_AVAILABLE_IOS_TVOS(11_0, 11_0) = 215,
+    PHAssetCollectionSubtypeSmartAlbumSelfPortraits API_AVAILABLE(ios(9)) = 210,
+    PHAssetCollectionSubtypeSmartAlbumScreenshots API_AVAILABLE(ios(9)) = 211,
+    PHAssetCollectionSubtypeSmartAlbumDepthEffect API_AVAILABLE(macos(10.13), ios(10.2), tvos(10.1)) = 212,
+    PHAssetCollectionSubtypeSmartAlbumLivePhotos API_AVAILABLE(macos(10.13), ios(10.3), tvos(10.2)) = 213,
+    PHAssetCollectionSubtypeSmartAlbumAnimated API_AVAILABLE(macos(10.15), ios(11), tvos(11)) = 214,
+    PHAssetCollectionSubtypeSmartAlbumLongExposures API_AVAILABLE(macos(10.15), ios(11), tvos(11)) = 215,
+    PHAssetCollectionSubtypeSmartAlbumUnableToUpload API_AVAILABLE(macos(10.15), ios(13), tvos(13)) = 216,
+
     // Used for fetching, if you don't care about the exact subtype
     PHAssetCollectionSubtypeAny = NSIntegerMax
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 #pragma mark - PHAsset types
 
@@ -119,7 +111,7 @@ typedef NS_ENUM(NSInteger, PHAssetEditOperation) {
     PHAssetEditOperationDelete     = 1,
     PHAssetEditOperationContent    = 2,
     PHAssetEditOperationProperties = 3,
-} PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 typedef NS_ENUM(NSInteger, PHAssetPlaybackStyle) {
     PHAssetPlaybackStyleUnsupported     = 0,
@@ -128,14 +120,14 @@ typedef NS_ENUM(NSInteger, PHAssetPlaybackStyle) {
     PHAssetPlaybackStyleLivePhoto       = 3,
     PHAssetPlaybackStyleVideo           = 4,
     PHAssetPlaybackStyleVideoLooping    = 5,
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(11_0, 11_0) NS_SWIFT_NAME(PHAsset.PlaybackStyle);
+} API_AVAILABLE(macos(10.13), ios(11), tvos(11)) NS_SWIFT_NAME(PHAsset.PlaybackStyle);
 
 typedef NS_ENUM(NSInteger, PHAssetMediaType) {
     PHAssetMediaTypeUnknown = 0,
     PHAssetMediaTypeImage   = 1,
     PHAssetMediaTypeVideo   = 2,
     PHAssetMediaTypeAudio   = 3,
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 typedef NS_OPTIONS(NSUInteger, PHAssetMediaSubtype) {
     PHAssetMediaSubtypeNone               = 0,
@@ -143,28 +135,28 @@ typedef NS_OPTIONS(NSUInteger, PHAssetMediaSubtype) {
     // Photo subtypes
     PHAssetMediaSubtypePhotoPanorama      = (1UL << 0),
     PHAssetMediaSubtypePhotoHDR           = (1UL << 1),
-    PHAssetMediaSubtypePhotoScreenshot PHOTOS_AVAILABLE_IOS_TVOS(9_0, 10_0) = (1UL << 2),
-    PHAssetMediaSubtypePhotoLive PHOTOS_AVAILABLE_IOS_TVOS(9_1, 10_0) = (1UL << 3),
-    PHAssetMediaSubtypePhotoDepthEffect PHOTOS_AVAILABLE_IOS_TVOS(10_2, 10_1) = (1UL << 4),
+    PHAssetMediaSubtypePhotoScreenshot API_AVAILABLE(ios(9)) = (1UL << 2),
+    PHAssetMediaSubtypePhotoLive API_AVAILABLE(ios(9.1)) = (1UL << 3),
+    PHAssetMediaSubtypePhotoDepthEffect API_AVAILABLE(macos(10.12.2), ios(10.2), tvos(10.1)) = (1UL << 4),
 
     // Video subtypes
     PHAssetMediaSubtypeVideoStreamed      = (1UL << 16),
     PHAssetMediaSubtypeVideoHighFrameRate = (1UL << 17),
     PHAssetMediaSubtypeVideoTimelapse     = (1UL << 18),
-} PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 typedef NS_OPTIONS(NSUInteger, PHAssetBurstSelectionType) {
     PHAssetBurstSelectionTypeNone     = 0,
     PHAssetBurstSelectionTypeAutoPick = (1UL << 0),
     PHAssetBurstSelectionTypeUserPick = (1UL << 1),
-} PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 typedef NS_OPTIONS(NSUInteger, PHAssetSourceType) {
     PHAssetSourceTypeNone            = 0,
     PHAssetSourceTypeUserLibrary     = (1UL << 0),
     PHAssetSourceTypeCloudShared     = (1UL << 1),
     PHAssetSourceTypeiTunesSynced    = (1UL << 2),
-} PHOTOS_AVAILABLE_IOS_TVOS(9_0, 10_0);
+} API_AVAILABLE(ios(9));
 
 typedef NS_ENUM(NSInteger, PHAssetResourceType) {
     PHAssetResourceTypePhoto                             = 1,
@@ -175,12 +167,80 @@ typedef NS_ENUM(NSInteger, PHAssetResourceType) {
     PHAssetResourceTypeFullSizeVideo                     = 6,
     PHAssetResourceTypeAdjustmentData                    = 7,
     PHAssetResourceTypeAdjustmentBasePhoto               = 8,
-    PHAssetResourceTypePairedVideo PHOTOS_AVAILABLE_IOS_TVOS(9_1, 10_0) = 9,
-    PHAssetResourceTypeFullSizePairedVideo PHOTOS_AVAILABLE_IOS_TVOS(10_0, 10_0) = 10,
-    PHAssetResourceTypeAdjustmentBasePairedVideo PHOTOS_AVAILABLE_IOS_TVOS(10_0, 10_0) = 11,
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(9_0, 10_0);
+    PHAssetResourceTypePairedVideo API_AVAILABLE(ios(9.1)) = 9,
+    PHAssetResourceTypeFullSizePairedVideo API_AVAILABLE(macos(10.15), ios(10)) = 10,
+    PHAssetResourceTypeAdjustmentBasePairedVideo API_AVAILABLE(macos(10.15), ios(10)) = 11,
+} API_AVAILABLE(ios(9));
 
+API_AVAILABLE_END
 #endif
+// ==========  Photos.framework/Headers/PHError.h
+//
+//  PHError.h
+//  Photos
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+API_AVAILABLE_BEGIN(macos(10.15), ios(13), tvos(13))
+
+OS_EXPORT NSErrorDomain const PHPhotosErrorDomain;
+
+NS_ERROR_ENUM(PHPhotosErrorDomain) {
+    PHPhotosErrorInvalid = -1,
+    PHPhotosErrorUserCancelled = 3072,
+    PHPhotosErrorLibraryVolumeOffline = 3114,
+    PHPhotosErrorRelinquishingLibraryBundleToWriter = 3142,
+    PHPhotosErrorSwitchingSystemPhotoLibrary = 3143,
+};
+
+API_AVAILABLE_END
+// ==========  Photos.framework/Headers/PHCloudIdentifier.h
+//
+//  PHCloudIdentifier.h
+//  Photos
+//
+//  Copyright © 2017 Apple, Inc. All rights reserved.
+//
+
+#import <Photos/PHPhotoLibrary.h>
+
+NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.13))
+
+API_UNAVAILABLE_BEGIN(ios, tvos, uikitformac)
+
+
+OS_EXPORT
+@interface PHCloudIdentifier : NSObject <NSSecureCoding>
+
+/// If there is a failure to determine the global identifier for a local identifier, the notFoundIdentifier is provided in that array slot.
+@property (class, nonatomic, readonly) PHCloudIdentifier *notFoundIdentifier;
+
+@property (nonatomic, readonly) NSString *stringValue; /// For use in serialization
+
+- (instancetype)initWithStringValue:(NSString *)stringValue; /// Deserialization
+
+@end
+
+@interface PHPhotoLibrary (CloudIdentifiers)
+
+/// These two methods can be very expensive so they should be used sparingly for batch lookup of all needed identifiers. Clients should work in terms of local identifiers and call these methods only once after loading from and before saving to persistent storage.
+- (NSArray<NSString *> *)localIdentifiersForCloudIdentifiers:(NSArray<PHCloudIdentifier *> *)cloudIdentifiers;
+- (NSArray<PHCloudIdentifier *> *)cloudIdentifiersForLocalIdentifiers:(NSArray<NSString *> *)localIdentifiers;
+
+@end
+
+/// If the local object cannot be resolved from a global identifier, PHLocalIdentifierNotFound is provided in that array slot.
+extern NSString * const PHLocalIdentifierNotFound;
+
+
+API_UNAVAILABLE_END
+
+API_AVAILABLE_END
+NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHFetchResult.h
 //
 //  PHFetchResult.h
@@ -191,13 +251,14 @@ typedef NS_ENUM(NSInteger, PHAssetResourceType) {
 
 #import <Foundation/Foundation.h>
 #import <Photos/PhotosTypes.h>
-#import <Photos/PhotosDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.13), ios(8), tvos(10))
 
 // Accessing fetched results (fetches objects from the backing store in chunks on demand rather than all at once)
 // Fetched objects will be kept in a cache and purged under memory pressure
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHFetchResult<ObjectType> : NSObject <NSCopying, NSFastEnumeration>
+OS_EXPORT
+@interface PHFetchResult<__covariant ObjectType> : NSObject <NSCopying, NSFastEnumeration>
 
 @property (readonly) NSUInteger count;
 - (ObjectType)objectAtIndex:(NSUInteger)index;
@@ -221,6 +282,7 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHFetchResult<ObjectType> 
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHChange.h
 //
@@ -231,7 +293,6 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <Photos/PhotosDefines.h>
 #import <Photos/PHFetchResult.h>
 
 @class PHObject;
@@ -239,8 +300,10 @@ NS_ASSUME_NONNULL_END
 @class PHFetchResultChangeDetails;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.13), ios(8), tvos(10))
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHChange : NSObject
+OS_EXPORT
+@interface PHChange : NSObject
 
 - (nullable PHObjectChangeDetails *)changeDetailsForObject:(PHObject *)object;
 - (nullable PHFetchResultChangeDetails *)changeDetailsForFetchResult:(PHFetchResult *)object;
@@ -248,8 +311,9 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHChange : NSObject
 @end
 
 
-
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHObjectChangeDetails<ObjectType: PHObject *> : NSObject
+#pragma mark -
+OS_EXPORT
+@interface PHObjectChangeDetails<ObjectType: PHObject *> : NSObject
 
 // the object in the state before this change (returns the object that was passed in to changeDetailsForObject:)
 @property (atomic, strong, readonly) ObjectType objectBeforeChanges;
@@ -266,8 +330,9 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHObjectChangeDetails<Obje
 @end
 
 
-
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHFetchResultChangeDetails<ObjectType: PHObject *> : NSObject
+#pragma mark -
+OS_EXPORT
+@interface PHFetchResultChangeDetails<ObjectType: PHObject *> : NSObject
 
 // fetch result with the state of the fetched objects before this change (returns the fetch result passed in to changeDetailsForFetchResult:)
 @property (atomic, strong, readonly) PHFetchResult<ObjectType> *fetchResultBeforeChanges;
@@ -301,12 +366,12 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHFetchResultChangeDetails
 // returns NO if hasIncrementalChanges is NO
 @property (atomic, assign, readonly) BOOL hasMoves;
 
-
 // Provides a "diff" between 2 PHFetchResult objects.
 + (instancetype)changeDetailsFromFetchResult:(PHFetchResult<ObjectType> *)fromResult toFetchResult:(PHFetchResult<ObjectType> *)toResult changedObjects:(NSArray<ObjectType> *)changedObjects;
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHCollectionListChangeRequest.h
 //
@@ -317,7 +382,7 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <Photos/PhotosDefines.h>
+#import <Photos/PHChangeRequest.h>
 #import <Photos/PHFetchResult.h>
 
 @class PHCollection;
@@ -325,9 +390,11 @@ NS_ASSUME_NONNULL_END
 @class PHObjectPlaceholder;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.15), ios(8), tvos(10))
 
 // PHCollectionListChangeRequest can only be created or used within a -[PHPhotoLibrary performChanges:] or -[PHPhotoLibrary performChangesAndWait:] block.
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHCollectionListChangeRequest : NSObject
+OS_EXPORT
+@interface PHCollectionListChangeRequest : PHChangeRequest
 
 #pragma mark - Creating Collection Lists
 
@@ -366,6 +433,7 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHCollectionListChangeRequ
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHObject.h
 //
@@ -376,14 +444,15 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <Photos/PhotosDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.13), ios(8), tvos(10))
 
 @class PHPhotoLibrary;
 
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHObject : NSObject <NSCopying>
+OS_EXPORT
+@interface PHObject : NSObject <NSCopying>
 
 // Returns an identifier which persistently identifies the object on a given device
 @property (nonatomic, copy, readonly) NSString *localIdentifier;
@@ -391,9 +460,11 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHObject : NSObject <NSCop
 @end
 
 // PHObjectPlaceholder represents a model object future , vended by change requests when creating a model object.  PHObjectPlaceholder is a read-only object and may be used as a proxy for the real object that will be created both inside and outside of the change block.  Will compare isEqual: to the fetched model object after the change block is performed.
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHObjectPlaceholder : PHObject
+OS_EXPORT API_AVAILABLE(macos(10.15))
+@interface PHObjectPlaceholder : PHObject
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHAssetResource.h
 //
@@ -404,14 +475,15 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Photos/PhotosTypes.h>
-#import <Photos/PhotosDefines.h>
 
 @class PHAsset;
 @class PHLivePhoto;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.15), ios(9), tvos(10))
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_0, 10_0) @interface PHAssetResource : NSObject
+OS_EXPORT
+@interface PHAssetResource : NSObject
 
 @property (nonatomic, assign, readonly) PHAssetResourceType type;
 @property (nonatomic, copy, readonly) NSString *assetLocalIdentifier;
@@ -421,10 +493,11 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_0, 10_0) @interface PHAssetResource : NSObject
 #pragma mark - Getting resources
 
 + (NSArray<PHAssetResource *> *)assetResourcesForAsset:(PHAsset *)asset;
-+ (NSArray<PHAssetResource *> *)assetResourcesForLivePhoto:(PHLivePhoto *)livePhoto PHOTOS_AVAILABLE_IOS_TVOS(9_1, 10_0);
++ (NSArray<PHAssetResource *> *)assetResourcesForLivePhoto:(PHLivePhoto *)livePhoto API_AVAILABLE(ios(9.1));
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHAssetChangeRequest.h
 //
@@ -437,32 +510,26 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 
 #import <Photos/PHAsset.h>
+#import <Photos/PHChangeRequest.h>
 #import <Photos/PHContentEditingOutput.h>
-#import <Photos/PhotosDefines.h>
 
-#if TARGET_OS_OSX
-@class NSImage;
-#else
 @class UIImage;
-#endif
 @class CLLocation;
 @class PHAssetResource;
 @class PHObjectPlaceholder;
 @class PHContentEditingInputRequestOptions;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.15), ios(8), tvos(10))
 
 // PHAssetChangeRequest can only be created or used within a -[PHPhotoLibrary performChanges:] or -[PHPhotoLibrary performChangesAndWait:] block.
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHAssetChangeRequest : NSObject
+OS_EXPORT
+@interface PHAssetChangeRequest : PHChangeRequest
 
 #pragma mark - Creating Assets
 
 // Basic asset creation. For finer-grained control, see PHAssetCreationRequest.
-#if TARGET_OS_OSX
-+ (instancetype)creationRequestForAssetFromImage:(NSImage *)image;
-#else
 + (instancetype)creationRequestForAssetFromImage:(UIImage *)image;
-#endif
 + (nullable instancetype)creationRequestForAssetFromImageAtFileURL:(NSURL *)fileURL;
 + (nullable instancetype)creationRequestForAssetFromVideoAtFileURL:(NSURL *)fileURL;
 
@@ -495,9 +562,10 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHAssetChangeRequest : NSO
 @end
 
 
-typedef NSUInteger PHContentEditingInputRequestID PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+typedef NSUInteger PHContentEditingInputRequestID;
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHContentEditingInputRequestOptions : NSObject
+OS_EXPORT
+@interface PHContentEditingInputRequestOptions : NSObject
 
 // Block to be provided by the client, used to determine if the given adjustment data can be handled (i.e. can be decoded and rendered).
 @property (nonatomic, copy) BOOL (^canHandleAdjustmentData)(PHAdjustmentData *adjustmentData);
@@ -512,15 +580,15 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHContentEditingInputReque
 @interface PHAsset (PHContentEditingInput)
 
 // Completion and progress handlers are called on an arbitrary serial queue.
-- (PHContentEditingInputRequestID)requestContentEditingInputWithOptions:(nullable PHContentEditingInputRequestOptions *)options completionHandler:(void (^)(PHContentEditingInput *__nullable contentEditingInput, NSDictionary *info))completionHandler PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
-- (void)cancelContentEditingInputRequest:(PHContentEditingInputRequestID)requestID PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+- (PHContentEditingInputRequestID)requestContentEditingInputWithOptions:(nullable PHContentEditingInputRequestOptions *)options completionHandler:(void (^)(PHContentEditingInput *__nullable contentEditingInput, NSDictionary *info))completionHandler;
+- (void)cancelContentEditingInputRequest:(PHContentEditingInputRequestID)requestID;
 
 @end
 
 // Completion handler info dictionary keys
-extern NSString *const PHContentEditingInputResultIsInCloudKey PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
-extern NSString *const PHContentEditingInputCancelledKey PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
-extern NSString *const PHContentEditingInputErrorKey PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+extern NSString *const PHContentEditingInputResultIsInCloudKey;
+extern NSString *const PHContentEditingInputCancelledKey;
+extern NSString *const PHContentEditingInputErrorKey;
 
 
 @interface PHContentEditingOutput (PHAssetChangeRequest)
@@ -530,50 +598,53 @@ extern NSString *const PHContentEditingInputErrorKey PHOTOS_AVAILABLE_IOS_TVOS(8
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHLivePhoto.h
 //
 //  PHLivePhoto.h
-//  PhotoKit
+//  Photos
 //
 //  Copyright © 2015 Apple Inc. All rights reserved.
 //
 
 #import <Photos/PhotosTypes.h>
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+#import <CoreGraphics/CGGeometry.h>
+@class UIImage;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.15), ios(9.1), tvos(10))
 
-typedef int32_t PHLivePhotoRequestID PHOTOS_AVAILABLE_IOS_TVOS(9_1, 10_0);
+typedef int32_t PHLivePhotoRequestID;
 static const PHLivePhotoRequestID PHLivePhotoRequestIDInvalid = 0;
 
 /// These keys may be found in the info dictionary delivered to a live photo request result handler block.
-extern NSString * const PHLivePhotoInfoErrorKey PHOTOS_AVAILABLE_IOS_TVOS(9_1, 10_0); // key : NSError decribing an error that has occurred while creating the live photo
-extern NSString * const PHLivePhotoInfoIsDegradedKey PHOTOS_AVAILABLE_IOS_TVOS(9_1, 10_0); // key : NSNumber containing a BOOL, YES whenever the deivered live photo object does not contain all content required for full playback.
-extern NSString * const PHLivePhotoInfoCancelledKey PHOTOS_AVAILABLE_IOS_TVOS(9_1, 10_0); // key : NSNumber containing a BOOL, YES when the result handler is being called after the request has been cancelled.
+extern NSString * const PHLivePhotoInfoErrorKey; // key : NSError decribing an error that has occurred while creating the live photo
+extern NSString * const PHLivePhotoInfoIsDegradedKey; // key : NSNumber containing a BOOL, YES whenever the deivered live photo object does not contain all content required for full playback.
+extern NSString * const PHLivePhotoInfoCancelledKey; // key : NSNumber containing a BOOL, YES when the result handler is being called after the request has been cancelled.
 
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_1, 10_0)
+OS_EXPORT API_AVAILABLE(macos(10.12))
 @interface PHLivePhoto : NSObject <NSCopying, NSSecureCoding>
 
+- (instancetype)init NS_UNAVAILABLE;
+
 /// The dimensions of the live photo measured in pixels.
-@property (readonly, nonatomic) CGSize size;
+@property (readonly, nonatomic) CGSize size API_AVAILABLE(macos(10.12));
 
 #pragma mark - Export
 
 /// Requests a Live Photo from the given resource URLs. The result handler will be called multiple times to deliver new PHLivePhoto instances with increasingly more content. If a placeholder image is provided, the result handler will first be invoked synchronously to deliver a live photo containing only the placeholder image. Subsequent invocations of the result handler will occur on the main queue.
 //  The targetSize and contentMode parameters are used to resize the live photo content if needed. If targetSize is equal to CGRectZero, content will not be resized.
 //  When using this method to provide content for a PHLivePhotoView, each live photo instance delivered via the result handler should be passed to -[PHLivePhotoView setLivePhoto:].
-+ (PHLivePhotoRequestID)requestLivePhotoWithResourceFileURLs:(NSArray<NSURL *> *)fileURLs placeholderImage:(UIImage *__nullable)image targetSize:(CGSize)targetSize contentMode:(PHImageContentMode)contentMode resultHandler:(void(^)(PHLivePhoto *__nullable livePhoto, NSDictionary *info))resultHandler;
++ (PHLivePhotoRequestID)requestLivePhotoWithResourceFileURLs:(NSArray<NSURL *> *)fileURLs placeholderImage:(nullable UIImage *)image targetSize:(CGSize)targetSize contentMode:(PHImageContentMode)contentMode resultHandler:(void(^)(PHLivePhoto *_Nullable livePhoto, NSDictionary *info))resultHandler;
 
 /// Cancels the loading of a PHLivePhoto. The request's completion handler will be called.
 + (void)cancelLivePhotoRequestWithRequestID:(PHLivePhotoRequestID)requestID;
 
 @end
 
-
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHAssetResourceManager.h
 //
@@ -584,28 +655,31 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Photos/PhotosTypes.h>
-#import <Photos/PhotosDefines.h>
 
+
+NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.15), ios(9), tvos(10))
 
 // Uniquely identify a resource data request
-typedef int32_t PHAssetResourceDataRequestID PHOTOS_AVAILABLE_IOS_TVOS(9_0, 10_0);
+typedef int32_t PHAssetResourceDataRequestID;
 static const PHAssetResourceDataRequestID PHInvalidAssetResourceDataRequestID = 0;
 
 // Progress handler, called in an arbitrary serial queue.
-typedef void (^PHAssetResourceProgressHandler)(double progress) PHOTOS_AVAILABLE_IOS_TVOS(9_0, 10_0);
+typedef void (^PHAssetResourceProgressHandler)(double progress);
 
 @class PHAssetResource;
 
-NS_ASSUME_NONNULL_BEGIN
-
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_0, 10_0) @interface PHAssetResourceRequestOptions : NSObject <NSCopying>
+OS_EXPORT
+@interface PHAssetResourceRequestOptions : NSObject <NSCopying>
 
 @property (nonatomic, assign, getter=isNetworkAccessAllowed) BOOL networkAccessAllowed;
 @property (nonatomic, copy, nullable) PHAssetResourceProgressHandler progressHandler;
 
 @end
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_0, 10_0) @interface PHAssetResourceManager : NSObject
+
+OS_EXPORT
+@interface PHAssetResourceManager : NSObject
 
 + (PHAssetResourceManager *)defaultManager;
 
@@ -625,6 +699,7 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_0, 10_0) @interface PHAssetResourceManager : N
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHFetchOptions.h
 //
@@ -636,13 +711,14 @@ NS_ASSUME_NONNULL_END
 
 #import <Foundation/Foundation.h>
 #import <Photos/PhotosTypes.h>
-#import <Photos/PhotosDefines.h>
 
 @class PHObject;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.13), ios(8), tvos(10))
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHFetchOptions : NSObject <NSCopying>
+OS_EXPORT
+@interface PHFetchOptions : NSObject <NSCopying>
 
 // Some predicates / sorts may be suboptimal and we will log
 @property (nonatomic, strong, nullable) NSPredicate *predicate;
@@ -652,14 +728,14 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHFetchOptions : NSObject 
 @property (nonatomic, assign) BOOL includeHiddenAssets;
 
 // Whether hidden burst assets are included in fetch results. Defaults to NO
-@property (nonatomic, assign) BOOL includeAllBurstAssets;
+@property (nonatomic, assign) BOOL includeAllBurstAssets API_AVAILABLE(macos(10.15));
 
 // The asset source types included in the fetch results.  Defaults to PHAssetSourceTypeNone.
 // If set to PHAssetSourceTypeNone the asset source types included in the fetch results are inferred from the type of query performed (see PHAsset fetchAssetsWithOptions:)
-@property (nonatomic, assign) PHAssetSourceType includeAssetSourceTypes PHOTOS_AVAILABLE_IOS_TVOS(9_0, 10_0);
+@property (nonatomic, assign) PHAssetSourceType includeAssetSourceTypes API_AVAILABLE(ios(9));
 
 // Limits the maximum number of objects returned in the fetch result, a value of 0 means no limit.  Defaults to 0.
-@property (nonatomic, assign, readwrite) NSUInteger fetchLimit PHOTOS_AVAILABLE_IOS_TVOS(9_0, 10_0);
+@property (nonatomic, assign, readwrite) NSUInteger fetchLimit API_AVAILABLE(ios(9));
 
 // Whether the owner of this object is interested in incremental change details for the results of this fetch (see PHChange)
 // Defaults to YES
@@ -667,6 +743,7 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHFetchOptions : NSObject 
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHImageManager.h
 //
@@ -676,16 +753,22 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2013-2014 Apple Inc. All rights reserved.
 //
 
+#import <TargetConditionals.h>
 #import <AVFoundation/AVFoundation.h>
 #import <Photos/PhotosTypes.h>
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+#import <ImageIO/CGImageProperties.h>
 
+@class UIImage;
 @class PHAsset;
 @class PHLivePhoto;
 
+#ifdef __cplusplus
+typedef NS_ENUM(NSInteger, UIImageOrientation);
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(ios(8), tvos(10))
+API_AVAILABLE_BEGIN(macos(10.13))
 
 #pragma mark - PHImageRequestOptions - Configuration
 
@@ -693,28 +776,31 @@ typedef NS_ENUM(NSInteger, PHImageRequestOptionsVersion) {
     PHImageRequestOptionsVersionCurrent = 0, // version with edits (aka adjustments) rendered or unadjusted version if there is no edits
     PHImageRequestOptionsVersionUnadjusted, // original version without any adjustments
     PHImageRequestOptionsVersionOriginal // original version, in the case of a combined format the highest fidelity format will be returned (e.g. RAW for a RAW+JPG source image)
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 typedef NS_ENUM(NSInteger, PHImageRequestOptionsDeliveryMode) {
     PHImageRequestOptionsDeliveryModeOpportunistic = 0, // client may get several image results when the call is asynchronous or will get one result when the call is synchronous
-    PHImageRequestOptionsDeliveryModeHighQualityFormat = 1, // client will get one result only and it will be as asked or better than asked (sync requests are automatically processed this way regardless of the specified mode)
+    PHImageRequestOptionsDeliveryModeHighQualityFormat = 1, // client will get one result only and it will be as asked or better than asked
     PHImageRequestOptionsDeliveryModeFastFormat = 2 // client will get one result only and it may be degraded
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 typedef NS_ENUM(NSInteger, PHImageRequestOptionsResizeMode) {
     PHImageRequestOptionsResizeModeNone = 0, // no resize
     PHImageRequestOptionsResizeModeFast, // use targetSize as a hint for optimal decoding when the source image is a compressed format (i.e. subsampling), the delivered image may be larger than targetSize
     PHImageRequestOptionsResizeModeExact, // same as above but also guarantees the delivered image is exactly targetSize (must be set when a normalizedCropRect is specified)
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 // Progress handler, called in an arbitrary serial queue. Only called when the data is not available locally and is retrieved from iCloud.
-typedef void (^ PHAssetImageProgressHandler)(double progress, NSError *__nullable error, BOOL *stop, NSDictionary *__nullable info) PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+typedef void (^PHAssetImageProgressHandler)(double progress, NSError *__nullable error, BOOL *stop, NSDictionary *__nullable info);
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHImageRequestOptions : NSObject <NSCopying>
+
+#pragma mark -
+OS_EXPORT
+@interface PHImageRequestOptions : NSObject <NSCopying>
 
 @property (nonatomic, assign) PHImageRequestOptionsVersion version; // version
 @property (nonatomic, assign) PHImageRequestOptionsDeliveryMode deliveryMode; // delivery mode. Defaults to PHImageRequestOptionsDeliveryModeOpportunistic
-@property (nonatomic, assign) PHImageRequestOptionsResizeMode resizeMode; // resize mode. Does not apply when size is PHImageManagerMaximumSize. Defaults to PHImageRequestOptionsResizeModeNone (or no resize)
+@property (nonatomic, assign) PHImageRequestOptionsResizeMode resizeMode; // resize mode. Does not apply when size is PHImageManagerMaximumSize. Defaults to PHImageRequestOptionsResizeModeFast
 @property (nonatomic, assign) CGRect normalizedCropRect; // specify crop rectangle in unit coordinates of the original image, such as a face. Defaults to CGRectZero (not applicable)
 @property (nonatomic, assign, getter=isNetworkAccessAllowed) BOOL networkAccessAllowed; // if necessary will download the image from iCloud (client can monitor or cancel using progressHandler). Defaults to NO (see start/stopCachingImagesForAssets)
 @property (nonatomic, assign, getter=isSynchronous) BOOL synchronous; // return only a single result, blocking until available (or failure). Defaults to NO
@@ -722,8 +808,12 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHImageRequestOptions : NS
 
 @end
 
+API_AVAILABLE_END // macos(10.13)
+API_AVAILABLE_BEGIN(macos(10.15))
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_1, 10_0) @interface PHLivePhotoRequestOptions : NSObject <NSCopying>
+#pragma mark -
+OS_EXPORT
+@interface PHLivePhotoRequestOptions : NSObject <NSCopying>
 
 @property (nonatomic, assign) PHImageRequestOptionsVersion version; // version
 @property (nonatomic, assign) PHImageRequestOptionsDeliveryMode deliveryMode;
@@ -738,19 +828,20 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_1, 10_0) @interface PHLivePhotoRequestOptions 
 typedef NS_ENUM(NSInteger, PHVideoRequestOptionsVersion) {
     PHVideoRequestOptionsVersionCurrent = 0, // version with edits (aka adjustments) rendered or unadjusted version if there is no edits
     PHVideoRequestOptionsVersionOriginal // original version
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 typedef NS_ENUM(NSInteger, PHVideoRequestOptionsDeliveryMode) { // only apply with PHVideoRequestOptionsVersionCurrent
     PHVideoRequestOptionsDeliveryModeAutomatic = 0, // let us pick the quality (typ. PHVideoRequestOptionsDeliveryModeMediumQualityFormat for streamed AVPlayerItem or AVAsset, or PHVideoRequestOptionsDeliveryModeHighQualityFormat for AVAssetExportSession)
     PHVideoRequestOptionsDeliveryModeHighQualityFormat = 1, // best quality
     PHVideoRequestOptionsDeliveryModeMediumQualityFormat = 2, // medium quality (typ. 720p), currently only supported for AVPlayerItem or AVAsset when streaming from iCloud (will systematically default to PHVideoRequestOptionsDeliveryModeHighQualityFormat if locally available)
     PHVideoRequestOptionsDeliveryModeFastFormat = 3 // fastest available (typ. 360p MP4), currently only supported for AVPlayerItem or AVAsset when streaming from iCloud (will systematically default to PHVideoRequestOptionsDeliveryModeHighQualityFormat if locally available)
-} PHOTOS_ENUM_AVAILABLE_IOS_TVOS(8_0, 10_0);
+};
 
 // Progress handler, called in an arbitrary serial queue: only called when the data is not available locally and is retrieved from iCloud
-typedef void (^PHAssetVideoProgressHandler)(double progress, NSError *__nullable error, BOOL *stop, NSDictionary *__nullable info) PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+typedef void (^PHAssetVideoProgressHandler)(double progress, NSError *__nullable error, BOOL *stop, NSDictionary *__nullable info);
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHVideoRequestOptions : NSObject
+OS_EXPORT
+@interface PHVideoRequestOptions : NSObject
 
 @property (nonatomic, assign, getter=isNetworkAccessAllowed) BOOL networkAccessAllowed;
 @property (nonatomic, assign) PHVideoRequestOptionsVersion version;
@@ -759,50 +850,73 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHVideoRequestOptions : NS
 
 @end
 
-
+API_AVAILABLE_END // macos(10.15)
+API_AVAILABLE_BEGIN(macos(10.13))
 
 #pragma mark - PHImageManager - Fetching
 
 // Uniquely identify a cancellable async request
-typedef int32_t PHImageRequestID PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+typedef int32_t PHImageRequestID;
 static const PHImageRequestID PHInvalidImageRequestID = 0;
 
 // Size to pass when requesting the original image or the largest rendered image available (resizeMode will be ignored)
-extern CGSize const PHImageManagerMaximumSize PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0);
+extern CGSize const PHImageManagerMaximumSize;
 
 // Result's handler info dictionary keys
-extern NSString *const PHImageResultIsInCloudKey PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0); // key (NSNumber): result is in iCloud, meaning a new request will need to get issued (with networkAccessAllowed set) to get the result
-extern NSString *const PHImageResultIsDegradedKey PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0); // key (NSNumber): result  is a degraded image (only with async requests), meaning other images will be sent unless the request is cancelled in the meanwhile (note that the other request may fail if, for example, data is not available locally and networkAccessAllowed was not specified)
-extern NSString *const PHImageResultRequestIDKey PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0); // key (NSNumber): Request ID of the request for this result
-extern NSString *const PHImageCancelledKey PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0); // key (NSNumber): result is not available because the request was cancelled
-extern NSString *const PHImageErrorKey PHOTOS_AVAILABLE_IOS_TVOS(8_0, 10_0); // key (NSError): NSFileManager or iCloud Photo Library errors
+extern NSString *const PHImageResultIsInCloudKey; // key (NSNumber): result is in iCloud, meaning a new request will need to get issued (with networkAccessAllowed set) to get the result
+extern NSString *const PHImageResultIsDegradedKey; // key (NSNumber): result  is a degraded image (only with async requests), meaning other images will be sent unless the request is cancelled in the meanwhile (note that the other request may fail if, for example, data is not available locally and networkAccessAllowed was not specified)
+extern NSString *const PHImageResultRequestIDKey; // key (NSNumber): Request ID of the request for this result
+extern NSString *const PHImageCancelledKey; // key (NSNumber): result is not available because the request was cancelled
+extern NSString *const PHImageErrorKey; // key (NSError): NSFileManager or iCloud Photo Library errors
 
 
 // Note that all sizes are in pixels
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHImageManager : NSObject
+OS_EXPORT
+@interface PHImageManager : NSObject
 
 + (PHImageManager *)defaultManager;
 
 
 #pragma mark - Image
 
-// If the asset's aspect ratio does not match that of the given targetSize, contentMode determines how the image will be resized.
-//      PHImageContentModeAspectFit: Fit the asked size by maintaining the aspect ratio, the delivered image may not necessarily be the asked targetSize (see PHImageRequestOptionsDeliveryMode and PHImageRequestOptionsResizeMode)
-//      PHImageContentModeAspectFill: Fill the asked size, some portion of the content may be clipped, the delivered image may not necessarily be the asked targetSize (see PHImageRequestOptionsDeliveryMode && PHImageRequestOptionsResizeMode)
-//      PHImageContentModeDefault: Use PHImageContentModeDefault when size is PHImageManagerMaximumSize (though no scaling/cropping will be done on the result)
-// If -[PHImageRequestOptions isSynchronous] returns NO (or options is nil), resultHandler may be called 1 or more times.
-//     Typically in this case, resultHandler will be called asynchronously on the main thread with the requested results.
-//     However, if deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic, resultHandler may be called synchronously on the calling thread if any image data is immediately available. If the image data returned in this first pass is of insufficient quality, resultHandler will be called again, asychronously on the main thread at a later time with the "correct" results.
-//     If the request is cancelled, resultHandler may not be called at all.
-// If -[PHImageRequestOptions isSynchronous] returns YES, resultHandler will be called exactly once, synchronously and on the calling thread. Synchronous requests cannot be cancelled. 
-// resultHandler for asynchronous requests, always called on main thread
-- (PHImageRequestID)requestImageForAsset:(PHAsset *)asset targetSize:(CGSize)targetSize contentMode:(PHImageContentMode)contentMode options:(nullable PHImageRequestOptions *)options resultHandler:(void (^)(UIImage *__nullable result, NSDictionary *__nullable info))resultHandler;
+/**
+ @abstract Request an image representation for the specified asset.
+ @param asset The asset whose image data is to be loaded.
+ @param targetSize The target size of image to be returned.
+ @param contentMode An option for how to fit the image to the aspect ratio of the requested size.
+     If the asset's aspect ratio does not match that of the given targetSize, contentMode determines how the image will be resized.
+       PHImageContentModeAspectFit: Fit the asked size by maintaining the aspect ratio, the delivered image may not necessarily be the asked targetSize (see PHImageRequestOptionsDeliveryMode and PHImageRequestOptionsResizeMode)
+       PHImageContentModeAspectFill: Fill the asked size, some portion of the content may be clipped, the delivered image may not necessarily be the asked targetSize (see PHImageRequestOptionsDeliveryMode and PHImageRequestOptionsResizeMode)
+       PHImageContentModeDefault: Use PHImageContentModeDefault when size is PHImageManagerMaximumSize (though no scaling/cropping will be done on the result)
+ @param options Options specifying how Photos should handle the request, format the requested image, and notify your app of progress or errors.
+     If -[PHImageRequestOptions isSynchronous] returns NO (or options is nil), resultHandler may be called 1 or more times. Typically in this case, resultHandler will be called asynchronously on the main thread with the requested results. However, if deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic, resultHandler may be called synchronously on the calling thread if any image data is immediately available. If the image data returned in this first pass is of insufficient quality, resultHandler will be called again, asychronously on the main thread at a later time with the "correct" results. If the request is cancelled, resultHandler may not be called at all.
+     If -[PHImageRequestOptions isSynchronous] returns YES, resultHandler will be called exactly once, synchronously and on the calling thread. Synchronous requests cannot be cancelled.
+ @param resultHandler A block that is called one or more times either synchronously on the current thread or asynchronously on the main thread depending on the options specified in the PHImageRequestOptions options parameter.
+ @return A numeric identifier for the request. If you need to cancel the request before it completes, pass this identifier to the cancelImageRequest: method.
+ */
+- (PHImageRequestID)requestImageForAsset:(PHAsset *)asset targetSize:(CGSize)targetSize contentMode:(PHImageContentMode)contentMode options:(nullable PHImageRequestOptions *)options resultHandler:(void (^)(UIImage *_Nullable result, NSDictionary *_Nullable info))resultHandler;
 
-// Request largest represented image as data bytes, resultHandler is called exactly once (deliveryMode is ignored).
-//     If PHImageRequestOptionsVersionCurrent is requested and the asset has adjustments then the largest rendered image data is returned
-//     In all other cases then the original image data is returned
-// resultHandler for asynchronous requests, always called on main thread
-- (PHImageRequestID)requestImageDataForAsset:(PHAsset *)asset options:(nullable PHImageRequestOptions *)options resultHandler:(void(^)(NSData *__nullable imageData, NSString *__nullable dataUTI, UIImageOrientation orientation, NSDictionary *__nullable info))resultHandler;
+/**
+ @abstract Request largest represented image as data bytes for the specified asset.
+ @param asset The asset whose image data is to be loaded.
+ @param options Options specifying how Photos should handle the request, format the requested image, and notify your app of progress or errors.
+      If PHImageRequestOptionsVersionCurrent is requested and the asset has adjustments then the largest rendered image data is returned. In all other cases then the original image data is returned.
+ @param resultHandler A block that is called exactly once either synchronously on the current thread or asynchronously on the main thread depending on the synchronous option specified in the PHImageRequestOptions options parameter (deliveryMode is ignored).
+ */
+#ifdef __cplusplus
+- (PHImageRequestID)requestImageDataForAsset:(PHAsset *)asset options:(nullable PHImageRequestOptions *)options resultHandler:(void (^)(NSData *_Nullable imageData, NSString *_Nullable dataUTI, UIImageOrientation orientation, NSDictionary *_Nullable info))resultHandler API_DEPRECATED_WITH_REPLACEMENT("-requestImageDataAndOrientationForAsset:options:resultHandler:", ios(8, 13), tvos(8, 13)) API_UNAVAILABLE(macos);
+#else
+- (PHImageRequestID)requestImageDataForAsset:(PHAsset *)asset options:(nullable PHImageRequestOptions *)options resultHandler:(void (^)(NSData *_Nullable imageData, NSString *_Nullable dataUTI, NSInteger/*UIImageOrientation*/ orientation, NSDictionary *_Nullable info))resultHandler API_DEPRECATED_WITH_REPLACEMENT("-requestImageDataAndOrientationForAsset:options:resultHandler:", ios(8, 13), tvos(8, 13)) API_UNAVAILABLE(macos);
+#endif
+
+/**
+ @abstract Request largest represented image as data bytes and EXIF orientation for the specified asset.
+ @param asset The asset whose image data is to be loaded.
+ @param options Options specifying how Photos should handle the request, format the requested image, and notify your app of progress or errors.
+ If PHImageRequestOptionsVersionCurrent is requested and the asset has adjustments then the largest rendered image data is returned. In all other cases then the original image data is returned.
+ @param resultHandler A block that is called exactly once either synchronously on the current thread or asynchronously on the main thread depending on the synchronous option specified in the PHImageRequestOptions options parameter (deliveryMode is ignored). Orientation is an EXIF orientation as an CGImagePropertyOrientation. For iOS or tvOS, convert this to an UIImageOrientation.
+ */ 
+- (PHImageRequestID)requestImageDataAndOrientationForAsset:(PHAsset *)asset options:(nullable PHImageRequestOptions *)options resultHandler:(void (^)(NSData *_Nullable imageData, NSString *_Nullable dataUTI, CGImagePropertyOrientation orientation, NSDictionary *_Nullable info))resultHandler API_AVAILABLE(macos(10.15), ios(13), tvos(13));
 
 - (void)cancelImageRequest:(PHImageRequestID)requestID;
 
@@ -810,26 +924,29 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHImageManager : NSObject
 #pragma mark - Live Photo
 
 /// Requests a live photo representation of the asset. With PHImageRequestOptionsDeliveryModeOpportunistic (or if no options are specified), the resultHandler block may be called more than once (the first call may occur before the method returns). The PHImageResultIsDegradedKey key in the result handler's info parameter indicates when a temporary low-quality live photo is provided.
-- (PHImageRequestID)requestLivePhotoForAsset:(PHAsset *)asset targetSize:(CGSize)targetSize contentMode:(PHImageContentMode)contentMode options:(nullable PHLivePhotoRequestOptions *)options resultHandler:(void (^)(PHLivePhoto *__nullable livePhoto, NSDictionary *__nullable info))resultHandler PHOTOS_AVAILABLE_IOS_TVOS(9_1, 10_0);
+- (PHImageRequestID)requestLivePhotoForAsset:(PHAsset *)asset targetSize:(CGSize)targetSize contentMode:(PHImageContentMode)contentMode options:(nullable PHLivePhotoRequestOptions *)options resultHandler:(void (^)(PHLivePhoto *__nullable livePhoto, NSDictionary *__nullable info))resultHandler API_AVAILABLE(macos(10.15), ios(9.1));
 
 
 #pragma mark - Video
 
 // Playback only. The result handler is called on an arbitrary queue.
-- (PHImageRequestID)requestPlayerItemForVideo:(PHAsset *)asset options:(nullable PHVideoRequestOptions *)options resultHandler:(void (^)(AVPlayerItem *__nullable playerItem, NSDictionary *__nullable info))resultHandler;
+- (PHImageRequestID)requestPlayerItemForVideo:(PHAsset *)asset options:(nullable PHVideoRequestOptions *)options resultHandler:(void (^)(AVPlayerItem *__nullable playerItem, NSDictionary *__nullable info))resultHandler API_AVAILABLE(macos(10.15));
 
 // Export. The result handler is called on an arbitrary queue.
-- (PHImageRequestID)requestExportSessionForVideo:(PHAsset *)asset options:(nullable PHVideoRequestOptions *)options exportPreset:(NSString *)exportPreset resultHandler:(void (^)(AVAssetExportSession *__nullable exportSession, NSDictionary *__nullable info))resultHandler;
+- (PHImageRequestID)requestExportSessionForVideo:(PHAsset *)asset options:(nullable PHVideoRequestOptions *)options exportPreset:(NSString *)exportPreset resultHandler:(void (^)(AVAssetExportSession *__nullable exportSession, NSDictionary *__nullable info))resultHandler API_AVAILABLE(macos(10.15));
 
 // Everything else. The result handler is called on an arbitrary queue.
-- (PHImageRequestID)requestAVAssetForVideo:(PHAsset *)asset options:(nullable PHVideoRequestOptions *)options resultHandler:(void (^)(AVAsset *__nullable asset, AVAudioMix *__nullable audioMix, NSDictionary *__nullable info))resultHandler;
+- (PHImageRequestID)requestAVAssetForVideo:(PHAsset *)asset options:(nullable PHVideoRequestOptions *)options resultHandler:(void (^)(AVAsset *__nullable asset, AVAudioMix *__nullable audioMix, NSDictionary *__nullable info))resultHandler API_AVAILABLE(macos(10.15));
 
 @end
 
+API_AVAILABLE_END // macos(10.13)
+API_AVAILABLE_BEGIN(macos(10.15))
 
 #pragma mark - PHCachingImageManager - Preheating
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHCachingImageManager : PHImageManager
+OS_EXPORT
+@interface PHCachingImageManager : PHImageManager
 
 // During fast scrolling clients should set this to improve responsiveness
 @property (nonatomic, assign) BOOL allowsCachingHighQualityImages; // Defaults to YES
@@ -843,46 +960,22 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHCachingImageManager : PH
 
 @end
 
+API_AVAILABLE_END // macos(10.15)
+API_AVAILABLE_END // ios(8), tvos(10)
 NS_ASSUME_NONNULL_END
-// ==========  Photos.framework/Headers/PhotosDefines.h
+// ==========  Photos.framework/Headers/PHChangeRequest.h
 //
-//  PhotosDefines.h
+//  PHChangeRequest.h
 //  PhotoKit
 //
-//  Copyright © 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2018 Apple Inc. All rights reserved.
 //
 
-#import <Availability.h>
+#import <Foundation/Foundation.h>
 
-#ifdef __cplusplus
-#define PHOTOS_EXTERN            extern "C" __attribute__((visibility ("default")))
-#else
-#define PHOTOS_EXTERN	        extern __attribute__((visibility ("default")))
-#endif
-
-#define PHOTOS_STATIC_INLINE	static inline
-
-#define PHOTOS_AVAILABLE_IOS_ONLY(vers)                 __IOS_AVAILABLE(vers) __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE
-#define PHOTOS_AVAILABLE_WATCHOS_ONLY(vers)             __IOS_UNAVAILABLE __WATCHOS_AVAILABLE(vers) __TVOS_UNAVAILABLE
-#define PHOTOS_AVAILABLE_TVOS_ONLY(vers)                __IOS_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_AVAILABLE(vers)
-#define PHOTOS_AVAILABLE_IOS_TVOS(_ios, _tvos)          __IOS_AVAILABLE(_ios) __TVOS_AVAILABLE(_tvos)
-#define PHOTOS_AVAILABLE_IOS_TVOS_OSX(_ios, _tvos, _osx)            __IOS_AVAILABLE(_ios) __TVOS_AVAILABLE(_tvos) __OSX_AVAILABLE(_osx)
-#define PHOTOS_AVAILABLE_IOS_WATCHOS_TVOS(_ios, _watchos, _tvos)    __IOS_AVAILABLE(_ios) __WATCHOS_AVAILABLE(_watchos) __TVOS_AVAILABLE(_tvos)
-
-#define PHOTOS_CLASS_AVAILABLE_IOS_ONLY(vers)           PHOTOS_EXTERN __IOS_AVAILABLE(vers) __WATCHOS_UNAVAILABLE __TVOS_UNAVAILABLE
-#define PHOTOS_CLASS_AVAILABLE_WATCHOS_ONLY(vers)       PHOTOS_EXTERN __IOS_UNAVAILABLE __WATCHOS_AVAILABLE(vers) __TVOS_UNAVAILABLE
-#define PHOTOS_CLASS_AVAILABLE_TVOS_ONLY(vers)          PHOTOS_EXTERN __IOS_UNAVAILABLE __WATCHOS_UNAVAILABLE __TVOS_AVAILABLE(vers)
-#define PHOTOS_CLASS_AVAILABLE_IOS_TVOS(_ios, _tvos)    PHOTOS_EXTERN __IOS_AVAILABLE(_ios) __TVOS_AVAILABLE(_tvos)
-#define PHOTOS_CLASS_AVAILABLE_IOS_TVOS_OSX(_ios, _tvos, _osx)          PHOTOS_EXTERN __IOS_AVAILABLE(_ios) __TVOS_AVAILABLE(_tvos) __OSX_AVAILABLE(_osx)
-#define PHOTOS_CLASS_AVAILABLE_IOS_WATCHOS_TVOS(_ios, _watchos, _tvos)  PHOTOS_EXTERN __IOS_AVAILABLE(_ios) __WATCHOS_AVAILABLE(_watchos) __TVOS_AVAILABLE(_tvos)
-
-#define PHOTOS_ENUM_AVAILABLE_IOS_ONLY(vers)            PHOTOS_AVAILABLE_IOS_ONLY(vers)
-#define PHOTOS_ENUM_AVAILABLE_WATCHOS_ONLY(vers)        PHOTOS_AVAILABLE_WATCHOS_ONLY(vers)
-#define PHOTOS_ENUM_AVAILABLE_TVOS_ONLY(vers)           PHOTOS_AVAILABLE_TVOS_ONLY(vers)
-#define PHOTOS_ENUM_AVAILABLE_IOS_TVOS(_ios, _tvos)     PHOTOS_AVAILABLE_IOS_TVOS(_ios, _tvos)
-#define PHOTOS_ENUM_AVAILABLE_IOS_TVOS_OSX(_ios, _tvos, _osx)          PHOTOS_AVAILABLE_IOS_TVOS_OSX(_ios, _tvos, _osx)
-#define PHOTOS_ENUM_AVAILABLE_IOS_WATCHOS_TVOS(_ios, _watchos, _tvos)  PHOTOS_AVAILABLE_IOS_WATCHOS_TVOS(_ios, _watchos, _tvos)
-
+OS_EXPORT API_AVAILABLE(macos(10.15), ios(13), tvos(13))
+@interface PHChangeRequest : NSObject
+@end
 // ==========  Photos.framework/Headers/PHContentEditingInput.h
 //
 //  PHContentEditingInput.h
@@ -892,20 +985,19 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#if !TARGET_OS_OSX
-#import <UIKit/UIImage.h>
-#endif
 #import <Photos/PhotosTypes.h>
-#import <Photos/PhotosDefines.h>
 
 @class PHAdjustmentData;
-@class AVAsset, AVAudioMix, AVVideoComposition;
+@class AVAsset;
 @class CLLocation;
 @class PHLivePhoto;
+@class UIImage;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.11), ios(8), tvos(10))
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS_OSX(8_0, 10_0, 10_12) @interface PHContentEditingInput : NSObject
+OS_EXPORT
+@interface PHContentEditingInput : NSObject
 
 @property (readonly, assign) PHAssetMediaType mediaType;
 @property (readonly, assign) PHAssetMediaSubtype mediaSubtypes;
@@ -915,29 +1007,61 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS_OSX(8_0, 10_0, 10_12) @interface PHContentEditin
 
 // Playback style describes how the content should be presented to the user.  Use this value to choose the type of view and the appropriate APIs on the content editing input to display this content.
 // When editing a live photo with a PHAssetPlaybackStyleLoopingVideo, you should provide an updated video that includes the looping video metadata on the PHContentEditingOutput's renderedContentURL.
-@property (nonatomic, assign, readonly) PHAssetPlaybackStyle playbackStyle PHOTOS_AVAILABLE_IOS_TVOS(11_0, 11_0);
+@property (nonatomic, assign, readonly) PHAssetPlaybackStyle playbackStyle API_AVAILABLE(macos(10.13), ios(11), tvos(11));
 
 // Adjustments to be applied onto the provided input image or video.
 @property (readonly, strong, nullable) PHAdjustmentData *adjustmentData;
 
 // Input image:
-#if TARGET_OS_OSX
-@property (readonly, strong, nullable) NSImage *displaySizeImage;
-#else
 @property (readonly, strong, nullable) UIImage *displaySizeImage;
-#endif
 @property (readonly, copy, nullable) NSURL *fullSizeImageURL;
 @property (readonly, assign) int fullSizeImageOrientation; // EXIF value
 
 // Input video:
-@property (readonly, strong, nullable) AVAsset *avAsset NS_DEPRECATED_IOS(8_0, 9_0);
-@property (readonly, strong, nullable) AVAsset *audiovisualAsset PHOTOS_AVAILABLE_IOS_TVOS_OSX(9_0, 10_0, 10_13);
+@property (readonly, strong, nullable) AVAsset *avAsset API_DEPRECATED_WITH_REPLACEMENT("-audiovisualAsset", ios(8,9)) API_UNAVAILABLE(macos);
+@property (readonly, strong, nullable) AVAsset *audiovisualAsset API_AVAILABLE(macos(10.11), ios(9));
 
 // Input Live Photo:
-@property (readonly, strong, nullable) PHLivePhoto *livePhoto PHOTOS_AVAILABLE_IOS_TVOS_OSX(10_0, 10_0, 10_12);
+@property (readonly, strong, nullable) PHLivePhoto *livePhoto API_AVAILABLE(macos(10.12), ios(10));
 
 @end
 
+API_AVAILABLE_END
+NS_ASSUME_NONNULL_END
+// ==========  Photos.framework/Headers/PHProject.h
+//
+//  PHProject.h
+//  Photos
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Photos/PHObject.h>
+#import <Photos/PHCollection.h>
+
+NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.13))
+
+API_UNAVAILABLE_BEGIN(ios, tvos, uikitformac)
+
+
+OS_EXPORT
+@interface PHProject : PHAssetCollection
+
+@property (nonatomic, readonly) NSData *projectExtensionData;
+
+/**
+ Property to determine if a project preview was previously set.
+ Use -[PHProjectChangeRequest setProjectPreviewImage:] to set a project preview.
+ */
+@property (nonatomic, readonly) BOOL hasProjectPreview;
+
+@end
+
+
+API_UNAVAILABLE_END
+
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHPhotoLibrary.h
 //
@@ -951,8 +1075,10 @@ NS_ASSUME_NONNULL_END
 #import <Photos/PhotosTypes.h>
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.13), ios(8), tvos(10))
 
 @class PHChange;
+@class PHPhotoLibrary;
 
 typedef NS_ENUM(NSInteger, PHAuthorizationStatus) {
     PHAuthorizationStatusNotDetermined = 0, // User has not yet made a choice with regards to this application
@@ -961,13 +1087,20 @@ typedef NS_ENUM(NSInteger, PHAuthorizationStatus) {
                                             //   such as parental controls being in place.
     PHAuthorizationStatusDenied,            // User has explicitly denied this application access to photos data.
     PHAuthorizationStatusAuthorized         // User has authorized this application to access photos data.
-} PHOTOS_AVAILABLE_IOS_TVOS_OSX(8_0, 10_0, 10_13);
+};
 
-
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS_OSX(8_0, 10_0, 10_13) @protocol PHPhotoLibraryChangeObserver <NSObject>
+#pragma mark -
+@protocol PHPhotoLibraryChangeObserver <NSObject>
 // This callback is invoked on an arbitrary serial queue. If you need this to be handled on a specific queue, you should redispatch appropriately
 - (void)photoLibraryDidChange:(PHChange *)changeInstance;
 
+@end
+
+#pragma mark -
+API_AVAILABLE(macos(10.15), ios(13), tvos(13))
+@protocol PHPhotoLibraryAvailabilityObserver <NSObject>
+// This notification is posted on a private queue.
+- (void)photoLibraryDidBecomeUnavailable:(PHPhotoLibrary *)photoLibrary API_AVAILABLE(macos(10.15), ios(13), tvos(13));
 @end
 
 /*!
@@ -975,12 +1108,21 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS_OSX(8_0, 10_0, 10_13) @protocol PHPhotoLibraryCh
  @abstract     A PHPhotoLibrary provides access to the metadata and image data for the photos, videos and related content in the user's photo library, including content from the Camera Roll, iCloud Shared, Photo Stream, imported, and synced from iTunes.
  @discussion   ...
  */
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS_OSX(8_0, 10_0, 10_13) @interface PHPhotoLibrary : NSObject
+#pragma mark -
+OS_EXPORT
+@interface PHPhotoLibrary : NSObject
 
 + (PHPhotoLibrary *)sharedPhotoLibrary;
 
 + (PHAuthorizationStatus)authorizationStatus;
 + (void)requestAuthorization:(void(^)(PHAuthorizationStatus status))handler;
+
+#pragma mark - Library availability
+
+@property (readonly, atomic, nullable, strong) NSError *unavailabilityReason API_AVAILABLE(macos(10.15), ios(13), tvos(13));
+
+- (void)registerAvailabilityObserver:(id<PHPhotoLibraryAvailabilityObserver>)observer API_AVAILABLE(macos(10.15), ios(13), tvos(13));
+- (void)unregisterAvailabilityObserver:(id<PHPhotoLibraryAvailabilityObserver>)observer API_AVAILABLE(macos(10.15), ios(13), tvos(13));
 
 #pragma mark - Applying Changes
 
@@ -996,6 +1138,7 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS_OSX(8_0, 10_0, 10_13) @interface PHPhotoLibrary 
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHContentEditingOutput.h
 //
@@ -1006,13 +1149,14 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <Photos/PhotosDefines.h>
 
 @class PHContentEditingInput, PHAdjustmentData;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.11), ios(8), tvos(10))
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHContentEditingOutput : NSObject
+OS_EXPORT
+@interface PHContentEditingOutput : NSObject
 
 - (instancetype)initWithContentEditingInput:(PHContentEditingInput *)contentEditingInput;
 
@@ -1023,6 +1167,7 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHContentEditingOutput : N
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHAdjustmentData.h
 //
@@ -1033,11 +1178,12 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <Photos/PhotosDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.11), ios(8), tvos(10))
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHAdjustmentData : NSObject
+OS_EXPORT
+@interface PHAdjustmentData : NSObject
 
 - (instancetype)initWithFormatIdentifier:(NSString *)formatIdentifier formatVersion:(NSString *)formatVersion data:(NSData *)data;
 
@@ -1050,6 +1196,7 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHAdjustmentData : NSObjec
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHAsset.h
 //
@@ -1063,7 +1210,6 @@ NS_ASSUME_NONNULL_END
 #import <Photos/PhotosTypes.h>
 #import <Photos/PHFetchResult.h>
 #import <Photos/PHPhotoLibrary.h>
-#import <Photos/PhotosDefines.h>
 
 #import <ImageIO/ImageIO.h>
 #import <CoreLocation/CLLocation.h>
@@ -1071,16 +1217,17 @@ NS_ASSUME_NONNULL_END
 
 @class PHFetchOptions;
 @class PHAssetCollection;
-@class PHPerson;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.13), ios(8), tvos(10))
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHAsset : PHObject
+OS_EXPORT
+@interface PHAsset : PHObject
 
 #pragma mark - Properties
 
 // Playback style describes how the asset should be presented to the user (regardless of the backing media for that asset).  Use this value to choose the type of view and the appropriate APIs on the PHImageManager to display this asset
-@property (nonatomic, assign, readonly) PHAssetPlaybackStyle playbackStyle PHOTOS_AVAILABLE_IOS_TVOS(11_0, 11_0);
+@property (nonatomic, assign, readonly) PHAssetPlaybackStyle playbackStyle API_AVAILABLE(macos(10.15), ios(11), tvos(11));
 
 @property (nonatomic, assign, readonly) PHAssetMediaType mediaType;
 @property (nonatomic, assign, readonly) PHAssetMediaSubtype mediaSubtypes;
@@ -1100,32 +1247,33 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHAsset : PHObject
 
 @property (nonatomic, assign, readonly, getter=isFavorite) BOOL favorite;
 
-@property (nonatomic, strong, readonly, nullable) NSString *burstIdentifier;
-@property (nonatomic, assign, readonly) PHAssetBurstSelectionType burstSelectionTypes;
-@property (nonatomic, assign, readonly) BOOL representsBurst;
+@property (nonatomic, strong, readonly, nullable) NSString *burstIdentifier API_AVAILABLE(macos(10.15));
+@property (nonatomic, assign, readonly) PHAssetBurstSelectionType burstSelectionTypes API_AVAILABLE(macos(10.15));
+@property (nonatomic, assign, readonly) BOOL representsBurst API_AVAILABLE(macos(10.15));
 
-@property (nonatomic, assign, readonly) PHAssetSourceType sourceType PHOTOS_AVAILABLE_IOS_TVOS(9_0, 10_0);
+@property (nonatomic, assign, readonly) PHAssetSourceType sourceType API_AVAILABLE(ios(9));
 
 #pragma mark - Capabilities
 
-- (BOOL)canPerformEditOperation:(PHAssetEditOperation)editOperation;
+- (BOOL)canPerformEditOperation:(PHAssetEditOperation)editOperation API_AVAILABLE(macos(10.15));
 
 #pragma mark - Fetching assets
 
 + (PHFetchResult<PHAsset *> *)fetchAssetsInAssetCollection:(PHAssetCollection *)assetCollection options:(nullable PHFetchOptions *)options;
 + (PHFetchResult<PHAsset *> *)fetchAssetsWithLocalIdentifiers:(NSArray<NSString *> *)identifiers options:(nullable PHFetchOptions *)options; // includes hidden assets by default
 + (nullable PHFetchResult<PHAsset *> *)fetchKeyAssetsInAssetCollection:(PHAssetCollection *)assetCollection options:(nullable PHFetchOptions *)options;
-+ (PHFetchResult<PHAsset *> *)fetchAssetsWithBurstIdentifier:(NSString *)burstIdentifier options:(nullable PHFetchOptions *)options;
++ (PHFetchResult<PHAsset *> *)fetchAssetsWithBurstIdentifier:(NSString *)burstIdentifier options:(nullable PHFetchOptions *)options API_AVAILABLE(macos(10.15));
 
 // Fetches PHAssetSourceTypeUserLibrary assets by default (use includeAssetSourceTypes option to override)
-+ (PHFetchResult<PHAsset *> *)fetchAssetsWithOptions:(nullable PHFetchOptions *)options;
-+ (PHFetchResult<PHAsset *> *)fetchAssetsWithMediaType:(PHAssetMediaType)mediaType options:(nullable PHFetchOptions *)options;
++ (PHFetchResult<PHAsset *> *)fetchAssetsWithOptions:(nullable PHFetchOptions *)options API_AVAILABLE(macos(10.15));
++ (PHFetchResult<PHAsset *> *)fetchAssetsWithMediaType:(PHAssetMediaType)mediaType options:(nullable PHFetchOptions *)options API_AVAILABLE(macos(10.15));
 
 // assetURLs are URLs retrieved from ALAsset's ALAssetPropertyAssetURL
-+ (PHFetchResult<PHAsset *> *)fetchAssetsWithALAssetURLs:(NSArray<NSURL *> *)assetURLs options:(nullable PHFetchOptions *)options API_DEPRECATED("Will be removed in a future release", ios(8.0, 11.0), tvos(8.0, 11.0));
++ (PHFetchResult<PHAsset *> *)fetchAssetsWithALAssetURLs:(NSArray<NSURL *> *)assetURLs options:(nullable PHFetchOptions *)options API_DEPRECATED("Will be removed in a future release", ios(8, 11), tvos(8, 11)) API_UNAVAILABLE(uikitformac, macos);
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHCollection.h
 //
@@ -1138,18 +1286,19 @@ NS_ASSUME_NONNULL_END
 #import <Photos/PHObject.h>
 #import <Photos/PHFetchResult.h>
 #import <Photos/PhotosTypes.h>
-#import <Photos/PhotosDefines.h>
 
 @class PHAsset, PHCollectionList, PHFetchResult, PHFetchOptions;
 @class CLLocation;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.15), ios(8), tvos(10))
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHCollection : PHObject
+OS_EXPORT API_AVAILABLE(macos(10.13))
+@interface PHCollection : PHObject
 
 @property (nonatomic, assign, readonly) BOOL canContainAssets;
 @property (nonatomic, assign, readonly) BOOL canContainCollections;
-@property (nonatomic, strong, readonly, nullable) NSString *localizedTitle;
+@property (nonatomic, strong, readonly, nullable) NSString *localizedTitle API_AVAILABLE(macos(10.13));
 
 #pragma mark - Capabilities
 
@@ -1164,7 +1313,9 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHCollection : PHObject
 @end
 
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHAssetCollection : PHCollection
+#pragma mark -
+OS_EXPORT API_AVAILABLE(macos(10.13))
+@interface PHAssetCollection : PHCollection
 
 @property (nonatomic, assign, readonly) PHAssetCollectionType assetCollectionType;
 @property (nonatomic, assign, readonly) PHAssetCollectionSubtype assetCollectionSubtype;
@@ -1194,10 +1345,12 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHAssetCollection : PHColl
 + (PHFetchResult<PHAssetCollection *> *)fetchAssetCollectionsWithALAssetGroupURLs:(NSArray<NSURL *> *)assetGroupURLs options:(nullable PHFetchOptions *)options;
 
 
-#pragma mark - Fetching moment asset collections
+#pragma mark - Fetching moment asset collections (Deprecated)
 
-+ (PHFetchResult<PHAssetCollection *> *)fetchMomentsInMomentList:(PHCollectionList *)momentList options:(nullable PHFetchOptions *)options;
-+ (PHFetchResult<PHAssetCollection *> *)fetchMomentsWithOptions:(nullable PHFetchOptions *)options;
+
++ (PHFetchResult<PHAssetCollection *> *)fetchMomentsInMomentList:(PHCollectionList *)momentList options:(nullable PHFetchOptions *)options API_DEPRECATED("Will be removed in a future release", ios(8, 13), tvos(10, 13)) API_UNAVAILABLE(macos);
++ (PHFetchResult<PHAssetCollection *> *)fetchMomentsWithOptions:(nullable PHFetchOptions *)options API_DEPRECATED("Will be removed in a future release", ios(8, 13), tvos(10, 13)) API_UNAVAILABLE(macos);
+
 
 
 #pragma mark - Transient asset collections
@@ -1210,7 +1363,9 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHAssetCollection : PHColl
 @end
 
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHCollectionList : PHCollection
+#pragma mark -
+OS_EXPORT API_AVAILABLE(macos(10.13))
+@interface PHCollectionList : PHCollection
 
 @property (nonatomic, assign, readonly) PHCollectionListType collectionListType;
 @property (nonatomic, assign, readonly) PHCollectionListSubtype collectionListSubtype;
@@ -1234,10 +1389,12 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHCollectionList : PHColle
 + (PHFetchResult<PHCollectionList *> *)fetchCollectionListsWithType:(PHCollectionListType)collectionListType subtype:(PHCollectionListSubtype)subtype options:(nullable PHFetchOptions *)options;
 
 
-#pragma mark - Fetching moment collection lists
+#pragma mark - Fetching moment collection lists (Deprecated)
 
-+ (PHFetchResult<PHCollectionList *> *)fetchMomentListsWithSubtype:(PHCollectionListSubtype)momentListSubtype containingMoment:(PHAssetCollection *)moment options:(nullable PHFetchOptions *)options;
-+ (PHFetchResult<PHCollectionList *> *)fetchMomentListsWithSubtype:(PHCollectionListSubtype)momentListSubtype options:(nullable PHFetchOptions *)options;
+
++ (PHFetchResult<PHCollectionList *> *)fetchMomentListsWithSubtype:(PHCollectionListSubtype)momentListSubtype containingMoment:(PHAssetCollection *)moment options:(nullable PHFetchOptions *)options API_DEPRECATED("Will be removed in a future release", ios(8, 13), tvos(10, 13)) API_UNAVAILABLE(macos);
++ (PHFetchResult<PHCollectionList *> *)fetchMomentListsWithSubtype:(PHCollectionListSubtype)momentListSubtype options:(nullable PHFetchOptions *)options API_DEPRECATED("Will be removed in a future release", ios(8, 13), tvos(10, 13)) API_UNAVAILABLE(macos);
+
 
 
 #pragma mark - Transient collection lists
@@ -1248,6 +1405,7 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(8_0, 10_0) @interface PHCollectionList : PHColle
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHLivePhotoEditingContext.h
 //
@@ -1263,6 +1421,7 @@ NS_ASSUME_NONNULL_END
 #import <ImageIO/CGImageProperties.h>
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.12), ios(10), tvos(10))
 
 @protocol PHLivePhotoFrame;
 @class PHContentEditingInput;
@@ -1273,7 +1432,7 @@ typedef CIImage * _Nullable (^PHLivePhotoFrameProcessingBlock)(id <PHLivePhotoFr
 
 typedef NSString * const PHLivePhotoEditingOption NS_STRING_ENUM;
 
-NS_AVAILABLE(10_12, 10_0)
+OS_EXPORT
 @interface PHLivePhotoEditingContext : NSObject
 
 /// Initializer from the specified live photo input
@@ -1336,7 +1495,7 @@ typedef NS_ENUM(NSInteger, PHLivePhotoFrameType) {
     
     /// Indicates a video frame
     PHLivePhotoFrameTypeVideo,
-} NS_ENUM_AVAILABLE(10_12, 10_0);
+};
 
 /// Protocol that describes a single frame of a live photo
 @protocol PHLivePhotoFrame
@@ -1363,8 +1522,22 @@ typedef NS_ENUM(NSInteger, PHLivePhotoFrameType) {
 /// If set to NO (the default) the live photo will always be rendered before playback
 /// If set to YES, the editing context might still choose to render first for performance reasons
 /// This option is ignored by the saveLivePhotoToOutput method
-extern PHLivePhotoEditingOption PHLivePhotoShouldRenderAtPlaybackTime NS_AVAILABLE(10_12, 11_0);
+extern PHLivePhotoEditingOption PHLivePhotoShouldRenderAtPlaybackTime API_AVAILABLE(ios(11), tvos(11));
 
+// ------------------------------------------------------------------------
+// Errors
+// ------------------------------------------------------------------------
+
+/// The error domain for all Live Photo Editing errors (Deprecated).
+extern NSString * const PHLivePhotoEditingErrorDomain API_DEPRECATED_WITH_REPLACEMENT("PHPhotosErrorDomain", macos(10.12, 10.15)) API_UNAVAILABLE(ios, tvos, uikitformac);
+
+/// Error code for Live Photo Editing errors (Deprecated)
+typedef NS_ENUM(NSInteger, PHLivePhotoEditingErrorCode) {
+    PHLivePhotoEditingErrorCodeUnknown API_DEPRECATED_WITH_REPLACEMENT("PHPhotosErrorInvalid", macos(10.12, 10.15)),
+    PHLivePhotoEditingErrorCodeAborted API_DEPRECATED_WITH_REPLACEMENT("PHPhotosErrorUserCancelled", macos(10.12, 10.15)),
+} API_UNAVAILABLE(ios, tvos, uikitformac);
+
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHAssetCreationRequest.h
 //
@@ -1376,13 +1549,14 @@ NS_ASSUME_NONNULL_END
 
 #import <Photos/PhotosTypes.h>
 #import <Photos/PHAssetChangeRequest.h>
-#import <Photos/PhotosDefines.h>
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.15), ios(9), tvos(10))
 
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_0, 10_0) @interface PHAssetResourceCreationOptions : NSObject <NSCopying>
+OS_EXPORT
+@interface PHAssetResourceCreationOptions : NSObject <NSCopying>
 
 // The filename for the resource. If not specified, one will be inferred from a fileURL if available, or else generated.
 @property (nonatomic, copy, nullable) NSString *originalFilename;
@@ -1397,7 +1571,8 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_0, 10_0) @interface PHAssetResourceCreationOpt
 
 
 // PHAssetCreationRequest can only be created or used within a -[PHPhotoLibrary performChanges:] or -[PHPhotoLibrary performChangesAndWait:] block.
-PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_0, 10_0) @interface PHAssetCreationRequest : PHAssetChangeRequest
+OS_EXPORT
+@interface PHAssetCreationRequest : PHAssetChangeRequest
 
 + (instancetype)creationRequestForAsset;
 
@@ -1411,6 +1586,73 @@ PHOTOS_CLASS_AVAILABLE_IOS_TVOS(9_0, 10_0) @interface PHAssetCreationRequest : P
 
 @end
 
+API_AVAILABLE_END
+NS_ASSUME_NONNULL_END
+// ==========  Photos.framework/Headers/PHProjectChangeRequest.h
+//
+//  PHProjectChangeRequest.h
+//  Photos
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Photos/PHChangeRequest.h>
+
+@class UIImage;
+@class PHAsset;
+@class PHProject;
+
+NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.13))
+
+API_UNAVAILABLE_BEGIN(ios, tvos, uikitformac)
+
+
+OS_EXPORT
+@interface PHProjectChangeRequest : PHChangeRequest
+
+- (instancetype)initWithProject:(PHProject *)project;
+
+@property (nonatomic, copy, readwrite) NSString *title;
+
+/**
+ The projectExtensionData property is intended for storage of compressed, project specific data
+ only. Do not include things like rasterized images that can be locally cached in this data. The
+ total size of stored data is limited to 1 MB. Attempting to store more data than allowed will result
+ in an error.
+ */
+@property (nonatomic, copy, readwrite) NSData *projectExtensionData;
+
+/**
+ Sets the key asset representing the project.
+ Deprecated in macOS 10.14, please use -[PHProjectChangeRequest setProjectPreviewImage:] to provide a rendered preview instead.
+ */
+- (void)setKeyAsset:(nullable PHAsset *)keyAsset API_DEPRECATED_WITH_REPLACEMENT("-setProjectPreviewImage:", macos(10.13, 10.14)) API_UNAVAILABLE(ios, uikitformac, tvos);
+
+/**
+ Use this method to update the project preview visible in Photos.
+ Extensions are expected to set a project preview:
+ - In or after -[id<PHProjectExtensionController> beginProjectWithExtensionContext:projectInfo:].
+ - In or after -[id<PHProjectExtensionController> resumeProjectWithExtensionContext:projectInfo:]
+ if -[PHProject hasProjectPreview] returns NO.
+ - Whenever the project changes in a way that a new preview is needed.
+ @param previewImage A rendered project preview, expected dimensions are 1024x1024.
+ */
+- (void)setProjectPreviewImage:(UIImage *)previewImage;
+
+/**
+ Removes the specified assets from the project.
+ @param assets A collection of PHAsset objects to be removed from the project.
+ */
+- (void)removeAssets:(id<NSFastEnumeration>)assets API_AVAILABLE(macos(10.14)) NS_REFINED_FOR_SWIFT;
+
+@end
+
+
+API_UNAVAILABLE_END
+
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/PHAssetCollectionChangeRequest.h
 //
@@ -1421,6 +1663,7 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
+#import <Photos/PHChangeRequest.h>
 #import <Photos/PHFetchResult.h>
 
 @class PHAsset;
@@ -1428,9 +1671,11 @@ NS_ASSUME_NONNULL_END
 @class PHObjectPlaceholder;
 
 NS_ASSUME_NONNULL_BEGIN
+API_AVAILABLE_BEGIN(macos(10.15), ios(8), tvos(10))
 
 // PHAssetCollectionChangeRequest can only be created or used within a -[PHPhotoLibrary performChanges:] or -[PHPhotoLibrary performChangesAndWait:] block.
-@interface PHAssetCollectionChangeRequest : NSObject
+OS_EXPORT
+@interface PHAssetCollectionChangeRequest : PHChangeRequest
 
 #pragma mark - Creating Asset Collections
 
@@ -1442,7 +1687,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Deleting Asset Collections
 
-// requests that the specified asset collections be deleted 
+// requests that the specified asset collections be deleted
 + (void)deleteAssetCollections:(id<NSFastEnumeration>)assetCollections;
 
 #pragma mark - Modifying Asset Collections
@@ -1466,6 +1711,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+API_AVAILABLE_END
 NS_ASSUME_NONNULL_END
 // ==========  Photos.framework/Headers/Photos.h
 //
@@ -1479,6 +1725,8 @@ NS_ASSUME_NONNULL_END
 #define Photos_Photos_h
 
 #import <Photos/PHPhotoLibrary.h>
+#import <Photos/PhotosTypes.h>
+#import <Photos/PHError.h>
 
 #import <Photos/PHObject.h>
 #import <Photos/PHAsset.h>
@@ -1504,5 +1752,9 @@ NS_ASSUME_NONNULL_END
 #import <Photos/PHAdjustmentData.h>
 #import <Photos/PHContentEditingInput.h>
 #import <Photos/PHContentEditingOutput.h>
+
+#import <Photos/PHProject.h>
+#import <Photos/PHProjectChangeRequest.h>
+#import <Photos/PHCloudIdentifier.h>
 
 #endif

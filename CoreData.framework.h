@@ -2,7 +2,7 @@
 /*
     NSPersistentHistoryTransaction.h
     Core Data
-    Copyright (c) 2016-2018, Apple Inc.
+    Copyright (c) 2016-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -14,9 +14,17 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSNotification;
 @class NSPersistentHistoryToken;
 @class NSPersistentHistoryChange;
+@class NSEntityDescription;
+@class NSFetchRequest;
+@class NSManagedObjectConext;
 
 API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
 @interface NSPersistentHistoryTransaction : NSObject <NSCopying>
+
++ (nullable NSEntityDescription *)entityDescriptionWithContext:(NSManagedObjectContext *)context API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
+
+@property (class,nullable,readonly) NSEntityDescription *entityDescription API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
+@property (class,nullable,readonly) NSFetchRequest *fetchRequest API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
 
 @property (readonly,copy) NSDate *timestamp;
 @property (nullable,readonly,copy) NSArray<NSPersistentHistoryChange *>*changes;
@@ -38,7 +46,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSFetchIndexDescription.h
     Core Data
-    Copyright (c) 2017-2018, Apple Inc.
+    Copyright (c) 2017-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -72,7 +80,7 @@ NS_ASSUME_NONNULL_END
 /*
     CoreDataDefines.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -189,7 +197,7 @@ COREDATA_EXTERN double NSCoreDataVersionNumber;
 /*
     NSEntityMigrationPolicy.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -267,7 +275,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSExpressionDescription.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -285,20 +293,6 @@ NS_ASSUME_NONNULL_BEGIN
    max(attribute). NSExpressionDescriptions cannot be set as properties on NSEntityDescription. */
 API_AVAILABLE(macosx(10.6),ios(3.0))
 @interface NSExpressionDescription : NSPropertyDescription {
-#if (!__OBJC2__)
-	@private
-	id _reservedtype1_1;
-	id _reservedtype1_2;
-    NSAttributeType _reservedtype1_3;
-    id _reservedtype1_4;
-    NSUInteger _reservedtype1_5;
-    id _reservedtype1_6;
-	void *_reservedtype2_1;
-	void *_reservedtype2_2;
-	void *_reservedtype2_3;
-	NSExpression *_expression;
-	NSAttributeType _expressionResultType;
-#endif
 }
 
 @property (nullable, strong) NSExpression *expression;
@@ -313,7 +307,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSFetchIndexElementDescription.h
     Core Data
-    Copyright (c) 2017-2018, Apple Inc.
+    Copyright (c) 2017-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -355,7 +349,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSAttributeDescription.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -407,6 +401,9 @@ API_AVAILABLE(macosx(10.4),ios(3.0))
 
 @property () BOOL allowsExternalBinaryDataStorage API_AVAILABLE(macosx(10.7),ios(5.0));
 
+/* Indicates if the value of the attribute should be captured on delete when Persistent History is enabled */
+@property () BOOL preservesValueInHistoryOnDeletion API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -414,7 +411,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPersistentHistoryToken.h
     Core Data
-    Copyright (c) 2017-2018, Apple Inc.
+    Copyright (c) 2017-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -432,7 +429,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPersistentHistoryChangeRequest.h
     Core Data
-    Copyright (c) 2014-2018, Apple Inc.
+    Copyright (c) 2014-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -453,6 +450,7 @@ API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
 + (nonnull instancetype)fetchHistoryAfterDate:(NSDate *)date;
 + (nonnull instancetype)fetchHistoryAfterToken:(nullable NSPersistentHistoryToken *)token;
 + (nonnull instancetype)fetchHistoryAfterTransaction:(nullable NSPersistentHistoryTransaction *)transaction;
++ (nonnull instancetype)fetchHistoryWithFetchRequest:(NSFetchRequest *)fetchRequest API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
 
 + (nonnull instancetype)deleteHistoryBeforeDate:(NSDate *)date;
 + (nonnull instancetype)deleteHistoryBeforeToken:(nullable NSPersistentHistoryToken *)token;
@@ -461,6 +459,7 @@ API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
 // The type of result that should be returned from this request. Defaults to NSPersistentHistoryResultTypeTransactionsAndChanges
 @property NSPersistentHistoryResultType resultType;
 @property (nullable,readonly,strong) NSPersistentHistoryToken *token;
+@property (nullable,nonatomic,strong) NSFetchRequest *fetchRequest API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
 
 @end
 
@@ -469,7 +468,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPropertyDescription.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -533,7 +532,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSFetchRequest.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -675,7 +674,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSRelationshipDescription.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -721,7 +720,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSIncrementalStore.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -811,7 +810,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSQueryGenerationToken.h
     Core Data
-    Copyright (c) 2016-2018, Apple Inc.
+    Copyright (c) 2016-2019, Apple Inc.
     All rights reserved.
 */
 #import <Foundation/NSArray.h>
@@ -829,16 +828,59 @@ API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0))
 
 NS_ASSUME_NONNULL_END
 
+// ==========  CoreData.framework/Headers/NSPersistentCloudKitContainerOptions.h
+/*
+    NSPersistentCloudKitContainerOptions.h
+    Core Data
+    Copyright (c) 2018-2019, Apple Inc.
+    All rights reserved.
+*/
+
+#import <Foundation/NSArray.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ NSPersistentCloudKitContainerOptions provides customization of how NSPersistentCloudKitContainer aligns a given instance of NSPersistentStoreDescription with a CloudKit database.
+ */
+API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0))
+@interface NSPersistentCloudKitContainerOptions : NSObject
+/**
+ shouldInitializeSchema is generally only set once during development to fully materialize a CloudKit schema for a given managed object model.
+ 
+ This should be set when you are ready to promote your schema to the Production CloudKit environment via the CloudKit dashboard using the following method:
+ 
+ 1. Set shouldInitializeSchema = YES
+ 2. Build and run your application so that it loads the CloudKit backed store (or stores)
+ 3. Use the CloudKit Dashboard to promote the resulting schema to production
+ 4. Set shouldInitializeSchema = NO
+ 
+ */
+@property(assign) BOOL shouldInitializeSchema;
+
+/**
+ The container identifier of the CKContainer to use with a given instance of NSPersistentStoreDescription
+ */
+@property(readonly, copy) NSString *containerIdentifier;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithContainerIdentifier:(NSString *)containerIdentifier NS_DESIGNATED_INITIALIZER;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  CoreData.framework/Headers/NSCoreDataCoreSpotlightDelegate.h
 /*
     NSCoreDataCoreSpotlightDelegate.h
     Core Data
-    Copyright (c) 2017-2018, Apple Inc.
+    Copyright (c) 2017-2019, Apple Inc.
     All rights reserved.
 */
 
-
 #import <Foundation/NSArray.h>
+
 
 @class NSManagedObjectContext;
 @class NSPersistentStoreDescription;
@@ -858,9 +900,9 @@ API_AVAILABLE(macosx(10.13),ios(11.0)) API_UNAVAILABLE(tvos,watchos)
 
 /* CoreSpotlight domain identifer; default nil */
 - (NSString *)domainIdentifier;
+
 /* CoreSpotlight index name; default is the store's identifier */
 - (nullable NSString *)indexName;
-
 
 - (instancetype)initForStoreWithDescription:(NSPersistentStoreDescription *)description  model:(NSManagedObjectModel *)model NS_DESIGNATED_INITIALIZER;
 
@@ -883,7 +925,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSAtomicStoreCacheNode.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -902,13 +944,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSAtomicStoreCacheNode : NSObject {
-#if (!__OBJC2__)
-    @private
-    NSManagedObjectID *_objectID;
-    uintptr_t __versionNumber;
-	NSMutableDictionary *_propertyCache;
-	void *_reserved1;
-#endif
 }
 
 /* The designated initializer for the cache node. */
@@ -939,7 +974,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPersistentHistoryChange.h
     Core Data
-    Copyright (c) 2016-2018, Apple Inc.
+    Copyright (c) 2016-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -952,7 +987,9 @@ NS_ASSUME_NONNULL_BEGIN
 @class NSPersistentHistoryTransaction;
 @class NSManagedObjectID;
 @class NSPropertyDescription;
-
+@class NSEntityDescription;
+@class NSFetchRequest;
+@class NSManagedObjectContext;
 
 typedef NS_ENUM (NSInteger, NSPersistentHistoryChangeType) {
     NSPersistentHistoryChangeTypeInsert,
@@ -962,6 +999,11 @@ typedef NS_ENUM (NSInteger, NSPersistentHistoryChangeType) {
 
 API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0))
 @interface NSPersistentHistoryChange : NSObject <NSCopying>
+
++ (nullable NSEntityDescription *)entityDescriptionWithContext:(NSManagedObjectContext *)context API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
+
+@property (class,nullable,readonly) NSEntityDescription *entityDescription API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
+@property (class,nullable,readonly) NSFetchRequest *fetchRequest API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
 
 @property (readonly) int64_t changeID;
 @property (readonly,copy) NSManagedObjectID *changedObjectID;
@@ -977,7 +1019,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSBatchDeleteRequest.h
     Core Data
-    Copyright (c) 2015-2018, Apple Inc.
+    Copyright (c) 2015-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -1001,12 +1043,6 @@ NS_ASSUME_NONNULL_BEGIN
 //  delete rules (for example, minimum relationship counts).
 API_AVAILABLE(macosx(10.11),ios(9.0))
 @interface NSBatchDeleteRequest : NSPersistentStoreRequest {
-#if (!__OBJC2__)
-    @private
-    NSBatchDeleteRequestResultType _resultType;
-    NSFetchRequest *_deleteTarget;
-    intptr_t _flags;
-#endif
 }
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -1026,7 +1062,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPersistentStoreResult.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -1133,7 +1169,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPersistentStoreCoordinator.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -1271,6 +1307,20 @@ COREDATA_EXTERN NSString * const NSBinaryStoreSecureDecodingClasses API_AVAILABL
  */
 COREDATA_EXTERN NSString * const NSBinaryStoreInsecureDecodingCompatibilityOption API_AVAILABLE(macosx(10.13),ios(11.0),tvos(11.0),watchos(4.0));
 
+/* When NSPersistentStoreRemoteChangeNotificationPostOptionKey is set to YES, a NSPersistentStoreRemoteChangeNotification is posted for every
+ write to the store, this includes writes that are done by other processes
+ */
+COREDATA_EXTERN NSString * const NSPersistentStoreRemoteChangeNotificationPostOptionKey API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
+
+/* NSPersistentStoreRemoteChangeNotification is posted for all cross process writes to the store
+ The payload is the store UUID (NSStoreUUIDKey), store URL (NSPersistentStoreURLKey), and NSPersistentHistoryToken for the transaction (if NSPersistentHistoryTrackingKey was also set)
+ */
+COREDATA_EXTERN NSString * const NSPersistentStoreRemoteChangeNotification API_AVAILABLE(macosx(10.14),ios(12.0),tvos(12.0),watchos(5.0));
+
+/* Keys found in the UserInfo for a NSPersistentStoreRemoteChangeNotification */
+COREDATA_EXTERN NSString * const NSPersistentStoreURLKey API_AVAILABLE(macosx(10.14),ios(12.0),tvos(12.0),watchos(5.0));
+COREDATA_EXTERN NSString * const NSPersistentHistoryTokenKey API_AVAILABLE(macosx(10.14),ios(12.0),tvos(12.0),watchos(5.0));
+
 API_AVAILABLE(macosx(10.4),ios(3.0))
 @interface NSPersistentStoreCoordinator : NSObject <NSLocking> {
 }
@@ -1324,7 +1374,7 @@ API_AVAILABLE(macosx(10.4),ios(3.0))
 
 /* Registers the specified NSPersistentStore subclass for the specified store type string.  This method must be invoked before a custom subclass of NSPersistentStore can be loaded into a persistent store coordinator.  Passing nil for the store class argument will unregister the specified store type.
 */
-+ (void)registerStoreClass:(Class _Nullable)storeClass forStoreType:(NSString *)storeType API_AVAILABLE(macosx(10.5),ios(3.0));
++ (void)registerStoreClass:(nullable Class)storeClass forStoreType:(NSString *)storeType API_AVAILABLE(macosx(10.5),ios(3.0));
 
 /* Allows to access the metadata stored in a persistent store without warming up a CoreData stack; the guaranteed keys in this dictionary are NSStoreTypeKey and NSStoreUUIDKey. If storeType is nil, Core Data will guess which store class should be used to get/set the store file's metadata. 
  */
@@ -1431,7 +1481,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPersistentStore.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -1512,7 +1562,7 @@ NS_ASSUME_NONNULL_END
 /*
     CoreData.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -1522,6 +1572,7 @@ NS_ASSUME_NONNULL_END
 #import <CoreData/CoreDataErrors.h>
 
 #import <CoreData/NSAttributeDescription.h>
+#import <CoreData/NSDerivedAttributeDescription.h>
 #import <CoreData/NSEntityDescription.h>
 #import <CoreData/NSFetchedPropertyDescription.h>
 #import <CoreData/NSPropertyDescription.h>
@@ -1570,13 +1621,15 @@ NS_ASSUME_NONNULL_END
 #import <CoreData/NSPersistentHistoryChangeRequest.h>
 #import <CoreData/NSPersistentHistoryToken.h>
 #import <CoreData/NSPersistentHistoryTransaction.h>
+#import <CoreData/NSPersistentCloudKitContainer.h>
+#import <CoreData/NSPersistentCloudKitContainerOptions.h>
 
 #import <CoreData/NSCoreDataCoreSpotlightDelegate.h>
 // ==========  CoreData.framework/Headers/NSMigrationManager.h
 /*
     NSMigrationManager.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -1654,7 +1707,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSAtomicStore.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -1676,15 +1729,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSAtomicStore : NSPersistentStore {
-#if (!__OBJC2__)
-	@private
-    NSMutableDictionary *_nodeCache;
-    NSMutableDictionary *_entityCache;
-    NSMutableDictionary *_storeMetadata;
-    NSInteger _nextReference;
-	void *_reserved4;
-	void *_reserved5;
-#endif
 }
 
 // API method that may be overriden by subclasses for custom initialization
@@ -1733,7 +1777,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSFetchedResultsController.h
     Core Data
-    Copyright (c) 2009-2018, Apple Inc.
+    Copyright (c) 2009-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -1773,6 +1817,7 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/NSSet.h>
 #import <Foundation/NSError.h>
 #import <Foundation/NSIndexPath.h>
+#import <Foundation/NSOrderedCollectionDifference.h>
 #import <CoreData/NSManagedObjectContext.h>
 #import <CoreData/NSManagedObject.h>
 #import <CoreData/NSFetchRequest.h>
@@ -1782,9 +1827,10 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol NSFetchedResultsControllerDelegate;
 @protocol NSFetchedResultsSectionInfo;
 
+@class NSDiffableDataSourceSnapshot<ItemIdentifierType, SectionIdentifierType>;
+
 API_AVAILABLE(macosx(10.12),ios(3.0))
-@interface NSFetchedResultsController<ResultType:id<NSFetchRequestResult>> : NSObject {
-}
+@interface NSFetchedResultsController<ResultType:id<NSFetchRequestResult>> : NSObject
 
 /* ========================================================*/
 /* ========================= INITIALIZERS ====================*/
@@ -1909,15 +1955,40 @@ API_AVAILABLE(macosx(10.12),ios(3.0))
 @end // NSFetchedResultsSectionInfo
 
 
+typedef NS_ENUM(NSUInteger, NSFetchedResultsChangeType) {
+    NSFetchedResultsChangeInsert = 1,
+    NSFetchedResultsChangeDelete = 2,
+    NSFetchedResultsChangeMove = 3,
+    NSFetchedResultsChangeUpdate = 4
+} API_AVAILABLE(macosx(10.12), ios(3.0));
+
 
 @protocol NSFetchedResultsControllerDelegate <NSObject>
+@optional
 
-typedef NS_ENUM(NSUInteger, NSFetchedResultsChangeType) {
-	NSFetchedResultsChangeInsert = 1,
-	NSFetchedResultsChangeDelete = 2,
-	NSFetchedResultsChangeMove = 3,
-	NSFetchedResultsChangeUpdate = 4
-} API_AVAILABLE(macosx(10.12), ios(3.0));
+#pragma mark -
+#pragma mark ***** Snapshot Based Content Change Reporting *****
+
+/* Called when the contents of the fetched results controller change.
+ * If this method is implemented, no other delegate methods will be invoked.
+ */
+- (void)controller:(NSFetchedResultsController *)controller didChangeContentWithSnapshot:(NSDiffableDataSourceSnapshot<NSManagedObjectID *, NSString *> *)snapshot API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+#pragma mark -
+#pragma mark ***** Difference Based Content Change Reporting *****
+
+/* Called when the contents of the fetched results controller change.
+ * If this method is implemented and the controller is configured with
+ * sectionNameKeyPath = nil, no other delegate methods will be invoked.
+ *
+ * This method is only invoked if the controller's `sectionNameKeyPath`
+ * property is nil and `controller:didChangeContentWithSnapshot:` is not
+ * implemented.
+ */
+- (void)controller:(NSFetchedResultsController *)controller didChangeContentWithDifference:(NSOrderedCollectionDifference<NSManagedObjectID *> *)diff API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+#pragma mark -
+#pragma mark ***** Legacy Content Change Reporting *****
 
 /* Notifies the delegate that a fetched object has been changed due to an add, remove, move, or update. Enables NSFetchedResultsController change tracking.
 	controller - controller instance that noticed the change on its fetched objects
@@ -1975,7 +2046,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPersistentStoreDescription.h
     Core Data
-    Copyright (c) 2016-2018, Apple Inc.
+    Copyright (c) 2016-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -1990,13 +2061,6 @@ NS_ASSUME_NONNULL_BEGIN
 // An instance of NSPersistentStoreDescription encapsulates all information needed to describe a persistent store.
 API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0))
 @interface NSPersistentStoreDescription : NSObject <NSCopying> {
-#if (!__OBJC2__)
-@private
-    id _type;
-    id _configuration;
-    id _url;
-    id _options;
-#endif
 }
 
 + (instancetype)persistentStoreDescriptionWithURL:(NSURL *)URL;
@@ -2025,12 +2089,21 @@ API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0))
 
 @end
 
+@class NSPersistentCloudKitContainerOptions;
+@interface NSPersistentStoreDescription (NSPersistentCloudKitContainerAdditions)
+/**
+ Use this property to apply customized instances of NSPersistentCloudKitContainerOptions to
+ a store description you wish to use with CloudKit.
+ */
+@property(strong, nullable) NSPersistentCloudKitContainerOptions *cloudKitContainerOptions API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0));
+@end
+
 NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/NSFetchRequestExpression.h
 /*
     NSFetchRequestExpression.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2044,19 +2117,6 @@ static const NSExpressionType NSFetchRequestExpressionType = (NSExpressionType)5
 
 API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSFetchRequestExpression : NSExpression {
-#if (!__OBJC2__)
-@private
-    void* _reserved1;
-    void* _reserved2;
-    void* _reserved3;
-    void* _reserved4;
-    NSExpression* _fetchRequest;
-    NSExpression* _managedObjectContext;
-    struct _fetchExpressionFlags {
-        unsigned int isCountOnly:1;
-        unsigned int _RESERVED:31;
-    } _flags;
-#endif
 }
 
 /* Returns an expression which will evaluate to the result of executing a fetch request on a context.  The first argument must be an expression which evaluates to an NSFetchRequest *, and the second must be an expression which evaluates to an NSManagedObjectContext *.  If the desired result is simply the count for the request, the "countOnly" argument should be YES.
@@ -2085,7 +2145,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSEntityDescription.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2180,7 +2240,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSSaveChangesRequest.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2216,7 +2276,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPersistentStoreRequest.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2250,7 +2310,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSIncrementalStoreNode.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2304,7 +2364,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSEntityMapping.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2331,29 +2391,6 @@ typedef NS_ENUM(NSUInteger, NSEntityMappingType) {
 
 API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSEntityMapping : NSObject {
-#if (!__OBJC2__)
-@private
-    void *_reserved;
-    void *_reserved1;
-    NSDictionary *_mappingsByName;
-    NSString *_name;
-    NSEntityMappingType _mappingType;
-    NSString *_sourceEntityName;
-    NSData *_sourceEntityVersionHash;
-    NSString *_destinationEntityName;
-    NSData *_destinationEntityVersionHash;
-    NSExpression *_sourceExpression;
-    NSDictionary *_userInfo;
-    NSString *_entityMigrationPolicyClassName;
-    NSMutableArray *_attributeMappings;
-    NSMutableArray *_relationshipMappings;
-
-    struct __entityMappingFlags {
-        unsigned int _isInUse:1;
-        unsigned int _changeIsConstraintOnly:1;
-        unsigned int _reservedEntityMapping:30;
-    } _entityMappingFlags;
-#endif
 }
 
 /* Returns/sets the name of the mapping. The name is used only as a means of distinguishing mappings in a model.  If not specified, defaults to the string composed by the source entity name followed by the destination entity name (ex. SourceName->DestinationName)
@@ -2407,7 +2444,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSFetchedPropertyDescription.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2421,13 +2458,6 @@ NS_ASSUME_NONNULL_BEGIN
 // Fetched properties allow to specify related objects through a "weakly" resolved property, so there is no actual join necessary.
 API_AVAILABLE(macosx(10.4),ios(3.0))
 @interface NSFetchedPropertyDescription : NSPropertyDescription {
-#if (!__OBJC2__)
-@private
-	void *_reserved5;
-	void *_reserved6;
-    NSFetchRequest *_fetchRequest;
-    NSString *_lazyFetchRequestEntityName;
-#endif
 }
 
 // As part of the predicate for a fetched property, you can use the two variables $FETCH_SOURCE (which is the managed object fetching the property) and $FETCHED_PROPERTY (which is the NSFetchedPropertyDescription instance).
@@ -2440,7 +2470,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSManagedObjectModel.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2531,7 +2561,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSMergePolicy.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2680,7 +2710,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSBatchUpdateRequest.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2701,19 +2731,6 @@ NS_ASSUME_NONNULL_BEGIN
 //  the underlying store do not violate any validation rules specified in the model.
 API_AVAILABLE(macosx(10.10),ios(8.0))
 @interface NSBatchUpdateRequest : NSPersistentStoreRequest {
-#if (!__OBJC2__)
-    @private
-    id _entity;
-    NSPredicate *_predicate;
-    struct _requestFlags {
-        unsigned int includesSubentities:1;
-        unsigned int resultType:2;
-        unsigned int entityIsName:1;
-        unsigned int secureOperation:1;
-        unsigned int _RESERVED:27;
-    } _flags;
-    NSDictionary *_columnsToUpdate;
-#endif
 }
 
 + (instancetype)batchUpdateRequestWithEntityName:(NSString*)entityName;
@@ -2742,7 +2759,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSManagedObject.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2886,7 +2903,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSPersistentContainer.h
     Core Data
-    Copyright (c) 2016-2018, Apple Inc.
+    Copyright (c) 2016-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2905,13 +2922,6 @@ NS_ASSUME_NONNULL_BEGIN
 // An instance of NSPersistentContainer includes all objects needed to represent a functioning Core Data stack, and provides convenience methods and properties for common patterns.
 API_AVAILABLE(macosx(10.12),ios(10.0),tvos(10.0),watchos(3.0))
 @interface NSPersistentContainer : NSObject {
-#if (!__OBJC2__)
-@private
-    id _name;
-    NSManagedObjectContext *_viewContext;
-    id _storeCoordinator;
-    id _storeDescriptions;
-#endif
 }
 
 + (instancetype)persistentContainerWithName:(NSString *)name;
@@ -2943,7 +2953,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSManagedObjectID.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -2974,7 +2984,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSManagedObjectContext.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -3204,7 +3214,7 @@ NS_ASSUME_NONNULL_END
 /*
     NSMappingModel.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -3220,18 +3230,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSMappingModel: NSObject {
-#if (!__OBJC2__)
-    @private
-    void *_reserved;
-    void *_reserved1;
-    void *_reserved2;
-    NSMutableArray *_entityMappings;
-    NSMutableDictionary *_entityMappingsByName;
-    struct __modelMappingFlags {
-        unsigned int _isInUse:1;
-        unsigned int _reservedModelMapping:31;
-    } _modelMappingFlags;
-#endif
 }
 
 /* Returns the mapping model to translate data from the source to the destination model.  This method is a companion to the mergedModelFromBundles: methods;  in this case, the framework uses the version information from the models to locate the appropriate mapping model in the available bundles.  If the mapping model for the models cannot be found, this method returns nil. 
@@ -3259,11 +3257,55 @@ API_AVAILABLE(macosx(10.5),ios(3.0))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreData.framework/Headers/NSDerivedAttributeDescription.h
+/*
+    NSDerivedAttributeDescription.h
+    Core Data
+    Copyright (c) 2018-2019, Apple Inc.
+    All rights reserved.
+*/
+
+#import <Foundation/NSObject.h>
+#import <CoreData/NSAttributeDescription.h>
+
+@class NSExpression;
+@class NSPredicate;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/* Class that describes an attribute whose value should be derived from one or more
+ other properties and how that derivation should be done.
+ This is primarily intended to optimize fetch performance. Some use cases:
+ * creating a derived 'searchName' attribute that reflects a 'name' attribute with
+ case and diacritics stripped for more efficient comparisons during fetching
+ * creating a 'relationshipCount' attribute reflecting the number of objects in
+ a relationship and so avoid having to do a join during fetching
+ 
+ IMPORTANT: Derived attributes will be recomputed during save, so unsaved changes
+ will not be reflected in a managed object's property until after a save+refresh. */
+
+API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0))
+@interface NSDerivedAttributeDescription : NSAttributeDescription
+
+/* Instance of NSExpression that will be used to generate the derived data.
+ When using derived attributes in an SQL store, this expression should be
+ * a keypath expression (including @operation components)
+ * a function expression using one of the predefined functions defined
+ in NSExpression.h
+ Any keypaths used in the expression must be accessible from the entity on which
+ the derived attribute is specified.
+ If a store is added to a coordinator whose model contains derived attributes of
+ a type not supported by the store, the add will fail and an NSError will be returned. */
+@property (strong, nullable) NSExpression *derivationExpression;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  CoreData.framework/Headers/CoreDataErrors.h
 /*
     CoreDataErrors.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -3349,11 +3391,53 @@ enum : NSInteger {
 };
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreData.framework/Headers/NSPersistentCloudKitContainer.h
+/*
+    NSPersistentCloudKitContainer.h
+    Core Data
+    Copyright (c) 2018-2019, Apple Inc.
+    All rights reserved.
+*/
+
+
+
+#import <CoreData/NSPersistentContainer.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*
+ NSPersistentCloudKitContainer managed one or more persistent stores that are backed by a CloudKit private database.
+ 
+ By default, NSPersistentContainer contains a single store description which, if not customized otherwise, is assigned
+ to the first CloudKit container identifier in an application's entitlements.
+ 
+ Instances of NSPersistentCloudKitContainerOptions can be used to customize this behavior or create additional instances of
+ NSPersistentStoreDescription backed by different containers.
+ 
+ As NSPersistentCloudKitContainer is a subclass of NSPersistentContainer, it can manage both CloudKit backed and non-cloud stores.
+ */
+@class CKRecord;
+@class CKRecordID;
+API_AVAILABLE(macosx(10.15),ios(13.0),tvos(13.0),watchos(6.0))
+@interface NSPersistentCloudKitContainer : NSPersistentContainer
+
+/**
+ These methods provide access to the underlying CKRecord, or CKRecordID, backing a given NSManagedObjectID.
+ */
+- (nullable CKRecord *)recordForManagedObjectID:(NSManagedObjectID *)managedObjectID;
+- (NSDictionary<NSManagedObjectID *, CKRecord *> *)recordsForManagedObjectIDs:(NSArray<NSManagedObjectID *> *)managedObjectIDs;
+- (nullable CKRecordID *)recordIDForManagedObjectID:(NSManagedObjectID *)managedObjectID;
+- (NSDictionary<NSManagedObjectID *, CKRecordID *> *)recordIDsForManagedObjectIDs:(NSArray<NSManagedObjectID *> *)managedObjectIDs;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  CoreData.framework/Headers/NSPropertyMapping.h
 /*
     NSPropertyMapping.h
     Core Data
-    Copyright (c) 2004-2018, Apple Inc.
+    Copyright (c) 2004-2019, Apple Inc.
     All rights reserved.
 */
 
@@ -3367,19 +3451,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(macosx(10.5),ios(3.0))
 @interface NSPropertyMapping : NSObject {
-#if (!__OBJC2__)
-    @private
-    void *_reserved;
-    NSArray *_transformValidations;
-    NSArray *_propertyTransforms;
-    NSString *_name;
-    NSExpression *_valueExpression;
-    NSDictionary *_userInfo;
-    struct __propertyMappingFlags {
-        unsigned int _isInUse:1;
-        unsigned int _reservedPropertyMapping:31;
-    } _propertyMappingFlags;
-#endif
 }
 
 /* Returns/sets the name of the property in the destination entity for the mapping.  

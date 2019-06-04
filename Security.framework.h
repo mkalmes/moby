@@ -1,6 +1,6 @@
 // ==========  Security.framework/Headers/SecureTransport.h
 /*
- * Copyright (c) 1999-2002,2005-2016 Apple Inc. All Rights Reserved.
+ * Copyright (c) 1999-2002,2005-2019 Apple Inc. All Rights Reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
  * 
@@ -60,8 +60,10 @@
  */
 
 #include <CoreFoundation/CFArray.h>
+#include <Security/SecProtocolOptions.h>
 #include <Security/CipherSuite.h>
 #include <Security/SecTrust.h>
+#include <Security/SecBase.h>
 #include <sys/types.h>
 #include <Availability.h>
 
@@ -72,34 +74,19 @@ extern "C" {
 CF_ASSUME_NONNULL_BEGIN
 CF_IMPLICIT_BRIDGING_ENABLED
 
+#define __SECURETRANSPORT_API_DEPRECATED(...) \
+    __API_DEPRECATED("No longer supported. Use Network.framework.", __VA_ARGS__)
+
 /***********************
  *** Common typedefs ***
  ***********************/
 
 /* Opaque reference to an SSL session context */
-struct                      SSLContext;
+struct SSLContext;
 typedef struct CF_BRIDGED_TYPE(id) SSLContext *SSLContextRef;
 
 /* Opaque reference to an I/O connection (socket, endpoint, etc.) */
-typedef const void *		SSLConnectionRef;
-
-/* SSL Protocol version */
-typedef CF_ENUM(int, SSLProtocol) {
-    kSSLProtocolUnknown = 0, /* no protocol negotiated/specified; use default */
-    kSSLProtocol3 = 2, /* SSL 3.0 */
-    kTLSProtocol1 = 4, /* TLS 1.0 */
-    kTLSProtocol11 = 7, /* TLS 1.1 */
-    kTLSProtocol12 = 8, /* TLS 1.2 */
-    kDTLSProtocol1 = 9, /* DTLS 1.0 */
-    kTLSProtocol13 = 10, /* TLS 1.3 */
-
-    kTLSProtocolMaxSupported = 999, /* Max system-supported version */
-
-    kSSLProtocol2 = 1, /* SSL 2.0. DEPRECATED on iOS. */
-    kSSLProtocol3Only = 3, /* SSL 3.0. DEPRECATED on iOS. */
-    kTLSProtocol1Only = 5, /* TLS 1.0 Only. DEPRECATED on iOS. */
-    kSSLProtocolAll = 6, /* All TLS supported protocols. DEPRECATED on iOS. */
-};
+typedef const void *SSLConnectionRef;
 
 /* SSL session options */
 typedef CF_ENUM(int, SSLSessionOption) {
@@ -110,62 +97,62 @@ typedef CF_ENUM(int, SSLSessionOption) {
 	 * provides an opportunity to perform application-specific server
 	 * verification before deciding to continue.
 	 */
-	kSSLSessionOptionBreakOnServerAuth = 0,
+	kSSLSessionOptionBreakOnServerAuth CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0) = 0,
 	/*
 	 * Set this option to enable returning from SSLHandshake (with a result of
 	 * errSSLClientCertRequested) when the server requests a client certificate.
 	 */
-	kSSLSessionOptionBreakOnCertRequested = 1,
+	kSSLSessionOptionBreakOnCertRequested CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0) = 1,
     /*
      * This option is the same as kSSLSessionOptionBreakOnServerAuth but applies
      * to the case where SecureTransport is the server and the client has presented
      * its certificates allowing the server to verify whether these should be
      * allowed to authenticate.
      */
-    kSSLSessionOptionBreakOnClientAuth = 2,
+    kSSLSessionOptionBreakOnClientAuth CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0) = 2,
     /*
      * Enable/Disable TLS False Start
      * When enabled, False Start will only be performed if a adequate cipher-suite is
      * negotiated.
      */
-    kSSLSessionOptionFalseStart = 3,
+    kSSLSessionOptionFalseStart CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0) = 3,
     /*
      * Enable/Disable 1/n-1 record splitting for BEAST attack mitigation.
      * When enabled, record splitting will only be performed for TLS 1.0 connections
      * using a block cipher.
      */
-    kSSLSessionOptionSendOneByteRecord = 4,
+    kSSLSessionOptionSendOneByteRecord CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0) = 4,
     /*
      * Allow/Disallow server identity change on renegotiation. Disallow by default
      * to avoid Triple Handshake attack.
      */
-    kSSLSessionOptionAllowServerIdentityChange = 5,
+    kSSLSessionOptionAllowServerIdentityChange CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0) = 5,
     /*
      * Enable fallback countermeasures. Use this option when retyring a SSL connection
      * with a lower protocol version because of failure to connect.
      */
-    kSSLSessionOptionFallback = 6,
+    kSSLSessionOptionFallback CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0) = 6,
     /*
      * Set this option to break from a client hello in order to check for SNI
      */
-    kSSLSessionOptionBreakOnClientHello = 7,
+    kSSLSessionOptionBreakOnClientHello CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0) = 7,
     /*
      * Set this option to Allow renegotations. False by default.
      */
-    kSSLSessionOptionAllowRenegotiation = 8,
+    kSSLSessionOptionAllowRenegotiation CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0) = 8,
     /*
      * Set this option to enable session tickets. False by default.
      */
-    kSSLSessionOptionEnableSessionTickets = 9,
+    kSSLSessionOptionEnableSessionTickets CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0) = 9,
 };
 
 /* State of an SSLSession */
-typedef CF_ENUM(int, SSLSessionState) {
-	kSSLIdle,					/* no I/O performed yet */
-	kSSLHandshake,				/* SSL handshake in progress */
-	kSSLConnected,				/* Handshake complete, ready for normal I/O */
-	kSSLClosed,					/* connection closed normally */
-	kSSLAborted					/* connection aborted */
+typedef CF_CLOSED_ENUM(int, SSLSessionState) {
+	kSSLIdle CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0),        /* no I/O performed yet */
+	kSSLHandshake CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0),	/* SSL handshake in progress */
+	kSSLConnected CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0),	/* Handshake complete, ready for normal I/O */
+	kSSLClosed CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0),		/* connection closed normally */
+	kSSLAborted	CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0)		/* connection aborted */
 };
 
 /*
@@ -174,33 +161,21 @@ typedef CF_ENUM(int, SSLSessionState) {
  */
 typedef CF_ENUM(int, SSLClientCertificateState) {
 	/* Server hasn't asked for a cert. Client hasn't sent one. */
-	kSSLClientCertNone,
+	kSSLClientCertNone CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0),
 	/* Server has asked for a cert, but client didn't send it. */
-	kSSLClientCertRequested,
+	kSSLClientCertRequested CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0),
 	/*
 	 * Server side: We asked for a cert, client sent one, we validated
 	 *				it OK. App can inspect the cert via
 	 *				SSLCopyPeerCertificates().
 	 * Client side: server asked for one, we sent it.
 	 */
-	kSSLClientCertSent,
+	kSSLClientCertSent CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0),
 	/*
 	 * Client sent a cert but failed validation. Server side only.
 	 * Server app can inspect the cert via SSLCopyPeerCertificates().
 	 */
-	kSSLClientCertRejected
-};
-
-/*
- * Convenience ciphersuite groups that collate ciphersuites of comparable security
- * properties into a single alias.
- */
-typedef CF_ENUM(int, SSLCiphersuiteGroup) {
-    kSSLCiphersuiteGroupDefault,
-    kSSLCiphersuiteGroupCompatibility,
-    kSSLCiphersuiteGroupLegacy,
-    kSSLCiphersuiteGroupATS,
-    kSSLCiphersuiteGroupATSCompatibility,
+	kSSLClientCertRejected CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0)
 };
 
 /*
@@ -231,100 +206,6 @@ typedef OSStatus
 							 const void 		*data,
 							 size_t 			*dataLength);	/* IN/OUT */
 
-/*************************************************
- *** OSStatus values unique to SecureTransport ***
- *************************************************/
-
-/*
-    Note: the comments that appear after these errors are used to create SecErrorMessages.strings.
-    The comments must not be multi-line, and should be in a form meaningful to an end user. If
-    a different or additional comment is needed, it can be put in the header doc format, or on a
-    line that does not start with errZZZ.
-*/
-
-CF_ENUM(OSStatus) {
-	errSSLProtocol				= -9800,	/* SSL protocol error */
-	errSSLNegotiation			= -9801,	/* Cipher Suite negotiation failure */
-	errSSLFatalAlert			= -9802,	/* Fatal alert */
-	errSSLWouldBlock			= -9803,	/* I/O would block (not fatal) */
-    errSSLSessionNotFound 		= -9804,	/* attempt to restore an unknown session */
-    errSSLClosedGraceful 		= -9805,	/* connection closed gracefully */
-    errSSLClosedAbort 			= -9806,	/* connection closed via error */
-    errSSLXCertChainInvalid 	= -9807,	/* invalid certificate chain */
-    errSSLBadCert				= -9808,	/* bad certificate format */
-	errSSLCrypto				= -9809,	/* underlying cryptographic error */
-	errSSLInternal				= -9810,	/* Internal error */
-	errSSLModuleAttach			= -9811,	/* module attach failure */
-    errSSLUnknownRootCert		= -9812,	/* valid cert chain, untrusted root */
-    errSSLNoRootCert			= -9813,	/* cert chain not verified by root */
-	errSSLCertExpired			= -9814,	/* chain had an expired cert */
-	errSSLCertNotYetValid		= -9815,	/* chain had a cert not yet valid */
-	errSSLClosedNoNotify		= -9816,	/* server closed session with no notification */
-	errSSLBufferOverflow		= -9817,	/* insufficient buffer provided */
-	errSSLBadCipherSuite		= -9818,	/* bad SSLCipherSuite */
-
-	/* fatal errors detected by peer */
-	errSSLPeerUnexpectedMsg		= -9819,	/* unexpected message received */
-	errSSLPeerBadRecordMac		= -9820,	/* bad MAC */
-	errSSLPeerDecryptionFail	= -9821,	/* decryption failed */
-	errSSLPeerRecordOverflow	= -9822,	/* record overflow */
-	errSSLPeerDecompressFail	= -9823,	/* decompression failure */
-	errSSLPeerHandshakeFail		= -9824,	/* handshake failure */
-	errSSLPeerBadCert			= -9825,	/* misc. bad certificate */
-	errSSLPeerUnsupportedCert	= -9826,	/* bad unsupported cert format */
-	errSSLPeerCertRevoked		= -9827,	/* certificate revoked */
-	errSSLPeerCertExpired		= -9828,	/* certificate expired */
-	errSSLPeerCertUnknown		= -9829,	/* unknown certificate */
-	errSSLIllegalParam			= -9830,	/* illegal parameter */
-	errSSLPeerUnknownCA 		= -9831,	/* unknown Cert Authority */
-	errSSLPeerAccessDenied		= -9832,	/* access denied */
-	errSSLPeerDecodeError		= -9833,	/* decoding error */
-	errSSLPeerDecryptError		= -9834,	/* decryption error */
-	errSSLPeerExportRestriction	= -9835,	/* export restriction */
-	errSSLPeerProtocolVersion	= -9836,	/* bad protocol version */
-	errSSLPeerInsufficientSecurity = -9837,	/* insufficient security */
-	errSSLPeerInternalError		= -9838,	/* internal error */
-	errSSLPeerUserCancelled		= -9839,	/* user canceled */
-	errSSLPeerNoRenegotiation	= -9840,	/* no renegotiation allowed */
-
-	/* non-fatal result codes */
-	errSSLPeerAuthCompleted     = -9841,    /* peer cert is valid, or was ignored if verification disabled */
-	errSSLClientCertRequested	= -9842,	/* server has requested a client cert */
-
-	/* more errors detected by us */
-	errSSLHostNameMismatch		= -9843,	/* peer host name mismatch */
-	errSSLConnectionRefused		= -9844,	/* peer dropped connection before responding */
-	errSSLDecryptionFail		= -9845,	/* decryption failure */
-	errSSLBadRecordMac			= -9846,	/* bad MAC */
-	errSSLRecordOverflow		= -9847,	/* record overflow */
-	errSSLBadConfiguration		= -9848,	/* configuration error */
-	errSSLUnexpectedRecord      = -9849,	/* unexpected (skipped) record in DTLS */
-    errSSLWeakPeerEphemeralDHKey = -9850,	/* weak ephemeral dh key  */
-
-    /* non-fatal result codes */
-    errSSLClientHelloReceived   = -9851,    /* SNI */
-
-    /* fatal errors resulting from transport or networking errors */
-    errSSLTransportReset        = -9852,    /* transport (socket) shutdown, e.g., TCP RST or FIN. */
-    errSSLNetworkTimeout        = -9853,    /* network timeout triggered */
-
-    /* fatal errors resulting from software misconfiguration */
-    errSSLConfigurationFailed   = -9854,    /* TLS configuration failed */
-
-    /* additional errors */
-    errSSLUnsupportedExtension  = -9855,    /* unsupported TLS extension */
-    errSSLUnexpectedMessage     = -9856,    /* peer rejected unexpected message */
-    errSSLDecompressFail        = -9857,    /* decompression failed */
-    errSSLHandshakeFail         = -9858,    /* handshake failed */
-    errSSLDecodeError           = -9859,    /* decode failed */
-    errSSLInappropriateFallback = -9860,    /* inappropriate fallback */
-    errSSLMissingExtension      = -9861,    /* missing extension */
-    errSSLBadCertificateStatusResponse = -9862, /* bad OCSP response */
-    errSSLCertificateRequired   = -9863,    /* certificate required */
-    errSSLUnknownPSKIdentity    = -9864,    /* unknown PSK identity */
-    errSSLUnrecognizedName      = -9865,    /* unknown or unrecognized name */
-};
-
 /* DEPRECATED aliases for errSSLPeerAuthCompleted */
 #define errSSLServerAuthCompleted	errSSLPeerAuthCompleted
 #define errSSLClientAuthCompleted	errSSLPeerAuthCompleted
@@ -332,69 +213,69 @@ CF_ENUM(OSStatus) {
 /* DEPRECATED alias for the end of the error range */
 #define errSSLLast errSSLUnexpectedRecord
 
-typedef CF_ENUM(int, SSLProtocolSide)
+typedef CF_CLOSED_ENUM(int, SSLProtocolSide)
 {
-    kSSLServerSide,
-    kSSLClientSide
+    kSSLServerSide CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0),
+    kSSLClientSide CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0)
 };
 
 typedef CF_ENUM(int, SSLConnectionType)
 {
-    kSSLStreamType,
-    kSSLDatagramType
+    kSSLStreamType CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0),
+    kSSLDatagramType CF_ENUM_DEPRECATED(10_2, 10_15, 2_0, 13_0)
 };
 
 /*
- * Predefined TLS configurations constants
+ * Predefined TLS configuration constants
  */
 
 /* Default configuration (has 3DES, no RC4) */
 extern const CFStringRef kSSLSessionConfig_default
-__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_13,__IPHONE_5_0,__IPHONE_11_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.13), ios(5.0, 11.0));
 
 /* ATS v1 Config: TLS v1.2, only PFS ciphersuites */
 extern const CFStringRef kSSLSessionConfig_ATSv1
-__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /* ATS v1 Config without PFS: TLS v1.2, include non PFS ciphersuites */
 extern const CFStringRef kSSLSessionConfig_ATSv1_noPFS
-__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /* TLS v1.2 to TLS v1.0, with default ciphersuites (no 3DES, no RC4) */
 extern const CFStringRef kSSLSessionConfig_standard
-__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /* TLS v1.2 to TLS v1.0, with default ciphersuites + RC4 + 3DES */
 extern const CFStringRef kSSLSessionConfig_RC4_fallback
-__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_13,__IPHONE_5_0,__IPHONE_11_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.13), ios(5.0, 11.0));
 
 /* TLS v1.0 only, with default ciphersuites + fallback SCSV */
 extern const CFStringRef kSSLSessionConfig_TLSv1_fallback
-__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /* TLS v1.0, with default ciphersuites + RC4 + 3DES + fallback SCSV */
 extern const CFStringRef kSSLSessionConfig_TLSv1_RC4_fallback
-__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_13,__IPHONE_5_0,__IPHONE_11_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.13), ios(5.0, 11.0));
 
 /* TLS v1.2 to TLS v1.0, defaults + RC4 + DHE ciphersuites */
 extern const CFStringRef kSSLSessionConfig_legacy
-__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /* TLS v1.2 to TLS v1.0, default + RC4 + DHE ciphersuites */
 extern const CFStringRef kSSLSessionConfig_legacy_DHE
-__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /* TLS v1.2, anonymous ciphersuites only */
 extern const CFStringRef kSSLSessionConfig_anonymous
-__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /* TLS v1.2 to TLS v1.0, has 3DES, no RC4 */
 extern const CFStringRef kSSLSessionConfig_3DES_fallback
-__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_13,__IPHONE_5_0,__IPHONE_11_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.13), ios(5.0, 11.0));
 
 /* TLS v1.0, with default ciphersuites + 3DES, no RC4 */
 extern const CFStringRef kSSLSessionConfig_TLSv1_3DES_fallback
-__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_13,__IPHONE_5_0,__IPHONE_11_0);
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.13), ios(5.0, 11.0));
 
 
 /******************
@@ -415,38 +296,53 @@ __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_13,__IPHONE_5_0,__IPHONE_11_0
  */
 
 /*
- * Return the CFTypeID for SSLContext objects.
+ * @function SSLContextGetTypeID
+ * @abstract Return the CFTypeID for SSLContext objects.
+ * @return CFTypeId for SSLContext objects.
  */
 CFTypeID
 SSLContextGetTypeID(void)
-	__OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.8, 10.15), ios(5.0, 13.0));
 
 /*
- * Create a new instance of an SSLContextRef using the specified allocator.
+ * @function SSLCreateContext
+ * @abstract Create a new instance of an SSLContextRef using the specified allocator.
+ * @param alloc Allocator to use for memory.
+ * @param protooclSide Client or server indication.
+ * @param connectionType Type of connection.
+ * @return A newly allocated SSLContextRef, or NULL on error.
  */
 __nullable
 SSLContextRef
 SSLCreateContext(CFAllocatorRef __nullable alloc, SSLProtocolSide protocolSide, SSLConnectionType connectionType)
-	__OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.8, 10.15), ios(5.0, 13.0));
 
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 /*
- * Create a new session context.
+ * @function SSLNewContext
+ * @abstract Create a new session context.
+ * @note
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
  * NOTE: this function is not available on iOS, and should be considered
  * deprecated on Mac OS X. Your code should use SSLCreateContext instead.
+ *
+ * @param isServer Flag indicating if the context is for the server (true) or client (false).
+ * @param contextPtr Pointer to SSLContextRef where result will be stored.
+ * @return errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLNewContext				(Boolean 			isServer,
 							 SSLContextRef 		* __nonnull CF_RETURNS_RETAINED contextPtr)	/* RETURNED */
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Dispose of a session context.
+ * @function SSLDisposeContext
+ * @abstract Dispose of a session context.
+ * @note
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
@@ -454,134 +350,175 @@ SSLNewContext				(Boolean 			isServer,
  * NOTE: this function is not available on iOS, and should be considered
  * deprecated on Mac OS X. Your code should use CFRelease to dispose a session
  * created with SSLCreateContext.
+ *
+ * @param context A SSLContextRef to deallocate and destroy.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLDisposeContext			(SSLContextRef		context)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 #endif /* MAC OS X */
 
 /*
- * Determine the state of an SSL/DTLS session.
+ * @function SSLGetSessionState
+ * @abstract Determine the state of an SSL/DTLS session.
+ * @param context A valid SSLContextRef.
+ * @param state Output pointer to store the SSLSessionState.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetSessionState			(SSLContextRef		context,
 							 SSLSessionState	*state)		/* RETURNED */
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Set options for an SSL session. Must be called prior to SSLHandshake();
- * subsequently cannot be called while session is active.
+ * @function SSLSetSessionOption
+ * @abstract Set options for an SSL session. Must be called prior to SSLHandshake();
+ *   subsequently cannot be called while session is active.
+ * @param context A valid SSLContextRef.
+ * @param option An option enumeration value.
+ * @param value Value of the SSLSessionOption.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetSessionOption			(SSLContextRef		context,
 							 SSLSessionOption	option,
 							 Boolean			value)
-	__OSX_AVAILABLE_STARTING(__MAC_10_6, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.6, 10.15), ios(5.0, 13.0));
 
 /*
- * Determine current value for the specified option in a given SSL session.
+ * @function SSLGetSessionOption
+ * @abstract Determine current value for the specified option in a given SSL session.
+ * @param context A valid SSLContextRef.
+ * @param option An option enumeration value.
+ * @param value Pointer to a Boolean where the SSLSessionOption value is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetSessionOption			(SSLContextRef		context,
 							 SSLSessionOption	option,
 							 Boolean			*value)
-	__OSX_AVAILABLE_STARTING(__MAC_10_6, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.6, 10.15), ios(5.0, 13.0));
 
 /********************************************************************
  *** Session context configuration, common to client and servers. ***
  ********************************************************************/
 
 /*
- * Specify functions which do the network I/O. Must be called prior
- * to SSLHandshake(); subsequently cannot be called while a session is
- * active.
+ * @function SSLSetIOFuncs
+ * @abstract Specify functions which do the network I/O. Must be called prior
+ *    to SSLHandshake(); subsequently cannot be called while a session is
+ *    active.
+ * @param context A valid SSLContextRef.
+ * @param readFunc Pointer to a SSLReadFunc.
+ * @param writeFunc Pointer to a SSLWriteFunc.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetIOFuncs				(SSLContextRef		context,
 							 SSLReadFunc 		readFunc,
 							 SSLWriteFunc		writeFunc)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 
 /*
- * Set a predefined configuration for the SSL Session
- *
- * This currently affect enabled protocol versions,
- * enabled ciphersuites, and the kSSLSessionOptionFallback
- * session option.
+ * @function SSLSetSessionConfig
+ * @absttact Set a predefined configuration for the SSL Session
+ * @note This currently affect enabled protocol versions,
+ *   enabled ciphersuites, and the kSSLSessionOptionFallback
+ *   session option.
+ * @param context A valid SSLContextRef.
+ * @param config String name of constant TLS handshake configuration, e.g., kSSLSessionConfig_standard.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetSessionConfig(SSLContextRef context,
                     CFStringRef config)
-    __OSX_AVAILABLE_STARTING(__MAC_10_12, __IPHONE_10_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.12, 10.15), ios(10.0, 13.0));
 
 /*
- * Set the minimum SSL protocol version allowed. Optional.
- * The default is the lower supported protocol.
+ * @function SSLSetProtocolVersionMin
+ * @abstract Set the minimum SSL protocol version allowed. Optional.
+ *   The default is the lower supported protocol.
+ * @note This can only be called when no session is active.
  *
- * This can only be called when no session is active.
- *
- * For TLS contexts, legal values for minVersion are :
- *		kSSLProtocol3
+ *   For TLS contexts, legal values for minVersion are :
+ *	  	kSSLProtocol3
  * 		kTLSProtocol1
  * 		kTLSProtocol11
  * 		kTLSProtocol12
  *
- * For DTLS contexts, legal values for minVersion are :
+ *   For DTLS contexts, legal values for minVersion are :
  *      kDTLSProtocol1
+ * @param context A valid SSLContextRef.
+ * @param minVersion Minimum TLS protocol version.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetProtocolVersionMin  (SSLContextRef      context,
                            SSLProtocol        minVersion)
-    __OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.8, 10.15), ios(5.0, 13.0));
 
 /*
- * Get minimum protocol version allowed
+ * @function SSLGetProtocolVersionMin
+ * @abstract Get minimum protocol version allowed
+ * @param context A valid SSLContextRef.
+ * @param minVersion Pointer to SSLProtocol value where the minimum protocol version is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetProtocolVersionMin  (SSLContextRef      context,
                            SSLProtocol        *minVersion)
-    __OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.8, 10.15), ios(5.0, 13.0));
 
 /*
- * Set the maximum SSL protocol version allowed. Optional.
- * The default is the highest supported protocol.
+ * @function SSLSetProtocolVersionMax
+ * @abstract Set the maximum SSL protocol version allowed. Optional.
+ *   The default is the highest supported protocol.
+ * @note
+ *   This can only be called when no session is active.
  *
- * This can only be called when no session is active.
- *
- * For TLS contexts, legal values for maxVersion are :
+ *   For TLS contexts, legal values for maxVersion are :
  *		kSSLProtocol3
  * 		kTLSProtocol1
  * 		kTLSProtocol11
  * 		kTLSProtocol12
  *
- * For DTLS contexts, legal values for maxVersion are :
+ *   For DTLS contexts, legal values for maxVersion are :
  *      kDTLSProtocol1
+ * @param context A valid SSLContextRef.
+ * @param maxVersion Maximum TLS protocol version.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetProtocolVersionMax  (SSLContextRef      context,
                            SSLProtocol        maxVersion)
-    __OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.8, 10.15), ios(5.0, 13.0));
 
 /*
- * Get maximum protocol version allowed
+ * @function SSLGetProtocolVersionMax
+ * @abstract Get maximum protocol version allowed
+ * @param context A valid SSLContextRef.
+ * @param maxVersion Pointer to SSLProtocol value where the maximum protocol version is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetProtocolVersionMax  (SSLContextRef      context,
                            SSLProtocol        *maxVersion)
-    __OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.8, 10.15), ios(5.0, 13.0));
 
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 /*
- * Set allowed SSL protocol versions. Optional.
- * Specifying kSSLProtocolAll for SSLSetProtocolVersionEnabled results in
- * specified 'enable' boolean to be applied to all supported protocols.
- * The default is "all supported protocols are enabled".
- * This can only be called when no session is active.
+ * @function SSLSetProtocolVersionEnabled
+ * @abstract Set allowed SSL protocol versions. Optional.
+ * @discussion Specifying kSSLProtocolAll for SSLSetProtocolVersionEnabled results in
+ *   specified 'enable' boolean to be applied to all supported protocols.
+ *   The default is "all supported protocols are enabled".
+ *   This can only be called when no session is active.
  *
- * Legal values for protocol are :
+ *   Legal values for protocol are :
  *		kSSLProtocol2
  *		kSSLProtocol3
  * 		kTLSProtocol1
@@ -590,15 +527,19 @@ SSLGetProtocolVersionMax  (SSLContextRef      context,
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
+ * @note this function is not available on iOS, and should be considered
  * deprecated on Mac OS X. You can use SSLSetProtocolVersionMin and/or
  * SSLSetProtocolVersionMax to specify which protocols are enabled.
+ * @param context A valid SSLContextRef.
+ * @param protocol A SSLProtocol enumerated value.
+ * @param enable Boolean to enable or disable the designated protocol.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetProtocolVersionEnabled (SSLContextRef 	context,
 							 SSLProtocol		protocol,
 							 Boolean			enable)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
  * Obtain a value specified in SSLSetProtocolVersionEnabled.
@@ -614,303 +555,415 @@ OSStatus
 SSLGetProtocolVersionEnabled(SSLContextRef 		context,
 							 SSLProtocol		protocol,
 							 Boolean			*enable)	/* RETURNED */
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Get/set SSL protocol version; optional. Default is kSSLProtocolUnknown,
- * in which case the highest possible version is attempted, but a lower
- * version is accepted if the peer requires it.
- * SSLSetProtocolVersion cannot be called when a session is active.
+ * @function SSLSetProtocolVersion
+ * @abstract Get/set SSL protocol version; optional. Default is kSSLProtocolUnknown,
+ *   in which case the highest possible version is attempted, but a lower
+ *   version is accepted if the peer requires it.
+ * @discussion SSLSetProtocolVersion cannot be called when a session is active.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and deprecated on Mac OS X 10.8.
- * Use SSLSetProtocolVersionMin and/or SSLSetProtocolVersionMax to specify
- * which protocols are enabled.
+ * @note this function is not available on iOS, and deprecated on Mac OS X 10.8.
+ *   Use SSLSetProtocolVersionMin and/or SSLSetProtocolVersionMax to specify
+ *   which protocols are enabled.
+ * @param context A valid SSLContextRef.
+ * @param protocol A SSLProtocol enumerated value.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetProtocolVersion		(SSLContextRef 		context,
 							 SSLProtocol		version)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_8,__IPHONE_NA,__IPHONE_NA);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.8));
 
 /*
- * Obtain the protocol version specified in SSLSetProtocolVersion.
- * If SSLSetProtocolVersionEnabled() has been called for this session,
- * SSLGetProtocolVersion() may return errSecParam if the protocol enable
- * state can not be represented by the SSLProtocol enums (e.g.,
- * SSL2 and TLS1 enabled, SSL3 disabled).
+ * @function SSLGetProtocolVersion
+ * @abstract Obtain the protocol version specified in SSLSetProtocolVersion.
+ * @discussion If SSLSetProtocolVersionEnabled() has been called for this session,
+ *   SSLGetProtocolVersion() may return errSecParam if the protocol enable
+ *   state can not be represented by the SSLProtocol enums (e.g.,
+ *   SSL2 and TLS1 enabled, SSL3 disabled).
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and deprecated on Mac OS X 10.8.
- * Use SSLGetProtocolVersionMin and/or SSLGetProtocolVersionMax to check
- * whether a protocol is enabled.
+ * @note this function is not available on iOS, and deprecated on Mac OS X 10.8.
+ *   Use SSLGetProtocolVersionMin and/or SSLGetProtocolVersionMax to check
+ *   whether a protocol is enabled.
+ * @param context A valid SSLContextRef.
+ * @param protocol A SSLProtocol enumerated value pointer to store the protocol version.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetProtocolVersion		(SSLContextRef		context,
 							 SSLProtocol		*protocol)	/* RETURNED */
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_8,__IPHONE_NA,__IPHONE_NA);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.8));
 
 #endif /* MAC OS X */
 
 /*
- * Specify this connection's certificate(s). This is mandatory for
- * server connections, optional for clients. Specifying a certificate
- * for a client enables SSL client-side authentication. The end-entity
- * cert is in certRefs[0]. Specifying a root cert is optional; if it's
- * not specified, the root cert which verifies the cert chain specified
- * here must be present in the system-wide set of trusted anchor certs.
+ * @function SSLSetCertificate
+ * @abstract Specify this connection's certificate(s).
+ * @discussion This is mandatory for server connections,and optional for
+ *   clients. Specifying a certificate for a client enables SSL client-side
+ *   authentication. The end-entity cert is in certRefs[0]. Specifying a root
+ *   cert is optional; if it's not specified, the root cert which verifies the
+ *   cert chain specified here must be present in the system-wide set of trusted
+ *   anchor certs.
  *
- * The certRefs argument is a CFArray containing SecCertificateRefs,
- * except for certRefs[0], which is a SecIdentityRef.
+ *   The certRefs argument is a CFArray containing SecCertificateRefs,
+ *   except for certRefs[0], which is a SecIdentityRef.
  *
- * Must be called prior to SSLHandshake(), or immediately after
- * SSLHandshake has returned errSSLClientCertRequested (i.e. before the
- * handshake is resumed by calling SSLHandshake again.)
+ *   Must be called prior to SSLHandshake(), or immediately after
+ *   SSLHandshake has returned errSSLClientCertRequested (i.e. before the
+ *   handshake is resumed by calling SSLHandshake again.)
  *
- * SecureTransport assumes the following:
+ *   SecureTransport assumes the following:
  *
- *  -- The certRef references remain valid for the lifetime of the session.
- *  -- The certificate specified in certRefs[0] is capable of signing.
- *  -- The required capabilities of the certRef[0], and of the optional cert
- *     specified in SSLSetEncryptionCertificate (see below), are highly
- *     dependent on the application. For example, to work as a server with
- *     Netscape clients, the cert specified here must be capable of both
- *     signing and encrypting.
+ *    -- The certRef references remain valid for the lifetime of the session.
+ *    -- The certificate specified in certRefs[0] is capable of signing.
+ *    -- The required capabilities of the certRef[0], and of the optional cert
+ *       specified in SSLSetEncryptionCertificate (see below), are highly
+ *       dependent on the application. For example, to work as a server with
+ *       Netscape clients, the cert specified here must be capable of both
+ *       signing and encrypting.
+ * @param context A valid SSLContextRef.
+ * @param certRefs An array of SecCertificateRef instances.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetCertificate			(SSLContextRef		context,
 							 CFArrayRef			_Nullable certRefs)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Specify I/O connection - a socket, endpoint, etc., which is
- * managed by caller. On the client side, it's assumed that communication
- * has been established with the desired server on this connection.
- * On the server side, it's assumed that an incoming client request
- * has been established.
+ * @function SSLSetConnection
+ * @abstract Specify I/O connection - a socket, endpoint, etc., which is
+ * managed by caller.
+ * @discussion On the client side, it's assumed that communication
+ *   has been established with the desired server on this connection.
+ *   On the server side, it's assumed that an incoming client request
+ *   has been established.
  *
- * Must be called prior to SSLHandshake(); subsequently can only be
- * called when no session is active.
+ *   Must be called prior to SSLHandshake(); subsequently can only be
+ *   called when no session is active.
+ * @param context A valid SSLContextRef.
+ * @param connection A SSLConnectionRef.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetConnection			(SSLContextRef                  context,
 							 SSLConnectionRef __nullable	connection)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
+/*
+ * @function SSLGetConnection
+ * @abstract Retrieve the I/O connection managed managed by the caller.
+ * @param context A valid SSLContextRef.
+ * @param connection A SSLConnectionRef pointer.
+ * @result errSecSuccess on success, alternative error on failure.
+ */
 OSStatus
 SSLGetConnection			(SSLContextRef		context,
 							 SSLConnectionRef	* __nonnull CF_RETURNS_NOT_RETAINED connection)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Specify the fully qualified doman name of the peer, e.g., "store.apple.com."
- * Optional; used to verify the common name field in peer's certificate.
- * Name is in the form of a C string; NULL termination optional, i.e.,
- * peerName[peerNameLen+1] may or may not have a NULL. In any case peerNameLen
- * is the number of bytes of the peer domain name.
+ * @function SSLSetPeerDomainName
+ * @abstract Specify the fully qualified doman name of the peer, e.g., "store.apple.com."
+ * @discussion Optional; used to verify the common name field in peer's certificate.
+ *   Name is in the form of a C string; NULL termination optional, i.e.,
+ *   peerName[peerNameLen+1] may or may not have a NULL. In any case peerNameLen
+ *   is the number of bytes of the peer domain name.
+ * @param context A valid SSLContextRef.
+ * @param peerName A C string carrying the peer domain name.
+ * @param peerNameLen Length of the peer domain name string.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetPeerDomainName		(SSLContextRef		context,
 							 const char			* __nullable peerName,
 							 size_t				peerNameLen)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Determine the buffer size needed for SSLGetPeerDomainName().
+ * @function SSLGetPeerDomainNameLength
+ * @abstract Determine the buffer size needed for SSLGetPeerDomainName().
+ * @param context A valid SSLContextRef.
+ * @param peerNameLen Pointer to where the length of the peer domain name string is stored
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetPeerDomainNameLength	(SSLContextRef		context,
 							 size_t				*peerNameLen)	// RETURNED
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Obtain the value specified in SSLSetPeerDomainName().
+ * @function SSLGetPeerDomainName
+ * @abstract Obtain the value specified in SSLSetPeerDomainName().
+ * @param context A valid SSLContextRef.
+ * @param peerName Pointer to where the peer domain name is stored.
+ * @param peerNameLen Pointer to where the length of the peer domain name string is stored,
+ *        up to the length specified by peerNameLen (on input).
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetPeerDomainName		(SSLContextRef		context,
 							 char				*peerName,		// returned here
 							 size_t				*peerNameLen)	// IN/OUT
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
-
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Determine the buffer size needed for SSLCopyRequestedPeerNameLength().
+ * @function SSLCopyRequestedPeerNameLength
+ * @abstract [Server Only] obtain the hostname specified by the client in the ServerName extension (SNI)
+ * @param context A valid SSLContextRef.
+ * @param peerNameLen Pointer to where the length of the requested peer domain name string
+ *        is stored, up to the length specified by peerNameLen (on input).
+ * @result errSecSuccess on success, alternative error on failure.
+ */
+OSStatus
+SSLCopyRequestedPeerNameLength  (SSLContextRef  ctx,
+                                 size_t         *peerNameLen)
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.11, 10.15), ios(9.0, 13.0));
+
+/*
+ * @function SSLCopyRequestedPeerName
+ * @abstract Determine the buffer size needed for SSLCopyRequestedPeerNameLength().
+ * @param context A valid SSLContextRef.
+ * @param peerName Pointer to where the requested peer domain name is stored.
+ * @param peerNameLen Pointer to where the length of the requested peer domain name string
+ *        is stored, up to the length specified by peerNameLen (on input).
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLCopyRequestedPeerName    (SSLContextRef      context,
                              char               *peerName,
                              size_t             *peerNameLen)
-    __OSX_AVAILABLE_STARTING(__MAC_10_11, __IPHONE_9_0);
-
-/*
- * Server Only: obtain the hostname specified by the client in the ServerName extension (SNI)
- */
-OSStatus
-SSLCopyRequestedPeerNameLength  (SSLContextRef  ctx,
-                                 size_t         *peerNameLen)
-    __OSX_AVAILABLE_STARTING(__MAC_10_11, __IPHONE_9_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.11, 10.15), ios(9.0, 13.0));
 
 
 /*
- * Specify the Datagram TLS Hello Cookie.
- * This is to be called for server side only and is optional.
- * The default is a zero len cookie. The maximum cookieLen is 32 bytes.
+ * @function SSLSetDatagramHelloCookie
+ * @abstract Specify the Datagram TLS Hello Cookie.
+ * @discussion This is to be called for server side only and is optional.
+ *  The default is a zero len cookie. The maximum cookieLen is 32 bytes.
+ * @param context A valid SSLContextRef.
+ * @param cookie Pointer to opaque cookie data.
+ * @param cookieLen Length of cookie data.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetDatagramHelloCookie	(SSLContextRef		dtlsContext,
                              const void         * __nullable cookie,
                              size_t             cookieLen)
-	__OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.8, 10.15), ios(5.0, 13.0));
 
 /*
- * Specify the maximum record size, including all DTLS record headers.
- * This should be set appropriately to avoid fragmentation
- * of Datagrams during handshake, as fragmented datagrams may
- * be dropped by some network.
- * This is for Datagram TLS only
+ * @function SSLSetMaxDatagramRecordSize
+ * @abstract Specify the maximum record size, including all DTLS record headers.
+ * @discussion This should be set appropriately to avoid fragmentation
+ *   of Datagrams during handshake, as fragmented datagrams may
+ *   be dropped by some network.
+ * @note This is for Datagram TLS only
+ * @param context A valid SSLContextRef.
+ * @param maxSize Maximum size of datagram record(s).
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetMaxDatagramRecordSize (SSLContextRef		dtlsContext,
                              size_t             maxSize)
-	__OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.8, 10.15), ios(5.0, 13.0));
 
 /*
- * Get the maximum record size, including all Datagram TLS record headers.
- * This is for Datagram TLS only
+ * @function SSLGetMaxDatagramRecordSize
+ * @abstract Get the maximum record size, including all Datagram TLS record headers.
+ * @note This is for Datagram TLS only
+ * @param context A valid SSLContextRef.
+ * @param maxSize Pointer where maximum size of datagram record(s) is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetMaxDatagramRecordSize (SSLContextRef		dtlsContext,
                              size_t             *maxSize)
-	__OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.8, 10.15), ios(5.0, 13.0));
 
 /*
- * Obtain the actual negotiated protocol version of the active
- * session, which may be different that the value specified in
- * SSLSetProtocolVersion(). Returns kSSLProtocolUnknown if no
- * SSL session is in progress.
+ * @function SSLGetNegotiatedProtocolVersion
+ * @abstract Obtain the actual negotiated protocol version of the active
+ *   session, which may be different that the value specified in
+ *   SSLSetProtocolVersion(). Returns kSSLProtocolUnknown if no
+ *   SSL session is in progress.
+ * @param context A valid SSLContextRef.
+ * @param protocol Pointer where negotiated SSLProtocol is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetNegotiatedProtocolVersion		(SSLContextRef		context,
 									 SSLProtocol		*protocol)	/* RETURNED */
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Determine number and values of all of the SSLCipherSuites we support.
- * Caller allocates output buffer for SSLGetSupportedCiphers() and passes in
- * its size in *numCiphers. If supplied buffer is too small, errSSLBufferOverflow
- * will be returned.
+ * @function SSLGetNumberSupportedCiphers
+ * @abstract Determine number and values of all of the SSLCipherSuites we support.
+ *    Caller allocates output buffer for SSLGetSupportedCiphers() and passes in
+ *    its size in *numCiphers. If supplied buffer is too small, errSSLBufferOverflow
+ *    will be returned.
+ * @param context A valid SSLContextRef.
+ * @param numCiphers Pointer where number of supported ciphers is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetNumberSupportedCiphers (SSLContextRef			context,
 							  size_t				*numCiphers)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
+/*
+ * @function SSLGetSupportedCiphers
+ * @abstract Get the supported ciphers.
+ * @param context A valid SSLContextRef.
+ * @param ciphers Pointer to array of SSLCipherSuite values where supported ciphersuites
+ *                are stored. This array size is specified by the input value of numCiphers.
+ * @param numCiphers Pointer where number of supported ciphers is stored.
+ * @result errSecSuccess on success, alternative error on failure.
+ */
 OSStatus
 SSLGetSupportedCiphers		 (SSLContextRef			context,
 							  SSLCipherSuite		*ciphers,		/* RETURNED */
 							  size_t				*numCiphers)	/* IN/OUT */
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Specify a (typically) restricted set of SSLCipherSuites to be enabled by
- * the current SSLContext. Can only be called when no session is active. Default
- * set of enabled SSLCipherSuites is the same as the complete set of supported
- * SSLCipherSuites as obtained by SSLGetSupportedCiphers().
+ * @function SSLGetNumberEnabledCiphers
+ * @abstract Determine number and values of all of the SSLCipherSuites currently enabled.
+ *    Caller allocates output buffer for SSLGetEnabledCiphers() and passes in
+ *    its size in *numCiphers. If supplied buffer is too small, errSSLBufferOverflow
+ *    will be returned.
+ * @param context A valid SSLContextRef.
+ * @param numCiphers Pointer where number of enabled ciphers is stored.
+ * @result errSecSuccess on success, alternative error on failure.
+ */
+OSStatus
+SSLGetNumberEnabledCiphers     (SSLContextRef       context,
+                                size_t              *numCiphers)
+__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
+
+/*
+ * @function SSLSetEnabledCiphers
+ * @abstract Specify a (typically) restricted set of SSLCipherSuites to be enabled by
+ *    the current SSLContext. Can only be called when no session is active. Default
+ *    set of enabled SSLCipherSuites is the same as the complete set of supported
+ *    SSLCipherSuites as obtained by SSLGetSupportedCiphers().
+ * @param context A valid SSLContextRef.
+ * @param ciphers Array of enabled SSLCipherSuite values. This array size is specified
+ *                by the input value of numCiphers.
+ * @param numCiphers Pointer where number of enabled ciphers is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetEnabledCiphers		(SSLContextRef			context,
 							 const SSLCipherSuite	*ciphers,
 							 size_t					numCiphers)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Determine number and values of all of the SSLCipherSuites currently enabled.
- * Caller allocates output buffer for SSLGetEnabledCiphers() and passes in
- * its size in *numCiphers. If supplied buffer is too small, errSSLBufferOverflow
- * will be returned.
+ * @function SSLGetEnabledCiphers
+ * @abstract Get the set of supported ciphersuites.
+ * @param context A valid SSLContextRef.
+ * @param ciphers Pointer to array of SSLCipherSuite values where enabled ciphersuites
+ *                are stored. This array size is specified by the input value of numCiphers.
+ * @param numCiphers Pointer where number of enabled ciphers is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
-OSStatus
-SSLGetNumberEnabledCiphers 	(SSLContextRef			context,
-							 size_t					*numCiphers)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
-
 OSStatus
 SSLGetEnabledCiphers		(SSLContextRef			context,
 							 SSLCipherSuite			*ciphers,		/* RETURNED */
 							 size_t					*numCiphers)	/* IN/OUT */
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Forcibly enable or disable session ticket resumption. By default, session tickets
- * are disabled.
+ * @function SSLSetSessionTicketsEnabled
+ * @abstract Forcibly enable or disable session ticket resumption.
+ * @note By default, session tickets are disabled.
+ * @param context A valid SSLContextRef.
+ * @param enabled Boolean indicating if ticket support is enabled (true) or not (false).
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetSessionTicketsEnabled     (SSLContextRef          context,
                                  Boolean                enabled)
-    __OSX_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.13, 10.15), ios(11.0, 13.0));
 
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 /*
- * Enable/disable peer certificate chain validation. Default is enabled.
- * If caller disables, it is the caller's responsibility to call
- * SSLCopyPeerCertificates() upon successful completion of the handshake
- * and then to perform external validation of the peer certificate
- * chain before proceeding with data transfer.
+ * @function SSLSetEnableCertVerify
+ * @abstract Enable/disable peer certificate chain validation. Default is enabled.
+ * @discussion If caller disables, it is the caller's responsibility to call
+ *    SSLCopyPeerCertificates() upon successful completion of the handshake
+ *    and then to perform external validation of the peer certificate
+ *    chain before proceeding with data transfer.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X. To disable peer certificate chain validation, you
- * can instead use SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth
- * to true. This will disable verification and cause SSLHandshake to return with
- * an errSSLServerAuthCompleted result when the peer certificates have been
- * received; at that time, you can choose to evaluate peer trust yourself, or
- * simply call SSLHandshake again to proceed with the handshake.
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X. To disable peer certificate chain validation, you
+ *    can instead use SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth
+ *    to true. This will disable verification and cause SSLHandshake to return with
+ *    an errSSLServerAuthCompleted result when the peer certificates have been
+ *    received; at that time, you can choose to evaluate peer trust yourself, or
+ *    simply call SSLHandshake again to proceed with the handshake.
+ * @param context A valid SSLContextRef.
+ * @param enableVerify Boolean indicating if certificate verifiation is enabled (true) or disabled (false).
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetEnableCertVerify		(SSLContextRef 			context,
 							 Boolean				enableVerify)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Check whether peer certificate chain validation is enabled.
+ * @function SSLGetEnableCertVerify
+ * @abstract Check whether peer certificate chain validation is enabled.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X. To check whether peer certificate chain validation
- * is enabled in a context, call SSLGetSessionOption to obtain the value of
- * the kSSLSessionOptionBreakOnServerAuth session option flag. If the value
- * of this option flag is true, then verification is disabled.
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X. To check whether peer certificate chain validation
+ *    is enabled in a context, call SSLGetSessionOption to obtain the value of
+ *    the kSSLSessionOptionBreakOnServerAuth session option flag. If the value
+ *    of this option flag is true, then verification is disabled.
+ * @param context A valid SSLContextRef.
+ * @param enableVerify Pointer to Boolean where enable bit is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetEnableCertVerify		(SSLContextRef 			context,
 							 Boolean				*enableVerify)	/* RETURNED */
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Specify the option of ignoring certificates' "expired" times.
- * This is a common failure in the real SSL world. Default setting for this
- * flag is false, meaning expired certs result in an errSSLCertExpired error.
+ * @function SSLSetAllowsExpiredCerts
+ * @abstract Specify the option of ignoring certificates' "expired" times.
+ * @discussion This is a common failure in the real SSL world. Default setting for this
+ *    flag is false, meaning expired certs result in an errSSLCertExpired error.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X. To ignore expired certificate errors, first disable
- * Secure Transport's automatic verification of peer certificates by calling
- * SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth to true. When
- * SSLHandshake subsequently returns an errSSLServerAuthCompleted result,
- * your code should obtain the SecTrustRef for the peer's certificates and
- * perform a custom trust evaluation with SecTrust APIs (see SecTrust.h).
- * The SecTrustSetOptions function allows you to specify that the expiration
- * status of certificates should be ignored for this evaluation.
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X. To ignore expired certificate errors, first disable
+ *    Secure Transport's automatic verification of peer certificates by calling
+ *    SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth to true. When
+ *    SSLHandshake subsequently returns an errSSLServerAuthCompleted result,
+ *    your code should obtain the SecTrustRef for the peer's certificates and
+ *    perform a custom trust evaluation with SecTrust APIs (see SecTrust.h).
+ *    The SecTrustSetOptions function allows you to specify that the expiration
+ *    status of certificates should be ignored for this evaluation.
  *
  * Example:
  *
@@ -954,458 +1007,582 @@ SSLGetEnableCertVerify		(SSLContextRef 			context,
  *		} // errSSLServerAuthCompleted
  *
  *	} while (status == errSSLWouldBlock);
- *
+ * @param context A valid SSLContextRef.
+ * @param allowsExpired Boolean indicating if expired certificates are allowed (true) or not (false).
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetAllowsExpiredCerts	(SSLContextRef		context,
 							 Boolean			allowsExpired)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Obtain the current value of an SSLContext's "allowExpiredCerts" flag.
+ * @function SSLGetAllowsExpiredCerts
+ * @abstract Obtain the current value of an SSLContext's "allowExpiredCerts" flag.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X.
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X.
+ * @param context A valid SSLContextRef.
+ * @param allowsExpired Pointer to Boolean where the expired certificate allowance Boolean is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetAllowsExpiredCerts	(SSLContextRef		context,
 							 Boolean			*allowsExpired)	/* RETURNED */
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Similar to SSLSetAllowsExpiredCerts, SSLSetAllowsExpiredRoots allows the
- * option of ignoring "expired" status for root certificates only.
- * Default setting is false, i.e., expired root certs result in an
- * errSSLCertExpired error.
+ * @function SSLSetAllowsExpiredRoots
+ * @abstract Similar to SSLSetAllowsExpiredCerts, SSLSetAllowsExpiredRoots allows the
+ *    option of ignoring "expired" status for root certificates only.
+ * @discussion Default setting is false, i.e., expired root certs result in an
+ *    errSSLCertExpired error.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X. To ignore expired certificate errors, first disable
- * Secure Transport's automatic verification of peer certificates by calling
- * SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth to true. When
- * SSLHandshake subsequently returns an errSSLServerAuthCompleted result,
- * your code should obtain the SecTrustRef for the peer's certificates and
- * perform a custom trust evaluation with SecTrust APIs (see SecTrust.h).
- * The SecTrustSetOptions function allows you to specify that the expiration
- * status of certificates should be ignored for this evaluation.
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X. To ignore expired certificate errors, first disable
+ *    Secure Transport's automatic verification of peer certificates by calling
+ *    SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth to true. When
+ *    SSLHandshake subsequently returns an errSSLServerAuthCompleted result,
+ *    your code should obtain the SecTrustRef for the peer's certificates and
+ *    perform a custom trust evaluation with SecTrust APIs (see SecTrust.h).
+ *    The SecTrustSetOptions function allows you to specify that the expiration
+ *    status of certificates should be ignored for this evaluation.
  *
- * See the description of the SSLSetAllowsExpiredCerts function (above)
- * for a code example. The kSecTrustOptionAllowExpiredRoot option can be used
- * instead of kSecTrustOptionAllowExpired to allow expired roots only.
+ *    See the description of the SSLSetAllowsExpiredCerts function (above)
+ *    for a code example. The kSecTrustOptionAllowExpiredRoot option can be used
+ *    instead of kSecTrustOptionAllowExpired to allow expired roots only.
+ * @param context A valid SSLContextRef.
+ * @param allowsExpired Boolean indicating if expired roots are allowed.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetAllowsExpiredRoots	(SSLContextRef		context,
 							 Boolean			allowsExpired)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Obtain the current value of an SSLContext's "allow expired roots" flag.
+ * @function SSLGetAllowsExpiredRoots
+ * @abstract Obtain the current value of an SSLContext's "allow expired roots" flag.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X.
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X.
+ * @param context A valid SSLContextRef.
+ * @param allowsExpired Pointer to Boolean where the expired root certificate allowance
+ *                      Boolean is stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetAllowsExpiredRoots	(SSLContextRef		context,
 							 Boolean			*allowsExpired)	/* RETURNED */
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Specify option of allowing for an unknown root cert, i.e., one which
+ * @function SSLSetAllowsAnyRoot
+ * @abstract Specify option of allowing for an unknown root cert, i.e., one which
  * this software can not verify as one of a list of known good root certs.
- * Default for this flag is false, in which case one of the following two
- * errors may occur:
- *    -- The peer returns a cert chain with a root cert, and the chain
- *       verifies to that root, but the root is not one of our trusted
- *       roots. This results in errSSLUnknownRootCert on handshake.
- *    -- The peer returns a cert chain which does not contain a root cert,
- *       and we can't verify the chain to one of our trusted roots. This
- *       results in errSSLNoRootCert on handshake.
+ * @discussion Default for this flag is false, in which case one of the following two
+ *    errors may occur:
+ *       -- The peer returns a cert chain with a root cert, and the chain
+ *          verifies to that root, but the root is not one of our trusted
+ *          roots. This results in errSSLUnknownRootCert on handshake.
+ *       -- The peer returns a cert chain which does not contain a root cert,
+ *          and we can't verify the chain to one of our trusted roots. This
+ *          results in errSSLNoRootCert on handshake.
  *
- * Both of these error conditions are ignored when the AllowAnyRoot flag is
- * true, allowing connection to a totally untrusted peer.
+ *    Both of these error conditions are ignored when the AllowAnyRoot flag is
+ *    true, allowing connection to a totally untrusted peer.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X. To ignore unknown root cert errors, first disable
- * Secure Transport's automatic verification of peer certificates by calling
- * SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth to true. When
- * SSLHandshake subsequently returns an errSSLServerAuthCompleted result,
- * your code should obtain the SecTrustRef for the peer's certificates and
- * perform a custom trust evaluation with SecTrust APIs (see SecTrust.h).
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X. To ignore unknown root cert errors, first disable
+ *    Secure Transport's automatic verification of peer certificates by calling
+ *    SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth to true. When
+ *    SSLHandshake subsequently returns an errSSLServerAuthCompleted result,
+ *    your code should obtain the SecTrustRef for the peer's certificates and
+ *    perform a custom trust evaluation with SecTrust APIs (see SecTrust.h).
  *
- * See the description of the SSLSetAllowsExpiredCerts function (above)
- * for a code example. Note that an unknown root certificate will cause
- * SecTrustEvaluate to report kSecTrustResultRecoverableTrustFailure as the
- * trust result.
+ *    See the description of the SSLSetAllowsExpiredCerts function (above)
+ *    for a code example. Note that an unknown root certificate will cause
+ *    SecTrustEvaluate to report kSecTrustResultRecoverableTrustFailure as the
+ *    trust result.
+ * @param context A valid SSLContextRef.
+ * @param anyRoot Boolean indicating if any root is allowed (true) or not (false).
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetAllowsAnyRoot			(SSLContextRef		context,
 							 Boolean			anyRoot)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Obtain the current value of an SSLContext's "allow any root" flag.
+ * @function SSLGetAllowsAnyRoot
+ * @abstract Obtain the current value of an SSLContext's "allow any root" flag.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X.
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X.
+ * @param context A valid SSLContextRef.
+ * @param anyRoot Pointer to Boolean to store any root allowance Boolean.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetAllowsAnyRoot			(SSLContextRef		context,
 							 Boolean			*anyRoot) /* RETURNED */
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Augment or replace the system's default trusted root certificate set
- * for this session. If replaceExisting is true, the specified roots will
- * be the only roots which are trusted during this session. If replaceExisting
- * is false, the specified roots will be added to the current set of trusted
- * root certs. If this function has never been called, the current trusted
- * root set is the same as the system's default trusted root set.
- * Successive calls with replaceExisting false result in accumulation
- * of additional root certs.
+ * @function SSLSetTrustedRoots
+ * @abstract Augment or replace the system's default trusted root certificate set
+ * for this session.
+ * @discussion If replaceExisting is true, the specified roots will
+ *    be the only roots which are trusted during this session. If replaceExisting
+ *    is false, the specified roots will be added to the current set of trusted
+ *    root certs. If this function has never been called, the current trusted
+ *    root set is the same as the system's default trusted root set.
+ *    Successive calls with replaceExisting false result in accumulation
+ *    of additional root certs.
  *
- * The trustedRoots array contains SecCertificateRefs.
+ *    The trustedRoots array contains SecCertificateRefs.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X. To trust specific roots in a session, first disable
- * Secure Transport's automatic verification of peer certificates by calling
- * SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth to true. When
- * SSLHandshake subsequently returns an errSSLServerAuthCompleted result,
- * your code should obtain the SecTrustRef for the peer's certificates and
- * perform a custom trust evaluation with SecTrust APIs (see SecTrust.h).
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X. To trust specific roots in a session, first disable
+ *    Secure Transport's automatic verification of peer certificates by calling
+ *    SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth to true. When
+ *    SSLHandshake subsequently returns an errSSLServerAuthCompleted result,
+ *    your code should obtain the SecTrustRef for the peer's certificates and
+ *    perform a custom trust evaluation with SecTrust APIs (see SecTrust.h).
  *
- * See the description of the SSLSetAllowsExpiredCerts function (above)
- * for a code example. You can call SecTrustSetAnchorCertificates to
- * augment the system's trusted root set, or SecTrustSetAnchorCertificatesOnly
- * to make these the only trusted roots, prior to calling SecTrustEvaluate.
+ *    See the description of the SSLSetAllowsExpiredCerts function (above)
+ *    for a code example. You can call SecTrustSetAnchorCertificates to
+ *    augment the system's trusted root set, or SecTrustSetAnchorCertificatesOnly
+ *    to make these the only trusted roots, prior to calling SecTrustEvaluate.
+ * @param context A valid SSLContextRef.
+ * @param trustedRoots Array of SecCertificateRef roots.
+ * @param replaceExisting Boolean indicating if provided roots should override all others for this connection.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetTrustedRoots			(SSLContextRef 		context,
 							 CFArrayRef 		trustedRoots,
 							 Boolean 			replaceExisting)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 /*
- * Obtain an array of SecCertificateRefs representing the current
- * set of trusted roots. If SSLSetTrustedRoots() has never been called
- * for this session, this returns the system's default root set.
- *
- * Caller must CFRelease the returned CFArray.
+ * @function SSLCopyTrustedRoots
+ * @abstract Obtain an array of SecCertificateRefs representing the current
+ *    set of trusted roots.
+ * @discussion If SSLSetTrustedRoots() has never been called
+ *    for this session, this returns the system's default root set.
+ *    Caller must CFRelease the returned CFArray.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X. To get the current set of trusted roots, call the
- * SSLCopyPeerTrust function to obtain the SecTrustRef for the peer certificate
- * chain, then SecTrustCopyCustomAnchorCertificates (see SecTrust.h).
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X. To get the current set of trusted roots, call the
+ *    SSLCopyPeerTrust function to obtain the SecTrustRef for the peer certificate
+ *    chain, then SecTrustCopyCustomAnchorCertificates (see SecTrust.h).
+ * @param context A valid SSLContextRef.
+ * @param trustedRoots Array of SecCertificateRef roots.
+ * @param replaceExisting Boolean indicating if provided roots should override all others for this connection.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLCopyTrustedRoots			(SSLContextRef 		context,
 							 CFArrayRef 		* __nonnull CF_RETURNS_RETAINED trustedRoots)	/* RETURNED */
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_5,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.5, 10.9));
 
 /*
- * Request peer certificates. Valid anytime, subsequent to a handshake attempt.
+ * @function SSLCopyPeerCertificates
+ * @abstract Request peer certificates. Valid anytime, subsequent to a handshake attempt.
+ * @discussion The certs argument is a CFArray containing SecCertificateRefs.
+ *    Caller must CFRelease the returned array.
  *
- * The certs argument is a CFArray containing SecCertificateRefs.
- * Caller must CFRelease the returned array.
- *
- * The cert at index 0 of the returned array is the subject (end
- * entity) cert; the root cert (or the closest cert to it) is at
- * the end of the returned array.
+ *    The cert at index 0 of the returned array is the subject (end
+ *    entity) cert; the root cert (or the closest cert to it) is at
+ *    the end of the returned array.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X. To get peer certificates, call SSLCopyPeerTrust
- * to obtain the SecTrustRef for the peer certificate chain, then use the
- * SecTrustGetCertificateCount and SecTrustGetCertificateAtIndex functions
- * to retrieve individual certificates in the chain (see SecTrust.h).
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X. To get peer certificates, call SSLCopyPeerTrust
+ *    to obtain the SecTrustRef for the peer certificate chain, then use the
+ *    SecTrustGetCertificateCount and SecTrustGetCertificateAtIndex functions
+ *    to retrieve individual certificates in the chain (see SecTrust.h).
+ * @param context A valid SSLContextRef.
+ * @param certs Pointer to CFArrayRef that will store a reference to the peer's certificates.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLCopyPeerCertificates		(SSLContextRef 		context,
 							 CFArrayRef			* __nonnull CF_RETURNS_RETAINED certs)		/* RETURNED */
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_5,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.5, 10.9));
 
 #endif /* MAC OS X */
 
 /*
- * Obtain a SecTrustRef representing peer certificates. Valid anytime,
- * subsequent to a handshake attempt. Caller must CFRelease the returned
- * trust reference.
+ * @function SSLCopyPeerTrust
+ * @abstract Obtain a SecTrustRef representing peer certificates. Valid anytime,
+ *    subsequent to a handshake attempt. Caller must CFRelease the returned
+ *    trust reference.
+ * @discussion The returned trust reference will have already been evaluated for
+ *    you, unless one of the following is true:
+ *    - Your code has disabled automatic certificate verification, by calling
+ *      SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth to true.
+ *    - Your code has called SSLSetPeerID, and this session has been resumed
+ *      from an earlier cached session.
  *
- * The returned trust reference will have already been evaluated for you,
- * unless one of the following is true:
- * - Your code has disabled automatic certificate verification, by calling
- *   SSLSetSessionOption to set kSSLSessionOptionBreakOnServerAuth to true.
- * - Your code has called SSLSetPeerID, and this session has been resumed
- *   from an earlier cached session.
+ *    In these cases, your code should call SecTrustEvaluate prior to
+ *    examining the peer certificate chain or trust results (see SecTrust.h).
  *
- * In these cases, your code should call SecTrustEvaluate prior to
- * examining the peer certificate chain or trust results (see SecTrust.h).
- *
- * NOTE: if you have not called SSLHandshake at least once prior to
- * calling this function, the returned trust reference will be NULL.
+ * @note If you have not called SSLHandshake at least once prior to
+ *    calling this function, the returned trust reference will be NULL.
+ * @param context A valid SSLContextRef.
+ * @param trust Pointer to SecTrustRef where peer's SecTrustRef is copied (retained).
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLCopyPeerTrust			(SSLContextRef 		context,
 							 SecTrustRef		* __nonnull CF_RETURNS_RETAINED trust)		/* RETURNED */
-	__OSX_AVAILABLE_STARTING(__MAC_10_6, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.6, 10.15), ios(5.0, 13.0));
 
 /*
- * Specify some data, opaque to this library, which is sufficient
- * to uniquely identify the peer of the current session. An example
- * would be IP address and port, stored in some caller-private manner.
- * To be optionally called prior to SSLHandshake for the current
- * session. This is mandatory if this session is to be resumable.
+ * @function SSLSetPeerID
+ * @discussion Specify some data, opaque to this library, which is sufficient
+ *    to uniquely identify the peer of the current session. An example
+ *    would be IP address and port, stored in some caller-private manner.
+ *    To be optionally called prior to SSLHandshake for the current
+ *    session. This is mandatory if this session is to be resumable.
  *
- * SecureTransport allocates its own copy of the incoming peerID. The
- * data provided in *peerID, while opaque to SecureTransport, is used
- * in a byte-for-byte compare to other previous peerID values set by the
- * current application. Matching peerID blobs result in SecureTransport
- * attempting to resume an SSL session with the same parameters as used
- * in the previous session which specified the same peerID bytes.
+ *    SecureTransport allocates its own copy of the incoming peerID. The
+ *    data provided in *peerID, while opaque to SecureTransport, is used
+ *    in a byte-for-byte compare to other previous peerID values set by the
+ *    current application. Matching peerID blobs result in SecureTransport
+ *    attempting to resume an SSL session with the same parameters as used
+ *    in the previous session which specified the same peerID bytes.
+ * @param context A valid SSLContextRef.
+ * @param peerID Opaque peer ID.
+ * @param peerIDLen Length of opaque peer ID.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetPeerID				(SSLContextRef 		context,
 							 const void 		* __nullable peerID,
 							 size_t				peerIDLen)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Obtain current PeerID. Returns NULL pointer, zero length if
- * SSLSetPeerID has not been called for this context.
+ * @function SSLGetPeerID
+ * @abstract Obtain current PeerID. Returns NULL pointer, zero length if
+ *    SSLSetPeerID has not been called for this context.
+ * @param context A valid SSLContextRef.
+ * @param peerID Pointer to storage for the peer ID.
+ * @param peerIDLen Pointer to storage for the peer ID length.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetPeerID				(SSLContextRef 		context,
 							 const void 		* __nullable * __nonnull peerID,
 							 size_t				*peerIDLen)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Obtain the SSLCipherSuite (e.g., SSL_RSA_WITH_DES_CBC_SHA) negotiated
- * for this session. Only valid when a session is active.
+ * @function SSLGetNegotiatedCipher
+ * @abstract Obtain the SSLCipherSuite (e.g., SSL_RSA_WITH_DES_CBC_SHA) negotiated
+ *    for this session. Only valid when a session is active.
+ * @param context A valid SSLContextRef.
+ * @param cipherSuite Pointer to storage for negotiated SSLCipherSuite.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetNegotiatedCipher		(SSLContextRef 		context,
 							 SSLCipherSuite 	*cipherSuite)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Set the ALPN protocols to be passed in the ALPN negotiation.
- * This is the list of supported application-layer protocols supported.
+ * @function SSLSetALPNProtocols
+ * @abstract Set the ALPN protocols to be passed in the ALPN negotiation.
+ * @discussion This is the list of supported application-layer protocols supported.
  *
- * The protocols parameter must be an array of CFStringRef values
- * with ASCII-encoded reprensetations of the supported protocols, e.g., "http/1.1".
+ *    The protocols parameter must be an array of CFStringRef values
+ *    with ASCII-encoded reprensetations of the supported protocols, e.g., "http/1.1".
  *
- * See RFC 7301 for more information.
+ * @note See RFC 7301 for more information.
+ * @param context A valid SSLContextRef.
+ * @param protocols Array of CFStringRefs carrying application protocols.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetALPNProtocols         (SSLContextRef      context,
                              CFArrayRef         protocols)
-    __OSX_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.13, 10.15), ios(11.0, 13.0));
 
 /*
- * Get the ALPN protocols associated with this SSL context.
- * This is the list of supported application-layer protocols supported.
+ * @function SSLCopyALPNProtocols
+ * @abstract Get the ALPN protocols associated with this SSL context.
+ * @discussion This is the list of supported application-layer protocols supported.
  *
- * The resultant protocols array will contain CFStringRef values containing
- * ASCII-encoded representations of the supported protocols, e.g., "http/1.1".
+ *    The resultant protocols array will contain CFStringRef values containing
+ *    ASCII-encoded representations of the supported protocols, e.g., "http/1.1".
  *
- * See RFC 7301 for more information.
+ *    See RFC 7301 for more information.
  *
- * Note: The `protocols` pointer must be NULL, otherwise the copy will fail.
- * This function will allocate memory for the CFArrayRef container
- * if there is data to provide. Otherwise, the pointer will remain NULL.
+ * @note The `protocols` pointer must be NULL, otherwise the copy will fail.
+ *    This function will allocate memory for the CFArrayRef container
+ *    if there is data to provide. Otherwise, the pointer will remain NULL.
+ * @param context A valid SSLContextRef.
+ * @param protocols Pointer to a CFArrayRef where peer ALPN protocols are stored.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLCopyALPNProtocols        (SSLContextRef      context,
                              CFArrayRef         __nullable * __nonnull protocols)           /* RETURNED */
-    __OSX_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.13, 10.15), ios(11.0, 13.0));
 
 /*
- * Set the OCSP response for the given SSL session.
- *
- * The response parameter must be a non-NULL CFDataRef containing the 
- * bytes of the OCSP response.
+ * @function SSLSetOCSPResponse
+ * @abstract Set the OCSP response for the given SSL session.
+ * @discussion The response parameter must be a non-NULL CFDataRef containing the
+ *    bytes of the OCSP response.
+ * @param context A valid SSLContextRef.
+ * @param response CFDataRef carrying OCSP response.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetOCSPResponse          (SSLContextRef      context,
                              CFDataRef          __nonnull response)
-__OSX_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.13, 10.15), ios(11.0, 13.0));
 
 /********************************************************
  *** Session context configuration, server side only. ***
  ********************************************************/
 
 /*
- * This function is deprecated in OSX 10.11 and iOS 9.0 and
- * has no effect on the TLS handshake since OSX 10.10 and
- * iOS 8.0. Using separate RSA certificates for encryption
- * and signing is no longer supported.
+ * @function SSLSetEncryptionCertificate
+ * @discussion This function is deprecated in OSX 10.11 and iOS 9.0 and
+ *    has no effect on the TLS handshake since OSX 10.10 and
+ *    iOS 8.0. Using separate RSA certificates for encryption
+ *    and signing is no longer supported.
+ * @param context A valid SSLContextRef.
+ * @param certRefs Array of certificates.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetEncryptionCertificate	(SSLContextRef		context,
 							 CFArrayRef			certRefs)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2, __MAC_10_11, __IPHONE_5_0, __IPHONE_9_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.11), ios(5.0, 9.0));
 
 /*
- * Specify requirements for client-side authentication.
- * Optional; Default is kNeverAuthenticate.
- *
- * Can only be called when no session is active.
+ * @enum SSLAuthenticate
+ * @discussion Optional; Default is kNeverAuthenticate.
+ *    Can only be called when no session is active.
  */
 typedef CF_ENUM(int, SSLAuthenticate) {
 	kNeverAuthenticate,			/* skip client authentication */
 	kAlwaysAuthenticate,		/* require it */
-	kTryAuthenticate			/* try to authenticate, but not an error
-								 * if client doesn't have a cert */
+	kTryAuthenticate			/* try to authenticate, but not an error if client doesn't have a cert */
 };
 
+/*
+ * @function SSLSetClientSideAuthenticate
+ * @abstract Specify requirements for client-side authentication.
+ * @param context A valid SSLContextRef.
+ * @param auth A SSLAuthenticate enumeration value.
+ * @result errSecSuccess on success, alternative error on failure.
+ */
 OSStatus
 SSLSetClientSideAuthenticate 	(SSLContextRef		context,
 								 SSLAuthenticate	auth)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Add a DER-encoded distinguished name to list of acceptable names
- * to be specified in requests for client certificates.
+ * @function SSLAddDistinguishedName
+ * @abstract Add a DER-encoded distinguished name to list of acceptable names
+ *    to be specified in requests for client certificates.
+ * @param context A valid SSLContextRef.
+ * @param derDN A DER-encoded Distinguished Name blob.
+ * @param derDNLen Length of the Distinguished Name blob.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLAddDistinguishedName		(SSLContextRef 		context,
 							 const void 		* __nullable derDN,
 							 size_t 			derDNLen)
-	__OSX_AVAILABLE_STARTING(__MAC_10_4, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.4, 10.15), ios(5.0, 13.0));
 
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 /*
- * Add a SecCertificateRef, or a CFArray of them, to a server's list
- * of acceptable Certificate Authorities (CAs) to present to the client
- * when client authentication is performed.
+ * @function SSLSetCertificateAuthorities
+ * @abstract Add a SecCertificateRef, or a CFArray of them, to a server's list
+ *    of acceptable Certificate Authorities (CAs) to present to the client
+ *    when client authentication is performed.
+ * @discussion If replaceExisting is true, the specified certificate(s) will
+ *    replace a possible existing list of acceptable CAs. If replaceExisting
+ *    is false, the specified certificate(s) will be appended to the existing
+ *    list of acceptable CAs, if any.
  *
- * If replaceExisting is true, the specified certificate(s) will replace
- * a possible existing list of acceptable CAs. If replaceExisting is
- * false, the specified certificate(s) will be appended to the existing
- * list of acceptable CAs, if any.
+ *    Returns errSecParam if this is called on a SSLContextRef which
+ *    is configured as a client, or when a session is active.
  *
- * Returns errSecParam if this is called on a SSLContextRef which
- * is configured as a client, or when a session is active.
- *
- * NOTE: this function is currently not available on iOS.
+ * @note this function is currently not available on iOS.
+ * @param context A valid SSLContextRef.
+ * @param certificateOrARray Either a SecCertificateRef (or CFArrayRef of them).
+ * @param replaceExisting Boolean indicating if existing CAs should be overruled for this connection.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetCertificateAuthorities(SSLContextRef		context,
 							 CFTypeRef			certificateOrArray,
 							 Boolean 			replaceExisting)
-	__OSX_AVAILABLE_STARTING(__MAC_10_5, __IPHONE_NA);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.5, 10.15));
 
 /*
- * Obtain the certificates specified in SSLSetCertificateAuthorities(),
- * if any. Returns a NULL array if SSLSetCertificateAuthorities() has not
- * been called.
- * Caller must CFRelease the returned array.
+ * @function SSLCopyCertificateAuthorities
+ * @abstract Obtain the certificates specified in SSLSetCertificateAuthorities(),
+ *    if any. Returns a NULL array if SSLSetCertificateAuthorities() has not been called.
+ * @discussion Caller must CFRelease the returned array.
  *
- * NOTE: this function is currently not available on iOS.
+ * @note This function is currently not available on iOS.
+ * @param context A valid SSLContextRef.
+ * @param certificates Pointer to CFArrayRef storage for retained copy of CAs for this connection.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLCopyCertificateAuthorities(SSLContextRef		context,
 							  CFArrayRef		* __nonnull CF_RETURNS_RETAINED certificates)	/* RETURNED */
-	__OSX_AVAILABLE_STARTING(__MAC_10_5, __IPHONE_NA);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.5, 10.15));
 
 #endif /* MAC OS X */
 
 /*
- * Obtain the list of acceptable distinguished names as provided by
- * a server (if the SSLContextRef is configured as a client), or as
- * specified by SSLSetCertificateAuthorities (if the SSLContextRef
- * is configured as a server).
- * The returned array contains CFDataRefs, each of which represents
- * one DER-encoded RDN.
- *
- * Caller must CFRelease the returned array.
+ * @function SSLCopyDistinguishedNames
+ * @abstract Obtain the list of acceptable distinguished names as provided by
+ *    a server (if the SSLContextRef is configured as a client), or as
+ *    specified by SSLSetCertificateAuthorities (if the SSLContextRef
+ *    is configured as a server).
+ * @discussion The returned array contains CFDataRefs, each of which represents
+ *    one DER-encoded RDN. Caller must CFRelease the returned array.
+ * @param context A valid SSLContextRef.
+ * @param names Pointer to CFArrayRef storage for retained copy of Distinguished Names.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLCopyDistinguishedNames	(SSLContextRef		context,
 							 CFArrayRef			* __nonnull CF_RETURNS_RETAINED names)
-	__OSX_AVAILABLE_STARTING(__MAC_10_5, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.5, 10.15), ios(5.0, 13.0));
 
 /*
- * Obtain client certificate exchange status. Can be called
- * any time. Reflects the *last* client certificate state change;
- * subsequent to a renegotiation attempt by either peer, the state
- * is reset to kSSLClientCertNone.
+ * @function SSLGetClientCertificateState
+ * @abstract Obtain client certificate exchange status.
+ * @discussion Can be called any time.
+ *    Reflects the *last* client certificate state change;
+ *    subsequent to a renegotiation attempt by either peer, the state
+ *    is reset to kSSLClientCertNone.
+ * @param context A valid SSLContextRef.
+ * @param clientState Pointer to SSLClientCertificateState storage.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetClientCertificateState	(SSLContextRef				context,
 								 SSLClientCertificateState	*clientState)
-	__OSX_AVAILABLE_STARTING(__MAC_10_3, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.3, 10.15), ios(5.0, 13.0));
 
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 /*
- * Specify Diffie-Hellman parameters. Optional; if we are configured to allow
- * for D-H ciphers and a D-H cipher is negotiated, and this function has not
- * been called, a set of process-wide parameters will be calculated. However
- * that can take a long time (30 seconds).
- *
- * NOTE: this function is currently not available on iOS.
+ * @function SSLSetDiffieHellmanParams
+ * @abstract Specify Diffie-Hellman parameters.
+ * @discussion Optional; if we are configured to allow
+ *    for D-H ciphers and a D-H cipher is negotiated, and this function has not
+ *    been called, a set of process-wide parameters will be calculated. However
+ *    that can take a long time (30 seconds).
+ * @note This function is currently not available on iOS.
+ * @param context A valid SSLContextRef.
+ * @param clientState Pointer to SSLClientCertificateState storage.
+ * @result errSecSuccess on success, alternative error on failure.
  */
-OSStatus SSLSetDiffieHellmanParams	(SSLContextRef			context,
-									 const void 			* __nullable dhParams,
-									 size_t					dhParamsLen)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_NA);
+OSStatus
+SSLSetDiffieHellmanParams	(SSLContextRef			context,
+                             const void 			* __nullable dhParams,
+                             size_t					dhParamsLen)
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15));
 
 /*
- * Return parameter block specified in SSLSetDiffieHellmanParams.
- * Returned data is not copied and belongs to the SSLContextRef.
- *
- * NOTE: this function is currently not available on iOS.
+ * @function SSLGetDiffieHellmanParams
+ * @abstract Return parameter block specified in SSLSetDiffieHellmanParams.
+ * @discussion Returned data is not copied and belongs to the SSLContextRef.
+ * @note This function is currently not available on iOS.
+ * @param context A valid SSLContextRef.
+ * @param dhParams Pointer to storage for DH parameters (if set), of at length most |*dhParamsLen|.
+ * @param dhParamsLen (Input and output) length of dhParams.
+ * @result errSecSuccess on success, alternative error on failure.
  */
-OSStatus SSLGetDiffieHellmanParams	(SSLContextRef			context,
-									 const void 			* __nullable * __nonnull dhParams,
-									 size_t					*dhParamsLen)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_NA);
+OSStatus
+SSLGetDiffieHellmanParams	(SSLContextRef			context,
+                             const void 			* __nullable * __nonnull dhParams,
+                             size_t					*dhParamsLen)
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15));
 
 /*
- * Enable/Disable RSA blinding. This feature thwarts a known timing
- * attack to which RSA keys are vulnerable; enabling it is a tradeoff
- * between performance and security. The default for RSA blinding is
- * enabled.
+ * @function SSLSetRsaBlinding
+ * @abstract Enable/Disable RSA blinding.
+ * @discussion This feature thwarts a known timing
+ *    attack to which RSA keys are vulnerable; enabling it is a tradeoff
+ *    between performance and security. The default for RSA blinding is
+ *    enabled.
  *
  * ==========================
  * MAC OS X ONLY (DEPRECATED)
  * ==========================
- * NOTE: this function is not available on iOS, and should be considered
- * deprecated on Mac OS X. RSA blinding is enabled unconditionally, as
- * it prevents a known way for an attacker to recover the private key,
- * and the performance gain of disabling it is negligible.
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X. RSA blinding is enabled unconditionally, as
+ *    it prevents a known way for an attacker to recover the private key,
+ *    and the performance gain of disabling it is negligible.
+ * @param context A valid SSLContextRef.
+ * @param blinding Boolean indicating if RSA blinding is enabled.
+ * @result errSecSuccess on success, alternative error on failure.
  */
-OSStatus SSLSetRsaBlinding			(SSLContextRef			context,
-									 Boolean				blinding)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+OSStatus
+SSLSetRsaBlinding			(SSLContextRef			context,
+                             Boolean				blinding)
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
-OSStatus SSLGetRsaBlinding			(SSLContextRef			context,
-									 Boolean				*blinding)
-	__OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_2,__MAC_10_9,__IPHONE_NA,__IPHONE_NA);
+/*
+ * @function SSLGetRsaBlinding
+ * @abstract Get RSA blinding state.
+ * @discussion See SSLSetRsaBlinding().
+ *
+ * ==========================
+ * MAC OS X ONLY (DEPRECATED)
+ * ==========================
+ * @note This function is not available on iOS, and should be considered
+ *    deprecated on Mac OS X.
+ * @param context A valid SSLContextRef.
+ * @param blinding Pointer to Boolean storage for RSA blinding state.
+ * @result errSecSuccess on success, alternative error on failure.
+ */
+OSStatus
+SSLGetRsaBlinding			(SSLContextRef			context,
+                             Boolean				*blinding)
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.9));
 
 #endif /* MAC OS X */
 
@@ -1423,115 +1600,153 @@ OSStatus SSLGetRsaBlinding			(SSLContextRef			context,
  */
 
 /*
- * Perform the SSL handshake. On successful return, session is
- * ready for normal secure application I/O via SSLWrite and SSLRead.
+ * @function SSLHandshake
+ * @abstract Perform the SSL handshake.
+ * @discussion On successful return, session is ready for normal secure application
+ *    I/O via SSLWrite and SSLRead.
  *
- * Interesting error returns:
+ *    Interesting error returns:
  *
- *  errSSLUnknownRootCert: Peer had a valid cert chain, but the root of
- *      the chain is unknown.
+ *     errSSLUnknownRootCert: Peer had a valid cert chain, but the root of
+ *         the chain is unknown.
  *
- *  errSSLNoRootCert: Peer had a cert chain which did not end in a root.
+ *     errSSLNoRootCert: Peer had a cert chain which did not end in a root.
  *
- *  errSSLCertExpired: Peer's cert chain had one or more expired certs.
+ *     errSSLCertExpired: Peer's cert chain had one or more expired certs.
  *
- *  errSSLXCertChainInvalid: Peer had an invalid cert chain (i.e.,
- *      signature verification within the chain failed, or no certs
- *      were found).
+ *     errSSLXCertChainInvalid: Peer had an invalid cert chain (i.e.,
+ *         signature verification within the chain failed, or no certs
+ *         were found).
  *
- *  In all of the above errors, the handshake was aborted; the peer's
- *  cert chain is available via SSLCopyPeerTrust or SSLCopyPeerCertificates.
+ *     In all of the above errors, the handshake was aborted; the peer's
+ *     cert chain is available via SSLCopyPeerTrust or SSLCopyPeerCertificates.
  *
- *  Other interesting result codes:
+ *     Other interesting result codes:
  *
- *  errSSLPeerAuthCompleted: Peer's cert chain is valid, or was ignored if
- *      cert verification was disabled via SSLSetEnableCertVerify. The application
- *      may decide to continue with the handshake (by calling SSLHandshake
- *      again), or close the connection at this point.
+ *     errSSLPeerAuthCompleted: Peer's cert chain is valid, or was ignored if
+ *         cert verification was disabled via SSLSetEnableCertVerify. The application
+ *         may decide to continue with the handshake (by calling SSLHandshake
+ *         again), or close the connection at this point.
  *
- *  errSSLClientCertRequested: The server has requested a client certificate.
- *      The client may choose to examine the server's certificate and
- *      distinguished name list, then optionally call SSLSetCertificate prior
- *      to resuming the handshake by calling SSLHandshake again.
+ *     errSSLClientCertRequested: The server has requested a client certificate.
+ *         The client may choose to examine the server's certificate and
+ *         distinguished name list, then optionally call SSLSetCertificate prior
+ *         to resuming the handshake by calling SSLHandshake again.
  *
- * A return value of errSSLWouldBlock indicates that SSLHandshake has to be
- * called again (and again and again until something else is returned).
+ *    A return value of errSSLWouldBlock indicates that SSLHandshake has to be
+ *    called again (and again and again until something else is returned).
+ * @param context A valid SSLContextRef.
+ * @result errSecSuccess on success, alternative error on failure or incomplete state.
  */
 OSStatus
 SSLHandshake				(SSLContextRef		context)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Server Only: Request renegotation.
- * This will return an error if the server is already renegotiating, or if the session is closed.
- * After this return without error, the application should call SSLHandshake() and/or SSLRead() as
- * for the original handshake.
+ * @function SSLReHandshake
+ * @abstract Server Only: Request renegotation.
+ * @discussion This will return an error if the server is already renegotiating, or if the session is closed.
+ *    After this return without error, the application should call SSLHandshake() and/or SSLRead() as
+ *    for the original handshake.
+ * @param context A valid SSLContextRef.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLReHandshake				(SSLContextRef		context)
-    __OSX_AVAILABLE_STARTING(__MAC_10_12, __IPHONE_10_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.12, 10.15), ios(10.0, 13.0));
 
 
 /*
- * Normal application-level read/write. On both of these, a errSSLWouldBlock
- * return and a partially completed transfer - or even zero bytes transferred -
- * are NOT mutually exclusive.
+ * @function SSLWrite
+ * @abstract Normal application-level write.
+ * @discussion On both of these, a errSSLWouldBlock return and a partially completed
+ *    transfer - or even zero bytes transferred - are NOT mutually exclusive.
+ * @param context A valid SSLContextRef.
+ * @param data Pointer to data to write.
+ * @param dataLength Length of data to write.
+ * @param processed Pointer to storage indicating how much data was written.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLWrite					(SSLContextRef		context,
 							 const void *		__nullable data,
 							 size_t				dataLength,
 							 size_t 			*processed)		/* RETURNED */
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * data is mallocd by caller; available size specified in
- * dataLength; actual number of bytes read returned in
- * *processed.
+ * @function SSLRead
+ * @abstract * @abstract Normal application-level write.
+ * @discussion Data is mallocd by caller; available size specified in
+ *    dataLength; actual number of bytes read returned in
+ *    *processed.
+ * @param context A valid SSLContextRef.
+ * @param data Pointer to storage where data can be read.
+ * @param dataLength Length of data storage.
+ * @param processed Pointer to storage indicating how much data was read.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLRead						(SSLContextRef		context,
 							 void *				data,			/* RETURNED */
 							 size_t				dataLength,
 							 size_t 			*processed)		/* RETURNED */
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Determine how much data the client can be guaranteed to
- * obtain via SSLRead() without blocking or causing any low-level
- * read operations to occur.
+ * @function SSLGetBufferedReadSize
+ * @abstract Determine how much data the client can be guaranteed to
+ *    obtain via SSLRead() without blocking or causing any low-level
+ *    read operations to occur.
+ * @param context A valid SSLContextRef.
+ * @param bufferSize Pointer to store the amount of buffered data to be read.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetBufferedReadSize		(SSLContextRef context,
-							 size_t *bufSize)					/* RETURNED */
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+							 size_t *bufferSize)				/* RETURNED */
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Determine how much data the application can be guaranteed to write
- * with SSLWrite() without causing fragmentation. The value is based on
- * the maximum Datagram Record size defined by the application with
- * SSLSetMaxDatagramRecordSize(), minus the DTLS Record header size.
+ * @function SSLGetDatagramWriteSize
+ * @abstract Determine how much data the application can be guaranteed to write
+ *    with SSLWrite() without causing fragmentation. The value is based on
+ *    the maximum Datagram Record size defined by the application with
+ *    SSLSetMaxDatagramRecordSize(), minus the DTLS Record header size.
+ * @param context A valid SSLContextRef (for DTLS).
+ * @param bufferSize Pointer to store the amount of data that can be written.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLGetDatagramWriteSize		(SSLContextRef dtlsContext,
 							 size_t *bufSize)
-	__OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_5_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.8, 10.15), ios(5.0, 13.0));
 
 /*
- * Terminate current SSL session.
+ * @function SSLClose
+ * @abstract Terminate current SSL session.
+ * @param context A valid SSLContextRef.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLClose					(SSLContextRef		context)
-	__OSX_AVAILABLE_STARTING(__MAC_10_2, __IPHONE_5_0);
+	__SECURETRANSPORT_API_DEPRECATED(macos(10.2, 10.15), ios(5.0, 13.0));
 
 /*
- * Set the status of a SSLContextRef. This is to be done after handling 
- * steps of the SSL handshake such as server certificate validation.
+ * @function SSLSetError
+ * @abstract Set the status of a SSLContextRef.
+ * @discussion This is to be done after handling steps of the SSL handshake such
+ *    as server certificate validation.
+ * @param context A valid SSLContextRef.
+ * @param status Error status to set internally, which will be translated to an alert.
+ * @result errSecSuccess on success, alternative error on failure.
  */
 OSStatus
 SSLSetError                 (SSLContextRef      context,
                              OSStatus           status)
-    __OSX_AVAILABLE_STARTING(__MAC_10_13, __IPHONE_11_0);
+    __SECURETRANSPORT_API_DEPRECATED(macos(10.13, 10.15), ios(11.0, 13.0));
+
+#undef __SECURETRANSPORT_API_DEPRECATED
 
 CF_IMPLICIT_BRIDGING_DISABLED
 CF_ASSUME_NONNULL_END
@@ -1629,8 +1844,8 @@ extern const CFStringRef kSecClassIdentity
     kSecClassGenericPassword item attributes:
         kSecAttrAccess (OS X only)
         kSecAttrAccessControl
-        kSecAttrAccessGroup (iOS; also OS X if kSecAttrSynchronizable specified)
-        kSecAttrAccessible (iOS; also OS X if kSecAttrSynchronizable specified)
+        kSecAttrAccessGroup (iOS; also OS X if kSecAttrSynchronizable and/or kSecUseDataProtectionKeychain set)
+        kSecAttrAccessible (iOS; also OS X if kSecAttrSynchronizable and/or kSecUseDataProtectionKeychain set)
         kSecAttrCreationDate
         kSecAttrModificationDate
         kSecAttrDescription
@@ -1648,8 +1863,8 @@ extern const CFStringRef kSecClassIdentity
     kSecClassInternetPassword item attributes:
         kSecAttrAccess (OS X only)
         kSecAttrAccessControl
-        kSecAttrAccessGroup (iOS; also OS X if kSecAttrSynchronizable specified)
-        kSecAttrAccessible (iOS; also OS X if kSecAttrSynchronizable specified)
+        kSecAttrAccessGroup (iOS; also OS X if kSecAttrSynchronizable and/or kSecUseDataProtectionKeychain set)
+        kSecAttrAccessible (iOS; also OS X if kSecAttrSynchronizable and/or kSecUseDataProtectionKeychain set)
         kSecAttrCreationDate
         kSecAttrModificationDate
         kSecAttrDescription
@@ -1685,8 +1900,8 @@ extern const CFStringRef kSecClassIdentity
     kSecClassKey item attributes:
         kSecAttrAccess (OS X only)
         kSecAttrAccessControl
-        kSecAttrAccessGroup (iOS; also OS X if kSecAttrSynchronizable specified)
-        kSecAttrAccessible (iOS; also OS X if kSecAttrSynchronizable specified)
+        kSecAttrAccessGroup (iOS; also OS X if kSecAttrSynchronizable and/or kSecUseDataProtectionKeychain set)
+        kSecAttrAccessible (iOS; also OS X if kSecAttrSynchronizable and/or kSecUseDataProtectionKeychain set)
         kSecAttrKeyClass
         kSecAttrLabel
         kSecAttrApplicationLabel
@@ -2152,7 +2367,7 @@ extern const CFStringRef kSecAttrAccessibleWhenUnlocked
 extern const CFStringRef kSecAttrAccessibleAfterFirstUnlock
     API_AVAILABLE(macos(10.9), ios(4.0));
 extern const CFStringRef kSecAttrAccessibleAlways
-    API_AVAILABLE(macos(10.9), ios(4.0));
+    API_DEPRECATED("Use an accessibility level that provides some user protection, such as kSecAttrAccessibleAfterFirstUnlock", macos(10.9, 10.14), ios(4.0, 12.0));
 extern const CFStringRef kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
     API_AVAILABLE(macos(10.10), ios(8.0));
 extern const CFStringRef kSecAttrAccessibleWhenUnlockedThisDeviceOnly
@@ -2160,7 +2375,7 @@ extern const CFStringRef kSecAttrAccessibleWhenUnlockedThisDeviceOnly
 extern const CFStringRef kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
     API_AVAILABLE(macos(10.9), ios(4.0));
 extern const CFStringRef kSecAttrAccessibleAlwaysThisDeviceOnly
-    API_AVAILABLE(macos(10.9), ios(4.0));
+    API_DEPRECATED("Use an accessibility level that provides some user protection, such as kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly", macos(10.9, 10.14), ios(4.0, 12.0));
 
 /*!
     @enum kSecAttrProtocol Value Constants
@@ -2322,7 +2537,7 @@ extern const CFStringRef kSecAttrKeyClassSymmetric
     @constant kSecAttrKeyTypeRC4 (OSX only)
     @constant kSecAttrKeyTypeRC2 (OSX only)
     @constant kSecAttrKeyTypeCAST (OSX only)
-    @constant kSecAttrKeyTypeECDSA (deprecated; use kSecAttrKeyTypeEC instead.) (OSX only)
+    @constant kSecAttrKeyTypeECDSA (deprecated; use kSecAttrKeyTypeECSECPrimeRandom instead.) (OSX only)
 */
 extern const CFStringRef kSecAttrKeyTypeRSA
     API_AVAILABLE(macos(10.7), ios(2.0));
@@ -2561,11 +2776,16 @@ extern const CFStringRef kSecValuePersistentRef
           will succeed without asking user for authentication.
         * If the specified context has not been previously authenticated, the new
           authentication will be started on this context, allowing caller to
-          eventually reuse the sucessfully authenticated context in subsequent
+          eventually reuse the successfully authenticated context in subsequent
           keychain operations.
+    @constant kSecUseDataProtectionKeychain Specifies a dictionary key whose value
+        is a CFBooleanRef. Set to kCFBooleanTrue to use kSecAttrAccessGroup and/or
+        kSecAttrAccessible on macOS without requiring the item to be marked synchronizable.
 */
 extern const CFStringRef kSecUseItemList
-    API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(ios, tvos, watchos);
+    API_AVAILABLE(macos(10.6))
+    API_DEPRECATED("Not implemented on this platform", ios(2.0, 12.0), tvos(9.0, 12.0), watchos(1.0, 5.0))
+    API_UNAVAILABLE( uikitformac);
 extern const CFStringRef kSecUseKeychain
     API_AVAILABLE(macos(10.7), ios(NA));
 extern const CFStringRef kSecUseOperationPrompt
@@ -2576,6 +2796,8 @@ extern const CFStringRef kSecUseAuthenticationUI
     API_AVAILABLE(macos(10.11), ios(9.0));
 extern const CFStringRef kSecUseAuthenticationContext
     API_AVAILABLE(macos(10.11), ios(9.0));
+extern const CFStringRef kSecUseDataProtectionKeychain
+    API_AVAILABLE(macos(10.15), ios(13.0));
 
 /*!
     @enum kSecUseAuthenticationUI Value Constants
@@ -2607,7 +2829,7 @@ extern const CFStringRef kSecUseAuthenticationUISkip
      @constant kSecAttrTokenIDSecureEnclave Specifies well-known identifier of the
          token implemented using device's Secure Enclave. The only keychain items
          supported by the Secure Enclave token are 256-bit elliptic curve keys
-         (kSecAttrKeyTypeEC).  Keys must be generated on the secure enclave using
+         (kSecAttrKeyTypeECSecPrimeRandom). Keys must be generated on the secure enclave using
          SecKeyGenerateKeyPair call with kSecAttrTokenID set to
          kSecAttrTokenIDSecureEnclave in the parameters dictionary, it is not
          possible to import pregenerated keys to kSecAttrTokenIDSecureEnclave token.
@@ -3137,6 +3359,7 @@ CFDataRef SecCertificateCopyNormalizedSubjectSequence(SecCertificateRef certific
  @abstract Retrieves the public key for a given certificate.
  @param certificate A reference to the certificate from which to retrieve the public key.
  @result A reference to the public key for the specified certificate. Your code must release this reference by calling the CFRelease function. If the public key has an encoding issue or uses an unsupported algorithm, the returned reference will be null.
+ @discussion RSA and ECDSA public keys are supported. All other public key algorithms are unsupported.
  */
 __nullable CF_RETURNS_RETAINED
 SecKeyRef SecCertificateCopyKey(SecCertificateRef certificate)
@@ -3152,7 +3375,7 @@ SecKeyRef SecCertificateCopyKey(SecCertificateRef certificate)
  */
 __nullable
 SecKeyRef SecCertificateCopyPublicKey(SecCertificateRef certificate)
-    API_DEPRECATED_WITH_REPLACEMENT("SecCertificateCopyKey", ios(10.3, 12.0)) API_UNAVAILABLE(macos);
+    API_DEPRECATED_WITH_REPLACEMENT("SecCertificateCopyKey", ios(10.3, 12.0)) API_UNAVAILABLE(macos, uikitformac);
 #endif
 
 #if TARGET_OS_OSX
@@ -3165,7 +3388,7 @@ SecKeyRef SecCertificateCopyPublicKey(SecCertificateRef certificate)
  @discussion NOTE: Deprecated in macOS 10.14; use SecCertificateCopyKey instead for cross-platform availability.
  */
 OSStatus SecCertificateCopyPublicKey(SecCertificateRef certificate, SecKeyRef * __nonnull CF_RETURNS_RETAINED key)
-    API_DEPRECATED_WITH_REPLACEMENT("SecCertificateCopyKey", macos(10.3, 10.14)) API_UNAVAILABLE(ios);
+    API_DEPRECATED_WITH_REPLACEMENT("SecCertificateCopyKey", macos(10.3, 10.14)) API_UNAVAILABLE(ios, tvos, watchos, uikitformac);
 #endif
 
 /*!
@@ -3188,7 +3411,7 @@ CFDataRef SecCertificateCopySerialNumberData(SecCertificateRef certificate, CFEr
  */
 __nullable
 CFDataRef SecCertificateCopySerialNumber(SecCertificateRef certificate)
-    API_DEPRECATED_WITH_REPLACEMENT("SecCertificateCopySerialNumberData", ios(10.3, 11.0)) API_UNAVAILABLE(macos);
+    API_DEPRECATED_WITH_REPLACEMENT("SecCertificateCopySerialNumberData", ios(10.3, 11.0)) API_UNAVAILABLE(macos, uikitformac);
 #endif
 
 #if TARGET_OS_OSX
@@ -3201,7 +3424,7 @@ CFDataRef SecCertificateCopySerialNumber(SecCertificateRef certificate)
  */
 __nullable
 CFDataRef SecCertificateCopySerialNumber(SecCertificateRef certificate, CFErrorRef *error)
-    API_DEPRECATED_WITH_REPLACEMENT("SecCertificateCopySerialNumberData", macos(10.7, 10.13)) API_UNAVAILABLE(ios);
+    API_DEPRECATED_WITH_REPLACEMENT("SecCertificateCopySerialNumberData", macos(10.7, 10.13)) API_UNAVAILABLE(ios, tvos, watchos, uikitformac);
 #endif
 
 /*
@@ -3449,6 +3672,8 @@ extern const CFStringRef kSecPropertyTypeData __OSX_AVAILABLE_STARTING(__MAC_10_
 extern const CFStringRef kSecPropertyTypeString __OSX_AVAILABLE_STARTING(__MAC_10_7, __IPHONE_NA);
 extern const CFStringRef kSecPropertyTypeURL __OSX_AVAILABLE_STARTING(__MAC_10_7, __IPHONE_NA);
 extern const CFStringRef kSecPropertyTypeDate __OSX_AVAILABLE_STARTING(__MAC_10_7, __IPHONE_NA);
+extern const CFStringRef kSecPropertyTypeArray API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
+extern const CFStringRef kSecPropertyTypeNumber API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @function SecCertificateCopyValues
@@ -3564,39 +3789,6 @@ CF_ASSUME_NONNULL_END
 __END_DECLS
 
 #endif /* !_SECURITY_SECCERTIFICATE_H_ */
-// ==========  Security.framework/Headers/SecProtocol.h
-/*
- * Copyright (c) 2018 Apple Inc. All Rights Reserved.
- *
- * @APPLE_LICENSE_HEADER_START@
- *
- * This file contains Original Code and/or Modifications of Original Code
- * as defined in and that are subject to the Apple Public Source License
- * Version 2.0 (the 'License'). You may not use this file except in
- * compliance with the License. Please obtain a copy of the License at
- * http://www.opensource.apple.com/apsl/ and read it before using this
- * file.
- *
- * The Original Code and all software distributed under the License are
- * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
- * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
- * INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
- * Please see the License for the specific language governing rights and
- * limitations under the License.
- *
- * @APPLE_LICENSE_HEADER_END@
- */
-
-#ifndef SecProtocol_h
-#define SecProtocol_h
-
-#include <Security/SecProtocolObject.h>
-#include <Security/SecProtocolTypes.h>
-#include <Security/SecProtocolOptions.h>
-#include <Security/SecProtocolMetadata.h>
-
-#endif // SecProtocol_h
 // ==========  Security.framework/Headers/SecProtocolTypes.h
 /*
  * Copyright (c) 2018 Apple Inc. All Rights Reserved.
@@ -3628,6 +3820,8 @@ __END_DECLS
 #include <Security/SecTrust.h>
 #include <Security/SecCertificate.h>
 #include <Security/SecIdentity.h>
+#include <Security/CipherSuite.h>
+#include <Security/SecBase.h>
 
 #ifndef SEC_OBJECT_IMPL
 /*!
@@ -3640,6 +3834,132 @@ SEC_OBJECT_DECL(sec_trust);
 SEC_OBJECT_DECL(sec_identity);
 SEC_OBJECT_DECL(sec_certificate);
 #endif // !SEC_OBJECT_IMPL
+
+/*!
+ * @enum tls_protocol_version_t enumeration
+ * @abstract Enumerations for the set of supported TLS and DTLS protocol versions.
+ *
+ * @constant tls_protocol_version_TLSv10 TLS 1.0 [https://tools.ietf.org/html/rfc4346]
+ * @constant tls_protocol_version_TLSv11 TLS 1.1 [https://tools.ietf.org/html/rfc2246]
+ * @constant tls_protocol_version_TLSv12 TLS 1.2 [https://tools.ietf.org/html/rfc5246]
+ * @constant tls_protocol_version_TLSv13 TLS 1.3 [https://tools.ietf.org/html/rfc8446]
+ * @constant tls_protocol_version_DTLSv10 DTLS 1.0 [https://tools.ietf.org/html/rfc4347]
+ * @constant tls_protocol_version_DTLSv12 DTLS 1.2 [https://tools.ietf.org/html/rfc6347]
+ */
+typedef CF_ENUM(uint16_t, tls_protocol_version_t) {
+    tls_protocol_version_TLSv10 CF_SWIFT_NAME(TLSv10) = 0x0301,
+    tls_protocol_version_TLSv11 CF_SWIFT_NAME(TLSv11) = 0x0302,
+    tls_protocol_version_TLSv12 CF_SWIFT_NAME(TLSv12) = 0x0303,
+    tls_protocol_version_TLSv13 CF_SWIFT_NAME(TLSv13) = 0x0304,
+    tls_protocol_version_DTLSv10 CF_SWIFT_NAME(DTLSv10) = 0xfeff,
+    tls_protocol_version_DTLSv12 CF_SWIFT_NAME(DTLSv12) = 0xfefd,
+};
+
+/*!
+ * @enum tls_ciphersuite_t enumeration
+ * @abstract Enumerations for the set of supported TLS and DTLS ciphersuites.
+ *
+ * See https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml#tls-parameters-4
+ * for ciphersuite codepoint allocations and reference RFCs.
+ *
+ * @constant tls_ciphersuite_RSA_WITH_3DES_EDE_CBC_SHA
+ * @constant tls_ciphersuite_RSA_WITH_AES_128_CBC_SHA
+ * @constant tls_ciphersuite_RSA_WITH_AES_256_CBC_SHA
+ * @constant tls_ciphersuite_RSA_WITH_AES_128_GCM_SHA256
+ * @constant tls_ciphersuite_RSA_WITH_AES_256_GCM_SHA384
+ * @constant tls_ciphersuite_RSA_WITH_AES_128_CBC_SHA256
+ * @constant tls_ciphersuite_RSA_WITH_AES_256_CBC_SHA256
+ * @constant tls_ciphersuite_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA
+ * @constant tls_ciphersuite_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+ * @constant tls_ciphersuite_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+ * @constant tls_ciphersuite_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
+ * @constant tls_ciphersuite_ECDHE_RSA_WITH_AES_128_CBC_SHA
+ * @constant tls_ciphersuite_ECDHE_RSA_WITH_AES_256_CBC_SHA
+ * @constant tls_ciphersuite_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+ * @constant tls_ciphersuite_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+ * @constant tls_ciphersuite_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+ * @constant tls_ciphersuite_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+ * @constant tls_ciphersuite_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+ * @constant tls_ciphersuite_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+ * @constant tls_ciphersuite_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+ * @constant tls_ciphersuite_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+ * @constant tls_ciphersuite_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+ * @constant tls_ciphersuite_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+ * @constant tls_ciphersuite_AES_128_GCM_SHA256
+ * @constant tls_ciphersuite_AES_256_GCM_SHA384
+ * @constant tls_ciphersuite_CHACHA20_POLY1305_SHA256
+ */
+typedef CF_ENUM(uint16_t, tls_ciphersuite_t) {
+    tls_ciphersuite_RSA_WITH_3DES_EDE_CBC_SHA CF_SWIFT_NAME(RSA_WITH_3DES_EDE_CBC_SHA) = 0x000A,
+    tls_ciphersuite_RSA_WITH_AES_128_CBC_SHA CF_SWIFT_NAME(RSA_WITH_AES_128_CBC_SHA) = 0x002F,
+    tls_ciphersuite_RSA_WITH_AES_256_CBC_SHA CF_SWIFT_NAME(RSA_WITH_AES_256_CBC_SHA) = 0x0035,
+    tls_ciphersuite_RSA_WITH_AES_128_GCM_SHA256 CF_SWIFT_NAME(RSA_WITH_AES_128_GCM_SHA256) = 0x009C,
+    tls_ciphersuite_RSA_WITH_AES_256_GCM_SHA384 CF_SWIFT_NAME(RSA_WITH_AES_256_GCM_SHA384) = 0x009D,
+    tls_ciphersuite_RSA_WITH_AES_128_CBC_SHA256 CF_SWIFT_NAME(RSA_WITH_AES_128_CBC_SHA256) = 0x003C,
+    tls_ciphersuite_RSA_WITH_AES_256_CBC_SHA256 CF_SWIFT_NAME(RSA_WITH_AES_256_CBC_SHA256) = 0x003D,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA CF_SWIFT_NAME(ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA) = 0xC008,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_128_CBC_SHA CF_SWIFT_NAME(ECDHE_ECDSA_WITH_AES_128_CBC_SHA) = 0xC009,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_256_CBC_SHA CF_SWIFT_NAME(ECDHE_ECDSA_WITH_AES_256_CBC_SHA) = 0xC00A,
+    tls_ciphersuite_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA CF_SWIFT_NAME(ECDHE_RSA_WITH_3DES_EDE_CBC_SHA) = 0xC012,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_128_CBC_SHA CF_SWIFT_NAME(ECDHE_RSA_WITH_AES_128_CBC_SHA) = 0xC013,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_256_CBC_SHA CF_SWIFT_NAME(ECDHE_RSA_WITH_AES_256_CBC_SHA) = 0xC014,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 CF_SWIFT_NAME(ECDHE_ECDSA_WITH_AES_128_CBC_SHA256) = 0xC023,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 CF_SWIFT_NAME(ECDHE_ECDSA_WITH_AES_256_CBC_SHA384) = 0xC024,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_128_CBC_SHA256 CF_SWIFT_NAME(ECDHE_RSA_WITH_AES_128_CBC_SHA256) = 0xC027,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_256_CBC_SHA384 CF_SWIFT_NAME(ECDHE_RSA_WITH_AES_256_CBC_SHA384) = 0xC028,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 CF_SWIFT_NAME(ECDHE_ECDSA_WITH_AES_128_GCM_SHA256) = 0xC02B,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 CF_SWIFT_NAME(ECDHE_ECDSA_WITH_AES_256_GCM_SHA384) = 0xC02C,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_128_GCM_SHA256 CF_SWIFT_NAME(ECDHE_RSA_WITH_AES_128_GCM_SHA256) = 0xC02F,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_256_GCM_SHA384 CF_SWIFT_NAME(ECDHE_RSA_WITH_AES_256_GCM_SHA384) = 0xC030,
+    tls_ciphersuite_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 CF_SWIFT_NAME(ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256) = 0xCCA8,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 CF_SWIFT_NAME(ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256) = 0xCCA9,
+    tls_ciphersuite_AES_128_GCM_SHA256 CF_SWIFT_NAME(AES_128_GCM_SHA256) = 0x1301,
+    tls_ciphersuite_AES_256_GCM_SHA384 CF_SWIFT_NAME(AES_256_GCM_SHA384) = 0x1302,
+    tls_ciphersuite_CHACHA20_POLY1305_SHA256 CF_SWIFT_NAME(CHACHA20_POLY1305_SHA256) = 0x1303,
+};
+
+/*!
+ * @enum tls_ciphersuite_group_t enumeration
+ * @abstract Convenience ciphersuite groups that collate ciphersuites of comparable security
+ *  properties into a single alias.
+ *
+ * @constant tls_ciphersuite_group_default
+ * @constant tls_ciphersuite_group_compatibility
+ * @constant tls_ciphersuite_group_legacy
+ * @constant tls_ciphersuite_group_ats
+ * @constant tls_ciphersuite_group_ats_compatibility
+ */
+typedef CF_ENUM(uint16_t, tls_ciphersuite_group_t) {
+    tls_ciphersuite_group_default,
+    tls_ciphersuite_group_compatibility,
+    tls_ciphersuite_group_legacy,
+    tls_ciphersuite_group_ats,
+    tls_ciphersuite_group_ats_compatibility,
+};
+
+/*!
+ * @enum SSLProtocol enumeration
+ * @abstract Enumerations for the set of supported TLS and DTLS protocol versions.
+ *
+ * @note This enumeration is deprecated. Use `tls_protocol_version_t` instead.
+ */
+typedef CF_ENUM(int, SSLProtocol) {
+    kSSLProtocolUnknown CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 0,
+    kTLSProtocol1 CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 4,
+    kTLSProtocol11 CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 7,
+    kTLSProtocol12 CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 8,
+    kDTLSProtocol1 CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 9,
+    kTLSProtocol13 CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 10,
+    kDTLSProtocol12 CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 11,
+    kTLSProtocolMaxSupported CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 999,
+    kSSLProtocol2 CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 1,
+    kSSLProtocol3 CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 2,
+    kSSLProtocol3Only CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 3,
+    kTLSProtocol1Only CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 5,
+    kSSLProtocolAll CF_ENUM_DEPRECATED(10_2, 10_15, 5_0, 13_0) = 6,
+};
+
+__BEGIN_DECLS
 
 SEC_ASSUME_NONNULL_BEGIN
 
@@ -3656,7 +3976,7 @@ SEC_ASSUME_NONNULL_BEGIN
  */
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 SEC_RETURNS_RETAINED _Nullable sec_trust_t
-sec_trust_create(SecTrustRef __nonnull trust);
+sec_trust_create(SecTrustRef trust);
 
 /*!
  * @function sec_trust_copy_ref
@@ -3671,7 +3991,7 @@ sec_trust_create(SecTrustRef __nonnull trust);
  */
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 SecTrustRef
-sec_trust_copy_ref(sec_trust_t __nonnull trust);
+sec_trust_copy_ref(sec_trust_t trust);
 
 /*!
  * @function sec_identity_create
@@ -3686,7 +4006,7 @@ sec_trust_copy_ref(sec_trust_t __nonnull trust);
  */
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 SEC_RETURNS_RETAINED _Nullable sec_identity_t
-sec_identity_create(SecIdentityRef __nonnull identity);
+sec_identity_create(SecIdentityRef identity);
 
 /*!
  * @function sec_identity_create_with_certificates
@@ -3705,7 +4025,28 @@ sec_identity_create(SecIdentityRef __nonnull identity);
  */
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 SEC_RETURNS_RETAINED _Nullable sec_identity_t
-sec_identity_create_with_certificates(SecIdentityRef __nonnull identity, CFArrayRef __nonnull certificates);
+sec_identity_create_with_certificates(SecIdentityRef identity, CFArrayRef certificates);
+
+#ifdef __BLOCKS__
+/*!
+ * @function sec_identity_access_certificates
+ *
+ * @abstract
+ *      Access the certificates associated with the `sec_identity_t` instance.
+ *
+ * @param identity
+ *      A `sec_identity_t` instance.
+ *
+ * @param handler
+ *      A block to invoke one or more times with `sec_certificate_t` instances.
+ *
+ * @return Returns true if the peer certificates were accessible, false otherwise.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+bool
+sec_identity_access_certificates(sec_identity_t identity,
+                                 void (^handler)(sec_certificate_t certificate));
+#endif // __BLOCKS__
 
 /*!
  * @function sec_identity_copy_ref
@@ -3719,8 +4060,8 @@ sec_identity_create_with_certificates(SecIdentityRef __nonnull identity, CFArray
  * @return The underlying `SecIdentityRef` instance.
  */
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
-SecIdentityRef
-sec_identity_copy_ref(sec_identity_t __nonnull identity);
+_Nullable SecIdentityRef
+sec_identity_copy_ref(sec_identity_t identity);
 
 /*!
  * @function sec_identity_copy_certificates_ref
@@ -3734,8 +4075,8 @@ sec_identity_copy_ref(sec_identity_t __nonnull identity);
  * @return The underlying `CFArrayRef` container with `SecCertificateRef` instances.
  */
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
-CFArrayRef
-sec_identity_copy_certificates_ref(sec_identity_t __nonnull identity);
+_Nullable CFArrayRef
+sec_identity_copy_certificates_ref(sec_identity_t identity);
 
 /*!
  * @function sec_certificate_create
@@ -3750,7 +4091,7 @@ sec_identity_copy_certificates_ref(sec_identity_t __nonnull identity);
  */
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 SEC_RETURNS_RETAINED _Nullable sec_certificate_t
-sec_certificate_create(SecCertificateRef __nonnull certificate);
+sec_certificate_create(SecCertificateRef certificate);
 
 /*!
  * @function sec_certificate_copy_ref
@@ -3765,9 +4106,11 @@ sec_certificate_create(SecCertificateRef __nonnull certificate);
  */
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 SecCertificateRef
-sec_certificate_copy_ref(sec_certificate_t __nonnull certificate);
+sec_certificate_copy_ref(sec_certificate_t certificate);
 
 SEC_ASSUME_NONNULL_END
+
+__END_DECLS
 
 #endif // SecProtocolTypes_h
 // ==========  Security.framework/Headers/SecKey.h
@@ -4075,7 +4418,7 @@ OSStatus SecKeyCreatePair(
         SecAccessRef _Nullable initialAccess,
         SecKeyRef* _Nullable CF_RETURNS_RETAINED publicKey,
         SecKeyRef* _Nullable CF_RETURNS_RETAINED privateKey)
-		DEPRECATED_IN_MAC_OS_X_VERSION_10_7_AND_LATER;
+		CSSM_DEPRECATED;
 
 /*!
 	@function SecKeyGenerate
@@ -4100,7 +4443,7 @@ OSStatus SecKeyGenerate(
         uint32 keyAttr,
         SecAccessRef _Nullable initialAccess,
         SecKeyRef* _Nullable CF_RETURNS_RETAINED keyRef)
-		DEPRECATED_IN_MAC_OS_X_VERSION_10_7_AND_LATER;
+		CSSM_DEPRECATED;
 
 /*!
     @function SecKeyGetCSSMKey
@@ -4849,128 +5192,118 @@ __OSX_AVAILABLE(10.12) __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) __WATCHOS_AV
     @constant kSecKeyAlgorithmECIESEncryptionStandardX963SHA1AESGCM
     Legacy ECIES encryption or decryption, use kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA256AESGCM in new code.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA1.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG and
-    all-zero 16 byte long IV (initialization vector).
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG and all-zero 16 byte long IV (initialization vector).
 
     @constant kSecKeyAlgorithmECIESEncryptionStandardX963SHA224AESGCM
     Legacy ECIES encryption or decryption, use kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA224AESGCM in new code.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA224.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG and
-    all-zero 16 byte long IV (initialization vector).
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG and all-zero 16 byte long IV (initialization vector).
 
     @constant kSecKeyAlgorithmECIESEncryptionStandardX963SHA256AESGCM
     Legacy ECIES encryption or decryption, use kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA256AESGCM in new code.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA256.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG and
-    all-zero 16 byte long IV (initialization vector).
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG and all-zero 16 byte long IV (initialization vector).
 
     @constant kSecKeyAlgorithmECIESEncryptionStandardX963SHA384AESGCM
     Legacy ECIES encryption or decryption, use kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA384AESGCM in new code.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA384.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG and
-    all-zero 16 byte long IV (initialization vector).
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG and all-zero 16 byte long IV (initialization vector).
 
     @constant kSecKeyAlgorithmECIESEncryptionStandardX963SHA512AESGCM
     Legacy ECIES encryption or decryption, use kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA512AESGCM in new code.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA512.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG and
-    all-zero 16 byte long IV (initialization vector).
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG and all-zero 16 byte long IV (initialization vector).
 
     @constant kSecKeyAlgorithmECIESEncryptionCofactorX963SHA1AESGCM
     Legacy ECIES encryption or decryption, use kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA256AESGCM in new code.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA1.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG and
-    all-zero 16 byte long IV (initialization vector).
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG and all-zero 16 byte long IV (initialization vector).
 
     @constant kSecKeyAlgorithmECIESEncryptionCofactorX963SHA224AESGCM
     Legacy ECIES encryption or decryption, use kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA224AESGCM in new code.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA224.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG and
-    all-zero 16 byte long IV (initialization vector).
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG and all-zero 16 byte long IV (initialization vector).
 
     @constant kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM
     Legacy ECIES encryption or decryption, use kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA256AESGCM in new code.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA256.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG and
-    all-zero 16 byte long IV (initialization vector).
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG and all-zero 16 byte long IV (initialization vector).
 
     @constant kSecKeyAlgorithmECIESEncryptionCofactorX963SHA384AESGCM
     Legacy ECIES encryption or decryption, use kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA384AESGCM in new code.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA384.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG and
-    all-zero 16 byte long IV (initialization vector).
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG and all-zero 16 byte long IV (initialization vector).
 
     @constant kSecKeyAlgorithmECIESEncryptionCofactorX963SHA512AESGCM
     Legacy ECIES encryption or decryption, use kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA512AESGCM in new code.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA512.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG and
-    all-zero 16 byte long IV (initialization vector).
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG and all-zero 16 byte long IV (initialization vector).
 
     @constant kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA224AESGCM
     ECIES encryption or decryption.  This algorithm does not limit the size of the message to be encrypted or decrypted.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA224.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG, AES key
-    is first half of KDF output and 16 byte long IV (initialization vector) is second half of KDF output.
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG, AES key is first half of KDF output and 16 byte long IV (initialization vector) is second half
+    of KDF output.
 
     @constant kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA256AESGCM
     ECIES encryption or decryption.  This algorithm does not limit the size of the message to be encrypted or decrypted.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA256.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG, AES key
-    is first half of KDF output and 16 byte long IV (initialization vector) is second half of KDF output.
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG, AES key is first half of KDF output and 16 byte long IV (initialization vector) is second half
+    of KDF output.
 
     @constant kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA384AESGCM
     ECIES encryption or decryption.  This algorithm does not limit the size of the message to be encrypted or decrypted.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA384.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG, AES key
-    is first half of KDF output and 16 byte long IV (initialization vector) is second half of KDF output.
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG, AES key is first half of KDF output and 16 byte long IV (initialization vector) is second half
+    of KDF output.
 
     @constant kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA512AESGCM
     ECIES encryption or decryption.  This algorithm does not limit the size of the message to be encrypted or decrypted.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA512.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG, AES key
-    is first half of KDF output and 16 byte long IV (initialization vector) is second half of KDF output.
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG, AES key is first half of KDF output and 16 byte long IV (initialization vector) is second half
+    of KDF output.
 
     @constant kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA224AESGCM
     ECIES encryption or decryption.  This algorithm does not limit the size of the message to be encrypted or decrypted.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA224.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG, AES key
-    is first half of KDF output and 16 byte long IV (initialization vector) is second half of KDF output.
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG, AES key is first half of KDF output and 16 byte long IV (initialization vector) is second half
+    of KDF output.
 
     @constant kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA256AESGCM
     ECIES encryption or decryption.  This algorithm does not limit the size of the message to be encrypted or decrypted.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA256.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG, AES key
-    is first half of KDF output and 16 byte long IV (initialization vector) is second half of KDF output.
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG, AES key is first half of KDF output and 16 byte long IV (initialization vector) is second half
+    of KDF output.
 
     @constant kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA384AESGCM
     ECIES encryption or decryption.  This algorithm does not limit the size of the message to be encrypted or decrypted.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA384.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG, AES key
-    is first half of KDF output and 16 byte long IV (initialization vector) is second half of KDF output.
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG, AES key is first half of KDF output and 16 byte long IV (initialization vector) is second half
+    of KDF output.
 
     @constant kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA512AESGCM
     ECIES encryption or decryption.  This algorithm does not limit the size of the message to be encrypted or decrypted.
     Encryption is done using AES-GCM with key negotiated by kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA512.  AES Key size
-    is 128bit for EC keys <=256bit and 256bit for bigger EC keys.  Ephemeral public key data is used as sharedInfo for KDF,
-    and static public key data is used as authenticationData for AES-GCM processing.  AES-GCM uses 16 bytes long TAG, AES key
-    is first half of KDF output and 16 byte long IV (initialization vector) is second half of KDF output.
+    is 128bit for EC keys <=256bit and 256bit for bigger EC keys. Ephemeral public key data is used as sharedInfo for KDF.
+    AES-GCM uses 16 bytes long TAG, AES key is first half of KDF output and 16 byte long IV (initialization vector) is second half
+    of KDF output.
 
     @constant kSecKeyAlgorithmECDHKeyExchangeCofactor
     Compute shared secret using ECDH cofactor algorithm, suitable only for kSecAttrKeyTypeECSECPrimeRandom keys.
@@ -5375,6 +5708,7 @@ __END_DECLS
 #include <Security/SecBase.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <AvailabilityMacros.h>
+#include <Availability.h>
 
 __BEGIN_DECLS
 
@@ -5610,13 +5944,14 @@ OSStatus SecTrustGetNetworkFetchAllowed(SecTrustRef trust,
     @abstract Sets the anchor certificates for a given trust.
     @param trust A reference to a trust object.
     @param anchorCertificates An array of anchor certificates.
+    Pass NULL to restore the default set of anchor certificates.
     @result A result code.  See "Security Error Codes" (SecBase.h).
     @discussion Calling this function without also calling
     SecTrustSetAnchorCertificatesOnly() will disable trusting any
     anchors other than the ones in anchorCertificates.
  */
 OSStatus SecTrustSetAnchorCertificates(SecTrustRef trust,
-    CFArrayRef anchorCertificates)
+    CFArrayRef __nullable anchorCertificates)
     __OSX_AVAILABLE_STARTING(__MAC_10_3, __IPHONE_2_0);
 
 /*!
@@ -5691,7 +6026,11 @@ CFAbsoluteTime SecTrustGetVerifyTime(SecTrustRef trust)
     run loop. Alternatively, you can use the SecTrustEvaluateAsync function.
  */
 OSStatus SecTrustEvaluate(SecTrustRef trust, SecTrustResultType *result)
-    __OSX_AVAILABLE_STARTING(__MAC_10_3, __IPHONE_2_0);
+    API_DEPRECATED_WITH_REPLACEMENT("SecTrustEvaluateWithError",
+                                    macos(10.3, 10.15),
+                                    ios(2.0, 13.0),
+                                    watchos(1.0, 6.0),
+                                    tvos(2.0, 13.0));
 
 #ifdef __BLOCKS__
 /*!
@@ -5706,7 +6045,11 @@ OSStatus SecTrustEvaluate(SecTrustRef trust, SecTrustResultType *result)
  */
 OSStatus SecTrustEvaluateAsync(SecTrustRef trust,
     dispatch_queue_t __nullable queue, SecTrustCallback result)
-    __OSX_AVAILABLE_STARTING(__MAC_10_7, __IPHONE_7_0);
+    API_DEPRECATED_WITH_REPLACEMENT("SecTrustEvaluateAsyncWithError",
+                                macos(10.7, 10.15),
+                                ios(7.0, 13.0),
+                                watchos(1.0, 6.0),
+                                tvos(7.0, 13.0));
 #endif
 
 /*!
@@ -5733,6 +6076,41 @@ OSStatus SecTrustEvaluateAsync(SecTrustRef trust,
 __attribute__((warn_unused_result)) bool
 SecTrustEvaluateWithError(SecTrustRef trust, CFErrorRef _Nullable * _Nullable CF_RETURNS_RETAINED error)
     API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
+
+#ifdef __BLOCKS__
+/*!
+     @typedef SecTrustWithErrorCallback
+     @abstract Delivers the result from an asynchronous trust evaluation.
+     @param trustRef A reference to the trust object which has been evaluated.
+     @param result A boolean value indicating whether the certificate is trusted.
+     @param error An error if the trust evaluation failed.
+ */
+typedef void (^SecTrustWithErrorCallback)(SecTrustRef trustRef, bool result, CFErrorRef _Nullable error);
+
+/*!
+    @function SecTrustEvaluateAsyncWithError
+    @abstract Evaluates a trust reference asynchronously.
+    @param trust A reference to the trust object to evaluate.
+    @param queue A dispatch queue on which the result callback will be executed. Note that this
+    function MUST be called from that queue.
+    @param result A SecTrustWithErrorCallback block which will be executed when the trust evaluation
+    is complete.
+    The block is guaranteed to be called exactly once when the result code is errSecSuccess, and not
+    called otherwise. Note that this block may be called synchronously inline if no asynchronous
+    operations are required.
+    @result A result code. See "Security Error Codes" (SecBase.h).
+    @discussion If the certificate is trusted, the callback will return a result parameter of true
+    and the error will be set to NULL.
+    If the certificate is not trusted or the evaluation was unable to complete, the result parameter
+    will be false and the error will be set with a description of the failure. The error contains a
+    code for the most serious error encountered (if multiple trust failures occurred). The localized
+    description indicates the certificate with the most serious problem and the type of error. The
+    underlying error contains a localized description of each certificate in the chain that had an
+    error and all errors found with that certificate.
+ */
+OSStatus SecTrustEvaluateAsyncWithError(SecTrustRef trust, dispatch_queue_t queue, SecTrustWithErrorCallback result)
+    API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+#endif /* __BLOCKS__ */
 
 /*!
     @function SecTrustGetTrustResult
@@ -5883,13 +6261,26 @@ CFDictionaryRef SecTrustCopyResult(SecTrustRef trust)
 OSStatus SecTrustSetOCSPResponse(SecTrustRef trust, CFTypeRef __nullable responseData)
     __OSX_AVAILABLE_STARTING(__MAC_10_9, __IPHONE_7_0);
 
+/*!
+     @function SecTrustSignedCertificateTimestamps
+     @abstract Attach SignedCertificateTimestamp data to a trust object.
+     @param trust A reference to a trust object.
+     @param sctArray is a CFArray of CFData objects each containing a SCT (per RFC 6962).
+     @result A result code. See "Security Error Codes" (SecBase.h).
+     @discussion Allows the caller to provide SCT data (which may be
+     obtained during a TLS/SSL handshake, per RFC 6962) as input to a trust
+     evaluation.
+ */
+OSStatus SecTrustSetSignedCertificateTimestamps(SecTrustRef trust, CFArrayRef __nullable sctArray)
+    API_AVAILABLE(macos(10.14.2), ios(12.1.1), tvos(12.1.1), watchos(5.1.1));
+
 CF_IMPLICIT_BRIDGING_DISABLED
 CF_ASSUME_NONNULL_END
 
 /*
  *  Legacy functions (OS X only)
  */
-#if TARGET_OS_MAC && !TARGET_OS_IPHONE
+#if TARGET_OS_OSX
 #include <Security/cssmtype.h>
 #include <Security/cssmapple.h>
 
@@ -6148,9 +6539,9 @@ extern const CFStringRef kSecPolicyAppleiChat
     __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_10_7, __MAC_10_9, __IPHONE_NA, __IPHONE_NA);
 #endif
 extern const CFStringRef kSecPolicyApplePKINITClient
-    __OSX_AVAILABLE_STARTING(__MAC_10_7, __IPHONE_NA);
+    API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 extern const CFStringRef kSecPolicyApplePKINITServer
-    __OSX_AVAILABLE_STARTING(__MAC_10_7, __IPHONE_NA);
+    API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 extern const CFStringRef kSecPolicyAppleCodeSigning
     __OSX_AVAILABLE_STARTING(__MAC_10_7, __IPHONE_7_0);
 extern const CFStringRef kSecPolicyMacAppStoreReceipt
@@ -6272,6 +6663,8 @@ SecPolicyRef SecPolicyCreateSSL(Boolean server, CFStringRef __nullable hostname)
      where failure to reach the server is not considered fatal.
      @constant kSecRevocationNetworkAccessDisabled If this flag is set, then
      no network access is performed; only locally cached replies are consulted.
+     This constant disallows network access for both revocation checks and
+     intermediate CA issuer fetching.
      @constant kSecRevocationUseAnyAvailableMethod Specifies that either
      OCSP or CRL may be used, depending on the method(s) specified in the
      certificate and the value of kSecRevocationPreferCRL.
@@ -6325,7 +6718,7 @@ CF_ASSUME_NONNULL_END
 /*
  *  Legacy functions (OS X only)
  */
-#if TARGET_OS_MAC && !TARGET_OS_IPHONE
+#if TARGET_OS_OSX
 #include <Security/cssmtype.h>
 
 CF_ASSUME_NONNULL_BEGIN
@@ -6525,12 +6918,11 @@ __END_DECLS
 #define SecProtocolOptions_h
 
 #include <Security/SecProtocolObject.h>
-#include <Security/SecBase.h>
-#include <Security/SecureTransport.h>
+#include <Security/SecProtocolTypes.h>
+#include <Security/SecProtocolMetadata.h>
 #include <Security/SecTrust.h>
 #include <Security/SecCertificate.h>
 #include <Security/SecIdentity.h>
-#include <Security/SecProtocolMetadata.h>
 
 #include <dispatch/dispatch.h>
 #include <os/object.h>
@@ -6569,6 +6961,24 @@ __BEGIN_DECLS
 SEC_ASSUME_NONNULL_BEGIN
 
 /*!
+ * @function sec_protocol_options_are_equal
+ *
+ * @abstract
+ *      Compare two `sec_protocol_options_t` instances.
+ *
+ * @param optionsA
+ *      A `sec_protocol_options_t` instance.
+ *
+ * @param optionsB
+ *      A `sec_protocol_options_t` instance.
+ *
+ * @return True if equal, and false otherwise.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+bool
+sec_protocol_options_are_equal(sec_protocol_options_t optionsA, sec_protocol_options_t optionsB);
+
+/*!
  * @function sec_protocol_options_set_local_identity
  *
  * @abstract
@@ -6585,6 +6995,22 @@ void
 sec_protocol_options_set_local_identity(sec_protocol_options_t options, sec_identity_t identity);
 
 /*!
+ * @function sec_protocol_options_append_tls_ciphersuite
+ *
+ * @abstract
+ *      Append a TLS ciphersuite to the set of enabled ciphersuites.
+ *
+ * @param options
+ *      A `sec_protocol_options_t` instance.
+ *
+ * @param ciphersuite
+ *      A `tls_ciphersuite_t` value.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+void
+sec_protocol_options_append_tls_ciphersuite(sec_protocol_options_t options, tls_ciphersuite_t ciphersuite);
+
+/*!
  * @function sec_protocol_options_add_tls_ciphersuite
  *
  * @abstract
@@ -6596,9 +7022,26 @@ sec_protocol_options_set_local_identity(sec_protocol_options_t options, sec_iden
  * @param ciphersuite
  *      A SSLCipherSuite value.
  */
-API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+API_DEPRECATED("Use sec_protocol_options_append_tls_ciphersuite", macos(10.14, 10.15), ios(12.0, 13.0), watchos(5.0, 6.0), tvos(12.0, 13.0))
+API_UNAVAILABLE(uikitformac)
 void
 sec_protocol_options_add_tls_ciphersuite(sec_protocol_options_t options, SSLCipherSuite ciphersuite);
+
+/*!
+ * @function sec_protocol_options_append_tls_ciphersuite_group
+ *
+ * @abstract
+ *      Append a TLS ciphersuite group to the set of enabled ciphersuites.
+ *
+ * @param options
+ *      A `sec_protocol_options_t` instance.
+ *
+ * @param group
+ *      A SSLCipherSuiteGroup value.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+void
+sec_protocol_options_append_tls_ciphersuite_group(sec_protocol_options_t options, tls_ciphersuite_group_t group);
 
 /*!
  * @function sec_protocol_options_add_tls_ciphersuite_group
@@ -6612,7 +7055,8 @@ sec_protocol_options_add_tls_ciphersuite(sec_protocol_options_t options, SSLCiph
  * @param group
  *      A SSLCipherSuiteGroup value.
  */
-API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+API_DEPRECATED("Use sec_protocol_options_append_tls_ciphersuite_group", macos(10.14, 10.15), ios(12.0, 13.0), watchos(5.0, 6.0), tvos(12.0, 13.0))
+API_UNAVAILABLE(uikitformac)
 void
 sec_protocol_options_add_tls_ciphersuite_group(sec_protocol_options_t options, SSLCiphersuiteGroup group);
 
@@ -6628,9 +7072,51 @@ sec_protocol_options_add_tls_ciphersuite_group(sec_protocol_options_t options, S
  * @param version
  *      A SSLProtocol enum value.
  */
-API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+API_DEPRECATED_WITH_REPLACEMENT("sec_protocol_options_set_min_tls_protocol_version",
+                                macos(10.14, 10.15), ios(12.0, 13.0), watchos(5.0, 6.0), tvos(12.0, 13.0))
+API_UNAVAILABLE(uikitformac)
 void
 sec_protocol_options_set_tls_min_version(sec_protocol_options_t options, SSLProtocol version);
+
+/*!
+ * @function sec_protocol_options_set_min_tls_protocol_version
+ *
+ * @abstract
+ *      Set the minimum support TLS version.
+ *
+ * @param options
+ *      A `sec_protocol_options_t` instance.
+ *
+ * @param version
+ *      A tls_protocol_version_t enum value.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+void
+sec_protocol_options_set_min_tls_protocol_version(sec_protocol_options_t options, tls_protocol_version_t version);
+
+/*!
+ * @function sec_protocol_options_get_default_min_tls_protocol_version
+ *
+ * @abstract
+ *      Get the system default minimum TLS protocol version.
+ *
+ * @return The default minimum TLS version.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+tls_protocol_version_t
+sec_protocol_options_get_default_min_tls_protocol_version(void);
+
+/*!
+ * @function sec_protocol_options_get_default_min_dtls_protocol_version
+ *
+ * @abstract
+ *      Get the system default minimum DTLS protocol version.
+ *
+ * @return The default minimum DTLS version.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+tls_protocol_version_t
+sec_protocol_options_get_default_min_dtls_protocol_version(void);
 
 /*!
  * @function sec_protocol_options_set_tls_max_version
@@ -6644,9 +7130,51 @@ sec_protocol_options_set_tls_min_version(sec_protocol_options_t options, SSLProt
  * @param version
  *      A SSLProtocol enum value.
  */
-API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+API_DEPRECATED_WITH_REPLACEMENT("sec_protocol_options_set_max_tls_protocol_version",
+                                macos(10.14, 10.15), ios(12.0, 13.0), watchos(5.0, 6.0), tvos(12.0, 13.0))
+API_UNAVAILABLE(uikitformac)
 void
 sec_protocol_options_set_tls_max_version(sec_protocol_options_t options, SSLProtocol version);
+
+/*!
+ * @function sec_protocol_options_set_max_tls_protocol_version
+ *
+ * @abstract
+ *      Set the maximum support TLS version.
+ *
+ * @param options
+ *      A `sec_protocol_options_t` instance.
+ *
+ * @param version
+ *      A tls_protocol_version_t enum value.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+void
+sec_protocol_options_set_max_tls_protocol_version(sec_protocol_options_t options, tls_protocol_version_t version);
+
+/*!
+ * @function sec_protocol_options_get_default_max_tls_protocol_version
+ *
+ * @abstract
+ *      Get the system default maximum TLS protocol version.
+ *
+ * @return The default maximum TLS version.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+tls_protocol_version_t
+sec_protocol_options_get_default_max_tls_protocol_version(void);
+
+/*!
+ * @function sec_protocol_options_get_default_max_tls_protocol_version
+ *
+ * @abstract
+ *      Get the system default maximum DTLS protocol version.
+ *
+ * @return The default maximum DTLS version.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+tls_protocol_version_t
+sec_protocol_options_get_default_max_dtls_protocol_version(void);
 
 /*!
  * @function sec_protocol_options_add_tls_application_protocol
@@ -6693,7 +7221,7 @@ sec_protocol_options_set_tls_server_name(sec_protocol_options_t options, const c
  * @param params
  *      A dispatch_data_t containing legacy Diffie-Hellman parameters.
  */
-API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+API_DEPRECATED("DHE ciphersuites are no longer supported", macos(10.14, 10.15), ios(12.0, 13.0), watchos(5.0, 6.0), tvos(12.0, 13.0))
 void
 sec_protocol_options_set_tls_diffie_hellman_parameters(sec_protocol_options_t options, dispatch_data_t params);
 
@@ -6880,10 +7408,13 @@ typedef void (^sec_protocol_key_update_t)(sec_protocol_metadata_t metadata, sec_
  * @abstract
  *      Block to be invoked when an identity (authentication) challenge is complete.
  *
+ *      Note: prior to macOS 10.15, iOS 13.0, watchOS 6.0, and tvOS 13.0, calling this
+ *      block with a NULL `identity` argument was prohibited.
+ *
  * @param identity
  *      A `sec_identity_t` containing the identity to use for this challenge.
  */
-typedef void (^sec_protocol_challenge_complete_t)(sec_identity_t identity);
+typedef void (^sec_protocol_challenge_complete_t)(sec_identity_t __nullable identity);
 
 /*!
  * @block sec_protocol_challenge_t
@@ -7022,11 +7553,11 @@ __END_DECLS
 
 #include <TargetConditionals.h>
 #include <CoreFoundation/CFBase.h>
-#include <AvailabilityMacros.h>
+#include <Availability.h>
 
 // Truth table for following declarations:
 //
-
+//                          TARGET_OS_OSX   TARGET_OS_OSX   TARGET_OS_IPHONE    TARGET_OS_IPHONE    TARGET_OS_UIKITFORMAC
 //                                          SEC_IOS_ON_OSX                      SEC_IOS_ON_OSX
 // =================================================================================================================
 // SEC_OS_IPHONE            0               1               1                   1                   1
@@ -7042,7 +7573,12 @@ __END_DECLS
   #endif // SEC_IOS_ON_OSX
 #endif // TARGET_OS_OSX
 
+#if TARGET_OS_UIKITFORMAC
+  #define SEC_OS_IPHONE 1
 
+  #define SEC_OS_OSX 0
+  #define SEC_OS_OSX_INCLUDES 0
+#endif // TARGET_OS_UIKITFORMAC
 
 #ifndef SEC_OS_IPHONE
     // block above did not fire; set flags to current platform
@@ -7062,24 +7598,25 @@ __END_DECLS
 #define SEC_DEPRECATED_ATTRIBUTE
 #endif
 
+#define CSSM_DEPRECATED API_DEPRECATED("CSSM is not supported", macos(10.0, 10.7)) API_UNAVAILABLE(ios, watchos, tvos, uikitformac)
+
 __BEGIN_DECLS
 
 CF_ASSUME_NONNULL_BEGIN
 CF_IMPLICIT_BRIDGING_ENABLED
 
-
-#if SEC_OS_IPHONE
-#define SECTYPE(a) __##a
-#elif SEC_OS_OSX
-#define SECTYPE(a) Opaque##a##Ref
-#endif
+#define SECURITY_TYPE_UNIFICATION 1
 
 /*!
     @typedef SecCertificateRef
     @abstract CFType representing a X.509 certificate.
     See SecCertificate.h for details.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecCertificate) *SecCertificateRef;
+typedef struct CF_BRIDGED_TYPE(id) __SecCertificate *SecCertificateRef;
+
+#if TARGET_OS_OSX
+typedef struct __SecCertificate OpaqueSecCertificateRef;
+#endif
 
 /*!
     @typedef SecIdentityRef
@@ -7087,53 +7624,61 @@ typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecCertificate) *SecCertificateRef;
     a SecKeyRef and an associated SecCertificateRef. See
     SecIdentity.h for details.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecIdentity) *SecIdentityRef;
+typedef struct CF_BRIDGED_TYPE(id) __SecIdentity *SecIdentityRef;
+
+#if TARGET_OS_OSX
+typedef struct __SecIdentity OpaqueSecIdentityRef;
+#endif
 
 /*!
     @typedef SecKeyRef
     @abstract CFType representing a cryptographic key. See
     SecKey.h for details.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecKey) *SecKeyRef;
+typedef struct CF_BRIDGED_TYPE(id) __SecKey *SecKeyRef;
+
+#if TARGET_OS_OSX
+typedef struct __SecKey OpaqueSecKeyRef;
+#endif
 
 /*!
     @typedef SecPolicyRef
     @abstract CFType representing a X.509 certificate trust policy.
     See SecPolicy.h for details.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecPolicy) *SecPolicyRef;
+typedef struct CF_BRIDGED_TYPE(id) __SecPolicy *SecPolicyRef;
 
 /*!
     @typedef SecAccessControl
     @abstract CFType representing access control for an item.
     SecAccessControl.h for details.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecAccessControl) *SecAccessControlRef;
+typedef struct CF_BRIDGED_TYPE(id) __SecAccessControl *SecAccessControlRef;
 
 /*!
     @typedef SecKeychainRef
     @abstract Contains information about a keychain.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecKeychain) *SecKeychainRef
+typedef struct CF_BRIDGED_TYPE(id) __SecKeychain *SecKeychainRef
     API_AVAILABLE(macos(10.0)) API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
     @typedef SecKeychainItemRef
     @abstract Contains information about a keychain item.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecKeychainItem) *SecKeychainItemRef API_UNAVAILABLE(ios);
+typedef struct CF_BRIDGED_TYPE(id) __SecKeychainItem *SecKeychainItemRef API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @typedef SecKeychainSearchRef
     @abstract Contains information about a keychain search.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecKeychainSearch) *SecKeychainSearchRef API_UNAVAILABLE(ios);
+typedef struct CF_BRIDGED_TYPE(id) __SecKeychainSearch *SecKeychainSearchRef API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @typedef SecKeychainAttrType
     @abstract Represents a keychain attribute type.
 */
-typedef OSType SecKeychainAttrType API_UNAVAILABLE(ios);
+typedef OSType SecKeychainAttrType API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @struct SecKeychainAttribute
@@ -7142,19 +7687,19 @@ typedef OSType SecKeychainAttrType API_UNAVAILABLE(ios);
     @field length The length of the buffer pointed to by data.
     @field data A pointer to the attribute data.
 */
-struct API_UNAVAILABLE(ios) SecKeychainAttribute
+struct API_UNAVAILABLE(ios, watchos, tvos, uikitformac) SecKeychainAttribute
 {
     SecKeychainAttrType tag;
     UInt32 length;
     void * __nullable data;
 };
-typedef struct SecKeychainAttribute SecKeychainAttribute API_UNAVAILABLE(ios);
+typedef struct SecKeychainAttribute SecKeychainAttribute API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @typedef SecKeychainAttributePtr
     @abstract Represents a pointer to a keychain attribute structure.
 */
-typedef SecKeychainAttribute *SecKeychainAttributePtr API_UNAVAILABLE(ios);
+typedef SecKeychainAttribute *SecKeychainAttributePtr API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @typedef SecKeychainAttributeList
@@ -7162,42 +7707,46 @@ typedef SecKeychainAttribute *SecKeychainAttributePtr API_UNAVAILABLE(ios);
     @field count An unsigned 32-bit integer that represents the number of keychain attributes in the array.
     @field attr A pointer to the first keychain attribute in the array.
 */
-struct API_UNAVAILABLE(ios) SecKeychainAttributeList
+struct API_UNAVAILABLE(ios, watchos, tvos, uikitformac) SecKeychainAttributeList
 {
     UInt32 count;
     SecKeychainAttribute * __nullable attr;
 };
-typedef struct SecKeychainAttributeList SecKeychainAttributeList API_UNAVAILABLE(ios);
+typedef struct SecKeychainAttributeList SecKeychainAttributeList API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @typedef SecKeychainStatus
     @abstract Represents the status of a keychain.
 */
-typedef UInt32 SecKeychainStatus API_UNAVAILABLE(ios);
+typedef UInt32 SecKeychainStatus API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @typedef SecTrustedApplicationRef
     @abstract Contains information about a trusted application.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecTrustedApplication) *SecTrustedApplicationRef API_UNAVAILABLE(ios);
+typedef struct CF_BRIDGED_TYPE(id) __SecTrustedApplication *SecTrustedApplicationRef API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @typedef SecAccessRef
     @abstract Contains information about an access.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecAccess) *SecAccessRef API_UNAVAILABLE(ios);
+typedef struct CF_BRIDGED_TYPE(id) __SecAccess *SecAccessRef API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
+
+#if TARGET_OS_OSX
+typedef struct __SecAccess OpaqueSecAccessRef;
+#endif
 
 /*!
     @typedef SecACLRef
     @abstract Contains information about an access control list (ACL) entry.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecTrust) *SecACLRef API_UNAVAILABLE(ios);
+typedef struct CF_BRIDGED_TYPE(id) __SecACL *SecACLRef API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @typedef SecPasswordRef
     @abstract Contains information about a password.
 */
-typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecPassword) *SecPasswordRef API_UNAVAILABLE(ios);
+typedef struct CF_BRIDGED_TYPE(id) __SecPassword *SecPasswordRef API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @typedef SecKeychainAttributeInfo
@@ -7207,13 +7756,13 @@ typedef struct CF_BRIDGED_TYPE(id) SECTYPE(SecPassword) *SecPasswordRef API_UNAV
     @field format A pointer to the first CSSM_DB_ATTRIBUTE_FORMAT in the array.
     @discussion Each tag and format item form a pair.
 */
-struct API_UNAVAILABLE(ios) SecKeychainAttributeInfo
+struct API_UNAVAILABLE(ios, watchos, tvos, uikitformac) SecKeychainAttributeInfo
 {
     UInt32 count;
     UInt32 *tag;
     UInt32 * __nullable format;
 };
-typedef struct SecKeychainAttributeInfo SecKeychainAttributeInfo API_UNAVAILABLE(ios);
+typedef struct SecKeychainAttributeInfo SecKeychainAttributeInfo API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*!
     @function SecCopyErrorMessageString
@@ -7226,15 +7775,13 @@ __nullable
 CFStringRef SecCopyErrorMessageString(OSStatus status, void * __nullable reserved)
     __OSX_AVAILABLE_STARTING(__MAC_10_3, __IPHONE_11_3);
 
-#undef SECTYPE
-
 
 /*!
 @enum Security Error Codes
 @abstract Result codes returned from Security framework functions.
 @constant errSecSuccess No error.
 @constant errSecUnimplemented Function or operation not implemented.
-@constant errSecDskFull Disk Full error.
+@constant errSecDiskFull Disk Full error.
 @constant errSecIO I/O error.
 @constant errSecParam One or more parameters passed to a function were not valid.
 @constant errSecWrPerm    Write permissions error.
@@ -7303,7 +7850,7 @@ CF_ENUM(OSStatus)
     errSecSuccess                            = 0,       /* No error. */
     errSecUnimplemented                      = -4,      /* Function or operation not implemented. */
     errSecDiskFull                           = -34,     /* The disk is full. */
-    errSecDskFull                            = -34,
+    errSecDskFull __attribute__((deprecated("use errSecDiskFull"))) = errSecDiskFull,
     errSecIO                                 = -36,     /* I/O error. */
     errSecOpWr                               = -49,     /* File already open with write permission. */
     errSecParam                              = -50,     /* One or more parameters passed to a function were not valid. */
@@ -7681,8 +8228,189 @@ CF_ENUM(OSStatus)
     errSecTimestampWaiting                   = -67896,    /* A timestamp transaction is waiting. */
     errSecTimestampRevocationWarning         = -67897,    /* A timestamp authority revocation warning was issued. */
     errSecTimestampRevocationNotification    = -67898,    /* A timestamp authority revocation notification was issued. */
+    errSecCertificatePolicyNotAllowed        = -67899,    /* The requested policy is not allowed for this certificate. */
+    errSecCertificateNameNotAllowed          = -67900,    /* The requested name is not allowed for this certificate. */
+    errSecCertificateValidityPeriodTooLong   = -67901,    /* The validity period in the certificate exceeds the maximum allowed. */
 };
 
+
+/*!
+ @enum SecureTransport Error Codes
+ @abstract Result codes returned from SecureTransport and SecProtocol functions. This is also the domain
+   for TLS errors in the network stack.
+
+ @constant errSSLProtocol SSL protocol error
+ @constant errSSLNegotiation Cipher Suite negotiation failure
+ @constant errSSLFatalAlert Fatal alert
+ @constant errSSLWouldBlock I/O would block (not fatal)
+ @constant errSSLSessionNotFound attempt to restore an unknown session
+ @constant errSSLClosedGraceful connection closed gracefully
+ @constant errSSLClosedAbort connection closed via error
+ @constant errSSLXCertChainInvalid invalid certificate chain
+ @constant errSSLBadCert bad certificate format
+ @constant errSSLCrypto underlying cryptographic error
+ @constant errSSLInternal Internal error
+ @constant errSSLModuleAttach module attach failure
+ @constant errSSLUnknownRootCert valid cert chain, untrusted root
+ @constant errSSLNoRootCert cert chain not verified by root
+ @constant errSSLCertExpired chain had an expired cert
+ @constant errSSLCertNotYetValid chain had a cert not yet valid
+ @constant errSSLClosedNoNotify server closed session with no notification
+ @constant errSSLBufferOverflow insufficient buffer provided
+ @constant errSSLBadCipherSuite bad SSLCipherSuite
+ @constant errSSLPeerUnexpectedMsg unexpected message received
+ @constant errSSLPeerBadRecordMac bad MAC
+ @constant errSSLPeerDecryptionFail decryption failed
+ @constant errSSLPeerRecordOverflow record overflow
+ @constant errSSLPeerDecompressFail decompression failure
+ @constant errSSLPeerHandshakeFail handshake failure
+ @constant errSSLPeerBadCert misc. bad certificate
+ @constant errSSLPeerUnsupportedCert bad unsupported cert format
+ @constant errSSLPeerCertRevoked certificate revoked
+ @constant errSSLPeerCertExpired certificate expired
+ @constant errSSLPeerCertUnknown unknown certificate
+ @constant errSSLIllegalParam illegal parameter
+ @constant errSSLPeerUnknownCA unknown Cert Authority
+ @constant errSSLPeerAccessDenied access denied
+ @constant errSSLPeerDecodeError decoding error
+ @constant errSSLPeerDecryptError decryption error
+ @constant errSSLPeerExportRestriction export restriction
+ @constant errSSLPeerProtocolVersion bad protocol version
+ @constant errSSLPeerInsufficientSecurity insufficient security
+ @constant errSSLPeerInternalError internal error
+ @constant errSSLPeerUserCancelled user canceled
+ @constant errSSLPeerNoRenegotiation no renegotiation allowed
+ @constant errSSLPeerAuthCompleted peer cert is valid, or was ignored if verification disabled
+ @constant errSSLClientCertRequested server has requested a client cert
+ @constant errSSLHostNameMismatch peer host name mismatch
+ @constant errSSLConnectionRefused peer dropped connection before responding
+ @constant errSSLDecryptionFail decryption failure
+ @constant errSSLBadRecordMac bad MAC
+ @constant errSSLRecordOverflow record overflow
+ @constant errSSLBadConfiguration configuration error
+ @constant errSSLUnexpectedRecord unexpected (skipped) record in DTLS
+ @constant errSSLWeakPeerEphemeralDHKey weak ephemeral dh key
+ @constant errSSLClientHelloReceived SNI
+ @constant errSSLTransportReset transport (socket) shutdown, e.g., TCP RST or FIN.
+ @constant errSSLNetworkTimeout network timeout triggered
+ @constant errSSLConfigurationFailed TLS configuration failed
+ @constant errSSLUnsupportedExtension unsupported TLS extension
+ @constant errSSLUnexpectedMessage peer rejected unexpected message
+ @constant errSSLDecompressFail decompression failed
+ @constant errSSLHandshakeFail handshake failed
+ @constant errSSLDecodeError decode failed
+ @constant errSSLInappropriateFallback inappropriate fallback
+ @constant errSSLMissingExtension missing extension
+ @constant errSSLBadCertificateStatusResponse bad OCSP response
+ @constant errSSLCertificateRequired certificate required
+ @constant errSSLUnknownPSKIdentity unknown PSK identity
+ @constant errSSLUnrecognizedName unknown or unrecognized name
+ @constant errSSLATSViolation ATS violation
+ @constant errSSLATSMinimumVersionViolation ATS violation: minimum protocol version is not ATS compliant
+ @constant errSSLATSCiphersuiteViolation ATS violation: selected ciphersuite is not ATS compliant
+ @constant errSSLATSMinimumKeySizeViolation ATS violation: peer key size is not ATS compliant
+ @constant errSSLATSLeafCertificateHashAlgorithmViolation ATS violation: peer leaf certificate hash algorithm is not ATS compliant
+ @constant errSSLATSCertificateHashAlgorithmViolation ATS violation: peer certificate hash algorithm is not ATS compliant
+ @constant errSSLATSCertificateTrustViolation ATS violation: peer certificate is not issued by trusted peer
+ */
+
+/*
+ Note: the comments that appear after these errors are used to create SecErrorMessages.strings.
+ The comments must not be multi-line, and should be in a form meaningful to an end user. If
+ a different or additional comment is needed, it can be put in the header doc format, or on a
+ line that does not start with errZZZ.
+ */
+CF_ENUM(OSStatus) {
+    errSSLProtocol                                  = -9800,    /* SSL protocol error */
+    errSSLNegotiation                               = -9801,    /* Cipher Suite negotiation failure */
+    errSSLFatalAlert                                = -9802,    /* Fatal alert */
+    errSSLWouldBlock                                = -9803,    /* I/O would block (not fatal) */
+    errSSLSessionNotFound                           = -9804,    /* attempt to restore an unknown session */
+    errSSLClosedGraceful                            = -9805,    /* connection closed gracefully */
+    errSSLClosedAbort                               = -9806,    /* connection closed via error */
+    errSSLXCertChainInvalid                         = -9807,    /* invalid certificate chain */
+    errSSLBadCert                                   = -9808,    /* bad certificate format */
+    errSSLCrypto                                    = -9809,    /* underlying cryptographic error */
+    errSSLInternal                                  = -9810,    /* Internal error */
+    errSSLModuleAttach                              = -9811,    /* module attach failure */
+    errSSLUnknownRootCert                           = -9812,    /* valid cert chain, untrusted root */
+    errSSLNoRootCert                                = -9813,    /* cert chain not verified by root */
+    errSSLCertExpired                               = -9814,    /* chain had an expired cert */
+    errSSLCertNotYetValid                           = -9815,    /* chain had a cert not yet valid */
+    errSSLClosedNoNotify                            = -9816,    /* server closed session with no notification */
+    errSSLBufferOverflow                            = -9817,    /* insufficient buffer provided */
+    errSSLBadCipherSuite                            = -9818,    /* bad SSLCipherSuite */
+
+    /* fatal errors detected by peer */
+    errSSLPeerUnexpectedMsg                         = -9819,    /* unexpected message received */
+    errSSLPeerBadRecordMac                          = -9820,    /* bad MAC */
+    errSSLPeerDecryptionFail                        = -9821,    /* decryption failed */
+    errSSLPeerRecordOverflow                        = -9822,    /* record overflow */
+    errSSLPeerDecompressFail                        = -9823,    /* decompression failure */
+    errSSLPeerHandshakeFail                         = -9824,    /* handshake failure */
+    errSSLPeerBadCert                               = -9825,    /* misc. bad certificate */
+    errSSLPeerUnsupportedCert                       = -9826,    /* bad unsupported cert format */
+    errSSLPeerCertRevoked                           = -9827,    /* certificate revoked */
+    errSSLPeerCertExpired                           = -9828,    /* certificate expired */
+    errSSLPeerCertUnknown                           = -9829,    /* unknown certificate */
+    errSSLIllegalParam                              = -9830,    /* illegal parameter */
+    errSSLPeerUnknownCA                             = -9831,    /* unknown Cert Authority */
+    errSSLPeerAccessDenied                          = -9832,    /* access denied */
+    errSSLPeerDecodeError                           = -9833,    /* decoding error */
+    errSSLPeerDecryptError                          = -9834,    /* decryption error */
+    errSSLPeerExportRestriction                     = -9835,    /* export restriction */
+    errSSLPeerProtocolVersion                       = -9836,    /* bad protocol version */
+    errSSLPeerInsufficientSecurity                  = -9837,    /* insufficient security */
+    errSSLPeerInternalError                         = -9838,    /* internal error */
+    errSSLPeerUserCancelled                         = -9839,    /* user canceled */
+    errSSLPeerNoRenegotiation                       = -9840,    /* no renegotiation allowed */
+
+    /* non-fatal result codes */
+    errSSLPeerAuthCompleted                         = -9841,    /* peer cert is valid, or was ignored if verification disabled */
+    errSSLClientCertRequested                       = -9842,    /* server has requested a client cert */
+
+    /* more errors detected by us */
+    errSSLHostNameMismatch                          = -9843,    /* peer host name mismatch */
+    errSSLConnectionRefused                         = -9844,    /* peer dropped connection before responding */
+    errSSLDecryptionFail                            = -9845,    /* decryption failure */
+    errSSLBadRecordMac                              = -9846,    /* bad MAC */
+    errSSLRecordOverflow                            = -9847,    /* record overflow */
+    errSSLBadConfiguration                          = -9848,    /* configuration error */
+    errSSLUnexpectedRecord                          = -9849,    /* unexpected (skipped) record in DTLS */
+    errSSLWeakPeerEphemeralDHKey                    = -9850,    /* weak ephemeral dh key  */
+
+    /* non-fatal result codes */
+    errSSLClientHelloReceived                       = -9851,    /* SNI */
+
+    /* fatal errors resulting from transport or networking errors */
+    errSSLTransportReset                            = -9852,    /* transport (socket) shutdown, e.g., TCP RST or FIN. */
+    errSSLNetworkTimeout                            = -9853,    /* network timeout triggered */
+
+    /* fatal errors resulting from software misconfiguration */
+    errSSLConfigurationFailed                       = -9854,    /* TLS configuration failed */
+
+    /* additional errors */
+    errSSLUnsupportedExtension                      = -9855,    /* unsupported TLS extension */
+    errSSLUnexpectedMessage                         = -9856,    /* peer rejected unexpected message */
+    errSSLDecompressFail                            = -9857,    /* decompression failed */
+    errSSLHandshakeFail                             = -9858,    /* handshake failed */
+    errSSLDecodeError                               = -9859,    /* decode failed */
+    errSSLInappropriateFallback                     = -9860,    /* inappropriate fallback */
+    errSSLMissingExtension                          = -9861,    /* missing extension */
+    errSSLBadCertificateStatusResponse              = -9862,    /* bad OCSP response */
+    errSSLCertificateRequired                       = -9863,    /* certificate required */
+    errSSLUnknownPSKIdentity                        = -9864,    /* unknown PSK identity */
+    errSSLUnrecognizedName                          = -9865,    /* unknown or unrecognized name */
+
+    /* ATS compliance violation errors */
+    errSSLATSViolation                              = -9880,    /* ATS violation */
+    errSSLATSMinimumVersionViolation                = -9881,    /* ATS violation: minimum protocol version is not ATS compliant */
+    errSSLATSCiphersuiteViolation                   = -9882,    /* ATS violation: selected ciphersuite is not ATS compliant */
+    errSSLATSMinimumKeySizeViolation                = -9883,    /* ATS violation: peer key size is not ATS compliant */
+    errSSLATSLeafCertificateHashAlgorithmViolation  = -9884,    /* ATS violation: peer leaf certificate hash algorithm is not ATS compliant */
+    errSSLATSCertificateHashAlgorithmViolation      = -9885,    /* ATS violation: peer certificate hash algorithm is not ATS compliant */
+    errSSLATSCertificateTrustViolation              = -9886,    /* ATS violation: peer certificate is not issued by trusted peer */
+};
 
 CF_IMPLICIT_BRIDGING_DISABLED
 CF_ASSUME_NONNULL_END
@@ -7745,7 +8473,7 @@ CF_IMPLICIT_BRIDGING_ENABLED
         shared password. You use this key to get a value of type CFStringRef
         that contains a password.
 */
-extern const CFStringRef kSecSharedPassword API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, tvos, watchos);
+extern const CFStringRef kSecSharedPassword API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
 
 /*!
  @function SecAddSharedWebCredential
@@ -7759,7 +8487,7 @@ extern const CFStringRef kSecSharedPassword API_AVAILABLE(ios(8.0)) API_UNAVAILA
  Note: since a request involving shared web credentials may potentially require user interaction or other verification to be approved, this function is dispatched asynchronously; your code provides a completion handler that will be called once the results (if any) are available.
  */
 void SecAddSharedWebCredential(CFStringRef fqdn, CFStringRef account, CFStringRef __nullable password,
-    void (^completionHandler)(CFErrorRef __nullable error)) API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, tvos, watchos);
+    void (^completionHandler)(CFErrorRef __nullable error)) API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
 
 /*!
  @function SecRequestSharedWebCredential
@@ -7780,7 +8508,7 @@ void SecAddSharedWebCredential(CFStringRef fqdn, CFStringRef account, CFStringRe
  Note: since a request involving shared web credentials may potentially require user interaction or other verification to be approved, this function is dispatched asynchronously; your code provides a completion handler that will be called once the results (if any) are available.
  */
 void SecRequestSharedWebCredential(CFStringRef __nullable fqdn, CFStringRef __nullable account,
-    void (^completionHandler)(CFArrayRef __nullable credentials, CFErrorRef __nullable error)) API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, tvos, watchos);
+    void (^completionHandler)(CFArrayRef __nullable credentials, CFErrorRef __nullable error)) API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
 
 /*!
  @function SecCreateSharedWebCredentialPassword
@@ -7788,7 +8516,7 @@ void SecRequestSharedWebCredential(CFStringRef __nullable fqdn, CFStringRef __nu
  @return CFStringRef password in the form xxx-xxx-xxx-xxx where x is taken from the sets "abcdefghkmnopqrstuvwxy", "ABCDEFGHJKLMNPQRSTUVWXYZ", "3456789" with at least one character from each set being present.
 */
 __nullable
-CFStringRef SecCreateSharedWebCredentialPassword(void) API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, tvos, watchos);
+CFStringRef SecCreateSharedWebCredentialPassword(void) API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac, tvos, watchos);
 
 
 #endif /* __BLOCKS__ */
@@ -7952,7 +8680,7 @@ typedef CF_OPTIONS(uint32_t, SecKeyImportExportFlags)
 /*
  * Parameters specific to SecKeyRefs.
  */
-typedef struct
+typedef struct API_UNAVAILABLE(ios, watchos, tvos, uikitformac)
 {
      /* for import and export */
      uint32_t                    version;        /* SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION */
@@ -7969,10 +8697,10 @@ typedef struct
      CSSM_KEYUSE                    keyUsage;    /* CSSM_KEYUSE_DECRYPT, CSSM_KEYUSE_SIGN,
                                                   *    etc. */
      CSSM_KEYATTR_FLAGS          keyAttributes;  /* CSSM_KEYATTR_PERMANENT, etc. */
-} SecKeyImportExportParameters;
+} SecKeyImportExportParameters API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 
-typedef struct
+typedef struct API_UNAVAILABLE(ios, watchos, tvos, uikitformac)
 {
      /* for import and export */
      uint32_t                    version;        /* SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION */
@@ -7997,7 +8725,7 @@ typedef struct
                                                   *    - kSecAttrIsSensitive for private keys
                                                   *    - kSecAttrIsExtractable by default
                                                   */
-} SecItemImportExportKeyParameters;
+} SecItemImportExportKeyParameters API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*
  * SecKeychainItemExport()
@@ -8057,7 +8785,7 @@ OSStatus SecKeychainItemExport(
      SecItemImportExportFlags               flags,                  /* kSecItemPemArmour, etc. */
      const SecKeyImportExportParameters * __nullable keyParams,     /* optional */
      CFDataRef * __nonnull CF_RETURNS_RETAINED exportedData)        /* external representation returned here */
-          DEPRECATED_IN_MAC_OS_X_VERSION_10_7_AND_LATER;
+          API_DEPRECATED_WITH_REPLACEMENT("SecItemExport", macos(10.0, 10.7)) API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*
  * SecItemExport()
@@ -8275,7 +9003,7 @@ OSStatus SecKeychainItemImport(
      const SecKeyImportExportParameters * __nullable keyParams,         /* optional */
      SecKeychainRef __nullable               importKeychain,            /* optional */
      CFArrayRef * __nullable CF_RETURNS_RETAINED outItems)              /* optional */
-          DEPRECATED_IN_MAC_OS_X_VERSION_10_7_AND_LATER;
+          API_DEPRECATED_WITH_REPLACEMENT("SecItemImport", macos(10.0, 10.7)) API_UNAVAILABLE(ios, watchos, tvos, uikitformac);
 
 /*
  * SecItemImport()
@@ -8551,12 +9279,12 @@ __END_DECLS
  * Defined as enum for debugging, but in the protocol
  * it is actually exactly two bytes
  */
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
-/* 32-bit value on OS X */
-typedef uint32_t SSLCipherSuite;
-#else
+#if TARGET_OS_IPHONE && !TARGET_OS_UIKITFORMAC
 /* 16-bit value on iOS */
 typedef uint16_t SSLCipherSuite;
+#else
+/* 32-bit value elsewhere */
+typedef uint32_t SSLCipherSuite;
 #endif
 
 CF_ENUM(SSLCipherSuite)
@@ -8631,6 +9359,13 @@ CF_ENUM(SSLCipherSuite)
 	TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA    =	0xC017,
 	TLS_ECDH_anon_WITH_AES_128_CBC_SHA     =	0xC018,
 	TLS_ECDH_anon_WITH_AES_256_CBC_SHA     =	0xC019,
+
+    /* ECDHE_PSK Cipher Suites for Transport Layer Security (TLS), RFC 5489 */
+    TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA     =    0xC035,
+    TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA     =    0xC036,
+
+    /* ChaCha20-Poly1305 Cipher Suites for Transport Layer Security (TLS), RFC 7905 */
+    TLS_PSK_WITH_CHACHA20_POLY1305_SHA256  =    0xCCAB,
 
     /* TLS 1.2 addenda, RFC 5246 */
 
@@ -8769,6 +9504,18 @@ CF_ENUM(SSLCipherSuite)
     SSL_RSA_WITH_DES_CBC_MD5 =                  0xFF82,
     SSL_RSA_WITH_3DES_EDE_CBC_MD5 =             0xFF83,
     SSL_NO_SUCH_CIPHERSUITE =                   0xFFFF
+};
+
+/*
+ * Convenience ciphersuite groups that collate ciphersuites of comparable security
+ * properties into a single alias.
+ */
+typedef CF_ENUM(int, SSLCiphersuiteGroup) {
+    kSSLCiphersuiteGroupDefault,
+    kSSLCiphersuiteGroupCompatibility,
+    kSSLCiphersuiteGroupLegacy,
+    kSSLCiphersuiteGroupATS,
+    kSSLCiphersuiteGroupATSCompatibility,
 };
 
 #endif	/* !_SECURITY_CIPHERSUITE_H_ */
@@ -8930,7 +9677,10 @@ __OSX_AVAILABLE_STARTING(__MAC_10_10, __IPHONE_8_0);
  
  @constant kSecAccessControlDevicePasscode
  Constraint: Device passcode
- 
+
+ @constant kSecAccessControlWatch
+ Constraint: Watch
+
  @constant kSecAccessControlOr
  Constraint logic operation: when using more than one constraint, at least one of them must be satisfied.
  
@@ -8946,15 +9696,16 @@ __OSX_AVAILABLE_STARTING(__MAC_10_10, __IPHONE_8_0);
 */
 typedef CF_OPTIONS(CFOptionFlags, SecAccessControlCreateFlags) {
     kSecAccessControlUserPresence           = 1u << 0,
-    kSecAccessControlBiometryAny            CF_ENUM_AVAILABLE(10_13_4, 11_3) = 1u << 1,
+    kSecAccessControlBiometryAny            API_AVAILABLE(macos(10.13.4), ios(11.3)) = 1u << 1,
     kSecAccessControlTouchIDAny             API_DEPRECATED_WITH_REPLACEMENT("kSecAccessControlBiometryAny", macos(10.12.1, 10.13.4), ios(9.0, 11.3)) = 1u << 1,
-    kSecAccessControlBiometryCurrentSet     CF_ENUM_AVAILABLE(10_13_4, 11_3) = 1u << 3,
+    kSecAccessControlBiometryCurrentSet     API_AVAILABLE(macos(10.13.4), ios(11.3)) = 1u << 3,
     kSecAccessControlTouchIDCurrentSet      API_DEPRECATED_WITH_REPLACEMENT("kSecAccessControlBiometryCurrentSet", macos(10.12.1, 10.13.4), ios(9.0, 11.3)) = 1u << 3,
-    kSecAccessControlDevicePasscode         CF_ENUM_AVAILABLE(10_11, 9_0) = 1u << 4,
-    kSecAccessControlOr                     CF_ENUM_AVAILABLE(10_12_1, 9_0) = 1u << 14,
-    kSecAccessControlAnd                    CF_ENUM_AVAILABLE(10_12_1, 9_0) = 1u << 15,
-    kSecAccessControlPrivateKeyUsage        CF_ENUM_AVAILABLE(10_12_1, 9_0) = 1u << 30,
-    kSecAccessControlApplicationPassword    CF_ENUM_AVAILABLE(10_12_1, 9_0) = 1u << 31,
+    kSecAccessControlDevicePasscode         API_AVAILABLE(macos(10.11), ios(9.0)) = 1u << 4,
+    kSecAccessControlWatch                  API_AVAILABLE(macos(10.15), ios(NA)) = 1u << 5,
+    kSecAccessControlOr                     API_AVAILABLE(macos(10.12.1), ios(9.0)) = 1u << 14,
+    kSecAccessControlAnd                    API_AVAILABLE(macos(10.12.1), ios(9.0)) = 1u << 15,
+    kSecAccessControlPrivateKeyUsage        API_AVAILABLE(macos(10.12.1), ios(9.0)) = 1u << 30,
+    kSecAccessControlApplicationPassword    API_AVAILABLE(macos(10.12.1), ios(9.0)) = 1u << 31,
 } __OSX_AVAILABLE_STARTING(__MAC_10_10, __IPHONE_8_0);
 
 /*!
@@ -8975,7 +9726,7 @@ typedef CF_OPTIONS(CFOptionFlags, SecAccessControlCreateFlags) {
 __nullable
 SecAccessControlRef SecAccessControlCreateWithFlags(CFAllocatorRef __nullable allocator, CFTypeRef protection,
                                                     SecAccessControlCreateFlags flags, CFErrorRef *error)
-__OSX_AVAILABLE_STARTING(__MAC_10_10, __IPHONE_8_0);
+API_AVAILABLE(macos(10.10), ios(8.0));
 
 CF_IMPLICIT_BRIDGING_DISABLED
 CF_ASSUME_NONNULL_END
@@ -9227,8 +9978,7 @@ __END_DECLS
 
 #include <Security/SecProtocolObject.h>
 #include <Security/SecProtocolTypes.h>
-#include <Security/SecBase.h>
-#include <Security/SecureTransport.h>
+#include <Security/SecProtocolOptions.h>
 
 #include <dispatch/dispatch.h>
 #include <os/object.h>
@@ -9296,6 +10046,21 @@ SEC_RETURNS_RETAINED _Nullable dispatch_data_t
 sec_protocol_metadata_copy_peer_public_key(sec_protocol_metadata_t metadata);
 
 /*!
+ * @function sec_protocol_metadata_get_negotiated_tls_protocol_version
+ *
+ * @abstract
+ *      Get the negotiated TLS version.
+ *
+ * @param metadata
+ *      A `sec_protocol_metadata_t` instance.
+ *
+ * @return A `tls_protocol_version_t` value.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+tls_protocol_version_t
+sec_protocol_metadata_get_negotiated_tls_protocol_version(sec_protocol_metadata_t metadata);
+
+/*!
  * @function sec_protocol_metadata_get_negotiated_protocol_version
  *
  * @abstract
@@ -9306,9 +10071,25 @@ sec_protocol_metadata_copy_peer_public_key(sec_protocol_metadata_t metadata);
  *
  * @return A SSLProtocol enum of the TLS version.
  */
-API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+API_DEPRECATED_WITH_REPLACEMENT("sec_protocol_metadata_get_negotiated_tls_protocol_version",
+                                macos(10.14, 10.15), ios(12.0, 13.0), watchos(5.0, 6.0), tvos(12.0, 13.0))
 SSLProtocol
 sec_protocol_metadata_get_negotiated_protocol_version(sec_protocol_metadata_t metadata);
+
+/*!
+ * @function sec_protocol_metadata_get_negotiated_tls_ciphersuite
+ *
+ * @abstract
+ *      Get the negotiated TLS ciphersuite.
+ *
+ * @param metadata
+ *      A `sec_protocol_metadata_t` instance.
+ *
+ * @return A `tls_ciphersuite_t`.
+ */
+API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+tls_ciphersuite_t
+sec_protocol_metadata_get_negotiated_tls_ciphersuite(sec_protocol_metadata_t metadata);
 
 /*!
  * @function sec_protocol_metadata_get_negotiated_ciphersuite
@@ -9321,7 +10102,9 @@ sec_protocol_metadata_get_negotiated_protocol_version(sec_protocol_metadata_t me
  *
  * @return A SSLCipherSuite.
  */
-API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+API_DEPRECATED_WITH_REPLACEMENT("sec_protocol_metadata_get_negotiated_tls_ciphersuite",
+                                macos(10.14, 10.15), ios(12.0, 13.0), watchos(5.0, 6.0), tvos(12.0, 13.0))
+API_UNAVAILABLE(uikitformac)
 SSLCipherSuite
 sec_protocol_metadata_get_negotiated_ciphersuite(sec_protocol_metadata_t metadata);
 
@@ -9418,6 +10201,24 @@ bool
 sec_protocol_metadata_access_distinguished_names(sec_protocol_metadata_t metadata,
                                                  void (^handler)(dispatch_data_t distinguished_name));
 #endif // __BLOCKS__
+
+/*!
+ * @function sec_protocol_metadata_get_server_name
+ *
+ * @abstract
+ *      Obtain the server name offered by a client or server during
+ *      connection establishmet. This is the value commonly carried
+ *      in the TLS SNI extesion.
+ *
+ * @param metadata
+ *      A `sec_protocol_metadata_t` instance.
+ *
+ * @return Returns A NULL-terminated string carrying the server name, or NULL
+ *      if none was provided.
+ */
+API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+const char * _Nullable
+sec_protocol_metadata_get_server_name(sec_protocol_metadata_t metadata);
 
 /*!
  * @function sec_protocol_metadata_peers_are_equal

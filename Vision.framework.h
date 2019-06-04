@@ -25,6 +25,88 @@ API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
 
 
 NS_ASSUME_NONNULL_END
+// ==========  Vision.framework/Headers/VNDetectFaceCaptureQualityRequest.h
+//
+//  VNDetectFaceCaptureQualityRequest.h
+//  Vision
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Vision/VNRequest.h>
+#import <Vision/VNFaceObservationAccepting.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+/*!
+ @brief A request that will produce or update a VNFaceObservation's property faceCaptureQuality with a float value.
+ faceCaptureQuality is a float (wrapped by a NSNumber) that represents the capture quality of a given face in a photo.
+ The float will be a value between 0 and 1, with 1 being the highest face capture quality and 0 being the lowest.
+ If the request fails or the face observation has never been processed, the property faceCaptureQuality will be nil.
+ 
+ @details This request will generate VNFaceObservation objects with the face quality variable populated with information .
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNDetectFaceCaptureQualityRequest : VNImageBasedRequest <VNFaceObservationAccepting>
+@end
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+static const NSUInteger VNDetectFaceCaptureQualityRequestRevision1 = 1;
+
+API_DEPRECATED_WITH_REPLACEMENT("Use VNDetectFaceCaptureQualityRequestRevision1 instead", macos(10.15, 10.15), ios(13.0, 13.0), tvos(13.0, 13.0))
+static const NSUInteger VNDetectFaceQualityRequestRevision1 = 1;
+
+
+NS_ASSUME_NONNULL_END
+// ==========  Vision.framework/Headers/VNClassifyImageRequest.h
+//
+//  VNClassifyImageRequest.h
+//  Vision
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Vision/VNRequest.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+@class VNClassificationObservation;
+
+
+/*!
+	@brief A request for classifying an image.
+
+	@discussion This request will produce a collection of VNClassificationObservation objects which describe an image.
+*/
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNClassifyImageRequest : VNImageBasedRequest
+
+/*!
+	@brief Obtain the collection of classifications currently recognized by the Vision framework.
+ 
+	@param	requestRevision		The revision of the request for which classifications should be reported.
+ 
+	@param	error				The address of the variable that will be populated with the error when the call fails.
+
+	@return the collection of classifications for the revision, or nil if an error was encountered.
+*/
++ (nullable NSArray<VNClassificationObservation*>*) knownClassificationsForRevision:(NSUInteger)requestRevision error:(NSError**)error;
+
+
+@end
+
+
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+static const NSUInteger VNClassifyImageRequestRevision1 = 1;
+
+
+
+NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNFaceObservationAccepting.h
 //
 //  VNFaceObservationAccepting.h
@@ -72,6 +154,7 @@ NS_ASSUME_NONNULL_END
 #import <Vision/VNTypes.h>
 #import <simd/simd.h>
 
+#import <Vision/VNRequestRevisionProviding.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -83,14 +166,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
-@interface VNFaceLandmarkRegion : NSObject
+@interface VNFaceLandmarkRegion : NSObject<NSCopying, NSSecureCoding, VNRequestRevisionProviding>
 
 - (instancetype) init NS_UNAVAILABLE;
 
 /*!
  @brief pointCount returns the amount of points in a given region. This can be zero if no points for a region could be found.
  */
-@property (readonly) NSUInteger  pointCount;
+@property (readonly) NSUInteger pointCount;
 
 @end
 
@@ -125,6 +208,30 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 - (const CGPoint*) pointsInImageOfSize:(CGSize)imageSize NS_RETURNS_INNER_POINTER;
 
 
+/*!
+ @brief    Obtains the array of accuracy placement estimates per landmark point.
+ 
+ @discussion    Provides the NSArray object containing landmarks accuracy placement estimates per landmark point. This property is only
+                populated when VNDetectFaceLandmarksRequest object is configured with VNRequestFaceLandmarksConstellation76Points. It is
+                set to nil for other constellations
+ 
+ @return NSArray object of NSNumber(s) initialized to floating point values.
+ */
+@property (readonly, nullable) NSArray<NSNumber*>* precisionEstimatesPerPoint API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+
+/*!
+ @brief    Obtains the array of boolean occlusion flags per landmark point.
+ 
+ @discussion    Provides the NSArray object containing landmarks occlusion flags per landmark point.  This property is only
+                populated when VNDetectFaceLandmarksRequest object is configured with VNRequestFaceLandmarksConstellation76Points. It is
+                set to nil for other constellations
+ 
+ @return NSArray object of NSNumber(s) initialized to Boolean values.
+ */
+@property (readonly, nullable) NSArray<NSNumber*>* occlusionFlagsPerPoint API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+
 @end
 
 
@@ -135,7 +242,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  
  */
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
-@interface VNFaceLandmarks : NSObject
+@interface VNFaceLandmarks : NSObject<NSCopying, NSSecureCoding, VNRequestRevisionProviding>
 
 - (instancetype) init NS_UNAVAILABLE;
 
@@ -263,11 +370,22 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 
 + (nullable instancetype) modelForMLModel:(MLModel*)model error:(NSError**)error;
 
+/*!
+ @brief The name of the MLFeatureValue that Vision will set from the VNRequestHandler. Vision will use the first input it finds by default but it can be set to another featureName instead.
+ */
+@property (readwrite, nonatomic, copy) NSString *inputImageFeatureName API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+
+/*!
+ @brief An optional object conforming to the MLFeatureProvider protocol that is used by the model during the predict call to support inputs that are not supplied by Vision. Vision will provide the image for the inputImageFeatureName from the the VNRequestHandler. A feature provider is necessary for models that have more than one input and require those parameters to be set. Models that only have one image input will not use the feature provider as that input will be set by Vision.
+ */
+@property (readwrite, nonatomic, nullable) id<MLFeatureProvider> featureProvider API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
 @end
 
 /*!
 	@brief   The VNCoreMLRequest uses a VNCoreMLModel, that is based on a CoreML MLModel object, to run predictions with that model. Depending on the model the returned
-             observation is either a VNClassificationObservation for classifier models, VNPixelBufferObservations for image-to-image models or VNMLFeatureValueObservation for everything else.
+             observation is either a VNClassificationObservation for classifier models, VNPixelBufferObservations for image-to-image models, VNRecognizedObjectObservation for object recognition models or VNCoreMLFeatureValueObservation for everything else.
  */
 
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
@@ -276,7 +394,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 /*!
  @brief The model from CoreML wrapped in a VNCoreMLModel.
  */
-@property (readonly, nonatomic, nonnull) VNCoreMLModel *model;
+@property (readonly, nonatomic) VNCoreMLModel *model;
 
 @property (nonatomic)VNImageCropAndScaleOption imageCropAndScaleOption;
 
@@ -352,7 +470,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 
 /*!
  @property property trackingLevel
- @abstract Tracking level allows tuning tracking algorithm to prefer speed (VNRequestOptionTrackingLevelFast) vs. tracking object location accuracy (VNRequestOptionTrackingLevelAccurate)
+ @abstract Tracking level allows tuning tracking algorithm to prefer speed (VNRequestTrackingLevelFast) vs. tracking object location accuracy (VNRequestTrackingLevelAccurate). This property has no effect on general purpose object tracker (VNTrackObjectRequest) revision 2 (VNTrackObjectRequestRevision2)
  */
 @property (readwrite, nonatomic, assign) VNRequestTrackingLevel trackingLevel;
 
@@ -402,6 +520,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
 static const NSUInteger VNDetectTextRectanglesRequestRevision1 = 1;
 
+
 NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNDefines.h
 /* Vision - VNDefines.h
@@ -444,12 +563,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /*!
+ @brief    Constellation type defines how many landmark points are used to map a face. Revisions 1, 2, and 3 support 65 points, where Rev3 also supports 76 points.
+ */
+typedef NS_ENUM(NSUInteger, VNRequestFaceLandmarksConstellation)
+{
+    VNRequestFaceLandmarksConstellationNotDefined = 0,
+    VNRequestFaceLandmarksConstellation65Points,
+    VNRequestFaceLandmarksConstellation76Points
+};
+
+
+/*!
 	@brief A request that will produce face landmark information.
 
 	@details This request will generate VNFaceObservation objects with the landmarks property populated with information describing face landmarks. If VNFaceObservations are provided via the VNFaceObservationAccepting protocol without the landmarks property populated, new observations will be created as copies of the input VNFaceObservations with the landmarks property populated. If the landmarks property has already been populated, the original VNFaceObservations will be returned. If no VNFaceObservations are provided, face detection will be run first. 
 */
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @interface VNDetectFaceLandmarksRequest : VNImageBasedRequest <VNFaceObservationAccepting>
+
++ (BOOL) revision:(NSUInteger)requestRevision supportsConstellation:(VNRequestFaceLandmarksConstellation)constellation;
+
+/*!
+ @property property constellation
+ @abstract Constellation type defines how many landmark points are used to map a face. Revisions 1, 2, and 3 of the request support 65 points, where Revision 3 also supports 76 points.
+ */
+@property (readwrite, assign) VNRequestFaceLandmarksConstellation constellation API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
 @end
 
 
@@ -458,6 +597,38 @@ static const NSUInteger VNDetectFaceLandmarksRequestRevision1 = 1;
 
 API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
 static const NSUInteger VNDetectFaceLandmarksRequestRevision2 = 2;
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+static const NSUInteger VNDetectFaceLandmarksRequestRevision3 = 3;
+
+
+NS_ASSUME_NONNULL_END
+// ==========  Vision.framework/Headers/VNGenerateAttentionBasedSaliencyImageRequest.h
+//
+//  VNGenerateAttentionBasedSaliencyImageRequest.h
+//  Vision
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Vision/VNRequest.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+/*!
+	@brief	Generates an image that identifies which part(s) of a given image is most interesting (i.e. something that a human is likely to look at - hence attention based).
+			The resulting observation, VNSaliencyImageObservation, encodes this data as a heat map which can be used to highlight regions of interest.
+*/
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNGenerateAttentionBasedSaliencyImageRequest : VNImageBasedRequest
+@end
+
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+static const NSUInteger VNGenerateAttentionBasedSaliencyImageRequestRevision1 = 1;
 
 
 NS_ASSUME_NONNULL_END
@@ -822,12 +993,18 @@ NS_ASSUME_NONNULL_END
 #import <Vision/VNRequest.h>
 #import <Vision/VNRequestRevisionProviding.h>
 #import <Vision/VNFaceObservationAccepting.h>
+#import <Vision/VNClassifyImageRequest.h>
 #import <Vision/VNDetectBarcodesRequest.h>
 #import <Vision/VNDetectFaceRectanglesRequest.h>
 #import <Vision/VNDetectFaceLandmarksRequest.h>
+#import <Vision/VNDetectFaceCaptureQualityRequest.h>
 #import <Vision/VNDetectHorizonRequest.h>
 #import <Vision/VNDetectRectanglesRequest.h>
 #import <Vision/VNDetectTextRectanglesRequest.h>
+#import <Vision/VNRecognizeTextRequest.h>
+#import <Vision/VNGenerateAttentionBasedSaliencyImageRequest.h>
+#import <Vision/VNGenerateObjectnessBasedSaliencyImageRequest.h>
+#import <Vision/VNGenerateImageFeaturePrintRequest.h>
 #import <Vision/VNCoreMLRequest.h>
 #import <Vision/VNTargetedImageRequest.h>
 #import <Vision/VNImageRegistrationRequest.h>
@@ -836,10 +1013,38 @@ NS_ASSUME_NONNULL_END
 #import <Vision/VNTrackingRequest.h>
 #import <Vision/VNTrackObjectRequest.h>
 #import <Vision/VNTrackRectangleRequest.h>
+#import <Vision/VNDetectHumanRectanglesRequest.h>
+#import <Vision/VNDetectAnimalRectanglesRequest.h>
 
 
 /* The version of the Vision framework */
 VN_EXPORT double VNVisionVersionNumber API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+// ==========  Vision.framework/Headers/VNGenerateObjectnessBasedSaliencyImageRequest.h
+//
+//  VNGenerateObjectnessBasedSaliencyImageRequest.h
+//  Vision
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Vision/VNRequest.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ @brief    Generates an image that identifies which part(s) of a given image are most likely to be objects (i.e. something that a human is likely to see as an object).
+ The resulting observation, VNSaliencyImageObservation, encodes this data as a heat map which can be used highlight regions of interest.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNGenerateObjectnessBasedSaliencyImageRequest : VNImageBasedRequest
+@end
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+static const NSUInteger VNGenerateObjectnessBasedSaliencyImageRequestRevision1 = 1;
+
+NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNDetectHorizonRequest.h
 //
 //  VNDetectHorizonRequest.h
@@ -1028,6 +1233,11 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 /*! @abstract Provides the current revison supported by the request. */
 @property (class, readonly, nonatomic, assign) NSUInteger currentRevision API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
 
+/*!
+ * @discussion Tries to abort the request as soon as possible. Results will be nil. The completionHandler (if present) will be called with an error of VNErrorRequestCancelled.
+ */
+- (void)cancel API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
 @end
 
 
@@ -1054,6 +1264,36 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 
 @end
 
+
+
+/*!
+ @abstract A block that is executed at intervals during the processing of a request.
+ @param request The VNRequest that has been completed. The results of the request, if no error was encountered, are populated in the results array of the request.
+ @param fractionCompleted When possible the request will report its progress between 0.0 and 1.0. If the requests indeterminate property is set, then this value is undefined.
+ @param    error The error that caused the request to fail, or nil if completed successfully.
+ @discussion The results in the request can be populated with partial results. The progressHandler can be called on a different dispatch queue than what the request was initiated from.
+ */
+typedef void (^VNRequestProgressHandler)(VNRequest *request, double fractionCompleted, NSError * _Nullable error);
+
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@protocol VNRequestProgressProviding < NSObject >
+
+/*!
+ @brief Requests that support the VNRequestProgressProviding protocol would periodically call the progressHandler to report progress on longer running tasks.
+ 
+ @discussion The progessHandler is optional allowing clients of the request to report progress to the user and/or display or process partial results when they become available. Note that the progressHandler can be called on a different dispatch queue than what the request was initiated from.
+ */
+@property (readwrite, nonatomic, assign) VNRequestProgressHandler progressHandler;
+
+
+/*!
+ @brief If a request cannot determine its progress in fractions completed, this property will be set.
+ @discussion If this is set, it doesn't mean that the request will run forever just that the nature of the request is not broken down into identifiable fractions on which progress can be reported in increments. The progressHandler will nonetheless be called at suitable intervals.
+ */
+@property (readonly) BOOL indeterminate;
+
+@end
 
 NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNImageRegistrationRequest.h
@@ -1091,6 +1331,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
 static const NSUInteger VNTranslationalImageRegistrationRequestRevision1 = 1;
 
 
@@ -1106,6 +1347,7 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @end
 
 
+API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
 static const NSUInteger VNHomographicImageRegistrationRequestRevision1 = 1;
 
 
@@ -1240,12 +1482,17 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @property (readonly, nonatomic, strong, nullable)  VNFaceLandmarks2D *landmarks;
 
 /*!
- @brief Face roll angle populated by VNDetectFaceRectanglesRequest. The roll is reported in radians, positive angle corresponds to counterclockwise direction, range [-Pi, Pi). nil value indicated that the roll angle hasn't been computed
+ @brief The capture quality of the face as a normalized value between 0.0 and 1.0 that can be used to compare the quality of the face in terms of it capture attributes (lighting, blur, position). This score can be used to compare the capture quality of a face against other captures of the same face in a given set.
+ */
+@property (readonly, nonatomic, strong, nullable) NSNumber *faceCaptureQuality API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+/*!
+ @brief Face roll angle populated by VNDetectFaceRectanglesRequest. The roll is reported in radians, positive angle corresponds to counterclockwise direction, range [-Pi, Pi). nil value indicates that the roll angle hasn't been computed
  */
 @property (readonly, nonatomic, strong, nullable) NSNumber *roll API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
 
 /*!
- @brief Face yaw angle populated by VNDetectFaceRectanglesRequest. The yaw is reported in radians, positive angle corresponds to counterclockwise direction, range [-Pi/2, Pi/2). nil value indicated that the yaw angle hasn't been computed
+ @brief Face yaw angle populated by VNDetectFaceRectanglesRequest. The yaw is reported in radians, positive angle corresponds to counterclockwise direction, range [-Pi/2, Pi/2). nil value indicates that the yaw angle hasn't been computed
  */
 @property (readonly, nonatomic, strong, nullable) NSNumber *yaw API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
 
@@ -1262,11 +1509,52 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @interface VNClassificationObservation : VNObservation
 
 /*!
- @brief The is the label or identifier of a classificaiton request. An example classification could be a string like 'cat' or 'hotdog'. The string is defined in the model that was used for the classification. Usually these are technical labels that are not localized and not meant to be used directly to be presented to an end user in the UI.
+ @brief The is the label or identifier of a classification request. An example classification could be a string like 'cat' or 'hotdog'. The string is defined in the model that was used for the classification. Usually these are technical labels that are not localized and not meant to be used directly to be presented to an end user in the UI.
  */
 @property (readonly, nonatomic, copy) NSString *identifier;
 
 @end
+
+
+/*!
+ @discussion VNClassificationObservation mave have precision/recall curves which can be used to decide on an "optimal" operation point.
+             Precision is a value in the range of [0..1] which represents the fraction of relevant instances among the retrieved instances.
+             Recall is a value in the range of [0..1] which represents the fraction of relevant instances that have been retrieved over the total amount of relevant instances.
+*/
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNClassificationObservation (PrecisionRecallAdditions)
+
+/*!
+	@brief	Determine whether or not precision/recall curves are available with the observation.
+	@discussion	If this property is YES, then all other precision/recall related methods in this addition can be called.
+*/
+@property (readonly, nonatomic, assign) BOOL hasPrecisionRecallCurve;
+
+/*!
+	@brief	Determine whether or not the observation's operation point for a specific precision has a minimum recall value.
+ 
+	@param minimumRecall	The minimum recall desired for an operation point.
+ 
+	@param precision		The precision value used to select the operation point.
+ 
+	@return YES if the recall value for the operation point specified by a precision value has the minimum value; otherwise, NO.
+*/
+- (BOOL) hasMinimumRecall:(float)minimumRecall forPrecision:(float)precision;
+
+/*!
+	@brief	Determine whether or not the observation's operation point for a specific recall has a minimum precision value.
+
+	@param minimumPrecision	The minimum precision desired for an operation point.
+ 
+	@param recall		The recall value used to select the operation point.
+ 
+	@return YES if the precision value for the operation point specified by a recall value has the minimum value; otherwise, NO.
+*/
+- (BOOL) hasMinimumPrecision:(float)minimumPrecision forRecall:(float)recall;
+
+@end
+
+
 
 /*!
  @class VNRecognizedObjectObservation
@@ -1293,7 +1581,14 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 /*!
  @brief The result VNCoreMLRequest where the model produces an MLFeatureValue that is neither a classification or image. Refer to the Core ML documentation and the model itself for the handling of the content of the featureValue.
  
- */@property (readonly, nonatomic, copy) MLFeatureValue *featureValue;
+ */
+@property (readonly, nonatomic, copy) MLFeatureValue *featureValue;
+
+/*!
+ @brief The name used in the model description of the CoreML model that produced this observation allowing to correlate the observation back to the output of the model.
+ 
+ */
+@property (readonly, nonatomic, copy) NSString *featureName API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
 
 @end
 
@@ -1313,6 +1608,12 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  */
 @property (readonly, nonatomic) CVPixelBufferRef pixelBuffer;
 
+/*!
+ @brief The name used in the model description of the CoreML model that produced this observation allowing to correlate the observation back to the output of the model. This can be nil if the observation is not the result of a VNCoreMLRequest operation.
+ 
+ */
+@property (readonly, nonatomic, copy, nullable) NSString *featureName API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
 @end
 
 
@@ -1325,6 +1626,8 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  */
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @interface VNRectangleObservation : VNDetectedObjectObservation
+
++ (instancetype)rectangleObservationWithRequestRevision:(NSUInteger)requestRevision topLeft:(CGPoint)topLeft bottomLeft:(CGPoint)bottomLeft bottomRight:(CGPoint)bottomRight topRight:(CGPoint)topRight API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
 
 @property (readonly, nonatomic, assign) CGPoint topLeft;
 @property (readonly, nonatomic, assign) CGPoint topRight;
@@ -1347,6 +1650,50 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 	@discussion	If the associated request indicated that it is interested in character boxes by setting the VNRequestOptionReportCharacterBoxes option to @YES, this property will be non-nil (but may still be empty, depending on the detection results).
 */
 @property (readonly, nonatomic, copy, nullable) NSArray<VNRectangleObservation *> *characterBoxes;
+
+@end
+
+/*!
+ @class VNRecognizedText
+ @brief VNRecognizedText A block of recognized text. There can be multiple VNRecognizedText objects returned in a VNRecognizedTextObservation - one for each candidate.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNRecognizedText : NSObject < NSCopying, NSSecureCoding >
+
+/*!
+ @brief        Field that contains recognized text.
+ @discussion   This is the top candidate of the recognized text.
+ */
+@property (readonly, nonatomic, copy) NSString *string;
+
+/*!
+ * @brief The level of confidence normalized to [0.0, 1.0] where 1.0 is most confident
+ */
+@property (readonly, nonatomic, assign) VNConfidence confidence;
+
+/*!
+ * @brief Calculate the bounding box around the characters in the range of the string.
+ * @discussion The bounding boxes are not guaranteed to be an exact fit around the characters and are purely meant for UI purposes and not for image processing.
+ */
+- (nullable VNRectangleObservation *)boundingBoxForRange:(NSRange)range error:(NSError**)error;
+
+@end
+
+/*!
+ @class VNRecognizedTextObservation
+ @superclass VNDetectedObjectObservation
+ @brief VNRecognizedTextObservation Describes a text area detected and recognized by the VNRecognizeTextRequest request.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNRecognizedTextObservation : VNRectangleObservation
+
+
+/*!
+ * @brief Returns the top N candidates sorted by decreasing confidence score
+ * @discussion This will return no more than N but can be less than N candidates. The maximum number of candidates returned cannot exceed 10 candidates.
+ */
+- (NSArray<VNRecognizedText*>*) topCandidates:(NSUInteger)maxCandidateCount;
+
 
 @end
 
@@ -1420,11 +1767,57 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 /*!
  @class VNImageHomographicAlignmentObservation
  @superclass VNImageAlignmentObservation
- @brief An observation describing the results of performing a homorgraphic image alignment.
+ @brief An observation describing the results of performing a homographic image alignment.
 */
 API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
 @interface VNImageHomographicAlignmentObservation : VNImageAlignmentObservation
 @property (readwrite, nonatomic, assign) matrix_float3x3 warpTransform;
+@end
+
+/*!
+ @class VNSaliencyImageObservation
+ @superclass VNPixelBufferObservation
+ @brief VNSaliencyImageObservation provides a grayscale "heat" map of important areas of an image.
+ @discussion In the revision1, the "heat" map is a OneComponent32Float pixel format CVPixelBuffer.
+ 
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNSaliencyImageObservation : VNPixelBufferObservation
+
+/*!
+ @brief An array of bounds of salient objects within the image. Each box represents a distinct mode of the heat map.
+*/
+@property (readonly, nonatomic, nullable) NSArray<VNRectangleObservation*>* salientObjects;
+
+@end
+
+
+/*!
+*/
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNFeaturePrintObservation : VNObservation
+
+/*!
+	@brief The type of each element in the data.
+*/
+@property (readonly, atomic, assign) VNElementType elementType;
+
+/*!
+	@brief The total number of elements in the data.
+*/
+@property (readonly, atomic, assign) NSUInteger elementCount;
+
+/*!
+	@brief The feature print data.
+*/
+@property (readonly, atomic, strong) NSData* data;
+
+/*!
+ @brief Computes the distance between two observations.
+ @discussion The larger the distance the more dissimlar the feature prints are. In case of an error this method returns false with an error describing the error condition, for instance comparing two non-comparable feature prints.
+ */
+- (BOOL)computeDistance:(float *)outDistance toFeaturePrintObservation:(VNFeaturePrintObservation *)featurePrint error:(NSError **)error;
+
 @end
 
 
@@ -1469,14 +1862,86 @@ API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0))
  */
 - (instancetype) initWithDetectedObjectObservation:(VNDetectedObjectObservation *)observation completionHandler:(nullable VNRequestCompletionHandler)completionHandler;
 
-- (instancetype) init   NS_UNAVAILABLE;
-- (instancetype) initWithCompletionHandler:(nullable VNRequestCompletionHandler)completionHandler   NS_UNAVAILABLE;
+- (instancetype) init NS_UNAVAILABLE;
+- (instancetype) initWithCompletionHandler:(nullable VNRequestCompletionHandler)completionHandler NS_UNAVAILABLE;
 
 @end
 
 
 API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
 static const NSUInteger VNTrackObjectRequestRevision1 = 1;
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+static const NSUInteger VNTrackObjectRequestRevision2 = 2;
+
+
+NS_ASSUME_NONNULL_END
+// ==========  Vision.framework/Headers/VNGenerateImageFeaturePrintRequest.h
+//
+//  VNGenerateImageFeaturePrintRequest.h
+//  Vision
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Vision/VNTypes.h>
+#import <Vision/VNRequest.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+/*!
+	@brief A request for generating a feature print of an image.
+
+	@discussion This request will produce a VNFeaturePrintObservation object.
+*/
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNGenerateImageFeaturePrintRequest : VNImageBasedRequest
+
+/*!
+	@brief Determine what type of croping and scaling action should be applied to the image before generating the feature print.
+ 
+	@discussion The default value for this property is VNImageCropAndScaleOptionScaleFill.
+*/
+@property (nonatomic, readwrite, assign) VNImageCropAndScaleOption imageCropAndScaleOption;
+
+@end
+
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+static const NSUInteger VNGenerateImageFeaturePrintRequestRevision1 = 1;
+
+
+NS_ASSUME_NONNULL_END
+// ==========  Vision.framework/Headers/VNDetectHumanRectanglesRequest.h
+//
+//  VNDetectHumanRectanglesRequest.h
+//  Vision
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Vision/VNRequest.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+/*!
+ @brief A request that will detect human Torsos in an image.
+ 
+ @details This request will generate VNDetectedObjectObservation objects with defined a boundingBox and confidence score.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNDetectHumanRectanglesRequest : VNImageBasedRequest
+@end
+
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+static const NSUInteger VNDetectHumanRectanglesRequestRevision1 = 1;
 
 
 NS_ASSUME_NONNULL_END
@@ -1840,6 +2305,50 @@ static const NSUInteger VNTrackRectangleRequestRevision1 = 1;
 
 
 NS_ASSUME_NONNULL_END
+// ==========  Vision.framework/Headers/VNDetectAnimalRectanglesRequest.h
+//
+//  VNDetectAnimalRectanglesRequest.h
+//  Vision
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Vision/VNRequest.h>
+#import <Vision/VNDefines.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+typedef NSString *VNAnimalDetector NS_STRING_ENUM;
+
+VN_EXPORT VNAnimalDetector const VNAnimalDetectorDog API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+VN_EXPORT VNAnimalDetector const VNAnimalDetectorCat API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+
+/*!
+	@brief A request that will detect various animals in an image. The list of animals supported by detection algorithm can be queried by +(NSArray *)knownAnimalDetectorsForRevision
+
+	@details This request will generate VNRecognizedObjectObservation objects with defined a boundingBox, label and confidence level.
+*/
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNDetectAnimalRectanglesRequest : VNImageBasedRequest
+
+/*!
+ @brief This class method returns a list of all animals supported by detection algorithm
+ 
+ @details This request will generate a collection of names for supported animals by current detector.
+ */
++ (NSArray<VNAnimalDetector> *)knownAnimalDetectorsForRevision:(NSUInteger)requestRevision;
+
+@end
+
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+static const NSUInteger VNDetectAnimalRectanglesRequestRevision1 = 1;
+
+
+NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNTypes.h
 //
 //  VNTypes.h
@@ -1863,7 +2372,7 @@ typedef NS_ENUM(NSUInteger, VNImageCropAndScaleOption)
 {
     VNImageCropAndScaleOptionCenterCrop = 0,  // scale image maintaining aspect ratio to fit on the short side and crop centered on the long side
     VNImageCropAndScaleOptionScaleFit = 1,    // scale to size required by algorithm
-    VNImageCropAndScaleOptionScaleFill
+    VNImageCropAndScaleOptionScaleFill = 2
 };
 
 /*!
@@ -1891,6 +2400,86 @@ VN_EXPORT VNBarcodeSymbology const VNBarcodeSymbologyPDF417 API_AVAILABLE(macos(
 VN_EXPORT VNBarcodeSymbology const VNBarcodeSymbologyQR API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 VN_EXPORT VNBarcodeSymbology const VNBarcodeSymbologyUPCE API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+typedef NS_ENUM(NSUInteger, VNElementType)
+{
+	VNElementTypeUnknown = 0,
+	VNElementTypeFloat   = 1,		// IEEE 754 single-precision floating point value
+	VNElementTypeDouble  = 2,		// IEEE 754 double-precision floating point value
+};
+// ==========  Vision.framework/Headers/VNRecognizeTextRequest.h
+//
+//  VNRecognizeTextRequest.h
+//  Vision
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Vision/VNRequest.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ @brief    Text recognition level options to favor speed over recognition accuracy. The VNRequestTextRecognitionLevelAccurate is the default option used by VNRecognizeTextRequest.
+ */
+typedef NS_ENUM(NSInteger, VNRequestTextRecognitionLevel)
+{
+    VNRequestTextRecognitionLevelAccurate = 0,
+    VNRequestTextRecognitionLevelFast
+};
+
+
+
+/*!
+ @brief A request that will detect regions of text and recognize the containing text in an image.
+ 
+ @details This request will generate VNRecognizedTextObservation objects describing the locations of text and the actual text recognized.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+@interface VNRecognizeTextRequest : VNImageBasedRequest <VNRequestProgressProviding>
+
+/*!
+ @brief Returns all the supported languages for a given text recognition level. Note that a language supported in one recognition level might not be available in another.
+ */
++ (nullable NSArray<NSString *> *)supportedRecognitionLanguagesForTextRecognitionLevel:(VNRequestTextRecognitionLevel)recognitionLevel revision:(NSUInteger)requestRevision error:(NSError**)error;
+
+/*!
+ @brief Specify the languages used for the detection. The order of the languages in the array defines the order in which languages will be used during the language processing.
+ The languages are specified as ISO language codes.
+ */
+@property (readwrite, nonatomic, copy) NSArray<NSString *> *recognitionLanguages;
+
+/*!
+ @brief An array of strings that will be used at the word recognition stage in addition to the recognition languages. The customWords list takes precedence over the standard lexicon.
+ */
+@property (readwrite, nonatomic, copy) NSArray<NSString *> *customWords;
+
+/*!
+ @brief The recognition level selects which techniques will be used during the text recognition. There are trade-offs between performance and accuracy.
+ */
+@property (readwrite, nonatomic, assign) VNRequestTextRecognitionLevel recognitionLevel;
+
+/*!
+ @brief Determines whether language correction should be applied during the recognition process. Disabling this will return the raw recognition results providing performance benefits but less accurate results.
+ */
+@property (readwrite, nonatomic, assign) BOOL usesLanguageCorrection;
+
+/*
+ @brief Minimum height of the text expected to be recognized, relative to the image height (e.g. for half of the image height, use 0.5). Increasing the size will reduce the memory consumption and speed up the recognition with the trade-off that text smaller than the minimum height may not be recognized properly. If the minimum height is set to 0.0 the image gets processed at the highest possible resolution with no downscaling. With that the processing time will be the longest and the memory usage the highest but the smallest technically readable text will be recognized. The default value for this is 0.0.
+ */
+@property (readwrite, nonatomic, assign) float minimumTextHeight;
+
+
+
+@end
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+static const NSUInteger VNRecognizeTextRequestRevision1 = 1;
+
+
+NS_ASSUME_NONNULL_END
 // ==========  Vision.framework/Headers/VNError.h
 //
 //  VNError.h
@@ -1923,7 +2512,8 @@ typedef NS_ENUM(NSInteger, VNErrorCode)
     VNErrorInvalidImage,
     VNErrorInvalidArgument,
     VNErrorInvalidModel,
-    VNErrorUnsupportedRevision API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
+    VNErrorUnsupportedRevision API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)),
+    VNErrorDataUnavailable  API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
 };
 // ==========  Vision.framework/Headers/VNUtils.h
 //
@@ -1938,6 +2528,8 @@ typedef NS_ENUM(NSInteger, VNErrorCode)
 #import <simd/simd.h>
 
 #import <Vision/VNDefines.h>
+#import <Vision/VNTypes.h>
+
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -2031,6 +2623,16 @@ VN_EXPORT CGPoint VNNormalizedFaceBoundingBoxPointForLandmarkPoint(vector_float2
 	@return	the face landmark point in image coordinates.
 */
 VN_EXPORT CGPoint VNImagePointForFaceLandmarkPoint(vector_float2 faceLandmarkPoint, CGRect faceBoundingBox, size_t imageWidth, size_t imageHeight) API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+
+/*!
+	@brief Obtain the size, in bytes, of a given element type.
+ 
+	@param	elementType		The element type.
+ 
+	@return a byte count, or 0 if the element type is unknown.
+*/
+VN_EXPORT NSUInteger VNElementTypeSize(VNElementType elementType) API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
 
 
 NS_ASSUME_NONNULL_END

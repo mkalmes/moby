@@ -1,7 +1,7 @@
 // ==========  PDFKit.framework/Headers/PDFAnnotation.h
 //
 //  PDFAnnotation.h
-//  Copyright � 2016 Apple. All rights reserved.
+//  Copyright � 2019 Apple. All rights reserved.
 //
 //  PDFAnnotation is a wrapper class of all annotation types for a PDF document.
 //  It is a container of key-value pairs that map directly to the PDF file format, defined
@@ -230,7 +230,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFActionResetForm.h
 //
 //  PDFActionResetForm.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFActionResetForm is an interaction event tied with an annotation. This action
 //  allows a user to reset all form fields (associated by their fieldNames) annotations.
@@ -272,7 +272,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFAction.h
 //
 //  PDFAction.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFAction is an abstract class, representing an event a user can trigger through
 //  interaction with the owning annotation. These events are PDFActionGoTo, PDFActionNamed,
@@ -306,7 +306,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFActionRemoteGoTo.h
 //
 //  PDFActionRemoteGoTo.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFActionRemoteGoTo is an interaction event tied with an annotation. This action
 //  is the same action type as PDFActionGoTo, but references another document, allowing
@@ -348,7 +348,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFActionGoTo.h
 //
 //  PDFActionGoto.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFActionGoTo is an interaction event tied with an annotation. This action
 //  allows the user to jump to a PDFDestination, which is typically a position
@@ -380,7 +380,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFAppearanceCharacteristics.h
 //
 //  PDFAppearanceCharacteristics.h
-//  Copyright © 2017 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFAppearanceCharacteristics represents a dictionary that is specific to widget annotation types,
 //  containing additional information for constructing the annotation’s appearance.
@@ -455,7 +455,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFDestination.h
 //
 //  PDFDestination.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFDestination represents a dictionary used in annotations, typically as
 //  a property for an action. Destinations are a coordinate and zoom factor
@@ -510,7 +510,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFActionNamed.h
 //
 //  PDFActionNamed.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFActionNamed is an interaction event tied with an annotation. This action
 //  allows the user to change their navigation stack or their current view. This
@@ -562,7 +562,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFActionURL.h
 //
 //  PDFActionURL.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFActionURL is an interaction event tied with an annotation. This action allows
 //  the user to open a URL, either being a local file or web URL.
@@ -591,7 +591,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFThumbnailView.h
 //
 //  PDFThumbnailView.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFThumbnailView is a custom view that contains a set of PDFPage thumbnails
 //  that a user can scroll over, interact with, and have these interactions drive
@@ -602,6 +602,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+
 // Layout mode for thumbnail view.
 PDFKIT_ENUM_AVAILABLE(NA, 11_0)
 typedef NS_ENUM(NSInteger, PDFThumbnailLayoutMode)
@@ -610,20 +611,21 @@ typedef NS_ENUM(NSInteger, PDFThumbnailLayoutMode)
     PDFThumbnailLayoutModeHorizontal = 1
 };
 
-@class PDFView, PDFPage, PDFThumbnailViewPrivateVars;
+
+@class PDFView, PDFPage, PDFThumbnailViewPrivate;
 
 // Notification when PDFDocument is modified.
-PDFKIT_EXTERN NSString *PDFThumbnailViewDocumentEditedNotification PDFKIT_AVAILABLE(10_4, 11_0);
+PDFKIT_EXTERN NSString* const PDFThumbnailViewDocumentEditedNotification PDFKIT_AVAILABLE(10_4, 11_0);
 
 PDFKIT_CLASS_AVAILABLE(10_5, 11_0)
 @interface PDFThumbnailView : PDFKitPlatformView <NSCoding>
 {
 @private
-    PDFThumbnailViewPrivateVars *_private;
+    PDFThumbnailViewPrivate *_private;
 }
 
 // PDFView associated with the thumbnail view.
-@property (nonatomic, strong, nullable) PDFView *PDFView;
+@property (nonatomic, weak, nullable) PDFView *PDFView;
 
 // Background color of view.
 @property (nonatomic, copy, nullable) PDFKitPlatformColor *backgroundColor;
@@ -639,7 +641,7 @@ PDFKIT_CLASS_AVAILABLE(10_5, 11_0)
 // Default PDFThumbnailLayoutModeVertical.
 @property (nonatomic) PDFThumbnailLayoutMode layoutMode PDFKIT_AVAILABLE(NA, 11_0);
 
-// Default UIEdgeInsetsZero. Add additional scroll area around content
+// Inset for the placement of icons within the thumbnail view. Default UIEdgeInsetsZero.
 @property (nonatomic) UIEdgeInsets contentInset PDFKIT_AVAILABLE(NA, 11_0);
 
 
@@ -649,7 +651,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFBorder.h
 //
 //  PDFBorder.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFBorder represents an array structure that is common for graphical annotations,
 //  defining properties like line-stroke width, color, and dashed patterns.
@@ -716,7 +718,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFView.h
 //
 //  PDFView.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  This class is the main view of PDFKit: you can instantiate a PDFView or create one
 //  in Interface Builder that will host the contents of a PDFDocument. Note that you can
@@ -1031,8 +1033,9 @@ PDFKIT_CLASS_AVAILABLE(10_4, 11_0)
 // Returns an array of PDFPage objects representing the currently visible pages. May return empty array if no document is assigned.
 @property (nonatomic, readonly) NSArray<PDFPage *> *visiblePages PDFKIT_AVAILABLE(10_5, 11_0);
 
-// Turns on or off data detection. If enabled, page text will be scanned for URL's as the page becomes visible. Where
-// URL's are found, Link annotations are created in place. These are temporary annotations and are not saved.
+// Turns on or off data detection. If enabled, page text will be scanned for results such as URL's, addresses, phone numbers,
+// times/dates, etc., as the page becomes visible. Where URL's are found, Link annotations are created in place. These are
+// temporary annotations and are not saved.
 @property (nonatomic) BOOL enableDataDetectors PDFKIT_AVAILABLE(10_6, 11_0);
 
 @end
@@ -1043,6 +1046,11 @@ PDFKIT_CLASS_AVAILABLE(10_4, 11_0)
 // Delegates implementing the following method will be called to handle clicks on URL links within the PDFView. The
 // default implementation calls [[NSWorkspace sharedWorkspace] openURL: url].
 - (void)PDFViewWillClickOnLink:(PDFView *)sender withURL:(NSURL *)url PDFKIT_AVAILABLE(10_5, 11_0);
+
+
+// A delegate that should return the main view controller the PDFView resides in. This is to add additional
+// support to one's view such as 'Lookup' from the text selection menu, along with support of entering text for notes.
+- (PDFKitPlatformViewController*) PDFViewParentViewController PDFKIT_AVAILABLE(10_15, 13_0);
 
 
 // Certain PDFAction's may request that the PDF viewer application perform a Find. Delegates responding to the below
@@ -1068,7 +1076,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFAnnotationUtilities.h
 //
 //  PDFAnnotationUtilities.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  This file includes several helper functions that match legacy PDFAnnotation
 //  subclass functions, helping simplify creating properties for common annotations.
@@ -1279,7 +1287,7 @@ PDFKIT_EXTERN PDFAnnotationHighlightingMode PDFAnnotationHighlightingModePush PD
 @property (nonatomic) BOOL radiosInUnison;
 
 // Determines if a text field should be editable or not.
-// Used by annotations type(s): /Widget (field type(s): /Tx).
+// Used by annotations type(s): /Widget (field type(s): /Btn, /Ch, /Tx).
 @property (nonatomic, getter=isReadOnly) BOOL readOnly;
 
 // There are two flavors of Choice widget annotations, lists and pop-up menus. This method allow you to differentiate.
@@ -1353,7 +1361,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFPage.h
 //
 //  PDFPage.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFPage is a logical representation of a PDF document's page. Typically pages are
 //  retrieved from a PDFDocument, though they can be constructed from scratch via either
@@ -1455,7 +1463,7 @@ PDFKIT_CLASS_AVAILABLE(10_4, 11_0)
 - (void)transformContext:(CGContextRef)context forBox:(PDFDisplayBox)box PDFKIT_AVAILABLE(10_12, 11_0);
 
 // Convenience function that returns an image of this page, with annotations, that fits the given size.
-// Note that the produced image is "size to fit": it retains the original page geometry. The size you give
+// Note that the produced image is "size to fit": it retains the original page aspect-ratio. The size you give
 // may not match the size of the returned image, but the returned image is guaranteed to be equal or less.
 - (PDFKitPlatformImage *)thumbnailOfSize:(PDFSize)size forBox:(PDFDisplayBox)box PDFKIT_AVAILABLE(10_13, 11_0);
 
@@ -1481,7 +1489,8 @@ PDFKIT_CLASS_AVAILABLE(10_4, 11_0)
 - (nullable PDFSelection *)selectionForRect:(PDFRect)rect;
 
 // Given a point in page-space, returns a selection representing a whole word at that point. May return NULL if no 
-// character (and by extension no word) under point.
+// character (and by extension no word) under point. If data dectors are enabled (-[PDFView enableDataDetectors]),
+// this return the smart-selection for the content at the given point.
 - (nullable PDFSelection *)selectionForWordAtPoint:(PDFPoint)point;
 
 // Given a point in page-space, returns a selection representing a whole line at that point. May return NULL if no 
@@ -1491,8 +1500,8 @@ PDFKIT_CLASS_AVAILABLE(10_4, 11_0)
 // Returns a selection representing text between startPt and endPt. Points are sorted first top to bottom, left to right.
 - (nullable PDFSelection *)selectionFromPoint:(PDFPoint)startPoint toPoint:(PDFPoint)endPoint;
 
-// Given a range, returns a selection representing text within that range. Will raise an exception if the range length 
-// is zero or if the range is outside the range of the characters on the page.
+// Given a range, returns a selection representing text within that range. Will clamp any range that goes out of bounds.
+// Will return NULL for an empty selection.
 - (nullable PDFSelection *)selectionForRange:(NSRange)range;
 
 // -------- misc
@@ -1511,7 +1520,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFDocument.h
 //
 //  PDFDocument.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFDocument is the logical representation of a PDF file. It is a container of PDFPages,
 //  giving you the ability to load, modify, and save a set of PDF pages. It also gives you the
@@ -1789,7 +1798,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFSelection.h
 //
 //  PDFSelection.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFSelection tracks a range of text on one or many pages, from a starting
 //  to end position. From a selection over a range of text, you have the ability
@@ -1891,7 +1900,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFKit.h
 //
 //  PDFKit.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 
 // Cross-platform support
@@ -1919,13 +1928,12 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFKitPlatform.h
 //
 //  PDFKitPlatform.h
-//  PDFKit
+//  Copyright © 2019 Apple. All rights reserved.
 //
 
 #import <TargetConditionals.h>
 
     #define PDFKIT_PLATFORM_IOS
-
 
 #ifndef PDFKIT_EXTERN
     #ifdef __cplusplus
@@ -1975,11 +1983,8 @@ NS_ASSUME_NONNULL_END
 #define PDFKitPlatformColor                                     UIColor
 #define PDFKitPlatformControl                                   UIControl
 #define PDFKitPlatformTextField                                 UITextField
-#define PDFKitPlatformTextFieldDidBeginEditing                  UITextFieldTextDidBeginEditingNotification
-#define PDFKitPlatformTextFieldDidChangeText                    UITextFieldTextDidChangeNotification
-#define PDFKitPlatformTextFieldDidEndEditing                    UITextFieldTextDidEndEditingNotification
 #define PDFKitPlatformTextView                                  UITextView
-#define PDFKitPlatformTextViewDidChangeSelection                UITextViewTextDidChangeNotification
+#define PDFKitPlatformTextViewDelegate                          UITextViewDelegate
 #define PDFKitPlatformChoiceWidgetComboBoxView                  UIPickerView
 #define PDFKitPlatformChoiceWidgetListView                      UITableView
 #define PDFKitPlatformButton                                    UIButton
@@ -2002,7 +2007,7 @@ NS_ASSUME_NONNULL_END
 // ==========  PDFKit.framework/Headers/PDFOutline.h
 //
 //  PDFOutline.h
-//  Copyright © 2016 Apple. All rights reserved.
+//  Copyright © 2019 Apple. All rights reserved.
 //
 //  PDFOutline represents a node in an outline hierarchy, which is always constructed
 //  of these node types. A root PDFOutline node can have any number of children,

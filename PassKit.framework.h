@@ -1,3 +1,42 @@
+// ==========  PassKit.framework/Headers/PKDisbursementRequest.h
+//
+//  PKDisbursementRequest.h
+//
+//  Copyright © 2019 Apple, Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class PKPaymentSummaryItem;
+
+typedef NS_ENUM(NSInteger, PKDisbursementRequestSchedule) {
+    PKDisbursementRequestScheduleOneTime,
+    PKDisbursementRequestScheduleFuture,
+} NS_SWIFT_NAME(PKDisbursementRequest.Schedule);
+
+// PKDisbursementRequest defines an application's request to disburse an amount
+@interface PKDisbursementRequest : NSObject
+
+// An amount is always required. If the disbursement amount is pending, the amount should be zero
+@property (nonatomic, copy) NSDecimalNumber *amount API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+// Currency code for this disbursement. The currency code is required unless the requestType is future
+@property (nonatomic, copy, nullable) NSString *currencyCode API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+// The merchant's ISO country code.
+@property (nonatomic, copy) NSString *countryCode API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+// Specifies if the disbursement is a one time request or a future request
+@property (nonatomic, assign) PKDisbursementRequestSchedule requestSchedule API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+// The summary items are optional. The final amount summary item will be prepopulated by the amount specified above.
+@property (nonatomic, copy, nullable) NSArray<PKPaymentSummaryItem *> *summaryItems API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  PassKit.framework/Headers/PKConstants.h
 //
 //  PKConstants.h
@@ -24,9 +63,11 @@ extern PKPaymentNetwork const PKPaymentNetworkChinaUnionPay API_AVAILABLE(ios(9.
 extern PKPaymentNetwork const PKPaymentNetworkDiscover API_AVAILABLE(ios(9.0), watchos(3.0));
 extern PKPaymentNetwork const PKPaymentNetworkEftpos API_AVAILABLE(ios(12.0), watchos(5.0));
 extern PKPaymentNetwork const PKPaymentNetworkElectron API_AVAILABLE(ios(12.0), watchos(5.0));
+extern PKPaymentNetwork const PKPaymentNetworkElo API_AVAILABLE(macos(10.14.2), ios(12.1.1), watchos(5.1.2));
 extern PKPaymentNetwork const PKPaymentNetworkIDCredit API_AVAILABLE(ios(10.3), watchos(3.2));
 extern PKPaymentNetwork const PKPaymentNetworkInterac API_AVAILABLE(ios(9.2), watchos(3.0));
 extern PKPaymentNetwork const PKPaymentNetworkJCB API_AVAILABLE(ios(10.1), watchos(3.1));
+extern PKPaymentNetwork const PKPaymentNetworkMada API_AVAILABLE(macos(10.14.2), ios(12.1.1), watchos(5.1.2));
 extern PKPaymentNetwork const PKPaymentNetworkMaestro API_AVAILABLE(ios(12.0), watchos(5.0));
 extern PKPaymentNetwork const PKPaymentNetworkMasterCard API_AVAILABLE(ios(8.0), watchos(3.0));
 extern PKPaymentNetwork const PKPaymentNetworkPrivateLabel API_AVAILABLE(ios(9.0), watchos(3.0));
@@ -436,6 +477,29 @@ API_AVAILABLE(ios(6.0))
 NS_ASSUME_NONNULL_END
 
 #endif
+// ==========  PassKit.framework/Headers/PKDisbursementVoucher.h
+//
+//  PKDisbursementVoucher.h
+//
+//  Copyright © 2019 Apple, Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+// PKDisbursementVoucher defines information for disbursement
+@interface PKDisbursementVoucher : NSObject
+
+// The data containing information for the disbursement
+@property (nonatomic, copy, readonly) NSData *data API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+// The URL for redeeming the voucher
+@property (nonatomic, copy, readonly) NSURL *redemptionURL API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  PassKit.framework/Headers/PKSuicaPassProperties.h
 //
 //  PKSuicaPassProperties.h
@@ -693,6 +757,54 @@ API_AVAILABLE(ios(8.0), watchos(3.0))
 NS_ASSUME_NONNULL_END
 
 #endif // End __PKPAYMENTPASS_H
+// ==========  PassKit.framework/Headers/PKDisbursementAuthorizationController.h
+//
+//  PKDisbursementAuthorizationController.h
+//
+//  Copyright © 2019 Apple, Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class PKDisbursementRequest;
+@class PKDisbursementVoucher;
+@class PKDisbursementAuthorizationController;
+
+@protocol PKDisbursementAuthorizationControllerDelegate <NSObject>
+
+@required
+
+// Sent to the delegate when disbursement controller has authorized the disbursement request.
+- (void)disbursementAuthorizationController:(PKDisbursementAuthorizationController *)controller
+        didAuthorizeWithDisbursementVoucher:(PKDisbursementVoucher *)disbursementVoucher API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+
+// Sent to the delegate when disbursement controller is finished. This may occur when
+// the user cancels the request or after the disbursement has been authorized.
+- (void)disbursementAuthorizationControllerDidFinish:(PKDisbursementAuthorizationController *)controller API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+@end
+
+@interface PKDisbursementAuthorizationController : NSObject
+
+// Initializes and returns a newly created controller for the supplied disbursement request.
+- (nullable instancetype)initWithDisbursementRequest:(PKDisbursementRequest *)disbursementRequest
+                                            delegate:(id<PKDisbursementAuthorizationControllerDelegate>)delegate API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+// The controller's delegate.
+@property (nonatomic, assign, readonly) id<PKDisbursementAuthorizationControllerDelegate> delegate API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+// This presents the Apple Pay sheet. If the sheet is presented successfully, success is YES. Otherwise, an error will be returned.
+- (void)authorizeDisbursementWithCompletion:(void(^)(BOOL success, NSError * _Nullable error))completion API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+// Determine whether this user's account supports disbursements.
++ (BOOL)supportsDisbursements API_AVAILABLE(ios(12.2)) API_UNAVAILABLE(tvos, watchos, macos);
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  PassKit.framework/Headers/PKPaymentRequest.h
 //
 //  PKPaymentRequest.h
@@ -703,7 +815,7 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 #import <PassKit/PKConstants.h>
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_UIKITFORMAC
 #import <AddressBook/ABRecord.h>
 #endif // TARGET_OS_IOS
 
@@ -862,7 +974,7 @@ API_AVAILABLE(ios(8.0), watchos(3.0))
 // issued in the supported countries.
 @property (nonatomic, copy, nullable) NSSet<NSString *> *supportedCountries API_AVAILABLE(ios(11.0), watchos(4.0));
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_UIKITFORMAC
 // These properties have been deprecated and should not be used.
 @property (nonatomic, assign, nullable) ABRecordRef shippingAddress __WATCHOS_PROHIBITED API_DEPRECATED("ABRecordRef has been deprecated, and does not support all available address properties. You should migrate to shippingContact.", ios(8.0, 9.0));
 
@@ -885,7 +997,9 @@ NS_ASSUME_NONNULL_END
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#if !TARGET_OS_UIKITFORMAC
 #import <AddressBook/ABRecord.h>
+#endif
 #else
 #import <AppKit/AppKit.h>
 #import <AddressBook/ABAddressBookC.h>
@@ -979,19 +1093,21 @@ NS_ASSUME_NONNULL_BEGIN
                    didSelectShippingMethod:(PKShippingMethod *)shippingMethod
                                 completion:(void (^)(PKPaymentAuthorizationStatus status, NSArray<PKPaymentSummaryItem *> *summaryItems))completion API_DEPRECATED("Use paymentAuthorizationViewController:didSelectShippingMethod:handler: instead to provide more granular errors", ios(8.0, 11.0));
 
+#if !TARGET_OS_UIKITFORMAC
 - (void)paymentAuthorizationViewController:(PKPaymentAuthorizationViewController *)controller
                   didSelectShippingAddress:(ABRecordRef)address
                                 completion:(void (^)(PKPaymentAuthorizationStatus status, NSArray<PKShippingMethod *> *shippingMethods,
                                                      NSArray<PKPaymentSummaryItem *> *summaryItems))completion API_DEPRECATED("ABRecordRef has been deprecated. Please migrate away from this delegate callback as soon as possible.", ios(8.0, 9.0));
+#endif
 
 - (void)paymentAuthorizationViewController:(PKPaymentAuthorizationViewController *)controller
                   didSelectShippingContact:(PKContact *)contact
                                 completion:(void (^)(PKPaymentAuthorizationStatus status, NSArray<PKShippingMethod *> *shippingMethods,
-                                                     NSArray<PKPaymentSummaryItem *> *summaryItems))completion API_DEPRECATED("Use paymentAuthorizationViewController:didSelectShippingContact:handler: instead to provide more granular errors", ios(8.0, 11.0));
+                                                     NSArray<PKPaymentSummaryItem *> *summaryItems))completion API_DEPRECATED("Use paymentAuthorizationViewController:didSelectShippingContact:handler: instead to provide more granular errors", ios(9.0, 11.0));
 
 - (void)paymentAuthorizationViewController:(PKPaymentAuthorizationViewController *)controller
                     didSelectPaymentMethod:(PKPaymentMethod *)paymentMethod
-                                completion:(void (^)(NSArray<PKPaymentSummaryItem *> *summaryItems))completion API_DEPRECATED("Use paymentAuthorizationViewController:didSelectPaymentMethod:handler: instead to provide more granular errors", ios(8.0, 11.0));
+                                completion:(void (^)(NSArray<PKPaymentSummaryItem *> *summaryItems))completion API_DEPRECATED("Use paymentAuthorizationViewController:didSelectPaymentMethod:handler: instead to provide more granular errors", ios(9.0, 11.0));
 
 @end
 
@@ -1044,9 +1160,9 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2014 Apple, Inc. All rights reserved.
 //
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_UIKITFORMAC
 #import <AddressBook/ABRecord.h>
-#endif // TARGET_OS_IOS
+#endif // TARGET_OS_IOS && !TARGET_OS_UIKITFORMAC
 #import <PassKit/PKPaymentToken.h>
 
 @class PKShippingMethod;
@@ -1068,9 +1184,9 @@ API_AVAILABLE(ios(8.0), watchos(3.0))
 // the requiredBillingAddressFields property of the PKPaymentRequest.
 @property (nonatomic, strong, readonly, nullable) PKContact *billingContact API_AVAILABLE(ios(9.0), watchos(3.0));
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_UIKITFORMAC
 @property (nonatomic, assign, readonly, nullable) ABRecordRef billingAddress API_DEPRECATED("Use billingContact instead", ios(8.0, 9.0)) __WATCHOS_PROHIBITED;
-#endif // TARGET_OS_IOS
+#endif // TARGET_OS_IOS && !TARGET_OS_UIKITFORMAC
 
 // The full shipping address that the user selected for this transaction.  Fields are
 // constrained to those specified in the requiredShippingAddressFields property of the original
@@ -1078,9 +1194,9 @@ API_AVAILABLE(ios(8.0), watchos(3.0))
 // the requiredShippingAddressFields property of the PKPaymentRequest.
 @property (nonatomic, strong, readonly, nullable) PKContact *shippingContact API_AVAILABLE(ios(9.0), watchos(3.0));
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_UIKITFORMAC
 @property (nonatomic, assign, readonly, nullable) ABRecordRef shippingAddress API_DEPRECATED("Use shippingContact instead", ios(8.0, 9.0)) __WATCHOS_PROHIBITED;
-#endif // TARGET_OS_IOS
+#endif // TARGET_OS_IOS && !TARGET_OS_UIKITFORMAC
 
 // The shipping method that the user chose.  This property is only set when the
 // application has set the shippingMethods property of the PKPaymentRequest.
@@ -1162,6 +1278,12 @@ typedef NS_ERROR_ENUM(PKPaymentErrorDomain, PKPaymentErrorCode) {
 typedef NSString * PKPaymentErrorKey NS_STRING_ENUM;
 extern PKPaymentErrorKey const PKPaymentErrorContactFieldUserInfoKey  API_AVAILABLE(ios(11.0), watchos(4.0)); // a PKContactField the error relates to. Use with PKPaymentShippingContactInvalidError
 extern PKPaymentErrorKey const PKPaymentErrorPostalAddressUserInfoKey API_AVAILABLE(ios(11.0), watchos(4.0)); // if the error relates to PKContactFieldPostalAddress you may set the specific key here
+
+typedef NS_ENUM(NSInteger, PKAddPaymentPassError) {
+    PKAddPaymentPassErrorUnsupported,
+    PKAddPaymentPassErrorUserCancelled,
+    PKAddPaymentPassErrorSystemCancelled
+} API_AVAILABLE(ios(9.0), watchos(6.0));
 
 NS_ASSUME_NONNULL_END
 #endif // __PKERROR_H
@@ -1270,35 +1392,37 @@ NS_ASSUME_NONNULL_END
 #if __has_include(<PassKit/PKAddPaymentPassViewController.h>)
 #import <PassKit/PKAddPaymentPassViewController.h>
 #endif
-#endif // TARGET_OS_IPHONE
-// ==========  PassKit.framework/Headers/PKAddPaymentPassViewController.h
+#if __has_include(<PassKit/PKDisbursementVoucher.h>)
+#import <PassKit/PKDisbursementVoucher.h>
+#endif
+#if __has_include(<PassKit/PKDisbursementRequest.h>)
+#import <PassKit/PKDisbursementRequest.h>
+#endif
+#if __has_include(<PassKit/PKDisbursementAuthorizationController.h>)
+#import <PassKit/PKDisbursementAuthorizationController.h>
+#endif
+#endif // TARGET_OS_IPHONE || TARGET_OS_OSX
+// ==========  PassKit.framework/Headers/PKAddPaymentPassRequest.h
 //
-//  PKAddPaymentPassViewController.h
+//  PKAddPaymentPassRequest.h
 //  PassKit
 //
-//  Copyright © 2015 Apple, Inc. All rights reserved.
+//  Copyright © 2018 Apple, Inc. All rights reserved.
 //
 
-#if TARGET_OS_IPHONE
-
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 #import <PassKit/PKConstants.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
-@class PKAddPaymentPassViewController, PKPaymentPass, PKLabeledValue;
-
-typedef NS_ENUM(NSInteger, PKAddPaymentPassError) {
-    PKAddPaymentPassErrorUnsupported,
-    PKAddPaymentPassErrorUserCancelled,
-    PKAddPaymentPassErrorSystemCancelled
-} API_AVAILABLE(ios(9.0));
+@class PKLabeledValue;
 
 typedef NS_ENUM(NSInteger, PKAddPaymentPassStyle) {
     PKAddPaymentPassStylePayment,
     PKAddPaymentPassStyleAccess
-} API_AVAILABLE(ios(12.0));
+} API_AVAILABLE(ios(12.0), watchos(5.0));
 
-API_AVAILABLE(ios(9.0))
+API_AVAILABLE(ios(9.0), watchos(2.0))
 @interface PKAddPaymentPassRequestConfiguration : NSObject
 
 /* Schemes defined in PKConstants.h.
@@ -1315,11 +1439,11 @@ API_AVAILABLE(ios(9.0))
 /* Display Properties:
  *  At least one of cardholder name or primary account suffix must be supplied.
  */
-@property (nonatomic, assign) PKAddPaymentPassStyle style API_AVAILABLE(ios(12.0));
+@property (nonatomic, assign) PKAddPaymentPassStyle style API_AVAILABLE(ios(12.0), watchos(5.0));
 @property (nonatomic, copy, nullable) NSString *cardholderName;
 @property (nonatomic, copy, nullable) NSString *primaryAccountSuffix;
 
-@property (nonatomic, copy) NSArray<PKLabeledValue *> *cardDetails API_AVAILABLE(ios(10.1));
+@property (nonatomic, copy) NSArray<PKLabeledValue *> *cardDetails API_AVAILABLE(ios(10.1), watchos(3.1));
 
 @property (nonatomic, copy, nullable) NSString *localizedDescription;
 
@@ -1332,11 +1456,16 @@ API_AVAILABLE(ios(9.0))
  */
 @property (nonatomic, copy, nullable) PKPaymentNetwork paymentNetwork;
 
-@property (nonatomic, assign) BOOL requiresFelicaSecureElement API_AVAILABLE(ios(10.1));
+/* Filters introduction page to a specific set of images - does not function as a restriction.
+ */
+@property (nonatomic, copy) NSSet<NSString *> *productIdentifiers API_AVAILABLE(ios(12.3), watchos(5.3));
+
+@property (nonatomic, assign) BOOL requiresFelicaSecureElement API_AVAILABLE(ios(10.1), watchos(3.1));
 
 @end
 
-NS_CLASS_AVAILABLE_IOS(9_0) @interface PKAddPaymentPassRequest : NSObject
+API_AVAILABLE(ios(9.0), watchos(2.0))
+@interface PKAddPaymentPassRequest : NSObject
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
@@ -1349,6 +1478,26 @@ NS_CLASS_AVAILABLE_IOS(9_0) @interface PKAddPaymentPassRequest : NSObject
 @property (nonatomic, copy, nullable) NSData *wrappedKey;
 
 @end
+
+NS_ASSUME_NONNULL_END
+// ==========  PassKit.framework/Headers/PKAddPaymentPassViewController.h
+//
+//  PKAddPaymentPassViewController.h
+//  PassKit
+//
+//  Copyright © 2015 Apple, Inc. All rights reserved.
+//
+
+#if TARGET_OS_IPHONE
+
+#import <UIKit/UIKit.h>
+#import <PassKit/PKAddPaymentPassRequest.h>
+#import <PassKit/PKConstants.h>
+#import <PassKit/PKError.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class PKAddPaymentPassViewController, PKPaymentPass;
 
 @protocol PKAddPaymentPassViewControllerDelegate<NSObject>
 

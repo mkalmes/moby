@@ -52,7 +52,7 @@ typedef struct CG_BOXABLE CGRect CGRect;
 
 /* Rectangle edges. */
 
-typedef CF_ENUM(uint32_t, CGRectEdge) {
+typedef CF_CLOSED_ENUM(uint32_t, CGRectEdge) {
     CGRectMinXEdge, CGRectMinYEdge, CGRectMaxXEdge, CGRectMaxYEdge
 };
 
@@ -158,7 +158,7 @@ CG_EXTERN bool CGRectEqualToRect(CGRect rect1, CGRect rect2)
 /* Standardize `rect' -- i.e., convert it to an equivalent rect which has
    positive width and height. */
 
-CG_EXTERN CGRect CGRectStandardize(CGRect rect)
+CG_EXTERN CGRect CGRectStandardize(CGRect rect) __attribute__ ((warn_unused_result))
     CG_AVAILABLE_STARTING(10.0, 2.0);
 
 /* Return true if `rect' is empty (that is, if it has zero width or height),
@@ -180,28 +180,28 @@ CG_EXTERN bool CGRectIsInfinite(CGRect rect)
 /* Inset `rect' by `(dx, dy)' -- i.e., offset its origin by `(dx, dy)', and
    decrease its size by `(2*dx, 2*dy)'. */
 
-CG_EXTERN CGRect CGRectInset(CGRect rect, CGFloat dx, CGFloat dy)
+CG_EXTERN CGRect CGRectInset(CGRect rect, CGFloat dx, CGFloat dy) __attribute__ ((warn_unused_result))
     CG_AVAILABLE_STARTING(10.0, 2.0);
 
 /* Expand `rect' to the smallest rect containing it with integral origin and
    size. */
 
-CG_EXTERN CGRect CGRectIntegral(CGRect rect)
+CG_EXTERN CGRect CGRectIntegral(CGRect rect) __attribute__ ((warn_unused_result))
     CG_AVAILABLE_STARTING(10.0, 2.0);
 
 /* Return the union of `r1' and `r2'. */
 
-CG_EXTERN CGRect CGRectUnion(CGRect r1, CGRect r2)
+CG_EXTERN CGRect CGRectUnion(CGRect r1, CGRect r2) __attribute__ ((warn_unused_result))
     CG_AVAILABLE_STARTING(10.0, 2.0);
 
 /* Return the intersection of `r1' and `r2'. This may return a null rect. */
 
-CG_EXTERN CGRect CGRectIntersection(CGRect r1, CGRect r2)
+CG_EXTERN CGRect CGRectIntersection(CGRect r1, CGRect r2) __attribute__ ((warn_unused_result))
     CG_AVAILABLE_STARTING(10.0, 2.0);
 
 /* Offset `rect' by `(dx, dy)'. */
 
-CG_EXTERN CGRect CGRectOffset(CGRect rect, CGFloat dx, CGFloat dy)
+CG_EXTERN CGRect CGRectOffset(CGRect rect, CGFloat dx, CGFloat dy) __attribute__ ((warn_unused_result))
     CG_AVAILABLE_STARTING(10.0, 2.0);
 
 /* Make two new rectangles, `slice' and `remainder', by dividing `rect' with
@@ -1668,6 +1668,15 @@ CG_EXTERN CGColorRef  CGColorCreateGenericCMYK(CGFloat cyan, CGFloat magenta,
   CGFloat yellow, CGFloat black, CGFloat alpha)
   CG_AVAILABLE_STARTING(10.5) CG_UNAVAILABLE_EMBEDDED;
 
+/* Create a color in the "Generic Gray Gamma 2.2 color space. */
+
+CG_EXTERN CGColorRef  CGColorCreateGenericGrayGamma2_2(CGFloat gray, CGFloat alpha) CG_AVAILABLE_STARTING(10.15, 13.0);
+
+/* Create a color in sRGB color space. */
+
+CG_EXTERN CGColorRef  CGColorCreateSRGB(CGFloat red, CGFloat green,
+                                        CGFloat blue, CGFloat alpha) CG_AVAILABLE_STARTING(10.15, 13.0);
+
 /* Return a constant color. As `CGColorGetConstantColor' is not a "Copy" or
    "Create" function, it does not necessarily return a new reference each
    time it's called. As a consequence, you should not release the returned
@@ -2073,6 +2082,165 @@ CG_EXTERN const CFStringRef  kCGPDFContextAccessPermissions
 CG_EXTERN void CGPDFContextSetOutline(CGContextRef context, __nullable CFDictionaryRef outline)
   CG_AVAILABLE_STARTING(10.13, 11.0);
 
+/* Tagged PDF Authoring */
+
+/* Tagged PDF Authoring is based on the Marked Content and Tagged PDF features defined
+   in the Adobe Portable Document Format Version 1.7 November 2006. Link:
+   http://www.adobe.com/content/dam/Adobe/en/devnet/acrobat/pdfs/pdf_reference_1-7.pdf
+ 
+   These features are described in Chapter 10, "Document Interchange", starting on page 841.
+ 
+ - Marked-content operators (Section 10.5) identify portions of a content streams with
+   additional properties, typically a tagged structure declaring accessibility information.
+ 
+ - Logical structure facilities (Section 10.6) declares a hierarchical organization of the
+   tags used by marked-content operators. This reflects the logical structure that tags
+   should be read by an application presenting a PDF document.
+ 
+ - Tagged PDF (Section 10.7) defines the properties of tags, and focuses on the accessibility
+   features they provide. */
+
+/* All CGPDFTagType reflect official "Role Types" defined in the Adobe Portable Document
+   Format Version 1.7 November 2006. The enums below are defined between pages 899 to 912. */
+typedef CF_ENUM (int32_t, CGPDFTagType) {
+    
+    /* Page 899 - 901, TABLE 10.20 Standard structure types for grouping elements */
+    CGPDFTagTypeDocument = 100,
+    CGPDFTagTypePart,
+    CGPDFTagTypeArt,
+    CGPDFTagTypeSection,
+    CGPDFTagTypeDiv,
+    CGPDFTagTypeBlockQuote,
+    CGPDFTagTypeCaption,
+    CGPDFTagTypeTOC,
+    CGPDFTagTypeTOCI,
+    CGPDFTagTypeIndex,
+    CGPDFTagTypeNonStructure,
+    CGPDFTagTypePrivate,
+    
+    /* Page 901, TABLE 10.21 Block-level structure elements. Long form descriptions on page 902 - 903 */
+    
+    /* Paragraph like elements */
+    CGPDFTagTypeParagraph = 200,
+    CGPDFTagTypeHeader,
+    CGPDFTagTypeHeader1,
+    CGPDFTagTypeHeader2,
+    CGPDFTagTypeHeader3,
+    CGPDFTagTypeHeader4,
+    CGPDFTagTypeHeader5,
+    CGPDFTagTypeHeader6,
+    
+    /* List elements */
+    CGPDFTagTypeList = 300,
+    CGPDFTagTypeListItem,
+    CGPDFTagTypeLabel,
+    CGPDFTagTypeListBody,
+    
+    /* Table element */
+    CGPDFTagTypeTable = 400,
+    CGPDFTagTypeTableRow,
+    CGPDFTagTypeTableHeaderCell,
+    CGPDFTagTypeTableDataCell,
+    CGPDFTagTypeTableHeader,
+    CGPDFTagTypeTableBody,
+    CGPDFTagTypeTableFooter,
+    
+    /* Page 905, TABLE 10.25 Standard structure types for inline-level structure elements */
+    CGPDFTagTypeSpan = 500,
+    CGPDFTagTypeQuote,
+    CGPDFTagTypeNote,
+    CGPDFTagTypeReference,
+    CGPDFTagTypeBibliography,
+    CGPDFTagTypeCode,
+    CGPDFTagTypeLink,
+    CGPDFTagTypeAnnotation,
+    
+    /* Page 911, TABLE 10.26 Standard structure types for Ruby and Warichu elements (PDF 1.5) */
+    CGPDFTagTypeRuby = 600,
+    CGPDFTagTypeRubyBaseText,
+    CGPDFTagTypeRubyAnnotationText,
+    CGPDFTagTypeRubyPunctuation,
+    CGPDFTagTypeWarichu,
+    CGPDFTagTypeWarichuText,
+    CGPDFTagTypeWarichuPunctiation,
+    
+    /* Page 912, TABLE 10.27 Standard structure types for illustration elements */
+    CGPDFTagTypeFigure = 700,
+    CGPDFTagTypeFormula,
+    CGPDFTagTypeForm,
+} CG_AVAILABLE_STARTING(10.15, 13.0);
+
+/* For a given CGPDFTagType, return a C-string that matches the names defined in section 10.7.3: Standard Structure Types.
+   These are defined on pages 899 - 912. Returns NULL for an unknown value. */
+CG_EXTERN const char* cg_nullable CGPDFTagTypeGetName(CGPDFTagType tagType) CG_AVAILABLE_STARTING(10.15, 13.0);
+
+/* The following CGPDFTagProperty keys are to be paired with CFStringRef values in
+   CGPDFContextBeginTag(...)'s optional tagProperties dictionary. These key-value pairs
+   encode accessibility information for the defined tag. */
+
+typedef CFStringRef CGPDFTagProperty CF_TYPED_ENUM;
+
+/* Actual text, defined on page 860:
+   "Text that is an exact replacement for the structure element and its children..."
+   "...useful when extracting the document’s contents in support of accessibility..."
+   This can be used to more precisely control what string is extracted by a user when
+   they copy and paste from a document. */
+CG_EXTERN const CGPDFTagProperty _Nonnull kCGPDFTagPropertyActualText
+  CG_AVAILABLE_STARTING(10.15, 13.0);
+
+/* Alternative text, defined on page 860:
+   "An alternate description of the structure element and its children in human-readable form".
+   This is typically used for graphical content, like an image. */
+CG_EXTERN const CGPDFTagProperty _Nonnull kCGPDFTagPropertyAlternativeText
+  CG_AVAILABLE_STARTING(10.15, 13.0);
+
+/* Title, defined on page 859:
+   Title of the node in a human-readable form. This should *not* be used for accessibility,
+   but can be useful when presenting the structure of a tagged node tree. */
+CG_EXTERN const CGPDFTagProperty _Nonnull kCGPDFTagPropertyTitleText
+  CG_AVAILABLE_STARTING(10.15, 13.0);
+
+/* Language of text content, defined on page 860:
+   Typically you should use the document's catalog to get its language, but if a section
+   of text is not the same language as the document, this may be set and allow you to
+   look at what language it is hinting at. */
+CG_EXTERN const CGPDFTagProperty _Nonnull kCGPDFTagPropertyLanguageText
+  CG_AVAILABLE_STARTING(10.15, 13.0);
+
+/* General usage of CGPDFContextBeginTag(...) and CGPDFContextEndTag(...):
+ 
+ - Create a CG PDF context using CGPDFContextCreate(...).
+ - Begin and end pages as you normally would, through CGPDFContextBeginPage(...), CGPDFContextEndPage(...).
+ - When drawing content for a page, you may tag any series of draw commands with balanced series of push / pops,
+   which will mark your content with the given tag type and optional tag properties.
+ 
+ - Pushing a tag saves the current tag to a tag-stack, assigning the given tag as the "current tag".
+ - Popping removes the top-most element of the tag-stack. The remaining top-most element becomes the "current tag".
+ - Any pushed tag is a child of the "current tag". This allows you to push children to parent-tags, and to build
+   a tag structure tree.
+ 
+ - When saving the context to a file, the file will be authored with marked content sequences in the page's content-
+   stream, as well as the implicitly built tagged structure three.
+ - If you would like to associate an annotation with a node, add the annotation to a page as you normally would via
+   CGPDFPageAddAnnotation(...), but within the appropriate push / pop tag call. NOTE: CGPDFPageAddAnnotation is SPI, so
+   we cannot support this publicly. */
+
+/* Sets the current tag to the given tagType with an associated tagProperties dictionary. The previous tag will be pushed
+   to a tag-stack. The previous tag can be restored through CGPDFContextEndTag(...). This new tag will record any future
+   drawing commands to the given context as part of itself, unless another tag is pushed or the tag is popped. When the
+   PDF context is serialized to a PDF file, these tags will create marked content sequences around the associated draw commands
+   around the page's content stream. Note that tagProperties is an optional dictionary that allows you to specificy additional
+   properties of the marked content: content may want to re-declare how text should be extracted, any alt text for figures,
+   or explicitly declare what language the text is in. All child-tags (tags pushed on top of other tags) will inherit their
+   parent tag's properties. */
+CG_EXTERN void CGPDFContextBeginTag(CGContextRef _Nonnull context, CGPDFTagType tagType, CFDictionaryRef cg_nullable tagProperties)
+  CG_AVAILABLE_STARTING(10.15, 13.0);
+
+/* Pop the current tag. Sets the current tag to the previous tag on the tag-stack. If there was no previous tag, then the
+   current tag will be set to the root document tag (of type CGPDFTagTypeDocument). */
+CG_EXTERN void CGPDFContextEndTag(CGContextRef _Nonnull context)
+  CG_AVAILABLE_STARTING(10.15, 13.0);
+
 CF_ASSUME_NONNULL_END
 
 CF_IMPLICIT_BRIDGING_DISABLED
@@ -2127,9 +2295,9 @@ CF_IMPLICIT_BRIDGING_DISABLED
 
 #if !defined(CG_EXTERN)
 #  if defined(__cplusplus)
-#   define CG_EXTERN extern "C"
+#   define CG_EXTERN extern "C" __attribute__((visibility("default")))
 #  else
-#   define CG_EXTERN extern
+#   define CG_EXTERN extern __attribute__((visibility("default")))
 #  endif
 #endif /* !defined(CG_EXTERN) */
 
@@ -2379,11 +2547,7 @@ typedef CGFLOAT_TYPE CGFloat;
 # define CG_PRIVATE_EXTERN CG_LOCAL
 #endif
 
-#if !TARGET_OS_SIMULATOR
-
 typedef struct  CF_BRIDGED_TYPE(id) __IOSurface *IOSurfaceRef __attribute__((swift_name("IOSurfaceRef")));
-
-#endif
 
 /* 'cg_nullable' will be dropped for new Swift clients. All others get currently the old behavior */
 
@@ -3247,6 +3411,9 @@ typedef CF_ENUM (uint32_t, CGColorConversionInfoTransformType) {
 CG_EXTERN CGColorConversionInfoRef __nullable CGColorConversionInfoCreate(cg_nullable CGColorSpaceRef src, cg_nullable CGColorSpaceRef dst)
     CG_AVAILABLE_STARTING(10.12, 10.0);
 
+CG_EXTERN CGColorConversionInfoRef __nullable CGColorConversionInfoCreateWithOptions(__nonnull CGColorSpaceRef src, __nonnull CGColorSpaceRef dst, CFDictionaryRef __nullable options)
+CG_AVAILABLE_STARTING(10.14.6, 13);
+
 /* Create CGColorConversionInfoRef from a list of CG color spaces, transform types and rendering intents.
  * ColorSpaces are iterated from first to last. The list of triples:
  * {CGColorSpaceRef, CGColorConversionInfoTransformType, CGColorRenderingIntent} must be terminated with NULL
@@ -3600,6 +3767,17 @@ CG_AVAILABLE_STARTING(10.11, 9.0);
 CG_EXTERN const CFStringRef kCGColorSpaceDCIP3
 CG_AVAILABLE_STARTING(10.11, 9.0);
 
+CG_EXTERN const CFStringRef kCGColorSpaceExtendedLinearITUR_2020
+CG_AVAILABLE_STARTING(10.14.3, 12.3);
+
+CG_EXTERN const CFStringRef kCGColorSpaceExtendedLinearDisplayP3
+CG_AVAILABLE_STARTING(10.14.3, 12.3);
+
+CG_EXTERN const CFStringRef kCGColorSpaceITUR_2020_PQ_EOTF
+CG_AVAILABLE_STARTING(10.14, 12.0);
+
+
+
 /*  The name of the extended sRGB color space.
     The extended sRGB color space allows to specify colors beyond the range of [0.0, 1.0],
     while still preserving the colorimetry and encoding of sRGB (see above for more details).
@@ -3835,6 +4013,7 @@ CG_AVAILABLE_STARTING(10.12, 10.0);
 
 CG_EXTERN bool CGColorSpaceIsWideGamutRGB(CGColorSpaceRef)
 CG_AVAILABLE_STARTING(10.12, 10.0);
+
 
 /* Return true if `space' can be used as a destination color space; false
  otherwise. */

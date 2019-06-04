@@ -784,7 +784,7 @@ NS_CLASS_AVAILABLE_IOS(10_0)
 
 /*!
  @method     didBecomeActiveWithConversation:
- @abstract   Called when the extension has become active active.
+ @abstract   Called when the extension has become active.
  @param      conversation   The current conversation.
  */
 - (void)didBecomeActiveWithConversation:(MSConversation *)conversation;

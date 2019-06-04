@@ -26,7 +26,7 @@ typedef NS_ENUM(NSInteger, CMAuthorizationStatus) {
 	CMAuthorizationStatusRestricted,
 	CMAuthorizationStatusDenied,
 	CMAuthorizationStatusAuthorized
-} NS_ENUM_AVAILABLE(NA, 11_0) __WATCHOS_AVAILABLE(4.0) API_UNAVAILABLE(tvos);
+} API_AVAILABLE(ios(11.0), watchos(4.0));
 // ==========  CoreMotion.framework/Headers/CMErrorDomain.h
 /*
  *  CMErrorDomain.h
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  Discussion:
  *    Error returned as the domain to NSError from CoreMotion.
  */
-CM_EXTERN NSString *const CMErrorDomain NS_AVAILABLE(NA,4_0);
+CM_EXTERN NSString *const CMErrorDomain API_AVAILABLE(ios(4.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreMotion.framework/Headers/CMSensorRecorder.h
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Discussion:
  *   CMRecordedAccelerometerData contains data for each accelerometer sample.
  */
-NS_CLASS_AVAILABLE(NA, 9_0) __WATCHOS_AVAILABLE(2.0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(9.0), watchos(2.0)) API_UNAVAILABLE(macos)
 @interface CMRecordedAccelerometerData : CMAccelerometerData
 
 /*
@@ -105,7 +105,7 @@ NS_CLASS_AVAILABLE(NA, 9_0) __WATCHOS_AVAILABLE(2.0) API_UNAVAILABLE(tvos)
  *   Due to the large number of samples that can be processed, the
  *   enumeration should not be run on the main/UI thread.
  */
-NS_CLASS_AVAILABLE(NA, 9_0) __WATCHOS_AVAILABLE(2.0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(9.0), watchos(2.0)) API_UNAVAILABLE(macos)
 @interface CMSensorDataList : NSObject <NSFastEnumeration>
 @end
 
@@ -118,7 +118,7 @@ NS_CLASS_AVAILABLE(NA, 9_0) __WATCHOS_AVAILABLE(2.0) API_UNAVAILABLE(tvos)
  *    available for later access (up to 3 days) when the application
  *    is run at a later time.
  */
-NS_CLASS_AVAILABLE(NA, 9_0) __WATCHOS_AVAILABLE(2.0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(9.0), watchos(2.0)) API_UNAVAILABLE(macos)
 @interface CMSensorRecorder : NSObject
 
 /*
@@ -135,7 +135,7 @@ NS_CLASS_AVAILABLE(NA, 9_0) __WATCHOS_AVAILABLE(2.0) API_UNAVAILABLE(tvos)
  * Discussion:
  *   Returns the current authorization status for sensor recording.
  */
-+ (CMAuthorizationStatus)authorizationStatus NS_AVAILABLE(NA, 11_0) __WATCHOS_AVAILABLE(4_0);
++ (CMAuthorizationStatus)authorizationStatus COREMOTION_EXPORT API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macos);
 
 /*
  * isAuthorizedForRecording
@@ -189,7 +189,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  Discussion:
  *    Typedef of block to be invoked when the device's activity is updated.
  */
-typedef void (^CMMotionActivityHandler)(CMMotionActivity * __nullable activity) NS_AVAILABLE(NA,7_0) API_UNAVAILABLE(tvos);
+typedef void (^CMMotionActivityHandler)(CMMotionActivity * __nullable activity) COREMOTION_EXPORT API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
 
 /*
  *  CMMotionActivityQueryHandler
@@ -198,7 +198,7 @@ typedef void (^CMMotionActivityHandler)(CMMotionActivity * __nullable activity) 
  *    Typedef of block to be invoked when the historical activity query is
  *    completed.  The array is an array of CMMotionActivity objects.
  */
-typedef void (^CMMotionActivityQueryHandler)(NSArray<CMMotionActivity *> * __nullable activities, NSError * __nullable error) NS_AVAILABLE(NA,7_0) API_UNAVAILABLE(tvos);
+typedef void (^CMMotionActivityQueryHandler)(NSArray<CMMotionActivity *> * __nullable activities, NSError * __nullable error) COREMOTION_EXPORT API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
 
 /*
  *   CMMotionActivityManager
@@ -213,7 +213,7 @@ typedef void (^CMMotionActivityQueryHandler)(NSArray<CMMotionActivity *> * __nul
  *      2. By providing a queue and a block to startActivityUpdatesToQueue:withHandler:
  *      which will provide live activity updates to a running application.
  */
-NS_CLASS_AVAILABLE(NA,7_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos)
 @interface CMMotionActivityManager : NSObject
 
 /*
@@ -230,7 +230,7 @@ NS_CLASS_AVAILABLE(NA,7_0) API_UNAVAILABLE(tvos)
  *  Discussion:
  *      Returns the current authorization status for activity.
  */
-+ (CMAuthorizationStatus)authorizationStatus NS_AVAILABLE(NA, 11_0) __WATCHOS_AVAILABLE(4_0);
++ (CMAuthorizationStatus)authorizationStatus COREMOTION_EXPORT API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macos);
 
 /*
  * queryActivityStartingFrom:to:toQueue:withHandler:
@@ -359,7 +359,7 @@ typedef void (^CMDeviceMotionHandler)(CMDeviceMotion * __nullable motion, NSErro
  *  Discussion:
  *    Typedef of block to be invoked when magnetometer data is available.
  */
-typedef void (^CMMagnetometerHandler)(CMMagnetometerData * __nullable magnetometerData, NSError * __nullable error) NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+typedef void (^CMMagnetometerHandler)(CMMagnetometerData * __nullable magnetometerData, NSError * __nullable error) COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  CMMotionManager
@@ -367,7 +367,7 @@ typedef void (^CMMagnetometerHandler)(CMMagnetometerData * __nullable magnetomet
  *  Discussion:
  *    The CMMotionManager object is your entry point to the motion service.
  */
-NS_CLASS_AVAILABLE(NA, 4_0)
+COREMOTION_EXPORT API_AVAILABLE(ios(4.0)) API_UNAVAILABLE(macos)
 @interface CMMotionManager : NSObject
 {
 @private
@@ -522,7 +522,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *    timestamps on the delivered CMMagnetometerData instances to determine the
  *    true update interval.
  */
-@property(assign, nonatomic) NSTimeInterval magnetometerUpdateInterval NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+@property(assign, nonatomic) NSTimeInterval magnetometerUpdateInterval COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  magnetometerAvailable
@@ -530,7 +530,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *  Discussion:
  *    Determines whether magetometer is available.
  */
-@property(readonly, nonatomic, getter=isMagnetometerAvailable) BOOL magnetometerAvailable NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+@property(readonly, nonatomic, getter=isMagnetometerAvailable) BOOL magnetometerAvailable COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  magnetometerActive
@@ -538,7 +538,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *  Discussion:
  *    Determines whether the CMMotionManager is currently providing magnetometer updates.
  */
-@property(readonly, nonatomic, getter=isMagnetometerActive) BOOL magnetometerActive NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+@property(readonly, nonatomic, getter=isMagnetometerActive) BOOL magnetometerActive COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  magnetometerData
@@ -546,7 +546,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *  Discussion:
  *    Returns the latest sample of magnetometer data, or nil if none is available.
  */
-@property(readonly, nullable) CMMagnetometerData *magnetometerData NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+@property(readonly, nullable) CMMagnetometerData *magnetometerData COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  startMagnetometerUpdates
@@ -555,7 +555,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *    Starts magnetometer updates with no handler. To receive the latest magnetometer data
  *    when desired, examine the magnetometerData property.
  */
-- (void)startMagnetometerUpdates NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+- (void)startMagnetometerUpdates COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  startMagnetometerUpdatesToQueue:withHandler:
@@ -563,7 +563,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *  Discussion:
  *    Starts magnetometer updates, providing data to the given handler through the given queue.
  */
-- (void)startMagnetometerUpdatesToQueue:(NSOperationQueue *)queue withHandler:(CMMagnetometerHandler)handler NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+- (void)startMagnetometerUpdatesToQueue:(NSOperationQueue *)queue withHandler:(CMMagnetometerHandler)handler COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  stopMagnetometerUpdates
@@ -571,7 +571,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *  Discussion:
  *    Stops magnetometer updates.
  */
-- (void)stopMagnetometerUpdates NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+- (void)stopMagnetometerUpdates COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  deviceMotionUpdateInterval
@@ -594,7 +594,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *  Discussion:
  *     Returns a bitmask specifying the available attitude reference frames on the device.
  */
-+ (CMAttitudeReferenceFrame)availableAttitudeReferenceFrames NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
++ (CMAttitudeReferenceFrame)availableAttitudeReferenceFrames COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  attitudeReferenceFrame
@@ -606,7 +606,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *    is undefined.
  *
  */
-@property(readonly, nonatomic) CMAttitudeReferenceFrame attitudeReferenceFrame NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+@property(readonly, nonatomic) CMAttitudeReferenceFrame attitudeReferenceFrame COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  deviceMotionAvailable
@@ -663,7 +663,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *    reference for the attitude estimates.
  *
  */
-- (void)startDeviceMotionUpdatesUsingReferenceFrame:(CMAttitudeReferenceFrame)referenceFrame NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+- (void)startDeviceMotionUpdatesUsingReferenceFrame:(CMAttitudeReferenceFrame)referenceFrame COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  startDeviceMotionUpdatesUsingReferenceFrame:toQueue:withHandler
@@ -673,7 +673,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *    The specified frame will be used as reference for the attitude estimates.
  *
  */
-- (void)startDeviceMotionUpdatesUsingReferenceFrame:(CMAttitudeReferenceFrame)referenceFrame toQueue:(NSOperationQueue *)queue withHandler:(CMDeviceMotionHandler)handler NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+- (void)startDeviceMotionUpdatesUsingReferenceFrame:(CMAttitudeReferenceFrame)referenceFrame toQueue:(NSOperationQueue *)queue withHandler:(CMDeviceMotionHandler)handler COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 /*
  *  stopDeviceMotionUpdates
@@ -692,7 +692,7 @@ NS_CLASS_AVAILABLE(NA, 4_0)
  *    CMErrorDeviceRequiresMovement is reported once via CMDeviceMotionHandler. By default,
  *    showsDeviceMovementDisplay is NO.
  */
-@property(assign, nonatomic) BOOL showsDeviceMovementDisplay NS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos);
+@property(assign, nonatomic) BOOL showsDeviceMovementDisplay COREMOTION_EXPORT API_AVAILABLE(ios(5.0)) API_UNAVAILABLE(macos) API_UNAVAILABLE(tvos);
 
 @end
 
@@ -749,7 +749,7 @@ typedef struct {
  *    Contains a single gyro measurement.
  *
  */
-NS_CLASS_AVAILABLE(NA,4_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(4.0))
 @interface CMGyroData : CMLogItem
 {
 @private
@@ -994,7 +994,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  Discussion:
  *      Contains a single altimeter measurement.
  */
-NS_CLASS_AVAILABLE(NA, 8_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos)
 @interface CMAltitudeData : CMLogItem
 
 /*
@@ -1048,7 +1048,7 @@ typedef void (^CMStepQueryHandler)(NSInteger numberOfSteps, NSError * __nullable
  *      Typedef of block to be invoked on every update.  The total step count since startStepCountingUpdatesToQueue
  *      was called along with the timestamp associated with the latest determination will be returned.
  */
-typedef void (^CMStepUpdateHandler)(NSInteger numberOfSteps, NSDate *timestamp, NSError * __nullable error) API_UNAVAILABLE(watchos, tvos);
+typedef void (^CMStepUpdateHandler)(NSInteger numberOfSteps, NSDate *timestamp, NSError * __nullable error) API_UNAVAILABLE(watchos);
 
 /*
  *  CMStepCounter
@@ -1068,7 +1068,7 @@ typedef void (^CMStepUpdateHandler)(NSInteger numberOfSteps, NSDate *timestamp, 
  *      by either calling stopStepCountingUpdates or upon CMStepCounter deallocation.
  *
  */
-NS_CLASS_DEPRECATED_IOS(7_0,8_0,"Use CMPedometer instead") API_UNAVAILABLE(watchos, tvos)
+NS_CLASS_DEPRECATED_IOS(7_0,8_0,"Use CMPedometer instead") API_UNAVAILABLE(watchos)
 @interface CMStepCounter : NSObject
 
 /*
@@ -1215,7 +1215,7 @@ typedef struct {
  *    A CMDeviceMotion object contains basic information about the device's
  *    motion.
  */
-NS_CLASS_AVAILABLE(NA, 4_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(4.0)) API_UNAVAILABLE(tvos)
 @interface CMDeviceMotion : CMLogItem
 {
 @private
@@ -1271,7 +1271,7 @@ NS_CLASS_AVAILABLE(NA, 4_0) API_UNAVAILABLE(tvos)
  *    bias (Earth's magnetic field plus surrounding fields, without device bias),
  *    unlike CMMagnetometerData magneticField.
  */
-@property(readonly, nonatomic) CMCalibratedMagneticField magneticField NS_AVAILABLE(NA, 5_0);
+@property(readonly, nonatomic) CMCalibratedMagneticField magneticField COREMOTION_EXPORT API_AVAILABLE(ios(5.0));
 
 /*
  *  heading
@@ -1281,7 +1281,7 @@ NS_CLASS_AVAILABLE(NA, 4_0) API_UNAVAILABLE(tvos)
  *    for CMAttitudeReferenceFrameXArbitraryZVertical and CMAttitudeReferenceFrameXArbitraryCorrectedZVertical.
  *
  */
-@property(readonly, nonatomic) double heading NS_AVAILABLE(NA, 11_0);
+@property(readonly, nonatomic) double heading COREMOTION_EXPORT API_AVAILABLE(ios(11.0));
 
 @end
 
@@ -1308,7 +1308,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  Discussion:
  *    Typedef of block to be invoked when the device's altitude is updated.
  */
-typedef void (^CMAltitudeHandler)(CMAltitudeData * __nullable altitudeData, NSError * __nullable error) NS_AVAILABLE(NA,8_0) API_UNAVAILABLE(tvos);
+typedef void (^CMAltitudeHandler)(CMAltitudeData * __nullable altitudeData, NSError * __nullable error) API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos);
 
 /*
  *  CMAltimeter
@@ -1316,7 +1316,7 @@ typedef void (^CMAltitudeHandler)(CMAltitudeData * __nullable altitudeData, NSEr
  *  Discussion:
  *		CMAltimeter provides information about the altitude of the device.
  */
-NS_CLASS_AVAILABLE(NA,8_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos)
 @interface CMAltimeter : NSObject
 
 /*
@@ -1333,7 +1333,7 @@ NS_CLASS_AVAILABLE(NA,8_0) API_UNAVAILABLE(tvos)
  *  Discussion:
  *		Returns the current authorization status for altimeter.
  */
-+ (CMAuthorizationStatus)authorizationStatus NS_AVAILABLE(NA, 11_0) __WATCHOS_AVAILABLE(4_0);
++ (CMAuthorizationStatus)authorizationStatus API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macos);
 
 /*
  *  startRelativeAltitudeUpdatesToQueue:withHandler:
@@ -1367,6 +1367,8 @@ NS_ASSUME_NONNULL_END
  *  Copyright (c) 2013 Apple Inc. All rights reserved.
  *
  */
+#ifndef CMAvailability_h
+#define CMAvailability_h
 
 #import <Availability.h>
 #import <os/availability.h>
@@ -1378,6 +1380,8 @@ NS_ASSUME_NONNULL_END
 #endif
 
 #define COREMOTION_EXPORT __attribute__((visibility ("default")))
+
+#endif // CMAvailability_h
 // ==========  CoreMotion.framework/Headers/CMAccelerometer.h
 /*
  *  CMAccelerometer.h
@@ -1421,7 +1425,7 @@ typedef struct {
  *    Contains a single accelerometer measurement.
  *
  */
-NS_CLASS_AVAILABLE(NA,4_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(4.0)) API_UNAVAILABLE(tvos)
 @interface CMAccelerometerData : CMLogItem
 {
 @private
@@ -1455,7 +1459,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(NA,4_0)
+COREMOTION_EXPORT API_AVAILABLE(ios(4.0))
 @interface CMLogItem : NSObject <NSSecureCoding, NSCopying>
 {
 @private
@@ -1549,7 +1553,7 @@ typedef NS_OPTIONS(NSUInteger, CMAttitudeReferenceFrame) API_UNAVAILABLE(tvos) {
 	CMAttitudeReferenceFrameXTrueNorthZVertical = 1 << 3
 };
 
-NS_CLASS_AVAILABLE(NA,4_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(4.0)) API_UNAVAILABLE(tvos)
 @interface CMAttitude : NSObject <NSCopying, NSSecureCoding>
 {
 @private
@@ -1655,7 +1659,7 @@ typedef struct {
  *  Discussion:
  *    Contains a single magnetometer measurement.
  */
-NS_CLASS_AVAILABLE(NA,5_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(5.0))
 @interface CMMagnetometerData : CMLogItem
 {
 @private
@@ -1725,7 +1729,7 @@ typedef NS_ENUM(NSInteger, CMMotionActivityConfidence) {
  *    Note in this case all of the properties are NO.
  *
  */
-NS_CLASS_AVAILABLE(NA, 7_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos)
 @interface CMMotionActivity : CMLogItem
 
 /*
@@ -1794,7 +1798,7 @@ NS_CLASS_AVAILABLE(NA, 7_0) API_UNAVAILABLE(tvos)
  *  Discussion:
  *    True if the device is on a bicycle.
  */
-@property(readonly, nonatomic) BOOL cycling NS_AVAILABLE(NA, 8_0);
+@property(readonly, nonatomic) BOOL cycling COREMOTION_EXPORT API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos);
 
 @end
 
@@ -1822,7 +1826,7 @@ NS_ASSUME_NONNULL_BEGIN
  *      object contains a step count. On supported platforms it also contains
  *      distance, flights of stairs, pace, and cadence.
  */
-NS_CLASS_AVAILABLE(NA, 8_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(8.0))
 @interface CMPedometerData : NSObject <NSSecureCoding, NSCopying>
 
 /*
@@ -1895,7 +1899,7 @@ NS_CLASS_AVAILABLE(NA, 8_0) API_UNAVAILABLE(tvos)
  *         (3) Unsupported platform.
  *
  */
-@property(readonly, nonatomic, nullable) NSNumber *currentPace NS_AVAILABLE(NA,9_0);
+@property(readonly, nonatomic, nullable) NSNumber *currentPace COREMOTION_EXPORT API_AVAILABLE(ios(9.0));
 
 /*
  * currentCadence
@@ -1910,7 +1914,7 @@ NS_CLASS_AVAILABLE(NA, 8_0) API_UNAVAILABLE(tvos)
  *         (3) Unsupported platform.
  *
  */
-@property(readonly, nonatomic, nullable) NSNumber *currentCadence NS_AVAILABLE(NA,9_0);
+@property(readonly, nonatomic, nullable) NSNumber *currentCadence COREMOTION_EXPORT API_AVAILABLE(ios(9.0));
 
 /*
  * averageActivePace
@@ -1930,7 +1934,7 @@ NS_CLASS_AVAILABLE(NA, 8_0) API_UNAVAILABLE(tvos)
  *         (2) Unsupported platform.
  *
  */
-@property(readonly, nonatomic, nullable) NSNumber *averageActivePace NS_AVAILABLE(NA,10_0);
+@property(readonly, nonatomic, nullable) NSNumber *averageActivePace COREMOTION_EXPORT API_AVAILABLE(ios(10.0));
 
 @end
 
@@ -1943,7 +1947,7 @@ NS_CLASS_AVAILABLE(NA, 8_0) API_UNAVAILABLE(tvos)
 typedef NS_ENUM(NSInteger, CMPedometerEventType) {
 	CMPedometerEventTypePause,
 	CMPedometerEventTypeResume
-} NS_ENUM_AVAILABLE(NA, 10_0) __WATCHOS_AVAILABLE(3_0) API_UNAVAILABLE(tvos);
+} API_AVAILABLE(ios(10.0), watchos(3.0));
 
 /*
  *  CMPedometerEvent
@@ -1951,7 +1955,7 @@ typedef NS_ENUM(NSInteger, CMPedometerEventType) {
  *  Discussion:
  *      An event marking the change in user's pedestrian activity.
  */
-NS_CLASS_AVAILABLE(NA, 10_0) __WATCHOS_AVAILABLE(3_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(10.0), watchos(3.0))
 @interface CMPedometerEvent : NSObject <NSSecureCoding, NSCopying>
 
 /*
@@ -1979,7 +1983,7 @@ NS_CLASS_AVAILABLE(NA, 10_0) __WATCHOS_AVAILABLE(3_0) API_UNAVAILABLE(tvos)
  *      Typedef of block to be invoked when pedometer data is available. Error
  *      types are defined in "CMError.h".
  */
-typedef void (^CMPedometerHandler)(CMPedometerData * __nullable pedometerData, NSError * __nullable error) API_UNAVAILABLE(tvos);
+typedef void (^CMPedometerHandler)(CMPedometerData * __nullable pedometerData, NSError * __nullable error);
 
 /*
  *  CMPedometerEventHandler
@@ -1988,7 +1992,7 @@ typedef void (^CMPedometerHandler)(CMPedometerData * __nullable pedometerData, N
  *      Typedef of block that will be invoked when pedometer event is available.
  *      Error types are defined in "CMError.h".
  */
-typedef void (^CMPedometerEventHandler)(CMPedometerEvent * __nullable pedometerEvent, NSError * __nullable error) NS_AVAILABLE(NA, 10_0) __WATCHOS_AVAILABLE(3_0) API_UNAVAILABLE(tvos);
+typedef void (^CMPedometerEventHandler)(CMPedometerEvent * __nullable pedometerEvent, NSError * __nullable error) COREMOTION_EXPORT API_AVAILABLE(ios(10.0), watchos(3.0));
 
 /*
  *  CMPedometer
@@ -2006,7 +2010,7 @@ typedef void (^CMPedometerEventHandler)(CMPedometerEvent * __nullable pedometerE
  *      updates can be stopped by calling stopPedometerUpdates.
  *
  */
-NS_CLASS_AVAILABLE(NA,8_0) API_UNAVAILABLE(tvos)
+COREMOTION_EXPORT API_AVAILABLE(ios(8.0))
 @interface CMPedometer : NSObject
 
 /*
@@ -2042,7 +2046,7 @@ NS_CLASS_AVAILABLE(NA,8_0) API_UNAVAILABLE(tvos)
  *      Determines whether the device supports pace estimation
  *      in addition to step counting.
  */
-+ (BOOL)isPaceAvailable NS_AVAILABLE(NA,9_0);
++ (BOOL)isPaceAvailable COREMOTION_EXPORT API_AVAILABLE(ios(9.0));
 
 /*
  *  isCadenceAvailable
@@ -2051,7 +2055,7 @@ NS_CLASS_AVAILABLE(NA,8_0) API_UNAVAILABLE(tvos)
  *      Determines whether the device supports cadence estimation
  *      in addition to step counting.
  */
-+ (BOOL)isCadenceAvailable NS_AVAILABLE(NA,9_0);
++ (BOOL)isCadenceAvailable COREMOTION_EXPORT API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos);
 
 /*
  *  isPedometerEventTrackingAvailable
@@ -2059,7 +2063,7 @@ NS_CLASS_AVAILABLE(NA,8_0) API_UNAVAILABLE(tvos)
  *  Discussion:
  *      Determines whether the device supports pedometer events.
  */
-+ (BOOL)isPedometerEventTrackingAvailable NS_AVAILABLE(NA,10_0) __WATCHOS_AVAILABLE(3_0);
++ (BOOL)isPedometerEventTrackingAvailable COREMOTION_EXPORT API_AVAILABLE(ios(10.0), watchos(3.0)) API_UNAVAILABLE(macos);
 
 /*
  *  authorizationStatus
@@ -2067,7 +2071,7 @@ NS_CLASS_AVAILABLE(NA,8_0) API_UNAVAILABLE(tvos)
  *  Discussion:
  *      Returns the current authorization status for pedometer.
  */
-+ (CMAuthorizationStatus)authorizationStatus NS_AVAILABLE(NA, 11_0) __WATCHOS_AVAILABLE(4_0);
++ (CMAuthorizationStatus)authorizationStatus COREMOTION_EXPORT API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macos);
 
 /*
  *  queryPedometerDataFromDate:toDate:withHandler:
@@ -2113,7 +2117,7 @@ NS_CLASS_AVAILABLE(NA,8_0) API_UNAVAILABLE(tvos)
  *      Starts pedometer event updates on a serial queue.
  *      Events are available only when the apps are running in foreground / background.
  */
-- (void)startPedometerEventUpdatesWithHandler:(CMPedometerEventHandler)handler NS_AVAILABLE(NA,10_0) __WATCHOS_AVAILABLE(3_0);
+- (void)startPedometerEventUpdatesWithHandler:(CMPedometerEventHandler)handler COREMOTION_EXPORT API_AVAILABLE(ios(10.0), watchos(3.0)) API_UNAVAILABLE(macos);
 
 /*
  *  stopPedometerEventUpdates
@@ -2121,7 +2125,7 @@ NS_CLASS_AVAILABLE(NA,8_0) API_UNAVAILABLE(tvos)
  *  Discussion:
  *      Stops pedometer event updates.
  */
-- (void)stopPedometerEventUpdates NS_AVAILABLE(NA,10_0) __WATCHOS_AVAILABLE(3_0);
+- (void)stopPedometerEventUpdates COREMOTION_EXPORT API_AVAILABLE(ios(10.0), watchos(3.0)) API_UNAVAILABLE(macos);
 
 @end
 

@@ -1,4 +1,5 @@
 // ==========  AudioToolbox.framework/Headers/AudioCodec.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AudioCodec.h>)
 /*==================================================================================================
      File:       AudioToolbox/AudioCodec.h
 
@@ -81,13 +82,7 @@
 #include <TargetConditionals.h>
 #include <Availability.h>
 
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <CoreAudio/CoreAudioTypes.h>
-	#include <AudioToolbox/AudioComponent.h>
-#else
-	#include "AudioComponent.h"
-	#include "CoreAudioTypes.h"
-#endif
+#include <AudioToolbox/AudioComponent.h>
 
 #if defined(__cplusplus)
 extern "C"
@@ -113,9 +108,9 @@ typedef UInt32					AudioCodecPropertyID;
 				The first four + sizeof(void *) bytes of the buffer pointed at by outPropertyData
 				will contain this struct.
  
-	@field mMagicCookieSize
+	@var   mMagicCookieSize
         The size of the magic cookie
-	@field mMagicCookie
+	@var   mMagicCookie
         Generic const pointer to magic cookie
 */
 struct AudioCodecMagicCookieInfo 
@@ -293,6 +288,10 @@ CF_ENUM(AudioCodecPropertyID)
 						Any codec that reports 1 for this property must be able to handle packet
 						descriptions, though it does not have to require them.
 						May be writable.
+	@constant		kAudioCodecPropertyEmploysDependentPackets
+						A UInt32 where 0 indicates that all packets in the codec's format
+						are independently decodable, and 1 indicates that some may not be
+						independently decodable.
 	@constant		kAudioCodecPropertyMaximumPacketByteSize
 						A UInt32 indicating the maximum number of bytes a packet of data
 						in the codec's format will be. If the format is constant bit rate,
@@ -433,6 +432,9 @@ CF_ENUM(AudioCodecPropertyID)
 						The property value is between [0 - 0x7F].
 						See also kAudioCodecPropertyQualitySetting
 						Writable if supported.
+    @constant       kAudioCodecPropertyBitRateForVBR
+                        A UInt32 that can be used to set the target bit rate when the encoder is configured
+                        for VBR mode (kAudioCodecBitRateControlMode_Variable). Writable if supported.
     @constant		kAudioCodecPropertyDelayMode
                         A UInt32 specifying the delay mode. See enum below.                        
                         Writable if supported.
@@ -467,6 +469,7 @@ CF_ENUM(AudioCodecPropertyID)
 	kAudioCodecPropertyInputBufferSize											= 'tbuf',
 	kAudioCodecPropertyPacketFrameSize											= 'pakf',
 	kAudioCodecPropertyHasVariablePacketByteSizes								= 'vpk?',
+	kAudioCodecPropertyEmploysDependentPackets									= 'dpk?',
 	kAudioCodecPropertyMaximumPacketByteSize									= 'pakb',
     kAudioCodecPropertyPacketSizeLimitForVBR                                    = 'pakl',
 	kAudioCodecPropertyCurrentInputFormat										= 'ifmt',
@@ -491,6 +494,7 @@ CF_ENUM(AudioCodecPropertyID)
 	kAudioCodecPropertyFormatList												= 'acfl',
 	kAudioCodecPropertyBitRateControlMode										= 'acbf',
 	kAudioCodecPropertySoundQualityForVBR										= 'vbrq',
+    kAudioCodecPropertyBitRateForVBR                                            = 'vbrb',
 	kAudioCodecPropertyDelayMode                                                = 'dmod',
     kAudioCodecPropertyAdjustLocalQuality										= '^qal',
     kAudioCodecPropertyProgramTargetLevel										= 'pptl',
@@ -651,9 +655,9 @@ CF_ENUM(UInt32)
 	@discussion		Specifies the number of leading and trailing empty frames
 					which have to be inserted.
  
-	@field			leadingFrames
+	@var  			leadingFrames
 						An unsigned integer specifying the number of leading empty frames
-	@field			trailingFrames
+	@var  			trailingFrames
 						An unsigned integer specifying the number of trailing empty frames 
 */
 typedef struct AudioCodecPrimeInfo 
@@ -1285,6 +1289,9 @@ CF_ENUM(UInt32)
 CF_ASSUME_NONNULL_END
 
 #endif	//	AudioUnit_AudioCodec_h
+#else
+#include <AudioToolboxCore/AudioCodec.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/MusicPlayer.h
 /*!
 	@file		MusicPlayer.h
@@ -1334,6 +1341,9 @@ CF_ASSUME_NONNULL_END
 	typedef UInt32 MIDIEndpointRef;
 #endif
 
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
 
 CF_ASSUME_NONNULL_BEGIN
 
@@ -1515,9 +1525,9 @@ typedef struct MIDIMetaEvent
 /*!
 	@struct		MusicEventUserData
 	@discussion	Provides a general struct for specifying a user defined event. 
-	@field		length
+	@var  		length
 					the size in bytes of the data
-	@field		data
+	@var  		data
 					size bytes of user defined event data
 */
 typedef struct MusicEventUserData
@@ -1575,15 +1585,15 @@ typedef struct AUPresetEvent
 	@struct		CABarBeatTime
 	@abstract	A display representation of a musical time in beats.
 	
-	@field	bar
+	@var  	bar
 				A measure number.
-	@field	beat
+	@var  	beat
 				A beat number (1..n).
-	@field	subbeat
+	@var  	subbeat
 				The numerator of the fractional number of beats.
-	@field	subbeatDivisor
+	@var  	subbeatDivisor
 				The denominator of the fractional number of beats.
-	@field	reserved
+	@var  	reserved
 				Must be 0.
 	@discussion
 				A clock's internal representation of musical time is in beats based on the
@@ -2059,7 +2069,7 @@ MusicSequenceGetAUGraph(	MusicSequence 					inSequence,
 */
 extern OSStatus
 MusicSequenceSetMIDIEndpoint(	MusicSequence 	inSequence,
-								MIDIEndpointRef	inEndpoint)						API_AVAILABLE(macos(10.1), ios(5.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+								MIDIEndpointRef	inEndpoint)						API_AVAILABLE(macos(10.1), ios(5.0), tvos(12.0)) __WATCHOS_PROHIBITED;
 	
 /*!
 	@function	MusicSequenceSetSequenceType
@@ -2394,7 +2404,7 @@ MusicTrackSetDestNode(	MusicTrack 			inTrack,
 */
 extern OSStatus
 MusicTrackSetDestMIDIEndpoint(	MusicTrack			inTrack,
-								MIDIEndpointRef		inEndpoint)					API_AVAILABLE(macos(10.1), ios(5.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+								MIDIEndpointRef		inEndpoint)					API_AVAILABLE(macos(10.1), ios(5.0), tvos(12.0)) __WATCHOS_PROHIBITED;
 	
 /*!
 	@function	MusicTrackGetDestNode
@@ -2418,7 +2428,7 @@ MusicTrackGetDestNode(			MusicTrack 			inTrack,
 */
 extern OSStatus
 MusicTrackGetDestMIDIEndpoint(	MusicTrack			inTrack,
-								MIDIEndpointRef	*	outEndpoint)				API_AVAILABLE(macos(10.1), ios(5.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+								MIDIEndpointRef	*	outEndpoint)				API_AVAILABLE(macos(10.1), ios(5.0), tvos(12.0)) __WATCHOS_PROHIBITED;
 	
 /*!
 	@function	MusicTrackSetProperty
@@ -2950,6 +2960,8 @@ MusicTrackNewExtendedControlEvent(	MusicTrack 					inTrack,
 
 CF_ASSUME_NONNULL_END
 
+#pragma clang diagnostic pop
+
 #endif // AudioToolbox_MusicPlayer_h
 // ==========  AudioToolbox.framework/Headers/AudioQueue.h
 /*!
@@ -2981,13 +2993,8 @@ CF_ASSUME_NONNULL_END
 #define AudioToolbox_AudioQueue_h
 
 #include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-    #include <CoreAudio/CoreAudioTypes.h>
-    #include <CoreFoundation/CoreFoundation.h>
-#else
-    #include <CoreAudioTypes.h>
-    #include <CoreFoundation.h>
-#endif
+#include <CoreAudioTypes/CoreAudioTypes.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 #if defined(__BLOCKS__)
     #include <dispatch/dispatch.h>
@@ -3249,14 +3256,14 @@ CF_ENUM(UInt32) {
     kAudioQueueTimePitchAlgorithm_Varispeed     = 'vspd'
 };
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !TARGET_OS_UIKITFORMAC
 /*!	@enum		Time/Pitch algorithms (iOS only)
     @constant kAudioQueueTimePitchAlgorithm_LowQualityZeroLatency
         Low quality, very inexpensive. Suitable for brief fast-forward/rewind effects,
         low quality voice. Default algorithm on iOS.
 */
 CF_ENUM(UInt32) {
-    kAudioQueueTimePitchAlgorithm_LowQualityZeroLatency = 'lqzl',
+    kAudioQueueTimePitchAlgorithm_LowQualityZeroLatency API_DEPRECATED("Low Quality Zero Latency algorithm is now Deprecated. Please choose from other available options", ios(2.0, 13.0), watchos(2.0, 6.0), tvos(9.0, 13.0)) API_UNAVAILABLE(macos)     = 'lqzl',
 };
 #endif
 
@@ -3280,6 +3287,8 @@ CF_ENUM(UInt32) {
         
         Changing this property is not permitted while the queue is primed or running. Changing
         this property at other times may cause any properties set on the codec to be lost.
+ 
+        DEPRECATED: Hardware codecs are no longer supported.
 */
 CF_ENUM(AudioQueuePropertyID) {
     kAudioQueueProperty_HardwareCodecPolicy             = 'aqcp'        // value is UInt32
@@ -3304,6 +3313,8 @@ CF_ENUM(AudioQueuePropertyID) {
     @constant kAudioQueueHardwareCodecPolicy_PreferHardware
         The audio queue will choose a hardware codec if one is available and its use permitted
         by the AudioSession category; otherwise, it will choose a software codec if one is available.
+
+	DEPRECATED: Hardware codecs are no longer supported.
 */
 CF_ENUM(UInt32) {
     kAudioQueueHardwareCodecPolicy_Default              = 0,
@@ -3312,6 +3323,7 @@ CF_ENUM(UInt32) {
     kAudioQueueHardwareCodecPolicy_PreferSoftware       = 3,
     kAudioQueueHardwareCodecPolicy_PreferHardware       = 4
 };
+#endif // TARGET_OS_IPHONE
 
 /*!
     @enum Audio Queue Property IDs
@@ -3325,8 +3337,7 @@ CF_ENUM(UInt32) {
 */
 CF_ENUM(AudioQueuePropertyID) {
     kAudioQueueProperty_ChannelAssignments      = 'aqca'
-} API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos);
-#endif // TARGET_OS_IPHONE
+} API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0), macos(10.15));
 
 /*!
     @enum       AudioQueueParameterID
@@ -3431,24 +3442,24 @@ typedef CF_OPTIONS(UInt32, AudioQueueProcessingTapFlags) {
         mPacketDescriptionCapacity, mmPacketDescriptions, and mPacketDescriptionCount
         fields may only be used with buffers allocated with this function.
         
-    @field      mAudioDataBytesCapacity
+    @var        mAudioDataBytesCapacity
         The size of the buffer, in bytes. This size is set when the buffer is allocated and
         cannot be changed.
-    @field      mAudioData
+    @var        mAudioData
        A pointer to the audio data in the buffer. Although you can write data to this buffer,
        you cannot make it point to another address.
-    @field      mAudioDataByteSize
+    @var        mAudioDataByteSize
         The number of bytes of valid audio data in the buffer. You set this value when providing
         data for playback; the audio queue sets this value when recording data from a recording
         queue.
-    @field      mUserData
+    @var        mUserData
         A value you may specify to identify the buffer when it is passed back in recording or
         playback callback functions.
-    @field      mPacketDescriptionCapacity
+    @var        mPacketDescriptionCapacity
         The maximum number of packet descriptions that can be stored in mPacketDescriptions.
-    @field      mPacketDescriptions
+    @var        mPacketDescriptions
         An array of AudioStreamPacketDescriptions associated with the buffer.
-    @field      mPacketDescriptionCount
+    @var        mPacketDescriptionCount
         The number of valid packet descriptions in the buffer. You set this value when providing
         buffers for playback; the audio queue sets this value when returning buffers from
         a recording queue.
@@ -3494,9 +3505,9 @@ typedef AudioQueueBuffer *AudioQueueBufferRef;
         In Mac OS X v10.5, audio queues have one parameter available: kAudioQueueParam_Volume,
         which controls the queue's playback volume.
         
-    @field      mID
+    @var        mID
         The parameter.
-    @field      mValue
+    @var        mValue
         The value of the specified parameter.
 */
 struct AudioQueueParameterEvent {
@@ -3509,10 +3520,9 @@ typedef struct AudioQueueParameterEvent AudioQueueParameterEvent;
 /*!
     @struct     AudioQueueLevelMeterState
     @abstract   Specifies the current level metering information for one channel of an audio queue.
-    @discussion
-    @field      mAveragePower
+    @var        mAveragePower
         The audio channel's average RMS power.
-    @field      mPeakPower
+    @var        mPeakPower
         The audio channel's peak RMS power
 */
 typedef struct AudioQueueLevelMeterState {
@@ -3526,23 +3536,20 @@ typedef struct AudioQueueLevelMeterState {
 */
 typedef struct OpaqueAudioQueueProcessingTap *   AudioQueueProcessingTapRef;
 
-#if TARGET_OS_IPHONE
 /*!
     @struct     AudioQueueChannelAssignment
     @abstract   Specifies an audio device channel to which the queue will play or from which
                 it will record.
-    @discussion
-    @field      mDeviceUID
+    @var        mDeviceUID
         On iOS, this is a port UID obtained from AVAudioSession. On OS X, this is the UID
         obtained from an AudioDeviceID.
-    @field      mChannelNumber
+    @var        mChannelNumber
         The 1-based index of the channel.
 */
 typedef struct AudioQueueChannelAssignment {
     CFStringRef     mDeviceUID;
     UInt32          mChannelNumber;
 } AudioQueueChannelAssignment;
-#endif
 
 #pragma mark -
 #pragma mark Callbacks
@@ -3754,8 +3761,6 @@ typedef void (*AudioQueuePropertyListenerProc)(
 
     @param      inClientData
                     the client data pointer passed to AudioQueueProcessingTapNew
-    @param      inAQ
-                    The audio queue that invoked the callback.
     @param      inAQTap
                     The tap for this callback.
     @param      inNumberFrames
@@ -3763,7 +3768,7 @@ typedef void (*AudioQueuePropertyListenerProc)(
     @param      ioFlags
                     On entry, the flags passed at construction time are provided. On exit,
                     the start/end of stream flags should be set when appropriate.
-    @param      ioAudioTimeStamp
+    @param      ioTimeStamp
                     On an input audio queue, the timestamp must be returned from this function.
                     On an output audio queue, the callback is provided a continuous timestamp.
     @param      outNumberFrames
@@ -3840,7 +3845,6 @@ AudioQueueNewOutput(                const AudioStreamBasicDescription *inFormat,
     @function   AudioQueueNewInput
     @abstract   Creates a new audio queue for recording audio data.
     @discussion
-        
         Outline of how to use the queue for input:
         
         - create input queue
@@ -3918,7 +3922,6 @@ AudioQueueNewOutputWithDispatchQueue(AudioQueueRef __nullable * __nonnull outAQ,
     @function   AudioQueueNewInputWithDispatchQueue
     @abstract   Creates a new audio queue for recording audio data.
     @discussion
-        
         Outline of how to use the queue for input:
         
         - create input queue
@@ -4326,7 +4329,6 @@ AudioQueueGetParameter(             AudioQueueRef               inAQ,
 /*!
     @function   AudioQueueSetParameter
     @abstract   Sets an audio queue parameter value.
-    @discussion
     @param      inAQ
         The audio queue whose parameter value you want to set.
     @param      inParamID
@@ -4351,7 +4353,6 @@ AudioQueueSetParameter(             AudioQueueRef               inAQ,
 /*!
     @function   AudioQueueGetProperty
     @abstract   Obtains an audio queue property value.
-    @discussion 
     @param      inAQ
         The audio queue whose property value you want to obtain.
     @param      inID
@@ -4373,7 +4374,6 @@ AudioQueueGetProperty(              AudioQueueRef           inAQ,
 /*!
     @function   AudioQueueSetProperty
     @abstract   Sets an audio queue property value.
-    @discussion 
     @param      inAQ
         The audio queue whose property value you want to set.
     @param      inID
@@ -4396,7 +4396,6 @@ AudioQueueSetProperty(              AudioQueueRef           inAQ,
 /*!
     @function   AudioQueueGetPropertySize
     @abstract   Obtains the size of an audio queue property.
-    @discussion 
     @param      inAQ
         The audio queue containing the property value whose size you want to obtain.
     @param      inID
@@ -4440,7 +4439,6 @@ AudioQueueAddPropertyListener(      AudioQueueRef                   inAQ,
 /*!
     @function   AudioQueueRemovePropertyListener
     @abstract   Removes a listener callback for a property.
-    @discussion 
     @param      inAQ
         The audio queue that owns the property from which you want to remove a listener.
     @param      inID
@@ -4588,7 +4586,6 @@ AudioQueueDeviceTranslateTime(      AudioQueueRef           inAQ,
 /*!
     @function   AudioQueueDeviceGetNearestStartTime
     @abstract   Obtains an audio device's start time that is closest to a requested start time.
-    @discussion
     @param      inAQ
         The audio queue whose device's nearest start time you want to obtain.
     @param      ioRequestedStartTime
@@ -4637,7 +4634,6 @@ AudioQueueSetOfflineRenderFormat(   AudioQueueRef                               
 /*!
     @function   AudioQueueOfflineRender
     @abstract   Obtain a buffer of audio output from a queue in offline rendering mode.
-    @discussion
     @param      inAQ
         The output queue from which to obtain output.
     @param      inTimestamp
@@ -4818,6 +4814,7 @@ CF_ASSUME_NONNULL_END
 #endif // AudioToolbox_AudioQueue_h
 
 // ==========  AudioToolbox.framework/Headers/AudioComponent.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AudioComponent.h>)
 /*!
 	@file		AudioComponent.h
  	@framework	AudioToolbox.framework
@@ -4981,15 +4978,10 @@ CF_ASSUME_NONNULL_END
 //=====================================================================================================================
 #pragma mark Overview
 
-
+#include <TargetConditionals.h>
 #include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-    #include <CoreAudio/CoreAudioTypes.h>
-    #include <CoreFoundation/CoreFoundation.h>
-#else
-    #include <CoreAudioTypes.h>
-    #include <CoreFoundation.h>
-#endif
+#include <CoreAudioTypes/CoreAudioTypes.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 CF_ASSUME_NONNULL_BEGIN
 
@@ -5069,15 +5061,15 @@ typedef CF_OPTIONS(UInt32, AudioComponentInstantiationOptions) {
 /*!
     @struct         AudioComponentDescription
     @discussion     A structure used to describe the unique and identifying IDs of an audio component 
-    @field          componentType
+    @var            componentType
                         A unique 4-byte code identifying the generic type of an audio component
-    @field          componentSubType
+    @var            componentSubType
                         the particular flavor of this instance
-    @field          componentManufacturer
+    @var            componentManufacturer
                         vendor identification
-    @field          componentFlags
+    @var            componentFlags
                         must be set to zero unless a known specific value is requested
-    @field          componentFlagsMask
+    @var            componentFlagsMask
                         must be set to zero unless a known specific value is requested
 */
 #pragma pack(push, 4)
@@ -5123,7 +5115,7 @@ typedef struct OpaqueAudioComponent *   AudioComponent;
                     ComponentInstanceRecord *, you should not assume that this will always be
                     compatible and usable with Component Manager calls.
 */
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || (defined(AUDIOCOMPONENT_NOCARBONINSTANCES) && AUDIOCOMPONENT_NOCARBONINSTANCES)
     typedef struct OpaqueAudioComponentInstance *   AudioComponentInstance;
 #else
     typedef struct ComponentInstanceRecord *        AudioComponentInstance;
@@ -5131,7 +5123,7 @@ typedef struct OpaqueAudioComponent *   AudioComponent;
 
 /*!
     @typedef        AudioComponentMethod
-    @abstract       The broad prototype for an audio plugin method
+    @abstract       Generic prototype for an audio plugin method.
     @discussion     Every audio plugin will implement a collection of methods that match a particular
 					selector. For example, the AudioUnitInitialize API call is implemented by a
 					plugin implementing the kAudioUnitInitializeSelect selector. Any function implementing
@@ -5139,19 +5131,19 @@ typedef struct OpaqueAudioComponent *   AudioComponent;
 					is a pointer to the plugin instance structure, has 0 or more specific arguments,  
 					and returns an OSStatus.
 */
-typedef OSStatus (*AudioComponentMethod)(void *self,...);
+typedef OSStatus (*AudioComponentMethod)(void *self, ...);
 
 /*!
     @struct         AudioComponentPlugInInterface
     @discussion     A structure used to represent an audio plugin's routines 
-    @field          Open
+    @var            Open
                         the function used to open (or create) an audio plugin instance
-    @field          Close
+    @var            Close
                         the function used to close (or dispose) an audio plugin instance
-    @field          Lookup
+    @var            Lookup
                         this is used to return a function pointer for a given selector, 
 						or NULL if that selector is not implemented
-    @field          reserved
+    @var            reserved
                         must be NULL
 */
 typedef struct AudioComponentPlugInInterface {
@@ -5258,7 +5250,6 @@ AudioComponentGetDescription(   AudioComponent                  inComponent,
 /*!
     @function       AudioComponentGetVersion
     @abstract       Retrieve an audio component's version.
-    @discussion
     @param          inComponent
                         the audio component (must not be NULL)
     @param          outVersion
@@ -5502,6 +5493,9 @@ AudioComponentValidate( AudioComponent					inComponent,
 CF_ASSUME_NONNULL_END
 
 #endif // AudioUnit_AudioComponent_h
+#else
+#include <AudioToolboxCore/AudioComponent.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AUGraph.h
 /*!
 	@file		AUGraph.h
@@ -5533,14 +5527,7 @@ CF_ASSUME_NONNULL_END
 #ifndef AudioToolbox_AUGraph_h
 #define AudioToolbox_AUGraph_h
 
-#include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <CoreAudio/CoreAudioTypes.h>
-	#include <AudioToolbox/AudioUnit.h>
-#else
-	#include <CoreAudioTypes.h>
-	#include <AUComponent.h>
-#endif
+#include <AudioToolbox/AudioUnit.h>
 
 CF_ASSUME_NONNULL_BEGIN
 
@@ -5763,10 +5750,10 @@ CF_ENUM(UInt32) {
 /*! 
 	@struct		AudioUnitNodeConnection
 	@abstract	A connection between two nodes
-	@field		sourceNode
-	@field		sourceOutputNumber
-	@field		destNode
-	@field		destInputNumber
+	@var  		sourceNode
+	@var  		sourceOutputNumber
+	@var  		destNode
+	@var  		destInputNumber
 */
 struct AudioUnitNodeConnection
 {
@@ -5783,9 +5770,9 @@ typedef struct AudioUnitNodeConnection AUNodeConnection;
 	@abstract	A callback used to provide input to an audio unit
 	@discussion	Used to contain information when a callback is used
 				to provide input to the specific node's specified input
-	@field		destNode
-	@field		destInputNumber
-	@field		cback
+	@var  		destNode
+	@var  		destInputNumber
+	@var  		cback
 */
 struct AUNodeRenderCallback 
 {
@@ -5812,8 +5799,8 @@ typedef struct AUNodeRenderCallback AUNodeRenderCallback;
 				Arrays of these structs can be returned, the addition of new members to the
 				nodeInteraction union will NOT change the size of this structure
 				
-	@field		nodeInteractionType		the interaction type
-	@field		nodeInteraction			a union providing information about the specified interaction
+	@var  		nodeInteractionType		the interaction type
+	@var  		nodeInteraction			a union providing information about the specified interaction
 */
 struct AUNodeInteraction
 {
@@ -5842,9 +5829,6 @@ AUGraphConnectNodeInput(	AUGraph			inGraph,
 /*! 
 	@function	AUGraphSetNodeInputCallback
 	@abstract	Set a callback for the specified node's specified input.
-	@param		inGraph
-	@param		inDestNode
-	@param		inDestInputNumber
 	@param		inInputCallback		The callback that will provide input data to the node
 */
 extern OSStatus
@@ -5859,9 +5843,6 @@ AUGraphSetNodeInputCallback (AUGraph						inGraph,
 	@abstract	disconnect a node's input
 	@discussion	This can be used to disconnect either a connection or callback interaction
 				to the specified node input
-	@param		inGraph
-	@param		inDestNode
-	@param		inDestInputNumber
 */
 extern OSStatus
 AUGraphDisconnectNodeInput(	AUGraph			inGraph,
@@ -5872,7 +5853,6 @@ AUGraphDisconnectNodeInput(	AUGraph			inGraph,
 	@function	AUGraphClearConnections
 	@abstract	clear all of the interactions in a graph
 	@discussion	This will clear all connections and callback interactions of the nodes of a graph
-	@param		inGraph
 */
 extern OSStatus
 AUGraphClearConnections(	AUGraph			inGraph)				AUGRAPH_DEPRECATED(10.0);
@@ -5881,8 +5861,6 @@ AUGraphClearConnections(	AUGraph			inGraph)				AUGRAPH_DEPRECATED(10.0);
 	@function	AUGraphGetNumberOfInteractions
 	@abstract	Retrieve the number of interactions of a graph
 	@discussion	The number of node interactions currently being managed by the graph
-	@param		inGraph
-	@param		outNumInteractions
 */
 extern OSStatus
 AUGraphGetNumberOfInteractions(	AUGraph				inGraph,
@@ -5897,8 +5875,6 @@ AUGraphGetNumberOfInteractions(	AUGraph				inGraph,
 				
 				An app can iterate through the interactions (as with the nodes) of a graph by retrieving
 				the number of interactions, and then iterating an index from 0 < numInteractions
-	@param		inGraph
-	@param		inInteractionIndex
 	@param		outInteraction		the interaction information at the specified index
 */
 extern OSStatus
@@ -5910,9 +5886,6 @@ AUGraphGetInteractionInfo(	AUGraph					inGraph,
 	@function	AUGraphCountNodeInteractions
 	@abstract	Retrieve the number of interactions of a graph's node
 	@discussion	The number of node interactions currently being managed by the graph for the specified node
-	@param		inGraph
-	@param		inNode
-	@param		outNumInteractions
 */
 extern OSStatus
 AUGraphCountNodeInteractions(	AUGraph				inGraph,
@@ -5923,8 +5896,6 @@ AUGraphCountNodeInteractions(	AUGraph				inGraph,
 	@function	AUGraphGetNodeInteractions
 	@abstract	Retrieve information about the interactions in a graph for a given node
 	@discussion	Retrieve information about the interactions in a graph for a given node 
-	@param		inGraph
-	@param		inNode
 	@param		ioNumInteractions	
 					on input, specifies the number of interactions that can be returned
 					on output, specifies the number of interactions returned.
@@ -5980,7 +5951,6 @@ AUGraphGetNodeInteractions(	AUGraph					inGraph,
 	this decision is left up to you. The same applies to the "cant do" error - you have
 	to explicitly call AUGraphUpdate again to have the processing of the events occur.
 
-	@param		inGraph
 	@param		outIsUpdated	if specified returns true if all of the edits were applied to the graph
 */
 extern OSStatus
@@ -5996,7 +5966,6 @@ AUGraphUpdate(		AUGraph					inGraph,
 	@function	AUGraphOpen
 	@abstract	Open a graph
 	@discussion AudioUnits are open but not initialized (no resource allocation occurs here)
-	@param		inGraph
 */
 extern OSStatus
 AUGraphOpen(			AUGraph		inGraph)						AUGRAPH_DEPRECATED(10.0);
@@ -6005,7 +5974,6 @@ AUGraphOpen(			AUGraph		inGraph)						AUGRAPH_DEPRECATED(10.0);
 	@function	AUGraphClose
 	@abstract	Close a graph
 	@discussion all AudioUnits are closed - leaving only its nodal representation
-	@param		inGraph
 */
 extern OSStatus
 AUGraphClose(			AUGraph		inGraph)						AUGRAPH_DEPRECATED(10.0);
@@ -6019,7 +5987,6 @@ AUGraphClose(			AUGraph		inGraph)						AUGRAPH_DEPRECATED(10.0);
 				after it becomes involved in an interaction.
 				
 				A graph must be opened before it can be initialised.
-	@param		inGraph
 */
 extern OSStatus
 AUGraphInitialize(		AUGraph		inGraph)						AUGRAPH_DEPRECATED(10.0);
@@ -6028,7 +5995,6 @@ AUGraphInitialize(		AUGraph		inGraph)						AUGRAPH_DEPRECATED(10.0);
 	@function	AUGraphUninitialize
 	@abstract	Uninitialise a graph
 	@discussion The member of the graph are uninitialised 
-	@param		inGraph
 */
 extern OSStatus
 AUGraphUninitialize(	AUGraph		inGraph)						AUGRAPH_DEPRECATED(10.0);
@@ -6039,7 +6005,6 @@ AUGraphUninitialize(	AUGraph		inGraph)						AUGRAPH_DEPRECATED(10.0);
 	@discussion Start() is called on the "head" node(s) of the AUGraph	(now rendering starts) 
 				
 				The graph must be initialised before it can be started
-	@param		inGraph
 */
 extern OSStatus
 AUGraphStart(			AUGraph		inGraph)						AUGRAPH_DEPRECATED(10.0);
@@ -6208,6 +6173,7 @@ CF_ASSUME_NONNULL_END
 
 
 // ==========  AudioToolbox.framework/Headers/ExtendedAudioFile.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/ExtendedAudioFile.h>)
 /*!
 	@file		ExtendedAudioFile.h
 	@framework	AudioToolbox.framework
@@ -6225,13 +6191,8 @@ CF_ASSUME_NONNULL_END
 #define AudioToolbox_ExtendedAudioFile_h
 
 #include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <CoreFoundation/CoreFoundation.h>
-	#include <AudioToolbox/AudioFile.h>
-#else
-	#include <CoreFoundation.h>
-	#include <AudioFile.h>
-#endif
+#include <CoreFoundation/CoreFoundation.h>
+#include <AudioToolbox/AudioFile.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -6719,8 +6680,6 @@ ExtAudioFileSeek(			ExtAudioFileRef			inExtAudioFile,
 					On exit, the file's current read/write position in sample frames. This is specified in the 
 					sample rate and frame count of the file's format (not the client format)
 	@result		An OSStatus error code.
-	
-	@discussion
 */
 extern OSStatus
 ExtAudioFileTell(			ExtAudioFileRef			inExtAudioFile,
@@ -6746,8 +6705,6 @@ ExtAudioFileTell(			ExtAudioFileRef			inExtAudioFile,
 	@param		outWritable
 					If non-null, on exit, this indicates whether the property value is settable.
 	@result		An OSStatus error code.
-
-	@discussion
 */
 extern OSStatus
 ExtAudioFileGetPropertyInfo(ExtAudioFileRef			inExtAudioFile,
@@ -6770,8 +6727,6 @@ ExtAudioFileGetPropertyInfo(ExtAudioFileRef			inExtAudioFile,
 	@param		outPropertyData
 					The value of the property is copied to the memory this points to.
 	@result		An OSStatus error code.
-
-	@discussion
 */
 extern OSStatus
 ExtAudioFileGetProperty(	ExtAudioFileRef			inExtAudioFile,
@@ -6793,8 +6748,6 @@ ExtAudioFileGetProperty(	ExtAudioFileRef			inExtAudioFile,
 	@param		inPropertyData
 					Points to the property's new value.
 	@result		An OSStatus error code.
-
-	@discussion
 */
 extern OSStatus
 ExtAudioFileSetProperty(	ExtAudioFileRef			inExtAudioFile,
@@ -6810,7 +6763,11 @@ CF_ASSUME_NONNULL_END
 #endif
 
 #endif // AudioToolbox_ExtendedAudioFile_h
+#else
+#include <AudioToolboxCore/ExtendedAudioFile.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AudioFileStream.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AudioFileStream.h>)
 /*!
 	@file		AudioFileStream.h
 	@framework	AudioToolbox.framework
@@ -6846,13 +6803,8 @@ CF_ASSUME_NONNULL_END
 //=============================================================================
 
 #include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <CoreAudio/CoreAudioTypes.h>
-	#include <AudioToolbox/AudioFile.h>
-#else
-	#include <CoreAudioTypes.h>
-	#include <AudioFile.h>
-#endif
+#include <CoreAudioTypes/CoreAudioTypes.h>
+#include <AudioToolbox/AudioFile.h>
 
 CF_ASSUME_NONNULL_BEGIN
 
@@ -7023,6 +6975,49 @@ CF_ENUM(OSStatus)
     @constant   kAudioFileStreamProperty_FrameToPacket 
 					pass a AudioFramePacketTranslation with mFrame filled out and get mPacket and 
 					mFrameOffsetInPacket back.
+    @constant   kAudioFileStreamProperty_RestrictsRandomAccess
+					A UInt32 indicating whether an Audio File contains packets that cannot be used as random
+					access points.
+					A value of 0 indicates that any packet can be used as a random access point, i.e. that a
+					decoder can start decoding with any packet.
+					A value of 1 indicates that some packets cannot be used as random access points, i.e.
+					that either kAudioFileStreamProperty_PacketToRollDistance or
+					kAudioFileStreamProperty_PacketToDependencyInfo must be employed in order to identify an
+					appropriate initial packet for decoding.
+	@constant	kAudioFileStreamProperty_PacketToRollDistance
+					Pass an AudioPacketRollDistanceTranslation with mPacket filled out and get mRollDistance
+					back.
+					See AudioFile.h for the declaration of AudioPacketRollDistanceTranslation.
+					The roll distance indicates the count of packets that must be decoded prior to the
+					packet with the specified number in order to achieve full refresh of the decoder at that
+					packet.
+					For file formats that do not carry comprehensive information regarding independently
+					decodable packets, accurate roll distances may be available only for the range of
+					packets either currently or most recently provided to your packets proc.
+	@constant   kAudioFileStreamProperty_PreviousIndependentPacket
+	@constant	kAudioFileStreamProperty_NextIndependentPacket
+					Pass an AudioIndependentPacketTranslation with mPacket filled out and get
+					mIndependentlyDecodablePacket back. A value of -1 means that no independent packet is
+					present in the stream in the direction of interest. Otherwise, for
+					kAudioFileStreamProperty_PreviousIndependentPacket, mIndependentlyDecodablePacket will be
+					less than mPacket, and for kAudioFileStreamProperty_NextIndependentPacket,
+					mIndependentlyDecodablePacket will be greater than mPacket.
+					For file formats that do not carry comprehensive information regarding independently
+					decodable packets, independent packets may be identifiable only within the range of
+					packets either currently or most recently provided to your packets proc.
+	@constant	kAudioFileStreamProperty_PacketToDependencyInfo
+					Pass an AudioPacketDependencyInfoTranslation with mPacket filled out and get
+					mIsIndependentlyDecodable and mPrerollPacketCount back.
+					A value of 0 for mIsIndependentlyDecodable indicates that the specified packet is not
+					independently decodable.
+					A value of 1 for mIsIndependentlyDecodable indicates that the specified packet is
+					independently decodable.
+					For independently decodable packets, mPrerollPacketCount indicates the count of packets
+					that must be decoded after the packet with the specified number in order to refresh the
+					decoder.
+					For file formats that do not carry comprehensive information regarding packet
+					dependencies, accurate dependency info may be available only for the range of
+					packets either currently or most recently provided to your packets proc.
 	@constant	kAudioFileStreamProperty_PacketToByte
 					pass an AudioBytePacketTranslation struct with mPacket filled out and get mByte back.
 					mByteOffsetInPacket is ignored. If the mByte value is an estimate then 
@@ -7059,13 +7054,18 @@ CF_ENUM(AudioFileStreamPropertyID)
 	kAudioFileStreamProperty_ChannelLayout					=	'cmap',
 	kAudioFileStreamProperty_PacketToFrame					=	'pkfr',
 	kAudioFileStreamProperty_FrameToPacket					=	'frpk',
+	kAudioFileStreamProperty_RestrictsRandomAccess          =   'rrap',
+	kAudioFileStreamProperty_PacketToRollDistance           =   'pkrl',
+	kAudioFileStreamProperty_PreviousIndependentPacket      =   'pind',
+	kAudioFileStreamProperty_NextIndependentPacket          =   'nind',
+	kAudioFileStreamProperty_PacketToDependencyInfo         =   'pkdp',
 	kAudioFileStreamProperty_PacketToByte					=	'pkby',
 	kAudioFileStreamProperty_ByteToPacket					=	'bypk',
 	kAudioFileStreamProperty_PacketTableInfo				=	'pnfo',
 	kAudioFileStreamProperty_PacketSizeUpperBound  			=	'pkub',
 	kAudioFileStreamProperty_AverageBytesPerPacket			=	'abpp',
 	kAudioFileStreamProperty_BitRate						=	'brat',
-    kAudioFileStreamProperty_InfoDictionary                 =   'info'
+	kAudioFileStreamProperty_InfoDictionary                 = 	'info'
 };
 
 //=============================================================================
@@ -7265,7 +7265,11 @@ CF_ASSUME_NONNULL_END
 
 #endif // AudioToolbox_AudioFileStream_h
 
+#else
+#include <AudioToolboxCore/AudioFileStream.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/MusicDevice.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/MusicDevice.h>)
 /*!
 	@file		MusicDevice.h
 	@framework	AudioToolbox.framework
@@ -7311,14 +7315,7 @@ CF_ASSUME_NONNULL_END
 #ifndef AudioUnit_MusicDevice_h
 #define AudioUnit_MusicDevice_h
 
-#include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <CoreAudio/CoreAudioTypes.h>
-	#include <AudioToolbox/AUComponent.h>
-#else
-	#include <CoreAudioTypes.h>
-	#include <AUComponent.h>
-#endif
+#include <AudioToolbox/AUComponent.h>
 
 CF_ASSUME_NONNULL_BEGIN
 
@@ -7343,12 +7340,12 @@ typedef UInt32                          MusicDeviceInstrumentID;
 	@discussion This struct is the common usage for MusicDeviceStartNote, as most synths that implement this functionality 
 				will only allow for the specification of a note number and velocity when starting a new note.
 	
-	@param			argCount
+	@var  			argCount
 			Should be set to 2
-	@param			mPitch
+	@var  			mPitch
 			The pitch of the new note, typically specified using a MIDI note number (and a fractional pitch) within the 
 					range of 0 < 128. So 60 is middle C, 60.5 is middle C + 50 cents.
-	@param			mVelocity
+	@var  			mVelocity
 			The velocity of the new note - this can be a fractional value - specified as MIDI (within the range of 0 < 128)
 */
 struct MusicDeviceStdNoteParams
@@ -7366,9 +7363,9 @@ typedef struct MusicDeviceStdNoteParams		MusicDeviceStdNoteParams;
 	@discussion This struct is used to describe a parameterID (a control in MIDI terminology, though it is not limited to 
 					MIDI CC specifications) and the value of this parameter.
 	
-	@param			mID
+	@var  			mID
 			The parameter ID
-	@param			mValue
+	@var  			mValue
 			The value of that parameter
 */
 struct NoteParamsControlValue
@@ -7387,14 +7384,14 @@ typedef struct NoteParamsControlValue		NoteParamsControlValue;
 				for the common use case, as many audio unit instruments will not respond to control values provided 
 				in the start note function
 	
-	@param			argCount
+	@var  			argCount
 			The number of controls + 2 (for mPitch and mVelocity)
-	@param			mPitch
+	@var  			mPitch
 			The pitch of the new note, typically specified using a MIDI note number (and a fractional pitch) within the 
 				range of 0 < 128. So 60 is middle C, 60.5 is middle C + 50 cents.
-	@param			mVelocity
+	@var  			mVelocity
 			The velocity of the new note - this can be a fractional value - specified as MIDI (within the range of 0 < 128)
-	@param			mControls
+	@var  			mControls
 			A variable length array with the number of elements: argCount - 2.
 */
 struct MusicDeviceNoteParams
@@ -7611,10 +7608,6 @@ enum {
 	
 	@param			self
 					For a component manager component, this is the component instance storage pointer
-	@param			inStatus
-	@param			inData1
-	@param			inData2
-	@param			inOffsetSampleFrame
 
 	@result			noErr, or an audio unit error code
 */
@@ -7634,8 +7627,6 @@ typedef OSStatus
 	
 	@param			self
 					For a component manager component, this is the component instance storage pointer
-	@param			inData
-	@param			inLength
 
 	@result			noErr, or an audio unit error code
 */
@@ -7653,11 +7644,6 @@ typedef OSStatus
 	
 	@param			self
 					For a component manager component, this is the component instance storage pointer
-	@param			inInstrument
-	@param			inGroupID
-	@param			outNoteInstanceID
-	@param			inOffsetSampleFrame
-	@param			inParams
 	
 	@result			noErr, or an audio unit error code
 */
@@ -7678,9 +7664,6 @@ typedef OSStatus
 	
 	@param			self
 					For a component manager component, this is the component instance storage pointer
-	@param			inGroupID
-	@param			inNoteInstanceID
-	@param			inOffsetSampleFrame
 	
 	@result			noErr, or an audio unit error code
 */
@@ -7723,7 +7706,11 @@ CF_ASSUME_NONNULL_END
 
 #endif /* AudioUnit_MusicDevice_h */
 
+#else
+#include <AudioToolboxCore/MusicDevice.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AUAudioUnitImplementation.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AUAudioUnitImplementation.h>)
 /*!
 	@file		AUAudioUnitImplementation.h
  	@framework	AudioToolbox.framework
@@ -7822,7 +7809,9 @@ registration "wins", though if an app attempts to open it synchronously, with
 AudioComponentInstanceNew, then the system will fall back to the version 2 implementation.
 */
 
-#if __OBJC2__
+#ifndef AudioToolbox_AUAudioUnitImplementation_h
+#define AudioToolbox_AUAudioUnitImplementation_h
+#ifdef __OBJC2__
 
 #import <AudioToolbox/AUAudioUnit.h>
 
@@ -7930,6 +7919,16 @@ typedef AUAudioUnitStatus (^AUInternalRenderBlock)(
 
 /// Block which subclassers must provide (via a getter) to implement rendering.
 @property (nonatomic, readonly) AUInternalRenderBlock internalRenderBlock;
+
+
+/// Re-declare the parameterTree as writable from the Audio Unit implementation
+
+/*! @property	parameterTree
+	@brief		An audio unit's parameters, organized in a hierarchy.
+	@discussion
+		See the description in AUAudioUnit.h
+ */
+@property (NS_NONATOMIC_IOSONLY, readwrite, nullable) AUParameterTree *parameterTree;
 
 /*! @property	MIDIOutputBufferSizeHint
 	@brief		Hint to control the size of the allocated buffer for outgoing MIDI events.
@@ -8122,7 +8121,7 @@ typedef NSString *__nonnull (^AUImplementorDisplayNameWithLengthCallback)(AUPara
 		Hosts should not access this class; it will be instantiated when needed when creating an
 		AUAudioUnit.
 */
-OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface AUAudioUnitV2Bridge : AUAudioUnit
 @end
 
@@ -8155,7 +8154,12 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 NS_ASSUME_NONNULL_END
 
 #endif // __OBJC2__
+#endif // AudioToolbox_AUAudioUnitImplementation_h
+#else
+#include <AudioToolboxCore/AUAudioUnitImplementation.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AudioOutputUnit.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AudioOutputUnit.h>)
 /*!
 	@file		AudioOutputUnit.h
  	@framework	AudioToolbox.framework
@@ -8167,11 +8171,7 @@ NS_ASSUME_NONNULL_END
 #define AudioUnit_AudioOutputUnit_h
 
 #include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <AudioToolbox/AUComponent.h>
-#else
-	#include <AUComponent.h>
-#endif
+#include <AudioToolbox/AUComponent.h>
 
 CF_ASSUME_NONNULL_BEGIN
 
@@ -8213,7 +8213,11 @@ typedef OSStatus	(*AudioOutputUnitStopProc) (void *self);
 CF_ASSUME_NONNULL_END
 
 #endif /* AudioUnit_AudioOutputUnit_h */
+#else
+#include <AudioToolboxCore/AudioOutputUnit.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AUComponent.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AUComponent.h>)
 /*!
 	@file		AUComponent.h
  	@framework	AudioUnit.framework
@@ -8277,20 +8281,14 @@ CF_ASSUME_NONNULL_END
 //================================================================================================
 #pragma mark Overview
 
-
-
-#include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <AudioToolbox/AudioComponent.h>
-	#include <CoreAudio/CoreAudioTypes.h>
-#else
-	#include <AudioComponent.h>
-	#include <CoreAudioTypes.h>
-#endif
+#include <AudioToolbox/AudioComponent.h>
 
 CF_ASSUME_NONNULL_BEGIN
 
-#define AU_SUPPORT_INTERAPP_AUDIO (TARGET_OS_IPHONE && !(0 && !TARGET_OS_SIMULATOR && !TARGET_OS_EMBEDDED))
+#define AU_SUPPORT_INTERAPP_AUDIO (TARGET_OS_IPHONE && !TARGET_OS_UIKITFORMAC)
+
+#define INTERAPP_AUDIO_DEPRECATED API_DEPRECATED("Inter-App Audio API is deprecated in favor of Audio Units", ios(7.0, 13.0), watchos(2.0, 6.0), tvos(9.0, 13.0))
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -8498,7 +8496,7 @@ CF_ENUM(UInt32) {
 /*!
 	@enum			Apple input/output audio unit sub types (OS X)
 	@constant		kAudioUnitSubType_HALOutput			
-						- desktop only
+						- desktop only (a.k.a. "AUHAL")
 					The audio unit that interfaces to any audio device. The user specifies which 
 					audio device to track. The audio unit can do input from the device as well as 
 					output to the device. Bus 0 is used for the output side, bus 1 is used
@@ -8626,7 +8624,7 @@ CF_ENUM(UInt32) {
 CF_ENUM(UInt32) {
 	kAudioUnitSubType_TimePitch				= 'tmpt'
 };
-#else
+#elif !TARGET_OS_UIKITFORMAC
 /*!
 	@enum			Apple converter audio unit sub types (iOS only)
 	@constant		kAudioUnitSubType_AUiPodTime
@@ -8634,7 +8632,7 @@ CF_ENUM(UInt32) {
 					and time.
 */
 CF_ENUM(UInt32) {
-	kAudioUnitSubType_AUiPodTime			= 'iptm'
+	kAudioUnitSubType_AUiPodTime API_DEPRECATED_WITH_REPLACEMENT("kAudioUnitSubType_NewTimePitch", ios(2.0, 13.0), watchos(2.0, 6.0), tvos(9.0, 13.0)) API_UNAVAILABLE(macos)	= 'iptm'
 };
 #endif
 
@@ -8680,7 +8678,10 @@ CF_ENUM(UInt32) {
 					
 	@constant		kAudioUnitSubType_NBandEQ
 					A generalized N-band graphic EQ with specifiable filter types per-band
-	
+
+    @constant       kAudioUnitSubType_Reverb2
+                    A lite reverb that can be used to simulate various and different spaces
+
 */
 CF_ENUM(UInt32) {
 	kAudioUnitSubType_PeakLimiter			= 'lmtr',
@@ -8694,7 +8695,10 @@ CF_ENUM(UInt32) {
 	kAudioUnitSubType_Distortion			= 'dist',
 	kAudioUnitSubType_Delay					= 'dely',
 	kAudioUnitSubType_SampleDelay			= 'sdly',
-	kAudioUnitSubType_NBandEQ				= 'nbeq'
+	kAudioUnitSubType_NBandEQ				= 'nbeq',
+#if !TARGET_OS_UIKITFORMAC
+    kAudioUnitSubType_Reverb2               = 'rvb2'
+#endif
 };
 
 #if !TARGET_OS_IPHONE
@@ -8726,17 +8730,14 @@ CF_ENUM(UInt32) {
 	kAudioUnitSubType_NetSend				= 'nsnd',
 	kAudioUnitSubType_RogerBeep				= 'rogr'
 };
-#else
+#elif !TARGET_OS_UIKITFORMAC
 /*!
 	@enum			Apple effect audio unit sub types (iOS only)
-	@constant		kAudioUnitSubType_Reverb2
-					A reverb for iOS
 	@constant		kAudioUnitSubType_AUiPodEQ
 					A simple graphic EQ with common presets
 */
 CF_ENUM(UInt32) {
-	kAudioUnitSubType_Reverb2				= 'rvb2',
-	kAudioUnitSubType_AUiPodEQ				= 'ipeq'
+	kAudioUnitSubType_AUiPodEQ API_DEPRECATED_WITH_REPLACEMENT("kAudioUnitSubType_GraphicEQ", ios(2.0, 13.0), watchos(2.0, 6.0), tvos(9.0, 13.0)) API_UNAVAILABLE(macos)	= 'ipeq'
 };
 #endif
 
@@ -8883,10 +8884,15 @@ CF_ENUM(UInt32) {
 					called after the render operation is completed.
 
 	@constant		kAudioUnitRenderAction_OutputIsSilence
-					This flag can be set in a render input callback (or in the audio unit's render 
-					operation itself) and is used to indicate that the render buffer contains only 
-					silence. It can then be used by the caller as a hint to whether the buffer 
-					needs to be processed or not.
+					The originator of a buffer, in a render input callback, or in an audio unit's
+					render operation, may use this flag to indicate that the buffer contains
+					only silence.
+
+					The receiver of the buffer can then use the flag as a hint as to whether the
+					buffer needs to be processed or not.
+
+					Note that because the flag is only a hint, when setting the silence flag,
+					the originator of a buffer must also ensure that it contains silence (zeroes).
 					
 	@constant		kAudioOfflineUnitRenderAction_Preflight
 					This is used with offline audio units (of type 'auol'). It is used when an 
@@ -8992,16 +8998,21 @@ typedef CF_OPTIONS(UInt32, AudioUnitRenderActionFlags)
 					than the default allocated buffer. The audio unit can provide a size hint, in
 					case it needs a larger buffer. See the documentation for AUAudioUnit's
 					MIDIOutputBufferSizeHint property.
-    @constant   kAudioComponentErr_InstanceInvalidated
-        The component instance's implementation is not available, most likely because the process
-        that published it is no longer running.
-	@constant	kAudioUnitErr_RenderTimeout
-		The audio unit did not satisfy the render request in time.
-	@constant kAudioUnitErr_ExtensionNotFound
-		The specified identifier did not match any Audio Unit Extensions.
+	@constant		kAudioComponentErr_InstanceInvalidated
+					The component instance's implementation is not available, most likely because the process
+					that published it is no longer running.
+	@constant		kAudioUnitErr_RenderTimeout
+					The audio unit did not satisfy the render request in time.
+	@constant 		kAudioUnitErr_ExtensionNotFound
+					The specified identifier did not match any Audio Unit Extensions.
 	@constant		kAudioUnitErr_InvalidParameterValue
 					The parameter value is not supported, e.g. the value specified is NaN or
 					infinite.
+ 	@constant 		kAudioUnitErr_InvalidFilePath
+ 					The file path that was passed is not supported. It is either too long or contains
+ 					invalid characters.
+ 	@constant		kAudioUnitErr_MissingKey
+ 					A required key is missing from a dictionary object.
 */
 CF_ENUM(OSStatus) {
 	kAudioUnitErr_InvalidProperty			= -10879,
@@ -9024,11 +9035,13 @@ CF_ENUM(OSStatus) {
 	kAudioUnitErr_InvalidOfflineRender		= -10848,
 	kAudioUnitErr_Unauthorized				= -10847,
 	kAudioUnitErr_MIDIOutputBufferFull		= -66753,
-	kAudioComponentErr_InstanceTimedOut     = -66754,
-	kAudioComponentErr_InstanceInvalidated  = -66749,
+	kAudioComponentErr_InstanceTimedOut		= -66754,
+	kAudioComponentErr_InstanceInvalidated	= -66749,
 	kAudioUnitErr_RenderTimeout				= -66745,
 	kAudioUnitErr_ExtensionNotFound			= -66744,
 	kAudioUnitErr_InvalidParameterValue		= -66743,
+	kAudioUnitErr_InvalidFilePath			= -66742,
+	kAudioUnitErr_MissingKey				= -66741
 };
 
 
@@ -9125,18 +9138,18 @@ typedef CF_ENUM(UInt32, AUParameterEventType)
 					
 					See AudioUnitScheduleParameters
 
-	@field			scope	
+	@var  			scope	
 					The scope for the parameter
-	@field			element
+	@var  			element
 					The element for the parameter
-	@field			parameter
+	@var  			parameter
 					The parameterID for the parameter
 	
-	@field			eventType
+	@var  			eventType
 					The event type. This field further defines how the union described by 
 					eventValues is to be interpreted.
 	
-	@field			eventValues
+	@var  			eventValues
 					If the parameter event type is _Immediate, then the immediate struct of this 
 					union should be used.
 					If the parameter event type is _Ramped, then the ramp struct of this union 
@@ -9178,13 +9191,13 @@ typedef struct AudioUnitParameterEvent	AudioUnitParameterEvent;
 					to deal with audio unit parameters, but is included in this header file for 
 					completeness.
 
-	@field			mAudioUnit
+	@var  			mAudioUnit
 					The audio unit instance to which the specified parameter applies.
-	@field			mParameterID
+	@var  			mParameterID
 					The parameterID for the parameter
-	@field			mScope	
+	@var  			mScope	
 					The scope for the parameter
-	@field			mElement
+	@var  			mElement
 					The element for the parameter
 */
 struct AudioUnitParameter
@@ -9203,13 +9216,13 @@ typedef struct AudioUnitParameter	AudioUnitParameter;
 					to deal with audio unit properties, but is included in this header file for 
 					completeness.
 
-	@field			mAudioUnit
+	@var  			mAudioUnit
 					The audio unit instance which the specified property applies too
-	@field			mPropertyID
+	@var  			mPropertyID
 					The propertyID for the property
-	@field			mScope	
+	@var  			mScope	
 					The scope for the property
-	@field			mElement
+	@var  			mElement
 					The element for the property
 */
 struct AudioUnitProperty
@@ -9806,7 +9819,7 @@ AudioOutputUnitPublish(         const AudioComponentDescription *   inDesc,
                                 CFStringRef                         inName,
                                 UInt32                              inVersion,
 								AudioUnit                           inOutputUnit)
-                                                API_AVAILABLE(ios(7.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos);
+                                                API_UNAVAILABLE(macos) INTERAPP_AUDIO_DEPRECATED;
 
 
 #if defined(__OBJC__)
@@ -9814,10 +9827,10 @@ AudioOutputUnitPublish(         const AudioComponentDescription *   inDesc,
 
 extern UIImage * __nullable
 AudioOutputUnitGetHostIcon(AudioUnit au, float desiredPointSize)
-                                                API_AVAILABLE(ios(7.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos);
+                                                API_UNAVAILABLE(macos) INTERAPP_AUDIO_DEPRECATED;
 extern UIImage * __nullable
 AudioComponentGetIcon(AudioComponent comp, float desiredPointSize)
-                                                API_AVAILABLE(ios(7.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos);
+                                                API_UNAVAILABLE(macos) INTERAPP_AUDIO_DEPRECATED;
 
 #endif // __OBJC__
 
@@ -9829,13 +9842,13 @@ AudioComponentGetIcon(AudioComponent comp, float desiredPointSize)
 		Inter-app audio hosts can use this to sort the list of available nodes by how recently
 		the user interacted with them.
 	
-    @param          inComponent
+    @param          comp
                         The AudioComponent being queried.
     @result         The CFAbsoluteTime at which the node was last active (0 if never).
 */
 extern CFAbsoluteTime
 AudioComponentGetLastActiveTime(AudioComponent comp)
-                                                API_AVAILABLE(ios(7.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos);
+                                                API_UNAVAILABLE(macos) INTERAPP_AUDIO_DEPRECATED;
 #endif // AU_SUPPORT_INTERAPP_AUDIO
 
 #if defined(__LP64__) || TARGET_OS_IPHONE
@@ -9993,10 +10006,6 @@ typedef OSStatus
 	@param			inComponentStorage
 					For a component manager component, this is the component instance storage 
 					pointer
-	@param			inID
-	@param			inScope
-	@param			inElement
-	@param			outValue
 */
 typedef OSStatus
 (*AudioUnitGetParameterProc)(	void *						inComponentStorage,
@@ -10015,11 +10024,6 @@ typedef OSStatus
 	@param			inComponentStorage
 					For a component manager component, this is the component instance storage 
 					pointer
-	@param			inID
-	@param			inScope
-	@param			inElement
-	@param			inValue
-	@param			inBufferOffsetInFrames
 */
 typedef OSStatus
 (*AudioUnitSetParameterProc)(	void *						inComponentStorage,
@@ -10039,11 +10043,6 @@ typedef OSStatus
 	@param			inComponentStorage
 					For a component manager component, this is the component instance storage 
 					pointer
-	@param			ioActionFlags
-	@param			inTimeStamp
-	@param			inOutputBusNumber
-	@param			inNumberFrames
-	@param			ioData
 */
 typedef OSStatus
 (*AudioUnitRenderProc)(			void *							inComponentStorage,
@@ -10091,7 +10090,11 @@ AudioUnitRemovePropertyListener(	AudioUnit						inUnit,
 CF_ASSUME_NONNULL_END
 
 #endif /* AudioUnit_AUComponent_h */
+#else
+#include <AudioToolboxCore/AUComponent.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AUAudioUnit.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AUAudioUnit.h>)
 /*!
 	@file		AUAudioUnit.h
  	@framework	AudioToolbox.framework
@@ -10100,14 +10103,15 @@ CF_ASSUME_NONNULL_END
 	@brief		Objective-C interfaces for hosting and implementing Audio Units.
 */
 
-#if __OBJC2__
+#ifndef AudioToolbox_AUAudioUnit_h
+#define AudioToolbox_AUAudioUnit_h
+#ifdef __OBJC2__
 
 #import <AudioToolbox/AUParameters.h>
 #import <Foundation/NSExtensionRequestHandling.h>
 
 #if !TARGET_OS_IPHONE
-// for AudioObjectID for setDeviceID:error:
-#import <CoreAudio/AudioHardwareBase.h>
+typedef UInt32 AUAudioObjectID; // AudioObjectID
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -10415,7 +10419,7 @@ typedef BOOL (^AUHostTransportStateBlock)(AUHostTransportStateFlags * __nullable
 		with a v3 audio unit, all major pieces of functionality are bridged between the
 		two API's. This header describes, for each v3 method or property, the v2 equivalent.
 */
-OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface AUAudioUnit : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -10765,11 +10769,159 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 	@brief		A collection of presets provided by the audio unit's developer.
 	@discussion
 		A preset provides users of an audio unit with an easily-selectable, fine-tuned set of
-		parameters provided by the developer. This property returns all of the available presets.
+		parameters provided by the developer. This property returns all of the available factory presets.
 
 		Bridged to the v2 property kAudioUnitProperty_FactoryPresets.
 */
 @property (NS_NONATOMIC_IOSONLY, readonly, copy, nullable) NSArray<AUAudioUnitPreset *> *factoryPresets;
+
+/*!	@property	userPresets
+	@brief		A collection of presets saved by the user
+	@discussion
+		In addition to factory presets, provided by the audio unit vendor, users have the ability to
+		save the values of the parameters of an audio unit into a user preset. These users presets
+		can be accessed using this property.
+
+		The default implementation of this method will load the user presets from an internal
+		location that might not be directly accessible to the audio unit host application or to the
+		audio unit. Instead of accessing this path directly, the audio unit should rely on the
+		superclass implementation of this method to retrieve the presets.
+
+		Audio Units are free to override this method to load their user presets via different means
+		(e.g. from their iCloud container).
+*/
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSArray<AUAudioUnitPreset *> *userPresets API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*!	@method		saveUserPreset:userPreset:error
+	@brief		Persistently save the current state of the audio unit into a userPreset
+	@discussion
+		The new preset will be added to userPresets and will become selectable by assigning it
+		to the currentPreset property.
+		If a preset with the provided name already exists then it will be overwritten.
+
+		For user presets, the preset number is required to be negative.
+		If a positive number is passed, the sign will be changed to negative.
+		If zero is passed, the number will be set to -1.
+		These changes will be reflected on the userPreset argument.
+
+		The default implementation of this method will save the user preset to an internal
+		location.
+
+		Audio Units are free to override this method to operate on a different location (e.g. their
+		iCloud container).
+	@param	userPreset
+		The preset under which the current state will be saved.
+	@param outError
+		In the event of a failure, the method will return NO and outError will be set to an 
+		NSError, describing the problem. 
+		Some possible errors: 
+				- domain: NSOSStatusErrorDomain code: kAudioUnitErr_NoConnection
+				- domain: NSOSStatusErrorDomain	code: kAudioUnitErr_InvalidFilePath
+				- domain: NSOSStatusErrorDomain	code: kAudioUnitErr_MissingKey
+	@return
+		YES for success. NO in the event of a failure, in which case the error is returned in
+		outError.
+ */
+- (BOOL)saveUserPreset:(AUAudioUnitPreset *)userPreset error:(NSError **) outError API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*!	@method		deleteUserPreset:userPreset:error
+	@brief		Remove a user preset.
+	@discussion
+		The user preset will be removed from userPresets and will be permanently deleted.
+
+		The default implementation of this method will delete the user preset from an internal
+		location.
+
+		Audio Units are free to override this method to operate on a different location (e.g. their
+		iCloud container).
+	@param	userPreset
+		The preset to be deleted.
+	@param	outError
+		In the event of a failure, the method will return NO and outError will be set to an 
+		NSError, describing the problem. 
+		Some possible errors: 
+				- domain: NSOSStatusErrorDomain code: kAudioUnitErr_NoConnection
+				- domain: NSPOSIXErrorDomain	code: ENOENT
+				- domain: NSOSStatusErrorDomain	code: kAudioUnitErr_InvalidFilePath
+	@return
+		YES for success. NO in the event of a failure, in which case the error is returned in
+		outError.
+*/
+- (BOOL)deleteUserPreset:(AUAudioUnitPreset *)userPreset error:(NSError **) outError API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*! @method		presetStateFor:userPreset:error
+	@brief		Retrieve the state stored in a user preset
+ 	@discussion
+		This method allows access to the contents of a preset without having to set that preset as
+		current. The returned dictionary is assignable to the audio unit's fullState and/or
+		fullStateForDocument properties.
+ 
+		Audio units can override this method in order to vend user presets from a different location
+		(e.g. their iCloud container).
+
+		In order to restore the state from a user preset, the audio unit should override the setter
+		for the currentPreset property and check the preset number to determine the type of preset.
+		If the preset number is >= 0 then the preset is a factory preset.
+		If the preset number is < 0 then it is a user preset.
+
+		This method can then be called to retrieve the state stored in a user preset and the audio
+		unit can assign this to fullState or fullStateForDocument.
+
+	@param	userPreset
+		The preset to be selected.
+	@param	outError
+		In the event of a failure, the method will return nil and outError will be set to an 
+		NSError, describing the problem. 
+		Some possible errors: 
+				- domain: NSOSStatusErrorDomain code: kAudioUnitErr_NoConnection
+				- domain: NSPOSIXErrorDomain	code: ENOENT
+				- domain: NSCocoaErrorDomain	code: NSCoderReadCorruptError
+	@return
+		Returns nil if there was an error, otherwise returns a dictionary containing the full state
+		of the audio unit saved in the preset.
+		For details on the possible keys present in the full state dictionary, please see the
+		documentation for kAudioUnitProperty_ClassInfo.
+ 		The minimal set of keys and their type is:	@kAUPresetTypeKey : NSNumber,
+													@kAUPresetSubtypeKey : NSNumber,
+ 													@kAUPresetManufacturerKey : NSNumber,
+ 											   		@kAUPresetVersionKey : NSNumber,
+ 													@kAUPresetNameKey : NSString,
+ 													@kAUPresetNumberKey: NSNumber,
+													@kAUPresetDataKey : NSData
+*/
+- (nullable NSDictionary<NSString *, id> *)presetStateFor:(AUAudioUnitPreset *)userPreset error:(NSError **) outError API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*!	@property	supportsUserPresets
+	@brief		Specifies whether an audio unit supports loading and saving user presets
+	@discussion
+		The audio unit should set this property to YES if a user preset can be assigned to
+		currentPreset.
+
+		Audio unit host applications should query this property to determine whether the audio unit
+		supports user presets.
+
+		Assigning a user preset to the currentPreset property of an audio unit that does not support
+		restoring state from user presets may result in incorrect behavior.
+*/
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL supportsUserPresets API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*!	@property	isLoadedInProcess
+	@brief		Set to YES when an AUAudioUnit is loaded in-process
+	@discussion
+		If the AUAudioUnit is instantiated with kAudioComponentInstantiation_LoadInProcess, but the
+		audio unit is not packaged properly to support loading in-process, the system will silently
+		fall back to loading the audio unit out-of-process.
+
+		This property can be used to determine whether the instantiation succeeded as intended and
+		the audio unit is running in-process.
+
+		The presence of an extension process is not sufficient indication that the audio unit failed
+		to load in-process, since the framework might launch the audio unit extension process to
+		fulfill auxiliary functionality. If the audio unit is loaded in-process then rendering is
+		done in the host process. Other operations that are not essential to rendering audio, might
+		be done in the audio unit's extension process.
+*/
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL isLoadedInProcess API_AVAILABLE(macos(10.15)) API_UNAVAILABLE(ios, watchos, tvos);
 
 /*!	@property	currentPreset
 	@brief		The audio unit's last-selected preset.
@@ -10777,7 +10929,7 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 		Hosts can let the user select a preset by setting this property. Note that when getting
 		this property, it does not reflect whether parameters may have been modified since the
 		preset was selected.
-		
+
 		Bridged to the v2 property kAudioUnitProperty_PresentPreset.
 */
 @property (NS_NONATOMIC_IOSONLY, retain, nullable) AUAudioUnitPreset *currentPreset;
@@ -11066,7 +11218,7 @@ typedef void (^AUInputHandler)(AudioUnitRenderActionFlags *actionFlags, const Au
 /*!	@property	device
 	@brief		Get the I/O hardware device.
 */
-@property (nonatomic, readonly) AudioObjectID deviceID;
+@property (nonatomic, readonly) AUAudioObjectID deviceID;
 
 /*!	@method		setDeviceID:error:
 	@brief		Set the I/O hardware device.
@@ -11075,7 +11227,7 @@ typedef void (^AUInputHandler)(AudioUnitRenderActionFlags *actionFlags, const Au
 	@param outError
 		Returned in the event of failure.
 */
-- (BOOL)setDeviceID:(AudioObjectID)deviceID error:(NSError **)outError;
+- (BOOL)setDeviceID:(AUAudioObjectID)deviceID error:(NSError **)outError;
 
 /*!	@property	deviceInputLatency
 	@brief		The audio device's input latency, in seconds.
@@ -11133,7 +11285,7 @@ typedef void (^AUInputHandler)(AudioUnitRenderActionFlags *actionFlags, const Au
 		
 		The bus array is bridged to the v2 property kAudioUnitProperty_ElementCount.
 */
-OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface AUAudioUnitBusArray : NSObject <NSFastEnumeration>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -11191,7 +11343,7 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 /*!	@class	AUAudioUnitBus
 	@brief	An input or output connection point on an audio unit.
 */
-OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface AUAudioUnitBus : NSObject
 
 /*!	@property	format
@@ -11316,7 +11468,7 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 	@brief	A collection of parameter settings provided by the audio unit implementor, producing a
 			useful sound or starting point.
 */
-OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface AUAudioUnitPreset : NSObject <NSSecureCoding>
 
 /*!	@property	number
@@ -11334,11 +11486,16 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 NS_ASSUME_NONNULL_END
 
 #endif // __OBJC2__
+#endif // AudioToolbox_AUAudioUnit_h
+#else
+#include <AudioToolboxCore/AUAudioUnit.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AudioUnitProperties.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AudioUnitProperties.h>)
 /*!
 	@file		AudioUnitProperties.h
  	@framework	AudioToolbox.framework
- 	@copyright	(c) 2000-2015 Apple, Inc. All rights reserved.
+ 	@copyright	(c) 2000-2018 Apple, Inc. All rights reserved.
 	@abstract	Property ID's and accompanying structs used by Apple audio units.
 
 	@discussion
@@ -11387,15 +11544,7 @@ NS_ASSUME_NONNULL_END
 #ifndef AudioToolbox_AudioUnitProperties_h
 #define AudioToolbox_AudioUnitProperties_h
 
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <AudioToolbox/AUComponent.h>
-	#include <CoreAudio/CoreAudioTypes.h>
-	#include <CoreFoundation/CoreFoundation.h>
-#else
-	#include <AUComponent.h>
-	#include <CoreAudioTypes.h>
-	#include <CoreFoundation.h>
-#endif
+#include <AudioToolbox/AUComponent.h>
 
 CF_ASSUME_NONNULL_BEGIN
 
@@ -12155,7 +12304,7 @@ CF_ENUM(AudioUnitPropertyID)
 	kAudioUnitProperty_MIDIOutputCallback           = 48,
 };
 
-#if TARGET_OS_IPHONE
+#if AU_SUPPORT_INTERAPP_AUDIO
 /*
     @enum           Inter-App Audio Property IDs
     @abstract       Properties used in inter-app audio.
@@ -12193,7 +12342,7 @@ CF_ENUM(AudioUnitPropertyID)
 	kAudioUnitProperty_IsInterAppConnected			= 101,
 	kAudioUnitProperty_PeerURL						= 102
 };
-#endif
+#endif // AU_SUPPORT_INTERAPP_AUDIO
 
 
 
@@ -12209,6 +12358,7 @@ CF_ENUM(AudioUnitPropertyID)
 #define kAUPresetManufacturerKey	"manufacturer"
 #define kAUPresetDataKey			"data"
 #define kAUPresetNameKey			"name"
+#define kAUPresetNumberKey			"preset-number"
 #define kAUPresetRenderQualityKey	"render-quality"
 #define kAUPresetCPULoadKey			"cpu-load"
 #define kAUPresetElementNameKey		"element-name"
@@ -12238,11 +12388,11 @@ CF_ENUM(AudioUnitPropertyID)
     @abstract       This structure contains the information needed to make a connection between a source
 					and destination audio unit.
 	@discussion		The structure is set on the destination audio unit's input element
-    @field          sourceAudioUnit
+    @var            sourceAudioUnit
 						The audio unit that is the source for the connection
-    @field          sourceOutputNumber
+    @var            sourceOutputNumber
 						The source audio unit's output element to be used in the connection
-    @field          destInputNumber
+    @var            destInputNumber
 						The destination audio unit's input element to be used in the connection						
 */
 typedef struct AudioUnitConnection {
@@ -12281,10 +12431,10 @@ typedef struct AURenderCallbackStruct {
 /*!
 	@struct			AUPreset
 	@abstract		Used to publish and set factory presets on an audio unit
-	@field			presetNumber
+	@var  			presetNumber
 						If < 0, then preset is a user preset
 						If >= 0, then this field is used to select the factory preset
-	@field			presetName
+	@var  			presetName
 						If a factory preset, the name of the specified factory preset
 */
 typedef struct AUPreset {
@@ -12475,9 +12625,9 @@ typedef struct AUDependentParameter {
 /*!
 	@struct			AudioUnitCocoaViewInfo
 	@abstract		The location and class name of one or more view factory objects an Audio Unit publishes
-	@field			mCocoaAUViewBundleLocation
+	@var  			mCocoaAUViewBundleLocation
 						Contains the location of the bundle which the host app can then use to locate the bundle
-	@field			mCocoaAUViewClass
+	@var  			mCocoaAUViewClass
 						Contains the names of the classes that implements the required protocol (AUCocoaUIBase). This class is a view factory that creates the NSView object that is the AudioUnit view.
 */
 typedef struct AudioUnitCocoaViewInfo {
@@ -12536,9 +12686,9 @@ typedef struct AUInputSamplesInOutputCallbackStruct {
 	@struct			AudioUnitParameterHistoryInfo
 	@abstract		This structure contains the suggested update rate and history duration for parameters which have the kAudioUnitParameterFlag_PlotHistory flag set.
 					The structure is filled out by getting kAudioUnitProperty_ParameterHistoryInfo.
-	@field			updatesPerSecond
+	@var  			updatesPerSecond
 						This is the number of times per second that it is suggested that the host get the value of this parameter.
-	@field			historyDurationInSeconds
+	@var  			historyDurationInSeconds
 						This is the duration in seconds of history that should be plotted.
 */
 typedef struct AudioUnitParameterHistoryInfo
@@ -12657,12 +12807,29 @@ typedef CF_ENUM(UInt32, AudioUnitParameterUnit)
 	@constant		kAudioUnitParameterFlag_ValuesHaveStrings
 	@constant		kAudioUnitParameterFlag_DisplayLogarithmic		
 	@constant		kAudioUnitParameterFlag_IsHighResolution
+		This flag provides a hint to a host that this parameter should be controlled through the
+		highest resolution if the host has limitations on the control resolution of parameter
+		values. Generally this means that controlling this parameter with a single MIDI Control
+		message (i.e. 128 values) is too course a grain for that parameter, and a finer control
+		resolution should be used if possible. If this flag is not set, then a host can assume that
+		a 7-bit control quantization is acceptable. Ideally, parameters should be controlled in the
+		fullest resolution that they are published with.
 	@constant		kAudioUnitParameterFlag_NonRealTime
+		Changing the parameter in real-time will cause a glitch or otherwise undesirable effect.
 	@constant		kAudioUnitParameterFlag_CanRamp
+		If set, the parameter can be ramped.
 	@constant		kAudioUnitParameterFlag_ExpertMode
+		If set, the parameter is obscure (hint to UI to only display in expert mode).
 	@constant		kAudioUnitParameterFlag_HasCFNameString
+		In the original ParameterInfo a C string only was specified. With MacOS 10.2 and later, the
+		last four bytes of this string are reserved for a CFStringRef, which gives the ability to
+		used Unicode encoding, necessary for providing a name in languages using non-ASCII
+		characters. If this flag bit is set, the CFStringRef is valid.
 	@constant		kAudioUnitParameterFlag_IsGlobalMeta
+		If set, changing this parameter may change any number of others in the AudioUnit.
 	@constant		kAudioUnitParameterFlag_IsElementMeta
+		If set, changing this parameter may change others in the same element as the current
+		parameter.
 	@constant		kAudioUnitParameterFlag_IsReadable
 	@constant		kAudioUnitParameterFlag_IsWritable
 */
@@ -12700,22 +12867,22 @@ typedef CF_OPTIONS(UInt32, AudioUnitParameterOptions)
 
 /*!
 	@struct			AudioUnitParameterInfo
-	@field			name
+	@var  			name
 						UNUSED - set to zero - UTF8 encoded C string (originally). 
-	@field			unitName
+	@var  			unitName
 						only valid if kAudioUnitParameterUnit_CustomUnit is set. If kAudioUnitParameterUnit_CustomUnit
 						is set, this field must contain a valid CFString.
-	@field			clumpID
+	@var  			clumpID
 						only valid if kAudioUnitParameterFlag_HasClump
-	@field			cfNameString
+	@var  			cfNameString
 						only valid if kAudioUnitParameterFlag_HasCFNameString
-	@field			unit				
+	@var  			unit				
 						if the "unit" field contains a value not in the enum above, then assume 
 						kAudioUnitParameterUnit_Generic
-	@field			minValue
-	@field			maxValue
-	@field			defaultValue
-	@field			flags
+	@var  			minValue
+	@var  			maxValue
+	@var  			defaultValue
+	@var  			flags
 						Due to some vagaries about the ways in which Parameter's CFNames have been described, it was
 						necessary to add a flag: kAudioUnitParameterFlag_CFNameRelease
 						In normal usage a parameter name is essentially a static object, but sometimes an audio unit will 
@@ -12839,7 +13006,7 @@ typedef struct AudioUnitParameterValueFromString {
 } AudioUnitParameterValueFromString;
 
 
-#if TARGET_OS_IPHONE
+#if AU_SUPPORT_INTERAPP_AUDIO
 /*!
 	@enum			AudioUnitRemoteControlEvent
 	@abstract		In inter-app audio, messages to control the host's transport state.
@@ -12854,7 +13021,7 @@ typedef CF_ENUM(UInt32, AudioUnitRemoteControlEvent) {
 	@abstract		Block called to receive a remote control event.
 */
 typedef void (^AudioUnitRemoteControlEventListener)(AudioUnitRemoteControlEvent event);
-#endif
+#endif // AU_SUPPORT_INTERAPP_AUDIO
 
 //=====================================================================================================================
 #pragma mark - Configuration Info Keys
@@ -13398,18 +13565,17 @@ CF_ENUM(UInt32) {
 
 /*!
 	@struct			AudioUnitOtherPluginDesc
-	@discussion
 
-	@field			format
-	@discussion			One of the OtherPluginFormat values
+	@var			format
+					One of the OtherPluginFormat values
 						
-	@field			plugin
-	@discussion			struct AudioClassDescription {
+	@var			plugin
+						struct AudioClassDescription {
 							OSType mType;
 							OSType mSubType;
 							OSType mManufacturer;
 						};
-						is defined in <CoreAudio/CoreAudioTypes.h>
+						is defined in <CoreAudioTypes/CoreAudioTypes.h>
 
 					mType specifies a generic, plug-in format defined descriptor
 							mSubType is usually left to the manufacturer to use at their discretion
@@ -13554,7 +13720,7 @@ CF_ENUM(UInt32) {
 						Value Type: UInt32
 						Access:
 							See kAudioOutputUnitProperty_EnableIO
-							Property value is 1 if input or output is enabled on the specified element.
+							Property value is 1 if there are any valid hardware streams on the specified element.
 
 	@constant		kAudioOutputUnitProperty_StartTimestampsAtZero
 	@discussion			Scope: Global
@@ -13580,7 +13746,7 @@ CF_ENUM(AudioUnitPropertyID) {
 	kAudioOutputUnitProperty_StartTimestampsAtZero  = 2007	// this will also work with AUConverter
 };
 
-#if TARGET_OS_IPHONE
+#if AU_SUPPORT_INTERAPP_AUDIO
 /*!
     @enum           Apple Inter-App Output Property IDs
     @abstract       The collection of property IDs for Apple output units with inter-app audio on iOS.
@@ -13647,7 +13813,7 @@ typedef struct {
 	void (*MIDIEventProc)(void * __nullable userData, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
 	void (*MIDISysExProc)(void * __nullable userData, const UInt8 *inData, UInt32 inLength);
 } AudioOutputUnitMIDICallbacks;
-#endif // TARGET_OS_IPHONE
+#endif // AU_SUPPORT_INTERAPP_AUDIO
 
 /*!
 	@struct			AudioOutputUnitStartAtTimeParams
@@ -13862,12 +14028,12 @@ CF_ENUM(AudioUnitPropertyID) {
 /*!
 	@struct			AudioUnitMeterClipping
 	
-	@field			peakValueSinceLastCall; 
-	@discussion			The maximum value seen on the channel since the last time the property was retrieved.
-	@field			sawInfinity;
-	@discussion			TRUE if there was an infinite value on this channel.
-	@field			sawNotANumber
-	@discussion			TRUE if there was a floating point Not-A-Number value on this channel.
+	@var  			peakValueSinceLastCall; 
+						The maximum value seen on the channel since the last time the property was retrieved.
+	@var  			sawInfinity;
+						TRUE if there was an infinite value on this channel.
+	@var  			sawNotANumber
+						TRUE if there was a floating point Not-A-Number value on this channel.
 */
 typedef struct AudioUnitMeterClipping
 {
@@ -13883,36 +14049,36 @@ typedef struct AudioUnitMeterClipping
     @abstract       The collection of property IDs for AUSpatialMixer
     
     @constant		kAudioUnitProperty_ReverbRoomType
-	@discussion			Scope:			Global
+						Scope:			Global
 						Value Type:		UInt32
 						Access:			Read / Write
 						
 	@constant		kAudioUnitProperty_UsesInternalReverb
-	@discussion			Scope:			Global
+						Scope:			Global
 						Value Type:		UInt32
 						Access:			Read / Write
 						
 	@constant		kAudioUnitProperty_SpatializationAlgorithm
-	@discussion			Scope:			Input
+						Scope:			Input
 						Value Type:		UInt32
 						Access:			Read / Write
 						
 						Used to set the spatialisation algorithm used by an input of AUSpatialMixer. See kSpatializationAlgorithm_
 						
 	@constant		kAudioUnitProperty_SpatialMixerRenderingFlags
-	@discussion			Scope:			Input
+						Scope:			Input
 						Value Type:		UInt32
 						Access:			Read / Write
 
 						Used to enable various rendering operations on a given input for the 3DMixer. See k3DMixerRenderingFlags_
 						
 	@constant		kAudioUnitProperty_SpatialMixerAttenuationCurve
-	@discussion			Scope:			Input
+						Scope:			Input
 						Value Type:		UInt32
 						Access:			Read / Write
 
 	@constant		kAudioUnitProperty_SpatialMixerDistanceParams
-	@discussion			Scope:			Input
+						Scope:			Input
 						Value Type:		MixerDistanceParams
 						Access:			Read / Write
 */
@@ -14188,19 +14354,19 @@ CF_ENUM(AudioUnitPropertyID) {
     @abstract           bits in ScheduledAudioSlice.mFlags
 
     @constant       kScheduledAudioSliceFlag_Complete
-    @abstract           Set if the unit is done with this slice
+    		            Set if the unit is done with this slice
     @constant       kScheduledAudioSliceFlag_BeganToRender
-    @abstract           Set if any portion of the buffer has been played
+    		            Set if any portion of the buffer has been played
     @constant       kScheduledAudioSliceFlag_BeganToRenderLate
-    @abstract           Set if any portion of the buffer was not played because it was scheduled late
+    		            Set if any portion of the buffer was not played because it was scheduled late
     @constant       kScheduledAudioSliceFlag_Loop
-    @abstract           specifies that the buffer should loop indefinitely
+    		            specifies that the buffer should loop indefinitely
     @constant       kScheduledAudioSliceFlag_Interrupt
-    @abstract           specifies that the buffer should interrupt any previously scheduled buffer
+    		            specifies that the buffer should interrupt any previously scheduled buffer
                         (by default, buffers following a playing buffer are not played until the
                         playing buffer has completed).
     @constant       kScheduledAudioSliceFlag_InterruptAtLoop
-    @abstract           specifies that the buffer should interrupt any previously scheduled buffer,
+    		            specifies that the buffer should interrupt any previously scheduled buffer,
                         but only at a loop point in that buffer.
 
 */
@@ -14222,18 +14388,18 @@ typedef void (*ScheduledAudioSliceCompletionProc)(void * __nullable userData, Sc
 
 /*
 	@struct				ScheduledAudioSlice
-	@field				mTimeStamp
-	@field				mCompletionProc
+	@var  				mTimeStamp
+	@var  				mCompletionProc
 							May be null
-	@field				mCompletionProcUserData
-	@field				mFlags
-	@field				mReserved
+	@var  				mCompletionProcUserData
+	@var  				mFlags
+	@var  				mReserved
 							Must be 0
-	@field				mReserved2
+	@var  				mReserved2
 							For internal use
-	@field				mNumberFrames
+	@var  				mNumberFrames
 							Must be consistent with byte count of mBufferList
-	@field				mBufferList
+	@var  				mBufferList
 							Must contain deinterleaved Float32
 */
 struct ScheduledAudioSlice {
@@ -14389,18 +14555,18 @@ typedef void (*ScheduledAudioFileRegionCompletionProc)(void * __nullable userDat
 
 /*!
 	@struct			ScheduledAudioFileRegion
-	@field			mTimeStamp
-	@field			mCompletionProc
+	@var  			mTimeStamp
+	@var  			mCompletionProc
 						may be NULL
-	@field			mCompletionProcUserData
-	@field			mAudioFile
+	@var  			mCompletionProcUserData
+	@var  			mAudioFile
 						must be a valid and open AudioFileID
 						defined in AudioToolbox/AudioFile.h: typedef	struct OpaqueAudioFileID	*AudioFileID;
-	@field			mLoopCount
+	@var  			mLoopCount
 						0 = don't loop
-	@field			mStartFrame
+	@var  			mStartFrame
 						offset into file
-	@field			mFramesToPlay
+	@var  			mFramesToPlay
 						number of frames to play
 	
 */
@@ -14577,19 +14743,19 @@ CF_ENUM(AudioUnitPropertyID) {
  					percussion banks per the GM2 specification (GM-compatible DLS or Soundfont banks).  For custom
  					non-GM-compatible DLS and Soundfont banks, use the actual MSB/LSB values associated with the desired preset.
 
-	@field			fileURL
+	@var  			fileURL
 						The URL of the path to the bank or instrument file.   Caller is responsible for releasing the
  						provided CFURLRef.
-	@field			instrumentType
+	@var  			instrumentType
 						The type of instrument being loaded or created.  For example, use kInstrumentType_DLSPreset to load an
  						instrument from a DLS bank file.
-	@field			bankMSB
+	@var  			bankMSB
 						For the preset instruments, the most significant byte value for a particular bank variation within that
  						file.  Range is 0 to 127.  Use kAUSampler_DefaultMelodicBankMSB by default.
-	@field			bankLSB
+	@var  			bankLSB
 						For the preset instruments, the least significant byte value for a particular bank variation within that
  						file.  Range is 0 to 127.  Use kAUSampler_DefaultBankLSB by default.
-	@field			presetID
+	@var  			presetID
 						For the preset instruments, the numeric ID of a particular preset within that bank to load.
  						Range is 0 to 127.
  */
@@ -14964,6 +15130,9 @@ CF_ENUM(AudioUnitPropertyID) {
 CF_ASSUME_NONNULL_END
 
 #endif // AudioToolbox_AudioUnitProperties_h
+#else
+#include <AudioToolboxCore/AudioUnitProperties.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AudioServices.h
 /*!
 	@file		AudioServices.h
@@ -14984,20 +15153,14 @@ CF_ASSUME_NONNULL_END
 
 #include <TargetConditionals.h>
 #include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-    #if !TARGET_OS_IPHONE
-        #include <CoreAudio/AudioHardware.h>
-        #include <AudioToolbox/AudioHardwareService.h>
-    #elif TARGET_OS_IOS && !(0 && !TARGET_OS_SIMULATOR && !TARGET_OS_EMBEDDED)
-    	
-        #include <AudioToolbox/AudioSession.h>
-    #endif
-    #include <CoreFoundation/CoreFoundation.h>
-#else
-    #include <CFRunLoop.h>
-    #include <CFString.h>
-    #include <CFURL.h>
+#if !TARGET_OS_IPHONE
+    #include <CoreAudio/AudioHardware.h>
+    #include <AudioToolbox/AudioHardwareService.h>
+#elif TARGET_OS_IOS && !TARGET_OS_UIKITFORMAC
+    // AudioSession.h is deprecated and unavailable in UIKITFORMAC.
+    #include <AudioToolbox/AudioSession.h>
 #endif
+#include <CoreFoundation/CoreFoundation.h>
 
 //==================================================================================================
 CF_ASSUME_NONNULL_BEGIN
@@ -15063,7 +15226,7 @@ typedef UInt32      AudioServicesPropertyID;
                     called when a SystemSoundID has completed playback.
     @param          ssID
                         The SystemSoundID that completed playback
-    @param          userData
+    @param          clientData
                         Client application user data
 */
 typedef void
@@ -15091,8 +15254,8 @@ CF_ENUM(SystemSoundID)
         // this has been renamed to be consistent
     kUserPreferredAlert     = kSystemSoundID_UserPreferredAlert
 };
+#endif
 
-#else
 /*!
     @enum           AudioServices constants
     @constant       kSystemSoundID_Vibrate
@@ -15105,7 +15268,6 @@ CF_ENUM(SystemSoundID)
 {
     kSystemSoundID_Vibrate              = 0x00000FFF
 };
-#endif
 
 //==================================================================================================
 #pragma mark    AudioServices Properties
@@ -15152,7 +15314,8 @@ CF_ENUM(AudioServicesPropertyID)
 extern OSStatus 
 AudioServicesCreateSystemSoundID(   CFURLRef                    inFileURL,
                                     SystemSoundID*              outSystemSoundID)
-                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+                                                                ;
 	
 /*!
     @function       AudioServicesDisposeSystemSoundID
@@ -15165,7 +15328,8 @@ AudioServicesCreateSystemSoundID(   CFURLRef                    inFileURL,
 */
 extern OSStatus 
 AudioServicesDisposeSystemSoundID(SystemSoundID inSystemSoundID)                                    
-                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+                                                                ;
 
 /*!
     @function       AudioServicesPlayAlertSoundWithCompletion
@@ -15183,7 +15347,8 @@ AudioServicesDisposeSystemSoundID(SystemSoundID inSystemSoundID)
 extern void
 AudioServicesPlayAlertSoundWithCompletion(  SystemSoundID inSystemSoundID,
                                             void (^__nullable inCompletionBlock)(void))
-                                                                    API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
+                                                                    API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+                                                                    ;
                                                                 
 /*!
     @function       AudioServicesPlaySystemSoundWithCompletion
@@ -15199,7 +15364,8 @@ AudioServicesPlayAlertSoundWithCompletion(  SystemSoundID inSystemSoundID,
 extern void
 AudioServicesPlaySystemSoundWithCompletion(     SystemSoundID inSystemSoundID,
                                                 void (^__nullable inCompletionBlock)(void))
-                                                                        API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
+                                                                        API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+                                                                        ;
                                                                 
 /*!
     @function       AudioServicesGetPropertyInfo
@@ -15225,7 +15391,8 @@ AudioServicesGetPropertyInfo( AudioServicesPropertyID   inPropertyID,
                               const void * __nullable   inSpecifier,
                               UInt32 * __nullable       outPropertyDataSize,
                               Boolean * __nullable      outWritable)
-                                                                    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+                                                                    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+                                                                    ;
 
 /*!
     @function       AudioServicesGetProperty
@@ -15252,7 +15419,8 @@ AudioServicesGetProperty(   AudioServicesPropertyID         inPropertyID,
                             const void * __nullable         inSpecifier,
                             UInt32 *                        ioPropertyDataSize,
                             void * __nullable               outPropertyData)
-                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+                                                                ;
 
 /*!
     @function       AudioServicesSetProperty
@@ -15276,7 +15444,8 @@ AudioServicesSetProperty(   AudioServicesPropertyID             inPropertyID,
                             const void * __nullable             inSpecifier,
                             UInt32                              inPropertyDataSize,
                             const void *                        inPropertyData)
-                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+                                                                ;
                                                                 
 /*!
     This function will be deprecated in a future release. Use AudioServicesPlayAlertSoundWithCompletion instead.
@@ -15291,7 +15460,8 @@ AudioServicesSetProperty(   AudioServicesPropertyID             inPropertyID,
 */
 extern void 
 AudioServicesPlayAlertSound(SystemSoundID inSystemSoundID)                                          
-                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+                                                                ;
                                                                 
 /*!
     This function will be deprecated in a future release. Use AudioServicesPlaySystemSoundWithCompletion instead.
@@ -15304,7 +15474,8 @@ AudioServicesPlayAlertSound(SystemSoundID inSystemSoundID)
 */
 extern void 
 AudioServicesPlaySystemSound(SystemSoundID inSystemSoundID)                                         
-                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+                                                                API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+                                                                ;
                                                                 
 /*!
     This function will be deprecated in a future release. Use AudioServicesPlayAlertSoundWithCompletion 
@@ -15336,7 +15507,8 @@ AudioServicesAddSystemSoundCompletion(  SystemSoundID                           
                                     	CFStringRef __nullable                              inRunLoopMode,
                                     	AudioServicesSystemSoundCompletionProc              inCompletionRoutine,
                                     	void * __nullable                                   inClientData)
-                                                                    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+                                                                    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+                                                                    ;
 
 /*!
     This function will be deprecated in a future release. Use AudioServicesPlayAlertSoundWithCompletion
@@ -15352,7 +15524,8 @@ AudioServicesAddSystemSoundCompletion(  SystemSoundID                           
 */
 extern void 
 AudioServicesRemoveSystemSoundCompletion(SystemSoundID inSystemSoundID)                             
-                                                                    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+                                                                    API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+                                                                    ;
 
 CF_ASSUME_NONNULL_END
     
@@ -15362,6 +15535,7 @@ CF_ASSUME_NONNULL_END
 
 #endif /* AudioToolbox_AudioServices_h */
 // ==========  AudioToolbox.framework/Headers/AudioFormat.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AudioFormat.h>)
 /*!
 	@file		AudioFormat.h
 	@framework	AudioToolbox.framework
@@ -15378,11 +15552,7 @@ CF_ASSUME_NONNULL_END
 
 //	System Includes
 #include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <CoreAudio/CoreAudioTypes.h>
-#else
-	#include <CoreAudioTypes.h>
-#endif
+#include <CoreAudioTypes/CoreAudioTypes.h>
 
 CF_ASSUME_NONNULL_BEGIN
 
@@ -15417,16 +15587,16 @@ typedef CF_ENUM(UInt32, AudioPanningMode) {
 /*!
     @struct		AudioPanningInfo
     @abstract   This struct is for use with kAudioFormatProperty_PanningMatrix.
-    @field      mPanningMode			the PanningMode to be used for the pan
-    @field      mCoordinateFlags		the coordinates are specified as in the AudioChannelDescription struct in CoreAudioTypes.h
-    @field      mCoordinates			the coordinates are specified as in the AudioChannelDescription struct in CoreAudioTypes.h
-    @field      mGainScale				
+    @var        mPanningMode			the PanningMode to be used for the pan
+    @var        mCoordinateFlags		the coordinates are specified as in the AudioChannelDescription struct in CoreAudioTypes.h
+    @var        mCoordinates			the coordinates are specified as in the AudioChannelDescription struct in CoreAudioTypes.h
+    @var        mGainScale				
 					mGainScale is used to multiply the panning values.
 					In typical usage you are applying an existing volume.
 					value in 0 -> 1 (where 1 is unity gain) to the panned values.
 					1 would give you panning at unity.
 					0 would give you back a matrix of zeroes.
-    @field      mOutputChannelMap				
+    @var        mOutputChannelMap				
 					This is the channel map that is going to be used to determine channel volumes for this pan.
 */
 struct AudioPanningInfo {
@@ -15457,13 +15627,13 @@ typedef CF_ENUM(UInt32, AudioBalanceFadeType) {
 /*!
     @struct		AudioBalanceFade
     @abstract   this struct is used with kAudioFormatProperty_BalanceFade
-    @field      mLeftRightBalance 
+    @var        mLeftRightBalance 
 					-1 is full left, 0 is center, +1 is full right
-    @field      mBackFrontFade 
+    @var        mBackFrontFade 
 					-1 is full rear, 0 is center, +1 is full front
-    @field      mType 
+    @var        mType 
 					an AudioBalanceFadeType constant
-    @field      mChannelLayout 
+    @var        mChannelLayout 
 					a pointer to an AudioChannelLayout
 */
 struct AudioBalanceFade
@@ -15478,11 +15648,11 @@ typedef struct AudioBalanceFade AudioBalanceFade;
 /*!
     @struct		AudioFormatInfo
     @abstract   this struct is used as a specifier for the kAudioFormatProperty_FormatList property
-    @field      mASBD 
+    @var        mASBD 
 					an AudioStreamBasicDescription
-    @field      mMagicCookie 
+    @var        mMagicCookie 
 					a pointer to the decompression info for the data described in mASBD
-    @field      mMagicCookieSize 
+    @var        mMagicCookieSize 
 					the size in bytes of mMagicCookie
 */
 struct AudioFormatInfo
@@ -15496,13 +15666,13 @@ typedef struct AudioFormatInfo AudioFormatInfo;
 /*!
     @struct		ExtendedAudioFormatInfo
     @abstract   this struct is used as a specifier for the kAudioFormatProperty_FormatList property
-    @field      mASBD 
+    @var        mASBD 
 					an AudioStreamBasicDescription
-    @field      mMagicCookie 
+    @var        mMagicCookie 
 					a pointer to the decompression info for the data described in mASBD
-    @field      mMagicCookieSize 
+    @var        mMagicCookieSize 
 					the size in bytes of mMagicCookie
-	@field		mClassDescription
+	@var  		mClassDescription
 					an AudioClassDescription specifying the codec to be used in answering the question.
 */
 struct ExtendedAudioFormatInfo
@@ -15513,21 +15683,6 @@ struct ExtendedAudioFormatInfo
 	AudioClassDescription			mClassDescription;
 };
 typedef struct ExtendedAudioFormatInfo ExtendedAudioFormatInfo;
-
-/*!
-    @struct		AudioFormatListItem
-    @abstract   this struct is used as output from the kAudioFormatProperty_FormatList property
-    @field      mASBD 
-					an AudioStreamBasicDescription
-    @field      mChannelLayoutTag 
-					an AudioChannelLayoutTag
-*/
-struct AudioFormatListItem
-{
-	AudioStreamBasicDescription		mASBD;
-	AudioChannelLayoutTag			mChannelLayoutTag;
-};
-typedef struct AudioFormatListItem AudioFormatListItem;
 
 //=============================================================================
 //	Properties - for various format structures.
@@ -15557,6 +15712,13 @@ typedef struct AudioFormatListItem AudioFormatListItem;
 					the format to ask about. The value is a UInt32 where non-zero means
 					the format is externally framed. Any format which has variable byte sized packets
 					requires AudioStreamPacketDescriptions.
+    @constant   kAudioFormatProperty_FormatEmploysDependentPackets
+					Returns whether or not a format is capable of combining independently
+					decodable packets with dependent packets. The specifier is an
+					AudioStreamBasicDescription describing the format to ask about.
+					The value is a UInt32 where zero means that all packets in streams
+					of the specified format are independently decodable and non-zero means
+					that streams of the specified format may include dependent packets.
     @constant   kAudioFormatProperty_FormatIsEncrypted
                     Returns whether or not a format is encrypted. The specifier is a UInt32 format ID.
                     The value is a UInt32 where non-zero means the format is encrypted.
@@ -15755,6 +15917,7 @@ CF_ENUM(AudioFormatPropertyID)
 	kAudioFormatProperty_FirstPlayableFormatFromList	= 'fpfl',
 	kAudioFormatProperty_FormatIsVBR					= 'fvbr',	
 	kAudioFormatProperty_FormatIsExternallyFramed		= 'fexf',
+	kAudioFormatProperty_FormatEmploysDependentPackets  = 'fdep',
 	kAudioFormatProperty_FormatIsEncrypted				= 'cryp',
 	kAudioFormatProperty_Encoders						= 'aven',	
 	kAudioFormatProperty_Decoders						= 'avde',
@@ -15902,7 +16065,11 @@ CF_ENUM(OSStatus)
 CF_ASSUME_NONNULL_END
 
 #endif // AudioToolbox_AudioFormat_h
+#else
+#include <AudioToolboxCore/AudioFormat.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/CAFFile.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/CAFFile.h>)
 /*!
 	@file		CAFFile.h
 	@framework	AudioToolbox.framework
@@ -15913,18 +16080,11 @@ CF_ASSUME_NONNULL_END
 #ifndef AudioToolbox_CAFFile_h
 #define AudioToolbox_CAFFile_h
 
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <CoreAudio/CoreAudioTypes.h>
-#else
-	#include <CoreAudioTypes.h>
-#endif
+#include <CoreAudioTypes/CoreAudioTypes.h>
 
-#if TARGET_OS_WIN32
-#define ATTRIBUTE_PACKED
-#pragma pack(push, 1)
-#else
+
 #define ATTRIBUTE_PACKED __attribute__((__packed__))
-#endif
+
 
 // In a CAF File all of these types' byte order is big endian.
 // When reading or writing these values the program will need to flip byte order to native endian
@@ -15987,7 +16147,7 @@ typedef struct CAF_UUID_ChunkHeader CAF_UUID_ChunkHeader;
 
 
 // these are the flags if the format ID is 'lpcm'
-// <CoreAudio/CoreAudioTypes.h> declares some of the format constants 
+// <CoreAudioTypes/CoreAudioTypes.h> declares some of the format constants 
 // that can be used as Data Formats in a CAF file
 typedef CF_OPTIONS(UInt32, CAFFormatFlags)
 {
@@ -16265,13 +16425,15 @@ struct CAFUMIDChunk
 } ATTRIBUTE_PACKED;
 typedef struct CAFUMIDChunk CAFUMIDChunk;
 
-#if TARGET_OS_WIN32
-#pragma pack(pop)
-#endif
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 #endif // AudioToolbox_CAFFile_h
+#else
+#include <AudioToolboxCore/CAFFile.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AudioUnit.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AudioUnit.h>)
 /*!
 	@file		AudioUnit.h
  	@framework	AudioToolbox.framework
@@ -16284,42 +16446,71 @@ typedef struct CAFUMIDChunk CAFUMIDChunk;
 #define _AudioToolbox_AudioUnit_h
 
 #include <TargetConditionals.h>
+#ifndef AUDIO_UNIT_VERSION
 #define AUDIO_UNIT_VERSION 1070
+#endif
 
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <AudioToolbox/AudioComponent.h>
-	#include <AudioToolbox/AUComponent.h>
-	#include <AudioToolbox/AudioOutputUnit.h>
-	#include <AudioToolbox/AudioUnitProperties.h>
-	#include <AudioToolbox/AudioUnitParameters.h>
-	#include <AudioToolbox/MusicDevice.h>
+#include <AudioToolbox/AudioComponent.h>
+#include <AudioToolbox/AUComponent.h>
+#include <AudioToolbox/AudioOutputUnit.h>
+#include <AudioToolbox/AudioUnitProperties.h>
+#include <AudioToolbox/AudioUnitParameters.h>
+#include <AudioToolbox/MusicDevice.h>
 
-	#ifdef __OBJC2__
-		#import <AudioToolbox/AUAudioUnit.h>
-		#import <AudioToolbox/AUAudioUnitImplementation.h>
-		#import <AudioToolbox/AUParameters.h>
-	#endif
+#ifdef __OBJC2__
+	#import <AudioToolbox/AUAudioUnit.h>
+	#import <AudioToolbox/AUAudioUnitImplementation.h>
+	#import <AudioToolbox/AUParameters.h>
+#endif
 
-	#if !TARGET_OS_IPHONE	
-		#include <AudioToolbox/AudioCodec.h>
-	#endif
-
-#else
-	#include <AudioComponent.h>
-	#include <AUComponent.h>
-	#include <AudioOutputUnit.h>
-	#include <AudioUnitProperties.h>
-	#include <AudioUnitParameters.h>
-	#include <AudioCodec.h>
-	#include <MusicDevice.h>
+#if !TARGET_OS_IPHONE
+	#include <AudioToolbox/AudioCodec.h>
 #endif
 
 #endif /* _AudioToolbox_AudioUnit_h */
+#else
+#include <AudioToolboxCore/AudioUnit.h>
+#endif
+// ==========  AudioToolbox.framework/Headers/CAShow.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/CAShow.h>)
+/*!
+	@file		CAShow.h
+	@framework	AudioToolbox.framework
+	@copyright	(c) 2002-2018 by Apple, Inc., all rights reserved.
+	@abstract	Interfaces to log the internal state of various AudioToolbox objects.
+*/
+
+#ifndef AudioToolbox_CAShow_h
+#define AudioToolbox_CAShow_h
+
+#include <Availability.h>
+#include <os/base.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/// Print the internal state of an object to os_log.
+OS_EXPORT void CAShow(void *inObject) 
+											API_AVAILABLE(macos(10.2), ios(2.0), watchos(2.0), tvos(9.0));
+
+/// Print the internal state of an object to the supplied FILE*.
+OS_EXPORT void CAShowFile(void *inObject, FILE *inFile)
+											API_AVAILABLE(macos(10.2), ios(2.0), watchos(2.0), tvos(9.0));
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* AudioToolbox_CAShow_h */
+#else
+#include <AudioToolboxCore/CAShow.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AudioToolbox.h
 /*!
 	@file		AudioToolbox.h
 	@framework	AudioToolbox.framework
-	@copyright	(c) 2002-2015 by Apple, Inc., all rights reserved.
+	@copyright	(c) 2002-2018 by Apple, Inc., all rights reserved.
 	@abstract	Umbrella header for AudioToolbox framework.
 */
 
@@ -16331,63 +16522,39 @@ typedef struct CAFUMIDChunk CAFUMIDChunk;
 
 #include <Availability.h>
 #include <TargetConditionals.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <AudioToolbox/AUComponent.h>
-	#include <AudioToolbox/AUGraph.h>
-	#include <AudioToolbox/AudioComponent.h>
-	#include <AudioToolbox/AudioConverter.h>
-	#include <AudioToolbox/AudioFile.h>
-	#include <AudioToolbox/AudioFileStream.h>
-	#include <AudioToolbox/AudioFormat.h>
-	#include <AudioToolbox/AudioOutputUnit.h>
-	#include <AudioToolbox/AudioQueue.h>
-	#include <AudioToolbox/AudioServices.h>
-	#include <AudioToolbox/AudioUnitParameters.h>
-	#include <AudioToolbox/AudioUnitProperties.h>
-	#include <AudioToolbox/CAFFile.h>
-	#include <AudioToolbox/ExtendedAudioFile.h>
-	#include <AudioToolbox/MusicDevice.h>
-	#include <AudioToolbox/MusicPlayer.h>
 
-	#if !TARGET_OS_IPHONE
-		// OS X only
-		#include <AudioToolbox/AudioCodec.h>
-		#include <AudioToolbox/AudioFileComponent.h>
-		#include <AudioToolbox/AudioUnitUtilities.h>
-		#include <AudioToolbox/AUMIDIController.h>
-		#include <AudioToolbox/CoreAudioClock.h>
-	#endif
+#include <AudioToolbox/AudioCodec.h>
+#include <AudioToolbox/AUComponent.h>
+#include <AudioToolbox/AUGraph.h>
+#include <AudioToolbox/AudioComponent.h>
+#include <AudioToolbox/AudioConverter.h>
+#include <AudioToolbox/AudioFile.h>
+#include <AudioToolbox/AudioFileStream.h>
+#include <AudioToolbox/AudioFormat.h>
+#include <AudioToolbox/AudioOutputUnit.h>
+#include <AudioToolbox/AudioQueue.h>
+#include <AudioToolbox/AudioServices.h>
+#include <AudioToolbox/AudioUnitParameters.h>
+#include <AudioToolbox/AudioUnitProperties.h>
+#include <AudioToolbox/CAFFile.h>
+#include <AudioToolbox/CAShow.h>
+#include <AudioToolbox/ExtendedAudioFile.h>
+#include <AudioToolbox/MusicDevice.h>
+#include <AudioToolbox/MusicPlayer.h>
 
-	#ifdef __OBJC2__
-		// iOS (all architectures), OS X 64-bit only
-		#import <AudioToolbox/AUAudioUnit.h>
-		#import <AudioToolbox/AUAudioUnitImplementation.h>
-		#import <AudioToolbox/AUParameters.h>
-	#endif
+#if !TARGET_OS_IPHONE
+	// OS X only
+	#include <AudioToolbox/AudioFileComponent.h>
+	#include <AudioToolbox/AudioUnitUtilities.h>
+	#include <AudioToolbox/AUMIDIController.h>
+	#include <AudioToolbox/CoreAudioClock.h>
+#endif
 
-#else
-	#include <AUComponent.h>
-	#include <AUGraph.h>
-	#include <AudioComponent.h>
-	#include <AudioConverter.h>
-	#include <AudioFile.h>
-	#include <AudioFileComponent.h>
-	#include <AudioFileStream.h>
-	#include <AudioFormat.h>
-	#include <AudioOutputUnit.h>
-	#include <AudioQueue.h>
-	#include <AudioServices.h>
-	#include <AudioUnitParameters.h>
-	#include <AudioUnitProperties.h>
-	#include <CAFFile.h>
-	#include <ExtendedAudioFile.h>
-	#include <MusicDevice.h>
-	#include <MusicPlayer.h>
-
-	#include <AudioCodec.h>
-	#include <AudioUnitUtilities.h>
-	#include <AUMIDIController.h>
-	#include <CoreAudioClock.h>
+#ifdef __OBJC2__
+	// iOS (all architectures), OS X 64-bit only
+	#import <AudioToolbox/AUAudioUnit.h>
+	#import <AudioToolbox/AUAudioUnitImplementation.h>
+	#import <AudioToolbox/AUParameters.h>
 #endif
 
 /*!	@mainpage
@@ -16423,19 +16590,11 @@ extern "C"
 {
 #endif
 
-// prints out the internal state of an object to stdio
-extern void CAShow (void* inObject) 
-											API_AVAILABLE(macos(10.2), ios(2.0), watchos(2.0), tvos(9.0));
-
-// prints out the internal state of an object to the supplied FILE
-extern void CAShowFile (void* inObject, FILE* inFile) 
-											API_AVAILABLE(macos(10.2), ios(2.0), watchos(2.0), tvos(9.0));
-	
 #if !TARGET_OS_IPHONE
 // this will return the name of a sound bank from a sound bank file
 // the name should be released by the caller
 struct FSRef;
-extern OSStatus GetNameFromSoundBank (const struct FSRef *inSoundBankRef, CFStringRef __nullable * __nonnull outName)
+OS_EXPORT OSStatus GetNameFromSoundBank (const struct FSRef *inSoundBankRef, CFStringRef __nullable * __nonnull outName)
 											API_DEPRECATED("no longer supported", macos(10.2, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
 #endif
 
@@ -16452,7 +16611,7 @@ extern OSStatus GetNameFromSoundBank (const struct FSRef *inSoundBankRef, CFStri
     @result			returns noErr if successful.
 */
 
-extern OSStatus
+OS_EXPORT OSStatus
 CopyNameFromSoundBank (CFURLRef inURL, CFStringRef __nullable * __nonnull outName)
 											API_AVAILABLE(macos(10.5), ios(7.0), watchos(2.0), tvos(9.0));
 
@@ -16480,7 +16639,8 @@ CopyNameFromSoundBank (CFURLRef inURL, CFStringRef __nullable * __nonnull outNam
     @result			returns noErr if successful.
 */
 
-extern OSStatus CopyInstrumentInfoFromSoundBank (CFURLRef inURL, CFArrayRef __nullable * __nonnull outInstrumentInfo)
+OS_EXPORT OSStatus
+CopyInstrumentInfoFromSoundBank (CFURLRef inURL, CFArrayRef __nullable * __nonnull outInstrumentInfo)
 														API_AVAILABLE(macos(10.8), ios(7.0), watchos(2.0), tvos(9.0));
 	
 #define kInstrumentInfoKey_Name		"name"
@@ -16496,6 +16656,7 @@ CF_ASSUME_NONNULL_END
 
 #endif // AudioToolbox_AudioToolbox_h
 // ==========  AudioToolbox.framework/Headers/AudioFile.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AudioFile.h>)
 /*!
 	@file		AudioFile.h
 	@framework	AudioToolbox.framework
@@ -16511,13 +16672,8 @@ CF_ASSUME_NONNULL_END
 //=============================================================================
 
 #include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <CoreAudio/CoreAudioTypes.h>
-	#include <CoreFoundation/CoreFoundation.h>
-#else
-	#include <CoreAudioTypes.h>
-	#include <CoreFoundation.h>
-#endif
+#include <CoreAudioTypes/CoreAudioTypes.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 CF_ASSUME_NONNULL_BEGIN
 
@@ -16569,6 +16725,9 @@ typedef UInt32 AudioFileTypeID;
     @constant   kAudioFileAMRType
     @constant   kAudioFileFLACType
                     Free Lossless Audio Codec
+    @constant   kAudioFileLATMInLOASType
+                    Low-overhead audio stream with low-overhead audio transport multiplex, per ISO/IEC 14496-3.
+                    Support is limited to AudioSyncStream using AudioMuxElement with mux config present.
 */
 CF_ENUM(AudioFileTypeID) {
         kAudioFileAIFFType				= 'AIFF',
@@ -16589,7 +16748,8 @@ CF_ENUM(AudioFileTypeID) {
 		kAudioFile3GPType				= '3gpp',
 		kAudioFile3GP2Type				= '3gp2',		
 		kAudioFileAMRType				= 'amrf',
-		kAudioFileFLACType				= 'flac'
+		kAudioFileFLACType				= 'flac',
+		kAudioFileLATMInLOASType		= 'loas'
 };
 
 /*!
@@ -16617,6 +16777,9 @@ CF_ENUM(AudioFileTypeID) {
     @constant   kAudioFileInvalidPacketOffsetError 
 		A packet offset was past the end of the file, or not at the end of the file when writing a VBR format, 
 		or a corrupt packet size was read when building the packet table. 
+    @constant   kAudioFileInvalidPacketDependencyError
+		Either the packet dependency info that's necessary for the audio format has not been provided,
+		or the provided packet dependency info indicates dependency on a packet that's unavailable.
     @constant   kAudioFileInvalidFileError 
 		The file is malformed, or otherwise not a valid instance of an audio file of its type. 
     @constant   kAudioFileOperationNotSupportedError 
@@ -16643,6 +16806,7 @@ CF_ENUM(OSStatus) {
         kAudioFileInvalidChunkError						= 'chk?',		// 0x63686B3F, 1667787583
         kAudioFileDoesNotAllow64BitDataSizeError		= 'off?',		// 0x6F66663F, 1868981823
         kAudioFileInvalidPacketOffsetError				= 'pck?',		// 0x70636B3F, 1885563711
+        kAudioFileInvalidPacketDependencyError			= 'dep?',		// 0x6465703F, 1684369471
         kAudioFileInvalidFileError						= 'dta?',		// 0x6474613F, 1685348671
 		kAudioFileOperationNotSupportedError			= 0x6F703F3F, 	// 'op??', integer used because of trigraph
 		// general file error codes
@@ -16716,11 +16880,11 @@ CF_ENUM(UInt32) {
 /*!
     @struct		AudioFile_SMPTE_Time
     @abstract   A struct for describing a SMPTE time.
-    @field      mHours						The hours.
-    @field      mMinutes					The minutes.
-    @field      mSeconds					The seconds.
-    @field      mFrames						The frames.
-    @field      mSubFrameSampleOffset		The sample offset within a frame.
+    @var        mHours						The hours.
+    @var        mMinutes					The minutes.
+    @var        mSeconds					The seconds.
+    @var        mFrames						The frames.
+    @var        mSubFrameSampleOffset		The sample offset within a frame.
 */
 struct AudioFile_SMPTE_Time
 {
@@ -16747,13 +16911,13 @@ CF_ENUM(UInt32) {
     @struct		AudioFileMarker
     @abstract   A marker annotates a position in an audio file with additional information.
     @discussion (description)
-    @field      mFramePosition	The frame in the file counting from the start of the audio data.
-    @field      mName			The name of this marker.
-    @field      mMarkerID		A unique ID for this marker.
-    @field      mSMPTETime		The SMPTE time for this marker.
-    @field      mType			The marker type.
-    @field      mReserved		A reserved field. Set to zero.
-    @field      mChannel		The channel number that the marker refers to. Set to zero if marker applies to all channels.
+    @var        mFramePosition	The frame in the file counting from the start of the audio data.
+    @var        mName			The name of this marker.
+    @var        mMarkerID		A unique ID for this marker.
+    @var        mSMPTETime		The SMPTE time for this marker.
+    @var        mType			The marker type.
+    @var        mReserved		A reserved field. Set to zero.
+    @var        mChannel		The channel number that the marker refers to. Set to zero if marker applies to all channels.
 */
 struct AudioFileMarker
 {
@@ -16772,11 +16936,11 @@ typedef struct AudioFileMarker AudioFileMarker;
 /*!
     @struct		AudioFileMarkerList
     @abstract   A list of AudioFileMarker.
-    @field      mSMPTE_TimeType
+    @var        mSMPTE_TimeType
 					This defines the SMPTE timing scheme used in the marker list. See CAFFile.h for the values used here.
-    @field      mNumberMarkers
+    @var        mNumberMarkers
 					The number of markers in the mMarkers list.
-    @field      mMarkers
+    @var        mMarkers
 					A list of AudioFileMarker.
 */
 struct AudioFileMarkerList
@@ -16849,15 +17013,15 @@ typedef CF_OPTIONS(UInt32, AudioFileRegionFlags) {
     @abstract   An AudioFileRegion specifies a segment of audio data.
     @discussion Generally a region consists of at least two markers marking the beginning and end of the segment.
 				There may also be other markers defining other meta information such as sync point.
-    @field      mRegionID 
+    @var        mRegionID 
 					each region must have a unique ID.
-    @field      mName 
+    @var        mName 
 					The name of the region.
-    @field      mFlags 
+    @var        mFlags 
 					AudioFileRegionFlags.
-    @field      mNumberMarkers 
+    @var        mNumberMarkers 
 					The number of markers in the mMarkers array.
-    @field      mMarkers 
+    @var        mMarkers 
 					A variable length array of AudioFileMarkers.
 */
 struct AudioFileRegion
@@ -16875,11 +17039,11 @@ typedef struct AudioFileRegion AudioFileRegion;
     @struct		AudioFileRegionList
     @abstract   A list of the AudioFileRegions in a file.
     @discussion This is the struct used by the kAudioFilePropertyRegionList property.
-    @field      mSMPTE_TimeType
+    @var        mSMPTE_TimeType
 					This defines the SMPTE timing scheme used in the file. See CAFFile.h for the values used here.
-    @field      mNumberRegions
+    @var        mNumberRegions
 					The number of regions in the mRegions list.
-    @field      mRegions
+    @var        mRegions
 					A list of AudioFileRegions. Note that AudioFileMarkers are variable length, so this list cannot 
 					be accessed as an array. Use the NextAudioFileRegion macro for traversing the list instead.
 */
@@ -16901,6 +17065,10 @@ typedef struct AudioFileRegionList AudioFileRegionList;
     @result     a pointer to the region after the current region. This does not protect you from walking off the end of the list, 
 				so obey mNumberRegions.
 */
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wcast-qual"
+#pragma clang diagnostic ignored "-Wcast-align"
 #ifdef CF_INLINE
 CF_INLINE AudioFileRegion *NextAudioFileRegion(const AudioFileRegion *inAFRegionPtr)
 {
@@ -16910,14 +17078,15 @@ CF_INLINE AudioFileRegion *NextAudioFileRegion(const AudioFileRegion *inAFRegion
 #define NextAudioFileRegion(inAFRegionPtr) \
         ((AudioFileRegion*)((char*)(inAFRegionPtr) + offsetof(AudioFileRegion, mMarkers) + ((inAFRegionPtr)->mNumberMarkers)*sizeof(AudioFileMarker)))
 #endif
+#pragma clang diagnostic pop
 
 /*!
     @struct		AudioFramePacketTranslation
     @abstract   used for properties kAudioFilePropertyPacketToFrame and kAudioFilePropertyFrameToPacket
     @discussion See description of kAudioFilePropertyPacketToFrame and kAudioFilePropertyFrameToPacket
-    @field      mFrame		a frame number.
-    @field      mPacket		a packet number.
-    @field      mFrameOffsetInPacket		a frame offset in a packet.
+    @var        mFrame		a frame number.
+    @var        mPacket		a packet number.
+    @var        mFrameOffsetInPacket		a frame offset in a packet.
 */
 struct AudioFramePacketTranslation
 {
@@ -16945,10 +17114,10 @@ typedef CF_OPTIONS(UInt32, AudioBytePacketTranslationFlags) {
     @struct		AudioBytePacketTranslation
     @abstract   used for properties kAudioFileByteToPacket and kAudioFilePacketToByte
     @discussion See description of kAudioFileByteToPacket and kAudioFilePacketToByte
-    @field      mByte		a byte number.
-    @field      mPacket		a packet number.
-    @field      mByteOffsetInPacket		a byte offset in a packet.
-    @field      mFlags		if kBytePacketTranslationFlag_IsEstimate is set, then the value is an estimate.
+    @var        mByte		a byte number.
+    @var        mPacket		a packet number.
+    @var        mByteOffsetInPacket		a byte offset in a packet.
+    @var        mFlags		if kBytePacketTranslationFlag_IsEstimate is set, then the value is an estimate.
 */
 struct AudioBytePacketTranslation
 {
@@ -16970,9 +17139,9 @@ typedef struct AudioBytePacketTranslation AudioBytePacketTranslation;
 				discarded. The total number of packets in the file times the frames per packet (or counting each packet's frames 
 				individually for a variable frames per packet format) minus mPrimingFrames, minus mRemainderFrames, should 
 				equal mNumberValidFrames.
-    @field      mNumberValidFrames the number of valid frames in the file.
-    @field      mPrimingFrames the number of invalid frames at the beginning of the file.
-    @field      mRemainderFrames the number of invalid frames at the end of the file.
+    @var        mNumberValidFrames the number of valid frames in the file.
+    @var        mPrimingFrames the number of invalid frames at the beginning of the file.
+    @var        mRemainderFrames the number of invalid frames at the end of the file.
 */
 struct AudioFilePacketTableInfo
 {
@@ -16981,6 +17150,71 @@ struct AudioFilePacketTableInfo
         SInt32  mRemainderFrames;
 };
 typedef struct AudioFilePacketTableInfo AudioFilePacketTableInfo;
+
+
+/*!
+    @struct	AudioPacketRangeByteCountTranslation
+    @abstract   used for property kAudioFilePropertyPacketRangeByteCountUpperBound
+    @discussion See description of kAudioFilePropertyPacketRangeByteCountUpperBound
+    @var        mPacket					a packet number.
+    @var        mPacketCount			a packet count.
+    @var        mByteCountUpperBound	an upper bound for the total size of the specified packets.
+*/
+struct AudioPacketRangeByteCountTranslation
+{
+	SInt64 mPacket;
+	SInt64 mPacketCount;
+	SInt64 mByteCountUpperBound;
+};
+typedef struct AudioPacketRangeByteCountTranslation AudioPacketRangeByteCountTranslation;
+
+
+/*!
+    @struct		AudioPacketRollDistanceTranslation
+    @abstract   used for property kAudioFilePropertyPacketToRollDistance
+    @discussion See descriptions of kAudioFilePropertyPacketToRollDistance and kAudioFilePropertyRestrictsRandomAccess
+    @var        mPacket         a packet number
+    @var        mRollDistance   a count of packets that must be decoded prior to the packet with the specified number in order to achieve the best practice for the decoding of that packet
+*/
+struct AudioPacketRollDistanceTranslation
+{
+	SInt64 mPacket;
+	SInt64 mRollDistance;
+};
+typedef struct AudioPacketRollDistanceTranslation AudioPacketRollDistanceTranslation;
+
+
+/*!
+    @struct		AudioIndependentPacketTranslation
+    @abstract   used for property kAudioFilePropertyPreviousIndependentPacket and kAudioFilePropertyNextIndependentPacket
+    @discussion See descriptions of kAudioFilePropertyPreviousIndependentPacket and kAudioFilePropertyNextIndependentPacket
+    @var        mPacket                         a packet number
+    @var        mIndependentlyDecodablePacket   a packet number not equal to mPacket of an independent packet
+*/
+struct AudioIndependentPacketTranslation
+{
+	SInt64 mPacket;
+	SInt64 mIndependentlyDecodablePacket;
+};
+typedef struct AudioIndependentPacketTranslation AudioIndependentPacketTranslation;
+
+
+/*!
+    @struct		AudioPacketDependencyInfoTranslation
+    @abstract   used for property kAudioFilePropertyPacketToDependencyInfo
+    @discussion See descriptions of kAudioFilePropertyPacketToDependencyInfo and kAudioFilePropertyRestrictsRandomAccess
+    @var        mPacket                     a packet number
+    @var        mIsIndependentlyDecodable   1 means that the specified packet is independently decodable; 0 means it's not
+    @var        mNumberPrerollPackets       if the packet is independently decodable, the count of packets that must be decoded after the packet with the specified number in order to refresh the decoder
+*/
+struct AudioPacketDependencyInfoTranslation
+{
+	SInt64 mPacket;
+	UInt32 mIsIndependentlyDecodable;
+	UInt32 mNumberPrerollPackets;
+};
+typedef struct AudioPacketDependencyInfoTranslation AudioPacketDependencyInfoTranslation;
+
 
 //=============================================================================
 //	Info String Keys
@@ -17475,6 +17709,35 @@ AudioFileRemoveUserData ( AudioFileID		inAudioFile,
     @constant   kAudioFilePropertyFrameToPacket 
 					pass a AudioFramePacketTranslation with mFrame filled out and get mPacket and mFrameOffsetInPacket back.
 					
+    @constant   kAudioFilePropertyRestrictsRandomAccess
+					A UInt32 indicating whether an Audio File contains packets that cannot be used as random access points.
+					A value of 0 indicates that any packet can be used as a random access point, i.e. that a decoder can start decoding with any packet.
+					A value of 1 indicates that some packets cannot be used as random access points, i.e. that kAudioFilePropertyPacketToRollDistance must be employed in order to identify an appropriate initial packet for decoding.
+    @constant   kAudioFilePropertyPacketToRollDistance
+					Pass an AudioPacketRollDistanceTranslation with mPacket filled out and get mRollDistance back.
+					The roll distance indicates the count of packets that must be decoded prior to the packet with the specified number in order to achieve the best practice for the decoding of that packet.
+					For file types for which a minimal roll distance is prohibitively expensive to determine per packet, the value returned may be derived from an upper bound for all packet roll distances.
+					If the value of kAudioFilePropertyRestrictsRandomAccess is 1, either kAudioFilePropertyPacketToRollDistance
+					or kAudioFilePropertyPacketToDependencyInfo must be used in order to identify an appropriate random access point.
+					If the value of kAudioFilePropertyRestrictsRandomAccess is 0, kAudioFilePropertyPacketToRollDistance can be used in
+					order to identify the best available random access point, which may be prior to the specified packet even if the specified
+					packet can be used as a random access point.
+    @constant   kAudioFilePropertyPreviousIndependentPacket
+    @constant   kAudioFilePropertyNextIndependentPacket
+					Pass an AudioIndependentPacketTranslation with mPacket filled out and get mIndependentlyDecodablePacket back.
+					A value of -1 means that no independent packet is present in the stream in the direction of interest. Otherwise,
+					for kAudioFilePropertyPreviousIndependentPacket, mIndependentlyDecodablePacket will be less than mPacket, and
+					for kAudioFilePropertyNextIndependentPacket, mIndependentlyDecodablePacket will be greater than mPacket.
+    @constant   kAudioFilePropertyPacketToDependencyInfo
+					Pass an AudioPacketDependencyInfoTranslation with mPacket filled out and get mIsIndependentlyDecodable
+					and mPrerollPacketCount back.
+					A value of 0 for mIsIndependentlyDecodable indicates that the specified packet is not independently decodable.
+					A value of 1 for mIsIndependentlyDecodable indicates that the specified packet is independently decodable.
+					For independently decodable packets, mPrerollPacketCount indicates the count of packets that must be decoded
+					after the packet with the specified number in order to refresh the decoder.
+					If the value of kAudioFilePropertyRestrictsRandomAccess is 1, either kAudioFilePropertyPacketToRollDistance or
+					kAudioFilePropertyPacketToDependencyInfo must be used in order to identify an appropriate random access point.
+
 	@constant	kAudioFilePropertyPacketToByte
 					pass an AudioBytePacketTranslation struct with mPacket filled out and get mByte back.
 					mByteOffsetInPacket is ignored. If the mByte value is an estimate then 
@@ -17499,6 +17762,15 @@ AudioFileRemoveUserData ( AudioFileID		inAudioFile,
 	@constant	kAudioFilePropertyPacketSizeUpperBound
 					a UInt32 for the theoretical maximum packet size in the file (without actually scanning
 					the whole file to find the largest packet, as may happen with kAudioFilePropertyMaximumPacketSize).
+    @constant   kAudioFilePropertyPacketRangeByteCountUpperBound
+					Pass an AudioPacketRangeByteCountTranslation with mPacket and mPacketCount filled out
+					and get mByteCountUpperBound back. The value of mByteCountUpperBound can be used to allocate a buffer
+					for use with AudioFileReadPacketData in order to accommodate the entire packet range.
+					May require scanning in order to obtain the requested information, but even if so, no scanning will occur
+					beyond the last packet in the specified range.
+					For file formats in which packets are directly accessible and stored both contiguously and byte-aligned,
+					the returned upper bound will be equal to the total size of the packets in the range. Otherwise the
+					upper bound may reflect per-packet storage overhead.
 	@constant	kAudioFilePropertyReserveDuration
 					The value is a Float64 of the duration in seconds of data that is expected to be written.
 					Setting this property before any data has been written reserves space in the file header for a packet table 
@@ -17542,6 +17814,11 @@ CF_ENUM(AudioFilePropertyID)
 	kAudioFilePropertyRegionList			=	'rgls',
 	kAudioFilePropertyPacketToFrame			=	'pkfr',
 	kAudioFilePropertyFrameToPacket			=	'frpk',
+	kAudioFilePropertyRestrictsRandomAccess	=	'rrap',
+	kAudioFilePropertyPacketToRollDistance	=	'pkrl',
+	kAudioFilePropertyPreviousIndependentPacket	= 'pind',
+	kAudioFilePropertyNextIndependentPacket	=	'nind',
+	kAudioFilePropertyPacketToDependencyInfo =	'pkdp',
 	kAudioFilePropertyPacketToByte			=	'pkby',
 	kAudioFilePropertyByteToPacket			=	'bypk',
 	kAudioFilePropertyChunkIDs				=	'chid',
@@ -17549,6 +17826,7 @@ CF_ENUM(AudioFilePropertyID)
 	kAudioFilePropertyPacketTableInfo		=	'pnfo',
 	kAudioFilePropertyFormatList			=	'flst',
 	kAudioFilePropertyPacketSizeUpperBound  =	'pkub',
+	kAudioFilePropertyPacketRangeByteCountUpperBound = 'prub',
 	kAudioFilePropertyReserveDuration		=	'rsrv',
 	kAudioFilePropertyEstimatedDuration		=	'edur',
 	kAudioFilePropertyBitRate				=	'brat',
@@ -17731,9 +18009,9 @@ CF_ENUM(AudioFilePropertyID)
     @abstract   This is used as a specifier for kAudioFileGlobalInfo_AvailableStreamDescriptions
     @discussion This struct is used to specify a desired audio file type and data format ID  so
 				that a list of stream descriptions of available formats can be obtained.
-    @field      mFileType
+    @var        mFileType
 					a four char code for the file type such as kAudioFileAIFFType, kAudioFileCAFType, etc.
-    @field      mFormatID
+    @var        mFormatID
 					a four char code for the format ID such as kAudioFormatLinearPCM, kAudioFormatMPEG4AAC, etc.
 */
 struct AudioFileTypeAndFormatID
@@ -17859,7 +18137,11 @@ AudioFileOpen (	const struct FSRef		*inFileRef,
 CF_ASSUME_NONNULL_END
 
 #endif // AudioToolbox_AudioFile_h
+#else
+#include <AudioToolboxCore/AudioFile.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AUParameters.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AUParameters.h>)
 /*!
 	@file		AUParameters.h
  	@framework	AudioToolbox.framework
@@ -17868,7 +18150,9 @@ CF_ASSUME_NONNULL_END
 	@brief		Objects representing an AUAudioUnit's tree of parameters.
 */
 
-#if __OBJC2__
+#ifndef AudioToolbox_AUParameters_h
+#define AudioToolbox_AUParameters_h
+#ifdef __OBJC2__
 
 #import <AudioToolbox/AUComponent.h>
 #import <AudioToolbox/AudioUnitProperties.h>
@@ -17983,7 +18267,7 @@ typedef void *AUParameterObserverToken;
 	@discussion
 		Nodes are instances of either AUParameterGroup or AUParameter.
 */
-OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface AUParameterNode : NSObject
 
 /*!	@property	identifier
@@ -18094,7 +18378,7 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 		A parameter group is KVC-compliant for its children; e.g. valueForKey:@"volume" will
 		return a child parameter whose identifier is "volume".
 */
-OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface AUParameterGroup : AUParameterNode <NSSecureCoding>
 
 /// The group's child nodes (AUParameterGroupNode).
@@ -18122,7 +18406,7 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 		mostly immutable (except for values and implementor hooks); the only way to modify them
 		is to publish a new tree.
 */
-OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface AUParameterTree : AUParameterGroup <NSSecureCoding>
 
 /*!	@method	parameterWithAddress:
@@ -18152,7 +18436,7 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 /*!	@class	AUParameter
 	@brief	A node representing a single parameter.
 */
-OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface AUParameter : AUParameterNode <NSSecureCoding>
 
 /// The parameter's minimum value.
@@ -18226,6 +18510,10 @@ OS_EXPORT API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 NS_ASSUME_NONNULL_END
 
 #endif // __OBJC2__
+#endif // AudioToolbox_AUParameters_h
+#else
+#include <AudioToolboxCore/AUParameters.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AudioSession.h
 /*==================================================================================================
  File:       AudioToolbox/AudioSession.h
@@ -18808,7 +19096,7 @@ extern "C"
 		kAudioSessionProperty_OutputDestination                     = 'odst',   // CFNumberRef      (get/set)
 		kAudioSessionProperty_InputGainAvailable                    = 'igav',   // UInt32           (get only/property listener)
 		kAudioSessionProperty_InputGainScalar                       = 'igsc',   // Float32          (get/set/property listener)
-		kAudioSessionProperty_AudioRouteDescription                 = 'crar'    // CFDictionaryRef  (get only)
+		kAudioSessionProperty_AudioRouteDescription                 = 'crar'   // CFDictionaryRef  (get only)
 	};
     
 	//==================================================================================================
@@ -19090,6 +19378,7 @@ extern "C"
 #endif /* __AudioSession_h__ */
 
 // ==========  AudioToolbox.framework/Headers/AudioUnitParameters.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AudioUnitParameters.h>)
 /*!
 	@file		AudioUnitParameters.h
  	@framework	AudioToolbox.framework
@@ -19100,14 +19389,7 @@ extern "C"
 #ifndef AudioUnit_AudioUnitParameters_h
 #define AudioUnit_AudioUnitParameters_h
 
-#include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-	#include <CoreAudio/CoreAudioTypes.h>
-	#include <AudioToolbox/AUComponent.h>
-#else
-	#include <CoreAudioTypes.h>
-	#include <AUComponent.h>
-#endif
+#include <AudioToolbox/AUComponent.h>
 
 #pragma mark General Declarations
 
@@ -19209,35 +19491,35 @@ CF_ENUM(AudioUnitParameterID) {
     // Input/Output, dB, -120->20, 0
     kSpatialMixerParam_Gain			= 3,
 	
-    // Input, rate scaler	0.5 -> 2.0
+    // Input, rate scaler	0.5 -> 2.0, 1.0
     kSpatialMixerParam_PlaybackRate	= 4,
     
-    // bus enable : 0.0 or 1.0
+    // bus enable : 0 or 1, 1
     kSpatialMixerParam_Enable       = 5,
     
-    // Minimum input gain constraint : 0.0 -> 1.0
+    // Minimum input gain constraint : 0.0 -> 10.0, 0.0
     kSpatialMixerParam_MinGain      = 6,
     
-    // Maximum input gain constraint : 0.0 -> 1.0
+    // Maximum input gain constraint : 0.0 -> 10.0, 10.0
     kSpatialMixerParam_MaxGain      = 7,
 	
-    // Input, Dry/Wet equal-power blend, %	  0.0 -> 100.0
+    // Input, Dry/Wet equal-power blend, %	  0.0 -> 100.0, 30.0
     kSpatialMixerParam_ReverbBlend		= 8,
     
-    // Global, dB,		-40.0 -> +40.0
+    // Global, dB,		-40.0 -> +40.0, 0.0
     kSpatialMixerParam_GlobalReverbGain	= 9,
 	
-    // Input, Lowpass filter attenuation at 5KHz :		decibels -100.0dB -> 0.0dB
+    // Input, Lowpass filter attenuation at 5KHz :		decibels -100.0dB -> 0.0dB, 0.0dB
     // smaller values make both direct and reverb sound more muffled; a value of 0.0 indicates no filtering
     // Occlusion is a filter applied to the sound prior to the reverb send
     kSpatialMixerParam_OcclusionAttenuation	= 10,
 	
-    // Input, Lowpass filter attenuation at 5KHz :		decibels -100.0dB -> 0.0dB
+    // Input, Lowpass filter attenuation at 5KHz :		decibels -100.0dB -> 0.0dB, 0.0dB
     // smaller values make direct sound more muffled; a value of 0.0 indicates no filtering
     // Obstruction is a filter applied to the "direct" part of the sound (so is post reverb send)
     kSpatialMixerParam_ObstructionAttenuation = 11
 };
-
+    
 // Reverb parameters applicable to AUSpatialMixer
 CF_ENUM(AudioUnitParameterID) {
     // Global, Hertz, 10.0 -> 20000.0, 800.0
@@ -19273,70 +19555,98 @@ CF_ENUM(AudioUnitParameterID) {
 	
 		// Input, rate scaler	0.5 -> 2.0
     k3DMixerParam_PlaybackRate	= 4,
-	
-#if TARGET_OS_IPHONE
-		// iPhone specific 3D mixer parameters
+    
+    // bus enable : 0.0 or 1.0
+    k3DMixerParam_BusEnable API_AVAILABLE(macos(10.15), ios(13.0), tvos(9.0), watchos(6.0)) = 20,
+    
+    // Input/Output, dB, -120->20, 0
+    k3DMixerParam_MinGainInDecibels API_AVAILABLE(macos(10.15), ios(13.0), tvos(9.0), watchos(6.0)) = 21,
+    
+    // Input/Output, dB, -120->20, 0
+    k3DMixerParam_MaxGainInDecibels API_AVAILABLE(macos(10.15), ios(13.0), tvos(9.0), watchos(6.0)) = 22,
+
+    // Input, Dry/Wet equal-power blend, %      0.0 -> 100.0
+    k3DMixerParam_DryWetReverbBlend API_AVAILABLE(macos(10.15), ios(13.0), tvos(9.0), watchos(6.0)) = 23,
+    
+    // Global, dB,        -40.0 -> +40.0
+    k3DMixerParam_GlobalReverbGainInDecibels API_AVAILABLE(macos(10.15), ios(13.0), tvos(9.0), watchos(6.0)) = 24,
+    
+    // Input, Lowpass filter attenuation at 5KHz :        decibels -100.0dB -> 0.0dB
+    // smaller values make both direct and reverb sound more muffled; a value of 0.0 indicates no filtering
+    // Occlusion is a filter applied to the sound prior to the reverb send
+    k3DMixerParam_OcclusionAttenuationInDecibels API_AVAILABLE(macos(10.15), ios(13.0), tvos(9.0), watchos(6.0)) = 25,
+    
+    // Input, Lowpass filter attenuation at 5KHz :        decibels -100.0dB -> 0.0dB
+    // smaller values make direct sound more muffled; a value of 0.0 indicates no filtering
+    // Obstruction is a filter applied to the "direct" part of the sound (so is post reverb send)
+    k3DMixerParam_ObstructionAttenuationInDecibels API_AVAILABLE(macos(10.15), ios(13.0), tvos(9.0), watchos(6.0)) = 26,
+    
+#if TARGET_OS_IPHONE && !TARGET_OS_UIKITFORMAC
+		// iPhone specific 3D mixer parameters -- deprecated
 
 		// bus enable : 0.0 or 1.0
-    k3DMixerParam_Enable       = 5,
+    k3DMixerParam_Enable    API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_BusEnable", ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(macos)   = 5,
 
 		// Minimum input gain constraint : 0.0 -> 1.0 (available on iphone only)
-    k3DMixerParam_MinGain      = 6,
+    k3DMixerParam_MinGain   API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_MinGainInDecibels", ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(macos)   = 6,
 
 		// Maximum input gain constraint : 0.0 -> 1.0 (available on iphone only)
-    k3DMixerParam_MaxGain      = 7,
+    k3DMixerParam_MaxGain   API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_MaxGainInDecibels", ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(macos)   = 7,
 	
 		// Input, Dry/Wet equal-power blend, %	  0.0 -> 100.0
-    k3DMixerParam_ReverbBlend		= 8,
+    k3DMixerParam_ReverbBlend   API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_DryWetReverbBlend", ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(macos)   = 8,
 
 		// Global, dB,		-40.0 -> +40.0
-    k3DMixerParam_GlobalReverbGain	= 9,
+    k3DMixerParam_GlobalReverbGain  API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_GlobalReverbGainInDecibels", ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(macos) = 9,
 	
 		// Input, Lowpass filter attenuation at 5KHz :		decibels -100.0dB -> 0.0dB
 		// smaller values make both direct and reverb sound more muffled; a value of 0.0 indicates no filtering
 		// Occlusion is a filter applied to the sound prior to the reverb send
-    k3DMixerParam_OcclusionAttenuation	= 10,
+    k3DMixerParam_OcclusionAttenuation  API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_OcclusionAttenuationInDecibels", ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(macos)  = 10,
 	
 		// Input, Lowpass filter attenuation at 5KHz :		decibels -100.0dB -> 0.0dB
 		// smaller values make direct sound more muffled; a value of 0.0 indicates no filtering
 		// Obstruction is a filter applied to the "direct" part of the sound (so is post reverb send)
-    k3DMixerParam_ObstructionAttenuation = 11
-#else
-		// Desktop specific 3D mixer parameters
-
-		// Input, Dry/Wet equal-power blend, %	  0.0 -> 100.0
-    k3DMixerParam_ReverbBlend		= 5,
-
-		// Global, dB,		-40.0 -> +40.0
-    k3DMixerParam_GlobalReverbGain	= 6,
-	
-		// Input, Lowpass filter attenuation at 5KHz :		decibels -100.0dB -> 0.0dB
-		// smaller values make both direct and reverb sound more muffled; a value of 0.0 indicates no filtering
-		// Occlusion is a filter applied to the sound prior to the reverb send
-    k3DMixerParam_OcclusionAttenuation	= 7,
-	
-		// Input, Lowpass filter attenuation at 5KHz :		decibels -100.0dB -> 0.0dB
-		// smaller values make direct sound more muffled; a value of 0.0 indicates no filtering
-		// Obstruction is a filter applied to the "direct" part of the sound (so is post reverb send)
-    k3DMixerParam_ObstructionAttenuation = 8,
-
-		// Input/Output, dB, -120->20, 0
-    k3DMixerParam_MinGain		= 9,
-	
-		// Input/Output, dB, -120->20, 0
-    k3DMixerParam_MaxGain		= 10,
-
-		// read-only
-		//
-		// For each of the following, use the parameter ID plus the channel number
-		// to get the specific parameter ID for a given channel.
-		// For example, k3DMixerParam_PostAveragePower indicates the left channel
-		// while k3DMixerParam_PostAveragePower + 1 indicates the right channel.
-	k3DMixerParam_PreAveragePower	= 1000,
-	k3DMixerParam_PrePeakHoldLevel	= 2000,
-	k3DMixerParam_PostAveragePower	= 3000,
-	k3DMixerParam_PostPeakHoldLevel	= 4000
+    k3DMixerParam_ObstructionAttenuation    API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_ObstructionAttenuationInDecibels", ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(macos) = 11,
 #endif
+
+#if TARGET_OS_OSX
+		// Desktop specific 3D mixer parameters -- deprecated
+    
+		// Input, Dry/Wet equal-power blend, %	  0.0 -> 100.0
+    k3DMixerParam_ReverbBlend   API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_DryWetReverbBlend", macos(10.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(ios, watchos, tvos) = 5,
+
+		// Global, dB,		-40.0 -> +40.0
+    k3DMixerParam_GlobalReverbGain  API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_GlobalReverbGainInDecibels", macos(10.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(ios, watchos, tvos) = 6,
+	
+		// Input, Lowpass filter attenuation at 5KHz :		decibels -100.0dB -> 0.0dB
+		// smaller values make both direct and reverb sound more muffled; a value of 0.0 indicates no filtering
+		// Occlusion is a filter applied to the sound prior to the reverb send
+    k3DMixerParam_OcclusionAttenuation  API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_OcclusionAttenuationInDecibels", macos(10.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(ios, watchos, tvos) = 7,
+	
+		// Input, Lowpass filter attenuation at 5KHz :		decibels -100.0dB -> 0.0dB
+		// smaller values make direct sound more muffled; a value of 0.0 indicates no filtering
+		// Obstruction is a filter applied to the "direct" part of the sound (so is post reverb send)
+    k3DMixerParam_ObstructionAttenuation  API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_ObstructionAttenuationInDecibels", macos(10.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(ios, watchos, tvos) = 8,
+
+		// Input/Output, dB, -120->20, 0
+    k3DMixerParam_MinGain  API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_MinGainInDecibels", macos(10.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(ios, watchos, tvos) = 9,
+	
+		// Input/Output, dB, -120->20, 0
+    k3DMixerParam_MaxGain  API_DEPRECATED_WITH_REPLACEMENT("k3DMixerParam_MaxGainInDecibels", macos(10.0, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(ios, watchos, tvos) = 10,
+		
+#endif
+    
+    // read-only
+    //
+    // For each of the following, use the parameter ID plus the channel number
+    // to get the specific parameter ID for a given channel.
+    // For example, k3DMixerParam_PostAveragePower indicates the left channel
+    // while k3DMixerParam_PostAveragePower + 1 indicates the right channel.
+    k3DMixerParam_PreAveragePower    = 1000,
+    k3DMixerParam_PrePeakHoldLevel    = 2000,
+    k3DMixerParam_PostAveragePower    = 3000,
+    k3DMixerParam_PostPeakHoldLevel    = 4000
 };
 
 
@@ -20052,7 +20362,11 @@ CF_ENUM(AudioUnitParameterID) {
 };
 
 #endif //AudioUnit_AudioUnitParameters_h
+#else
+#include <AudioToolboxCore/AudioUnitParameters.h>
+#endif
 // ==========  AudioToolbox.framework/Headers/AudioConverter.h
+#if (defined(USE_AUDIOTOOLBOX_PUBLIC_HEADERS) && USE_AUDIOTOOLBOX_PUBLIC_HEADERS) || !__has_include(<AudioToolboxCore/AudioConverter.h>)
 /*!
 	@file		AudioConverter.h
 	@framework	AudioToolbox.framework
@@ -20076,23 +20390,12 @@ CF_ENUM(AudioUnitParameterID) {
 #ifndef AudioToolbox_AudioConverter_h
 #define AudioToolbox_AudioConverter_h
 
-//==================================================================================================
-
-/*!
-    @header     AudioConverter.h
-    
-*/
-
 //=============================================================================
 //  Includes
 //=============================================================================
 
 #include <Availability.h>
-#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
-    #include <CoreAudio/CoreAudioTypes.h>
-#else
-    #include <CoreAudioTypes.h>
-#endif
+#include <CoreAudioTypes/CoreAudioTypes.h>
 
 CF_ASSUME_NONNULL_BEGIN
 
@@ -20134,11 +20437,6 @@ typedef UInt32                          AudioConverterPropertyID;
                     a UInt32 that indicates the size in bytes of the smallest buffer of output
                     data that can be supplied to AudioConverterFillComplexBuffer or as the output to
                     AudioConverterConvertBuffer
-    @constant   kAudioConverterPropertyMaximumInputBufferSize
-                    DEPRECATED. The AudioConverter input proc may be passed any number of packets of data.
-                    If fewer are packets are returned than required, then the input proc will be called again.
-                    If more packets are passed than required, they will remain in the client's buffer and be 
-                    consumed as needed.
     @constant   kAudioConverterPropertyMaximumInputPacketSize
                     a UInt32 that indicates the size in bytes of the largest single packet of
                     data in the input format. This is mostly useful for variable bit rate
@@ -20163,8 +20461,6 @@ typedef UInt32                          AudioConverterPropertyID;
     @constant   kAudioConverterPropertyOutputCodecParameters
                     The value of this property varies from format to format and is considered
                     private to the format. It is treated as a buffer of untyped data.
-    @constant   kAudioConverterSampleRateConverterAlgorithm
-                    DEPRECATED: please use kAudioConverterSampleRateConverterComplexity instead
     @constant   kAudioConverterSampleRateConverterComplexity
                     An OSType that specifies the sample rate converter algorithm to use (as defined in
                     AudioToolbox/AudioUnitProperties.h)
@@ -20264,14 +20560,12 @@ CF_ENUM(AudioConverterPropertyID)
 {
     kAudioConverterPropertyMinimumInputBufferSize       = 'mibs',
     kAudioConverterPropertyMinimumOutputBufferSize      = 'mobs',
-    kAudioConverterPropertyMaximumInputBufferSize       = 'xibs',
     kAudioConverterPropertyMaximumInputPacketSize       = 'xips',
     kAudioConverterPropertyMaximumOutputPacketSize      = 'xops',
     kAudioConverterPropertyCalculateInputBufferSize     = 'cibs',
     kAudioConverterPropertyCalculateOutputBufferSize    = 'cobs',
     kAudioConverterPropertyInputCodecParameters         = 'icdp',
     kAudioConverterPropertyOutputCodecParameters        = 'ocdp',
-    kAudioConverterSampleRateConverterAlgorithm         = 'srci',
     kAudioConverterSampleRateConverterComplexity        = 'srca',
     kAudioConverterSampleRateConverterQuality           = 'srcq',
     kAudioConverterSampleRateConverterInitialPhase      = 'srcp',
@@ -20296,25 +20590,6 @@ CF_ENUM(AudioConverterPropertyID)
     kAudioConverterPropertyBitDepthHint                 = 'acbd',
     kAudioConverterPropertyFormatList                   = 'flst'
 };
-
-#if TARGET_OS_IPHONE
-/*!
-    @enum       AudioConverterPropertyID (iOS only)
-    @abstract   iOS-specific properties of an AudioConverter, accessible via AudioConverterGetProperty()
-                and AudioConverterSetProperty().
-    
-    @constant   kAudioConverterPropertyCanResumeFromInterruption
-                    A read-only UInt32 signifying whether the underlying codec supports resumption following
-                    an interruption. If the property is unimplemented (i.e. AudioConverterGetProperty
-                    returns an error), then the codec is not a hardware codec. If the property's value
-                    is 1, then the codec can resume work following an interruption. If the property's
-                    value is 0, then interruptions destroy the codec's state.
-*/  
-CF_ENUM(AudioConverterPropertyID)
-{
-    kAudioConverterPropertyCanResumeFromInterruption    = 'crfi'
-};
-#endif
 
 #if !TARGET_OS_IPHONE
 //=============================================================================
@@ -20431,7 +20706,7 @@ CF_ENUM(UInt32)
     @struct     AudioConverterPrimeInfo
     @abstract   Specifies priming information.
     
-    @field      leadingFrames
+    @var        leadingFrames
         Specifies the number of leading (previous) input frames, relative to the normal/desired
         start input frame, required by the converter to perform a high quality conversion. If
         using kConverterPrimeMethod_Pre, the client should "pre-seek" the input stream provided
@@ -20441,7 +20716,7 @@ CF_ENUM(UInt32)
         in the input proc.  Do not "pre-seek" in the default case of
         kConverterPrimeMethod_Normal or when using kConverterPrimeMethod_None.
 
-    @field      trailingFrames
+    @var        trailingFrames
         Specifies the number of trailing input frames (past the normal/expected end input frame)
         required by the converter to perform a high quality conversion.  The client should be
         prepared to provide this number of additional input frames except when using
@@ -20704,86 +20979,6 @@ AudioConverterSetProperty(  AudioConverterRef           inAudioConverter,
 
 //-----------------------------------------------------------------------------
 /*!
-    @typedef    AudioConverterInputDataProc
-    @abstract   Callback function for supplying input data to AudioConverterFillBuffer.
-
-    @param      inAudioConverter
-                    The AudioConverter requesting input.
-    @param      ioDataSize
-                    On entry, the minimum number of bytes of audio data the converter
-                    would like in order to fulfill its current FillBuffer request.
-                    On exit, the number of bytes of audio data actually being provided
-                    for input, or 0 if there is no more input.
-    @param      outData
-                    On exit, *outData should point to the audio data being provided
-                    for input.
-    @param      inUserData
-                    The inInputDataProcUserData parameter passed to AudioConverterFillBuffer().
-    @result     An OSStatus result code.
-    
-    @discussion
-                <b>NOTE:</b> This API is now deprecated, 
-                use AudioConverterFillComplexBuffer instead.
-
-                This callback function supplies input to AudioConverterFillBuffer.
-                
-                The AudioConverter requests a minimum amount of data (*ioDataSize). The callback
-                may return any amount of data. If it is less than than the minimum, the callback
-                will simply be called again in the near future.
-
-                The callback supplies a pointer to a buffer of audio data. The callback is
-                responsible for not freeing or altering this buffer until it is called again.
-                
-                If the callback returns an error, it must return zero bytes of data.
-                AudioConverterFillBuffer will stop producing output and return whatever output
-                has already been produced to its caller, along with the error code. This
-                mechanism can be used when an input proc has temporarily run out of data, but
-                has not yet reached end of stream.
-*/
-typedef OSStatus
-(*AudioConverterInputDataProc)( AudioConverterRef           inAudioConverter,
-                                UInt32 *                    ioDataSize,
-                                void * __nonnull * __nonnull outData,
-                                void * __nullable           inUserData);
-
-//-----------------------------------------------------------------------------
-/*!
-    @function   AudioConverterFillBuffer
-    @abstract   Converts data supplied by an input callback function.
-
-    @param      inAudioConverter
-                    The AudioConverter to use.
-    @param      inInputDataProc
-                    A callback function which supplies the input data.
-    @param      inInputDataProcUserData
-                    A value for the use of the callback function.
-    @param      ioOutputDataSize
-                    On entry, the size of the buffer pointed to by outOutputData.
-                    On exit, the number of bytes written to outOutputData
-    @param      outOutputData
-                    The buffer into which the converted data is written.
-    @result     An OSStatus result code.
-    
-    @discussion
-                <b>NOTE:</b> This API is now deprecated, 
-                use AudioConverterFillComplexBuffer instead.
-
-                Produces a buffer of output data from an AudioConverter. The supplied input
-                callback function is called whenever necessary.             
-*/
-#if !TARGET_OS_IPHONE
-extern OSStatus
-AudioConverterFillBuffer(   AudioConverterRef               inAudioConverter,
-                            AudioConverterInputDataProc     inInputDataProc,
-                            void * __nullable               inInputDataProcUserData,
-                            UInt32 *                        ioOutputDataSize,
-                            void *                          outOutputData)
-                            
-                                API_DEPRECATED("no longer supported", macos(10.1, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
-#endif // !TARGET_OS_IPHONE
-
-//-----------------------------------------------------------------------------
-/*!
     @function   AudioConverterConvertBuffer
     @abstract   Converts data from an input buffer to an output buffer.
 
@@ -20930,6 +21125,129 @@ AudioConverterConvertComplexBuffer( AudioConverterRef               inAudioConve
                                     AudioBufferList *               outOutputData)
                                                                                 API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
+// =================================================================================================
+// DEPRECATED
+// =================================================================================================
+
+/*
+	Deprecated properties:
+	
+    @constant   kAudioConverterPropertyMaximumInputBufferSize
+                    DEPRECATED. The AudioConverter input proc may be passed any number of packets of data.
+                    If fewer are packets are returned than required, then the input proc will be called again.
+                    If more packets are passed than required, they will remain in the client's buffer and be 
+                    consumed as needed.
+    @constant   kAudioConverterSampleRateConverterAlgorithm
+                    DEPRECATED: please use kAudioConverterSampleRateConverterComplexity instead
+	
+*/
+CF_ENUM(AudioConverterPropertyID)
+{
+    kAudioConverterPropertyMaximumInputBufferSize       = 'xibs',
+    kAudioConverterSampleRateConverterAlgorithm         = 'srci',
+};
+
+#if TARGET_OS_IPHONE
+/*!
+    @enum       AudioConverterPropertyID (iOS only)
+    @abstract   iOS-specific properties of an AudioConverter, accessible via AudioConverterGetProperty()
+                and AudioConverterSetProperty().
+ 
+    @constant   kAudioConverterPropertyCanResumeFromInterruption
+                    A read-only UInt32 signifying whether the underlying codec supports resumption following
+                    an interruption. If the property is unimplemented (i.e. AudioConverterGetProperty
+                    returns an error), then the codec is not a hardware codec. If the property's value
+                    is 1, then the codec can resume work following an interruption. If the property's
+                    value is 0, then interruptions destroy the codec's state.
+                    
+                    DEPRECATED: Hardware codecs are no longer supported.
+*/
+CF_ENUM(AudioConverterPropertyID)
+{
+    kAudioConverterPropertyCanResumeFromInterruption    = 'crfi'
+};
+#endif
+
+//-----------------------------------------------------------------------------
+/*!
+    @typedef    AudioConverterInputDataProc
+    @abstract   Callback function for supplying input data to AudioConverterFillBuffer.
+
+    @param      inAudioConverter
+                    The AudioConverter requesting input.
+    @param      ioDataSize
+                    On entry, the minimum number of bytes of audio data the converter
+                    would like in order to fulfill its current FillBuffer request.
+                    On exit, the number of bytes of audio data actually being provided
+                    for input, or 0 if there is no more input.
+    @param      outData
+                    On exit, *outData should point to the audio data being provided
+                    for input.
+    @param      inUserData
+                    The inInputDataProcUserData parameter passed to AudioConverterFillBuffer().
+    @result     An OSStatus result code.
+    
+    @discussion
+                <b>NOTE:</b> This API is now deprecated, 
+                use AudioConverterFillComplexBuffer instead.
+
+                This callback function supplies input to AudioConverterFillBuffer.
+                
+                The AudioConverter requests a minimum amount of data (*ioDataSize). The callback
+                may return any amount of data. If it is less than than the minimum, the callback
+                will simply be called again in the near future.
+
+                The callback supplies a pointer to a buffer of audio data. The callback is
+                responsible for not freeing or altering this buffer until it is called again.
+                
+                If the callback returns an error, it must return zero bytes of data.
+                AudioConverterFillBuffer will stop producing output and return whatever output
+                has already been produced to its caller, along with the error code. This
+                mechanism can be used when an input proc has temporarily run out of data, but
+                has not yet reached end of stream.
+*/
+typedef OSStatus
+(*AudioConverterInputDataProc)( AudioConverterRef           inAudioConverter,
+                                UInt32 *                    ioDataSize,
+                                void * __nonnull * __nonnull outData,
+                                void * __nullable           inUserData);
+
+//-----------------------------------------------------------------------------
+/*!
+    @function   AudioConverterFillBuffer
+    @abstract   Converts data supplied by an input callback function.
+
+    @param      inAudioConverter
+                    The AudioConverter to use.
+    @param      inInputDataProc
+                    A callback function which supplies the input data.
+    @param      inInputDataProcUserData
+                    A value for the use of the callback function.
+    @param      ioOutputDataSize
+                    On entry, the size of the buffer pointed to by outOutputData.
+                    On exit, the number of bytes written to outOutputData
+    @param      outOutputData
+                    The buffer into which the converted data is written.
+    @result     An OSStatus result code.
+    
+    @discussion
+                <b>NOTE:</b> This API is now deprecated, 
+                use AudioConverterFillComplexBuffer instead.
+
+                Produces a buffer of output data from an AudioConverter. The supplied input
+                callback function is called whenever necessary.             
+*/
+#if !TARGET_OS_IPHONE
+extern OSStatus
+AudioConverterFillBuffer(   AudioConverterRef               inAudioConverter,
+                            AudioConverterInputDataProc     inInputDataProc,
+                            void * __nullable               inInputDataProcUserData,
+                            UInt32 *                        ioOutputDataSize,
+                            void *                          outOutputData)
+                            
+                                API_DEPRECATED("no longer supported", macos(10.1, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+#endif // !TARGET_OS_IPHONE
+
 #if defined(__cplusplus)
 }
 #endif
@@ -20937,3 +21255,6 @@ AudioConverterConvertComplexBuffer( AudioConverterRef               inAudioConve
 CF_ASSUME_NONNULL_END
 
 #endif // AudioToolbox_AudioConverter_h
+#else
+#include <AudioToolboxCore/AudioConverter.h>
+#endif

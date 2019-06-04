@@ -79,27 +79,27 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @abstract Present this drawable while setting a minimum duration in seconds before allowing this drawable to appear on the display.
  @param duration Duration in seconds before this drawable is allowed to appear on the display
  */
-- (void)presentAfterMinimumDuration:(CFTimeInterval)duration API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos);
+- (void)presentAfterMinimumDuration:(CFTimeInterval)duration API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method addPresentedHandler
  @abstract Add a block to be called when this drawable is presented on screen.
  */
-- (void)addPresentedHandler:(MTLDrawablePresentedHandler)block API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos);
+- (void)addPresentedHandler:(MTLDrawablePresentedHandler)block API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property presentedTime
  @abstract The host time that this drawable was presented on screen.
  @discussion Returns 0 if a frame has not been presented or has been skipped.
  */
-@property(nonatomic, readonly) CFTimeInterval presentedTime API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos);
+@property(nonatomic, readonly) CFTimeInterval presentedTime API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property drawableID
  @abstract The monotonically incremented ID for all MTLDrawable objects created from the same CAMetalLayer object.
   @discussion The value starts from 0.
 */
-@property (nonatomic, readonly) NSUInteger drawableID API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos);
+@property (nonatomic, readonly) NSUInteger drawableID API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos, uikitformac);
 
 @end
 NS_ASSUME_NONNULL_END
@@ -134,7 +134,7 @@ typedef NS_OPTIONS(NSUInteger, MTLBarrierScope)
 {
     MTLBarrierScopeBuffers = 1 << 0,
     MTLBarrierScopeTextures = 1 << 1,
-    MTLBarrierScopeRenderTargets API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios) = 1 << 2,
+    MTLBarrierScopeRenderTargets API_AVAILABLE(macos(10.14), uikitformac(13.0)) API_UNAVAILABLE(ios) = 1 << 2,
 } API_AVAILABLE(macos(10.14), ios(12.0));
 
 /*!
@@ -201,6 +201,7 @@ NS_ASSUME_NONNULL_END
 
 #import <IOSurface/IOSurfaceRef.h>
 
+
 NS_ASSUME_NONNULL_BEGIN
 /*!
  @enum MTLTextureType
@@ -220,6 +221,60 @@ typedef NS_ENUM(NSUInteger, MTLTextureType)
     MTLTextureTypeTextureBuffer API_AVAILABLE(macos(10.14), ios(12.0)) = 9
 } API_AVAILABLE(macos(10.11), ios(8.0));
 
+
+typedef NS_ENUM(uint8_t, MTLTextureSwizzle) {
+    MTLTextureSwizzleZero = 0,
+    MTLTextureSwizzleOne = 1,
+    MTLTextureSwizzleRed = 2,
+    MTLTextureSwizzleGreen = 3,
+    MTLTextureSwizzleBlue = 4,
+    MTLTextureSwizzleAlpha = 5,
+} API_AVAILABLE(macos(10.15), ios(13.0));
+
+typedef struct
+{
+    MTLTextureSwizzle red;
+    MTLTextureSwizzle green;
+    MTLTextureSwizzle blue;
+    MTLTextureSwizzle alpha;
+} MTLTextureSwizzleChannels API_AVAILABLE(macos(10.15), ios(13.0));
+
+API_AVAILABLE(macos(10.15), ios(13.0)) NS_SWIFT_UNAVAILABLE("Use MTLTextureSwizzleChannels.init instead")
+MTL_INLINE MTLTextureSwizzleChannels MTLTextureSwizzleChannelsMake(MTLTextureSwizzle r, MTLTextureSwizzle g, MTLTextureSwizzle b, MTLTextureSwizzle a)
+{
+    MTLTextureSwizzleChannels swizzle;
+    swizzle.red = r;
+    swizzle.green = g;
+    swizzle.blue = b;
+    swizzle.alpha = a;
+    return swizzle;
+}
+
+#define MTLTextureSwizzleChannelsDefault (MTLTextureSwizzleChannelsMake(MTLTextureSwizzleRed, MTLTextureSwizzleGreen, MTLTextureSwizzleBlue, MTLTextureSwizzleAlpha))
+
+
+
+
+MTL_EXPORT API_AVAILABLE(macos(10.14), ios(13.0))
+@interface MTLSharedTextureHandle : NSObject <NSSecureCoding>
+{
+    struct MTLSharedTextureHandlePrivate *_priv;
+}
+
+/*!
+ @property device
+ @abstract The device this texture was created against.
+ @discussion This shared texture handle can only be used with this device.
+ */
+@property (readonly) id <MTLDevice> device;
+
+/*!
+ @property label
+ @abstract A copy of the original texture's label property, if any
+*/
+@property (readonly, nullable) NSString *label;
+
+@end
 
 /*!
  @enum MTLTextureUsage
@@ -315,6 +370,7 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
 /*!
  @property resourceOptions
  @abstract Options to control memory allocation parameters, etc.
+ @discussion Contains a packed set of the storageMode, cpuCacheMode and hazardTrackingMode properties.
  */
 @property (readwrite, nonatomic) MTLResourceOptions resourceOptions;
 
@@ -330,12 +386,24 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
  */
 @property (readwrite, nonatomic) MTLStorageMode storageMode API_AVAILABLE(macos(10.11), ios(9.0));
 
+
+/*!
+ @property hazardTrackingMode
+ @abstract Set hazard tracking mode for the texture. The default value is MTLHazardTrackingModeDefault.
+ @discussion
+ For resources created from the device, MTLHazardTrackingModeDefault is treated as MTLHazardTrackingModeTracked.
+ For resources created on a heap, MTLHazardTrackingModeDefault is treated as the hazardTrackingMode of the heap itself.
+ In either case, it is possible to opt-out of hazard tracking by setting MTLHazardTrackingModeUntracked.
+ It is not possible to opt-in to hazard tracking on a heap that itself is not hazard tracked.
+ For optimal performance, perform hazard tracking manually through MTLFence or MTLEvent instead.
+ */
+@property (readwrite, nonatomic) MTLHazardTrackingMode hazardTrackingMode API_AVAILABLE(macos(10.15), ios(13.0));
+
 /*!
  @property usage
  @abstract Description of texture usage
  */
 @property (readwrite, nonatomic) MTLTextureUsage usage API_AVAILABLE(macos(10.11), ios(9.0));
-
 
 /*!
  @property allowGPUOptimizedContents
@@ -343,6 +411,12 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
  @discussion Useful for opting-out of GPU-optimization when implicit optimization (e.g. RT writes) is regressing CPU-read-back performance. See the documentation for optimizeContentsForGPUAccess: and optimizeContentsForCPUAccess: APIs.
  */
 @property (readwrite, nonatomic) BOOL allowGPUOptimizedContents API_AVAILABLE(macos(10.14), ios(12.0));
+
+/*!
+ @property swizzle
+ @abstract Channel swizzle to use when reading or sampling from the texture, the default value is MTLTextureSwizzleChannelsDefault.
+ */
+@property (readwrite, nonatomic) MTLTextureSwizzleChannels swizzle API_AVAILABLE(macos(10.15), ios(13.0));
 
 @end
 
@@ -470,6 +544,12 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  */
 @property (readonly) MTLTextureUsage usage;
 
+/*!
+ @property shareable
+ @abstract If YES, this texture can be shared with other processes.
+ @discussion Texture can be shared across process addres space boundaries through use of sharedTextureHandle and XPC.
+ */
+@property (readonly, getter = isShareable) BOOL shareable API_AVAILABLE(macos(10.14), ios(13.0));
 
 /*!
  @property framebufferOnly
@@ -522,7 +602,25 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  */
 - (nullable id<MTLTexture>)newTextureViewWithPixelFormat:(MTLPixelFormat)pixelFormat textureType:(MTLTextureType)textureType levels:(NSRange)levelRange slices:(NSRange)sliceRange API_AVAILABLE(macos(10.11), ios(9.0));
 
+/*!
+ @method newSharedTextureHandle
+ @abstract Create a new texture handle, that can be shared across process addres space boundaries.
+ */
+- (nullable MTLSharedTextureHandle *)newSharedTextureHandle API_AVAILABLE(macos(10.14), ios(13.0));
 
+
+
+/*!
+ @property swizzle
+ @abstract The channel swizzle used when reading or sampling from this texture
+ */
+@property (readonly, nonatomic) MTLTextureSwizzleChannels swizzle API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
+ @method newTextureViewWithPixelFormat:textureType:levels:slices:swizzle:
+ @abstract Create a new texture which shares the same storage as the source texture, but with a different (but compatible) pixel format, texture type, levels, slices and swizzle. 
+ */
+- (nullable id<MTLTexture>)newTextureViewWithPixelFormat:(MTLPixelFormat)pixelFormat textureType:(MTLTextureType)textureType levels:(NSRange)levelRange slices:(NSRange)sliceRange swizzle:(MTLTextureSwizzleChannels)swizzle API_AVAILABLE(macos(10.15), ios(13.0));
 
 @end
 NS_ASSUME_NONNULL_END
@@ -575,6 +673,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol MTLIndirectRenderCommandEncoder;
 @protocol MTLIndirectComputeCommandEncoder;
 @protocol MTLIndirectCommandBuffer;
+@class MTLSharedTextureHandle;
 @protocol MTLEvent;
 @protocol MTLSharedEvent;
 @class MTLSharedEventHandle;
@@ -594,56 +693,81 @@ MTL_EXTERN id <MTLDevice> __nullable MTLCreateSystemDefaultDevice(void) API_AVAI
  decision about which GPU to use up to the application based on whatever criteria
  it deems appropriate.
 */
-MTL_EXTERN NSArray <id<MTLDevice>> *MTLCopyAllDevices(void) API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) NS_RETURNS_RETAINED;
+MTL_EXTERN NSArray <id<MTLDevice>> *MTLCopyAllDevices(void) API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) NS_RETURNS_RETAINED;
 
 typedef NS_ENUM(NSUInteger, MTLFeatureSet)
 {
-    MTLFeatureSet_iOS_GPUFamily1_v1 API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, tvos) = 0,
-    MTLFeatureSet_iOS_GPUFamily2_v1 API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, tvos) = 1,
+    MTLFeatureSet_iOS_GPUFamily1_v1 API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 0,
+    MTLFeatureSet_iOS_GPUFamily2_v1 API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 1,
 
-    MTLFeatureSet_iOS_GPUFamily1_v2 API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, tvos) = 2,
-    MTLFeatureSet_iOS_GPUFamily2_v2 API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, tvos) = 3,
-    MTLFeatureSet_iOS_GPUFamily3_v1 API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, tvos) = 4,
+    MTLFeatureSet_iOS_GPUFamily1_v2 API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 2,
+    MTLFeatureSet_iOS_GPUFamily2_v2 API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 3,
+    MTLFeatureSet_iOS_GPUFamily3_v1 API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 4,
 
-    MTLFeatureSet_iOS_GPUFamily1_v3 API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, tvos) = 5,
-    MTLFeatureSet_iOS_GPUFamily2_v3 API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, tvos) = 6,
-    MTLFeatureSet_iOS_GPUFamily3_v2 API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, tvos) = 7,
+    MTLFeatureSet_iOS_GPUFamily1_v3 API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 5,
+    MTLFeatureSet_iOS_GPUFamily2_v3 API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 6,
+    MTLFeatureSet_iOS_GPUFamily3_v2 API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 7,
 
-    MTLFeatureSet_iOS_GPUFamily1_v4 API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos) = 8,
-    MTLFeatureSet_iOS_GPUFamily2_v4 API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos) = 9,
-    MTLFeatureSet_iOS_GPUFamily3_v3 API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos) = 10,
-    MTLFeatureSet_iOS_GPUFamily4_v1 API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, tvos) = 11,
+    MTLFeatureSet_iOS_GPUFamily1_v4 API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 8,
+    MTLFeatureSet_iOS_GPUFamily2_v4 API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 9,
+    MTLFeatureSet_iOS_GPUFamily3_v3 API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 10,
+    MTLFeatureSet_iOS_GPUFamily4_v1 API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 11,
     
-    MTLFeatureSet_iOS_GPUFamily1_v5 API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos) = 12,
-    MTLFeatureSet_iOS_GPUFamily2_v5 API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos) = 13,
-    MTLFeatureSet_iOS_GPUFamily3_v4 API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos) = 14,
-    MTLFeatureSet_iOS_GPUFamily4_v2 API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos) = 15,
-    MTLFeatureSet_iOS_GPUFamily5_v1 API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, tvos) = 16,
+    MTLFeatureSet_iOS_GPUFamily1_v5 API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 12,
+    MTLFeatureSet_iOS_GPUFamily2_v5 API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 13,
+    MTLFeatureSet_iOS_GPUFamily3_v4 API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 14,
+    MTLFeatureSet_iOS_GPUFamily4_v2 API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 15,
+    MTLFeatureSet_iOS_GPUFamily5_v1 API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, uikitformac, tvos) = 16,
     
 
-    MTLFeatureSet_macOS_GPUFamily1_v1 API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 10000,
+    MTLFeatureSet_macOS_GPUFamily1_v1 API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) API_UNAVAILABLE(uikitformac) = 10000,
     MTLFeatureSet_OSX_GPUFamily1_v1 API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = MTLFeatureSet_macOS_GPUFamily1_v1, // deprecated
 
-    MTLFeatureSet_macOS_GPUFamily1_v2 API_AVAILABLE(macos(10.12)) API_UNAVAILABLE(ios) = 10001,
+    MTLFeatureSet_macOS_GPUFamily1_v2 API_AVAILABLE(macos(10.12)) API_UNAVAILABLE(ios) API_UNAVAILABLE(uikitformac) = 10001,
     MTLFeatureSet_OSX_GPUFamily1_v2 API_AVAILABLE(macos(10.12)) API_UNAVAILABLE(ios) = MTLFeatureSet_macOS_GPUFamily1_v2, // deprecated
     MTLFeatureSet_macOS_ReadWriteTextureTier2 API_AVAILABLE(macos(10.12)) API_UNAVAILABLE(ios) = 10002,
     MTLFeatureSet_OSX_ReadWriteTextureTier2 API_AVAILABLE(macos(10.12)) API_UNAVAILABLE(ios) = MTLFeatureSet_macOS_ReadWriteTextureTier2, // deprecated
 
-    MTLFeatureSet_macOS_GPUFamily1_v3 API_AVAILABLE(macos(10.13)) API_UNAVAILABLE(ios) = 10003,
+    MTLFeatureSet_macOS_GPUFamily1_v3 API_AVAILABLE(macos(10.13)) API_UNAVAILABLE(ios) API_UNAVAILABLE(uikitformac) = 10003,
     
-    MTLFeatureSet_macOS_GPUFamily1_v4 API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios) = 10004,
-    MTLFeatureSet_macOS_GPUFamily2_v1 API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios) = 10005,
+    MTLFeatureSet_macOS_GPUFamily1_v4 API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios) API_UNAVAILABLE(uikitformac) = 10004,
+    MTLFeatureSet_macOS_GPUFamily2_v1 API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios) API_UNAVAILABLE(uikitformac) = 10005,
 
 
-    MTLFeatureSet_tvOS_GPUFamily1_v1 API_AVAILABLE(tvos(9.0)) API_UNAVAILABLE(ios) API_UNAVAILABLE(macos) = 30000,
-    MTLFeatureSet_TVOS_GPUFamily1_v1 API_AVAILABLE(tvos(9.0)) API_UNAVAILABLE(ios) API_UNAVAILABLE(macos) = MTLFeatureSet_tvOS_GPUFamily1_v1, // deprecated
+    MTLFeatureSet_tvOS_GPUFamily1_v1 API_AVAILABLE(tvos(9.0)) API_UNAVAILABLE(macos, ios) = 30000,
+    MTLFeatureSet_TVOS_GPUFamily1_v1 API_AVAILABLE(tvos(9.0)) API_UNAVAILABLE(macos, ios) = MTLFeatureSet_tvOS_GPUFamily1_v1, // deprecated
     
-    MTLFeatureSet_tvOS_GPUFamily1_v2 API_AVAILABLE(tvos(10.0)) API_UNAVAILABLE(ios) API_UNAVAILABLE(macos) = 30001,
+    MTLFeatureSet_tvOS_GPUFamily1_v2 API_AVAILABLE(tvos(10.0)) API_UNAVAILABLE(macos, ios) = 30001,
     
-    MTLFeatureSet_tvOS_GPUFamily1_v3 API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios) API_UNAVAILABLE(macos) = 30002,
+    MTLFeatureSet_tvOS_GPUFamily1_v3 API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(macos, ios) = 30002,
     
-    MTLFeatureSet_tvOS_GPUFamily1_v4 API_AVAILABLE(tvos(12.0)) API_UNAVAILABLE(ios) API_UNAVAILABLE(macos) = 30004,
-} API_AVAILABLE(macos(10.11), ios(8.0)) API_AVAILABLE(tvos(9.0));
+    MTLFeatureSet_tvOS_GPUFamily1_v4 API_AVAILABLE(tvos(12.0)) API_UNAVAILABLE(macos, ios) = 30004,
+} API_AVAILABLE(macos(10.11), ios(8.0), tvos(9.0));
+
+typedef NS_ENUM(NSInteger, MTLGPUFamily)
+{
+    MTLGPUFamilyApple1 = 1001,
+    MTLGPUFamilyApple2 = 1002,
+    MTLGPUFamilyApple3 = 1003,
+    MTLGPUFamilyApple4 = 1004,
+    MTLGPUFamilyApple5 = 1005,
+    
+    MTLGPUFamilyMac1 = 2001,
+    MTLGPUFamilyMac2 = 2002,
+    
+    MTLGPUFamilyCommon1 = 3001,
+    MTLGPUFamilyCommon2 = 3002,
+    MTLGPUFamilyCommon3 = 3003,
+    
+    MTLGPUFamilyiOSMac1 = 4001,
+    MTLGPUFamilyiOSMac2 = 4002,
+} API_AVAILABLE(macos(10.15), ios(13.0));
+
+typedef NS_ENUM(NSInteger, MTLSoftwareVersion)
+{
+    MTLSoftwareVersion3_0 = 0x00030000,
+} API_AVAILABLE(macos(10.15), ios(13.0));
+
 
 /*!
  @enum MTLPipelineOption
@@ -654,6 +778,7 @@ typedef NS_OPTIONS(NSUInteger, MTLPipelineOption)
     MTLPipelineOptionNone               = 0,
     MTLPipelineOptionArgumentInfo       = 1 << 0,
     MTLPipelineOptionBufferTypeInfo     = 1 << 1,
+    
 } API_AVAILABLE(macos(10.11), ios(8.0));
 
 /*!
@@ -676,6 +801,8 @@ typedef NS_ENUM(NSUInteger, MTLArgumentBuffersTier)
     MTLArgumentBuffersTier1 = 0,
     MTLArgumentBuffersTier2 = 1,
 } API_AVAILABLE(macos(10.13), ios(11.0));
+
+
 
 
 /*!
@@ -786,13 +913,13 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @property lowPower
  @abstract On systems that support automatic graphics switching, this will return YES for the the low power device.
  */
-@property (readonly, getter=isLowPower) BOOL lowPower API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios);
+@property (readonly, getter=isLowPower) BOOL lowPower API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios);
 
 /*!
  @property headless
  @abstract On systems that include more that one GPU, this will return YES for any device that does not support any displays.  Only available on Mac OS X.
  */
-@property (readonly, getter=isHeadless) BOOL headless API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios);
+@property (readonly, getter=isHeadless) BOOL headless API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios);
 
 /*!
  @property removable
@@ -800,7 +927,15 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @discussion If a GPU is is removed without warning, APIs may fail even with good input, even before a notification can get posted informing
  the application that the device has been removed.
  */
-@property (readonly, getter=isRemovable) BOOL removable API_AVAILABLE(macos(10.13)) API_UNAVAILABLE(ios);
+@property (readonly, getter=isRemovable) BOOL removable API_AVAILABLE(macos(10.13), uikitformac(13.0)) API_UNAVAILABLE(ios);
+
+/*!
+ @property hasUnifiedMemory
+ @abstract Returns YES if this GPU shares its memory with the rest of the machine (CPU, etc.)
+ @discussion Some GPU architectures do not have dedicated local memory and instead only use the same memory shared with the rest
+ of the machine.  This property will return YES for GPUs that fall into that category.
+*/
+@property (readonly) BOOL hasUnifiedMemory API_AVAILABLE(macos(10.15), ios(13.0));
 
 /*!
  @property recommendedMaxWorkingSetSize
@@ -808,13 +943,14 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @discussion Performance may be improved by keeping the total size of all resources (texture and buffers)
  and heaps less than this threshold, beyond which the device is likely to be overcommitted and incur a
  performance penalty. */
-@property (readonly) uint64_t recommendedMaxWorkingSetSize API_AVAILABLE(macos(10.12)) API_UNAVAILABLE(ios);
+@property (readonly) uint64_t recommendedMaxWorkingSetSize API_AVAILABLE(macos(10.12), uikitformac(13.0)) API_UNAVAILABLE(ios);
+
 
 /*!
  @property depth24Stencil8PixelFormatSupported
  @abstract If YES, device supports MTLPixelFormatDepth24Unorm_Stencil8.
  */
-@property (readonly, getter=isDepth24Stencil8PixelFormatSupported) BOOL depth24Stencil8PixelFormatSupported API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios);
+@property (readonly, getter=isDepth24Stencil8PixelFormatSupported) BOOL depth24Stencil8PixelFormatSupported API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios);
 
 /*!
  @property readWriteTextureSupport
@@ -830,9 +966,6 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  */
 @property (readonly) MTLArgumentBuffersTier argumentBuffersSupport API_AVAILABLE(macos(10.13), ios(11.0));
 
-
-
-
 /*!
  @property rasterOrderGroupsSupported
  @abstract Query device for raster order groups support.
@@ -841,11 +974,17 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 @property (readonly, getter=areRasterOrderGroupsSupported) BOOL rasterOrderGroupsSupported API_AVAILABLE(macos(10.13), ios(11.0));
 
 
+
+
+
+
 /*!
  @property currentAllocatedSize
  @abstract The current size in bytes of all resources allocated by this device
  */
 @property (readonly) NSUInteger currentAllocatedSize API_AVAILABLE(macos(10.13), ios(11.0));
+
+
 
 /*!
  @method newCommandQueue
@@ -922,6 +1061,27 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 - (nullable id <MTLTexture>)newTextureWithDescriptor:(MTLTextureDescriptor *)descriptor iosurface:(IOSurfaceRef)iosurface plane:(NSUInteger)plane API_AVAILABLE(macos(10.11), ios(11.0));
 
 
+/*!
+ @method newSharedTextureWithDescriptor
+ @abstract Create a new texture that can be shared across process boundaries.
+ @discussion This texture can be shared between process boundaries
+ but not between different GPUs, by passing its MTLSharedTextureHandle.
+ @param descriptor A description of the properties for the new texture.
+ @return A new texture object.
+ */
+- (nullable id <MTLTexture>)newSharedTextureWithDescriptor:(MTLTextureDescriptor *)descriptor API_AVAILABLE(macos(10.14), ios(13.0));
+
+/*!
+ @method newSharedTextureWithHandle
+ @abstract Recreate shared texture from received texture handle.
+ @discussion This texture was shared between process boundaries by other
+ process using MTLSharedTextureHandle. Current process will now share
+ it with other processes and will be able to interact with it (but still
+ in scope of the same GPUs).
+ @param sharedHandle Handle to shared texture in this process space.
+ @return A new texture object.
+ */
+- (nullable id <MTLTexture>)newSharedTextureWithHandle:(MTLSharedTextureHandle *)sharedHandle API_AVAILABLE(macos(10.14), ios(13.0));
 
 /*!
  @method newSamplerStateWithDescriptor:
@@ -1048,6 +1208,18 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 - (BOOL)supportsFeatureSet:(MTLFeatureSet)featureSet;
 
 /*!
+ @method supportsFamily:
+ @abstract Returns TRUE if the GPU Family is supported by this MTLDevice.
+ */
+- (BOOL)supportsFamily:(MTLGPUFamily)gpuFamily API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
+ @method supportsVersion
+ @abstract Returns TRUE if the Metal version is supported by this MTLDevice.
+ */
+- (BOOL)supportsVersion:(MTLSoftwareVersion)version API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
  @method supportsTextureSampleCount:
  @brief Query device if it support textures with a given sampleCount.
  @return BOOL value. If YES, device supports the given sampleCount for textures. If NO, device does not support the given sampleCount.
@@ -1071,14 +1243,14 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @method newRenderPipelineStateWithTileDescriptor:options:reflection:error:
  @abstract Create and compile a new MTLRenderPipelineState object synchronously given a MTLTileRenderPipelineDescriptor.
  */
-- (nullable id <MTLRenderPipelineState>)newRenderPipelineStateWithTileDescriptor:(MTLTileRenderPipelineDescriptor*)descriptor options:(MTLPipelineOption)options reflection:(MTLAutoreleasedRenderPipelineReflection * __nullable)reflection error:(__autoreleasing NSError **)error API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (nullable id <MTLRenderPipelineState>)newRenderPipelineStateWithTileDescriptor:(MTLTileRenderPipelineDescriptor*)descriptor options:(MTLPipelineOption)options reflection:(MTLAutoreleasedRenderPipelineReflection * __nullable)reflection error:(__autoreleasing NSError **)error API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 
 /*!
  @method newRenderPipelineStateWithTileDescriptor:options:completionHandler:
  @abstract Create and compile a new MTLRenderPipelineState object asynchronously given a MTLTileRenderPipelineDescriptor.
  */
-- (void)newRenderPipelineStateWithTileDescriptor:(MTLTileRenderPipelineDescriptor *)descriptor options:(MTLPipelineOption)options completionHandler:(MTLNewRenderPipelineStateWithReflectionCompletionHandler)completionHandler API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)newRenderPipelineStateWithTileDescriptor:(MTLTileRenderPipelineDescriptor *)descriptor options:(MTLPipelineOption)options completionHandler:(MTLNewRenderPipelineStateWithReflectionCompletionHandler)completionHandler API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property maxThreadgroupMemoryLength
@@ -1093,12 +1265,14 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  */
 @property (readonly) NSUInteger maxArgumentBufferSamplerCount API_AVAILABLE(macos(10.14), ios(12.0));
 
+
 /*!
  @property programmableSaplePositionsSupported
  @abstract Query device for programmable sample position support.
  @return BOOL value. If YES, the device supports programmable sample positions. If NO, the device does not.
  */
 @property (readonly, getter=areProgrammableSamplePositionsSupported) BOOL programmableSamplePositionsSupported API_AVAILABLE(macos(10.13), ios(11.0));
+
 
 /*!
  @method getDefaultSamplePositions:count:
@@ -1108,14 +1282,11 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  */
 - (void)getDefaultSamplePositions:(MTLSamplePosition *)positions count:(NSUInteger)count API_AVAILABLE(macos(10.13), ios(11.0));
 
-
 /*!
  * @method newArgumentEncoderWithArguments:count:
  * @abstract Creates an argument encoder for an array of argument descriptors which will be encoded sequentially.
  */
 - (nullable id <MTLArgumentEncoder>)newArgumentEncoderWithArguments:(NSArray <MTLArgumentDescriptor *> *)arguments API_AVAILABLE(macos(10.13), ios(11.0));
-
-
 
 
 
@@ -1151,7 +1322,14 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 
 
 
-@property (readonly) NSUInteger maxBufferLength;
+
+
+
+
+@property (readonly) NSUInteger maxBufferLength API_AVAILABLE(macos(10.14), ios(12.0));
+
+
+
 @end
 NS_ASSUME_NONNULL_END
 // ==========  Metal.framework/Headers/MTLArgument.h
@@ -1168,104 +1346,104 @@ NS_ASSUME_NONNULL_END
 
 
 NS_ASSUME_NONNULL_BEGIN
-typedef NS_ENUM(NSUInteger, MTLDataType){
-    
+typedef NS_ENUM(NSUInteger, MTLDataType) {
+
     MTLDataTypeNone = 0,
-    
+
     MTLDataTypeStruct = 1,
     MTLDataTypeArray  = 2,
-    
+
     MTLDataTypeFloat  = 3,
     MTLDataTypeFloat2 = 4,
     MTLDataTypeFloat3 = 5,
     MTLDataTypeFloat4 = 6,
-    
+
     MTLDataTypeFloat2x2 = 7,
     MTLDataTypeFloat2x3 = 8,
     MTLDataTypeFloat2x4 = 9,
-    
+
     MTLDataTypeFloat3x2 = 10,
     MTLDataTypeFloat3x3 = 11,
     MTLDataTypeFloat3x4 = 12,
-    
+
     MTLDataTypeFloat4x2 = 13,
     MTLDataTypeFloat4x3 = 14,
     MTLDataTypeFloat4x4 = 15,
-    
+
     MTLDataTypeHalf  = 16,
     MTLDataTypeHalf2 = 17,
     MTLDataTypeHalf3 = 18,
     MTLDataTypeHalf4 = 19,
-    
+
     MTLDataTypeHalf2x2 = 20,
     MTLDataTypeHalf2x3 = 21,
     MTLDataTypeHalf2x4 = 22,
-    
+
     MTLDataTypeHalf3x2 = 23,
     MTLDataTypeHalf3x3 = 24,
     MTLDataTypeHalf3x4 = 25,
-    
+
     MTLDataTypeHalf4x2 = 26,
     MTLDataTypeHalf4x3 = 27,
     MTLDataTypeHalf4x4 = 28,
-    
+
     MTLDataTypeInt  = 29,
     MTLDataTypeInt2 = 30,
     MTLDataTypeInt3 = 31,
     MTLDataTypeInt4 = 32,
-    
+
     MTLDataTypeUInt  = 33,
     MTLDataTypeUInt2 = 34,
     MTLDataTypeUInt3 = 35,
     MTLDataTypeUInt4 = 36,
-    
+
     MTLDataTypeShort  = 37,
     MTLDataTypeShort2 = 38,
     MTLDataTypeShort3 = 39,
     MTLDataTypeShort4 = 40,
-    
+
     MTLDataTypeUShort = 41,
     MTLDataTypeUShort2 = 42,
     MTLDataTypeUShort3 = 43,
     MTLDataTypeUShort4 = 44,
-    
+
     MTLDataTypeChar  = 45,
     MTLDataTypeChar2 = 46,
     MTLDataTypeChar3 = 47,
     MTLDataTypeChar4 = 48,
-    
+
     MTLDataTypeUChar  = 49,
     MTLDataTypeUChar2 = 50,
     MTLDataTypeUChar3 = 51,
     MTLDataTypeUChar4 = 52,
-    
+
     MTLDataTypeBool  = 53,
     MTLDataTypeBool2 = 54,
     MTLDataTypeBool3 = 55,
     MTLDataTypeBool4 = 56,
 
-    
     MTLDataTypeTexture API_AVAILABLE(macos(10.13), ios(11.0)) = 58,
     MTLDataTypeSampler API_AVAILABLE(macos(10.13), ios(11.0)) = 59,
     MTLDataTypePointer API_AVAILABLE(macos(10.13), ios(11.0)) = 60,
 
-    MTLDataTypeR8Unorm         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 62,
-    MTLDataTypeR8Snorm         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 63,
-    MTLDataTypeR16Unorm        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 64,
-    MTLDataTypeR16Snorm        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 65,
-    MTLDataTypeRG8Unorm        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 66,
-    MTLDataTypeRG8Snorm        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 67,
-    MTLDataTypeRG16Unorm       API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 68,
-    MTLDataTypeRG16Snorm       API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 69,
-    MTLDataTypeRGBA8Unorm      API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 70,
-    MTLDataTypeRGBA8Unorm_sRGB API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 71,
-    MTLDataTypeRGBA8Snorm      API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 72,
-    MTLDataTypeRGBA16Unorm     API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 73,
-    MTLDataTypeRGBA16Snorm     API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 74,
-    MTLDataTypeRGB10A2Unorm    API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 75,
-    MTLDataTypeRG11B10Float    API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 76,
-    MTLDataTypeRGB9E5Float     API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos) = 77,
-    MTLDataTypeRenderPipeline  API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios) = 78,
+    MTLDataTypeR8Unorm         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 62,
+    MTLDataTypeR8Snorm         API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 63,
+    MTLDataTypeR16Unorm        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 64,
+    MTLDataTypeR16Snorm        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 65,
+    MTLDataTypeRG8Unorm        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 66,
+    MTLDataTypeRG8Snorm        API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 67,
+    MTLDataTypeRG16Unorm       API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 68,
+    MTLDataTypeRG16Snorm       API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 69,
+    MTLDataTypeRGBA8Unorm      API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 70,
+    MTLDataTypeRGBA8Unorm_sRGB API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 71,
+    MTLDataTypeRGBA8Snorm      API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 72,
+    MTLDataTypeRGBA16Unorm     API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 73,
+    MTLDataTypeRGBA16Snorm     API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 74,
+    MTLDataTypeRGB10A2Unorm    API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 75,
+    MTLDataTypeRG11B10Float    API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 76,
+    MTLDataTypeRGB9E5Float     API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac) = 77,
+    MTLDataTypeRenderPipeline  API_AVAILABLE(macos(10.14), ios(13.0)) = 78,
+    MTLDataTypeComputePipeline API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos) = 79,
     MTLDataTypeIndirectCommandBuffer   API_AVAILABLE(macos(10.14), ios(12.0)) = 80,
 } API_AVAILABLE(macos(10.11), ios(8.0));
 
@@ -1288,26 +1466,24 @@ typedef NS_ENUM(NSUInteger, MTLDataType){
  This input is a sampler.
 */
 typedef NS_ENUM(NSUInteger, MTLArgumentType) {
-    
+
     MTLArgumentTypeBuffer = 0,
     MTLArgumentTypeThreadgroupMemory= 1,
     MTLArgumentTypeTexture = 2,
     MTLArgumentTypeSampler = 3,
 
-    MTLArgumentTypeImageblockData API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos)     = 16,
-    MTLArgumentTypeImageblock API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos)         = 17,
-
+    MTLArgumentTypeImageblockData API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac)     = 16,
+    MTLArgumentTypeImageblock API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac)         = 17,
 } API_AVAILABLE(macos(10.11), ios(8.0));
 
 /*!
  @enum MTLArgumentAccess
 */
 typedef NS_ENUM(NSUInteger, MTLArgumentAccess) {
-    
+
     MTLArgumentAccessReadOnly   = 0,
     MTLArgumentAccessReadWrite  = 1,
     MTLArgumentAccessWriteOnly  = 2,
-    
 } API_AVAILABLE(macos(10.11), ios(8.0));
 
 @class MTLStructType;
@@ -1386,7 +1562,6 @@ MTL_EXPORT API_AVAILABLE(macos(10.13), ios(11.0))
 @property (readonly) MTLArgumentAccess access;    // read, write, read-write
 @property (readonly) BOOL isDepthTexture;         // true for depth textures
 
-
 @end
 
 /*!
@@ -1400,7 +1575,6 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
 @property (readonly) MTLArgumentAccess access;
 @property (readonly) NSUInteger index;
 
-
 @property (readonly, getter=isActive) BOOL active;
 
 // for buffer arguments
@@ -1409,7 +1583,6 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
 @property (readonly) MTLDataType     bufferDataType; 		// MTLDataTypeFloat, MTLDataTypeFloat4, MTLDataTypeStruct, ...
 @property (readonly, nullable) MTLStructType  *bufferStructType;
 @property (readonly, nullable) MTLPointerType *bufferPointerType API_AVAILABLE(macos(10.13), ios(11.0));
-
 
 // for threadgroup memory arguments
 @property (readonly) NSUInteger     threadgroupMemoryAlignment;
@@ -1455,8 +1628,6 @@ typedef struct {
 	uint32_t  stageInOrigin[3];
 	uint32_t  stageInSize[3];
 } MTLStageInRegionIndirectArguments API_AVAILABLE(macos(10.14), ios(12.0));
-
-
 
 /*!
  @protocol MTLComputeCommandEncoder
@@ -1551,7 +1722,7 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @method setImageblockWidth:height:
  @brief Set imageblock sizes.
  */
-- (void)setImageblockWidth:(NSUInteger)width height:(NSUInteger)height API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)setImageblockWidth:(NSUInteger)width height:(NSUInteger)height API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*
  @method setStageInRegion:region:
@@ -1608,32 +1779,52 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 /*!
  * @method useResource:usage:
  * @abstract Declare that a resource may be accessed by the command encoder through an argument buffer
- * @discussion This method does not protect against data hazards; these hazards must be addressed using an MTLFence. This method must be called before encoding any dispatch commands which may access the resource through an argument buffer.
+ * 
+ * @discussion For tracked MTLResources, this method protects against data hazards. This method must be called before encoding any dispatch commands which may access the resource through an argument buffer.
+ * @warning Prior to iOS 13, macOS 10.15, this method does not protect against data hazards. If you are deploying to older versions of macOS or iOS, use fences to ensure data hazards are resolved.
  */
 - (void)useResource:(id <MTLResource>)resource usage:(MTLResourceUsage)usage API_AVAILABLE(macos(10.13), ios(11.0));
 
 /*!
  * @method useResources:count:usage:
  * @abstract Declare that an array of resources may be accessed through an argument buffer by the command encoder
- * @discussion This method does not protect against data hazards; these hazards must be addressed using an MTLFence. This method must be called before encoding any dispatch commands which may access the resources through an argument buffer.
+ * @discussion For tracked MTL Resources, this method protects against data hazards. This method must be called before encoding any dispatch commands which may access the resources through an argument buffer.
+ * @warning Prior to iOS 13, macOS 10.15, this method does not protect against data hazards. If you are deploying to older versions of macOS or iOS, use fences to ensure data hazards are resolved.
  */
 - (void)useResources:(const id <MTLResource> __nonnull[__nonnull])resources count:(NSUInteger)count usage:(MTLResourceUsage)usage API_AVAILABLE(macos(10.13), ios(11.0));
 
 /*!
  * @method useHeap:
- * @abstract Declare that the resources allocated from a heap may be accessed by the render pass through an argument buffer
- * @discussion This method does not protect against data hazards; these hazards must be addressed using an MTLFence. This method must be called before encoding any dispatch commands which may access the resources allocated from the heap through an argument buffer. This method may cause all of the color attachments allocated from the heap to become decompressed. Therefore, it is recommended that the useResource:usage: or useResources:count:usage: methods be used for color attachments instead, with a minimal (i.e. read-only) usage.
+ * @abstract Declare that the resources allocated from a heap may be accessed as readonly by the render pass through an argument buffer
+ * @discussion For tracked MTLHeaps, this method protects against data hazards. This method must be called before encoding any dispatch commands which may access the resources allocated from the heap through an argument buffer. This method may cause all of the color attachments allocated from the heap to become decompressed. Therefore, it is recommended that the useResource:usage: or useResources:count:usage: methods be used for color attachments instead, with a minimal (i.e. read-only) usage.
+ * @warning Prior to iOS 13, macOS 10.15, this method does not protect against data hazards. If you are deploying to older versions of macOS or iOS, use fences to ensure data hazards are resolved.
  */
 - (void)useHeap:(id <MTLHeap>)heap API_AVAILABLE(macos(10.13), ios(11.0));
 
 /*!
  * @method useHeaps:count:
- * @abstract Declare that the resources allocated from an array of heaps may be accessed by the render pass through an argument buffer
- * @discussion This method does not protect against data hazards; these hazards must be addressed using an MTLFence. This method must be called before encoding any dispatch commands which may access the resources allocated from the heaps through an argument buffer. This method may cause all of the color attachments allocated from the heaps to become decompressed. Therefore, it is recommended that the useResource:usage: or useResources:count:usage: methods be used for color attachments instead, with a minimal (i.e. read-only) usage.
+ * @abstract Declare that the resources allocated from an array of heaps may be accessed as readonly by the render pass through an argument buffer
+ * @discussion For tracked MTLHeaps, this method protects against data hazards. This method must be called before encoding any dispatch commands which may access the resources allocated from the heaps through an argument buffer. This method may cause all of the color attachments allocated from the heaps to become decompressed. Therefore, it is recommended that the useResource:usage: or useResources:count:usage: methods be used for color attachments instead, with a minimal (i.e. read-only) usage.
+ * @warning Prior to iOS 13, macOS 10.15, this method does not protect against data hazards. If you are deploying to older versions of macOS or iOS, use fences to ensure data hazards are resolved.
  */
 - (void)useHeaps:(const id <MTLHeap> __nonnull[__nonnull])heaps count:(NSUInteger)count API_AVAILABLE(macos(10.13), ios(11.0));
     
 
+/*!
+ * @method executeCommandsInBuffer:withRange:
+ * @abstract Execute commands in the buffer within the range specified.
+ * @discussion The same indirect command buffer may be executed any number of times within the same encoder.
+ */
+- (void)executeCommandsInBuffer:(id<MTLIndirectCommandBuffer>)indirectCommandBuffer withRange:(NSRange)executionRange API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos);
+
+/*!
+ * @method executeCommandsInBuffer:indirectBuffer:indirectBufferOffset:
+ * @abstract Execute commands in the buffer within the range specified by the indirect range buffer.
+ * @param indirectRangeBuffer An indirect buffer from which the device reads the execution range parameter, as laid out in the MTLIndirectCommandBufferExecutionRange structure.
+ * @param indirectBufferOffset The byte offset within indirectBuffer where the execution range parameter is located. Must be a multiple of 4 bytes.
+ * @discussion The same indirect command buffer may be executed any number of times within the same encoder.
+ */
+- (void)executeCommandsInBuffer:(id<MTLIndirectCommandBuffer>)indirectCommandbuffer indirectBuffer:(id<MTLBuffer>)indirectRangeBuffer indirectBufferOffset:(NSUInteger)indirectBufferOffset API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos);
 
 
 
@@ -1650,7 +1841,6 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  *@discussion  This API ensures that all dispatches in the encoder have completed execution and side effects on the specified resources are visible to subsequent dispatches in that encoder. Calling barrier on a serial encoder is allowed, but ignored.
  */
 - (void)memoryBarrierWithResources:(const id<MTLResource> __nonnull [__nonnull])resources count:(NSUInteger)count API_AVAILABLE(macos(10.14), ios(12.0));
-
 
 
 @end
@@ -1788,7 +1978,7 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
 
 @property (nullable, readonly) NSArray <MTLArgument *> *vertexArguments;
 @property (nullable, readonly) NSArray <MTLArgument *> *fragmentArguments;
-@property (nullable, readonly) NSArray <MTLArgument *> *tileArguments API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (nullable, readonly) NSArray <MTLArgument *> *tileArguments API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 @end
 
 MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
@@ -1854,13 +2044,13 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @property maxTotalThreadsPerThreadgroup
  @abstract The maximum total number of threads that can be in a single threadgroup.
  */
-@property (readonly) NSUInteger maxTotalThreadsPerThreadgroup API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (readonly) NSUInteger maxTotalThreadsPerThreadgroup API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property threadgroupSizeMatchesTileSize
  @abstract Returns true when the pipeline state requires a threadgroup size equal to the tile size
  */
-@property (readonly) BOOL threadgroupSizeMatchesTileSize API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (readonly) BOOL threadgroupSizeMatchesTileSize API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 
 
@@ -1868,13 +2058,13 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @property imageblockSampleLength
  @brief Returns imageblock memory length used by a single sample when rendered using this pipeline.
  */
-@property (readonly) NSUInteger imageblockSampleLength API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (readonly) NSUInteger imageblockSampleLength API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method imageblockMemoryLengthForDimensions:sampleCount:
  @brief Returns imageblock memory length for given image block dimensions. Dimensions must be valid tile dimensions.
  */
-- (NSUInteger)imageblockMemoryLengthForDimensions:(MTLSize)imageblockDimensions API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (NSUInteger)imageblockMemoryLengthForDimensions:(MTLSize)imageblockDimensions API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 
 @property (readonly) BOOL supportIndirectCommandBuffers API_AVAILABLE(macos(10.14), ios(12.0));
@@ -1893,7 +2083,7 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
 @end
 
 
-MTL_EXPORT API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos)
+MTL_EXPORT API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac)
 @interface MTLTileRenderPipelineColorAttachmentDescriptor : NSObject <NSCopying>
 
 /*! Pixel format.  Defaults to MTLPixelFormatInvalid */
@@ -1901,7 +2091,7 @@ MTL_EXPORT API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos)
 
 @end
 
-MTL_EXPORT API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos)
+MTL_EXPORT API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac)
 @interface MTLTileRenderPipelineColorAttachmentDescriptorArray : NSObject
 
 /* Individual tile attachment state access */
@@ -1912,7 +2102,7 @@ MTL_EXPORT API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos)
 
 @end
 
-MTL_EXPORT API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos)
+MTL_EXPORT API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac)
 @interface MTLTileRenderPipelineDescriptor : NSObject <NSCopying>
 
 /*!
@@ -1941,13 +2131,13 @@ MTL_EXPORT API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos)
  */
 @property (readwrite, nonatomic) BOOL threadgroupSizeMatchesTileSize;
 
-@property (readonly) MTLPipelineBufferDescriptorArray *tileBuffers API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (readonly) MTLPipelineBufferDescriptorArray *tileBuffers API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property maxTotalThreadsPerThreadgroup
  @abstract Optional property. Set the maxTotalThreadsPerThreadgroup. If it is not set, returns zero.
  */
-@property (readwrite, nonatomic) NSUInteger maxTotalThreadsPerThreadgroup API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos);
+@property (readwrite, nonatomic) NSUInteger maxTotalThreadsPerThreadgroup API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, uikitformac);
 
 - (void)reset;
 
@@ -1978,7 +2168,6 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol MTLDrawable;
 @protocol MTLCommandBuffer;
 @protocol MTLEvent;
-
 @class MTLRenderPassDescriptor;
 
 /*!
@@ -2018,7 +2207,7 @@ typedef NS_ENUM(NSUInteger, MTLCommandBufferStatus) {
  @abstract An error domain for NSError objects produced by MTLCommandBuffer
  */
 API_AVAILABLE(macos(10.11), ios(8.0))
-MTL_EXTERN NSString *const MTLCommandBufferErrorDomain;
+MTL_EXTERN NSErrorDomain const MTLCommandBufferErrorDomain;
 
 /*!
  @enum MTLCommandBufferError
@@ -2062,7 +2251,7 @@ typedef NS_ENUM(NSUInteger, MTLCommandBufferError)
     MTLCommandBufferErrorNotPermitted = 7,
     MTLCommandBufferErrorOutOfMemory = 8,
     MTLCommandBufferErrorInvalidResource = 9,
-    MTLCommandBufferErrorMemoryless API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) = 10,
+    MTLCommandBufferErrorMemoryless API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, uikitformac) = 10,
     MTLCommandBufferErrorDeviceRemoved API_AVAILABLE(macos(10.13)) API_UNAVAILABLE(ios) = 11,
 } API_AVAILABLE(macos(10.11), ios(8.0));
 
@@ -2116,19 +2305,19 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  */
 @property (nullable, copy, atomic) NSString *label;
 
-@property (readonly) CFTimeInterval kernelStartTime API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos);
-@property (readonly) CFTimeInterval kernelEndTime API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos);
+@property (readonly) CFTimeInterval kernelStartTime API_AVAILABLE(macos(10.15), uikitformac(13.0), ios(10.3));
+@property (readonly) CFTimeInterval kernelEndTime API_AVAILABLE(macos(10.15), uikitformac(13.0), ios(10.3));
 
 /*!
  @property GPUStartTime
  @abstract The host time in seconds that GPU starts executing this command buffer. Returns zero if it has not started. This usually can be called in command buffer completion handler.
  */
-@property (readonly) CFTimeInterval GPUStartTime API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos);
+@property (readonly) CFTimeInterval GPUStartTime API_AVAILABLE(macos(10.15), uikitformac(13.0), ios(10.3));
 /*!
  @property GPUEndTime
  @abstract The host time in seconds that GPU finishes executing this command buffer. Returns zero if CPU has not received completion notification. This usually can be called in command buffer completion handler.
  */
-@property (readonly) CFTimeInterval GPUEndTime API_AVAILABLE(ios(10.3)) API_UNAVAILABLE(macos);
+@property (readonly) CFTimeInterval GPUEndTime API_AVAILABLE(macos(10.15), uikitformac(13.0), ios(10.3));
 
 /*!
  @method enqueue
@@ -2284,7 +2473,7 @@ typedef NS_ENUM(NSUInteger, MTLPixelFormat)
     MTLPixelFormatA8Unorm      = 1,
     
     MTLPixelFormatR8Unorm                            = 10,
-    MTLPixelFormatR8Unorm_sRGB API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 11,
+    MTLPixelFormatR8Unorm_sRGB API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 11,
 
     MTLPixelFormatR8Snorm      = 12,
     MTLPixelFormatR8Uint       = 13,
@@ -2299,17 +2488,17 @@ typedef NS_ENUM(NSUInteger, MTLPixelFormat)
     MTLPixelFormatR16Float     = 25,
 
     MTLPixelFormatRG8Unorm                            = 30,
-    MTLPixelFormatRG8Unorm_sRGB API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 31,
+    MTLPixelFormatRG8Unorm_sRGB API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 31,
     MTLPixelFormatRG8Snorm                            = 32,
     MTLPixelFormatRG8Uint                             = 33,
     MTLPixelFormatRG8Sint                             = 34,
 
     /* Packed 16 bit formats */
     
-    MTLPixelFormatB5G6R5Unorm API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 40,
-    MTLPixelFormatA1BGR5Unorm API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 41,
-    MTLPixelFormatABGR4Unorm  API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 42,
-    MTLPixelFormatBGR5A1Unorm API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 43,
+    MTLPixelFormatB5G6R5Unorm API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 40,
+    MTLPixelFormatA1BGR5Unorm API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 41,
+    MTLPixelFormatABGR4Unorm  API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 42,
+    MTLPixelFormatBGR5A1Unorm API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 43,
 
     /* Normal 32 bit formats */
 
@@ -2329,7 +2518,6 @@ typedef NS_ENUM(NSUInteger, MTLPixelFormat)
     MTLPixelFormatRGBA8Uint       = 73,
     MTLPixelFormatRGBA8Sint       = 74,
     
-    
     MTLPixelFormatBGRA8Unorm      = 80,
     MTLPixelFormatBGRA8Unorm_sRGB = 81,
 
@@ -2343,8 +2531,8 @@ typedef NS_ENUM(NSUInteger, MTLPixelFormat)
 
     MTLPixelFormatBGR10A2Unorm  API_AVAILABLE(macos(10.13), ios(11.0)) = 94,
 
-    MTLPixelFormatBGR10_XR      API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) = 554,
-    MTLPixelFormatBGR10_XR_sRGB API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) = 555,
+    MTLPixelFormatBGR10_XR      API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, uikitformac) = 554,
+    MTLPixelFormatBGR10_XR_sRGB API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, uikitformac) = 555,
 
     /* Normal 64 bit formats */
 
@@ -2358,8 +2546,8 @@ typedef NS_ENUM(NSUInteger, MTLPixelFormat)
     MTLPixelFormatRGBA16Sint   = 114,
     MTLPixelFormatRGBA16Float  = 115,
 
-    MTLPixelFormatBGRA10_XR      API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) = 552,
-    MTLPixelFormatBGRA10_XR_sRGB API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) = 553,
+    MTLPixelFormatBGRA10_XR      API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, uikitformac) = 552,
+    MTLPixelFormatBGRA10_XR_sRGB API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, uikitformac) = 553,
 
     /* Normal 128 bit formats */
 
@@ -2370,78 +2558,78 @@ typedef NS_ENUM(NSUInteger, MTLPixelFormat)
     /* Compressed formats. */
 
     /* S3TC/DXT */
-    MTLPixelFormatBC1_RGBA              API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 130,
-    MTLPixelFormatBC1_RGBA_sRGB         API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 131,
-    MTLPixelFormatBC2_RGBA              API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 132,
-    MTLPixelFormatBC2_RGBA_sRGB         API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 133,
-    MTLPixelFormatBC3_RGBA              API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 134,
-    MTLPixelFormatBC3_RGBA_sRGB         API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 135,
+    MTLPixelFormatBC1_RGBA              API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 130,
+    MTLPixelFormatBC1_RGBA_sRGB         API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 131,
+    MTLPixelFormatBC2_RGBA              API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 132,
+    MTLPixelFormatBC2_RGBA_sRGB         API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 133,
+    MTLPixelFormatBC3_RGBA              API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 134,
+    MTLPixelFormatBC3_RGBA_sRGB         API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 135,
 
     /* RGTC */
-    MTLPixelFormatBC4_RUnorm            API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 140,
-    MTLPixelFormatBC4_RSnorm            API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 141,
-    MTLPixelFormatBC5_RGUnorm           API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 142,
-    MTLPixelFormatBC5_RGSnorm           API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 143,
+    MTLPixelFormatBC4_RUnorm            API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 140,
+    MTLPixelFormatBC4_RSnorm            API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 141,
+    MTLPixelFormatBC5_RGUnorm           API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 142,
+    MTLPixelFormatBC5_RGSnorm           API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 143,
 
     /* BPTC */
-    MTLPixelFormatBC6H_RGBFloat         API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 150,
-    MTLPixelFormatBC6H_RGBUfloat        API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 151,
-    MTLPixelFormatBC7_RGBAUnorm         API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 152,
-    MTLPixelFormatBC7_RGBAUnorm_sRGB    API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 153,
+    MTLPixelFormatBC6H_RGBFloat         API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 150,
+    MTLPixelFormatBC6H_RGBUfloat        API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 151,
+    MTLPixelFormatBC7_RGBAUnorm         API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 152,
+    MTLPixelFormatBC7_RGBAUnorm_sRGB    API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 153,
 
     /* PVRTC */
-    MTLPixelFormatPVRTC_RGB_2BPP        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 160,
-    MTLPixelFormatPVRTC_RGB_2BPP_sRGB   API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 161,
-    MTLPixelFormatPVRTC_RGB_4BPP        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 162,
-    MTLPixelFormatPVRTC_RGB_4BPP_sRGB   API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 163,
-    MTLPixelFormatPVRTC_RGBA_2BPP       API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 164,
-    MTLPixelFormatPVRTC_RGBA_2BPP_sRGB  API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 165,
-    MTLPixelFormatPVRTC_RGBA_4BPP       API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 166,
-    MTLPixelFormatPVRTC_RGBA_4BPP_sRGB  API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 167,
+    MTLPixelFormatPVRTC_RGB_2BPP        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 160,
+    MTLPixelFormatPVRTC_RGB_2BPP_sRGB   API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 161,
+    MTLPixelFormatPVRTC_RGB_4BPP        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 162,
+    MTLPixelFormatPVRTC_RGB_4BPP_sRGB   API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 163,
+    MTLPixelFormatPVRTC_RGBA_2BPP       API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 164,
+    MTLPixelFormatPVRTC_RGBA_2BPP_sRGB  API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 165,
+    MTLPixelFormatPVRTC_RGBA_4BPP       API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 166,
+    MTLPixelFormatPVRTC_RGBA_4BPP_sRGB  API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 167,
 
     /* ETC2 */
-    MTLPixelFormatEAC_R11Unorm          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 170,
-    MTLPixelFormatEAC_R11Snorm          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 172,
-    MTLPixelFormatEAC_RG11Unorm         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 174,
-    MTLPixelFormatEAC_RG11Snorm         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 176,
-    MTLPixelFormatEAC_RGBA8             API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 178,
-    MTLPixelFormatEAC_RGBA8_sRGB        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 179,
+    MTLPixelFormatEAC_R11Unorm          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 170,
+    MTLPixelFormatEAC_R11Snorm          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 172,
+    MTLPixelFormatEAC_RG11Unorm         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 174,
+    MTLPixelFormatEAC_RG11Snorm         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 176,
+    MTLPixelFormatEAC_RGBA8             API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 178,
+    MTLPixelFormatEAC_RGBA8_sRGB        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 179,
 
-    MTLPixelFormatETC2_RGB8             API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 180,
-    MTLPixelFormatETC2_RGB8_sRGB        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 181,
-    MTLPixelFormatETC2_RGB8A1           API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 182,
-    MTLPixelFormatETC2_RGB8A1_sRGB      API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 183,
+    MTLPixelFormatETC2_RGB8             API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 180,
+    MTLPixelFormatETC2_RGB8_sRGB        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 181,
+    MTLPixelFormatETC2_RGB8A1           API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 182,
+    MTLPixelFormatETC2_RGB8A1_sRGB      API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 183,
 
     /* ASTC */
-    MTLPixelFormatASTC_4x4_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 186,
-    MTLPixelFormatASTC_5x4_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 187,
-    MTLPixelFormatASTC_5x5_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 188,
-    MTLPixelFormatASTC_6x5_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 189,
-    MTLPixelFormatASTC_6x6_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 190,
-    MTLPixelFormatASTC_8x5_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 192,
-    MTLPixelFormatASTC_8x6_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 193,
-    MTLPixelFormatASTC_8x8_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 194,
-    MTLPixelFormatASTC_10x5_sRGB        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 195,
-    MTLPixelFormatASTC_10x6_sRGB        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 196,
-    MTLPixelFormatASTC_10x8_sRGB        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 197,
-    MTLPixelFormatASTC_10x10_sRGB       API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 198,
-    MTLPixelFormatASTC_12x10_sRGB       API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 199,
-    MTLPixelFormatASTC_12x12_sRGB       API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 200,
+    MTLPixelFormatASTC_4x4_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 186,
+    MTLPixelFormatASTC_5x4_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 187,
+    MTLPixelFormatASTC_5x5_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 188,
+    MTLPixelFormatASTC_6x5_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 189,
+    MTLPixelFormatASTC_6x6_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 190,
+    MTLPixelFormatASTC_8x5_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 192,
+    MTLPixelFormatASTC_8x6_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 193,
+    MTLPixelFormatASTC_8x8_sRGB         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 194,
+    MTLPixelFormatASTC_10x5_sRGB        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 195,
+    MTLPixelFormatASTC_10x6_sRGB        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 196,
+    MTLPixelFormatASTC_10x8_sRGB        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 197,
+    MTLPixelFormatASTC_10x10_sRGB       API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 198,
+    MTLPixelFormatASTC_12x10_sRGB       API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 199,
+    MTLPixelFormatASTC_12x12_sRGB       API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 200,
 
-    MTLPixelFormatASTC_4x4_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 204,
-    MTLPixelFormatASTC_5x4_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 205,
-    MTLPixelFormatASTC_5x5_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 206,
-    MTLPixelFormatASTC_6x5_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 207,
-    MTLPixelFormatASTC_6x6_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 208,
-    MTLPixelFormatASTC_8x5_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 210,
-    MTLPixelFormatASTC_8x6_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 211,
-    MTLPixelFormatASTC_8x8_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 212,
-    MTLPixelFormatASTC_10x5_LDR         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 213,
-    MTLPixelFormatASTC_10x6_LDR         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 214,
-    MTLPixelFormatASTC_10x8_LDR         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 215,
-    MTLPixelFormatASTC_10x10_LDR        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 216,
-    MTLPixelFormatASTC_12x10_LDR        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 217,
-    MTLPixelFormatASTC_12x12_LDR        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos) = 218,
+    MTLPixelFormatASTC_4x4_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 204,
+    MTLPixelFormatASTC_5x4_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 205,
+    MTLPixelFormatASTC_5x5_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 206,
+    MTLPixelFormatASTC_6x5_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 207,
+    MTLPixelFormatASTC_6x6_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 208,
+    MTLPixelFormatASTC_8x5_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 210,
+    MTLPixelFormatASTC_8x6_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 211,
+    MTLPixelFormatASTC_8x8_LDR          API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 212,
+    MTLPixelFormatASTC_10x5_LDR         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 213,
+    MTLPixelFormatASTC_10x6_LDR         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 214,
+    MTLPixelFormatASTC_10x8_LDR         API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 215,
+    MTLPixelFormatASTC_10x10_LDR        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 216,
+    MTLPixelFormatASTC_12x10_LDR        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 217,
+    MTLPixelFormatASTC_12x12_LDR        API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, uikitformac) = 218,
     
     
     /*!
@@ -2460,7 +2648,7 @@ typedef NS_ENUM(NSUInteger, MTLPixelFormat)
 
     /* Depth */
 
-    MTLPixelFormatDepth16Unorm          API_AVAILABLE(macos(10.12)) API_UNAVAILABLE(ios) = 250,
+    MTLPixelFormatDepth16Unorm          API_AVAILABLE(macos(10.12), ios(13.0)) = 250,
     MTLPixelFormatDepth32Float  = 252,
 
     /* Stencil */
@@ -2469,11 +2657,11 @@ typedef NS_ENUM(NSUInteger, MTLPixelFormat)
 
     /* Depth Stencil */
     
-    MTLPixelFormatDepth24Unorm_Stencil8  API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 255,
+    MTLPixelFormatDepth24Unorm_Stencil8  API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 255,
     MTLPixelFormatDepth32Float_Stencil8  API_AVAILABLE(macos(10.11), ios(9.0)) = 260,
 
     MTLPixelFormatX32_Stencil8  API_AVAILABLE(macos(10.12), ios(10.0)) = 261,
-    MTLPixelFormatX24_Stencil8  API_AVAILABLE(macos(10.12)) API_UNAVAILABLE(ios) = 262,
+    MTLPixelFormatX24_Stencil8  API_AVAILABLE(macos(10.12), uikitformac(13.0)) API_UNAVAILABLE(ios) = 262,
 
 } API_AVAILABLE(macos(10.11), ios(8.0));
 
@@ -2493,6 +2681,7 @@ NS_ASSUME_NONNULL_END
 #import <Metal/MTLBuffer.h>
 #import <Metal/MTLTexture.h>
 #import <Metal/MTLFence.h>
+#import <Metal/MTLRenderPass.h>
 
 NS_ASSUME_NONNULL_BEGIN
 /*!
@@ -2509,7 +2698,7 @@ typedef NS_OPTIONS(NSUInteger, MTLBlitOption)
     MTLBlitOptionNone                       = 0,
     MTLBlitOptionDepthFromDepthStencil      = 1 << 0,
     MTLBlitOptionStencilFromDepthStencil    = 1 << 1,
-    MTLBlitOptionRowLinearPVRTC API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos) = 1 << 2,
+    MTLBlitOptionRowLinearPVRTC API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, uikitformac) = 1 << 2,
 } API_AVAILABLE(macos(10.11), ios(9.0));
 
 
@@ -2528,7 +2717,7 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  making any CPU access (either MTLBuffer.contents or -[MTLTexture getBytes:...] and -[MTLTexture replaceRegion:]) produce undefined results.  To allow the CPU to see what the device
  has written, a CommandBuffer containing this synchronization must be executed.  After completion of the CommandBuffer, the CPU can access the contents of the resource safely.
  */
-- (void)synchronizeResource:(id<MTLResource>)resource API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios);
+- (void)synchronizeResource:(id<MTLResource>)resource API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios);
 
 /*!
  @method synchronizeTexture:slice:mipmapLevel:
@@ -2539,7 +2728,7 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @discussion
  See the discussion of -synchronizeResource.   -synchronizeTexture:slice:mipmapLevel performs the same role, except it may flush only a subset of the texture storage, rather than the entire texture.
  */
-- (void)synchronizeTexture:(id<MTLTexture>)texture slice:(NSUInteger)slice level:(NSUInteger)level API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios);
+- (void)synchronizeTexture:(id<MTLTexture>)texture slice:(NSUInteger)slice level:(NSUInteger)level API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios);
 
 /*!
  @method copyFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:
@@ -2581,7 +2770,39 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @method fillBuffer:range:value:
  @abstract Fill a buffer with a fixed value in each byte.
  */
-- (void)fillBuffer:(id <MTLBuffer>)buffer range:(NSRange)range value:(uint8_t)value;
+- (void)fillBuffer:(id<MTLBuffer>)buffer range:(NSRange)range value:(uint8_t)value;
+
+
+/*!
+ @method copyFromTexture:sourceSlice:sourceLevel:toTexture:destinationSlice:destinationLevel:sliceCount:levelCount:
+ @abstract Copy whole surfaces between textures.
+ @discussion Convenience function to copy sliceCount * levelCount whole surfaces between textures
+ The source and destination pixel format must be identical.
+ The source and destination sample count must be identical.
+ The sourceLevel mip in sourceTexture must have the same dimension as the destinationLevel mip in destinationTexture.
+ The sourceTexture must have at least sourceLevel + levelCount mips
+ The destinationTexture must have at least destinationLevel + levelCount mips
+ The sourceTexture must have at least sourceSlice + sliceCount array slices
+ The destinationTexture must have at least destinationSlice + sliceCount array slices
+ */
+- (void)copyFromTexture:(id<MTLTexture>)sourceTexture sourceSlice:(NSUInteger)sourceSlice sourceLevel:(NSUInteger)sourceLevel
+              toTexture:(id<MTLTexture>)destinationTexture destinationSlice:(NSUInteger)destinationSlice destinationLevel:(NSUInteger)destinationLevel
+             sliceCount:(NSUInteger)sliceCount levelCount:(NSUInteger)levelCount API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
+ @method copyFromTexture:toTexture:
+ @abstract Copy as many whole surfaces as possible between textures.
+ @discussion Convenience function that calls copyFromTexture:sourceSlice:sourceLevel:toTexture:destinationSlice:destinationLevel:sliceCount:levelCount:
+ The source and destination pixel format must be identical.
+ The source and destination sample count must be identical.
+ Either:
+ - sourceTexture must have a mip M with identical dimensions as the first mip of destinationTexture: sourceLevel = M, destinationLevel = 0
+ - destinationTexture must have a mip M with identical dimensions as the first mip of sourceTexture: sourceLevel = 0, destinationLevel = M
+ Computes: levelCount = min(sourceTexture.mipmapLevelCount - sourceLevel, destinationTexture.mipmapLevelCount - destinationLevel)
+           sliceCount = min(sourceTexture.arrayLength, destinationTexture.arrayLength)
+ Then invokes the method above using the computed parameters.
+ */
+- (void)copyFromTexture:(id<MTLTexture>)sourceTexture toTexture:(id<MTLTexture>)destinationTexture API_AVAILABLE(macos(10.15), ios(13.0));
 
 /*!
  @method copyFromBuffer:sourceOffset:toBuffer:destinationOffset:size:
@@ -2604,6 +2825,9 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  Drivers may delay fence updates until the end of the encoder. Drivers may also wait on fences at the beginning of an encoder. It is therefore illegal to wait on a fence after it has been updated in the same encoder.
  */
 - (void)waitForFence:(id <MTLFence>)fence API_AVAILABLE(macos(10.13), ios(10.0));
+
+
+
 
 
 /*!
@@ -2649,6 +2873,7 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @abstract Optimizes a subset of the texture data to ensure the best possible performance when accessing content on the CPU at the expense of GPU-access performance.
  */
 - (void)optimizeIndirectCommandBuffer:(id <MTLIndirectCommandBuffer>)indirectCommandBuffer withRange:(NSRange)range API_AVAILABLE(macos(10.14), ios(12.0));
+
 
 @end
 NS_ASSUME_NONNULL_END
@@ -3001,6 +3226,11 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(9.0))
 @property (readonly) MTLPipelineBufferDescriptorArray *buffers API_AVAILABLE(macos(10.13), ios(11.0));
 
 /*!
+ @property supportIndirectCommandBuffers
+ @abstract This flag makes this pipeline usable with indirect command buffers.
+ */
+@property (readwrite, nonatomic) BOOL supportIndirectCommandBuffers API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos);
+/*!
  @method reset
  @abstract Restore all compute pipeline descriptor properties to their default values.
  */
@@ -3048,8 +3278,14 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @method imageblockMemoryLengthForDimensions:
  @brief Returns imageblock memory length for given image block dimensions.
  */
-- (NSUInteger)imageblockMemoryLengthForDimensions:(MTLSize)imageblockDimensions API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (NSUInteger)imageblockMemoryLengthForDimensions:(MTLSize)imageblockDimensions API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
+
+/*!
+ @property supportIndirectCommandBuffers
+ @abstract Tells whether this pipeline state is usable through an Indirect Command Buffer.
+ */
+@property (readonly) BOOL supportIndirectCommandBuffers API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos);
 
 @end
 
@@ -3144,6 +3380,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 @protocol MTLDevice;
+
 
 typedef NS_ENUM(NSUInteger, MTLLoadAction) {
     MTLLoadActionDontCare = 0,
@@ -3344,6 +3581,7 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
 
 @end
 
+
 /*!
  @class MTLRenderPassDescriptor
  @abstract MTLRenderPassDescriptor represents a collection of attachments to be used to create a concrete render command encoder
@@ -3380,51 +3618,47 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
  @property imageblockSampleLength:
  @abstract The per sample size in bytes of the largest explicit imageblock layout in the renderPass.
  */
-@property (nonatomic) NSUInteger imageblockSampleLength API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (nonatomic) NSUInteger imageblockSampleLength API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property threadgroupMemoryLength:
  @abstract The per tile size in bytes of the persistent threadgroup memory allocation.
  */
-@property (nonatomic) NSUInteger threadgroupMemoryLength API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (nonatomic) NSUInteger threadgroupMemoryLength API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property tileWidth:
  @abstract The width in pixels of the tile.
  @discssion Defaults to 0. Zero means Metal chooses a width that fits within the local memory.
  */
-@property (nonatomic) NSUInteger tileWidth API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (nonatomic) NSUInteger tileWidth API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property tileHeight:
  @abstract The height in pixels of the tile.
  @discssion Defaults to 0. Zero means Metal chooses a height that fits within the local memory.
  */
-@property (nonatomic) NSUInteger tileHeight API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (nonatomic) NSUInteger tileHeight API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property defaultRasterSampleCount:
  @abstract The raster sample count for the render pass when no attachments are given.
  */
-@property (nonatomic) NSUInteger defaultRasterSampleCount API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
-
-
+@property (nonatomic) NSUInteger defaultRasterSampleCount API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property renderTargetWidth:
- @abstract The width in pixels to constain the render target to.
- @discssion Defaults to 0. If non-zero the value must be smaller than or equal to the minimum width of all attachments.
+ @abstract The width in pixels to constrain the render target to.
+ @discussion Defaults to 0. If non-zero the value must be smaller than or equal to the minimum width of all attachments.
  */
-@property (nonatomic) NSUInteger renderTargetWidth API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (nonatomic) NSUInteger renderTargetWidth API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property renderTargetHeight:
- @abstract The height in pixels to constain the render target to.
- @discssion Defaults to 0. If non-zero the value must be smaller than or equal to the minimum height of all attachments.
+ @abstract The height in pixels to constrain the render target to.
+ @discussion Defaults to 0. If non-zero the value must be smaller than or equal to the minimum height of all attachments.
  */
-@property (nonatomic) NSUInteger renderTargetHeight API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
-
-
+@property (nonatomic) NSUInteger renderTargetHeight API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method setSamplePositions:count:
@@ -3442,6 +3676,8 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
  @return The number of previously configured custom sample positions.
  */
 - (NSUInteger)getSamplePositions:(MTLSamplePosition * _Nullable)positions count:(NSUInteger)count API_AVAILABLE(macos(10.13), ios(11.0));
+
+
 
 
 @end
@@ -3541,11 +3777,24 @@ typedef NS_ENUM(NSUInteger, MTLCPUCacheMode)
 typedef NS_ENUM(NSUInteger, MTLStorageMode)
 {
     MTLStorageModeShared  = 0,
-    MTLStorageModeManaged API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios) = 1,
+    MTLStorageModeManaged API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios) = 1,
     MTLStorageModePrivate = 2,
-    MTLStorageModeMemoryless API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) = 3,
+    MTLStorageModeMemoryless API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, uikitformac) = 3,
 } API_AVAILABLE(macos(10.11), ios(9.0));
 
+/*!
+ @enum MTLHazardTrackingMode
+ @abstract Describes how hazard tracking is performed.
+ @constant MTLHazardTrackingModeDefault The default hazard tracking mode for the context. Refer to the usage of the field for semantics.
+ @constant MTLHazardTrackingModeUntracked Do not perform hazard tracking.
+ @constant MTLHazardTrackingModeTracked Do perform hazard tracking.
+*/
+typedef NS_ENUM(NSUInteger, MTLHazardTrackingMode)
+{
+    MTLHazardTrackingModeDefault = 0,
+    MTLHazardTrackingModeUntracked = 1,
+    MTLHazardTrackingModeTracked = 2,
+} API_AVAILABLE(macos(10.15), ios(13.0));
 
 /*!
  @enum MTLResourceOptions
@@ -3585,10 +3834,20 @@ typedef NS_ENUM(NSUInteger, MTLStorageMode)
  MTLTexture descriptor. Textures created with MTLStorageModeMemoryless dont have an IOAccelResource at any point in their
  lifetime. The only way to populate such resource is to perform rendering operations on it. Blit operations are disallowed.
  
+ @constant MTLResourceHazardTrackingModeDefault
+ This mode is the default for the context in which it is specified,
+ which may be either MTLResourceHazardTrackingModeUntracked or MTLResourceHazardTrackingModeTracked.
+ Refer to the point of use to determing the meaning of this flag.
+ 
  @constant MTLResourceHazardTrackingModeUntracked
- In this mode, Command encoder dependencies for this resource are tracked manually with MTLFence.
- This value is always set for resources sub-allocated from a MTLHeap and may optionally be specified
- for non-heap resources.
+ In this mode, command encoder dependencies for this resource are tracked manually with MTLFence.
+ This value is the default for MTLHeap and resources sub-allocated from a MTLHeap,
+ and may optionally be specified for non-heap resources.
+
+ @constant MTLResourceHazardTrackingModeTracked
+ In this mode, command encoder dependencies for this resource are tracked automatically.
+ This value is the default for resources allocated from a MTLDevice,
+ and may optionally be specified for MTLHeap and resources sub-allocated from such heaps.
  
  @discussion
  Note that resource options are a property of MTLTextureDescriptor (resourceOptions), so apply to texture creation.
@@ -3602,7 +3861,7 @@ typedef NS_ENUM(NSUInteger, MTLStorageMode)
 #define MTLResourceStorageModeMask              (0xfUL << MTLResourceStorageModeShift)
 
 #define MTLResourceHazardTrackingModeShift      8
-#define MTLResourceHazardTrackingModeMask       (0x1UL << MTLResourceHazardTrackingModeShift)
+#define MTLResourceHazardTrackingModeMask       (0x3UL << MTLResourceHazardTrackingModeShift)
 
 typedef NS_OPTIONS(NSUInteger, MTLResourceOptions)
 {
@@ -3610,11 +3869,13 @@ typedef NS_OPTIONS(NSUInteger, MTLResourceOptions)
     MTLResourceCPUCacheModeWriteCombined = MTLCPUCacheModeWriteCombined << MTLResourceCPUCacheModeShift,
 
     MTLResourceStorageModeShared     API_AVAILABLE(macos(10.11), ios(9.0))  = MTLStorageModeShared     << MTLResourceStorageModeShift,
-    MTLResourceStorageModeManaged    API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios)   = MTLStorageModeManaged    << MTLResourceStorageModeShift,
+    MTLResourceStorageModeManaged    API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios)   = MTLStorageModeManaged    << MTLResourceStorageModeShift,
     MTLResourceStorageModePrivate    API_AVAILABLE(macos(10.11), ios(9.0))  = MTLStorageModePrivate    << MTLResourceStorageModeShift,
-    MTLResourceStorageModeMemoryless API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos) = MTLStorageModeMemoryless << MTLResourceStorageModeShift,
-
-    MTLResourceHazardTrackingModeUntracked API_AVAILABLE(macos(10.13), ios(10.0)) = 0x1UL << MTLResourceHazardTrackingModeShift,
+    MTLResourceStorageModeMemoryless API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macos, uikitformac) = MTLStorageModeMemoryless << MTLResourceStorageModeShift,    
+    
+    MTLResourceHazardTrackingModeDefault API_AVAILABLE(macos(10.13), ios(10.0)) = MTLHazardTrackingModeDefault << MTLResourceHazardTrackingModeShift,
+    MTLResourceHazardTrackingModeUntracked API_AVAILABLE(macos(10.13), ios(10.0)) = MTLHazardTrackingModeUntracked << MTLResourceHazardTrackingModeShift,
+    MTLResourceHazardTrackingModeTracked API_AVAILABLE(macos(10.15), ios(13.0)) = MTLHazardTrackingModeTracked << MTLResourceHazardTrackingModeShift,
     
     // Deprecated spellings
     MTLResourceOptionCPUCacheModeDefault       = MTLResourceCPUCacheModeDefaultCache,
@@ -3657,6 +3918,20 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 @property (readonly) MTLStorageMode storageMode API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
+ @property hazardTrackingMode
+ @abstract Whether or not the resource is hazard tracked.
+ @discussion This value can be either MTLHazardTrackingModeUntracked or MTLHazardTrackingModeTracked.
+ Resources created from heaps are by default untracked, whereas resources created from the device are by default tracked.
+ */
+@property (readonly) MTLHazardTrackingMode hazardTrackingMode API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
+ @property resourceOptions
+ @abstract A packed tuple of the storageMode, cpuCacheMode and hazardTrackingMode properties.
+ */
+@property (readonly) MTLResourceOptions resourceOptions API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
  @method setPurgeableState
  @abstract Set (or query) the purgeability state of a resource
  @discussion Synchronously set the purgeability state of a resource and return what the prior (or current) state is.
@@ -3670,6 +3945,13 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @discussion Nil when this resource is not backed by a heap.
  */
 @property (readonly, nullable) id <MTLHeap> heap API_AVAILABLE(macos(10.13), ios(10.0));
+
+/*!
+ @property heapOffset
+ @abstract The offset inside the heap at which this resource was created.
+ @discussion Zero when this resource was not created on a heap with MTLHeapTypePlacement.
+ */
+@property (readonly) NSUInteger heapOffset API_AVAILABLE(macos(10.15), ios(13.0));
 
 /*!
  @property allocatedSize
@@ -3725,9 +4007,27 @@ typedef NS_OPTIONS(NSUInteger, MTLIndirectCommandType) {
     MTLIndirectCommandTypeDrawIndexed         = (1 << 1),
     MTLIndirectCommandTypeDrawPatches         = (1 << 2),
     MTLIndirectCommandTypeDrawIndexedPatches  = (1 << 3) ,
+
+    MTLIndirectCommandTypeDispatch            API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos) = (1 << 4), /* Traditional compute semantics */
+    MTLIndirectCommandTypeConcurrentDispatch  API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos) = (1 << 5), /* Dispatch threadgroups with concurrent execution */
+     MTLIndirectCommandTypeConcurrentDispatchThreads  API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos) = (1 << 6), /* Dispatch threads with concurrent execution */
 } API_AVAILABLE(macos(10.14), ios(12.0));
 
 
+/*!
+ @abstract The data layout required for specifying an indirect command buffer execution range.
+ */
+typedef struct
+{
+    uint32_t location;
+    uint32_t length;
+}  MTLIndirectCommandBufferExecutionRange API_AVAILABLE(macos(10.14), uikitformac(13.0), ios(13.0));
+
+MTL_INLINE MTLIndirectCommandBufferExecutionRange MTLIndirectCommandBufferExecutionRangeMake(uint32_t location, uint32_t length) API_AVAILABLE(macos(10.14), uikitformac(13.0), ios(13.0))
+{
+    MTLIndirectCommandBufferExecutionRange icbRange = {location, length};
+    return icbRange;
+}
 
 /*!
  @abstract
@@ -3748,7 +4048,7 @@ MTL_EXPORT API_AVAILABLE(macos(10.14), ios(12.0))
  @abstract
  Whether the render or compute pipeline are inherited from the encoder
  */
-@property (readwrite, nonatomic) BOOL inheritPipelineState API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios);
+@property (readwrite, nonatomic) BOOL inheritPipelineState API_AVAILABLE(macos(10.14), ios(13.0));
 
 /*!
  @abstract
@@ -3768,6 +4068,11 @@ MTL_EXPORT API_AVAILABLE(macos(10.14), ios(12.0))
  */
 @property (readwrite, nonatomic) NSUInteger maxFragmentBufferBindCount;
 
+/*!
+ @absract
+ The maximum bind index of kernel (or tile) argument buffers that can be set per command.
+ */
+@property (readwrite, nonatomic) NSUInteger maxKernelBufferBindCount API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos);
 
 
 @end
@@ -3781,6 +4086,7 @@ API_AVAILABLE(macos(10.14), ios(12.0))
 -(void)resetWithRange:(NSRange)range;
 
 - (id <MTLIndirectRenderCommand>)indirectRenderCommandAtIndex:(NSUInteger)commandIndex;
+- (id <MTLIndirectComputeCommand>)indirectComputeCommandAtIndex:(NSUInteger)commandIndex API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos);
 
 @end
 
@@ -3935,14 +4241,25 @@ API_AVAILABLE(macos(10.13), ios(11.0))
  * @method setRenderPipelineState:atIndex
  * @brief Sets a render pipeline state at a given bind point index
  */
-- (void)setRenderPipelineState:(nullable id <MTLRenderPipelineState>)pipeline atIndex:(NSUInteger)index API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios);
+- (void)setRenderPipelineState:(nullable id <MTLRenderPipelineState>)pipeline atIndex:(NSUInteger)index API_AVAILABLE(macos(10.14), uikitformac(13.0), ios(13.0));
 
 /*!
  * @method setRenderPipelineStates:withRange
  * @brief Set an array of render pipeline states at a given bind point index range
  */
-- (void)setRenderPipelineStates:(const id <MTLRenderPipelineState> __nullable [__nonnull])pipelines withRange:(NSRange)range API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios);
+- (void)setRenderPipelineStates:(const id <MTLRenderPipelineState> __nullable [__nonnull])pipelines withRange:(NSRange)range API_AVAILABLE(macos(10.14), uikitformac(13.0), ios(13.0));
 
+/*!
+ * @method setComputePipelineState:atIndex
+ * @brief Sets a compute pipeline state at a given bind point index
+ */
+- (void)setComputePipelineState:(nullable id <MTLComputePipelineState>)pipeline atIndex:(NSUInteger)index API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos);
+
+/*!
+ * @method setComputePipelineStates:withRange
+ * @brief Set an array of compute pipeline states at a given bind point index range
+ */
+- (void)setComputePipelineStates:(const id <MTLComputePipelineState> __nullable [__nonnull])pipelines withRange:(NSRange)range API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos);
 
 /*!
  * @method setIndirectCommandBuffer:atIndex
@@ -3962,7 +4279,7 @@ API_AVAILABLE(macos(10.13), ios(11.0))
  * in the buffer associated with a given index.
  * Returns nil if the resource at the given index is not an argument buffer.
  */
-- (nullable id<MTLArgumentEncoder>)newArgumentEncoderForBufferAtIndex:(NSUInteger)index API_AVAILABLE(macos(10.13), ios(10.0));
+- (nullable id<MTLArgumentEncoder>)newArgumentEncoderForBufferAtIndex:(NSUInteger)index API_AVAILABLE(macos(10.13), ios(11.0));
 
 @end
 
@@ -4030,7 +4347,7 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  It is not valid to invoke this method on buffers of other storage modes.
  @param range The range of bytes that have been modified.
  */
-- (void)didModifyRange:(NSRange)range API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios);
+- (void)didModifyRange:(NSRange)range API_AVAILABLE(macos(10.11), uikitformac(13.0)) API_UNAVAILABLE(ios);
 
 /*!
  @method newTextureWithDescriptor:offset:bytesPerRow:
@@ -4368,7 +4685,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 API_AVAILABLE(macos(10.14), ios(12.0))
 @protocol MTLIndirectRenderCommand <NSObject>
-- (void)setRenderPipelineState:(id <MTLRenderPipelineState>)pipelineState API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios);
+- (void)setRenderPipelineState:(id <MTLRenderPipelineState>)pipelineState API_AVAILABLE(macos(10.14), uikitformac(13.0), ios(13.0));
 
 - (void)setVertexBuffer:(id <MTLBuffer>)buffer offset:(NSUInteger)offset atIndex:(NSUInteger)index;
 - (void)setFragmentBuffer:(id <MTLBuffer>)buffer offset:(NSUInteger)offset atIndex:(NSUInteger)index;
@@ -4394,6 +4711,32 @@ tessellationFactorBufferOffset:(NSUInteger)offset tessellationFactorBufferInstan
 
 @end
 
+API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos)
+@protocol MTLIndirectComputeCommand <NSObject>
+- (void)setComputePipelineState:(id <MTLComputePipelineState>)pipelineState API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos);
+
+- (void)setKernelBuffer:(id <MTLBuffer>)buffer offset:(NSUInteger)offset atIndex:(NSUInteger)index;
+
+
+- (void)concurrentDispatchThreadgroups:(MTLSize)threadgroupsPerGrid
+                 threadsPerThreadgroup:(MTLSize)threadsPerThreadgroup;
+- (void)concurrentDispatchThreads:(MTLSize)threadsPerGrid
+            threadsPerThreadgroup:(MTLSize)threadsPerThreadgroup;
+
+- (void)setBarrier;
+
+- (void)clearBarrier;
+
+- (void)setImageBlockWidth:(NSUInteger)width height:(NSUInteger)height API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, uikitformac);
+
+- (void)dispatchThreadgroups:(MTLSize)threadgroupsPerGrid
+       threadsPerThreadgroup:(MTLSize)threadsPerThreadgroup;
+- (void)reset;
+
+
+- (void)setThreadgroupMemoryLength:(NSUInteger)length atIndex:(NSUInteger)index;
+- (void)setStageInRegion:(MTLRegion)region;
+@end
 
 NS_ASSUME_NONNULL_END
 
@@ -4597,7 +4940,7 @@ typedef NS_ENUM(NSUInteger, MTLSamplerAddressMode) {
  @abstract Specify the color value that will be clamped to when the sampler address mode is MTLSamplerAddressModeClampToBorderColor.
  
  @constant MTLSamplerBorderColorTransparentBlack
- Transparent black returns {0,0,0,1} for clamped texture values.
+ Transparent black returns {0,0,0,0} for clamped texture values.
  
  @constant MTLSamplerBorderColorOpaqueBlack
  OpaqueBlack returns {0,0,0,1} for clamped texture values.
@@ -4610,7 +4953,6 @@ typedef NS_ENUM(NSUInteger, MTLSamplerBorderColor) {
     MTLSamplerBorderColorOpaqueBlack = 1,       // {0,0,0,1}
     MTLSamplerBorderColorOpaqueWhite = 2,       // {1,1,1,1}
 } API_AVAILABLE(macos(10.12)) API_UNAVAILABLE(ios);
-
 
 /*!
  @class MTLSamplerDescriptor
@@ -4697,7 +5039,7 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
  @abstract If YES, an average level of detail will be used when sampling from a texture. If NO, no averaging is performed.
  @discussion lodAverage defaults to NO. This option is a performance hint. An implementation is free to ignore this property.
  */
-@property (nonatomic) BOOL lodAverage API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos);
+@property (nonatomic) BOOL lodAverage API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property compareFunction
@@ -4710,7 +5052,6 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
  @abstract true if the sampler can be used inside an argument buffer
 */
 @property (nonatomic) BOOL supportArgumentBuffers API_AVAILABLE(macos(10.13), ios(11.0));
-
 
 /*!
  @property label
@@ -4910,11 +5251,12 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 
 typedef NS_ENUM(NSUInteger, MTLLanguageVersion) {
 
-    MTLLanguageVersion1_0 API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos) = (1 << 16),
+    MTLLanguageVersion1_0 API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(macos, uikitformac) = (1 << 16),
     MTLLanguageVersion1_1 API_AVAILABLE(macos(10.11), ios(9.0)) = (1 << 16) + 1,
     MTLLanguageVersion1_2 API_AVAILABLE(macos(10.12), ios(10.0)) = (1 << 16) + 2,
     MTLLanguageVersion2_0 API_AVAILABLE(macos(10.13), ios(11.0)) = (2 << 16),
     MTLLanguageVersion2_1 API_AVAILABLE(macos(10.14), ios(12.0)) = (2 << 16) + 1,
+    MTLLanguageVersion2_2 API_AVAILABLE(macos(10.15), ios(13.0)) = (2 << 16) + 2,
 } API_AVAILABLE(macos(10.11), ios(9.0));
 
 MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
@@ -4950,7 +5292,7 @@ MTL_EXPORT API_AVAILABLE(macos(10.11), ios(8.0))
  @abstract NSErrors raised when creating a library.
  */
 API_AVAILABLE(macos(10.11), ios(8.0))
-MTL_EXTERN NSString *const MTLLibraryErrorDomain;
+MTL_EXTERN NSErrorDomain const MTLLibraryErrorDomain;
 
 /*!
  @enum MTLLibraryError
@@ -5002,7 +5344,7 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @discussion This method is asynchronous since it is will call the compiler.
  */
 - (void) newFunctionWithName:(NSString *)name constantValues:(MTLFunctionConstantValues *)constantValues
-			completionHandler:(void (^)(id<MTLFunction> __nullable function, NSError* error))completionHandler API_AVAILABLE(macos(10.12), ios(10.0));
+			completionHandler:(void (^)(id<MTLFunction> __nullable function, NSError* __nullable error))completionHandler API_AVAILABLE(macos(10.12), ios(10.0));
 
 /*!
  @property functionNames
@@ -5047,6 +5389,7 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 */
 - (nullable id <MTLCommandBuffer>)commandBuffer;
 
+
 /*!
  @method commandBufferWithUnretainedReferences
  @abstract Returns a new autoreleased command buffer used to encode work into this queue that 
@@ -5061,6 +5404,7 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 - (void)insertDebugCaptureBoundary API_DEPRECATED("Use MTLCaptureScope instead", macos(10.11, 10.13), ios(8.0, 11.0));
 
 @end
+
 NS_ASSUME_NONNULL_END
 // ==========  Metal.framework/Headers/MTLHeap.h
 //
@@ -5078,6 +5422,24 @@ NS_ASSUME_NONNULL_END
 #import <Metal/MTLTypes.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ @enum MTLHeapType
+ @abstract Describes the mode of operation for an MTLHeap.
+ @constant MTLHeapTypeAutomatic
+ In this mode, resources are placed in the heap automatically.
+ Automatically placed resources have optimal GPU-specific layout, and may perform better than MTLHeapTypePlacement.
+ This heap type is recommended when the heap primarily contains temporary write-often resources.
+ @constant MTLHeapTypePlacement
+ In this mode, the app places resources in the heap.
+ Manually placed resources allow the app to control memory usage and heap fragmentation directly.
+ This heap type is recommended when the heap primarily contains persistent write-rarely resources.
+ */
+typedef NS_ENUM(NSInteger, MTLHeapType)
+{
+    MTLHeapTypeAutomatic = 0,
+    MTLHeapTypePlacement = 1,
+} API_AVAILABLE(macos(10.15), ios(13.0));
 
 /*!
  @class MTLHeapDescriptor
@@ -5108,7 +5470,34 @@ MTL_EXPORT API_AVAILABLE(macos(10.13), ios(10.0))
  */
 @property (readwrite, nonatomic) MTLCPUCacheMode cpuCacheMode;
 
+/*!
+ @property hazardTrackingMode
+ @abstract Set hazard tracking mode for the heap. The default value is MTLHazardTrackingModeDefault.
+ @discussion For heaps, MTLHazardTrackingModeDefault is treated as MTLHazardTrackingModeUntracked.
+ Setting hazardTrackingMode to MTLHazardTrackingModeTracked causes hazard tracking to be enabled heap.
+ When a resource on a hazard tracked heap is modified, reads and writes from all resources suballocated on that heap will be delayed until the modification is complete.
+ Similarly, modifying heap resources will be delayed until all in-flight reads and writes from all resources suballocated on that heap have completed.
+ For optimal performance, perform hazard tracking manually through MTLFence or MTLEvent instead.
+ All resources created from this heap shared the same hazard tracking mode.
+ */
+@property (readwrite, nonatomic) MTLHazardTrackingMode hazardTrackingMode API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
+ @property resourceOptions
+ @abstract A packed tuple of the storageMode, cpuCacheMode and hazardTrackingMode properties.
+ @discussion Modifications to this property are reflected in the other properties and vice versa.
+ */
+@property (readwrite, nonatomic) MTLResourceOptions resourceOptions API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
+ @property type
+ @abstract The type of the heap. The default value is MTLHeapTypeAutomatic.
+ @discussion This constrains the resource creation functions that are available.
+ */
+@property (readwrite, nonatomic) MTLHeapType type API_AVAILABLE(macos(10.15), ios(13.0));
+
 @end
+
 
 /*!
  @protocol MTLHeap
@@ -5141,6 +5530,24 @@ API_AVAILABLE(macos(10.13), ios(10.0))
  @discussion All resources created from this heap share the same cache mode.
  */
 @property (readonly) MTLCPUCacheMode cpuCacheMode;
+
+/*!
+ @property hazardTrackingMode
+ @abstract Whether or not the heap is hazard tracked.
+ @discussion
+ When a resource on a hazard tracked heap is modified, reads and writes from any other resource on that heap will be delayed until the modification is complete.
+ Similarly, modifying heap resources will be delayed until all in-flight reads and writes from resources suballocated on that heap have completed.
+ For optimal performance, perform hazard tracking manually through MTLFence or MTLEvent instead.
+ Resources on the heap may opt-out of hazard tracking individually when the heap is hazard tracked,
+ however resources cannot opt-in to hazard tracking when the heap is not hazard tracked.
+ */
+@property (readonly) MTLHazardTrackingMode hazardTrackingMode API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
+ @property resourceOptions
+ @abstract A packed tuple of the storageMode, cpuCacheMode and hazardTrackingMode properties.
+ */
+@property (readonly) MTLResourceOptions resourceOptions API_AVAILABLE(macos(10.15), ios(13.0));
 
 /*!
  @property size
@@ -5191,6 +5598,40 @@ API_AVAILABLE(macos(10.13), ios(10.0))
  */
 - (MTLPurgeableState)setPurgeableState:(MTLPurgeableState)state;
 
+/*!
+ @property type
+ @abstract The type of the heap. The default value is MTLHeapTypeAutomatic.
+ @discussion This constrains the resource creation functions that are available on the heap.
+ */
+@property (readonly) MTLHeapType type API_AVAILABLE(macos(10.15), ios(13.0));
+ 
+/*!
+ @method newBufferWithLength:options:offset:
+ @abstract Create a new buffer backed by heap memory at the specified placement offset.
+ @discussion This method can only be used when heapType is set to MTLHeapTypePlacement.
+ Use "MTLDevice heapBufferSizeAndAlignWithLength:options:" to determine requiredSize and requiredAlignment.
+ Any resources that exist in this heap at overlapping half-open range [offset, offset + requiredSize) are implicitly aliased with the new resource.
+ @param length The requested size of the buffer, in bytes.
+ @param options The requested options of the buffer, of which the storage and CPU cache mode must match these of the heap.
+ @param offset The requested offset of the buffer inside the heap, in bytes. Behavior is undefined if "offset + requiredSize > heap.size" or "offset % requiredAlignment != 0".
+ @return The buffer, or nil if the heap is not a placement heap
+ */
+- (nullable id<MTLBuffer>)newBufferWithLength:(NSUInteger)length
+                                      options:(MTLResourceOptions)options
+                                       offset:(NSUInteger)offset API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
+ @method newTextureWithDescriptor:offset:
+ @abstract Create a new texture backed by heap memory at the specified placement offset.
+ @discussion This method can only be used when heapType is set to MTLHeapTypePlacement.
+ Use "MTLDevice heapTextureSizeAndAlignWithDescriptor:" to determine requiredSize and requiredAlignment.
+ Any resources that exist in this heap at overlapping half-open range [offset, offset + requiredSize) are implicitly aliased with the new resource.
+ @param descriptor The requested properties of the texture, of which the storage and CPU cache mode must match those of the heap.
+ @param offset The requested offset of the texture inside the heap, in bytes. Behavior is undefined if "offset + requiredSize > heap.size" and "offset % requiredAlignment != 0".
+ @return The texture, or nil if the heap is not a placement heap.
+ */
+- (nullable id<MTLTexture>)newTextureWithDescriptor:(MTLTextureDescriptor *)descriptor
+                                             offset:(NSUInteger)offset API_AVAILABLE(macos(10.15), ios(13.0));
 @end
 
 NS_ASSUME_NONNULL_END
@@ -5212,9 +5653,64 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol MTLCommandQueue;
 @protocol MTLDevice;
 
-MTL_EXPORT API_AVAILABLE(macos(10.13), ios(11.0))
+API_AVAILABLE(macos(10.15), ios(13.0))
+MTL_EXTERN NSErrorDomain const MTLCaptureErrorDomain;
+
+typedef NS_ENUM(NSInteger, MTLCaptureError)
+{
+    /// Capturing is not supported, maybe the destination is not supported.
+    MTLCaptureErrorNotSupported = 1,
+    /// A capture is already in progress.
+    MTLCaptureErrorAlreadyCapturing,
+    /// The MTLCaptureDescriptor contains an invalid parameters.
+    MTLCaptureErrorInvalidDescriptor,
+} API_AVAILABLE(macos(10.15), ios(13.0));
+
+/// The destination where you want the GPU trace to be captured to.
+typedef NS_ENUM(NSInteger, MTLCaptureDestination)
+{
+    /// Capture to Developer Tools (Xcode) and stop the execution after capturing.
+    MTLCaptureDestinationDeveloperTools = 1,
+    /// Capture to a GPU Trace document and continue execution after capturing.
+    MTLCaptureDestinationGPUTraceDocument,
+} API_AVAILABLE(macos(10.15), ios(13.0));
+
+MTL_EXTERN API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MTLCaptureDescriptor: NSObject <NSCopying>
+{
+@private
+    id _captureObject;
+    MTLCaptureDestination _destination;
+    NSURL *_outputURL;
+}
+
+/**
+    @brief The object that is captured.
+
+    Must be one of the following:
+ 
+    MTLDevice captures all command queues of the device.
+ 
+    MTLCommandQueue captures a single command queue.
+ 
+    MTLCaptureScope captures between the next begin and end of the scope.
+ */
+@property (nonatomic, strong, nullable) id captureObject;
+
+/// The destination you want the GPU trace to be captured to.
+@property (nonatomic, assign) MTLCaptureDestination destination;
+
+/// URL the GPU Trace document will be captured to.
+/// Must be specified when destiation is MTLCaptureDestinationGPUTraceDocument.
+@property (nonatomic, copy, nullable) NSURL *outputURL;
+
+@end
+
+
+MTL_EXTERN API_AVAILABLE(macos(10.13), ios(11.0))
 @interface MTLCaptureManager : NSObject
 {
+@private
     BOOL _isCapturing;
     id<MTLCaptureScope> _defaultCaptureScope;
 }
@@ -5234,12 +5730,22 @@ MTL_EXPORT API_AVAILABLE(macos(10.13), ios(11.0))
 // Creates a new capture scope for the given command queue
 - (id<MTLCaptureScope>)newCaptureScopeWithCommandQueue:(id<MTLCommandQueue>)commandQueue;
 
+// Checks if a given capture destination is supported.
+- (BOOL)supportsDestination:(MTLCaptureDestination)destination API_AVAILABLE(macos(10.15), ios(13.0));
+
+/// Start capturing until stopCapture is called.
+/// @param descriptor MTLCaptureDescriptor specifies the parameters.
+/// @param error Optional error output to check why a capture could not be started.
+/// @return true if the capture was successfully started, otherwise false.
+/// @remarks Only MTLCommandBuffer​s created after starting and committed before stopping it are captured.
+- (BOOL)startCaptureWithDescriptor:(MTLCaptureDescriptor *)descriptor error:(__autoreleasing NSError **)error API_AVAILABLE(macos(10.15), ios(13.0));
+
 // Starts capturing, for all queues of the given device, new MTLCommandBuffer's until -[stopCapture] or Xcode’s stop capture button is pressed
-- (void)startCaptureWithDevice:(id<MTLDevice>)device;
+- (void)startCaptureWithDevice:(id<MTLDevice>)device API_DEPRECATED("Use startCaptureWithDescriptor:error: instead", macos(10.13, 10.15), ios(11.0, 13.0));
 // Starts capturing, for the given command queue, command buffers that are created after invoking this method and committed before invoking -[stopCapture] or clicking Xcode’s stop capture button.
-- (void)startCaptureWithCommandQueue:(id<MTLCommandQueue>)commandQueue;
+- (void)startCaptureWithCommandQueue:(id<MTLCommandQueue>)commandQueue API_DEPRECATED("Use startCaptureWithDescriptor:error: instead", macos(10.13, 10.15), ios(11.0, 13.0));
 // Start a capture with the given scope: from the scope's begin until its end, restricting the capture to the scope's device(s) and, if selected, the scope's command queue
-- (void)startCaptureWithScope:(id<MTLCaptureScope>)captureScope;
+- (void)startCaptureWithScope:(id<MTLCaptureScope>)captureScope API_DEPRECATED("Use startCaptureWithDescriptor:error: instead", macos(10.13, 10.15), ios(11.0, 13.0));
 
 // Stops a capture started from startCaptureWithDevice:/startCaptureWithCommandQueue:/startCaptureWithScope: or from Xcode’s capture button
 - (void)stopCapture;
@@ -5376,6 +5882,7 @@ typedef NS_OPTIONS(NSUInteger, MTLRenderStages)
  @discussion MTLRenderCommandEncoder is a container for graphics rendering state and the code to translate the state into a command format that the device can execute. 
  */
 API_AVAILABLE(macos(10.11), ios(8.0))
+
 @protocol MTLRenderCommandEncoder <MTLCommandEncoder>
 
 /*!
@@ -5736,12 +6243,10 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 - (void)drawIndexedPrimitives:(MTLPrimitiveType)primitiveType indexType:(MTLIndexType)indexType indexBuffer:(id <MTLBuffer>)indexBuffer indexBufferOffset:(NSUInteger)indexBufferOffset indirectBuffer:(id <MTLBuffer>)indirectBuffer indirectBufferOffset:(NSUInteger)indirectBufferOffset API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
- @method textureBarrier:
+ @method textureBarrier
  @brief Ensure that following fragment shaders can read textures written by previous draw calls (in particular the framebuffer)
  */
-- (void)textureBarrier
-    API_DEPRECATED_WITH_REPLACEMENT("memoryBarrierWithScope:MTLBarrierScopeRenderTargets", macos(10.11, 10.14)) API_UNAVAILABLE(ios, tvos)
-    ;
+- (void)textureBarrier API_DEPRECATED_WITH_REPLACEMENT("memoryBarrierWithScope:MTLBarrierScopeRenderTargets", macos(10.11, 10.14)) API_UNAVAILABLE(ios);
 
 /*!
  @method updateFence:afterStages:
@@ -5775,13 +6280,13 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @property tileWidth:
  @abstract The width of the tile for this render pass.
  */
-@property (readonly) NSUInteger tileWidth API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (readonly) NSUInteger tileWidth API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @property tileHeight:
  @abstract The height of the tile for this render pass.
  */
-@property (readonly) NSUInteger tileHeight API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+@property (readonly) NSUInteger tileHeight API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /* Tile Resources */
 
@@ -5789,55 +6294,55 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  @method setTileBytes:length:atIndex:
  @brief Set the data (by copy) for a given tile buffer binding point.  This will remove any existing MTLBuffer from the binding point.
  */
-- (void)setTileBytes:(const void *)bytes length:(NSUInteger)length atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)setTileBytes:(const void *)bytes length:(NSUInteger)length atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method setTileBuffer:offset:atIndex:
  @brief Set a global buffer for all tile shaders at the given bind point index.
  */
-- (void)setTileBuffer:(nullable id <MTLBuffer>)buffer offset:(NSUInteger)offset atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)setTileBuffer:(nullable id <MTLBuffer>)buffer offset:(NSUInteger)offset atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method setTileBufferOffset:atIndex:
  @brief Set the offset within the current global buffer for all tile shaders at the given bind point index.
  */
-- (void)setTileBufferOffset:(NSUInteger)offset atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)setTileBufferOffset:(NSUInteger)offset atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method setTileBuffers:offsets:withRange:
  @brief Set an array of global buffers for all tile shaders with the given bind point range.
  */
-- (void)setTileBuffers:(const id <MTLBuffer> __nullable [__nonnull])buffers offsets:(const NSUInteger [__nonnull])offsets withRange:(NSRange)range API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)setTileBuffers:(const id <MTLBuffer> __nullable [__nonnull])buffers offsets:(const NSUInteger [__nonnull])offsets withRange:(NSRange)range API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method setTileTexture:atIndex:
  @brief Set a global texture for all tile shaders at the given bind point index.
  */
-- (void)setTileTexture:(nullable id <MTLTexture>)texture atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)setTileTexture:(nullable id <MTLTexture>)texture atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method setTileTextures:withRange:
  @brief Set an array of global textures for all tile shaders with the given bind point range.
  */
-- (void)setTileTextures:(const id <MTLTexture> __nullable [__nonnull])textures withRange:(NSRange)range API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)setTileTextures:(const id <MTLTexture> __nullable [__nonnull])textures withRange:(NSRange)range API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method setTileSamplerState:atIndex:
  @brief Set a global sampler for all tile shaders at the given bind point index.
  */
-- (void)setTileSamplerState:(nullable id <MTLSamplerState>)sampler atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)setTileSamplerState:(nullable id <MTLSamplerState>)sampler atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method setTileSamplerStates:withRange:
  @brief Set an array of global samplers for all fragment shaders with the given bind point range.
  */
-- (void)setTileSamplerStates:(const id <MTLSamplerState> __nullable [__nonnull])samplers withRange:(NSRange)range API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)setTileSamplerStates:(const id <MTLSamplerState> __nullable [__nonnull])samplers withRange:(NSRange)range API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method setTileSamplerState:lodMinClamp:lodMaxClamp:atIndex:
  @brief Set a global sampler for all tile shaders at the given bind point index.
  */
-- (void)setTileSamplerState:(nullable id <MTLSamplerState>)sampler lodMinClamp:(float)lodMinClamp lodMaxClamp:(float)lodMaxClamp atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos);
+- (void)setTileSamplerState:(nullable id <MTLSamplerState>)sampler lodMinClamp:(float)lodMinClamp lodMaxClamp:(float)lodMaxClamp atIndex:(NSUInteger)index API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, uikitformac);
 
 /*!
  @method setTileSamplerStates:lodMinClamps:lodMaxClamps:withRange:
@@ -5879,6 +6384,26 @@ API_AVAILABLE(macos(10.11), ios(8.0))
 - (void)useResources:(const id <MTLResource> __nonnull[__nonnull])resources count:(NSUInteger)count usage:(MTLResourceUsage)usage API_AVAILABLE(macos(10.13), ios(11.0));
 
 /*!
+ * @method useResources:usage:stage
+ * @abstract Declare that a resource may be accessed by the render pass through an argument buffer
+ * @For hazard tracked resources, this method protects against data hazards. This method must be called before encoding any draw commands which may access the resource through an argument buffer. However, this method may cause color attachments to become decompressed. Therefore, this method should be called until as late as possible within a render command encoder. Declaring a minimal usage (i.e. read-only) may prevent color attachments from becoming decompressed on some devices.
+ 
+    Note that calling useResource does not retain the resource. It is the responsiblity of the user to retain the resource until
+    the command buffer has been executed.
+*/
+- (void)useResource:(id <MTLResource>)resource usage:(MTLResourceUsage)usage stages:(MTLRenderStages) stages API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
+ * @method useResources:count:usage:stages
+ * @abstract Declare that an array of resources may be accessed through an argument buffer by the render pass
+ * @discussion For hazard tracked resources, this method protects against data hazards.  This method must be called before encoding any draw commands which may access the resources through an argument buffer. However, this method may cause color attachments to become decompressed. Therefore, this method should be called until as late as possible within a render command encoder. Declaring a minimal usage (i.e. read-only) may prevent color attachments from becoming decompressed on some devices.
+ 
+   Note that calling useResources does not retain the resources. It is the responsiblity of the user to retain the resources until
+   the command buffer has been executed.
+*/
+- (void)useResources:(const id <MTLResource> __nonnull[__nonnull])resources count:(NSUInteger)count usage:(MTLResourceUsage)usage stages:(MTLRenderStages)stages API_AVAILABLE(macos(10.15), ios(13.0));
+
+/*!
  * @method useHeap:
  * @abstract Declare that the resources allocated from a heap may be accessed by the render pass through an argument buffer
  * @discussion This method does not protect against data hazards; these hazards must be addressed using an MTLFence. This method must be called before encoding any draw commands which may access the resources allocated from the heap through an argument buffer. This method may cause all of the color attachments allocated from the heap to become decompressed. Therefore, it is recommended that the useResource:usage: or useResources:count:usage: methods be used for color attachments instead, with a minimal (i.e. read-only) usage.
@@ -5892,20 +6417,36 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  */
 - (void)useHeaps:(const id <MTLHeap> __nonnull[__nonnull])heaps count:(NSUInteger)count API_AVAILABLE(macos(10.13), ios(11.0));
 
+/*!
+ * @method useHeap:stages
+ * @abstract Declare that the resources allocated from a heap may be accessed by the render pass through an argument buffer
+ * @discussion If the heap is tracked, this method protects against hazard tracking; these hazards must be addressed using an MTLFence. This method must be called before encoding any draw commands which may access the resources allocated from the heap through an argument buffer. This method may cause all of the color attachments allocated from the heap to become decompressed. Therefore, it is recommended that the useResource:usage: or useResources:count:usage: methods be used for color attachments instead, with a minimal (i.e. read-only) usage.
+ */
+- (void)useHeap:(id <MTLHeap>)heap stages:(MTLRenderStages)stages API_AVAILABLE(macos(10.15), ios(13.0));
 
 /*!
- * @method executeCommandsInBuffer:buffer:withRange
- * @abstract Execute  commands in the range executionRange within the given buffer.
+ * @method useHeaps:count:stages
+ * @abstract Declare that the resources allocated from an array of heaps may be accessed by the render pass through an argument buffer
+ * @discussion This method does not protect against data hazards; these hazards must be addressed using an MTLFence. This method must be called before encoding any draw commands which may access the resources allocated from the heaps through an argument buffer. This method may cause all of the color attachments allocated from the heaps to become decompressed. Therefore, it is recommended that the useResource:usage: or useResources:count:usage: methods be used for color attachments instead, with a minimal (i.e. read-only) usage.
+ */
+- (void)useHeaps:(const id <MTLHeap> __nonnull[__nonnull])heaps count:(NSUInteger)count stages:(MTLRenderStages)stages API_AVAILABLE(macos(10.15), ios(13.0));
+
+
+/*!
+ * @method executeCommandsInBuffer:withRange:
+ * @abstract Execute commands in the buffer within the range specified.
  * @discussion The same indirect command buffer may be executed any number of times within the same encoder.
  */
 - (void)executeCommandsInBuffer:(id<MTLIndirectCommandBuffer>)indirectCommandBuffer withRange:(NSRange)executionRange API_AVAILABLE(macos(10.14), ios(12.0));
 
 /*!
- * @method executeCommandsInBuffer:buffer:indirectRangeBuffer:indirectBufferOffset:
- * @abstract Execute the commands in the given indirect range
+ * @method executeCommandsInBuffer:indirectBuffer:indirectBufferOffset:
+ * @abstract Execute commands in the buffer within the range specified by the indirect range buffer.
+ * @param indirectRangeBuffer An indirect buffer from which the device reads the execution range parameter, as laid out in the MTLIndirectCommandBufferExecutionRange structure.
+ * @param indirectBufferOffset The byte offset within indirectBuffer where the execution range parameter is located. Must be a multiple of 4 bytes.
  * @discussion The same indirect command buffer may be executed any number of times within the same encoder.
  */
-- (void)executeCommandsInBuffer:(id<MTLIndirectCommandBuffer>)indirectCommandbuffer indirectBuffer:(id<MTLBuffer>)indirectRangeBuffer indirectBufferOffset:(NSUInteger)indirectBufferOffset API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios);
+- (void)executeCommandsInBuffer:(id<MTLIndirectCommandBuffer>)indirectCommandbuffer indirectBuffer:(id<MTLBuffer>)indirectRangeBuffer indirectBufferOffset:(NSUInteger)indirectBufferOffset API_AVAILABLE(macos(10.14), uikitformac(13.0), ios(13.0));
 
 
 /*!
@@ -5913,14 +6454,14 @@ API_AVAILABLE(macos(10.11), ios(8.0))
  * @abstract Make stores to memory encoded before the barrier coherent with loads from memory encoded after the barrier.
  * @discussion The barrier makes stores coherent that 1) are to a resource with a type in the given scope, and 2) happen at (or before) the stage given by afterStages. Only affects loads that happen at (or after) the stage given by beforeStages.
  */
--(void)memoryBarrierWithScope:(MTLBarrierScope)scope afterStages:(MTLRenderStages)after beforeStages:(MTLRenderStages)before API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios);
+-(void)memoryBarrierWithScope:(MTLBarrierScope)scope afterStages:(MTLRenderStages)after beforeStages:(MTLRenderStages)before API_AVAILABLE(macos(10.14), uikitformac(13.0)) API_UNAVAILABLE(ios);
 
 /*!
  * @method memoryBarrierWithResources:count:afterStages:beforeStages:
  * @abstract Make stores to memory encoded before the barrier coherent with loads from memory encoded after the barrier.
  * @discussion The barrier makes stores coherent that 1) are to resources in given array, and 2) happen at (or before) the stage given by afterStages. Only affects loads that happen at (or after) the stage give by beforeStages.
  */
--(void)memoryBarrierWithResources:(const id<MTLResource> __nonnull[__nonnull])resources count:(NSUInteger)count afterStages:(MTLRenderStages)after beforeStages:(MTLRenderStages)before API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios);
+-(void)memoryBarrierWithResources:(const id<MTLResource> __nonnull[__nonnull])resources count:(NSUInteger)count afterStages:(MTLRenderStages)after beforeStages:(MTLRenderStages)before API_AVAILABLE(macos(10.14), uikitformac(13.0)) API_UNAVAILABLE(ios);
 
 
 

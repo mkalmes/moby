@@ -72,26 +72,48 @@ CORETELEPHONY_EXTERN NSString * const CTServiceRadioAccessTechnologyDidChangeNot
  * Description:
  *     A NSNotification broadcast when radio access technology changes
  */
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyDidChangeNotification __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA,
-    __IPHONE_7_0, __IPHONE_12_0, "Replaced by CTServiceRadioAccessTechnologyDidChangeNotification");
-
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyDidChangeNotification API_DEPRECATED_WITH_REPLACEMENT("CTServiceRadioAccessTechnologyDidChangeNotification", ios(7.0, 12.0)) API_UNAVAILABLE(macos);
 
 /*
  * Radio Access Technology values
  */
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyGPRS          __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyEdge          __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyWCDMA         __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyHSDPA         __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyHSUPA         __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyCDMA1x        __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyCDMAEVDORev0  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyCDMAEVDORevA  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyCDMAEVDORevB  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyeHRPD         __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
-CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyLTE           __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyGPRS          API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyEdge          API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyWCDMA         API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyHSDPA         API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyHSUPA         API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyCDMA1x        API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyCDMAEVDORev0  API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyCDMAEVDORevA  API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyCDMAEVDORevB  API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyeHRPD         API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
+CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyLTE           API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(macos);
 
 @class CTCarrier;
+
+
+/*
+ *  CTTelephonyNetworkInfoDelegate
+ *
+ *  Discussion:
+ *    Delegate interface for CTTelephonyNetworkInfo.
+ *    All delegate callbacks are dispatched asynchronously to a global queue with QoS QOS_CLASS_DEFAULT.
+ */
+API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macos, tvos)
+@protocol CTTelephonyNetworkInfoDelegate <NSObject>
+@optional
+
+/*
+ *  dataServiceIdentifierDidChange:
+ *
+ *  Discussion:
+ *    Selector to be invoked whenever the data service identifier changes.
+ *    This identifier is meant to be used as a key in associated dictionaries,
+ *    e.g. serviceSubscriberCellularProviders.
+ */
+- (void)dataServiceIdentifierDidChange:(NSString *)identifier;
+
+@end
 
 /*
  *  CTTelephonyNetworkInfo
@@ -102,6 +124,15 @@ CORETELEPHONY_EXTERN NSString * const CTRadioAccessTechnologyLTE           __OSX
 CORETELEPHONY_CLASS_AVAILABLE(4_0)
 @interface CTTelephonyNetworkInfo : NSObject
 
+/*
+ * dataServiceIdentifier
+ *
+ * Discussion:
+ *   An NSString representing the identifier of the service that's currently providing data.
+ */
+ @property(readonly, copy, nullable) NSString *dataServiceIdentifier API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macos, tvos);
+
+ @property(readwrite, weak, nullable) id<CTTelephonyNetworkInfoDelegate> delegate API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macos, tvos);
 
 /*
  * serviceSubscriberCellularProviders
@@ -120,7 +151,7 @@ CORETELEPHONY_CLASS_AVAILABLE(4_0)
  *   home cellular service provider for the service.
  */
 @property(readonly, retain, nullable) CTCarrier *subscriberCellularProvider __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_12_0,
-	"Replaced by serviceSubscriberCellularProviders");
+    "Replaced by serviceSubscriberCellularProviders");
 
 /*
  * serviceSubscriberCellularProvidersDidUpdateNotifier
@@ -144,8 +175,7 @@ CORETELEPHONY_CLASS_AVAILABLE(4_0)
  *   property to a block that is defined in your application to receive the newly
  *   updated information.
  */
-@property(nonatomic, copy, nullable) void (^subscriberCellularProviderDidUpdateNotifier)(CTCarrier*) __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_4_0, __IPHONE_12_0,
-	"Replaced by serviceSubscriberCellularProvidersDidUpdateNotifier");
+@property(nonatomic, copy, nullable) void (^subscriberCellularProviderDidUpdateNotifier)(CTCarrier*) API_DEPRECATED_WITH_REPLACEMENT("serviceSubscriberCellularProvidersDidUpdateNotifier", ios(4.0, 12.0)) API_UNAVAILABLE(macos);
 
 /*
  * serviceCurrentRadioAccessTechnology
@@ -163,9 +193,7 @@ CORETELEPHONY_CLASS_AVAILABLE(4_0)
  *   The current radio access technology for each service of the device is registered with. May be nil
  *   if the device is not registered on any network.
  */
-@property (nonatomic, readonly, retain, nullable) NSString* currentRadioAccessTechnology __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_NA, __MAC_NA, __IPHONE_7_0, __IPHONE_12_0,
-	"Replaced by serviceCurrentRadioAccessTechnology");
-
+@property (nonatomic, readonly, retain, nullable) NSString* currentRadioAccessTechnology API_DEPRECATED_WITH_REPLACEMENT("serviceCurrentRadioAccessTechnology", ios(7.0, 12.0)) API_UNAVAILABLE(macos);
 
 @end
 
@@ -212,7 +240,7 @@ NS_ASSUME_NONNULL_END
 //  CTCellularPlanProvisioningRequest.h
 //  CFTelephony
 //
-//  Copyright © 2018 Apple Inc. All rights reserved.
+//  Copyright (c) 2018 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -292,7 +320,13 @@ NS_ASSUME_NONNULL_BEGIN
 CORETELEPHONY_CLASS_AVAILABLE(6_0)
 @interface CTSubscriberInfo : NSObject
 
-+ (CTSubscriber*) subscriber;
++ (NSArray<CTSubscriber *> *)subscribers
+API_AVAILABLE(ios(12.1))
+;
+
++ (CTSubscriber*) subscriber
+API_DEPRECATED_WITH_REPLACEMENT("Use subscribers instead", ios(6.0, 12.1))
+;
 
 @end
 
@@ -316,8 +350,18 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Description:
  *     The name of the NSNotification sent when the carrier token is available.
+ *     The `object' argument is set to the CTSubscriber instance for which the token was refreshed.
  */
-CORETELEPHONY_EXTERN NSString * const CTSubscriberTokenRefreshed  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_7_0);
+CORETELEPHONY_EXTERN NSString * const CTSubscriberTokenRefreshed
+API_UNAVAILABLE(macos)
+API_DEPRECATED_WITH_REPLACEMENT("-[CTSubscriberDelegate subscriberTokenRefreshed:]", ios(7.0, 12.1))
+;
+
+@class CTSubscriber;
+
+@protocol CTSubscriberDelegate
+- (void)subscriberTokenRefreshed:(CTSubscriber *)subscriber;
+@end
 
 CORETELEPHONY_CLASS_AVAILABLE(7_0)
 @interface CTSubscriber : NSObject
@@ -330,8 +374,28 @@ CORETELEPHONY_CLASS_AVAILABLE(7_0)
  *     This API is deprecated without replacement. Starting in iOS 11.3, this API returns nil.
  */
 @property (nonatomic, readonly, retain, nullable) NSData* carrierToken
-__API_UNAVAILABLE(macos, watchos, tvos)
-__API_DEPRECATED("Deprecated; returns nil starting in iOS 11.3.", ios(7.0, 11.0))
+API_UNAVAILABLE(macos, watchos, tvos)
+API_DEPRECATED("Deprecated; returns nil starting in iOS 11.3.", ios(7.0, 11.0))
+;
+
+/*
+ * identifier
+ *
+ * Description:
+ *     An implementation-defined identifier that can be used to correlate this CTSubscriber
+ *     with information vended by other API's.
+ *     The format of the identifier can change across software releases. Therefore, applications
+ *     should not persist it.
+ */
+
+@property (nonatomic, readonly) NSString* identifier
+API_UNAVAILABLE(macos)
+API_AVAILABLE(ios(12.1))
+;
+
+@property (nonatomic, weak) id<CTSubscriberDelegate> delegate
+API_UNAVAILABLE(macos)
+API_AVAILABLE(ios(12.1))
 ;
 
 @end
@@ -460,7 +524,7 @@ NS_ASSUME_NONNULL_END
 //  CTCellularPlanProvisioning.h
 //  CoreTelephony
 //
-//  Copyright © 2018 Apple Inc. All rights reserved.
+//  Copyright (c) 2018 Apple Inc. All rights reserved.
 
 #import <Foundation/Foundation.h>
 #import <CoreTelephony/CoreTelephonyDefines.h>

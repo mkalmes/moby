@@ -326,77 +326,9 @@ CV_EXPORT void CVOpenGLESTextureCacheFlush( CVOpenGLESTextureCacheRef CV_NONNULL
 #include <Availability.h>
 #include <AvailabilityMacros.h>
 
-#if TARGET_OS_WIN32
-#pragma warning (disable: 4068)		// ignore unknown pragmas
-#endif
 
-#ifndef API_AVAILABLE
-#define API_AVAILABLE(...)
-#endif
 
-#ifndef API_UNAVAILABLE
-#define API_UNAVAILABLE(...)
-#endif
 
-#ifndef __IOS_PROHIBITED
-#define __IOS_PROHIBITED
-#endif
-
-#ifndef __TVOS_PROHIBITED
-#define __TVOS_PROHIBITED
-#endif
-
-#ifndef __WATCHOS_PROHIBITED
-#define __WATCHOS_PROHIBITED
-#endif
-
-#ifndef AVAILABLE_MAC_OS_X_VERSION_10_6_AND_LATER
-#define AVAILABLE_MAC_OS_X_VERSION_10_6_AND_LATER       WEAK_IMPORT_ATTRIBUTE
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__MAC_10_7
-#define __AVAILABILITY_INTERNAL__MAC_10_7        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__MAC_10_8
-#define __AVAILABILITY_INTERNAL__MAC_10_8        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__MAC_10_9
-#define __AVAILABILITY_INTERNAL__MAC_10_9        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__MAC_10_10
-#define __AVAILABILITY_INTERNAL__MAC_10_10        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__IPHONE_8_0
-#define __AVAILABILITY_INTERNAL__IPHONE_8_0        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__MAC_10_11
-#define __AVAILABILITY_INTERNAL__MAC_10_11        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__MAC_10_12
-#define __AVAILABILITY_INTERNAL__MAC_10_12        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__MAC_10_13
-#define __AVAILABILITY_INTERNAL__MAC_10_13        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__IPHONE_9_0
-#define __AVAILABILITY_INTERNAL__IPHONE_9_0        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__IPHONE_10_0
-#define __AVAILABILITY_INTERNAL__IPHONE_10_0        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
-
-#ifndef __AVAILABILITY_INTERNAL__IPHONE_11_0
-#define __AVAILABILITY_INTERNAL__IPHONE_11_0        __AVAILABILITY_INTERNAL_WEAK_IMPORT
-#endif
 
 #include <CoreFoundation/CFBase.h>
 
@@ -406,13 +338,14 @@ extern "C" {
 #define COREVIDEO_TRUE (1 && 1)
 #define COREVIDEO_FALSE (0 && 1)
 
-#if TARGET_OS_WIN32
-	#define COREVIDEO_SUPPORTS_DIRECT3D 	COREVIDEO_TRUE
-#else
+
 	#define COREVIDEO_SUPPORTS_DIRECT3D 	COREVIDEO_FALSE
-#endif
 
 
+#if TARGET_OS_UIKITFORMAC
+#define COREVIDEO_SUPPORTS_OPENGL 		COREVIDEO_TRUE
+#define COREVIDEO_SUPPORTS_OPENGLES		COREVIDEO_FALSE
+#else
 #if TARGET_OS_OSX
 	#define COREVIDEO_SUPPORTS_OPENGL 		COREVIDEO_TRUE
 #else
@@ -424,9 +357,9 @@ extern "C" {
 #else
 	#define COREVIDEO_SUPPORTS_OPENGLES		COREVIDEO_FALSE
 #endif
+#endif
 
-
-#if ((TARGET_OS_MAC && ! TARGET_OS_IPHONE) || (TARGET_OS_WIN32))
+#if ((TARGET_OS_MAC && ! TARGET_OS_IPHONE) || (0))
 	#define COREVIDEO_SUPPORTS_COLORSPACE 	COREVIDEO_TRUE
 #else
 	#define COREVIDEO_SUPPORTS_COLORSPACE 	COREVIDEO_FALSE
@@ -438,24 +371,32 @@ extern "C" {
 	#define COREVIDEO_SUPPORTS_DISPLAYLINK 	COREVIDEO_FALSE
 #endif
 
-#if TARGET_OS_IPHONE
-	#if TARGET_OS_EMBEDDED
-		#define COREVIDEO_SUPPORTS_IOSURFACE COREVIDEO_TRUE
-	#else
-		#define COREVIDEO_SUPPORTS_IOSURFACE COREVIDEO_FALSE
-	#endif
+#if TARGET_OS_MAC
+	#define COREVIDEO_SUPPORTS_IOSURFACE COREVIDEO_TRUE
 #else
-	#if TARGET_OS_MAC && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1060)
-		#define COREVIDEO_SUPPORTS_IOSURFACE COREVIDEO_TRUE
-	#else
-		#define COREVIDEO_SUPPORTS_IOSURFACE COREVIDEO_FALSE
-	#endif
+	#define COREVIDEO_SUPPORTS_IOSURFACE COREVIDEO_FALSE
 #endif
 
 #if TARGET_OS_EMBEDDED && (__IPHONE_OS_VERSION_MIN_REQUIRED >= 80300)
+	#define COREVIDEO_SUPPORTS_PREFETCH    COREVIDEO_TRUE
+#elif TARGET_OS_OSX
+	#define COREVIDEO_SUPPORTS_PREFETCH    COREVIDEO_TRUE	
+#else
+	#define COREVIDEO_SUPPORTS_PREFETCH    COREVIDEO_FALSE
+#endif
+	
+#if TARGET_OS_EMBEDDED && (__IPHONE_OS_VERSION_MIN_REQUIRED >= 80300)
 	#define COREVIDEO_SUPPORTS_IOSURFACE_PREFETCH    COREVIDEO_TRUE
+#elif TARGET_OS_OSX && (__MAC_OS_X_VERSION_MIN_REQUIRED >= 101500)
+	#define COREVIDEO_SUPPORTS_IOSURFACE_PREFETCH    COREVIDEO_TRUE	
 #else
 	#define COREVIDEO_SUPPORTS_IOSURFACE_PREFETCH    COREVIDEO_FALSE
+#endif
+	
+#if TARGET_OS_SIMULATOR
+	#define COREVIDEO_SUPPORTS_GLES_TEX_IMAGE_IOSURFACE    COREVIDEO_FALSE
+#else 
+	#define COREVIDEO_SUPPORTS_GLES_TEX_IMAGE_IOSURFACE    COREVIDEO_SUPPORTS_IOSURFACE
 #endif
 
 #if TARGET_OS_IPHONE
@@ -511,17 +452,9 @@ extern "C" {
 	
 #define CV_INTERNAL __attribute__((visibility("hidden")))
 
-#if TARGET_OS_WIN32 && defined(CV_BUILDING_CV) && defined(__cplusplus)
-#define CV_EXPORT extern "C" __declspec(dllexport) 
-#elif TARGET_OS_WIN32 && defined(CV_BUILDING_CV) && !defined(__cplusplus)
-#define CV_EXPORT extern __declspec(dllexport) 
-#elif TARGET_OS_WIN32 && defined(__cplusplus)
-#define CV_EXPORT extern "C" __declspec(dllimport) 
-#elif TARGET_OS_WIN32
-#define CV_EXPORT extern __declspec(dllimport) 
-#else
+
 #define CV_EXPORT __attribute__((visibility("default"))) CF_EXPORT 
-#endif
+
 
 #define CV_INLINE CF_INLINE
 
@@ -732,7 +665,7 @@ CV_EXPORT const CVTime kCVIndefiniteTime;
 #include <AvailabilityMacros.h>
 
 // For legacy reasons CVImageBuffer.h includes CoreGraphics.h and ApplicationServices.h
-#if TARGET_OS_IPHONE || TARGET_OS_WIN32
+#if TARGET_OS_IPHONE || 0
 #include <CoreGraphics/CoreGraphics.h>
 #else
 #include <ApplicationServices/ApplicationServices.h>
@@ -827,6 +760,10 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferChromaSubsampling_411 __OSX
 
 // Can be set to kCFBooleanTrue as a hint that the alpha channel is fully opaque.  Not used if the pixel format type has no alpha channel.
 CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferAlphaChannelIsOpaque __OSX_AVAILABLE_STARTING(__MAC_10_10,__IPHONE_8_0);
+
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferAlphaChannelModeKey API_AVAILABLE(macosx(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferAlphaChannelMode_StraightAlpha API_AVAILABLE(macosx(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);
+CV_EXPORT const CFStringRef CV_NONNULL kCVImageBufferAlphaChannelMode_PremultipliedAlpha API_AVAILABLE(macosx(10.15), ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos);	
 
 // Returns the standard integer code point corresponding to a given CoreVideo YCbCrMatrix constant string (in the kCVImageBufferYCbCrMatrix_... family).  Returns 2 (the code point for "unknown") if the string is NULL or not recognized.
 CV_EXPORT int CVYCbCrMatrixGetIntegerCodePointForString( CV_NULLABLE CFStringRef yCbCrMatrixString ) API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0), watchos(4.0));
@@ -1212,7 +1149,7 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatQDCompatibility API_AVAILAB
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatCGBitmapContextCompatibility API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatCGImageCompatibility API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatOpenGLCompatibility API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatOpenGLESCompatibility API_AVAILABLE(ios(5.0), tvos(9.0)) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelFormatOpenGLESCompatibility API_AVAILABLE(ios(5.0), tvos(9.0)) API_UNAVAILABLE(macosx, uikitformac) __WATCHOS_PROHIBITED;
     
 /* This callback routine implements code to handle the functionality of CVPixelBufferFillExtendedPixels.  
    For custom pixel formats where you will never need to use that call, this is not required. */
@@ -1410,10 +1347,10 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferCGImageCompatibilityKey API
 	CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLCompatibilityKey API_AVAILABLE(macosx(10.4), ios(4.0), tvos(9.0), watchos(4.0));   // CFBoolean
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferPlaneAlignmentKey API_AVAILABLE(macosx(10.6), ios(4.0), tvos(9.0), watchos(4.0));		    // CFNumber
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfacePropertiesKey API_AVAILABLE(macosx(10.6), ios(4.0), tvos(9.0), watchos(4.0));     // CFDictionary; presence requests buffer allocation via IOSurface
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLESCompatibilityKey API_AVAILABLE(ios(6.0), tvos(9.0)) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;	    // CFBoolean
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLESCompatibilityKey API_AVAILABLE(ios(6.0), tvos(9.0)) API_UNAVAILABLE(macosx, uikitformac) __WATCHOS_PROHIBITED;	    // CFBoolean
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferMetalCompatibilityKey API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0), watchos(4.0));	    // CFBoolean
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLTextureCacheCompatibilityKey API_AVAILABLE(macosx(10.11)) API_UNAVAILABLE(ios, tvos, watchos);
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLESTextureCacheCompatibilityKey API_AVAILABLE(ios(9.0), tvos(9.0)) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferOpenGLESTextureCacheCompatibilityKey API_AVAILABLE(ios(9.0), tvos(9.0)) API_UNAVAILABLE(macosx, uikitformac) __WATCHOS_PROHIBITED;
 
 /*!
     @typedef	CVPixelBufferRef
@@ -1504,7 +1441,7 @@ CV_EXPORT CVReturn CVPixelBufferCreateWithBytes(
     CFDictionaryRef CV_NULLABLE pixelBufferAttributes,
     CV_RETURNS_RETAINED_PARAMETER CVPixelBufferRef CV_NULLABLE * CV_NONNULL pixelBufferOut) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
-typedef void (*CVPixelBufferReleasePlanarBytesCallback)( void * CV_NULLABLE releaseRefCon, const void * CV_NULLABLE dataPtr, size_t dataSize, size_t numberOfPlanes, const void * CV_NULLABLE planeAddresses[] );
+typedef void (*CVPixelBufferReleasePlanarBytesCallback)( void * CV_NULLABLE releaseRefCon, const void * CV_NULLABLE dataPtr, size_t dataSize, size_t numberOfPlanes, const void * CV_NULLABLE planeAddresses[CV_NULLABLE ] );
 
 /*!
     @function   CVPixelBufferCreateWithPlanarBytes
@@ -1534,10 +1471,10 @@ CV_EXPORT CVReturn CVPixelBufferCreateWithPlanarBytes(
     void * CV_NULLABLE dataPtr, // pass a pointer to a plane descriptor block, or NULL
     size_t dataSize, // pass size if planes are contiguous, NULL if not
     size_t numberOfPlanes,
-    void * CV_NULLABLE planeBaseAddress[],
-    size_t planeWidth[],
-    size_t planeHeight[],
-    size_t planeBytesPerRow[],
+    void * CV_NULLABLE planeBaseAddress[CV_NONNULL ],
+    size_t planeWidth[CV_NONNULL ],
+    size_t planeHeight[CV_NONNULL ],
+    size_t planeBytesPerRow[CV_NONNULL ],
     CVPixelBufferReleasePlanarBytesCallback CV_NULLABLE releaseCallback,
     void * CV_NULLABLE releaseRefCon,
     CFDictionaryRef CV_NULLABLE pixelBufferAttributes,
@@ -1741,10 +1678,12 @@ CV_EXPORT CVReturn CVPixelBufferFillExtendedPixels( CVPixelBufferRef CV_NONNULL 
 #if COREVIDEO_USE_IOSURFACEREF
 #if __has_include(<IOSurface/IOSurfaceRef.h>)
 #include <IOSurface/IOSurfaceRef.h>
+#define COREVIDEO_INCLUDED_IOSURFACE_HEADER_FILE 1
 #endif
 #else
 #if __has_include(<IOSurface/IOSurface.h>)
 #include <IOSurface/IOSurface.h>
+#define COREVIDEO_INCLUDED_IOSURFACE_HEADER_FILE 1
 #endif
 #endif
 #endif // COREVIDEO_SUPPORTS_IOSURFACE
@@ -1762,11 +1701,12 @@ CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceOpenGLFBOCompatibi
 CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceCoreAnimationCompatibilityKey AVAILABLE_MAC_OS_X_VERSION_10_6_AND_LATER;	// CFBoolean
 
 // Ensures that OpenGLES can create a valid texture object from IOSurface-backed CVPixelBuffers.
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceOpenGLESTextureCompatibilityKey API_AVAILABLE(ios(5.0), tvos(9.0)) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;	// CFBoolean
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceOpenGLESTextureCompatibilityKey API_AVAILABLE(ios(5.0), tvos(9.0)) API_UNAVAILABLE(macosx, uikitformac) __WATCHOS_PROHIBITED;	// CFBoolean
 // Ensures that OpenGLES can create a valid texture object from IOSurface-backed CVPixelBuffers AND that the resulting texture may be used as a color buffer attachment to a OpenGLES frame buffer object.
-CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceOpenGLESFBOCompatibilityKey API_AVAILABLE(ios(5.0), tvos(9.0)) API_UNAVAILABLE(macosx) __WATCHOS_PROHIBITED;	// CFBoolean
+CV_EXPORT const CFStringRef CV_NONNULL kCVPixelBufferIOSurfaceOpenGLESFBOCompatibilityKey API_AVAILABLE(ios(5.0), tvos(9.0)) API_UNAVAILABLE(macosx, uikitformac) __WATCHOS_PROHIBITED;	// CFBoolean
     
 #if COREVIDEO_SUPPORTS_IOSURFACE
+#if COREVIDEO_INCLUDED_IOSURFACE_HEADER_FILE
 
 /*!
 	@function   CVPixelBufferGetIOSurface
@@ -1796,6 +1736,7 @@ CV_EXPORT CVReturn CVPixelBufferCreateWithIOSurface(
 		CFDictionaryRef CV_NULLABLE pixelBufferAttributes,
 		CVPixelBufferRef CV_NULLABLE * CV_NONNULL pixelBufferOut) __OSX_AVAILABLE_STARTING(__MAC_10_6,__IPHONE_4_0);
 
+#endif
 #endif // COREVIDEO_SUPPORTS_IOSURFACE
 
 
@@ -1924,6 +1865,7 @@ CV_EXPORT void CVOpenGLESTextureGetCleanTexCoords( CVOpenGLESTextureRef CV_NONNU
 #include <CoreVideo/CVPixelBuffer.h>
 #include <CoreVideo/CVPixelBufferPool.h>
 
+
 #if COREVIDEO_SUPPORTS_OPENGL
 #include <CoreVideo/CVOpenGLBuffer.h>
 #include <CoreVideo/CVOpenGLBufferPool.h>
@@ -2022,16 +1964,22 @@ CV_EXPORT Boolean CVMetalTextureIsFlipped( CVMetalTextureRef CV_NONNULL image ) 
     @param      upperLeft  - array of two floats where the s and t normalized texture coordinates of the upper right corner of the image will be stored
 */
 CV_EXPORT void CVMetalTextureGetCleanTexCoords( CVMetalTextureRef CV_NONNULL image,
-                                                   float lowerLeft[2],
-                                                   float lowerRight[2],
-                                                   float upperRight[2],
-                                                   float upperLeft[2] ) API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
+                                                   float lowerLeft[CV_NONNULL 2],
+                                                   float lowerRight[CV_NONNULL 2],
+                                                   float upperRight[CV_NONNULL 2],
+                                                   float upperLeft[CV_NONNULL 2] ) API_AVAILABLE(macosx(10.11), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
 #endif // defined(__OBJC__)
 	
 /*!
     @discussion kCVMetalTextureUsage is a property that can be placed on a CVMetalTextureCache to instruct the MTLTextureUsage of the created MTLTexture. Values for this can can be read from MTLTexture.h
  */
 CV_EXPORT const CFStringRef CV_NONNULL kCVMetalTextureUsage API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0)) __WATCHOS_PROHIBITED;
+	
+	
+/*!
+ @discussion kCVMetalTextureStorageMode is a property that can be placed on a CVMetalTextureCache to instruct the MTLTextureStorageMode of the created MTLTexture. Values for this can can be read from MTLTexture.h
+ */
+CV_EXPORT const CFStringRef CV_NONNULL kCVMetalTextureStorageMode API_AVAILABLE(macosx(10.15), ios(13.0), tvos(13.0)) __WATCHOS_PROHIBITED;
 
 #endif // COREVIDEO_SUPPORTS_METAL
 	
@@ -2146,6 +2094,9 @@ enum _CVReturn
  *  Copyright (c) 2004-2014 Apple Inc. All rights reserved.
  
  $ManualLog$
+	16aug2018 mito
+	[43359877] In C language, a function prototype declaration should use void for empty arguments <jdecoodt>
+
 	13jan2017 aballow
 	[28840287] Added CoreVideo Support for TiledCompressed IOSurfaces. <jsam>
  *
@@ -2177,7 +2128,7 @@ extern "C" {
                 may be used interchangeably.
     @result     The current host time.
 */
-CV_EXPORT uint64_t CVGetCurrentHostTime() __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
+CV_EXPORT uint64_t CVGetCurrentHostTime(void) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
 /*!
     @function   CVGetHostClockFrequency
@@ -2186,14 +2137,14 @@ CV_EXPORT uint64_t CVGetCurrentHostTime() __OSX_AVAILABLE_STARTING(__MAC_10_4,__
                 may be used interchangeably.
     @result     The current host frequency.
 */
-CV_EXPORT double   CVGetHostClockFrequency() __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
+CV_EXPORT double   CVGetHostClockFrequency(void) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
 /*!
     @function   CVGetHostClockMinimumTimeDelta
     @abstract   Retrieve the smallest possible increment in the host time base.
     @result     The smallest valid increment in the host time base.
 */
-CV_EXPORT uint32_t CVGetHostClockMinimumTimeDelta() __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
+CV_EXPORT uint32_t CVGetHostClockMinimumTimeDelta(void) __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_4_0);
 
 #if defined(__cplusplus)
 }

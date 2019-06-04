@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see AVAudio3DMixing
  * @see SKScene.listener
  */
-SK_EXPORT NS_AVAILABLE(10_11, 9_0) @interface SKAudioNode : SKNode <NSSecureCoding>
+SK_EXPORT API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11)) @interface SKAudioNode : SKNode <NSSecureCoding>
 
 /**Creates a SpriteKit scene graph audio node from the given AVAudioNode.
  * @see AVAudioNode
@@ -73,17 +73,17 @@ SK_EXPORT NS_AVAILABLE(10_11, 9_0) @interface SKAudioNode : SKNode <NSSecureCodi
  */
 @interface SKAction (SKAudioNode)
 
-+ (SKAction *)stereoPanTo:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)stereoPanBy:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)stereoPanTo:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
++ (SKAction *)stereoPanBy:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
-+ (SKAction *)changeReverbTo:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)changeReverbBy:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)changeReverbTo:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
++ (SKAction *)changeReverbBy:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
-+ (SKAction *)changeObstructionTo:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)changeObstructionBy:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)changeObstructionTo:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
++ (SKAction *)changeObstructionBy:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
-+ (SKAction *)changeOcclusionTo:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)changeOcclusionBy:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)changeOcclusionTo:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
++ (SKAction *)changeOcclusionBy:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 @end
 
@@ -103,6 +103,8 @@ NS_ASSUME_NONNULL_END
 
 #import <SpriteKit/SpriteKitBase.h>
 #import <simd/simd.h>
+
+extern unsigned short floatToHalfFloat(float f);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -173,8 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  A renderer for displaying a SpriteKit scene in an existing Metal workflow.
  */
-NS_AVAILABLE(10_13, 11_0)
-SK_EXPORT @interface SKRenderer : NSObject
+API_AVAILABLE(ios(11.0), tvos(11.0), watchos(4.0), macos(10.13)) SK_EXPORT @interface SKRenderer : NSObject
 
 /**
  Creates a renderer with the specified Metal device.
@@ -282,13 +283,13 @@ SK_EXPORT @interface SKVideoNode : SKNode
  Create a video node from a file.
  */
 + (SKVideoNode *)videoNodeWithVideoFileNamed:(NSString *)videoFile NS_DEPRECATED(10_8, 10_11, 7_0, 9_0);
-+ (SKVideoNode *)videoNodeWithFileNamed:(NSString *)videoFile NS_AVAILABLE(10_11, 9_0);
++ (SKVideoNode *)videoNodeWithFileNamed:(NSString *)videoFile API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /**
  Create a video node from a URL.
  */
 + (SKVideoNode *)videoNodeWithVideoURL:(NSURL *)videoURL NS_DEPRECATED(10_8, 10_11, 7_0, 9_0);
-+ (SKVideoNode *)videoNodeWithURL:(NSURL *)videoURL NS_AVAILABLE(10_11, 9_0);
++ (SKVideoNode *)videoNodeWithURL:(NSURL *)videoURL API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /**
  Designated Initializer.
@@ -301,10 +302,10 @@ SK_EXPORT @interface SKVideoNode : SKNode
  Initialize a video node from a file.
  */
 - (instancetype)initWithVideoFileNamed:(NSString *)videoFile NS_DESIGNATED_INITIALIZER NS_DEPRECATED(10_8, 10_10, 7_0, 8_0);
-- (instancetype)initWithFileNamed:(NSString *)videoFile NS_DESIGNATED_INITIALIZER NS_AVAILABLE(10_10, 8_0);
+- (instancetype)initWithFileNamed:(NSString *)videoFile NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 - (instancetype)initWithVideoURL:(NSURL *)url NS_DESIGNATED_INITIALIZER NS_DEPRECATED(10_8, 10_10, 7_0, 8_0);
-- (instancetype)initWithURL:(NSURL *)url NS_DESIGNATED_INITIALIZER NS_AVAILABLE(10_10, 8_0);
+- (instancetype)initWithURL:(NSURL *)url NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /**
  Support coding and decoding via NSKeyedArchiver.
@@ -384,7 +385,7 @@ SK_EXPORT @interface SK3DNode : SKNode
 /**
  @method hitTest:options:
  @abstract Returns an array of SCNHitTestResult for each node that contains a specified point.
- @param thePoint A point in the coordinate system of the receiver.
+ @param point A point in the coordinate system of the receiver.
  @param options Optional parameters (see the "Hit test options" group for the available options).
 */
 - (NSArray<SCNHitTestResult *> *)hitTest:(CGPoint)point options:(nullable NSDictionary<NSString *, id> *)options;
@@ -463,7 +464,7 @@ typedef NS_ENUM(NSInteger, SKSceneScaleMode) {
     SKSceneScaleModeResizeFill      /* Modify the SKScene's actual size to exactly match the SKView. */
 } NS_ENUM_AVAILABLE(10_9, 7_0);
 
-NS_AVAILABLE(10_10, 8_0) @protocol SKSceneDelegate <NSObject>
+API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10)) @protocol SKSceneDelegate <NSObject>
 @optional
 - (void)update:(NSTimeInterval)currentTime forScene:(SKScene *)scene;
 - (void)didEvaluateActionsForScene:(SKScene *)scene;
@@ -492,7 +493,7 @@ SK_EXPORT @interface SKScene : SKEffectNode
 
 /* This is called once after the scene has been initialized or decoded,
  this is the recommended place to perform one-time setup */
-- (void)sceneDidLoad NS_AVAILABLE(10_12, 10_0);
+- (void)sceneDidLoad API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 @property (nonatomic) CGSize size;
 
@@ -504,19 +505,19 @@ SK_EXPORT @interface SKScene : SKEffectNode
 /**
  The camera that is used to obtain the view scale and translation based on where the camera is in relation to the scene.
  */
-@property (nonatomic, weak, nullable) SKCameraNode *camera NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, weak, nullable) SKCameraNode *camera API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /**
  The node that is currently the listener for positional audio coming from SKAudioNodes
  @see SKAudioNode
  */
-@property (nonatomic, weak, nullable) SKNode *listener NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, weak, nullable) SKNode *listener API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /**
  The audio engine that the listener and the scene's audio nodes use to process their sound through.
  */
 #if __has_include(<AVFoundation/AVAudioEngine.h>)
-@property (nonatomic, retain, readonly) AVAudioEngine *audioEngine NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, retain, readonly) AVAudioEngine *audioEngine API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 #endif
 
 /**
@@ -524,7 +525,7 @@ SK_EXPORT @interface SKScene : SKEffectNode
  */
 @property (nonatomic, retain) SKColor *backgroundColor;
 
-@property (nonatomic, weak, nullable) id<SKSceneDelegate> delegate NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, weak, nullable) id<SKSceneDelegate> delegate API_AVAILABLE(ios(8.0), tvos(9.0), watchos(2.0), macos(10.10));
 
 /**
  Used to choose the origin of the scene's coordinate system
@@ -567,14 +568,14 @@ SK_EXPORT @interface SKScene : SKEffectNode
 /**
  Override this to perform game logic. Called exactly once per frame after any enabled constraints have been applied. Any additional actions applied is not evaluated until the next update. Any changes to physics bodies is not simulated until the next update. Any changes to constarints will not be applied until the next update.
  */
-- (void)didApplyConstraints NS_AVAILABLE(10_10, 8_0);
+- (void)didApplyConstraints API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /**
  Override this to perform game logic. Called after all update logic has been completed. Any additional actions applied are not evaluated until the next update. Any changes to physics bodies are not simulated until the next update. Any changes to constarints will not be applied until the next update.
  
  No futher update logic will be applied to the scene after this call. Any values set on nodes here will be used when the scene is rendered for the current frame.
  */
-- (void)didFinishUpdate NS_AVAILABLE(10_10, 8_0);
+- (void)didFinishUpdate API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 #if SKVIEW_AVAILABLE
 - (void)didMoveToView:(SKView *)view;
@@ -654,7 +655,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
  the 'timingMode' property is taken into account, defaults to nil
  @see SKActionTimingFunction
  */
-@property (nonatomic) SKActionTimingFunction timingFunction NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) SKActionTimingFunction timingFunction API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /** A speed factor that modifies how fast an action runs. Default value is 1.0 */
 @property (nonatomic) CGFloat speed;
@@ -742,10 +743,10 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
  Adjust the sprite's xScale & yScale to achieve the desired size (in parent's coordinate space)
  @param duration The duration of the animation, in seconds
 */
-+ (SKAction *)scaleToSize:(CGSize)size duration:(NSTimeInterval)duration NS_AVAILABLE(10_12, 10_0);
++ (SKAction *)scaleToSize:(CGSize)size duration:(NSTimeInterval)duration API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 /** Creates an action that runs a collection of actions sequentially
- @param sequence An array of SKAction objects
+ @param actions An array of SKAction objects
  
  @discussion When the action executes, the first action in the sequence starts
  and runs to completion. Subsequent actions in the sequence run in a
@@ -807,35 +808,35 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
 + (SKAction *)fadeAlphaTo:(CGFloat)alpha duration:(NSTimeInterval)duration;
 
 /** Creates an action that hides a node */
-+ (SKAction *)hide NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)hide API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /** Creates an action that unhides a node */
-+ (SKAction *)unhide NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)unhide API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /** Creates an action that changes a sprite’s texture
  @param texture The new texture to use on the sprite
  */
-+ (SKAction *)setTexture:(SKTexture *)texture NS_AVAILABLE(10_10, 7_1);
-+ (SKAction *)setNormalTexture:(SKTexture *)texture NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)setTexture:(SKTexture *)texture API_AVAILABLE(ios(7.1), tvos(7.1), watchos(1.0), macos(10.10));
++ (SKAction *)setNormalTexture:(SKTexture *)texture API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));;
 
 /** Creates an action that changes a sprite’s texture, possibly resizing the sprite
  @param texture The new texture to use on the sprite
  @param resize If YES, the sprite is resized to match the new texture.
  If NO, the size of the sprite is unchanged.
  */
-+ (SKAction *)setTexture:(SKTexture *)texture resize:(BOOL)resize NS_AVAILABLE(10_10, 7_1);
-+ (SKAction *)setNormalTexture:(SKTexture *)texture resize:(BOOL)resize NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)setTexture:(SKTexture *)texture resize:(BOOL)resize API_AVAILABLE(ios(7.1), tvos(7.1), watchos(1.0), macos(10.10));
++ (SKAction *)setNormalTexture:(SKTexture *)texture resize:(BOOL)resize API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /** Creates an action that animates changes to a sprite’s texture
  @param textures An array of textures to use when animating a sprite
- @param timePerFrame The amount of time that each texture is displayed
+ @param sec The amount of time that each texture is displayed
  */
 + (SKAction *)animateWithTextures:(NSArray<SKTexture*> *)textures timePerFrame:(NSTimeInterval)sec;
-+ (SKAction *)animateWithNormalTextures:(NSArray<SKTexture*> *)textures timePerFrame:(NSTimeInterval)sec NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)animateWithNormalTextures:(NSArray<SKTexture*> *)textures timePerFrame:(NSTimeInterval)sec API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /** Creates an action that animates changes to a sprite’s texture
  @param textures An array of textures to use when animating a sprite
- @param timePerFrame The amount of time that each texture is displayed
+ @param sec The amount of time that each texture is displayed
  @param resize If YES, the sprite is resized to match each new texture.
  If NO, the size of the sprite remains at a constant size.
  @param restore If YES, When the action completes, the sprite’s texture is restored
@@ -846,11 +847,11 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
  set to the final texture in the array.
  */
 + (SKAction *)animateWithTextures:(NSArray<SKTexture*> *)textures timePerFrame:(NSTimeInterval)sec resize:(BOOL)resize restore:(BOOL)restore;
-+ (SKAction *)animateWithNormalTextures:(NSArray<SKTexture*> *)textures timePerFrame:(NSTimeInterval)sec resize:(BOOL)resize restore:(BOOL)restore NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)animateWithNormalTextures:(NSArray<SKTexture*> *)textures timePerFrame:(NSTimeInterval)sec resize:(BOOL)resize restore:(BOOL)restore API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /** Creates an action that plays a sound
  @param soundFile The name of a sound file in the app’s bundle
- @param waitForCompletion If YES, then the duration of this action is the same
+ @param wait If YES, then the duration of this action is the same
  as the length of the audio playback. If NO, the action is considered
  to have completed immediately.
  
@@ -860,7 +861,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
 + (SKAction *)playSoundFileNamed:(NSString*)soundFile waitForCompletion:(BOOL)wait;
 
 /** Creates an animation that animates a sprite’s color and blend factor
- @param The new color for the sprite
+ @param color The new color for the sprite
  @param colorBlendFactor The new blend factor for the sprite
  @param duration The duration of the animation, in seconds
  */
@@ -872,14 +873,14 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
  @param duration The duration of the animation, in seconds
  @see SKFieldNode
  */
-+ (SKAction *)falloffTo:(float)falloff duration:(NSTimeInterval)duration NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)falloffTo:(float)falloff duration:(NSTimeInterval)duration API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /** Creates an action that sets the falloff of a field
  @param falloff The value to modify falloff by
  @param duration The duration of the animation, in seconds
  @see SKFieldNode
  */
-+ (SKAction *)falloffBy:(float)falloff duration:(NSTimeInterval)duration NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)falloffBy:(float)falloff duration:(NSTimeInterval)duration API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /** Creates an action that moves the node along a relative path, orienting the
@@ -895,10 +896,10 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
  
  @param path A Core Graphics path whose coordinates are relative to the node’s
  current position
- @param asOffset If YES, the points in the path are relative offsets to the
+ @param offset If YES, the points in the path are relative offsets to the
  node’s starting position. If NO, the points in the node are absolute
  coordinate values.
- @param orientToPath If YES, the node’s zRotation property animates so that
+ @param orient If YES, the node’s zRotation property animates so that
  the node turns to follow the path. If NO, the zRotation property of
  the node is unchanged.
  @param duration The duration of the animation
@@ -932,51 +933,51 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
  This action must be run on a descendent of the rootNode for animation to occur.
  Running this action on the rootNode itself will not cause any animation to occur.
  @param position The position (in screen space) to reach for
- @param rootNode Where to start the inverse kinematic operation from
+ @param root Where to start the inverse kinematic operation from
  @param duration The duration of the animation, in seconds
  */
-+ (SKAction *)reachTo:(CGPoint)position rootNode:(SKNode *)root duration:(NSTimeInterval)duration NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)reachTo:(CGPoint)position rootNode:(SKNode *)root duration:(NSTimeInterval)duration API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /** Creates an action that performs an inverse kinematic reach.
  This action must be run on a descendent of the rootNode for animation to occur.
  Running this action on the rootNode itself will not cause any animation to occur.
  @param position The position (in screen space) to reach for
- @param rootNode Where to start the inverse kinematic operation from
+ @param root Where to start the inverse kinematic operation from
  @param velocity The speed in points per second of the end node in the chain
  */
-+ (SKAction *)reachTo:(CGPoint)position rootNode:(SKNode *)root velocity:(CGFloat)velocity NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)reachTo:(CGPoint)position rootNode:(SKNode *)root velocity:(CGFloat)velocity API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /** Creates an action that performs an inverse kinematic reach.
  This action must be run on a descendent of the rootNode for animation to occur.
  Running this action on the rootNode itself will not cause any animation to occur.
  @param node The node to reach for
- @param rootNode Where to start the inverse kinematic operation from
- @param duration The duration of the animation, in seconds
+ @param root Where to start the inverse kinematic operation from
+ @param sec The duration of the animation, in seconds
  */
-+ (SKAction *)reachToNode:(SKNode *)node rootNode:(SKNode *)root duration:(NSTimeInterval)sec NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)reachToNode:(SKNode *)node rootNode:(SKNode *)root duration:(NSTimeInterval)sec API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /** Creates an action that performs an inverse kinematic reach.
  This action must be run on a descendent of the rootNode for animation to occur.
  Running this action on the rootNode itself will not cause any animation to occur.
  @param node The node to reach for
- @param rootNode Where to start the inverse kinematic operation from
+ @param root Where to start the inverse kinematic operation from
  @param velocity The speed in points per second of the end node in the chain
  */
-+ (SKAction *)reachToNode:(SKNode *)node rootNode:(SKNode *)root velocity:(CGFloat)velocity NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)reachToNode:(SKNode *)node rootNode:(SKNode *)root velocity:(CGFloat)velocity API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /** Creates an action that sets the strength of a field
  @param strength The new value for strength
  @param duration The duration of the animation, in seconds
  @see SKFieldNode
  */
-+ (SKAction *)strengthTo:(float)strength duration:(NSTimeInterval)duration NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)strengthTo:(float)strength duration:(NSTimeInterval)duration API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /** Creates an action that sets the strength of a field
  @param strength The value to modify strength by
  @param duration The duration of the animation, in seconds
  @see SKFieldNode
  */
-+ (SKAction *)strengthBy:(float)strength duration:(NSTimeInterval)duration NS_AVAILABLE(10_10, 8_0);
++ (SKAction *)strengthBy:(float)strength duration:(NSTimeInterval)duration API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /** Creates an action that idles for a specified period of time
  @param duration The duration of the idle, in seconds
@@ -985,7 +986,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
 
 /** Creates an action that idles for a randomized period of time
  @param duration The duration of the idle, in seconds
- @param withRange The range of possible values for the duration
+ @param durationRange The range of possible values for the duration
  */
 + (SKAction *)waitForDuration:(NSTimeInterval)duration withRange:(NSTimeInterval)durationRange;
 
@@ -994,7 +995,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
 
 /** Creates an action that calls a method on an object
  @param selector The selector of the method to call
- @param onTarget The target object
+ @param target The target object
  */
 + (SKAction *)performSelector:(SEL)selector onTarget:(id)target;
 
@@ -1018,7 +1019,7 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
 
 /** Creates an action that executes a block over a duration
  @param duration The duration of the animation, in seconds
- @param actionBlock The block to run. The block takes the following parameters:
+ @param block The block to run. The block takes the following parameters:
  node The node on which the action is running.
  elapsedTime The amount of time that has passed in the animation.
  */
@@ -1027,64 +1028,64 @@ SK_EXPORT @interface SKAction : NSObject <NSCopying, NSSecureCoding>
 /** Creates an action of the given name from an action file.
  @param name The name of the action
  */
-+ (nullable SKAction *)actionNamed:(NSString *)name NS_AVAILABLE(10_11, 9_0);
++ (nullable SKAction *)actionNamed:(NSString *)name API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /** Creates an action of the given name from an action file with a new duration.
  @param name The name of the action
  @param duration The duration of the action
  */
-+ (nullable SKAction *)actionNamed:(NSString *)name duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (nullable SKAction *)actionNamed:(NSString *)name duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /** Creates an action of the given name from an action file.
  @param name The name of the action
  @param url The url of the file containing the action
  */
-+ (nullable SKAction *)actionNamed:(NSString *)name fromURL:(NSURL *)url NS_AVAILABLE(10_11, 9_0);
++ (nullable SKAction *)actionNamed:(NSString *)name fromURL:(NSURL *)url API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /** Creates an action of the given name from an action file with a new duration.
  @param name The name of the action
  @param url The url of the file containing the action
  @param duration The duration of the action
  */
-+ (nullable SKAction *)actionNamed:(NSString *)name fromURL:(NSURL *)url duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (nullable SKAction *)actionNamed:(NSString *)name fromURL:(NSURL *)url duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 @end
 
 @interface SKAction (NodeWithPhysicsBody)
 
-+ (SKAction *)changeChargeTo:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)changeChargeBy:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)changeChargeTo:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
++ (SKAction *)changeChargeBy:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
-+ (SKAction *)changeMassTo:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)changeMassBy:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)changeMassTo:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
++ (SKAction *)changeMassBy:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
-+ (SKAction *)applyForce:(CGVector)force duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)applyForce:(CGVector)force atPoint:(CGPoint)point duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)applyForce:(CGVector)force duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));;
++ (SKAction *)applyForce:(CGVector)force atPoint:(CGPoint)point duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
-+ (SKAction *)applyTorque:(CGFloat)torque duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)applyTorque:(CGFloat)torque duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
-+ (SKAction *)applyImpulse:(CGVector)impulse duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)applyImpulse:(CGVector)impulse atPoint:(CGPoint)point duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)applyImpulse:(CGVector)impulse duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
++ (SKAction *)applyImpulse:(CGVector)impulse atPoint:(CGPoint)point duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
-+ (SKAction *)applyAngularImpulse:(CGFloat)impulse duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)applyAngularImpulse:(CGFloat)impulse duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));;
 
 @end
 
 @interface SKAction (PlaybackControl)
 
-+ (SKAction *)play NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)pause NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)stop NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)play API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
++ (SKAction *)pause API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
++ (SKAction *)stop API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
-+ (SKAction *)changePlaybackRateTo:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)changePlaybackRateBy:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)changePlaybackRateTo:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));;
++ (SKAction *)changePlaybackRateBy:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));;
 
 @end
 
 @interface SKAction (MixerControl)
 
-+ (SKAction *)changeVolumeTo:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
-+ (SKAction *)changeVolumeBy:(float)v duration:(NSTimeInterval)duration NS_AVAILABLE(10_11, 9_0);
++ (SKAction *)changeVolumeTo:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));;
++ (SKAction *)changeVolumeBy:(float)v duration:(NSTimeInterval)duration API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));;
 
 @end
 
@@ -1417,10 +1418,10 @@ SK_EXPORT @interface SKEmitterNode : SKNode
  Optional dictionary of SKAttributeValues
  Attributes can be used with custom SKShaders.
  */
-@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
-- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_AVAILABLE(10_12, 10_0);
-- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_AVAILABLE(10_12, 10_0);
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 
 /**
@@ -1431,7 +1432,7 @@ SK_EXPORT @interface SKEmitterNode : SKNode
 /**
  The order in which particles will be rendered. Defaults to SKParticleRenderOrderOldestLast.
  */
-@property (nonatomic) SKParticleRenderOrder particleRenderOrder NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic) SKParticleRenderOrder particleRenderOrder API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 
 /**
@@ -1456,6 +1457,9 @@ NS_ASSUME_NONNULL_END
 //
 //  Copyright (c) 2011 Apple, Inc. All rights reserved.
 //
+#ifndef PHYSICSKIT_MINUS_GL_IMPORTS
+#define PHYSICSKIT_MINUS_GL_IMPORTS 1
+#endif
 
 #import <Availability.h>
 #import <TargetConditionals.h>
@@ -1522,7 +1526,7 @@ CG_INLINE CGVector CGVectorMake(CGFloat dx, CGFloat dy) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-SK_EXPORT NS_AVAILABLE(10_11, 9_0) @interface SKReferenceNode : SKNode
+SK_EXPORT API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11)) @interface SKReferenceNode : SKNode
 
 /** Create a reference node with a url */
 - (instancetype)initWithURL:(nullable NSURL *)url NS_DESIGNATED_INITIALIZER;
@@ -1645,7 +1649,7 @@ SK_EXPORT @interface SKShader : NSObject <NSCopying, NSSecureCoding>
 - (nullable SKUniform *)uniformNamed:(NSString *)name;
 - (void)removeUniformNamed:(NSString *)name;
 
-@property (nonatomic, copy, nonnull) NSArray<SKAttribute*> *attributes NS_AVAILABLE(10_11, 9_0);
+@property (nonatomic, copy, nonnull) NSArray<SKAttribute*> *attributes API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));;
 
 @end
 
@@ -1665,7 +1669,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKLightNode : SKNode
+SK_EXPORT API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10)) @interface SKLightNode : SKNode
 
 /**
  Enables or disables lighting contribution from this light node.
@@ -1771,39 +1775,39 @@ NS_ASSUME_NONNULL_BEGIN
 SK_EXPORT @interface SKShapeNode : SKNode
 
 /* Create a Shape Node using a CGPathRef, optionally centered at the Node's origin. */
-+ (instancetype)shapeNodeWithPath:(CGPathRef)path NS_AVAILABLE(10_10, 8_0);
-+ (instancetype)shapeNodeWithPath:(CGPathRef)path centered:(BOOL)centered NS_AVAILABLE(10_10, 8_0);
++ (instancetype)shapeNodeWithPath:(CGPathRef)path API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
++ (instancetype)shapeNodeWithPath:(CGPathRef)path centered:(BOOL)centered API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /* Create a Shape Node representing a Rect. */
-+ (instancetype)shapeNodeWithRect:(CGRect)rect NS_AVAILABLE(10_10, 8_0);
++ (instancetype)shapeNodeWithRect:(CGRect)rect API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /* Create a Shape Node representing a rect centered at the Node's origin. */
-+ (instancetype)shapeNodeWithRectOfSize:(CGSize)size NS_AVAILABLE(10_10, 8_0);
++ (instancetype)shapeNodeWithRectOfSize:(CGSize)size API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /* Create a Shape Node representing a rounded rect with a corner radius */
-+ (instancetype)shapeNodeWithRect:(CGRect)rect cornerRadius:(CGFloat)cornerRadius NS_AVAILABLE(10_10, 8_0);
++ (instancetype)shapeNodeWithRect:(CGRect)rect cornerRadius:(CGFloat)cornerRadius API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /* Create a Shape Node representing a rounded rect with a corner radius centered at the Node's origin. */
-+ (instancetype)shapeNodeWithRectOfSize:(CGSize)size cornerRadius:(CGFloat)cornerRadius NS_AVAILABLE(10_10, 8_0);
++ (instancetype)shapeNodeWithRectOfSize:(CGSize)size cornerRadius:(CGFloat)cornerRadius API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /* Create a Shape Node representing an circle centered at the Node's origin. */
-+ (instancetype)shapeNodeWithCircleOfRadius:(CGFloat)radius NS_AVAILABLE(10_10, 8_0);
++ (instancetype)shapeNodeWithCircleOfRadius:(CGFloat)radius API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /* Create a Shape Node representing an Ellipse inscribed within a Rect */
-+ (instancetype)shapeNodeWithEllipseInRect:(CGRect)rect NS_AVAILABLE(10_10, 8_0);
++ (instancetype)shapeNodeWithEllipseInRect:(CGRect)rect API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /* Create a Shape Node representing an Ellipse inscribed within a Rect centered at the Node's origin. */
-+ (instancetype)shapeNodeWithEllipseOfSize:(CGSize)size NS_AVAILABLE(10_10, 8_0);
++ (instancetype)shapeNodeWithEllipseOfSize:(CGSize)size API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /* Create a Shape Node representing an a series of Points interpreted as line segments */
-+ (instancetype)shapeNodeWithPoints:(CGPoint *)points count:(size_t)numPoints NS_AVAILABLE(10_10, 8_0);
++ (instancetype)shapeNodeWithPoints:(CGPoint *)points count:(size_t)numPoints API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /* Create a Shape Node representing a smoothed spline that passes through a series of Points */
-+ (instancetype)shapeNodeWithSplinePoints:(CGPoint *)points count:(size_t)numPoints NS_AVAILABLE(10_10, 8_0);
++ (instancetype)shapeNodeWithSplinePoints:(CGPoint *)points count:(size_t)numPoints API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /**
  The CGPath to be drawn (in the Node's coordinate space)
@@ -1862,26 +1866,26 @@ SK_EXPORT @interface SKShapeNode : SKNode
 @property (nonatomic, readonly) CGFloat lineLength;
 
 /* An optional Texture used for the filling the Shape */
-@property (nonatomic, retain, nullable) SKTexture *fillTexture NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, retain, nullable) SKTexture *fillTexture API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /* An optional SKShader used for the filling the Shape */
-@property (nonatomic, retain, nullable) SKShader *fillShader NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, retain, nullable) SKShader *fillShader API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /* An optional Texture used for the Shape's stroke. */
-@property (nonatomic, retain, nullable) SKTexture *strokeTexture NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, retain, nullable) SKTexture *strokeTexture API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /* An optional SKShader used for the Shape's Stroke. */
-@property (nonatomic, retain, nullable) SKShader *strokeShader NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, retain, nullable) SKShader *strokeShader API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /**
  Optional dictionary of SKAttributeValues
  Attributes can be used with custom SKShaders.
  */
-@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
-- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_AVAILABLE(10_12, 10_0);
-- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_AVAILABLE(10_12, 10_0);
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 @end
 
@@ -1899,7 +1903,7 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 #import <SpriteKit/SpriteKitBase.h>
 
-SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKReachConstraints : NSObject <NSSecureCoding>
+SK_EXPORT API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10)) @interface SKReachConstraints : NSObject <NSSecureCoding>
 
 /**
  Lower angle limit in radians
@@ -1934,7 +1938,7 @@ SK_EXPORT @interface SKTextureAtlas : NSObject <NSSecureCoding>
 + (instancetype)atlasNamed:(NSString *)name;
 
 /* Create a texture atlas on the fly */
-+ (instancetype)atlasWithDictionary:(NSDictionary<NSString*, id> *)properties NS_AVAILABLE(10_10, 8_0);
++ (instancetype)atlasWithDictionary:(NSDictionary<NSString*, id> *)properties API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /* Individual texture for image name within the atlas */
 - (SKTexture *)textureNamed:(NSString *)name;
@@ -1943,7 +1947,7 @@ SK_EXPORT @interface SKTextureAtlas : NSObject <NSSecureCoding>
  Start a texture atlas preload operation on an array of texture atlas
  
  @param textureAtlases an array of SKTextureAtlas to be preloaded
- @param completionhandler will be called upon the preload completion
+ @param completionHandler will be called upon the preload completion
  
  */
 + (void)preloadTextureAtlases:(NSArray<SKTextureAtlas*> *)textureAtlases withCompletionHandler:(void(^)(void))completionHandler;
@@ -1953,10 +1957,10 @@ SK_EXPORT @interface SKTextureAtlas : NSObject <NSSecureCoding>
  else an NSError is returned and the user info will contain a list of the atlases that couldn't be found
  the ones that could be found are looked up and prefetched.
 
- @param foundAtlases is an array of the SKTextureAtlas, that were located and preloaded.
- @param error will contain which ones couldn't be found.
+ @param atlasNames is an array of the SKTextureAtlas, that were located and preloaded.
+ @param completionHandler will be called upon the preload completion.
  */
-+ (void)preloadTextureAtlasesNamed:(NSArray<NSString *> *)atlasNames withCompletionHandler:(void (^)(NSError * __nullable error, NSArray<SKTextureAtlas *> *foundAtlases))completionHandler NS_AVAILABLE(10_11, 9_0);
++ (void)preloadTextureAtlasesNamed:(NSArray<NSString *> *)atlasNames withCompletionHandler:(void (^)(NSError * __nullable error, NSArray<SKTextureAtlas *> *foundAtlases))completionHandler API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /**
  Request that this texture atlas be loaded into vram on the next render update, with a callback handler.
@@ -2000,7 +2004,7 @@ NS_ASSUME_NONNULL_BEGIN
  * In order to use a camera; set it on the scene that contains the camera.
  * @see SKScene.camera
  */
-SK_EXPORT NS_AVAILABLE(10_11, 9_0) @interface SKCameraNode : SKNode
+SK_EXPORT API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11)) @interface SKCameraNode : SKNode
 
 /**Checks if the node is contained inside the viewport of the camera.
  * The camera and node must both be in the same scene and presented on a view in order
@@ -2037,7 +2041,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SKTexture, SKShader, SKWarpGeometry, SKWarpGeometryGrid;
 
 
-SK_EXPORT NS_AVAILABLE(10_12, 10_0) @protocol SKWarpable <NSObject>
+SK_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12)) @protocol SKWarpable <NSObject>
 
 /* Warp geometry used to define the distortion */
 @property (nonatomic, nullable) SKWarpGeometry *warpGeometry;
@@ -2051,10 +2055,10 @@ SK_EXPORT NS_AVAILABLE(10_12, 10_0) @protocol SKWarpable <NSObject>
 
 
 /* Base class for future expansion */
-SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKWarpGeometry : NSObject <NSCopying, NSSecureCoding>
+SK_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12)) @interface SKWarpGeometry : NSObject <NSCopying, NSSecureCoding>
 @end
 
-SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKWarpGeometryGrid : SKWarpGeometry <NSSecureCoding>
+SK_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12)) @interface SKWarpGeometryGrid : SKWarpGeometry <NSSecureCoding>
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
@@ -2145,7 +2149,7 @@ SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKWarpGeometryGrid : SKWarpGeomet
  from the node current warp.
  */
 + (nullable SKAction *)warpTo:(SKWarpGeometry *)warp
-                     duration:(NSTimeInterval)duration NS_AVAILABLE(10_12, 10_0);
+                     duration:(NSTimeInterval)duration API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 /* Animate through an array of warps
  
@@ -2153,7 +2157,7 @@ SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKWarpGeometryGrid : SKWarpGeomet
  Times are specified in seconds and must be increasing values.
  */
 + (nullable SKAction *)animateWithWarps:(NSArray<SKWarpGeometry *> *)warps
-                                  times:(NSArray<NSNumber *> *)times NS_AVAILABLE(10_12, 10_0);
+                                  times:(NSArray<NSNumber *> *)times API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 /* Animate through an array of warps
  
@@ -2163,7 +2167,7 @@ SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKWarpGeometryGrid : SKWarpGeomet
  */
 + (nullable SKAction *)animateWithWarps:(NSArray<SKWarpGeometry *> *)warps
                                   times:(NSArray<NSNumber *> *)times
-                                restore:(BOOL)restore NS_AVAILABLE(10_12, 10_0);
+                                restore:(BOOL)restore API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 @end
 
 NS_ASSUME_NONNULL_END
@@ -2182,7 +2186,7 @@ NS_ASSUME_NONNULL_END
 
 /* SKMutableTextures are not currently supported in the simulator */
 
-SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKMutableTexture : SKTexture
+SK_EXPORT API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10)) @interface SKMutableTexture : SKTexture
 
 /**
  Create a mutable texture with a specfic size.
@@ -2332,7 +2336,7 @@ SK_EXPORT @interface SKPhysicsWorld : NSObject<NSSecureCoding>
 - (void)removeJoint:(SKPhysicsJoint *)joint;
 - (void)removeAllJoints;
 
-- (vector_float3)sampleFieldsAt:(vector_float3)position NS_AVAILABLE(10_10, 8_0);
+- (vector_float3)sampleFieldsAt:(vector_float3)position API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 - (nullable SKPhysicsBody *)bodyAtPoint:(CGPoint)point;
 - (nullable SKPhysicsBody *)bodyInRect:(CGRect)rect;
@@ -2399,9 +2403,9 @@ SK_EXPORT @interface SKView : NSView <NSSecureCoding>
 @property (nonatomic) BOOL showsFPS;
 @property (nonatomic) BOOL showsDrawCount;
 @property (nonatomic) BOOL showsNodeCount;
-@property (nonatomic) BOOL showsQuadCount NS_AVAILABLE(10_10, 8_0);
-@property (nonatomic) BOOL showsPhysics NS_AVAILABLE(10_10, 8_0);
-@property (nonatomic) BOOL showsFields NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) BOOL showsQuadCount API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
+@property (nonatomic) BOOL showsPhysics API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
+@property (nonatomic) BOOL showsFields API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /**
@@ -2413,7 +2417,7 @@ SK_EXPORT @interface SKView : NSView <NSSecureCoding>
  Toggles whether the view allows transparent rendering. This allows content under the view to show through if
  a non-opaque backgroundColor is set on the scene. Defaults to NO.
  */
-@property (nonatomic) BOOL allowsTransparency NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) BOOL allowsTransparency API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /**
  Ignores sibling and traversal order to sort the rendered contents of a scene into the most efficient batching possible.
@@ -2427,18 +2431,18 @@ SK_EXPORT @interface SKView : NSView <NSSecureCoding>
 @property (nonatomic) BOOL ignoresSiblingOrder;
 
 
-@property (nonatomic) BOOL shouldCullNonVisibleNodes NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) BOOL shouldCullNonVisibleNodes API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /* Defines the desired rate for this SKView to it's content. 
  Actual rate maybe be limited by hardware or other software. */
-@property (nonatomic) NSInteger preferredFramesPerSecond NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic) NSInteger preferredFramesPerSecond API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 
 /**
  Optional view delegate, see SKViewDelegate.
  */
-@property (nonatomic, weak, nullable) NSObject<SKViewDelegate> *delegate NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, weak, nullable) NSObject<SKViewDelegate> *delegate API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 
 /* Deprecated, please use preferredFramesPerSecond.
@@ -2484,7 +2488,7 @@ SK_EXPORT @interface SKView : NSView <NSSecureCoding>
  Create an SKTexture containing a snapshot of how it would have been rendered in this view.
  The texture is cropped to the specified rectangle
  @param node the node subtree to render to the texture.
- @param rect the crop
+ @param crop the crop
  */
 - (nullable SKTexture *)textureFromNode:(SKNode *)node crop:(CGRect)crop;
 
@@ -2508,7 +2512,7 @@ SK_EXPORT @interface SKView : NSView <NSSecureCoding>
 
 
 
-SK_EXPORT NS_AVAILABLE(10_12, 10_0) @protocol SKViewDelegate <NSObject>
+SK_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12)) @protocol SKViewDelegate <NSObject>
 @optional
 /**
  Allows the client to dynamically control the render rate.
@@ -2638,7 +2642,7 @@ SK_EXPORT @interface SKSpriteNode : SKNode <SKWarpable>
  @see SKLightNode
  @see lightingBitMask
  */
-@property (nonatomic, retain, nullable) SKTexture *normalTexture NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, retain, nullable) SKTexture *normalTexture API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /**
@@ -2649,11 +2653,11 @@ SK_EXPORT @interface SKSpriteNode : SKNode <SKWarpable>
  
  When used together with a normal texture, complex lighting effects can be used.
  */
-@property (nonatomic) uint32_t lightingBitMask NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) uint32_t lightingBitMask API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
-@property (nonatomic) uint32_t shadowCastBitMask NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) uint32_t shadowCastBitMask API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
-@property (nonatomic) uint32_t shadowedBitMask NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) uint32_t shadowedBitMask API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 
@@ -2691,18 +2695,18 @@ SK_EXPORT @interface SKSpriteNode : SKNode <SKWarpable>
 /**
  Adjust the sprite's xScale & yScale to achieve the desired size (in parent's coordinate space)
  */
-- (void)scaleToSize:(CGSize)size NS_AVAILABLE(10_12, 10_0);
+- (void)scaleToSize:(CGSize)size API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
-@property (nonatomic, retain, nullable) SKShader *shader NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, retain, nullable) SKShader *shader API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /**
  Optional dictionary of SKAttributeValues
  Attributes can be used with custom SKShaders.
  */
-@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
-- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_AVAILABLE(10_12, 10_0);
-- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_AVAILABLE(10_12, 10_0);
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 @end
 
@@ -2731,13 +2735,14 @@ NS_ASSUME_NONNULL_BEGIN
  Blend modes that the SKNode uses to compose with the framebuffer to produce blended colors.
  */
 typedef NS_ENUM(NSInteger, SKBlendMode) {
-    SKBlendModeAlpha        = 0,    // Blends the source and destination colors by multiplying the source alpha value.
-    SKBlendModeAdd          = 1,    // Blends the source and destination colors by adding them up.
-    SKBlendModeSubtract     = 2,    // Blends the source and destination colors by subtracting the source from the destination.
-    SKBlendModeMultiply     = 3,    // Blends the source and destination colors by multiplying them.
-    SKBlendModeMultiplyX2   = 4,    // Blends the source and destination colors by multiplying them and doubling the result.
-    SKBlendModeScreen       = 5,    // Blends the source and destination colors by multiplying one minus the source with the destination and adding the source.
-    SKBlendModeReplace      = 6     // Replaces the destination with the source (ignores alpha).
+    SKBlendModeAlpha         = 0,    // Blends the source and destination colors by multiplying the source alpha value.
+    SKBlendModeAdd           = 1,    // Blends the source and destination colors by adding them up.
+    SKBlendModeSubtract      = 2,    // Blends the source and destination colors by subtracting the source from the destination.
+    SKBlendModeMultiply      = 3,    // Blends the source and destination colors by multiplying them.
+    SKBlendModeMultiplyX2    = 4,    // Blends the source and destination colors by multiplying them and doubling the result.
+    SKBlendModeScreen        = 5,    // Blends the source and destination colors by multiplying one minus the source with the destination and adding the source.
+    SKBlendModeReplace       = 6,    // Replaces the destination with the source (ignores alpha).
+    SKBlendModeMultiplyAlpha = 7     // Blends the source and destination colors by multiplying them (with alpha).
 } NS_ENUM_AVAILABLE(10_9, 7_0);
 
 typedef NS_ENUM(NSInteger, SKNodeFocusBehavior) {
@@ -2916,7 +2921,7 @@ SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSSecureCoding>
 - (void)removeAllChildren;
 
 - (void)removeFromParent;
-- (void)moveToParent:(SKNode *)parent NS_AVAILABLE(10_11, 9_0);
+- (void)moveToParent:(SKNode *)parent API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 - (nullable SKNode *)childNodeWithName:(NSString *)name;
 
@@ -2933,7 +2938,7 @@ SK_EXPORT @interface SKNode : NSResponder <NSCopying, NSSecureCoding>
  * @param name An Xpath style path that can include simple regular expressions for matching node names.
  * @see enumerateChildNodesWithName:usingBlock:
  */
-- (NSArray<SKNode*> *)objectForKeyedSubscript:(NSString *)name NS_AVAILABLE(10_10, 8_0);
+- (NSArray<SKNode*> *)objectForKeyedSubscript:(NSString *)name API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /* Returns true if the specified parent is in this node's chain of parents */
 
@@ -3066,7 +3071,7 @@ typedef struct {  vector_float4 vector; } simd_quatf;
  * The physics and constraints of the children will behave as if none
  * of them were transformed.
  */
-NS_AVAILABLE(10_13, 11_0) SK_EXPORT @interface SKTransformNode : SKNode
+API_AVAILABLE(ios(11.0), tvos(11.0), watchos(4.0), macos(10.13)) SK_EXPORT @interface SKTransformNode : SKNode
 
 @property (nonatomic) CGFloat xRotation;
 @property (nonatomic) CGFloat yRotation;
@@ -3106,7 +3111,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKFieldNode : SKNode
+SK_EXPORT API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10)) @interface SKFieldNode : SKNode
 
 /** The region property is the domain of the field's effect. No force is applied to objects outside the region.
  */
@@ -3240,7 +3245,7 @@ SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKFieldNode : SKNode
  To freeze the noise in place, set animationSpeed to 0.0. Mass is ignored.
 
  @param smoothness value of 0 means as noisy as possible, 1 means as smooth as possible
- @param animationSpeed is the general rate in Hz that any particular texel changes to a different value
+ @param speed is the general rate in Hz that any particular texel changes to a different value
  
  @see smoothness
  @see animationSpeed
@@ -3251,7 +3256,7 @@ SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKFieldNode : SKNode
  Just like Noise, except the strength of the noise is proportional to the velocity of the object in the field.
  
  @param smoothness value of 0 means as noisy as possible, 1 means as smooth as possible
- @param animationSpeed is the general rate in Hz that any particular texel changes to a different value
+ @param speed is the general rate in Hz that any particular texel changes to a different value
  
  @see smoothness
  @see animationSpeed
@@ -3310,7 +3315,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-SK_EXPORT NS_AVAILABLE(10_10, 8_0) @interface SKRegion : NSObject <NSCopying, NSSecureCoding>
+SK_EXPORT API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10)) @interface SKRegion : NSObject <NSCopying, NSSecureCoding>
 
 @property (nonatomic, readonly, nullable) CGPathRef path;
 
@@ -3403,20 +3408,20 @@ SK_EXPORT @interface SKTexture : NSObject <NSCopying, NSSecureCoding>
  Create a texture containing directional noise. The RGBA values in this
  texture can be used as a normal map or as direction possibly with length. XYZ are a three dimensional direction, and A is a magnitude.
  
- @param rect the size of the resulting texture.
+ @param size the size of the resulting texture.
  @param smoothness how similar neighboring pixels are. A value of zero is like static, one is smooth.
  */
-+ (instancetype)textureVectorNoiseWithSmoothness:(CGFloat)smoothness size:(CGSize)size NS_AVAILABLE(10_10, 8_0);
++ (instancetype)textureVectorNoiseWithSmoothness:(CGFloat)smoothness size:(CGSize)size API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /**
  Create a texture containing colored noise. The noise texture is tileable with itself.
  
- @param rect the size of the resulting texture.
+ @param size the size of the resulting texture.
  @param smoothness how similar neighboring pixels are. A value of zero is like static, one is smooth.
  @param grayscale if YES, RGB and A will all be the same. If no, RGB and A will all be different. A is not pre-multiplied, because the intent is that if you read a texel in a shader, all four values will be exactly the same value if grayscale, or four different, uncorrelated values if not grayscale.
  */
-+ (instancetype)textureNoiseWithSmoothness:(CGFloat)smoothness size:(CGSize)size grayscale:(BOOL)grayscale NS_AVAILABLE(10_10, 8_0);
++ (instancetype)textureNoiseWithSmoothness:(CGFloat)smoothness size:(CGSize)size grayscale:(BOOL)grayscale API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /**
@@ -3466,7 +3471,7 @@ SK_EXPORT @interface SKTexture : NSObject <NSCopying, NSSecureCoding>
 /**
  Create new texture by generating a normal map texture.
   */
-- (instancetype)textureByGeneratingNormalMap NS_AVAILABLE(10_10, 8_0);
+- (instancetype)textureByGeneratingNormalMap API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /**
@@ -3475,7 +3480,7 @@ SK_EXPORT @interface SKTexture : NSObject <NSCopying, NSSecureCoding>
  @param smoothness the smooth level of the generated normal map.
  @param contrast  the scale applied to the generated normal map.
  */
-- (instancetype)textureByGeneratingNormalMapWithSmoothness:(CGFloat)smoothness contrast:(CGFloat)contrast NS_AVAILABLE(10_10, 8_0);
+- (instancetype)textureByGeneratingNormalMapWithSmoothness:(CGFloat)smoothness contrast:(CGFloat)contrast API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /**
  Used to choose the area of the texture you want to display. The origin and size should both be in the range 0.0 - 1.0, values outside of this range produces unpredictable results. Defaults to the entire texture {(0,0) (1,1)}.
@@ -3502,13 +3507,13 @@ SK_EXPORT @interface SKTexture : NSObject <NSCopying, NSSecureCoding>
 /**
  Convert the current SKTexture into a CGImageRef object
  */
-- (CGImageRef)CGImage CF_RETURNS_RETAINED NS_AVAILABLE(10_11, 9_0);
+- (CGImageRef)CGImage CF_RETURNS_RETAINED API_AVAILABLE(ios(9.0), tvos(9.0), watchos(2.0), macos(10.11));
 
 /**
  Start a texture preload operation on an array of textures
  
  @param textures an array of SKTextures to be preloaded
- @param completionhandler will be called upon the preload completion
+ @param completionHandler will be called upon the preload completion
  
  */
 + (void)preloadTextures:(NSArray<SKTexture*> *)textures withCompletionHandler:(void(^)(void))completionHandler;
@@ -3625,7 +3630,7 @@ typedef NS_OPTIONS(NSUInteger, SKTileAdjacencyMask) {
 /**
  A tile set contains all of the tile definitions that are available for use in a tile map. In addition, it also contains tile groups, which define collections of related tile definitions and the rules that govern their placement.
  */
-SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileSet : NSObject <NSCopying, NSSecureCoding>
+SK_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12)) @interface SKTileSet : NSObject <NSCopying, NSSecureCoding>
 
 /**
  Create a tile set with the specified tile groups.
@@ -3661,7 +3666,7 @@ SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileSet : NSObject <NSCopying, 
 
 /**
  Creates a tile set from the specified tile set file. Returns nil if the URL doesn't point to a valid tile set file.
- @param name the URL of the tile set file
+ @param url the URL of the tile set file
  */
 + (nullable instancetype)tileSetFromURL:(NSURL *)url;
 
@@ -3692,11 +3697,11 @@ SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileSet : NSObject <NSCopying, 
 /**
  A tile group encapsulates a collection of related tile definitions that are designed to be pieced together within a tile map. How those tiles are pieced together is governed by the set of rules. When a tile group is placed in a tile map, the map evaluates the rules to determine which tiles should be placed to achieve the desired outcome.
  */
-SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileGroup : NSObject <NSCopying, NSSecureCoding>
+SK_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12)) @interface SKTileGroup : NSObject <NSCopying, NSSecureCoding>
 
 /**
  Create a simple tile group for a single tile definition. This creates and initializes the SKTileGroupRule necessary to place the provided tile definition in a tile map.
- @param the tile definition we wish to place in a tile map
+ @param tileDefinition the tile definition we wish to place in a tile map
  */
 + (instancetype)tileGroupWithTileDefinition:(SKTileDefinition *)tileDefinition;
 
@@ -3713,7 +3718,7 @@ SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileGroup : NSObject <NSCopying
 
 /**
  Initilize a simple tile group for a single tile definition. This creates and initializes the SKTileGroupRule necessary to place the provided tile definition in a tile map.
- @param the tile definition we wish to place in a tile map
+ @param tileDefinition tile definition we wish to place in a tile map
  */
 - (instancetype)initWithTileDefinition:(SKTileDefinition *)tileDefinition;
 
@@ -3738,7 +3743,7 @@ SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileGroup : NSObject <NSCopying
 /**
  A tile group rule defines how a certain type of tile should be placed on the map. These tiles are like puzzle pieces, and the rules define how they should be pieced together. This is accomplished by defining which neighboring spaces need to be filled with tiles that belong to the same group, and which tiles are required to be empty. The required pattern of neighboring tiles is defined using the SKTileAdjacencyMask.
  */
-SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileGroupRule : NSObject <NSCopying, NSSecureCoding>
+SK_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12)) @interface SKTileGroupRule : NSObject <NSCopying, NSSecureCoding>
 
 /**
  Create a tile group rule with the specified adjacency and tile definitions.
@@ -3791,7 +3796,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  A SpriteKit node used to render a 2D array of textured sprites. Uses SKTileSet to determine what textures it can use to render. Separate tile map nodes can be layered on top of one another to achieve various effects, such as parallax scrolling.
  */
-SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileMapNode : SKNode <NSCopying, NSSecureCoding>
+SK_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12)) @interface SKTileMapNode : SKNode <NSCopying, NSSecureCoding>
 
 /**
  Create a tile map node with the specified tile set and dimensions. The tiles of the map will be empty, equivalent to the nil tile definition/group.
@@ -3906,10 +3911,10 @@ SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileMapNode : SKNode <NSCopying
  Optional dictionary of SKAttributeValues
  Attributes can be used with custom SKShaders.
  */
-@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
-- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_AVAILABLE(10_12, 10_0);
-- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_AVAILABLE(10_12, 10_0);
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 /**
  Bitmask to indicate being lit by a set of lights using overlapping lighting categories.
@@ -4046,7 +4051,7 @@ NS_ASSUME_NONNULL_BEGIN
 SK_EXPORT @interface SKLabelNode : SKNode
 
 + (instancetype)labelNodeWithText:(nullable NSString *)text;
-+ (instancetype)labelNodeWithAttributedText:(nullable NSAttributedString *)attributedText NS_AVAILABLE(10_13, 11);
++ (instancetype)labelNodeWithAttributedText:(nullable NSAttributedString *)attributedText API_AVAILABLE(ios(11.0), tvos(11.0), watchos(4.0), macos(10.13));
 + (instancetype)labelNodeWithFontNamed:(nullable NSString *)fontName;
 
 - (instancetype)initWithFontNamed:(nullable NSString *)fontName;
@@ -4238,10 +4243,10 @@ SK_EXPORT @interface SKEffectNode : SKNode <SKWarpable>
  Optional dictionary of SKAttributeValues
  Attributes can be used with custom SKShaders.
  */
-@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic, nonnull, copy) NSDictionary<NSString *, SKAttributeValue *> *attributeValues API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
-- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key NS_AVAILABLE(10_12, 10_0);
-- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) NS_AVAILABLE(10_12, 10_0);
+- (nullable SKAttributeValue*)valueForAttributeNamed:(nonnull NSString *)key API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+- (void)setValue:(SKAttributeValue*)value forAttributeNamed:(nonnull NSString *)key NS_SWIFT_NAME(setValue(_:forAttribute:)) API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 @end
 
@@ -4339,7 +4344,7 @@ typedef NS_ENUM(NSUInteger, SKTileDefinitionRotation) {
 /**
  A tile definition contains the information needed to represent a single type of tile within a tile map.
  */
-SK_EXPORT NS_AVAILABLE(10_12, 10_0) @interface SKTileDefinition : NSObject <NSCopying, NSSecureCoding>
+SK_EXPORT API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12)) @interface SKTileDefinition : NSObject <NSCopying, NSSecureCoding>
 
 /**
  Create a tile definition with an SKTexture, and set its size to the SKTexture's width/height.
@@ -4558,7 +4563,7 @@ SK_EXPORT @interface SKPhysicsBody : NSObject <NSCopying, NSSecureCoding>
  @param texture the texture to be interpreted
  @param size of the generated physics body
  */
-+ (SKPhysicsBody *)bodyWithTexture:(SKTexture*)texture size:(CGSize)size NS_AVAILABLE(10_10, 8_0);
++ (SKPhysicsBody *)bodyWithTexture:(SKTexture*)texture size:(CGSize)size API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /**
  Creates a body from the alpha values in the supplied texture.
@@ -4566,7 +4571,7 @@ SK_EXPORT @interface SKPhysicsBody : NSObject <NSCopying, NSSecureCoding>
  @param alphaThreshold the alpha value above which a pixel is interpreted as opaque
  @param size of the generated physics body
  */
-+ (SKPhysicsBody *)bodyWithTexture:(SKTexture*)texture alphaThreshold:(float)alphaThreshold size:(CGSize)size NS_AVAILABLE(10_10, 8_0);
++ (SKPhysicsBody *)bodyWithTexture:(SKTexture*)texture alphaThreshold:(float)alphaThreshold size:(CGSize)size API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /**
@@ -4577,7 +4582,7 @@ SK_EXPORT @interface SKPhysicsBody : NSObject <NSCopying, NSSecureCoding>
 @property (nonatomic, getter = isDynamic) BOOL dynamic;
 @property (nonatomic) BOOL usesPreciseCollisionDetection;
 @property (nonatomic) BOOL allowsRotation;
-@property (nonatomic) BOOL pinned NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) BOOL pinned API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 
 /**
@@ -4597,7 +4602,7 @@ SK_EXPORT @interface SKPhysicsBody : NSObject <NSCopying, NSSecureCoding>
  electric and magnetic fields. Note that this is a unitless quantity, it is up to the developer to
  set charge and field strength appropriately. Defaults to 0.0
  */
-@property (nonatomic) CGFloat charge NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic) CGFloat charge API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /**
  Determines the 'bounciness' of the physics body (0.0 - 1.0). Defaults to 0.2
@@ -4648,7 +4653,7 @@ SK_EXPORT @interface SKPhysicsBody : NSObject <NSCopying, NSSecureCoding>
  Defines what logical 'categories' of fields this body responds to. Defaults to all bits set (all categories).
  Can be forced off via affectedByGravity.
  */
-@property (nonatomic, assign) uint32_t fieldBitMask NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, assign) uint32_t fieldBitMask API_AVAILABLE(ios(8.0), tvos(9.0), watchos(1.0), macos(10.10));
 
 /**
  Defines what logical 'categories' this body belongs to. Defaults to all bits set (all categories).
@@ -4708,7 +4713,7 @@ NS_ASSUME_NONNULL_END
 #import <SpriteKit/SKTexture.h>
 #import <simd/simd.h>
 
-#if __has_include(<GLKit/GLKMath.h>)
+#if !TARGET_OS_UIKITFORMAC && __has_include(<GLKit/GLKMath.h>)
 #import <GLKit/GLKMath.h>
 #endif
 
@@ -4759,7 +4764,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSSecureCoding>
  @param name the name of the shader uniform.
  @param value the float vector2 value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name vectorFloat2:(vector_float2)value NS_AVAILABLE(10_12, 10_0);
++ (instancetype)uniformWithName:(NSString *)name vectorFloat2:(vector_float2)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 /**
  Create a shader uniform with a given name, and a float vector3 value
@@ -4767,7 +4772,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSSecureCoding>
  @param name the name of the shader uniform.
  @param value the float vector3 value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name vectorFloat3:(vector_float3)value NS_AVAILABLE(10_12, 10_0);
++ (instancetype)uniformWithName:(NSString *)name vectorFloat3:(vector_float3)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 /**
  Create a shader uniform with a given name, and a float vector4 value
@@ -4775,7 +4780,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSSecureCoding>
  @param name the name of the shader uniform.
  @param value the float vector4 value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name vectorFloat4:(vector_float4)value NS_AVAILABLE(10_12, 10_0);
++ (instancetype)uniformWithName:(NSString *)name vectorFloat4:(vector_float4)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 /**
  Create a shader uniform with a given name, and a 2x2 matrix value
@@ -4783,7 +4788,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSSecureCoding>
  @param name the name of the shader uniform.
  @param value the 2x2 matrix value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name matrixFloat2x2:(matrix_float2x2)value NS_AVAILABLE(10_12, 10_0);
++ (instancetype)uniformWithName:(NSString *)name matrixFloat2x2:(matrix_float2x2)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 /**
  Create a shader uniform with a given name, and a 3x3 matrix value
@@ -4791,7 +4796,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSSecureCoding>
  @param name the name of the shader uniform.
  @param value the 3x3 matrix value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name matrixFloat3x3:(matrix_float3x3)value NS_AVAILABLE(10_12, 10_0);
++ (instancetype)uniformWithName:(NSString *)name matrixFloat3x3:(matrix_float3x3)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 /**
  Create a shader uniform with a given name, and a 4x4 matrix value
@@ -4799,7 +4804,7 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSSecureCoding>
  @param name the name of the shader uniform.
  @param value the 4x4 matrix value associated with this uniform.
  */
-+ (instancetype)uniformWithName:(NSString *)name matrixFloat4x4:(matrix_float4x4)value NS_AVAILABLE(10_12, 10_0);
++ (instancetype)uniformWithName:(NSString *)name matrixFloat4x4:(matrix_float4x4)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 /* The name by which this uniform will be referenced in a shader */
 @property (nonatomic, readonly) NSString *name;
@@ -4812,24 +4817,24 @@ SK_EXPORT @interface SKUniform : NSObject <NSCopying, NSSecureCoding>
 
 /* Access to the value associated with the uniform */
 @property (nonatomic) float floatValue;
-@property (nonatomic) vector_float2 vectorFloat2Value NS_AVAILABLE(10_12, 10_0);
-@property (nonatomic) vector_float3 vectorFloat3Value NS_AVAILABLE(10_12, 10_0);
-@property (nonatomic) vector_float4 vectorFloat4Value NS_AVAILABLE(10_12, 10_0);
-@property (nonatomic) matrix_float2x2 matrixFloat2x2Value NS_AVAILABLE(10_12, 10_0);
-@property (nonatomic) matrix_float3x3 matrixFloat3x3Value NS_AVAILABLE(10_12, 10_0);
-@property (nonatomic) matrix_float4x4 matrixFloat4x4Value NS_AVAILABLE(10_12, 10_0);
+@property (nonatomic) vector_float2 vectorFloat2Value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+@property (nonatomic) vector_float3 vectorFloat3Value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+@property (nonatomic) vector_float4 vectorFloat4Value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+@property (nonatomic) matrix_float2x2 matrixFloat2x2Value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+@property (nonatomic) matrix_float3x3 matrixFloat3x3Value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+@property (nonatomic) matrix_float4x4 matrixFloat4x4Value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
 - (instancetype)initWithName:(NSString *)name;
 - (instancetype)initWithName:(NSString *)name texture:(nullable SKTexture*)texture;
 - (instancetype)initWithName:(NSString *)name float:(float)value;
-- (instancetype)initWithName:(NSString *)name vectorFloat2:(vector_float2)value NS_AVAILABLE(10_12, 10_0);
-- (instancetype)initWithName:(NSString *)name vectorFloat3:(vector_float3)value NS_AVAILABLE(10_12, 10_0);
-- (instancetype)initWithName:(NSString *)name vectorFloat4:(vector_float4)value NS_AVAILABLE(10_12, 10_0);
-- (instancetype)initWithName:(NSString *)name matrixFloat2x2:(matrix_float2x2)value NS_AVAILABLE(10_12, 10_0);
-- (instancetype)initWithName:(NSString *)name matrixFloat3x3:(matrix_float3x3)value NS_AVAILABLE(10_12, 10_0);
-- (instancetype)initWithName:(NSString *)name matrixFloat4x4:(matrix_float4x4)value NS_AVAILABLE(10_12, 10_0);
+- (instancetype)initWithName:(NSString *)name vectorFloat2:(vector_float2)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+- (instancetype)initWithName:(NSString *)name vectorFloat3:(vector_float3)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+- (instancetype)initWithName:(NSString *)name vectorFloat4:(vector_float4)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+- (instancetype)initWithName:(NSString *)name matrixFloat2x2:(matrix_float2x2)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+- (instancetype)initWithName:(NSString *)name matrixFloat3x3:(matrix_float3x3)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
+- (instancetype)initWithName:(NSString *)name matrixFloat4x4:(matrix_float4x4)value API_AVAILABLE(ios(10.0), tvos(10.0), watchos(3.0), macos(10.12));
 
-#if __has_include(<GLKit/GLKMath.h>)
+#if !TARGET_OS_UIKITFORMAC && __has_include(<GLKit/GLKMath.h>)
 @property GLKVector2 floatVector2Value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
 @property GLKVector3 floatVector3Value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);
 @property GLKVector4 floatVector4Value NS_DEPRECATED(10_8, 10_12, 7_0, 10_0);

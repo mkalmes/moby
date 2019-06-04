@@ -185,10 +185,11 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2016 Apple Inc. All rights reserved.
 //
 
-#import "RPBroadcastConfiguration.h"
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 #import <UIKit/UIKit.h>
+
+#import <ReplayKit/RPBroadcastConfiguration.h>
 
 NS_ASSUME_NONNULL_BEGIN
 /*! 
@@ -326,7 +327,7 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 extern NSString * const __nonnull RPRecordingErrorDomain;
 
-NS_ENUM_AVAILABLE_IOS(9_0)
+NS_ENUM_AVAILABLE_IOS(9_0) NS_ENUM_AVAILABLE_MAC(11_0)
 typedef NS_ENUM(NSInteger, RPRecordingErrorCode) {
     RPRecordingErrorUnknown = -5800,
     RPRecordingErrorUserDeclined = -5801, // The user declined app recording.
@@ -346,11 +347,12 @@ typedef NS_ENUM(NSInteger, RPRecordingErrorCode) {
     RPRecordingErrorFailedApplicationConnectionInterrupted = -5815, // Failed during recording appliation connection interrupted
     RPRecordingErrorFailedNoMatchingApplicationContext = -5816, // Failed during recording context id does not match application
     RPRecordingErrorFailedMediaServicesFailure = -5817, // Failed during recording due to mediaservices failure
-    RPRecordingErrorVideoMixingFailure = -5818 // Failed during recording due to audio/video mixing failure
+    RPRecordingErrorVideoMixingFailure = -5818, // Failed during recording due to audio/video mixing failure
+    RPRecordingErrorPhotoFailure = -5819 // Failed during saving to camera roll
 };
 // ==========  ReplayKit.framework/Headers/RPPreviewViewController.h
 //
-//  RPVideoPreviewViewController.h
+//  RPPreviewViewController.h
 //  ReplayKit
 //
 //  Copyright © 2015 Apple Inc. All rights reserved.
@@ -404,8 +406,8 @@ NS_ASSUME_NONNULL_END
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "RPPreviewViewController.h"
-#import "RPBroadcastExtension.h"
+#import <ReplayKit/RPPreviewViewController.h>
+#import <ReplayKit/RPBroadcastExtension.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

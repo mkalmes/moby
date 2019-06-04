@@ -8,7 +8,7 @@
 #import <CoreImage/CoreImageDefines.h>
 #import <CoreVideo/CoreVideo.h>
 
-#if TARGET_OS_IPHONE && (TARGET_OS_EMBEDDED || TARGET_OS_SIMULATOR || !0)
+#if TARGET_OS_IPHONE && (TARGET_OS_EMBEDDED || TARGET_OS_SIMULATOR || !TARGET_OS_UIKITFORMAC)
  #import <OpenGLES/EAGL.h>
 #elif TARGET_OS_OSX
  #import <OpenGL/CGLTypes.h>
@@ -40,10 +40,10 @@ CORE_IMAGE_EXPORT CIContextOption const kCIContextOutputColorSpace;
 CORE_IMAGE_EXPORT CIContextOption const kCIContextWorkingColorSpace;
 
 /* An NSNumber with a CIFormat value defining the pixel format to use for intermediate buffers.
-* On iOS GPU the supported values for this key are RGBA8 and RGBAh. If not specified RGBA8 us used.
-* On iOS CPU the only supported value for this key is RGBAf. If not specified RGBAf us used.
-* On OSX GPU the supported values for this key are RGBA8, RGBAh and RGBAf. If not specified RGBAh us used.
-* On OSX CPU the supported values for this key are RGBA8, RGBAh and RGBAf. If not specified RGBAh us used. */
+ * On iOS the supported values for this key are RGBA8 and RGBAh. If not specified:
+ *   RGBA8 is used if app is linked against OSX 10.12 SDK or earlier.
+ *   RGBAh is used if app is linked against OSX 10.13 SDK or later.
+ * On OSX the supported values for this key are RGBA8, RGBAh and RGBAf. If not specified, RGBAh is used. */
 CORE_IMAGE_EXPORT CIContextOption const kCIContextWorkingFormat NS_AVAILABLE(10_4,8_0);
 
 /* A boolean NSNumber controlling the quality of affine downsample operations.
@@ -68,6 +68,11 @@ CORE_IMAGE_EXPORT CIContextOption const kCIContextUseSoftwareRenderer;
 /* An NSNumber with a boolean value. When @YES the context will use 
  * low priority rendering on the GPU. */
 CORE_IMAGE_EXPORT CIContextOption const kCIContextPriorityRequestLow NS_AVAILABLE(10_12, 8_0);
+
+/* A boolean value specifying whether or not to allow use of low-power devices for GPU rendering.
+ * If @YES, the context will use a low power GPU if available and the high power device is not already in use.
+ * The default value is @NO which instructs the context to use the highest power/performance device. */
+CORE_IMAGE_EXPORT CIContextOption const kCIContextAllowLowPower NS_AVAILABLE(10_12, 13_0);
 
 
 #pragma mark - contextWithCGLContext
@@ -142,7 +147,7 @@ NS_AVAILABLE(10_4,5_0);
  *
  * The [context drawImage:...] render methods will render to the EAGLContext.
  */
-#if TARGET_OS_IPHONE && (TARGET_OS_EMBEDDED || TARGET_OS_SIMULATOR || !0)
+#if TARGET_OS_IPHONE && (TARGET_OS_EMBEDDED || TARGET_OS_SIMULATOR || !TARGET_OS_UIKITFORMAC)
 + (CIContext *)contextWithEAGLContext:(EAGLContext *)eaglContext
     CI_GL_DEPRECATED_IOS(5_0,12_0);
 
@@ -188,42 +193,6 @@ NS_AVAILABLE(10_4,5_0);
            inRect:(CGRect)inRect
          fromRect:(CGRect)fromRect;
 
-/* Render the region 'fromRect' of image 'image' into a temporary buffer using
- * the context, then create and return a new CoreGraphics image with
- * the results. The caller is responsible for releasing the returned image.
- * The return value will be null if size is empty or too big. */
-- (nullable CGImageRef)createCGImage:(CIImage *)image
-                            fromRect:(CGRect)fromRect
-CF_RETURNS_RETAINED;
-
-/* Create a new CGImage from the specified subrect of the image. If
- * non-nil the new image will be created in the specified format and colorspace.
- * The CGColorSpace must be kCGColorSpaceModelRGB or kCGColorSpaceModelMonochrome
- * and must match the specified CIFormat.
- * This will return null if fromRect is empty or infinite or the format isn't supported.
- */
-- (nullable CGImageRef)createCGImage:(CIImage *)image
-                            fromRect:(CGRect)fromRect
-                              format:(CIFormat)format
-                          colorSpace:(nullable CGColorSpaceRef)colorSpace
-CF_RETURNS_RETAINED;
-
-/* Create a new CGImage from the specified subrect of the image.
- * The new CGImageRef will be created in the specified format and colorspace.
- * The return value will be null if fromRect is empty or infinite.
- * The CGColorSpace must be kCGColorSpaceModelRGB or kCGColorSpaceModelMonochrome
- * and must match the specified CIFormat.
- * This will return null if fromRect is empty or infinite or the format isn't supported.
- * If deferred is NO, then the CIImage will be rendered once when this method is called.
- * If deferred is YES, then the CIImage will be rendered whenever the CGImage is rendered.
- */
-- (nullable CGImageRef)createCGImage:(CIImage *)image
-                            fromRect:(CGRect)fromRect
-                              format:(CIFormat)format
-                          colorSpace:(nullable CGColorSpaceRef)colorSpace
-                            deferred:(BOOL)deferred
-CF_RETURNS_RETAINED NS_AVAILABLE(10_12,10_0);
-
 /* Create a CoreGraphics layer object suitable for creating content for
  * subsequently rendering into this CI context. The 'info' parameter is
  * passed into CGLayerCreate () as the auxiliaryInfo dictionary.
@@ -249,7 +218,7 @@ CF_RETURNS_RETAINED NS_DEPRECATED_MAC(10_4,10_11);
 		format:(CIFormat)format
 	colorSpace:(nullable CGColorSpaceRef)colorSpace;
 
-#if !TARGET_OS_SIMULATOR
+#if COREIMAGE_SUPPORTS_IOSURFACE
 /* Render 'image' to the given IOSurface.
  * The 'bounds' parameter has the following behavior:
  *    The 'image' is rendered into 'surface' so that
@@ -314,6 +283,47 @@ toCVPixelBuffer:(CVPixelBufferRef)buffer
 /* Returns the maximum dimension for image that can be rendered 
  * on the context. */
 - (CGSize)outputImageMaximumSize NS_AVAILABLE_IOS(5_0);
+
+@end
+
+
+@interface CIContext (createCGImage)
+
+/* Render the region 'fromRect' of image 'image' into a temporary buffer using
+ * the context, then create and return a new CoreGraphics image with
+ * the results. The caller is responsible for releasing the returned image.
+ * The return value will be null if size is empty or too big. */
+- (nullable CGImageRef)createCGImage:(CIImage *)image
+                            fromRect:(CGRect)fromRect
+CF_RETURNS_RETAINED;
+
+/* Create a new CGImage from the specified subrect of the image. If
+ * non-nil the new image will be created in the specified format and colorspace.
+ * The CGColorSpace must be kCGColorSpaceModelRGB or kCGColorSpaceModelMonochrome
+ * and must match the specified CIFormat.
+ * This will return null if fromRect is empty or infinite or the format isn't supported.
+ */
+- (nullable CGImageRef)createCGImage:(CIImage *)image
+                            fromRect:(CGRect)fromRect
+                              format:(CIFormat)format
+                          colorSpace:(nullable CGColorSpaceRef)colorSpace
+CF_RETURNS_RETAINED;
+
+/* Create a new CGImage from the specified subrect of the image.
+ * The new CGImageRef will be created in the specified format and colorspace.
+ * The return value will be null if fromRect is empty or infinite.
+ * The CGColorSpace must be kCGColorSpaceModelRGB or kCGColorSpaceModelMonochrome
+ * and must match the specified CIFormat.
+ * This will return null if fromRect is empty or infinite or the format isn't supported.
+ * If deferred is NO, then the CIImage will be rendered once when this method is called.
+ * If deferred is YES, then the CIImage will be rendered whenever the CGImage is rendered.
+ */
+- (nullable CGImageRef)createCGImage:(CIImage *)image
+                            fromRect:(CGRect)fromRect
+                              format:(CIFormat)format
+                          colorSpace:(nullable CGColorSpaceRef)colorSpace
+                            deferred:(BOOL)deferred
+CF_RETURNS_RETAINED NS_AVAILABLE(10_12,10_0);
 
 @end
 
@@ -481,6 +491,14 @@ CORE_IMAGE_EXPORT CIImageRepresentationOption const kCIImageRepresentationPortra
                                           orientation:(CGImagePropertyOrientation)orientation
                                               options:(nullable NSDictionary *)options NS_AVAILABLE(10_14,12_0);
 
+- (nullable CIFilter *) depthBlurEffectFilterForImage:(CIImage *)image
+                                       disparityImage:(CIImage *)disparityImage
+                                 portraitEffectsMatte:(nullable CIImage *)portraitEffectsMatte
+                             hairSemanticSegmentation:(nullable CIImage *)hairSemanticSegmentation
+                                          orientation:(CGImagePropertyOrientation)orientation
+                                              options:(nullable NSDictionary *)options NS_AVAILABLE(10_15,13_0);
+
+
 @end
 
 
@@ -500,7 +518,7 @@ NS_ASSUME_NONNULL_END
 #import <CoreImage/CIContext.h>
 #import <CoreImage/CIKernel.h>
 #import <CoreVideo/CoreVideo.h>
-#if !TARGET_OS_SIMULATOR
+#if COREIMAGE_SUPPORTS_IOSURFACE
 #import <IOSurface/IOSurfaceObjC.h>
 #endif
 #import <Metal/MTLPixelFormat.h>
@@ -532,7 +550,7 @@ NS_CLASS_AVAILABLE(10_13, 11_0)
 
 // MARK: Surface destinations
 
-#if !TARGET_OS_SIMULATOR
+#if COREIMAGE_SUPPORTS_IOSURFACE
 // Create a CIRenderDestination based on an IOSurface object.
 //
 // The destination's 'colorspace' property will default a CGColorSpace created by,
@@ -633,7 +651,7 @@ typedef NS_ENUM(NSUInteger, CIRenderDestinationAlphaMode) {
 // pixel centered on the logical coordinate (0.5,0.5)
 //
 // If 'flipped' is true, then the base address of the backing stores the
-// pixel centered on the logical coordinate (pixelsWide-0.5,0.5)
+// pixel centered on the logical coordinate (0.5,height-0.5)
 //
 @property (getter=isFlipped) BOOL flipped;
 
@@ -1172,6 +1190,19 @@ NS_CLASS_AVAILABLE(10_4, 5_0)
 @end
 
 
+@protocol CIFilter
+
+    @property (readonly, nonatomic, nullable) CIImage *outputImage;
+
+    @optional
+
+    // CIFilter subclasses can implement 'customAttributes' to return a dictionary
+    // containing key/value pairs describing the filter. (see description of keys below)
+    + (nullable NSDictionary<NSString *,id>*) customAttributes;
+
+@end
+
+
 /** Methods to register a filter and get access to the list of registered filters
  Use these methods to create filters and find filters. */
 @interface CIFilter (CIFilterRegistry)
@@ -1517,6 +1548,11 @@ NS_ASSUME_NONNULL_END
   #define CIKL_DEPRECATED(fromM,toM, fromI,toI)  NS_DEPRECATED(fromM,toM, fromI,toI, "Core Image Kernel Language API deprecated. (Define CI_SILENCE_GL_DEPRECATION to silence these warnings)")
 #endif
 
+#if TARGET_OS_MAC || !TARGET_OS_SIMULATOR || defined(__IPHONE_13_0)
+  #define COREIMAGE_SUPPORTS_IOSURFACE 1
+#else
+  #define COREIMAGE_SUPPORTS_IOSURFACE 0
+#endif
 
 #endif /* COREIMAGEDEFINES_H */
 // ==========  CoreImage.framework/Headers/CIBarcodeDescriptor.h
@@ -2288,6 +2324,19 @@ NS_CLASS_AVAILABLE(10_13, 11_0)
 - (nullable CIImage *)applyWithForeground:(CIImage*)foreground
                                background:(CIImage*)background;
 
+/* Apply the receiver CIBlendKernel to produce a new CIImage object
+ * by blending a foreground and background images in the specifid colorspace.
+ *
+ * The 'extent' of the result image will be determined by the reciver and
+ * the extent of the forground and background images.  For most of the
+ * builtin blend kernels (as well as custom blend kernels) the result image
+ * extent will be the union of the forground and background image
+ * extents.
+ */
+- (nullable CIImage *)applyWithForeground:(CIImage*)foreground
+                               background:(CIImage*)background
+                               colorSpace:(CGColorSpaceRef)colorSpace NS_AVAILABLE(10_15, 13_0);
+
 @end
 
 @interface CIBlendKernel (BuiltIn)
@@ -2588,7 +2637,7 @@ NS_CLASS_AVAILABLE(10_12, 10_0)
 // This memory must not be modified by the block.
 @property (readonly, nonatomic) const void *baseAddress NS_RETURNS_INNER_POINTER;
 
-#if !TARGET_OS_SIMULATOR
+#if COREIMAGE_SUPPORTS_IOSURFACE
 // An input IOSurface that the processor block can read from.
 // This surface must not be modified by the block.
 @property (nonatomic, readonly) IOSurfaceRef surface;
@@ -2622,7 +2671,7 @@ NS_CLASS_AVAILABLE(10_12, 10_0)
 // The base address of the output buffer that the processor block can write output pixels to.
 @property (readonly, nonatomic) void *baseAddress NS_RETURNS_INNER_POINTER;
 
-#if !TARGET_OS_SIMULATOR
+#if COREIMAGE_SUPPORTS_IOSURFACE
 // An output IOSurface that the processor block can write to.
 @property (nonatomic, readonly) IOSurfaceRef surface;
 #endif
@@ -2641,6 +2690,1006 @@ NS_CLASS_AVAILABLE(10_12, 10_0)
 
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreImage.framework/Headers/CIFilterBuiltins.h
+
+#if TARGET_OS_OSX || TARGET_OS_IOS || TARGET_OS_TV
+
+#import <CoreImage/CIFilter.h>
+@class CIVector;
+@class CIColor;
+@class CIBarcodeDescriptor;
+@class MLModel;
+
+NS_ASSUME_NONNULL_BEGIN
+
+// CICategoryGradient
+@protocol CIGaussianGradient <CIFilter>
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic, retain) CIColor *color0;
+  @property (nonatomic, retain) CIColor *color1;
+  @property (nonatomic) float radius;
+@end
+@protocol CIHueSaturationValueGradient <CIFilter>
+  @property (nonatomic) float value;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float softness;
+  @property (nonatomic) float dither;
+  @property (nonatomic, nullable) CGColorSpaceRef colorSpace;
+@end
+@protocol CILinearGradient <CIFilter>
+  @property (nonatomic) CGPoint point0;
+  @property (nonatomic) CGPoint point1;
+  @property (nonatomic, retain) CIColor *color0;
+  @property (nonatomic, retain) CIColor *color1;
+@end
+@protocol CIRadialGradient <CIFilter>
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float radius0;
+  @property (nonatomic) float radius1;
+  @property (nonatomic, retain) CIColor *color0;
+  @property (nonatomic, retain) CIColor *color1;
+@end
+@protocol CISmoothLinearGradient <CIFilter>
+  @property (nonatomic) CGPoint point0;
+  @property (nonatomic) CGPoint point1;
+  @property (nonatomic, retain) CIColor *color0;
+  @property (nonatomic, retain) CIColor *color1;
+@end
+
+// CICategorySharpen
+@protocol CISharpenLuminance <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float sharpness;
+  @property (nonatomic) float radius;
+@end
+@protocol CIUnsharpMask <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float intensity;
+@end
+
+// CICategoryHalftoneEffect
+@protocol CICircularScreen <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float width;
+  @property (nonatomic) float sharpness;
+@end
+@protocol CICMYKHalftone <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float width;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float sharpness;
+  @property (nonatomic) float grayComponentReplacement;
+  @property (nonatomic) float underColorRemoval;
+@end
+@protocol CIDotScreen <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+  @property (nonatomic) float sharpness;
+@end
+@protocol CIHatchedScreen <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+  @property (nonatomic) float sharpness;
+@end
+@protocol CILineScreen <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+  @property (nonatomic) float sharpness;
+@end
+
+// CICategoryGeometryAdjustment
+@protocol CIBicubicScaleTransform <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float scale;
+  @property (nonatomic) float aspectRatio;
+  @property (nonatomic) float parameterB;
+  @property (nonatomic) float parameterC;
+@end
+@protocol CIEdgePreserveUpsample <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *smallImage;
+  @property (nonatomic) float spatialSigma;
+  @property (nonatomic) float lumaSigma;
+@end
+@protocol CILanczosScaleTransform <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float scale;
+  @property (nonatomic) float aspectRatio;
+@end
+@protocol CIPerspectiveCorrection <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint topLeft;
+  @property (nonatomic) CGPoint topRight;
+  @property (nonatomic) CGPoint bottomRight;
+  @property (nonatomic) CGPoint bottomLeft;
+  @property (nonatomic) bool crop;
+@end
+@protocol CIPerspectiveTransform <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint topLeft;
+  @property (nonatomic) CGPoint topRight;
+  @property (nonatomic) CGPoint bottomRight;
+  @property (nonatomic) CGPoint bottomLeft;
+@end
+@protocol CIPerspectiveTransformWithExtent <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGRect extent;
+  @property (nonatomic) CGPoint topLeft;
+  @property (nonatomic) CGPoint topRight;
+  @property (nonatomic) CGPoint bottomRight;
+  @property (nonatomic) CGPoint bottomLeft;
+@end
+@protocol CIStraighten <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float angle;
+@end
+
+// CICategoryTransition
+@protocol CITransitionFilter <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *targetImage;
+  @property (nonatomic) float time;
+@end
+@protocol CIAccordionFoldTransition <CITransitionFilter>
+  @property (nonatomic) float bottomHeight;
+  @property (nonatomic) float numberOfFolds;
+  @property (nonatomic) float foldShadowAmount;
+@end
+@protocol CIBarsSwipeTransition <CITransitionFilter>
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+  @property (nonatomic) float barOffset;
+@end
+@protocol CICopyMachineTransition <CITransitionFilter>
+  @property (nonatomic) CGRect extent;
+  @property (nonatomic, retain) CIColor *color;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+  @property (nonatomic) float opacity;
+@end
+@protocol CIDisintegrateWithMaskTransition <CITransitionFilter>
+  @property (nonatomic, retain, nullable) CIImage *maskImage;
+  @property (nonatomic) float shadowRadius;
+  @property (nonatomic) float shadowDensity;
+  @property (nonatomic) CGPoint shadowOffset;
+@end
+@protocol CIDissolveTransition <CITransitionFilter>
+@end
+@protocol CIFlashTransition <CITransitionFilter>
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) CGRect extent;
+  @property (nonatomic, retain) CIColor *color;
+  @property (nonatomic) float maxStriationRadius;
+  @property (nonatomic) float striationStrength;
+  @property (nonatomic) float striationContrast;
+  @property (nonatomic) float fadeThreshold;
+@end
+@protocol CIModTransition <CITransitionFilter>
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float compression;
+@end
+@protocol CIPageCurlTransition <CITransitionFilter>
+  @property (nonatomic, retain, nullable) CIImage *backsideImage;
+  @property (nonatomic, retain, nullable) CIImage *shadingImage;
+  @property (nonatomic) CGRect extent;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float radius;
+@end
+@protocol CIPageCurlWithShadowTransition <CITransitionFilter>
+  @property (nonatomic, retain, nullable) CIImage *backsideImage;
+  @property (nonatomic) CGRect extent;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float shadowSize;
+  @property (nonatomic) float shadowAmount;
+  @property (nonatomic) CGRect shadowExtent;
+@end
+@protocol CIRippleTransition <CITransitionFilter>
+  @property (nonatomic, retain, nullable) CIImage *shadingImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) CGRect extent;
+  @property (nonatomic) float width;
+  @property (nonatomic) float scale;
+@end
+@protocol CISwipeTransition <CITransitionFilter>
+  @property (nonatomic) CGRect extent;
+  @property (nonatomic, retain) CIColor *color;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+  @property (nonatomic) float opacity;
+@end
+
+// CICategoryCompositeOperation
+@protocol CICompositeOperation <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *backgroundImage;
+@end
+
+// CICategoryColorAdjustment
+@protocol CIColorClamp <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) CIVector *minComponents;
+  @property (nonatomic, retain) CIVector *maxComponents;
+@end
+@protocol CIColorControls <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float saturation;
+  @property (nonatomic) float brightness;
+  @property (nonatomic) float contrast;
+@end
+@protocol CIColorMatrix <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) CIVector *RVector;
+  @property (nonatomic, retain) CIVector *GVector;
+  @property (nonatomic, retain) CIVector *BVector;
+  @property (nonatomic, retain) CIVector *AVector;
+  @property (nonatomic, retain) CIVector *biasVector;
+@end
+@protocol CIColorPolynomial <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) CIVector *redCoefficients;
+  @property (nonatomic, retain) CIVector *greenCoefficients;
+  @property (nonatomic, retain) CIVector *blueCoefficients;
+  @property (nonatomic, retain) CIVector *alphaCoefficients;
+@end
+@protocol CIDepthToDisparity <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CIDisparityToDepth <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CIExposureAdjust <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float EV;
+@end
+@protocol CIGammaAdjust <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float power;
+@end
+@protocol CIHueAdjust <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float angle;
+@end
+@protocol CILinearToSRGBToneCurve <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CISRGBToneCurveToLinear <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CITemperatureAndTint <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint neutral;
+  @property (nonatomic) CGPoint targetNeutral;
+@end
+@protocol CIToneCurve <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint point0;
+  @property (nonatomic) CGPoint point1;
+  @property (nonatomic) CGPoint point2;
+  @property (nonatomic) CGPoint point3;
+  @property (nonatomic) CGPoint point4;
+@end
+@protocol CIVibrance <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float amount;
+@end
+@protocol CIWhitePointAdjust <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) CIColor *color;
+@end
+
+// CICategoryColorEffect
+@protocol CIColorCrossPolynomial <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) CIVector *redCoefficients;
+  @property (nonatomic, retain) CIVector *greenCoefficients;
+  @property (nonatomic, retain) CIVector *blueCoefficients;
+@end
+@protocol CIColorCube <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float cubeDimension;
+  @property (nonatomic, retain) NSData *cubeData;
+@end
+@protocol CIColorCubesMixedWithMask <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *maskImage;
+  @property (nonatomic) float cubeDimension;
+  @property (nonatomic, retain) NSData *cube0Data;
+  @property (nonatomic, retain) NSData *cube1Data;
+  @property (nonatomic, nullable) CGColorSpaceRef colorSpace;
+@end
+@protocol CIColorCubeWithColorSpace <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float cubeDimension;
+  @property (nonatomic, retain) NSData *cubeData;
+  @property (nonatomic, nullable) CGColorSpaceRef colorSpace;
+@end
+@protocol CIColorCurves <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) NSData *curvesData;
+  @property (nonatomic, retain) CIVector *curvesDomain;
+  @property (nonatomic, nullable) CGColorSpaceRef colorSpace;
+@end
+@protocol CIColorInvert <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CIColorMap <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *gradientImage;
+@end
+@protocol CIColorMonochrome <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) CIColor *color;
+  @property (nonatomic) float intensity;
+@end
+@protocol CIColorPosterize <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float levels;
+@end
+@protocol CIDither <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float intensity;
+@end
+@protocol CIDocumentEnhancer <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float amount;
+@end
+@protocol CIFalseColor <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) CIColor *color0;
+  @property (nonatomic, retain) CIColor *color1;
+@end
+@protocol CILabDeltaE <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *image2;
+@end
+@protocol CIMaskToAlpha <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CIMaximumComponent <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CIMinimumComponent <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CIPaletteCentroid <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *paletteImage;
+  @property (nonatomic) bool perceptual;
+@end
+@protocol CIPalettize <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *paletteImage;
+  @property (nonatomic) bool perceptual;
+@end
+@protocol CIPhotoEffect <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CISepiaTone <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float intensity;
+@end
+@protocol CIThermal <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CIVignette <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float intensity;
+  @property (nonatomic) float radius;
+@end
+@protocol CIVignetteEffect <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float intensity;
+  @property (nonatomic) float falloff;
+@end
+@protocol CIXRay <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+
+// CICategoryTileEffect
+@protocol CIAffineClamp <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGAffineTransform transform;
+@end
+@protocol CIAffineTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGAffineTransform transform;
+@end
+@protocol CIEightfoldReflectedTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+@end
+@protocol CIFourfoldReflectedTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+  @property (nonatomic) float acuteAngle;
+@end
+@protocol CIFourfoldRotatedTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+@end
+@protocol CIFourfoldTranslatedTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+  @property (nonatomic) float acuteAngle;
+@end
+@protocol CIGlideReflectedTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+@end
+@protocol CIKaleidoscope <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) NSInteger count;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+@end
+@protocol CIOpTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float scale;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+@end
+@protocol CIParallelogramTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float acuteAngle;
+  @property (nonatomic) float width;
+@end
+@protocol CIPerspectiveTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint topLeft;
+  @property (nonatomic) CGPoint topRight;
+  @property (nonatomic) CGPoint bottomRight;
+  @property (nonatomic) CGPoint bottomLeft;
+@end
+@protocol CISixfoldReflectedTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+@end
+@protocol CISixfoldRotatedTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+@end
+@protocol CITriangleKaleidoscope <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint point;
+  @property (nonatomic) float size;
+  @property (nonatomic) float rotation;
+  @property (nonatomic) float decay;
+@end
+@protocol CITriangleTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+@end
+@protocol CITwelvefoldReflectedTile <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float angle;
+  @property (nonatomic) float width;
+@end
+
+// CICategoryGenerator
+@protocol CIAttributedTextImageGenerator <CIFilter>
+  @property (nonatomic, retain) NSAttributedString *text;
+  @property (nonatomic) float scaleFactor;
+@end
+@protocol CIAztecCodeGenerator <CIFilter>
+  @property (nonatomic, retain) NSData *message;
+  @property (nonatomic) float correctionLevel;
+  @property (nonatomic) float layers;
+  @property (nonatomic) float compactStyle;
+@end
+@protocol CIBarcodeGenerator <CIFilter>
+  @property (nonatomic, retain) CIBarcodeDescriptor *barcodeDescriptor;
+@end
+@protocol CICheckerboardGenerator <CIFilter>
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic, retain) CIColor *color0;
+  @property (nonatomic, retain) CIColor *color1;
+  @property (nonatomic) float width;
+  @property (nonatomic) float sharpness;
+@end
+@protocol CICode128BarcodeGenerator <CIFilter>
+  @property (nonatomic, retain) NSData *message;
+  @property (nonatomic) float quietSpace;
+  @property (nonatomic) float barcodeHeight;
+@end
+@protocol CILenticularHaloGenerator <CIFilter>
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic, retain) CIColor *color;
+  @property (nonatomic) float haloRadius;
+  @property (nonatomic) float haloWidth;
+  @property (nonatomic) float haloOverlap;
+  @property (nonatomic) float striationStrength;
+  @property (nonatomic) float striationContrast;
+  @property (nonatomic) float time;
+@end
+@protocol CIMeshGenerator <CIFilter>
+  @property (nonatomic) float width;
+  @property (nonatomic, retain) CIColor *color;
+  @property (nonatomic, retain) NSArray *mesh;
+@end
+@protocol CIPDF417BarcodeGenerator <CIFilter>
+  @property (nonatomic, retain) NSData *message;
+  @property (nonatomic) float minWidth;
+  @property (nonatomic) float maxWidth;
+  @property (nonatomic) float minHeight;
+  @property (nonatomic) float maxHeight;
+  @property (nonatomic) float dataColumns;
+  @property (nonatomic) float rows;
+  @property (nonatomic) float preferredAspectRatio;
+  @property (nonatomic) float compactionMode;
+  @property (nonatomic) float compactStyle;
+  @property (nonatomic) float correctionLevel;
+  @property (nonatomic) float alwaysSpecifyCompaction;
+@end
+@protocol CIQRCodeGenerator <CIFilter>
+  @property (nonatomic, retain) NSData *message;
+  @property (nonatomic, retain) NSString *correctionLevel;
+@end
+@protocol CIRandomGenerator <CIFilter>
+@end
+@protocol CIStarShineGenerator <CIFilter>
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic, retain) CIColor *color;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float crossScale;
+  @property (nonatomic) float crossAngle;
+  @property (nonatomic) float crossOpacity;
+  @property (nonatomic) float crossWidth;
+  @property (nonatomic) float epsilon;
+@end
+@protocol CIStripesGenerator <CIFilter>
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic, retain) CIColor *color0;
+  @property (nonatomic, retain) CIColor *color1;
+  @property (nonatomic) float width;
+  @property (nonatomic) float sharpness;
+@end
+@protocol CISunbeamsGenerator <CIFilter>
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic, retain) CIColor *color;
+  @property (nonatomic) float sunRadius;
+  @property (nonatomic) float maxStriationRadius;
+  @property (nonatomic) float striationStrength;
+  @property (nonatomic) float striationContrast;
+  @property (nonatomic) float time;
+@end
+@protocol CITextImageGenerator <CIFilter>
+  @property (nonatomic, retain) NSString *text;
+  @property (nonatomic, retain) NSString *fontName;
+  @property (nonatomic) float fontSize;
+  @property (nonatomic) float scaleFactor;
+@end
+
+// CICategoryStylize
+@protocol CIBlendWithMask <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *backgroundImage;
+  @property (nonatomic, retain, nullable) CIImage *maskImage;
+@end
+@protocol CIBloom <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float intensity;
+@end
+@protocol CIComicEffect <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CIConvolution <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) CIVector *weights;
+  @property (nonatomic) float bias;
+@end
+@protocol CICoreMLModel <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) MLModel *model;
+  @property (nonatomic) float headIndex;
+  @property (nonatomic) bool softmaxNormalization;
+@end
+@protocol CICrystallize <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+  @property (nonatomic) CGPoint center;
+@end
+@protocol CIDepthOfField <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint point0;
+  @property (nonatomic) CGPoint point1;
+  @property (nonatomic) float saturation;
+  @property (nonatomic) float unsharpMaskRadius;
+  @property (nonatomic) float unsharpMaskIntensity;
+  @property (nonatomic) float radius;
+@end
+@protocol CIEdges <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float intensity;
+@end
+@protocol CIEdgeWork <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+@end
+@protocol CIGloom <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float intensity;
+@end
+@protocol CIHeightFieldFromMask <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+@end
+@protocol CIHexagonalPixellate <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float scale;
+@end
+@protocol CIHighlightShadowAdjust <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float shadowAmount;
+  @property (nonatomic) float highlightAmount;
+@end
+@protocol CILineOverlay <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float NRNoiseLevel;
+  @property (nonatomic) float NRSharpness;
+  @property (nonatomic) float edgeIntensity;
+  @property (nonatomic) float threshold;
+  @property (nonatomic) float contrast;
+@end
+@protocol CIMix <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *backgroundImage;
+  @property (nonatomic) float amount;
+@end
+@protocol CIPixellate <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float scale;
+@end
+@protocol CIPointillize <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+  @property (nonatomic) CGPoint center;
+@end
+@protocol CISaliencyMap <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CIShadedMaterial <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *shadingImage;
+  @property (nonatomic) float scale;
+@end
+@protocol CISpotColor <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) CIColor *centerColor1;
+  @property (nonatomic, retain) CIColor *replacementColor1;
+  @property (nonatomic) float closeness1;
+  @property (nonatomic) float contrast1;
+  @property (nonatomic, retain) CIColor *centerColor2;
+  @property (nonatomic, retain) CIColor *replacementColor2;
+  @property (nonatomic) float closeness2;
+  @property (nonatomic) float contrast2;
+  @property (nonatomic, retain) CIColor *centerColor3;
+  @property (nonatomic, retain) CIColor *replacementColor3;
+  @property (nonatomic) float closeness3;
+  @property (nonatomic) float contrast3;
+@end
+@protocol CISpotLight <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain) CIVector *lightPosition;
+  @property (nonatomic, retain) CIVector *lightPointsAt;
+  @property (nonatomic) float brightness;
+  @property (nonatomic) float concentration;
+  @property (nonatomic, retain) CIColor *color;
+@end
+
+// CICategoryBlur
+@protocol CIBokehBlur <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float ringAmount;
+  @property (nonatomic) float ringSize;
+  @property (nonatomic) float softness;
+@end
+@protocol CIBoxBlur <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+@end
+@protocol CIDiscBlur <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+@end
+@protocol CIGaussianBlur <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+@end
+@protocol CIMaskedVariableBlur <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic, retain, nullable) CIImage *mask;
+  @property (nonatomic) float radius;
+@end
+@protocol CIMedian <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+@end
+@protocol CIMorphologyGradient <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+@end
+@protocol CIMorphologyMaximum <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+@end
+@protocol CIMorphologyMinimum <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+@end
+@protocol CIMorphologyRectangleMaximum <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float width;
+  @property (nonatomic) float height;
+@end
+@protocol CIMorphologyRectangleMinimum <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float width;
+  @property (nonatomic) float height;
+@end
+@protocol CIMotionBlur <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float radius;
+  @property (nonatomic) float angle;
+@end
+@protocol CINoiseReduction <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) float noiseLevel;
+  @property (nonatomic) float sharpness;
+@end
+@protocol CIZoomBlur <CIFilter>
+  @property (nonatomic, retain, nullable) CIImage *inputImage;
+  @property (nonatomic) CGPoint center;
+  @property (nonatomic) float amount;
+@end
+
+
+NS_CLASS_AVAILABLE(10_15, 13_0)
+@interface CIFilter (Builtins)
+
+// CICategoryGradient
++ (CIFilter<CIGaussianGradient>*) gaussianGradientFilter;
++ (CIFilter<CIHueSaturationValueGradient>*) hueSaturationValueGradientFilter;
++ (CIFilter<CILinearGradient>*) linearGradientFilter;
++ (CIFilter<CIRadialGradient>*) radialGradientFilter;
++ (CIFilter<CISmoothLinearGradient>*) smoothLinearGradientFilter;
+
+// CICategorySharpen
++ (CIFilter<CISharpenLuminance>*) sharpenLuminanceFilter;
++ (CIFilter<CIUnsharpMask>*) unsharpMaskFilter;
+
+// CICategoryHalftoneEffect
++ (CIFilter<CICircularScreen>*) circularScreenFilter;
++ (CIFilter<CICMYKHalftone>*) CMYKHalftone;
++ (CIFilter<CIDotScreen>*) dotScreenFilter;
++ (CIFilter<CIHatchedScreen>*) hatchedScreenFilter;
++ (CIFilter<CILineScreen>*) lineScreenFilter;
+
+// CICategoryGeometryAdjustment
++ (CIFilter<CIBicubicScaleTransform>*) bicubicScaleTransformFilter;
++ (CIFilter<CIEdgePreserveUpsample>*) edgePreserveUpsampleFilter;
++ (CIFilter<CILanczosScaleTransform>*) lanczosScaleTransformFilter;
++ (CIFilter<CIPerspectiveCorrection>*) perspectiveCorrectionFilter;
++ (CIFilter<CIPerspectiveTransform>*) perspectiveTransformFilter;
++ (CIFilter<CIPerspectiveTransformWithExtent>*) perspectiveTransformWithExtentFilter;
++ (CIFilter<CIStraighten>*) straightenFilter;
+
+// CICategoryTransition
++ (CIFilter<CIAccordionFoldTransition>*) accordionFoldTransitionFilter;
++ (CIFilter<CIBarsSwipeTransition>*) barsSwipeTransitionFilter;
++ (CIFilter<CICopyMachineTransition>*) copyMachineTransitionFilter NS_RETURNS_NOT_RETAINED;
++ (CIFilter<CIDisintegrateWithMaskTransition>*) disintegrateWithMaskTransitionFilter;
++ (CIFilter<CIDissolveTransition>*) dissolveTransitionFilter;
++ (CIFilter<CIFlashTransition>*) flashTransitionFilter;
++ (CIFilter<CIModTransition>*) modTransitionFilter;
++ (CIFilter<CIPageCurlTransition>*) pageCurlTransitionFilter;
++ (CIFilter<CIPageCurlWithShadowTransition>*) pageCurlWithShadowTransitionFilter;
++ (CIFilter<CIRippleTransition>*) rippleTransitionFilter;
++ (CIFilter<CISwipeTransition>*) swipeTransitionFilter;
+
+// CICategoryCompositeOperation
++ (CIFilter<CICompositeOperation>*) additionCompositingFilter;
++ (CIFilter<CICompositeOperation>*) colorBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) colorBurnBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) colorDodgeBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) darkenBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) differenceBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) divideBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) exclusionBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) hardLightBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) hueBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) lightenBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) linearBurnBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) linearDodgeBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) luminosityBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) maximumCompositingFilter;
++ (CIFilter<CICompositeOperation>*) minimumCompositingFilter;
++ (CIFilter<CICompositeOperation>*) multiplyBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) multiplyCompositingFilter;
++ (CIFilter<CICompositeOperation>*) overlayBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) pinLightBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) saturationBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) screenBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) softLightBlendModeFilter;
++ (CIFilter<CICompositeOperation>*) sourceAtopCompositingFilter;
++ (CIFilter<CICompositeOperation>*) sourceInCompositingFilter;
++ (CIFilter<CICompositeOperation>*) sourceOutCompositingFilter;
++ (CIFilter<CICompositeOperation>*) sourceOverCompositingFilter;
++ (CIFilter<CICompositeOperation>*) subtractBlendModeFilter;
+
+// CICategoryColorAdjustment
++ (CIFilter<CIColorClamp>*) colorClampFilter;
++ (CIFilter<CIColorControls>*) colorControlsFilter;
++ (CIFilter<CIColorMatrix>*) colorMatrixFilter;
++ (CIFilter<CIColorPolynomial>*) colorPolynomialFilter;
++ (CIFilter<CIDepthToDisparity>*) depthToDisparityFilter;
++ (CIFilter<CIDisparityToDepth>*) disparityToDepthFilter;
++ (CIFilter<CIExposureAdjust>*) exposureAdjustFilter;
++ (CIFilter<CIGammaAdjust>*) gammaAdjustFilter;
++ (CIFilter<CIHueAdjust>*) hueAdjustFilter;
++ (CIFilter<CILinearToSRGBToneCurve>*) linearToSRGBToneCurveFilter;
++ (CIFilter<CISRGBToneCurveToLinear>*) sRGBToneCurveToLinearFilter;
++ (CIFilter<CITemperatureAndTint>*) temperatureAndTintFilter;
++ (CIFilter<CIToneCurve>*) toneCurveFilter;
++ (CIFilter<CIVibrance>*) vibranceFilter;
++ (CIFilter<CIWhitePointAdjust>*) whitePointAdjustFilter;
+
+// CICategoryColorEffect
++ (CIFilter<CIColorCrossPolynomial>*) colorCrossPolynomialFilter;
++ (CIFilter<CIColorCube>*) colorCubeFilter;
++ (CIFilter<CIColorCubesMixedWithMask>*) colorCubesMixedWithMaskFilter;
++ (CIFilter<CIColorCubeWithColorSpace>*) colorCubeWithColorSpaceFilter;
++ (CIFilter<CIColorCurves>*) colorCurvesFilter;
++ (CIFilter<CIColorInvert>*) colorInvertFilter;
++ (CIFilter<CIColorMap>*) colorMapFilter;
++ (CIFilter<CIColorMonochrome>*) colorMonochromeFilter;
++ (CIFilter<CIColorPosterize>*) colorPosterizeFilter;
++ (CIFilter<CIDither>*) ditherFilter;
++ (CIFilter<CIDocumentEnhancer>*) documentEnhancerFilter;
++ (CIFilter<CIFalseColor>*) falseColorFilter;
++ (CIFilter<CILabDeltaE>*) LabDeltaE;
++ (CIFilter<CIMaskToAlpha>*) maskToAlphaFilter;
++ (CIFilter<CIMaximumComponent>*) maximumComponentFilter;
++ (CIFilter<CIMinimumComponent>*) minimumComponentFilter;
++ (CIFilter<CIPaletteCentroid>*) paletteCentroidFilter;
++ (CIFilter<CIPalettize>*) palettizeFilter;
++ (CIFilter<CIPhotoEffect>*) photoEffectChromeFilter;
++ (CIFilter<CIPhotoEffect>*) photoEffectFadeFilter;
++ (CIFilter<CIPhotoEffect>*) photoEffectInstantFilter;
++ (CIFilter<CIPhotoEffect>*) photoEffectMonoFilter;
++ (CIFilter<CIPhotoEffect>*) photoEffectNoirFilter;
++ (CIFilter<CIPhotoEffect>*) photoEffectProcessFilter;
++ (CIFilter<CIPhotoEffect>*) photoEffectTonalFilter;
++ (CIFilter<CIPhotoEffect>*) photoEffectTransferFilter;
++ (CIFilter<CISepiaTone>*) sepiaToneFilter;
++ (CIFilter<CIThermal>*) thermalFilter;
++ (CIFilter<CIVignette>*) vignetteFilter;
++ (CIFilter<CIVignetteEffect>*) vignetteEffectFilter;
++ (CIFilter<CIXRay>*) xRayFilter;
+
+// CICategoryTileEffect
++ (CIFilter<CIAffineClamp>*) affineClampFilter;
++ (CIFilter<CIAffineTile>*) affineTileFilter;
++ (CIFilter<CIEightfoldReflectedTile>*) eightfoldReflectedTileFilter;
++ (CIFilter<CIFourfoldReflectedTile>*) fourfoldReflectedTileFilter;
++ (CIFilter<CIFourfoldRotatedTile>*) fourfoldRotatedTileFilter;
++ (CIFilter<CIFourfoldTranslatedTile>*) fourfoldTranslatedTileFilter;
++ (CIFilter<CIGlideReflectedTile>*) glideReflectedTileFilter;
++ (CIFilter<CIKaleidoscope>*) kaleidoscopeFilter;
++ (CIFilter<CIOpTile>*) opTileFilter;
++ (CIFilter<CIParallelogramTile>*) parallelogramTileFilter;
++ (CIFilter<CIPerspectiveTile>*) perspectiveTileFilter;
++ (CIFilter<CISixfoldReflectedTile>*) sixfoldReflectedTileFilter;
++ (CIFilter<CISixfoldRotatedTile>*) sixfoldRotatedTileFilter;
++ (CIFilter<CITriangleKaleidoscope>*) triangleKaleidoscopeFilter;
++ (CIFilter<CITriangleTile>*) triangleTileFilter;
++ (CIFilter<CITwelvefoldReflectedTile>*) twelvefoldReflectedTileFilter;
+
+// CICategoryGenerator
++ (CIFilter<CIAttributedTextImageGenerator>*) attributedTextImageGeneratorFilter;
++ (CIFilter<CIAztecCodeGenerator>*) aztecCodeGeneratorFilter;
++ (CIFilter<CIBarcodeGenerator>*) barcodeGeneratorFilter;
++ (CIFilter<CICheckerboardGenerator>*) checkerboardGeneratorFilter;
++ (CIFilter<CICode128BarcodeGenerator>*) code128BarcodeGeneratorFilter;
++ (CIFilter<CILenticularHaloGenerator>*) lenticularHaloGeneratorFilter;
++ (CIFilter<CIMeshGenerator>*) meshGeneratorFilter;
++ (CIFilter<CIPDF417BarcodeGenerator>*) PDF417BarcodeGenerator;
++ (CIFilter<CIQRCodeGenerator>*) QRCodeGenerator;
++ (CIFilter<CIRandomGenerator>*) randomGeneratorFilter;
++ (CIFilter<CIStarShineGenerator>*) starShineGeneratorFilter;
++ (CIFilter<CIStripesGenerator>*) stripesGeneratorFilter;
++ (CIFilter<CISunbeamsGenerator>*) sunbeamsGeneratorFilter;
++ (CIFilter<CITextImageGenerator>*) textImageGeneratorFilter;
+
+// CICategoryStylize
++ (CIFilter<CIBlendWithMask>*) blendWithAlphaMaskFilter;
++ (CIFilter<CIBlendWithMask>*) blendWithBlueMaskFilter;
++ (CIFilter<CIBlendWithMask>*) blendWithMaskFilter;
++ (CIFilter<CIBlendWithMask>*) blendWithRedMaskFilter;
++ (CIFilter<CIBloom>*) bloomFilter;
++ (CIFilter<CIComicEffect>*) comicEffectFilter;
++ (CIFilter<CIConvolution>*) convolution3X3Filter;
++ (CIFilter<CIConvolution>*) convolution5X5Filter;
++ (CIFilter<CIConvolution>*) convolution7X7Filter;
++ (CIFilter<CIConvolution>*) convolution9HorizontalFilter;
++ (CIFilter<CIConvolution>*) convolution9VerticalFilter;
++ (CIFilter<CICoreMLModel>*) coreMLModelFilter;
++ (CIFilter<CICrystallize>*) crystallizeFilter;
++ (CIFilter<CIDepthOfField>*) depthOfFieldFilter;
++ (CIFilter<CIEdges>*) edgesFilter;
++ (CIFilter<CIEdgeWork>*) edgeWorkFilter;
++ (CIFilter<CIGloom>*) gloomFilter;
++ (CIFilter<CIHeightFieldFromMask>*) heightFieldFromMaskFilter;
++ (CIFilter<CIHexagonalPixellate>*) hexagonalPixellateFilter;
++ (CIFilter<CIHighlightShadowAdjust>*) highlightShadowAdjustFilter;
++ (CIFilter<CILineOverlay>*) lineOverlayFilter;
++ (CIFilter<CIMix>*) mixFilter;
++ (CIFilter<CIPixellate>*) pixellateFilter;
++ (CIFilter<CIPointillize>*) pointillizeFilter;
++ (CIFilter<CISaliencyMap>*) saliencyMapFilter;
++ (CIFilter<CIShadedMaterial>*) shadedMaterialFilter;
++ (CIFilter<CISpotColor>*) spotColorFilter;
++ (CIFilter<CISpotLight>*) spotLightFilter;
+
+// CICategoryBlur
++ (CIFilter<CIBokehBlur>*) bokehBlurFilter;
++ (CIFilter<CIBoxBlur>*) boxBlurFilter;
++ (CIFilter<CIDiscBlur>*) discBlurFilter;
++ (CIFilter<CIGaussianBlur>*) gaussianBlurFilter;
++ (CIFilter<CIMaskedVariableBlur>*) maskedVariableBlurFilter;
++ (CIFilter<CIMedian>*) medianFilter;
++ (CIFilter<CIMorphologyGradient>*) morphologyGradientFilter;
++ (CIFilter<CIMorphologyMaximum>*) morphologyMaximumFilter;
++ (CIFilter<CIMorphologyMinimum>*) morphologyMinimumFilter;
++ (CIFilter<CIMorphologyRectangleMaximum>*) morphologyRectangleMaximumFilter;
++ (CIFilter<CIMorphologyRectangleMinimum>*) morphologyRectangleMinimumFilter;
++ (CIFilter<CIMotionBlur>*) motionBlurFilter;
++ (CIFilter<CINoiseReduction>*) noiseReductionFilter;
++ (CIFilter<CIZoomBlur>*) zoomBlurFilter;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif // TARGET_OS_OSX || TARGET_OS_IOS || TARGET_OS_TV
 // ==========  CoreImage.framework/Headers/CIDetector.h
 /* CoreImage - CIDetector.h
 
@@ -3029,7 +4078,7 @@ namespace ci = coreimage;
 
 #if TARGET_OS_OSX
 #import <IOSurface/IOSurface.h>
-#elif !TARGET_OS_SIMULATOR
+#elif COREIMAGE_SUPPORTS_IOSURFACE
 #import <IOSurface/IOSurfaceRef.h>
 #endif
 
@@ -3038,13 +4087,14 @@ NS_ASSUME_NONNULL_BEGIN
 @class CIContext, CIFilterShape, CIColor, CIFilter;
 @class AVDepthData;
 @class AVPortraitEffectsMatte;
+@class AVSemanticSegmentationMatte;
 
 @protocol MTLTexture;
 
 NS_CLASS_AVAILABLE(10_4, 5_0)
 @interface CIImage : NSObject <NSSecureCoding, NSCopying>
 {
-#if TARGET_OS_OSX || 0
+#if TARGET_OS_OSX || TARGET_OS_UIKITFORMAC
     void *_state;
 #endif
 	void *_priv;
@@ -3141,12 +4191,20 @@ CORE_IMAGE_EXPORT CIImageOption const kCIImageTextureFormat CI_GL_DEPRECATED_MAC
 CORE_IMAGE_EXPORT CIImageOption const kCIImageAuxiliaryDepth NS_AVAILABLE(10_13, 11_0);
 CORE_IMAGE_EXPORT CIImageOption const kCIImageAuxiliaryDisparity NS_AVAILABLE(10_13, 11_0);
 CORE_IMAGE_EXPORT CIImageOption const kCIImageAuxiliaryPortraitEffectsMatte NS_AVAILABLE(10_14, 12_0);
+CORE_IMAGE_EXPORT CIImageOption const kCIImageAuxiliarySemanticSegmentationSkinMatte NS_AVAILABLE(10_15, 13_0);
+CORE_IMAGE_EXPORT CIImageOption const kCIImageAuxiliarySemanticSegmentationHairMatte NS_AVAILABLE(10_15, 13_0);
+CORE_IMAGE_EXPORT CIImageOption const kCIImageAuxiliarySemanticSegmentationTeethMatte NS_AVAILABLE(10_15, 13_0);
 
 
 /* Creates a new image from the contents of 'image'. */
 + (CIImage *)imageWithCGImage:(CGImageRef)image;
 + (CIImage *)imageWithCGImage:(CGImageRef)image
                       options:(nullable NSDictionary<CIImageOption, id> *)options;
+
+/* Creates a new image from the contents of 'source'. */
++ (CIImage *)imageWithCGImageSource:(CGImageSourceRef)source
+                              index:(size_t)index
+                            options:(nullable NSDictionary<CIImageOption, id> *)dict NS_AVAILABLE(10_15, 13_0);
 
 /* Creates a new image from the contents of 'layer'. */
 + (CIImage *)imageWithCGLayer:(CGLayerRef)layer NS_DEPRECATED_MAC(10_4,10_11);
@@ -3207,7 +4265,7 @@ CORE_IMAGE_EXPORT CIImageOption const kCIImageAuxiliaryPortraitEffectsMatte NS_A
 + (CIImage *)imageWithCVPixelBuffer:(CVPixelBufferRef)pixelBuffer
                             options:(nullable NSDictionary<CIImageOption, id> *)options NS_AVAILABLE(10_11, 5_0);
 
-#if !TARGET_OS_SIMULATOR
+#if COREIMAGE_SUPPORTS_IOSURFACE
 /* Creates a new image from the contents of an IOSurface. */
 + (CIImage *)imageWithIOSurface:(IOSurfaceRef)surface NS_AVAILABLE(10_6, 5_0);
 + (CIImage *)imageWithIOSurface:(IOSurfaceRef)surface
@@ -3221,11 +4279,27 @@ CORE_IMAGE_EXPORT CIImageOption const kCIImageAuxiliaryPortraitEffectsMatte NS_A
 /* Create an empty Image. */
 + (CIImage *)emptyImage;
 
+/* Convenience constant color CIImages in the sRGB colorspace. */
+@property (class, strong, readonly) CIImage *blackImage   NS_AVAILABLE(10_15, 13_0);
+@property (class, strong, readonly) CIImage *whiteImage   NS_AVAILABLE(10_15, 13_0);
+@property (class, strong, readonly) CIImage *grayImage    NS_AVAILABLE(10_15, 13_0);
+@property (class, strong, readonly) CIImage *redImage     NS_AVAILABLE(10_15, 13_0);
+@property (class, strong, readonly) CIImage *greenImage   NS_AVAILABLE(10_15, 13_0);
+@property (class, strong, readonly) CIImage *blueImage    NS_AVAILABLE(10_15, 13_0);
+@property (class, strong, readonly) CIImage *cyanImage    NS_AVAILABLE(10_15, 13_0);
+@property (class, strong, readonly) CIImage *magentaImage NS_AVAILABLE(10_15, 13_0);
+@property (class, strong, readonly) CIImage *yellowImage  NS_AVAILABLE(10_15, 13_0);
+@property (class, strong, readonly) CIImage *clearImage   NS_AVAILABLE(10_15, 13_0);
+
 /* Initializers. */
 
 - (instancetype)initWithCGImage:(CGImageRef)image;
 - (instancetype)initWithCGImage:(CGImageRef)image
                         options:(nullable NSDictionary<CIImageOption, id> *)options;
+
+- (instancetype) initWithCGImageSource:(CGImageSourceRef)source
+                                 index:(size_t)index
+                               options:(nullable NSDictionary<CIImageOption, id> *)dict NS_AVAILABLE(10_15, 13_0);
 
 - (instancetype)initWithCGLayer:(CGLayerRef)layer
     NS_DEPRECATED_MAC(10_4,10_11,"Use initWithCGImage: instead.");
@@ -3261,7 +4335,7 @@ CORE_IMAGE_EXPORT CIImageOption const kCIImageAuxiliaryPortraitEffectsMatte NS_A
 - (nullable instancetype)initWithContentsOfURL:(NSURL *)url
                                        options:(nullable NSDictionary<CIImageOption, id> *)options;
 
-#if !TARGET_OS_SIMULATOR
+#if COREIMAGE_SUPPORTS_IOSURFACE
 - (instancetype)initWithIOSurface:(IOSurfaceRef)surface NS_AVAILABLE(10_6, 5_0);
 
 - (instancetype)initWithIOSurface:(IOSurfaceRef)surface
@@ -3495,6 +4569,26 @@ CORE_IMAGE_EXPORT CIImageAutoAdjustmentOption const kCIImageAutoAdjustLevel NS_A
 
 @end
 
+@interface CIImage (AVSemanticSegmentationMatte)
+
+/* Returns a AVSemanticSegmentationMatte if the CIImage was created with [CIImage imageWithData] or [CIImage imageWithContentsOfURL] and.
+ * one the options like kCIImageAuxiliarySemanticSegmentationSkinMatte. */
+@property (nonatomic, readonly, nullable) AVSemanticSegmentationMatte *semanticSegmentationMatte NS_AVAILABLE(10_15, 13_0);
+
+-(nullable instancetype)initWithSemanticSegmentationMatte:(AVSemanticSegmentationMatte *)matte
+                                                  options:(nullable NSDictionary<CIImageOption,id> *)options NS_AVAILABLE(10_15, 13_0);
+
+-(nullable instancetype)initWithSemanticSegmentationMatte:(AVSemanticSegmentationMatte *)matte NS_AVAILABLE(10_15, 13_0);
+
++(nullable instancetype)imageWithSemanticSegmentationMatte:(AVSemanticSegmentationMatte *)matte
+                                                   options:(nullable NSDictionary<CIImageOption,id> *)options NS_AVAILABLE(10_15, 13_0);
+
++(nullable instancetype)imageWithSemanticSegmentationMatte:(AVSemanticSegmentationMatte *)matte NS_AVAILABLE(10_15, 13_0);
+
+
+@end
+
+
 NS_ASSUME_NONNULL_END
 // ==========  CoreImage.framework/Headers/CIRAWFilter.h
 /* CoreImage - CIKernel.h
@@ -3532,6 +4626,9 @@ typedef NSString * CIRAWFilterOption NS_TYPED_ENUM;
     kCVPixelFormatType_14Bayer_GRBG, kCVPixelFormatType_14Bayer_RGGB, kCVPixelFormatType_14Bayer_BGGR, kCVPixelFormatType_14Bayer_GBRG
  as well as the root properties attachment from the CMSampleBufferRef. */
 + (CIFilter *)filterWithCVPixelBuffer:(CVPixelBufferRef)pixelBuffer properties:(NSDictionary *)properties options:(NSDictionary<CIRAWFilterOption, id> *)options NS_AVAILABLE(10_12, 10_0);
+
+/** Returns a NSArray containing the names of all supported RAW cameras. */
++ (NSArray<NSString*> *) supportedRawCameraModels NS_AVAILABLE(10_15,13_0);
 
 /** NSNumber (BOOL) : Setting Draft Mode to YES can improve image decoding speed without minimal loss of quality.
     The default value is NO. */
@@ -3685,7 +4782,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    :(size_t)height
 							 format:(CIFormat)f
 						 colorSpace:(nullable CGColorSpaceRef)cs
-                            options:(nullable NSDictionary<NSString *,id> *)options
+                            options:(nullable NSDictionary<CIImageOption,id> *)options
     NS_AVAILABLE(10_4, 9_0);
 
 - (instancetype)initWithImageProvider:(id)p
@@ -3693,7 +4790,7 @@ NS_ASSUME_NONNULL_BEGIN
                                      :(size_t)height
                                format:(CIFormat)f
                            colorSpace:(nullable CGColorSpaceRef)cs
-                              options:(nullable NSDictionary<NSString *,id> *)options
+                              options:(nullable NSDictionary<CIImageOption,id> *)options
     NS_AVAILABLE(10_4, 9_0);
 
 @end
@@ -3738,11 +4835,11 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   NSNull, then provideImageData: can be called for any possible origin and size.
  */
-CORE_IMAGE_EXPORT NSString * const kCIImageProviderTileSize NS_AVAILABLE(10_4, 9_0);
+CORE_IMAGE_EXPORT CIImageOption const kCIImageProviderTileSize NS_AVAILABLE(10_4, 9_0);
 
 /* The object passed when the provideImageData: method is called.
  * It is retained until the image is deallocated.
  */
-CORE_IMAGE_EXPORT NSString * const kCIImageProviderUserInfo NS_AVAILABLE(10_4, 9_0);
+CORE_IMAGE_EXPORT CIImageOption const kCIImageProviderUserInfo NS_AVAILABLE(10_4, 9_0);
 
 NS_ASSUME_NONNULL_END

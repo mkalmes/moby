@@ -468,26 +468,26 @@ CT_EXPORT const CFStringRef kCTFontMatrixAttribute CT_AVAILABLE(macos(10.5), ios
 CT_EXPORT const CFStringRef kCTFontCascadeListAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontCharacterSetAttribute
-    @abstract   The font unicode character coverage set.
-    @discussion This key is used to specify or obtain the character set for a font reference. This value for this key is a CFCharacterSetRef. If specified this can be used to restrict the font to a subset of its actual character set. If unspecified this attribute is ignored and the actual character set is used.
+    @abstract   The font Unicode character coverage set.
+    @discussion The value for this key is a CFCharacterSetRef. Creating a font with this attribute will restrict the font to a subset of its actual character set.
 */
 CT_EXPORT const CFStringRef kCTFontCharacterSetAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontLanguagesAttribute
     @abstract   The list of supported languages.
-    @discussion This key is used to specify or obtain a list of covered languages for a font reference. The value for this key is a CFArrayRef of CFStringRefs. If specified this restricts the search to matching fonts that support the specified languages. The language identifier string should conform to UTS #35. If unspecified this attribute is ignored.
+    @discussion The value for this key is a CFArrayRef of CFStringRef language identifiers conforming to UTS #35. It can be requested from any font. If present in a descriptor used for matching, only fonts supporting the specified languages will be returned.
 */
 CT_EXPORT const CFStringRef kCTFontLanguagesAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontBaselineAdjustAttribute
     @abstract   The baseline adjustment to apply to font metrics.
-    @discussion This key is used to specify or obtain the baseline adjustment for a font reference. This is primary used when defining font descriptors for a cascade list to keep the baseline of all fonts even. The value associated with this is a float represented as a CFNumberRef.
+    @discussion The value for this key is a floating-point CFNumberRef. This is primarily used when defining font descriptors for a cascade list to keep the baseline of all fonts even.
 */
 CT_EXPORT const CFStringRef kCTFontBaselineAdjustAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
     @defined    kCTFontMacintoshEncodingsAttribute
-    @abstract   The macintosh encodings attribute.
-    @discussion This key is used to specify or obtain the Macintosh encodings for a font reference. The value associated with this key is a CFNumberRef containing a bitfield of the script codes in <CoreText/SFNTTypes.h>; bit 0 corresponds to kFontRomanScript, and so on. This attribute is provided for legacy compatibility.
+    @abstract   The Macintosh encodings (legacy script codes).
+    @discussion The value associated with this key is a CFNumberRef containing a bitfield of the script codes in <CoreText/SFNTTypes.h>; bit 0 corresponds to kFontRomanScript, and so on. This attribute is provided for legacy compatibility.
 */
 CT_EXPORT const CFStringRef kCTFontMacintoshEncodingsAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
@@ -499,9 +499,9 @@ CT_EXPORT const CFStringRef kCTFontFeaturesAttribute CT_AVAILABLE(macos(10.5), i
 /*!
     @defined    kCTFontFeatureSettingsAttribute
     @abstract   The array of typographic feature settings.
-    @discussion This key is used to specify an array of zero or more feature settings. In the case of duplicate or conflicting settings the last setting in the list will take precedence. In the case of AAT settings, it is the caller's responsibility to handle exclusive and non-exclusive settings as necessary.
+    @discussion This key is used to specify an array of zero or more feature settings. Each setting dictionary indicates which setting should be applied. In the case of duplicate or conflicting settings the last setting in the list will take precedence. In the case of AAT settings, it is the caller's responsibility to handle exclusive and non-exclusive settings as necessary.
                 An AAT setting dictionary contains a tuple of a kCTFontFeatureTypeIdentifierKey key-value pair and a kCTFontFeatureSelectorIdentifierKey key-value pair.
-                An OpenType setting dictionary contains a tuple of a kCTFontOpenTypeFeatureTag key-value pair and a kCTFontOpenTypeFeatureValue key-value pair. Each setting dictionary indicates which setting should be applied. In the case of duplicate or conflicting settings the last setting in the list will take precedence.
+                An OpenType setting dictionary contains a tuple of a kCTFontOpenTypeFeatureTag key-value pair and a kCTFontOpenTypeFeatureValue key-value pair.
 
                 Starting with OS X 10.10 and iOS 8.0, settings are also accepted (but not returned) in the following simplified forms:
                 An OpenType setting can be either an array pair of tag string and value number, or a tag string on its own. For example: @[ @"c2sc", @1 ] or simply @"c2sc". An unspecified value enables the feature and a value of zero disables it.
@@ -512,6 +512,8 @@ CT_EXPORT const CFStringRef kCTFontFeatureSettingsAttribute CT_AVAILABLE(macos(1
     @defined    kCTFontFixedAdvanceAttribute
     @abstract   Specifies advance width.
     @discussion This key is used to specify a constant advance width, which affects the glyph metrics of any font instance created with this key; it overrides font values and the font transformation matrix, if any. The value associated with this key must be a CFNumberRef.
+
+                Starting with macOS 10.14 and iOS 12.0, this only affects glyph advances that have non-zero width when this attribute is not present.
 */
 CT_EXPORT const CFStringRef kCTFontFixedAdvanceAttribute CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 /*!
@@ -852,6 +854,7 @@ typedef bool (^CTFontDescriptorProgressHandler)(CTFontDescriptorMatchingState st
     @param      progressBlock
                 Callback block to indicate the progress.
                 Return true to continue, and return false to cancel the process.
+                This block is called on a private serial queue on OS X 10.15, iOS 13, and later.
      
     @result     false if it couldn't start the work.
 */
@@ -935,7 +938,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #ifndef __SFNTTYPES__
 #define __SFNTTYPES__
 
-#if !TARGET_OS_WIN32
+#if !0
 #include <MacTypes.h>
 #elif !defined(__MACTYPES__)
 typedef SInt32 Fixed;
@@ -2278,7 +2281,7 @@ CGRect CTFontGetBoundingRectsForGlyphs(
     CTFontRef           font,
     CTFontOrientation   orientation,
     const CGGlyph       glyphs[_Nonnull],
-    CGRect * __nullable boundingRects,
+    CGRect              boundingRects[_Nullable],
     CFIndex             count ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
@@ -2307,7 +2310,7 @@ CGRect CTFontGetBoundingRectsForGlyphs(
 CGRect CTFontGetOpticalBoundsForGlyphs(
     CTFontRef           font,
     const CGGlyph       glyphs[_Nonnull],
-    CGRect * __nullable boundingRects,
+    CGRect              boundingRects[_Nullable],
     CFIndex             count,
     CFOptionFlags       options ) CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
@@ -2336,7 +2339,7 @@ double CTFontGetAdvancesForGlyphs(
     CTFontRef           font,
     CTFontOrientation   orientation,
     const CGGlyph       glyphs[_Nonnull],
-    CGSize * __nullable advances,
+    CGSize              advances[_Nullable],
     CFIndex             count ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*!
@@ -2836,7 +2839,7 @@ void CTFontDrawGlyphs(
 CFIndex CTFontGetLigatureCaretPositions(
     CTFontRef       font,
     CGGlyph         glyph,
-    CGFloat * __nullable positions,
+    CGFloat         positions[_Nullable],
     CFIndex         maxPositions ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
 
 /*! --------------------------------------------------------------------------
@@ -3975,7 +3978,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CTFontManagerErrors.h
  *  CoreText
  *
- *  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
+ *  Copyright (c) 2008-2019 Apple Inc. All rights reserved.
  *
  */
 
@@ -4000,8 +4003,15 @@ CT_EXPORT const CFStringRef kCTFontManagerErrorDomain CT_AVAILABLE(macos(10.6), 
     @constant   kCTFontManagerErrorFontURLsKey
     @abstract   User info key to be used with CFError references returned from registration functions.
     @discussion The value associated with this key in the user info dictionary of a CFError is a CFArray of font URLs that failed with given error.
-*/
+ */
 CT_EXPORT const CFStringRef kCTFontManagerErrorFontURLsKey CT_AVAILABLE(macos(10.6), ios(3.2), watchos(2.0), tvos(9.0));
+
+/*!
+    @constant   kCTFontManagerErrorFontDescriptorsKey
+    @abstract   User info key to be used with CFError references returned from registration functions.
+    @discussion The value associated with this key in the user info dictionary of a CFError is a CFArray of font descriptors that failed with given error.
+ */
+CT_EXPORT const CFStringRef kCTFontManagerErrorFontDescriptorsKey CT_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
 /*!
     @enum
@@ -4045,7 +4055,7 @@ CF_EXTERN_C_END
  *  CTFontManager.h
  *  CoreText
  *
- *  Copyright (c) 2008-2018 Apple Inc. All rights reserved.
+ *  Copyright (c) 2008-2019 Apple Inc. All rights reserved.
  *
  */
 
@@ -4143,22 +4153,37 @@ CTFontDescriptorRef _Nullable CTFontManagerCreateFontDescriptorFromData(
 
 /*!
     @enum       CTFontManagerScope
-    @abstract   Scope for font registration.
+    @abstract   Scope for font registration. A uses session refers to a login session in macOS, and the current booted session in iOS.
+    @constant   kCTFontManagerScopeNone
+                The font is not registered and does not participate in font descriptor matching. This isn't a valid scope to specify while registering fonts.
     @constant   kCTFontManagerScopeProcess
                 The font is available to the current process for the duration of the process unless directly unregistered.
-    @constant   kCTFontManagerScopeUser
+    @constant   kCTFontManagerScopePersistent
                 The font is available to all processes for the current user session and will be available in subsequent sessions unless unregistered.
-                User scope is unsupported in iOS.
     @constant   kCTFontManagerScopeSession
                 The font is available to the current user session, and will not be available in subsequent sessions.
-                User scope is unsupported in iOS.
+                Session scope is only available in macOS.
 */
 typedef CF_ENUM(uint32_t, CTFontManagerScope) {
-    kCTFontManagerScopeNone         = 0,
-    kCTFontManagerScopeProcess      = 1,
-    kCTFontManagerScopeUser         = 2,    /* not supported in iOS */
-    kCTFontManagerScopeSession      = 3     /* not supported in iOS */
+    kCTFontManagerScopeNone        = 0,
+    
+    kCTFontManagerScopeProcess     = 1,
+    
+    kCTFontManagerScopePersistent  CT_ENUM_AVAILABLE(macos(10.6), ios(13.0), watchos(6.0), tvos(13.0))
+                                   = 2,
+    
+    kCTFontManagerScopeSession     CT_ENUM_AVAILABLE(macos(10.6)) CT_ENUM_UNAVAILABLE(ios, watchos, tvos)
+                                   = 3,
+    
+    kCTFontManagerScopeUser        = kCTFontManagerScopePersistent
 };
+
+/*!
+    @defined    kCTFontRegistrationUserInfoAttribute
+    @abstract   Optional user defined information that can be attached to an entry in the Font Manager registration catalog.
+    @discussion This is the key for accessing font registration user information for the font descriptor. This information can be used in descriptor matching to disambiguate between two fonts with equivalent Postscript names. The value associated with this key is a CFStringRef.
+ */
+CT_EXPORT const CFStringRef kCTFontRegistrationUserInfoAttribute CT_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
 /*!
     @function   CTFontManagerRegisterFontsForURL
@@ -4255,7 +4280,7 @@ bool CTFontManagerUnregisterGraphicsFont(
 bool CTFontManagerRegisterFontsForURLs(
     CFArrayRef              fontURLs,
     CTFontManagerScope      scope,
-    CFArrayRef _Nullable * _Nullable errors ) CT_AVAILABLE(macos(10.6), ios(4.1), watchos(2.0), tvos(9.0));
+    CFArrayRef _Nullable * _Nullable errors ) API_DEPRECATED_WITH_REPLACEMENT("CTFontManagerRegisterFontURLs", macos(10.6, 10.14), ios(4.1, 12.0), watchos(2.0, 5.0), tvos(9.0, 12.0));
 
 /*!
     @function   CTFontManagerUnregisterFontsForURLs
@@ -4276,7 +4301,94 @@ bool CTFontManagerRegisterFontsForURLs(
 bool CTFontManagerUnregisterFontsForURLs(
     CFArrayRef              fontURLs,
     CTFontManagerScope      scope,
-    CFArrayRef _Nullable * _Nullable errors ) CT_AVAILABLE(macos(10.6), ios(4.1), watchos(2.0), tvos(9.0));
+    CFArrayRef _Nullable * _Nullable errors ) API_DEPRECATED_WITH_REPLACEMENT("CTFontManagerUnregisterFontURLs", macos(10.6, 10.14), ios(4.1, 12.0), watchos(2.0, 5.0), tvos(9.0, 12.0));
+
+#if defined(__BLOCKS__)
+/*!
+	@function   CTFontManagerRegisterFontURLs
+	@abstract   Registers fonts from the specified font URLs with the font manager. Registered fonts are discoverable through font descriptor matching in the calling process
+
+	@discussion Fonts registered with the persistent scope are not automatically available to other processes. Other process may call CTFontManagerRequestFonts to get access to these fonts.
+ 
+	@param      fontURLs
+				Array of font URLs.
+	
+	@param      scope
+				Scope constant defining the availability and lifetime of the registration. See scope constants for more details.
+	
+	@param      enabled
+				Boolean value indicating whether the font derived from the URL should be enabled for font descriptor matching and/or discoverable via CTFontManagerRequestFonts.
+
+	@param      registrationHandler
+				Block called as errors are discovered or upon completion. The errors parameter will be an empty array if all files are registered. Otherwise, it will contain an array of CFError references. Each error reference will contain a CFArray of font URLs corresponding to kCTFontManagerErrorFontURLsKey. These URLs represent the font files that caused the error, and were not successfully registered. The handler may be called multiple times during the registration process. The done parameter will be set to true when the registration process has completed. The handler should return false if the operation is to be stopped. This may be desirable after receiving an error.
+ */
+void CTFontManagerRegisterFontURLs(
+	CFArrayRef              fontURLs,
+	CTFontManagerScope      scope,
+	bool                    enabled,
+	bool                    (^ _Nullable registrationHandler)(CFArrayRef errors, bool done) ) CT_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*!
+	@function   CTFontManagerUnregisterFontURLs
+	@abstract   Unregisters fonts from the specified font URLs with the font manager. Unregistered fonts do not participate in font descriptor matching.
+	iOS note: only fonts registered with CTFontManagerRegisterFontsForURL or CTFontManagerRegisterFontsForURLs can be unregistered with this API.
+	 
+	@param      fontURLs
+				Array of font URLs.
+	
+	@param      scope
+				Scope constant defining the availability and lifetime of the registration. Should match the scope the fonts are registered in. See scope constants for more details.
+	
+	@param      registrationHandler
+				Block called as errors are discovered or upon completion. The errors parameter will be an empty array if all files are unregistered. Otherwise, it will contain an array of CFError references. Each error reference will contain a CFArray of font URLs corresponding to kCTFontManagerErrorFontURLsKey. These URLs represent the font files that caused the error, and were not successfully unregistered. The handler may be called multiple times during the unregistration process. The done parameter will be set to true when the unregistration process has completed. The handler should return false if the operation is to be stopped. This may be desirable after receiving an error.
+ */
+void CTFontManagerUnregisterFontURLs(
+	CFArrayRef              fontURLs,
+	CTFontManagerScope      scope,
+	bool                    (^ _Nullable registrationHandler)(CFArrayRef errors, bool done) ) CT_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*!
+	@function   CTFontManagerRegisterFontDescriptors
+	@abstract   Registers font descriptors with the font manager. Registered fonts are discoverable through font descriptor matching in the calling process.
+	
+	@discussion Fonts descriptors registered in disabled state are not immediately available for descriptor matching but the font manager will know the descriptors could be made available if necessary. These decriptors can be enabled by making this called again with the enabled parameter set to true. This operation may fail if there is another font registered and enabled with the same Postscript name. Fonts registered with the persistent scope are not automatically available to other processes. Other process may call CTFontManagerRequestFonts to get access to these fonts.
+	
+	@param      fontDescriptors
+				Array of font descriptors to register. Font descriptor keys used for registration are: kCTFontURLAttribute, kCTFontNameAttribute, kCTFontFamilyNameAttribute, or kCTFontRegistrationUserInfoAttribute.
+	
+	@param      scope
+				Scope constant defining the availability and lifetime of the registration. See scope constants for more details.
+	
+	@param      enabled
+				Boolean value indicating whether the font descriptors should be enabled for font descriptor matching and/or discoverable via CTFontManagerRequestFonts.
+	
+	@param      registrationHandler
+				Block called as errors are discovered or upon completion. The errors parameter will be an empty array if all font descriptors are registered. Otherwise, it will contain an array of CFError references. Each error reference will contain a CFArray of font descriptors corresponding to kCTFontManagerErrorFontDescriptorsKey. These represent the font descriptors that caused the error, and were not successfully registered. The handler may be called multiple times during the registration process. The done parameter will be set to true when the registration process has completed. The handler should return false if the operation is to be stopped. This may be desirable after receiving an error.
+ */
+void CTFontManagerRegisterFontDescriptors(
+	CFArrayRef              fontDescriptors,
+	CTFontManagerScope      scope,
+	bool                    enabled,
+	bool                    (^ _Nullable registrationHandler)(CFArrayRef errors, bool done) ) CT_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*!
+	@function   CTFontManagerUnregisterFontDescriptors
+	@abstract   Unregisters font descriptors with the font manager. Unregistered fonts do not participate in font descriptor matching.
+	
+	@param      fontDescriptors
+				Array of font descriptors to unregister.
+	
+	@param      scope
+				Scope constant defining the availability and lifetime of the registration. See scope constants for more details.
+	
+	@param      registrationHandler
+				Block called as errors are discovered or upon completion. The errors parameter will be an empty array if all font descriptors are unregistered. Otherwise, it will contain an array of CFError references. Each error reference will contain a CFArray of font descriptors corresponding to kCTFontManagerErrorFontDescriptorsKey. These represent the font descriptors that caused the error, and were not successfully unregistered. The handler may be called multiple times during the unregistration process. The done parameter will be set to true when the unregistration process has completed. The handler should return false if the operation is to be stopped. This may be desirable after receiving an error.
+ */
+void CTFontManagerUnregisterFontDescriptors(
+	CFArrayRef              fontDescriptors,
+	CTFontManagerScope      scope,
+	bool                    (^ _Nullable registrationHandler)(CFArrayRef errors, bool done) ) CT_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+#endif // defined(__BLOCKS__)
 
 /*!
     @function   CTFontManagerEnableFontDescriptors
@@ -4305,7 +4417,43 @@ CTFontManagerScope CTFontManagerGetScopeForURL(
     CFURLRef                fontURL ) CT_AVAILABLE(macos(10.6)) CT_UNAVAILABLE(ios, watchos, tvos);
 
 /*!
-    @function   CTFontManagerIsSupportedFontFile
+	@function   CTFontManagerCopyRegisteredFontDescriptors
+	@abstract   Returns the font descriptors that were registered with the font manager.
+	
+	@discussion In the case the persistent scope is specified, only macOS can return fonts registered by any process. Other platforms can only return font descriptors registered by the application's process.
+	
+	@param      scope
+				Scope constant defining the availability and lifetime of the registration. See scope constants for more details.
+	
+	@param      enabled
+				Boolean value indicating if the caller is interested in registered font descriptors that are enabled or disabled.
+	
+	@result     Array of of font descriptors registered by the application. Array may be empty if nothing is registered.
+ */
+CFArrayRef  CTFontManagerCopyRegisteredFontDescriptors(
+	CTFontManagerScope      scope,
+	bool                    enabled ) CT_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+#if defined(__BLOCKS__)
+/*!
+	@function   CTFontManagerRequestFonts
+	@abstract   Resolves font descriptors specified on input. On iOS only, if the font descriptors cannot be found, the user is presented with a dialog indicating fonts that could not be resolved. The user may optionally be provided with a way to resolve the missing fonts if the font manager has a way to enable them.
+	
+	@discussion On iOS, fonts registered by font provider applications in the persistent scope are not automatically available to other applications. Client applications must call this function to make the requested fonts available for font descriptor matching.
+	
+	@param      fontDescriptors
+				Array of font descriptors to make available to the process.  Keys used to describe the fonts may be a combination of: kCTFontNameAttribute, kCTFontFamilyNameAttribute, or kCTFontRegistrationUserInfoAttribute.
+	
+	@param      completionHandler
+				Block called after request operation completes. Block takes a single parameter containing an array of those descriptors that could not be resolved/found. The array can be empty if all descriptors were resolved.
+ */
+void CTFontManagerRequestFonts(
+	CFArrayRef              fontDescriptors,
+	void                    (^completionHandler)(CFArrayRef unresolvedFontDescriptors) ) CT_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+#endif // defined(__BLOCKS__)
+
+/*!
+    @function   CTFontManagerIsSupportedFont
     @abstract   Determines whether the referenced font data (usually by file URL) is supported on the current platform.
 
     @param      fontURL
@@ -4399,7 +4547,7 @@ CTFontManagerAutoActivationSetting CTFontManagerGetAutoActivationSetting(
     @discussion This is the string to use as the notification name when subscribing
                 to CTFontManager notifications.  This notification will be posted when fonts are added or removed.
                 OS X clients should register as an observer of the notification with the distributed notification center
-                for changes in session or user scopes and with the local notification center for changes in process scope.
+                for changes in session or persistent scopes and with the local notification center for changes in process scope.
                 iOS clients should register as an observer of the notification with the local notification center for all changes.
 */
 CT_EXPORT const CFStringRef kCTFontManagerRegisteredFontsChangedNotification CT_AVAILABLE(macos(10.6), ios(7.0), watchos(2.0), tvos(9.0));
@@ -4421,7 +4569,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #ifndef __SFNTLAYOUTTYPES__
 #define __SFNTLAYOUTTYPES__
 
-#if !TARGET_OS_WIN32
+#if !0
 #include <MacTypes.h>
 #elif !defined(__MACTYPES__)
 typedef SInt32 Fixed;
@@ -8430,21 +8578,25 @@ CF_EXTERN_C_END
 # define __has_attribute(x) 0
 #endif
 
-#if defined(CT_BUILDING_CoreText) || TARGET_OS_WIN32
+#if defined(CT_BUILDING_CoreText) || 0
 # define CT_AVAILABLE(...)
 # define CT_UNAVAILABLE(...)
 # define CT_DEPRECATED(...)
+# define CT_DEPRECATED_WITH_REPLACEMENT(...)
 #else /* defined(CT_BUILDING_CoreText) || TARGET_OS_WIN32 */
 # define CT_AVAILABLE(...) API_AVAILABLE(__VA_ARGS__)
 # define CT_UNAVAILABLE(...) API_UNAVAILABLE(__VA_ARGS__)
 # define CT_DEPRECATED(...) API_DEPRECATED(__VA_ARGS__)
+# define CT_DEPRECATED_WITH_REPLACEMENT(...) API_DEPRECATED_WITH_REPLACEMENT(__VA_ARGS__)
 #endif /* defined(CT_BUILDING_CoreText) || TARGET_OS_WIN32 */
 
 #if __has_feature(enumerator_attributes) && __has_attribute(availability)
 # define CT_ENUM_DEPRECATED(...) CT_DEPRECATED(__VA_ARGS__)
+# define CT_ENUM_AVAILABLE(...) CT_AVAILABLE(__VA_ARGS__)
 # define CT_ENUM_UNAVAILABLE(...) CT_UNAVAILABLE(__VA_ARGS__)
 #else
 # define CT_ENUM_DEPRECATED(...)
+# define CT_ENUM_AVAILABLE(...)
 # define CT_ENUM_UNAVAILABLE(...)
 #endif /* __has_feature(enumerator_attributes) && __has_attribute(availability) */
 
@@ -8465,29 +8617,9 @@ CF_EXTERN_C_END
 # endif /* defined(__OBJC__) */
 #endif /*  __has_attribute(objc_bridge) */
 
-#if TARGET_OS_WIN32
-#define _Nullable
-#define _Nonnull
 
-#define CF_BRIDGED_TYPE(T)
-#define CF_BRIDGED_MUTABLE_TYPE(T)
-#define CF_RELATED_TYPE(T,C,I)
-
-#define CF_ASSUME_NONNULL_BEGIN
-#define CF_ASSUME_NONNULL_END
-
-# if defined(CT_BUILDING_CoreText) && defined(__cplusplus)
-#  define CT_EXPORT extern "C" __declspec(dllexport)
-# elif defined(CT_BUILDING_CoreText) && !defined(__cplusplus)
-#  define CT_EXPORT extern __declspec(dllexport)
-# elif defined(__cplusplus)
-#  define CT_EXPORT extern "C" __declspec(dllimport)
-# else
-#  define CT_EXPORT extern __declspec(dllimport)
-# endif
-#else
 # define CT_EXPORT extern
-#endif
+
 
 #endif
 // ==========  CoreText.framework/Headers/CTFontCollection.h
@@ -8955,7 +9087,7 @@ typedef CF_ENUM(uint16_t, CTCharacterCollection) {
     @result     This function will return a reference to a CTGlyphInfo object.
 */
 
-CTGlyphInfoRef CTGlyphInfoCreateWithGlyphName(
+CTGlyphInfoRef _Nullable CTGlyphInfoCreateWithGlyphName(
     CFStringRef glyphName,
     CTFontRef font,
     CFStringRef baseString ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
@@ -8981,7 +9113,7 @@ CTGlyphInfoRef CTGlyphInfoCreateWithGlyphName(
     @result     This function will return a reference to a CTGlyphInfo object.
 */
 
-CTGlyphInfoRef CTGlyphInfoCreateWithGlyph(
+CTGlyphInfoRef _Nullable CTGlyphInfoCreateWithGlyph(
     CGGlyph glyph,
     CTFontRef font,
     CFStringRef baseString ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
@@ -9007,7 +9139,7 @@ CTGlyphInfoRef CTGlyphInfoCreateWithGlyph(
     @result     This function will return a reference to a CTGlyphInfo object.
 */
 
-CTGlyphInfoRef CTGlyphInfoCreateWithCharacterIdentifier(
+CTGlyphInfoRef _Nullable CTGlyphInfoCreateWithCharacterIdentifier(
     CGFontIndex cid,
     CTCharacterCollection collection,
     CFStringRef baseString ) CT_AVAILABLE(macos(10.5), ios(3.2), watchos(2.0), tvos(9.0));
@@ -9081,7 +9213,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *  CoreText.h
  *  CoreText
  *
- *  Copyright (c) 2006-2018 Apple Inc. All rights reserved.
+ *  Copyright (c) 2006-2019 Apple Inc. All rights reserved.
  *
  */
 
@@ -9151,6 +9283,7 @@ uint32_t CTGetCoreTextVersion( void ) CT_AVAILABLE(macos(10.5), ios(3.2), watcho
 #define kCTVersionNumber10_12 0x00090000
 #define kCTVersionNumber10_13 0x000A0000
 #define kCTVersionNumber10_14 0x000B0000
+#define kCTVersionNumber10_15 0x000C0000
 
 CF_EXTERN_C_END
 

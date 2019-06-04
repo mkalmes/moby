@@ -1557,13 +1557,15 @@ SCNetworkInterfaceCopyMTU			(SCNetworkInterfaceRef			interface,
 		media subtype and options.
 	@param interface The desired network interface.
 	@param subtype The desired media subtype (e.g. "autoselect", "100baseTX", ...).
+		If NULL, no specific media subtype will be requested.
 	@param options The desired media options (e.g. "half-duplex", "full-duplex", ...).
+		If NULL, no specific media options will be requested.
 	@result TRUE if the configuration was updated; FALSE if an error was encountered.
  */
 Boolean
-SCNetworkInterfaceSetMediaOptions		(SCNetworkInterfaceRef		interface,
-						 CFStringRef			subtype,
-						 CFArrayRef			options)	API_AVAILABLE(macos(10.5))
+SCNetworkInterfaceSetMediaOptions		(SCNetworkInterfaceRef			interface,
+						 CFStringRef		__nullable	subtype,
+						 CFArrayRef		__nullable	options)	API_AVAILABLE(macos(10.5))
 												API_UNAVAILABLE(ios, tvos, watchos);
 
 /*!
@@ -1572,6 +1574,7 @@ SCNetworkInterfaceSetMediaOptions		(SCNetworkInterfaceRef		interface,
 		requested MTU setting.
 	@param interface The desired network interface.
 	@param mtu The desired MTU setting for the interface.
+		If zero, the interface will use the default MTU setting.
 	@result TRUE if the configuration was updated; FALSE if an error was encountered.
  */
 Boolean
@@ -2980,8 +2983,9 @@ int		SCError			(void)				API_AVAILABLE(macos(10.1), ios(2.0));
 /*!
 	@function SCErrorString
 	@discussion Returns a pointer to the message string
-		associated with the specified status or error.
-	@param status The SCDynamicStoreStatus to be returned.
+		associated with the specified status or error
+		number.
+	@param status The status or error number.
 	@result Returns a pointer to the error message string.
  */
 const char *	SCErrorString		(int	status)			API_AVAILABLE(macos(10.1), ios(2.0));
@@ -4261,11 +4265,10 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *   kSCPropNetPPPDisconnectOnLogout                    "DisconnectOnLogout"           CFNumber (0 or 1)
  *   kSCPropNetPPPDisconnectOnSleep                     "DisconnectOnSleep"            CFNumber (0 or 1)
  *   kSCPropNetPPPDisconnectTime                        "DisconnectTime"               CFNumber
- *   kSCPropNetPPPIdleReminderTimer                     "IdleReminderTimer"            CFNumber
  *   kSCPropNetPPPIdleReminder                          "IdleReminder"                 CFNumber (0 or 1)
+ *   kSCPropNetPPPIdleReminderTimer                     "IdleReminderTimer"            CFNumber
  *   kSCPropNetPPPLastCause                             "LastCause"                    CFNumber
  *   kSCPropNetPPPLogfile                               "Logfile"                      CFString
- *   kSCPropNetPPPPlugins                               "Plugins"                      CFArray[CFString]
  *   kSCPropNetPPPRetryConnectTime                      "RetryConnectTime"             CFNumber
  *   kSCPropNetPPPSessionTimer                          "SessionTimer"                 CFNumber
  *   kSCPropNetPPPStatus                                "Status"                       CFNumber
@@ -4273,7 +4276,6 @@ CF_IMPLICIT_BRIDGING_DISABLED
  *   kSCPropNetPPPVerboseLogging                        "VerboseLogging"               CFNumber (0 or 1)
  *
  *   --- Auth: ---
- *   kSCPropNetPPPAuthEAPPlugins                        "AuthEAPPlugins"               CFArray[CFString]
  *   kSCPropNetPPPAuthName                              "AuthName"                     CFString
  *   kSCPropNetPPPAuthPassword                          "AuthPassword"                 CFString
  *   kSCPropNetPPPAuthPasswordEncryption                "AuthPasswordEncryption"       CFString
@@ -5595,18 +5597,18 @@ extern const CFStringRef kSCPropNetPPPDisconnectTime                        API_
 #define kSCPropNetPPPDisconnectTime kSCPropNetPPPDisconnectTime
 
 /*!
-  @const kSCPropNetPPPIdleReminderTimer
-  @discussion Value is a CFNumber
- */
-extern const CFStringRef kSCPropNetPPPIdleReminderTimer                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
-#define kSCPropNetPPPIdleReminderTimer kSCPropNetPPPIdleReminderTimer
-
-/*!
   @const kSCPropNetPPPIdleReminder
   @discussion Value is a CFNumber (0 or 1)
  */
 extern const CFStringRef kSCPropNetPPPIdleReminder                          API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPIdleReminder kSCPropNetPPPIdleReminder
+
+/*!
+  @const kSCPropNetPPPIdleReminderTimer
+  @discussion Value is a CFNumber
+ */
+extern const CFStringRef kSCPropNetPPPIdleReminderTimer                     API_AVAILABLE(macos(10.1)) API_UNAVAILABLE(ios, tvos, watchos);
+#define kSCPropNetPPPIdleReminderTimer kSCPropNetPPPIdleReminderTimer
 
 /*!
   @const kSCPropNetPPPLastCause
@@ -5626,7 +5628,7 @@ extern const CFStringRef kSCPropNetPPPLogfile                               API_
   @const kSCPropNetPPPPlugins
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetPPPPlugins                               API_AVAILABLE(macos(10.2)) API_UNAVAILABLE(ios, tvos, watchos);
+extern const CFStringRef kSCPropNetPPPPlugins                               API_DEPRECATED("No longer supported", macos(10.2,10.15)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPPlugins kSCPropNetPPPPlugins
 
 /*!
@@ -5668,7 +5670,7 @@ extern const CFStringRef kSCPropNetPPPVerboseLogging                        API_
   @const kSCPropNetPPPAuthEAPPlugins
   @discussion Value is a CFArray[CFString]
  */
-extern const CFStringRef kSCPropNetPPPAuthEAPPlugins                        API_AVAILABLE(macos(10.3)) API_UNAVAILABLE(ios, tvos, watchos);
+extern const CFStringRef kSCPropNetPPPAuthEAPPlugins                        API_DEPRECATED("No longer supported", macos(10.3,10.15)) API_UNAVAILABLE(ios, tvos, watchos);
 #define kSCPropNetPPPAuthEAPPlugins kSCPropNetPPPAuthEAPPlugins
 
 /*!

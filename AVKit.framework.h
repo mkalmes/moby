@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 	@abstract	AVPlayerViewController is a subclass of UIViewController that can be used to display the visual content of an AVPlayer object and the standard playback controls.
  */
 
-API_AVAILABLE(ios(8.0))
+API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, watchos, tvos)
 @interface AVPlayerViewController : UIViewController
 
 /*!
@@ -88,6 +88,13 @@ API_AVAILABLE(ios(8.0))
 @property (nonatomic) BOOL exitsFullScreenWhenPlaybackEnds API_AVAILABLE(ios(11.0));
 
 /*!
+ 	@property	pixelBufferAttributes
+ 	@abstract	The client requirements for the visual output during playback.
+ 	@discussion	Pixel buffer attribute keys are defined in <CoreVideo/CVPixelBuffer.h>
+ */
+@property (nonatomic, copy, nullable) NSDictionary<NSString *,id> *pixelBufferAttributes API_AVAILABLE(ios(9.0));
+
+/*!
 	@property	delegate
 	@abstract	The receiver's delegate.
  */
@@ -103,6 +110,28 @@ API_AVAILABLE(ios(8.0))
 
 @protocol AVPlayerViewControllerDelegate <NSObject>
 @optional
+
+/*!
+ 	@method		playerViewController:willBeginFullScreenPresentationWithAnimationCoordinator:
+ 	@param		playerViewController
+ 				The player view controller.
+ 	@param		coordinator
+ 				An object conforming to UIViewControllerTransitionCoordinator.
+ 	@abstract	Informs the delegate that AVPlayerViewController is about to start displaying its contents full screen.
+ 	@discussion	This method will not be called if a playerViewController is embedded inside a view controller that is being presented. If the receiver is embedded in a parent view controller, its content will be presented in a new full screen view controller and perhaps in a new window. Use the coordinator to determine whether the playerViewController or its full screen counterpart is being transitioned. Transitions can be interrupted -- use a completion block of one of the coordinator's animation methods to determine whether it has completed.
+ */
+- (void)playerViewController:(AVPlayerViewController *)playerViewController willBeginFullScreenPresentationWithAnimationCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator API_AVAILABLE(ios(12.0));
+
+/*!
+ 	@method		playerViewController:willEndFullScreenPresentationWithAnimationCoordinator:
+ 	@param		playerViewController
+ 				The player view controller.
+	@param		coordinator
+				An object conforming to UIViewControllerTransitionCoordinator.
+	@abstract	Informs the delegate that AVPlayerViewController is about to stop displaying its contents full screen.
+	@discussion	See the discussion of -[AVPlayerViewControllerDelegatePrivate playerViewController:willBeginFullScreenPresentationWithAnimationCoordinator:].
+ */
+- (void)playerViewController:(AVPlayerViewController *)playerViewController willEndFullScreenPresentationWithAnimationCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator API_AVAILABLE(ios(12.0));
 
 /*!
 	@method		playerViewControllerWillStartPictureInPicture:
@@ -184,12 +213,15 @@ NS_ASSUME_NONNULL_END
 #if TARGET_OS_IPHONE
 #import <AVKit/AVError.h>
 #import <AVKit/AVPictureInPictureController.h>
+#import <AVKit/AVPlayerItem+AVKitAdditions.h>
 #import <AVKit/AVPlayerViewController.h>
-#import <AVKit/AVRoutePickerView.h>
+#import <AVKit/AVPlaybackRouteSelecting.h>
 #else
 #import <AVKit/AVCaptureView.h>
+#import <AVKit/AVPictureInPictureController.h>
 #import <AVKit/AVPlayerView.h>
 #endif // TARGET_OS_IPHONE
+#import <AVKit/AVRoutePickerView.h>
 // ==========  AVKit.framework/Headers/AVRoutePickerView.h
 /*
 	File:  AVRoutePickerView.h
@@ -211,7 +243,7 @@ NS_ASSUME_NONNULL_BEGIN
 	@abstract	AVRoutePickerView is a subclass of UIView that displays controls for picking playback routes.
  */
 
-API_AVAILABLE(ios(11.0), tvos(11.0))
+API_AVAILABLE(ios(11.0), tvos(11.0)) API_UNAVAILABLE(macos, watchos)
 @interface AVRoutePickerView : UIView
 
 /*!
@@ -246,6 +278,12 @@ typedef NS_ENUM(NSInteger, AVRoutePickerViewButtonStyle) {
  */
 @property (nonatomic) AVRoutePickerViewButtonStyle routePickerButtonStyle API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios);
 
+/*!
+ 	@property	prioritizesVideoDevices
+ 	@abstract	Whether or not the route picker should sort video capable output devices to the top of the list.
+ */
+@property (nonatomic) BOOL prioritizesVideoDevices API_AVAILABLE(ios(13.0), tvos(13.0));
+
 @end
 
 
@@ -268,6 +306,53 @@ typedef NS_ENUM(NSInteger, AVRoutePickerViewButtonStyle) {
 	@abstract	Informs the delegate that the route picker view finished presenting routes to the user.
  */
 - (void)routePickerViewDidEndPresentingRoutes:(AVRoutePickerView *)routePickerView;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  AVKit.framework/Headers/AVPlaybackRouteSelecting.h
+/*
+ File:  AVPlaybackRouteSelecting.h
+ 
+ Framework:  AVKit
+ 
+ Copyright © 2019 Apple Inc. All rights reserved.
+ 
+ */
+
+#import <AVFoundation/AVFoundation.h>
+
+@class AVAudioSession;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ 	@constant	AVAudioSessionRouteSelectionNone
+ 				Indicates no route was selected.
+ 	@constant	AVAudioSessionRouteSelectionLocal
+ 				Indicates that the local device was selected.
+ 	@constant	AVAudioSessionRouteSelectionExternal
+ 				Indicates that an external device was selected.
+ */
+typedef NS_ENUM(NSInteger, AVAudioSessionRouteSelection) {
+	AVAudioSessionRouteSelectionNone = 0,
+	AVAudioSessionRouteSelectionLocal = 1,
+	AVAudioSessionRouteSelectionExternal = 2
+} NS_SWIFT_NAME(AVAudioSession.RouteSelection) API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, tvos, watchos);
+
+
+API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, tvos, watchos)
+@interface AVAudioSession (AVPlaybackRouteSelecting)
+
+/*!
+ 	@method		prepareRouteSelectionForPlaybackWithCompletionHandler:
+ 	@param		completionHandler
+ 				Once any potential routing is complete, the completion handler is called with the selected route type and with a BOOL indicating whether playback should begin or not.
+ 	@abstract	A call to this method is an indication that playback is about to start. This gives the receiver an opportunity to prompt the user to pick an output destination if necessary.
+ 				The receiver will only prompt if the audio session has been configured with a long-form video route sharing policy. 
+ 	@discussion	Presenting playback UI (e.g. AVPlayerViewController) and commencing playback should be performed in the completionHandler.
+ */
+- (void)prepareRouteSelectionForPlaybackWithCompletionHandler:(void (^)(BOOL shouldStartPlayback, AVAudioSessionRouteSelection routeSelection))completionHandler;
 
 @end
 
@@ -321,6 +406,34 @@ typedef NS_ENUM(NSInteger, AVKitError) {
 #else
 #define AVKIT_EXTERN	extern __attribute__((visibility ("default")))
 #endif
+// ==========  AVKit.framework/Headers/AVPlayerItem+AVKitAdditions.h
+/*
+ File:  AVPlayerItem+AVKitAdditions.h
+ 
+ Framework:  AVKit
+ 
+ Copyright © 2019 Apple Inc. All rights reserved.
+ 
+ */
+
+#import <AVFoundation/AVPlayerItem.h>
+
+@class AVMetadataItem;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AVPlayerItem (AVKitAdditions)
+
+/*!
+ 	@property 	externalMetadata
+ 	@abstract 	Supplements metadata contained in the asset.
+ 	@discussion AVPlayerViewController will publish this metadata as now playing info when AVPlayerViewController.updatesNowPlayingInfoCenter is YES.
+ */
+@property (nonatomic, copy) NSArray<AVMetadataItem *> *externalMetadata API_AVAILABLE(ios(12.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  AVKit.framework/Headers/AVPictureInPictureController.h
 /*
 	File:  AVPictureInPictureController.h
@@ -338,16 +451,21 @@ typedef NS_ENUM(NSInteger, AVKitError) {
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if TARGET_OS_IPHONE
 @class UIImage;
 @class UITraitCollection;
+#elif TARGET_OS_OSX
+@class NSImage;
+#endif // TARGET_OS_IPHONE
+
 @protocol AVPictureInPictureControllerDelegate;
 
 /*!
 	@class		AVPictureInPictureController
-	@abstract	AVPictureInPictureController is a subclass of NSObject that can be used to present the contents of an AVPlayerLayer floating on top of applications.
+	@abstract	AVPictureInPictureController is a subclass of NSObject that can be used to present the contents of an AVPlayerLayer or AVPlayerView floating on top of applications.
  */
 
-API_AVAILABLE(ios(9.0))
+API_AVAILABLE(ios(9.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos)
 @interface AVPictureInPictureController : NSObject
 
 /*!
@@ -357,6 +475,7 @@ API_AVAILABLE(ios(9.0))
  */
 + (BOOL)isPictureInPictureSupported;
 
+#if TARGET_OS_IPHONE
 /*!
 	@method		pictureInPictureButtonStartImageCompatibleWithTraitCollection:
 	@param		traitCollection
@@ -374,10 +493,35 @@ API_AVAILABLE(ios(9.0))
 + (UIImage *)pictureInPictureButtonStopImageCompatibleWithTraitCollection:(nullable UITraitCollection *)traitCollection;
 
 /*!
-	@method		initWithPlayerLayer:
-	@param		playerLayer
-				The player layer from which to source the media content for the Picture in Picture controller.
-	@abstract	Designated initializer.
+	@property	pictureInPictureButtonStartImage
+	@abstract	System default Picture in Picture start template image for use in client's Picture in Picture button.
+ */
+@property (class, nonatomic, readonly) UIImage *pictureInPictureButtonStartImage API_AVAILABLE(ios(13.0), tvos(13.0));
+
+/*!
+ 	@property	pictureInPictureButtonStopImage
+ 	@abstract	System default Picture in Picture stop template image for use in client's Picture in Picture button.
+ */
+@property (class, nonatomic, readonly) UIImage *pictureInPictureButtonStopImage API_AVAILABLE(ios(13.0), tvos(13.0));
+#elif TARGET_OS_OSX
+/*!
+	@property	pictureInPictureButtonStartImage
+	@abstract	System default Picture in Picture start template image for use in client's Picture in Picture button.
+ */
+@property (class, nonatomic, readonly) NSImage *pictureInPictureButtonStartImage;
+
+/*!
+	@property	pictureInPictureButtonStopImage
+ 	@abstract	System default Picture in Picture stop template image for use in client's Picture in Picture button.
+ */
+@property (class, nonatomic, readonly) NSImage *pictureInPictureButtonStopImage;
+#endif // TARGET_OS_IPHONE
+
+/*!
+ @method		initWithPlayerLayer:
+ @param			playerLayer
+ 				The player layer from which to source the media content for the Picture in Picture controller.
+ @abstract		Designated initializer.
  */
 - (nullable instancetype)initWithPlayerLayer:(AVPlayerLayer *)playerLayer NS_DESIGNATED_INITIALIZER;
 
@@ -433,6 +577,7 @@ API_AVAILABLE(ios(9.0))
 	@abstract	A protocol for delegates of AVPictureInPictureController.
  */
 
+API_AVAILABLE(ios(9.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
 @protocol AVPictureInPictureControllerDelegate <NSObject>
 @optional
 

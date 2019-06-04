@@ -23,7 +23,7 @@
  
  */
 
-#if TARGET_OS_IPHONE && (TARGET_OS_EMBEDDED || TARGET_OS_SIMULATOR || !0)
+#if TARGET_OS_IPHONE && (TARGET_OS_EMBEDDED || TARGET_OS_SIMULATOR || !TARGET_OS_UIKITFORMAC)
 #import <CoreServices/UTType.h>
 #else
 #import <CoreServices/CoreServices.h>
@@ -43,7 +43,7 @@
  
  */
 
-#if TARGET_OS_IPHONE && (TARGET_OS_EMBEDDED || TARGET_OS_SIMULATOR || !0)
+#if TARGET_OS_IPHONE && (TARGET_OS_EMBEDDED || TARGET_OS_SIMULATOR || !TARGET_OS_UIKITFORMAC)
 #import <CoreServices/UTCoreTypes.h>
 #else
 #import <CoreServices/CoreServices.h>

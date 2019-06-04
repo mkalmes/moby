@@ -65,10 +65,10 @@ SOCIAL_CLASS_AVAILABLE(NA, 8_0)
 
 
 #if TARGET_OS_IPHONE
-SOCIAL_CLASS_AVAILABLE_IOS(8_0)
+API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos)
 @interface SLComposeServiceViewController : UIViewController <UITextViewDelegate>
 #else
-SOCIAL_CLASS_AVAILABLE_MAC(10_10)
+API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios)
 @interface SLComposeServiceViewController : NSViewController <NSTextViewDelegate>
 #endif
 
@@ -203,6 +203,7 @@ SOCIAL_CLASS_AVAILABLE_MAC(10_10)
 #import <Social/SLServiceTypes.h>
 #import <Social/SLRequest.h>
 #import <Social/SLComposeServiceViewController.h>
+
 #if TARGET_OS_IPHONE
 #import <Social/SLComposeViewController.h>
 #import <Social/SLComposeSheetConfigurationItem.h>

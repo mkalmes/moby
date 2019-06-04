@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @see -[GCExtendedGamepad saveSnapshot]
  */
-GAMECONTROLLER_EXPORT
+API_DEPRECATED("GCExtendedGamepadSnapshot has been deprecated, use [GCController controllerWithExtendedGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0))
 @interface GCExtendedGamepadSnapshot : GCExtendedGamepad
 @property (atomic, copy) NSData *snapshotData;
 
@@ -30,11 +30,19 @@ GAMECONTROLLER_EXPORT
 
 @end
 
+typedef NS_ENUM(NSInteger, GCExtendedGamepadSnapshotDataVersion) {
+    GCExtendedGamepadSnapshotDataVersion1 = 0x0100,
+    GCExtendedGamepadSnapshotDataVersion2 = 0x0101
+} API_DEPRECATED("GCExtendedGamepadSnapshot has been deprecated, use [GCController controllerWithExtendedGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
+
+extern const GCExtendedGamepadSnapshotDataVersion GCCurrentExtendedGamepadSnapshotDataVersion API_DEPRECATED("GCExtendedGamepadSnapshot has been deprecated, use [GCController controllerWithExtendedGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
+
 #pragma pack(push, 1)
 typedef struct {
-    // Standard information
-    uint16_t version; //0x0100
-    uint16_t size;    //sizeof(GCExtendedGamepadSnapShotDataV100) or larger
+    
+#pragma mark - GCExtendedGamepadSnapshotDataVersion1+
+    uint16_t version;
+    uint16_t size;
     
     // Extended gamepad data
     // Axes in the range [-1.0, 1.0]
@@ -48,7 +56,7 @@ typedef struct {
     float buttonY;
     float leftShoulder;
     float rightShoulder;
-
+    
     // Axes in the range [-1.0, 1.0]
     float leftThumbstickX;
     float leftThumbstickY;
@@ -58,25 +66,78 @@ typedef struct {
     // Buttons in the range [0.0, 1.0]
     float leftTrigger;
     float rightTrigger;
+    
+#pragma mark - GCExtendedGamepadSnapshotDataVersion2+
+    // Boolean indicating whether the controller supports clickable thumbsticks (1) or not (0)
+    BOOL supportsClickableThumbsticks API_AVAILABLE(macos(10.14.1), ios(12.1), tvos(12.1));
+    
+    // Left and right thumbstick clickable values (0, 1)
+    BOOL leftThumbstickButton API_AVAILABLE(macos(10.14.1), ios(12.1), tvos(12.1));
+    BOOL rightThumbstickButton API_AVAILABLE(macos(10.14.1), ios(12.1), tvos(12.1));
+    
+} GCExtendedGamepadSnapshotData API_DEPRECATED("GCExtendedGamepadSnapshot has been deprecated, use [GCController controllerWithExtendedGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
+#pragma pack(pop)
 
-} GCExtendedGamepadSnapShotDataV100;
+/**Fills out a snapshot from any compatible NSData source
+ 
+ @return NO if data is nil, snapshotData is nil or the contents of data does not contain a compatible snapshot. YES for all other cases.
+ */
+BOOL GCExtendedGamepadSnapshotDataFromNSData(GCExtendedGamepadSnapshotData *__nullable snapshotData, NSData *__nullable data) API_DEPRECATED("GCExtendedGamepadSnapshot has been deprecated, use [GCController controllerWithExtendedGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
+
+/**Creates an NSData object from a snapshot.
+ If the version and size is not set in the snapshot the data will automatically have the version GCCurrentExtendedGamepadSnapshotDataVersion and sizeof(GCExtendedGamepadSnapshotData) set as the values implicitly.
+ 
+ @return nil if the snapshot is NULL, otherwise an NSData instance compatible with GCExtendedGamepadSnapshot.snapshotData
+ */
+NSData *__nullable NSDataFromGCExtendedGamepadSnapshotData(GCExtendedGamepadSnapshotData *__nullable snapshotData) API_DEPRECATED("GCExtendedGamepadSnapshot has been deprecated, use [GCController controllerWithExtendedGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
+
+
+#pragma mark - Deprecated Versioning System
+
+#pragma pack(push)
+typedef struct {
+    // Standard information
+    uint16_t version;   // 0x0100
+    uint16_t size;      //sizeof(GCExtendedGamepadSnapShotDataV100) or larger
+    
+    // Extended gamepad data
+    // Axes in the range [-1.0, 1.0]
+    float dpadX;
+    float dpadY;
+    
+    // Buttons in the range [0.0, 1.0]
+    float buttonA;
+    float buttonB;
+    float buttonX;
+    float buttonY;
+    float leftShoulder;
+    float rightShoulder;
+    
+    // Axes in the range [-1.0, 1.0]
+    float leftThumbstickX;
+    float leftThumbstickY;
+    float rightThumbstickX;
+    float rightThumbstickY;
+    
+    // Buttons in the range [0.0, 1.0]
+    float leftTrigger;
+    float rightTrigger;
+    
+} GCExtendedGamepadSnapShotDataV100 API_DEPRECATED("GCExtendedGamepadSnapshot has been deprecated, use [GCController controllerWithExtendedGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
 #pragma pack(pop)
 
 /**Fills out a v100 snapshot from any compatible NSData source
  
  @return NO if data is nil, snapshotData is nil or the contents of data does not contain a compatible snapshot. YES for all other cases.
  */
-GAMECONTROLLER_EXPORT
-BOOL GCExtendedGamepadSnapShotDataV100FromNSData(GCExtendedGamepadSnapShotDataV100 *__nullable snapshotData, NSData *__nullable data);
+BOOL GCExtendedGamepadSnapShotDataV100FromNSData(GCExtendedGamepadSnapShotDataV100 *__nullable snapshotData, NSData *__nullable data) API_DEPRECATED("GCExtendedGamepadSnapshot has been deprecated, use [GCController controllerWithExtendedGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
 
 /**Creates an NSData object from a v100 snapshot.
  If the version and size is not set in the snapshot the data will automatically have version 0x100 and sizeof(GCExtendedGamepadSnapShotDataV100) set as the values implicitly.
  
  @return nil if the snapshot is NULL, otherwise an NSData instance compatible with GCExtendedGamepadSnapshot.snapshotData
  */
-GAMECONTROLLER_EXPORT
-NSData *__nullable NSDataFromGCExtendedGamepadSnapShotDataV100(GCExtendedGamepadSnapShotDataV100 *__nullable snapshotData);
-
+NSData *__nullable NSDataFromGCExtendedGamepadSnapShotDataV100(GCExtendedGamepadSnapShotDataV100 *__nullable snapshotData) API_DEPRECATED("GCExtendedGamepadSnapshot has been deprecated, use [GCController controllerWithExtendedGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
 NS_ASSUME_NONNULL_END
 // ==========  GameController.framework/Headers/GCControllerButtonInput.h
 //
@@ -85,6 +146,8 @@ NS_ASSUME_NONNULL_END
 //
 //  Copyright (c) 2012 Apple Inc. All rights reserved.
 //
+
+#import <Foundation/Foundation.h>
 
 #import <GameController/GameController.h>
 
@@ -110,7 +173,7 @@ typedef void (^GCControllerButtonValueChangedHandler)(GCControllerButtonInput *b
  will get called less often than the valueChangedHandler with the additional feature of the pressed state
  being different to the last time it was called.
  */
-@property (nonatomic, copy, nullable) GCControllerButtonValueChangedHandler pressedChangedHandler NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, copy, nullable) GCControllerButtonValueChangedHandler pressedChangedHandler API_AVAILABLE(macos(10.10), ios(8.0), tvos(8.0));
 
 /**
  A normalized value for the input. Between 0 and 1 for button inputs. Values are saturated and thus never exceed the range of [0, 1].
@@ -131,6 +194,15 @@ typedef void (^GCControllerButtonValueChangedHandler)(GCControllerButtonInput *b
  */
 @property (nonatomic, readonly, getter = isPressed) BOOL pressed;
 
+/**
+ Sets the normalized value for the button input. Will update the pressed state of the button.
+
+ @param value the value to set the input to.
+ @note If the controller's snapshot flag is set to NO, this method has no effect.
+ @see value
+ */
+- (void)setValue:(float)value;
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -143,12 +215,16 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2012 Apple Inc. All rights reserved.
 //
 
-#import <GameController/GameController.h>
+#import <Foundation/Foundation.h>
+#import <GameController/GCExtern.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class GCController;
 @class GCGamepadSnapshot;
+@class GCControllerDirectionPad;
+@class GCControllerElement;
+@class GCControllerButtonInput;
 
 /**
  Standard Gamepad profile.
@@ -158,18 +234,14 @@ NS_ASSUME_NONNULL_BEGIN
  A profile maps the hardware notion of a controller into a logical controller. One that a developer can design for
  and depend on, no matter the underlying hardware.
  */
-NS_CLASS_DEPRECATED(10_9, 10_12, 7_0, 10_0)
-GAMECONTROLLER_EXPORT
+
+API_DEPRECATED_WITH_REPLACEMENT("GCExtendedGamepad", macos(10.9, 10.12), ios(7.0, 10.0), tvos(7.0, 10.0))
 @interface GCGamepad : NSObject
 
 /**
  A profile keeps a reference to the controller that this profile is mapping input from.
  */
-#if !__has_feature(objc_arc)
-@property (nonatomic, readonly, assign) GCController *controller;
-#else
 @property (nonatomic, readonly, weak) GCController *controller;
-#endif
 
 /**
  Set this block if you want to be notified when a value on a element changed. If multiple elements have changed this block will be called
@@ -225,6 +297,81 @@ typedef void (^GCGamepadValueChangedHandler)(GCGamepad *gamepad, GCControllerEle
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  GameController.framework/Headers/GCRay.h
+//
+//  GCRay.h
+//  CoreController
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <simd/simd.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+GAMECONTROLLER_EXPORT
+@interface GCRay : NSObject
+
+- (id)initWithOrigin:(simd_float3)origin direction:(simd_float3)direction;
+
+@property (nonatomic, assign) simd_float3 origin;
+@property (nonatomic, assign) simd_float3 direction; // normalized direction vector
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  GameController.framework/Headers/GCEventViewController.h
+//
+//  GCEventViewController.h
+//  CoreController
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#if TARGET_OS_IPHONE
+#import <UIKit/UIViewController.h>
+#else
+#import <AppKit/NSViewController.h>
+#endif
+
+/**
+ A view controller subclass that allows fine grained control of the user interface system's handling
+ of game controller events. Set an instance of this class as your root view controller if you intend
+ to use GCController APIs for handling game controllers.
+ */
+#if TARGET_OS_IPHONE
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
+@interface GCEventViewController : UIViewController
+#else
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
+@interface GCEventViewController : NSViewController
+#endif
+
+/**
+ Controllers can be used to control the general UIKit user interface and for many views that is
+ the default behavior. By using a controller event view controller you get fine grained control
+ over whether the controller events go trough the UIEvent & UIResponder chain, or if they are
+ decoupled from the UI and all incoming data is served via GCController.
+ 
+ Defaults to NO - suppressing UIEvents from game controllers and presenting them via the GCController
+ API whilst this controller's view or any of it's subviews are the first responders. If you are not
+ using any UIView components or UIEvents in your application you should leave this as NO and process
+ your game controller events via the normal GCController API.
+ 
+ If set to YES the controller input will start flowing through UIEvent and the UIResponder
+ chain will be used. This gives you fine grained control over the event handling of the
+ controlled view and its subviews. You should stop using GCController instances and the corresponding
+ profiles if you no longer need to read input from them.
+ 
+ Note that unlike UIView.userInteractionEnabled this only controls the flow of game controller events.
+ 
+ @see GCController
+ @see UIView.userInteractionEnabled
+ */
+@property (nonatomic, assign) BOOL controllerUserInteractionEnabled;
+
+@end
 // ==========  GameController.framework/Headers/GCExtendedGamepad.h
 //
 //  GCExtendedGamepad.h
@@ -233,12 +380,16 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2012 Apple Inc. All rights reserved.
 //
 
-#import <GameController/GameController.h>
+#import <Foundation/Foundation.h>
+#import <GameController/GCExtern.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class GCController;
 @class GCExtendedGamepadSnapshot;
+@class GCControllerDirectionPad;
+@class GCControllerElement;
+@class GCControllerButtonInput;
 
 /**
  Extended Gamepad profile. Has all the physical features of a Standard Gamepad and more.
@@ -282,7 +433,7 @@ typedef void (^GCExtendedGamepadValueChangedHandler)(GCExtendedGamepad *gamepad,
  If your application is heavily multithreaded this may also be useful to guarantee atomicity of input handling as
  a snapshot will not change based on user input once it is taken.
  */
-- (GCExtendedGamepadSnapshot *)saveSnapshot;
+- (GCExtendedGamepadSnapshot *)saveSnapshot API_DEPRECATED("GCExtendedGamepadSnapshot has been deprecated, use [GCController capture] instead", macos(10.9, 10.15), ios(7.0, 13.0), tvos(7.0, 13.0));
 
 /**
  Required to be analog in the Extended profile. All the elements of this directional input are thus analog.
@@ -304,6 +455,16 @@ typedef void (^GCExtendedGamepadValueChangedHandler)(GCExtendedGamepad *gamepad,
 @property (nonatomic, readonly) GCControllerButtonInput *buttonB;
 @property (nonatomic, readonly) GCControllerButtonInput *buttonX;
 @property (nonatomic, readonly) GCControllerButtonInput *buttonY;
+
+/**
+ Button menu is the primary menu button, and should be used to enter the main menu and pause the game.
+ */
+@property (nonatomic, readonly) GCControllerButtonInput *buttonMenu API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+/**
+ Button options is the secondary menu button. It should be used to enter a secondary menu, such as graphics and sound configuration, and pause the game.
+ */
+@property (nonatomic, readonly, nullable) GCControllerButtonInput *buttonOptions API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
 
 /**
  A thumbstick is a 2-axis control that is physically required to be analog. All the elements of this directional input are thus analog.
@@ -330,6 +491,20 @@ typedef void (^GCExtendedGamepadValueChangedHandler)(GCExtendedGamepad *gamepad,
 @property (nonatomic, readonly) GCControllerButtonInput *leftTrigger;
 @property (nonatomic, readonly) GCControllerButtonInput *rightTrigger;
 
+/**
+ A thumbstick may also have a clickable component, which is treated as a non-analog button.
+ */
+@property (nonatomic, readonly, nullable) GCControllerButtonInput *leftThumbstickButton API_AVAILABLE(macos(10.14.1), ios(12.1), tvos(12.1));
+@property (nonatomic, readonly, nullable) GCControllerButtonInput *rightThumbstickButton API_AVAILABLE(macos(10.14.1), ios(12.1), tvos(12.1));
+
+/**
+ Sets the state vector of the extended gamepad to a copy of the input extended gamepad's state vector.
+ 
+ @note If the controller's snapshot flag is set to NO, this method has no effect.
+ @see GCController.snapshot
+ */
+- (void) setStateFromExtendedGamepad:(GCExtendedGamepad *)extendedGamepad API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -347,7 +522,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  A GCGamepadSnapshot snapshot is a concrete GCGamepad implementation. It can be used directly in an
- application to implement controller input replays. It is also returned as the result of polling
+ application to implement controller input replays. It is also returned as the result API_DEPRECATED("GCGamepad has been deprecated, use GCExtendedGamepad instead", macos(10.9, 10.15), ios(7.0, 13.0), tvos(7.0, 13.0))of polling
  a controller.
  
  The current snapshotData is readily available to access as NSData. A developer can serialize this to any
@@ -357,7 +532,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @see -[GCGamepad saveSnapshot]
  */
-GAMECONTROLLER_EXPORT
+API_DEPRECATED("GCGamepad has been deprecated, use GCExtendedGamepad instead", macos(10.9, 10.15), ios(7.0, 13.0), tvos(7.0, 13.0))
 @interface GCGamepadSnapshot : GCGamepad
 @property (atomic, copy) NSData *snapshotData;
 
@@ -385,23 +560,21 @@ typedef struct {
     float leftShoulder;
     float rightShoulder;
     
-} GCGamepadSnapShotDataV100;
+} GCGamepadSnapShotDataV100 API_DEPRECATED("GCGamepad has been deprecated, use GCExtendedGamepad instead", macos(10.9, 10.15), ios(7.0, 13.0), tvos(7.0, 13.0));
 #pragma pack(pop)
 
 /**Fills out a v100 snapshot from any compatible NSData source
  
  @return NO if data is nil, snapshotData is nil or the contents of data does not contain a compatible snapshot. YES for all other cases.
  */
-GAMECONTROLLER_EXPORT
-BOOL GCGamepadSnapShotDataV100FromNSData(GCGamepadSnapShotDataV100 *__nullable snapshotData, NSData *__nullable data);
+BOOL GCGamepadSnapShotDataV100FromNSData(GCGamepadSnapShotDataV100 *__nullable snapshotData, NSData *__nullable data) API_DEPRECATED("GCGamepad has been deprecated, use GCExtendedGamepad instead", macos(10.9, 10.15), ios(7.0, 13.0), tvos(7.0, 13.0));
 
 /**Creates an NSData object from a v100 snapshot.
  If the version and size is not set in the snapshot the data will automatically have version 0x100 and sizeof(GCGamepadSnapShotDataV100) set as the values implicitly.
  
  @return nil if the snapshot is NULL, otherwise an NSData instance compatible with GCGamepadSnapshot.snapshotData
  */
-GAMECONTROLLER_EXPORT
-NSData *__nullable NSDataFromGCGamepadSnapShotDataV100(GCGamepadSnapShotDataV100 *__nullable snapshotData);
+NSData *__nullable NSDataFromGCGamepadSnapShotDataV100(GCGamepadSnapShotDataV100 *__nullable snapshotData) API_DEPRECATED("GCGamepad has been deprecated, use GCExtendedGamepad instead", macos(10.9, 10.15), ios(7.0, 13.0), tvos(7.0, 13.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  GameController.framework/Headers/GCControllerAxisInput.h
@@ -412,12 +585,13 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2012 Apple Inc. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 #import <GameController/GameController.h>
-#import <GameController/GameControllerExtern.h>
+#import <GameController/GCExtern.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-GAMECONTROLLER_EXPORT
 @interface GCControllerAxisInput : GCControllerElement
 
 /**
@@ -439,6 +613,15 @@ typedef void (^GCControllerAxisValueChangedHandler)(GCControllerAxisInput *axis,
  */
 @property (nonatomic, readonly) float value;
 
+/**
+ Sets the normalized value for the input.
+ 
+ @param value the value to set the input to.
+ @note If the controller's snapshot flag is set to NO, this method has no effect.
+ @see value
+ */
+- (void)setValue:(float)value;
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -451,9 +634,12 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2012 Apple Inc. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 #import <GameController/GameController.h>
 
 @class GCControllerAxisInput;
+@class GCControllerButtonInput;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -483,12 +669,23 @@ typedef void (^GCControllerDirectionPadValueChangedHandler)(GCControllerDirectio
 @property (nonatomic, readonly) GCControllerButtonInput *left;
 @property (nonatomic, readonly) GCControllerButtonInput *right;
 
+/**
+ Sets the normalized value for the direction pad's axis inputs. Will update the states of the direction pad's button inputs as well.
+ 
+ @param xAxis the value to set the xAxis of the touchpad to.
+ @param yAxis the value to set the yAxis of the touchpad to.
+ @note If the controller's snapshot flag is set to NO, this method has no effect.
+ @see value
+ @see pressed
+ */
+- (void)setValueForXAxis:(float)xAxis yAxis:(float)yAxis;
+
 @end
 
 NS_ASSUME_NONNULL_END
-// ==========  GameController.framework/Headers/GameControllerExtern.h
+// ==========  GameController.framework/Headers/GCExtern.h
 //
-//  GameControllerExtern.h
+//  GCExtern.h
 //  GameController
 //
 //  Copyright (c) 2017 Apple Inc. All rights reserved.
@@ -500,8 +697,7 @@ NS_ASSUME_NONNULL_END
 #define GAMECONTROLLER_EXTERN	        extern __attribute__((visibility ("default")))
 #endif
 
-#define GAMECONTROLLER_EXPORT NS_CLASS_AVAILABLE(10_9, 7_0)
-
+#define GAMECONTROLLER_EXPORT API_AVAILABLE(macos(10.9), ios(7.0), tvos(7.0))
 // ==========  GameController.framework/Headers/GCMicroGamepadSnapshot.h
 //
 //  GCMicroGamepadSnapshot.h
@@ -526,7 +722,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @see -[GCMicroGamepad saveSnapshot]
  */
-GAMECONTROLLER_EXPORT
+API_DEPRECATED("GCMicroGamepadSnapshot has been deprecated, use [GCController controllerWithMicroGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0))
 @interface GCMicroGamepadSnapshot : GCMicroGamepad
 @property (atomic, copy) NSData *snapshotData;
 
@@ -534,6 +730,48 @@ GAMECONTROLLER_EXPORT
 - (instancetype)initWithController:(GCController *)controller snapshotData:(NSData *)data;
 
 @end
+
+typedef NS_ENUM(NSInteger, GCMicroGamepadSnapshotDataVersion) {
+    GCMicroGamepadSnapshotDataVersion1 = 0x0100
+} API_DEPRECATED("GCMicroGamepadSnapshot has been deprecated, use [GCController controllerWithMicroGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
+
+extern const GCMicroGamepadSnapshotDataVersion GCCurrentMicroGamepadSnapshotDataVersion API_DEPRECATED("GCMicroGamepadSnapshot has been deprecated, use [GCController controllerWithMicroGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
+
+#pragma pack(push, 1)
+typedef struct {
+    
+#pragma mark - GCMicroGamepadSnapshotDataVersion1+
+    uint16_t version;
+    uint16_t size;
+    
+    // Standard gamepad data
+    // Axes in the range [-1.0, 1.0]
+    float dpadX;
+    float dpadY;
+    
+    // Buttons in the range [0.0, 1.0]
+    float buttonA;
+    float buttonX;
+    
+} GCMicroGamepadSnapshotData API_DEPRECATED("GCMicroGamepadSnapshot has been deprecated, use [GCController controllerWithMicroGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
+#pragma pack(pop)
+
+/**Fills out a snapshot from any compatible NSData source
+ 
+ @return NO if data is nil, snapshotData is nil or the contents of data does not contain a compatible snapshot. YES for all other cases.
+ */
+BOOL GCMicroGamepadSnapshotDataFromNSData(GCMicroGamepadSnapshotData *__nullable snapshotData, NSData *__nullable data) API_DEPRECATED("GCMicroGamepadSnapshot has been deprecated, use [GCController controllerWithMicroGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
+
+/**Creates an NSData object from a snapshot.
+ If the version and size is not set in the snapshot the data will automatically have version GCCurrentMicroGamepadSnapshotDataVersion and sizeof(GCMicroGamepadSnapshotData) set as the values implicitly.
+ 
+ @return nil if the snapshot is NULL, otherwise an NSData instance compatible with GCGamepadSnapshot.snapshotData
+ */
+NSData *__nullable NSDataFromGCMicroGamepadSnapshotData(GCMicroGamepadSnapshotData *__nullable snapshotData) API_DEPRECATED("GCMicroGamepadSnapshot has been deprecated, use [GCController controllerWithMicroGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
+
+
+
+#pragma mark - Deprecated Versioning System
 
 #pragma pack(push, 1)
 typedef struct {
@@ -550,23 +788,21 @@ typedef struct {
     float buttonA;
     float buttonX;
     
-} GCMicroGamepadSnapShotDataV100;
+} GCMicroGamepadSnapShotDataV100 API_DEPRECATED("GCMicroGamepadSnapshot has been deprecated, use [GCController controllerWithMicroGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
 #pragma pack(pop)
 
 /**Fills out a v100 snapshot from any compatible NSData source
  
  @return NO if data is nil, snapshotData is nil or the contents of data does not contain a compatible snapshot. YES for all other cases.
  */
-GAMECONTROLLER_EXPORT
-BOOL GCMicroGamepadSnapShotDataV100FromNSData(GCMicroGamepadSnapShotDataV100 *__nullable snapshotData, NSData *__nullable data);
+BOOL GCMicroGamepadSnapShotDataV100FromNSData(GCMicroGamepadSnapShotDataV100 *__nullable snapshotData, NSData *__nullable data) API_DEPRECATED("GCMicroGamepadSnapshot has been deprecated, use [GCController controllerWithMicroGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
 
 /**Creates an NSData object from a v100 snapshot.
  If the version and size is not set in the snapshot the data will automatically have version 0x100 and sizeof(GCMicroGamepadSnapShotDataV100) set as the values implicitly.
  
  @return nil if the snapshot is NULL, otherwise an NSData instance compatible with GCGamepadSnapshot.snapshotData
  */
-GAMECONTROLLER_EXPORT
-NSData *__nullable NSDataFromGCMicroGamepadSnapShotDataV100(GCMicroGamepadSnapShotDataV100 *__nullable snapshotData);
+NSData *__nullable NSDataFromGCMicroGamepadSnapShotDataV100(GCMicroGamepadSnapShotDataV100 *__nullable snapshotData) API_DEPRECATED("GCMicroGamepadSnapshot has been deprecated, use [GCController controllerWithMicroGamepad] instead", macos(10.11, 10.15), ios(9.0, 13.0), tvos(9.0, 13.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  GameController.framework/Headers/GameController.h
@@ -578,15 +814,17 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIViewController.h>
 #else
 #import <AppKit/NSViewController.h>
 #endif
 
-#import <GameController/GameControllerExtern.h>
-#import <GameController/GCControllerElement.h>
+#import <GameController/GCExtern.h>
+#import <GameController/GCRay.h>
 
+#import <GameController/GCControllerElement.h>
 #import <GameController/GCControllerAxisInput.h>
 #import <GameController/GCControllerButtonInput.h>
 #import <GameController/GCControllerDirectionPad.h>
@@ -602,7 +840,9 @@ NS_ASSUME_NONNULL_END
 #import <GameController/GCMicroGamepad.h>
 #import <GameController/GCMicroGamepadSnapshot.h>
 
+
 #import <GameController/GCController.h>
+#import <GameController/GCEventViewController.h>
 // ==========  GameController.framework/Headers/GCController.h
 //
 //  GCController.h
@@ -611,8 +851,11 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2012 Apple Inc. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
 #import <GameController/GameController.h>
-#import <GameController/GameControllerExtern.h>
+#import <GameController/GCExtern.h>
+
+@class GCMotion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -640,44 +883,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 GAMECONTROLLER_EXTERN NSString *const GCControllerDidConnectNotification;
 GAMECONTROLLER_EXTERN NSString *const GCControllerDidDisconnectNotification;
-
-/**
- A view controller subclass that allows fine grained control of the user interface system's handling
- of game controller events. Set an instance of this class as your root view controller if you intend
- to use GCController APIs for handling game controllers.
- */
-#if TARGET_OS_IPHONE || TARGET_OS_TV
-NS_CLASS_AVAILABLE(10_11, 9_0)
-@interface GCEventViewController : UIViewController
-#else
-NS_CLASS_AVAILABLE(10_11, 9_0)
-@interface GCEventViewController : NSViewController
-#endif
-
-/**
- Controllers can be used to control the general UIKit user interface and for many views that is
- the default behavior. By using a controller event view controller you get fine grained control
- over whether the controller events go trough the UIEvent & UIResponder chain, or if they are
- decoupled from the UI and all incoming data is served via GCController.
-
- Defaults to NO - suppressing UIEvents from game controllers and presenting them via the GCController
- API whilst this controller's view or any of it's subviews are the first responders. If you are not
- using any UIView components or UIEvents in your application you should leave this as NO and process
- your game controller events via the normal GCController API.
- 
- If set to YES the controller input will start flowing through UIEvent and the UIResponder
- chain will be used. This gives you fine grained control over the event handling of the
- controlled view and its subviews. You should stop using GCController instances and the corresponding
- profiles if you no longer need to read input from them.
- 
- Note that unlike UIView.userInteractionEnabled this only controls the flow of game controller events.
- 
- @see GCController
- @see UIView.userInteractionEnabled
- */
-@property (nonatomic, assign) BOOL controllerUserInteractionEnabled;
-
-@end
 
 /**
  This is the player index that a connected controller will have if it has never been assigned a player index on the current system.
@@ -712,10 +917,14 @@ GAMECONTROLLER_EXPORT
  notify the application using this block such that the application can handle the suspension and resumption from the given controller.
  
  Use this to implement your canonical transition to a pause menu for example if that is your application's desired handling
- of suspension in play. You may pause and resume base don game state as well so the event is only called each time the
+ of suspension in play. You may pause and resume based on game state as well so the event is only called each time the
  pause/resume button is pressed.
+ 
+ @note This handler has been deprecated in favor of the Menu button found on GCMicroGamepad and GCExtendedGamepad.
+ @see microGamepad
+ @see extendedGamepad
  */
-@property (nonatomic, copy, nullable) void (^controllerPausedHandler)(GCController *controller);
+@property (nonatomic, copy, nullable) void (^controllerPausedHandler)(GCController *controller) API_DEPRECATED("controllerPausedHandler has been deprecated. Use the Menu button found on the controller's profile, if it exists.", macos(10.9, 10.15), ios(7.0, 13.0), tvos(9.0, 13.0));
 
 /**
  The dispatch queue that element value change handlers are submitted on. The default queue is main, and setting this to any
@@ -729,9 +938,9 @@ GAMECONTROLLER_EXPORT
  @see GCMotion.valueChangedHandler
  */
 #if defined(OS_OBJECT_USE_OBJC) && OS_OBJECT_USE_OBJC==1
-@property (retain) dispatch_queue_t handlerQueue;
+@property (nonatomic, retain) dispatch_queue_t handlerQueue;
 #else
-@property (assign) dispatch_queue_t handlerQueue;
+@property (nonatomic, assign) dispatch_queue_t handlerQueue;
 #endif
 
 /**
@@ -741,11 +950,27 @@ GAMECONTROLLER_EXPORT
 @property (nonatomic, readonly, copy, nullable) NSString *vendorName;
 
 /**
+ The product category the controller belongs to. This is useful for setting appropriate UI elements based on what type of controller is connected.
+ */
+@property (nonatomic, readonly) NSString * productCategory API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+/**
  A controller may be form fitting or otherwise closely attached to the device. This closeness to other inputs on the device
  may suggest that interaction with the device may use other inputs easily. This is presented to developers to allow them to
- make informed descisions about UI and interactions to choose for their game in this situation.
+ make informed decisions about UI and interactions to choose for their game in this situation.
  */
 @property (nonatomic, readonly, getter = isAttachedToDevice) BOOL attachedToDevice;
+
+/**
+ A controller may represent a real device managed by the operating system, or a virtual snapshot created by the developer.
+ If a controller is directly created by the developer, it is considered to be a snapshot, allowing direct writes to any
+ GCControllerElement of its profiles. If the controller is not snapshot, the system will reject any write requests to GCControllerElement.
+ 
+ @see controllerWithMicroGamepad
+ @see controllerWithExtendedGamepad
+ @see capture
+ */
+@property (atomic, readonly, getter = isSnapshot) BOOL snapshot API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
 
 /**
  A player index for the controller, defaults to GCControllerPlayerIndexUnset.
@@ -763,7 +988,7 @@ GAMECONTROLLER_EXPORT
 /**
  Gets the profile for the controller that suits current application.
  
- There are two supported profiles, with an additional optional profile for motion as well. 
+ There are several supported profiles, with an additional optional profile for motion as well.
  Each controller may be able to map its inputs into all profiles or just one kind of profile. Query for the controller
  profile that suits your game, the simplest kind will be supported by the broadest variety
  of controllers. A controller supporting the Extended Gamepad profile for example supports the Gamepad profile and more.
@@ -776,7 +1001,7 @@ GAMECONTROLLER_EXPORT
  application requires a specific kind of profile.
  @see motion
  */
-@property (nonatomic, retain, readonly, nullable) GCGamepad *gamepad;
+@property (nonatomic, retain, readonly, nullable) GCGamepad *gamepad API_DEPRECATED_WITH_REPLACEMENT("-extendedGamepad", macos(10.9, 10.12), ios(7.0, 10.0), tvos(7.0, 10.0));
 @property (nonatomic, retain, readonly, nullable) GCMicroGamepad *microGamepad;
 @property (nonatomic, retain, readonly, nullable) GCExtendedGamepad *extendedGamepad;
 
@@ -786,7 +1011,18 @@ GAMECONTROLLER_EXPORT
  @see gamepad
  @see extendedGamepad
  */
-@property (nonatomic, retain, readonly, nullable) GCMotion *motion NS_AVAILABLE(10_10, 8_0);
+@property (nonatomic, retain, readonly, nullable) GCMotion *motion API_AVAILABLE(macos(10.10), ios(8.0), tvos(8.0));
+
+/**
+ Polls the state vector of the controller and saves it to a new and writable instance of GCController.
+ 
+ If your application is heavily multithreaded this may also be useful to guarantee atomicity of input handling as
+ a snapshot will not change based on user input once it is taken.
+ 
+ @see snapshot
+ @return A new controller with the duplicated state vector of the current controller
+ */
+- (GCController *) capture API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
 
 /**
  Get a list of controllers currently attached to the system.
@@ -832,6 +1068,27 @@ GAMECONTROLLER_EXPORT
  */
 + (void)stopWirelessControllerDiscovery;
 
+/**
+ Creates a controller with a micro gamepad profile.
+ 
+ This controller will be considered a snapshot, allowing developers to write to any GCControllerElement of its profiles.
+ 
+ @see snapshot
+ @return A new controller with a micro gamepad profile
+ */
++ (GCController *) controllerWithMicroGamepad API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+/**
+ Creates a controller with an extended gamepad profile.
+ 
+ This controller will be considered a snapshot, allowing developers to write to any GCControllerElement of its profiles.
+ 
+ @see snapshot
+ @return A new controller with an extended gamepad profile
+ */
++ (GCController *) controllerWithExtendedGamepad API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -851,18 +1108,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Every controller element knows which collection it belongs to and whether its input value is analog or digital.
  */
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), tvos(7.0))
 @interface GCControllerElement : NSObject
 
 /**
  Each element can be part of a wider collection of inputs that map to a single logical element. A directional pad (dpad)
  is a logical collection of two axis inputs and thus each axis belongs to the same collection element - the dpad.
  */
-#if !__has_feature(objc_arc)
-@property (nonatomic, assign, readonly) GCControllerElement *collection;
-#else
 @property (nonatomic, weak, readonly, nullable) GCControllerElement *collection;
-#endif
 
 /**
  Check if the element can support more than just digital values, such as decimal ranges between 0 and 1.
@@ -881,7 +1134,7 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2012 Apple Inc. All rights reserved.
 //
 
-#import <GameController/GameController.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -970,7 +1223,7 @@ typedef struct GCQuaternion {
  
  @see GCController.motion
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), tvos(8.0))
 @interface GCMotion : NSObject
 
 /**
@@ -1011,7 +1264,7 @@ typedef void (^GCMotionValueChangedHandler)(GCMotion *motion);
 /**
  The controller generating the motion data has sensors that can accurately determine the current attitude and rotation rate. If this is enabled the motion data for attitude and rotation rate are usable for inputs.
  */
-@property (nonatomic, assign, readonly) BOOL hasAttitudeAndRotationRate __TVOS_AVAILABLE(11.0);
+@property (nonatomic, assign, readonly) BOOL hasAttitudeAndRotationRate API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
 /**
  The current attitude of the controller.
@@ -1020,7 +1273,7 @@ typedef void (^GCMotionValueChangedHandler)(GCMotion *motion);
  @see hasAttitudeAndRotationRate
  @see GCMicroGamepad
  */
-@property (nonatomic, assign, readonly) GCQuaternion attitude __TVOS_AVAILABLE(11.0);
+@property (nonatomic, assign, readonly) GCQuaternion attitude API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
 
 /**
  The current rotation rate of the controller.
@@ -1029,7 +1282,47 @@ typedef void (^GCMotionValueChangedHandler)(GCMotion *motion);
  @see hasAttitudeAndRotationRate
  @see GCMicroGamepad
  */
-@property (nonatomic, assign, readonly) GCRotationRate rotationRate __TVOS_AVAILABLE(11.0);
+@property (nonatomic, assign, readonly) GCRotationRate rotationRate API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0));
+
+/**
+ Sets the gravity vector expressed in the controller's reference frame.
+ 
+ @note If the controller's snapshot flag is set to NO, this method has no effect.
+ @see gravity
+ */
+- (void)setGravity:(GCAcceleration)gravity API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+/**
+ Sets the acceleration that the user is giving to the controller.
+ 
+ @note If the controller's snapshot flag is set to NO, this method has no effect.
+ @see userAcceleration
+ */
+- (void)setUserAcceleration:(GCAcceleration)userAcceleration API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+/**
+ Sets the current rotation rate of the controller.
+ 
+ @note If the controller's snapshot flag is set to NO, this method has no effect.
+ @see attitude
+ */
+- (void)setAttitude:(GCQuaternion)attitude API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+/**
+ Sets the current rotation rate of the controller.
+ 
+ @note If the controller's snapshot flag is set to NO, this method has no effect.
+ @see rotationRate
+ */
+- (void)setRotationRate:(GCRotationRate)rotationRate API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+/**
+ Sets the state vector of the motion profile to a copy of the input motion profile's state vector.
+ 
+ @note If the controller's snapshot flag is set to NO, this method has no effect.
+ @see GCController.snapshot
+ */
+- (void) setStateFromMotion:(GCMotion *)motion API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
 
 @end
 
@@ -1042,12 +1335,16 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2014 Apple Inc. All rights reserved.
 //
 
-#import <GameController/GameController.h>
+#import <Foundation/Foundation.h>
+#import <GameController/GCExtern.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class GCController;
 @class GCMicroGamepadSnapshot;
+@class GCControllerDirectionPad;
+@class GCControllerElement;
+@class GCControllerButtonInput;
 
 /**
  Micro Gamepad profile.
@@ -1057,7 +1354,7 @@ NS_ASSUME_NONNULL_BEGIN
  A profile maps the hardware notion of a controller into a logical controller. One that a developer can design for
  and depend on, no matter the underlying hardware.
  */
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0))
 @interface GCMicroGamepad : NSObject
 
 /**
@@ -1090,7 +1387,7 @@ typedef void (^GCMicroGamepadValueChangedHandler)(GCMicroGamepad *gamepad, GCCon
  
  @see GCMicroGamepadSnapshot
  */
-- (GCMicroGamepadSnapshot *)saveSnapshot;
+- (GCMicroGamepadSnapshot *)saveSnapshot API_DEPRECATED("GCMicroGamepadSnapshot has been deprecated, use [GCController capture] instead", macos(10.9, 10.15), ios(7.0, 13.0), tvos(7.0, 13.0));
 
 /**
  Optionally analog in the Micro profile. All the elements of this directional input are either analog or digital.
@@ -1108,12 +1405,16 @@ typedef void (^GCMicroGamepadValueChangedHandler)(GCMicroGamepad *gamepad, GCCon
  Button X is the secondary action button, it indicates an alternate affirmative action and should be used to perform
  a secondary action. If there is no secondary action it should be used as equivalent to buttonA.
  
- Unlike on other profiles there is no negative button on this profile. Instead the GCController's pause handler should be
+ Unlike on other profiles there is no negative button on this profile. Instead the menu button should be
  used to present menu content or to retreat in a menu flow.
  @see buttonA
- @see GCController.controllerPausedHandler
  */
 @property (nonatomic, readonly, retain) GCControllerButtonInput *buttonX;
+
+/**
+ Button menu is the primary menu button, and should be used to enter the main menu and pause the game.
+ */
+@property (nonatomic, readonly) GCControllerButtonInput *buttonMenu API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
 
 /**
  The Micro profile can use the raw position values of the touchpad on the remote as D-pad values, or it can create a virtual dpad centered around the first contact point with the surface.
@@ -1122,7 +1423,7 @@ typedef void (^GCMicroGamepadValueChangedHandler)(GCMicroGamepad *gamepad, GCCon
  
  If YES; the absolute values are used and any drift will have to managed manually either through user traning or by a developer using the dpad.
  
- The default value for this property is NO, meaing a sliding window is used for the dpad.
+ The default value for this property is NO, meaning a sliding window is used for the dpad.
  */
 @property (nonatomic, assign) BOOL reportsAbsoluteDpadValues;
 
@@ -1133,6 +1434,13 @@ typedef void (^GCMicroGamepadValueChangedHandler)(GCMicroGamepad *gamepad, GCCon
  */
 @property (nonatomic, assign) BOOL allowsRotation;
 
+/**
+ Sets the state vector of the micro gamepad to a copy of the input micro gamepad's state vector.
+ 
+ @note If the controller's snapshot flag is set to NO, this method has no effect.
+ @see GCController.snapshot
+ */
+- (void) setStateFromMicroGamepad:(GCMicroGamepad *)microGamepad API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
 
 @end
 

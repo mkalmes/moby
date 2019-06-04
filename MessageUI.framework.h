@@ -29,17 +29,17 @@ typedef NS_ENUM(NSInteger, MessageComposeResult) {
     MessageComposeResultCancelled,
     MessageComposeResultSent,
     MessageComposeResultFailed
-} API_AVAILABLE(ios(4.0)) ;
+} API_AVAILABLE(ios(4.0));
 
 /*!
  @constant  MFMessageComposeViewControllerAttachmentURL   The url for the given attachment.
 */
-extern NSString *const MFMessageComposeViewControllerAttachmentURL ;
+extern NSString *const MFMessageComposeViewControllerAttachmentURL;
 
 /*!
  @constant  MFMessageComposeViewControllerAttachmentAlternateFilename   The alternate filename for the given attachment.
  */
-extern NSString *const MFMessageComposeViewControllerAttachmentAlternateFilename ;
+extern NSString *const MFMessageComposeViewControllerAttachmentAlternateFilename;
 
 /*!
  @const      MFMessageComposeViewControllerTextMessageAvailabilityDidChangeNotification
@@ -47,7 +47,7 @@ extern NSString *const MFMessageComposeViewControllerAttachmentAlternateFilename
  @discussion This notification is posted when the value of <tt>+[MFMessageComposeViewController canSendText]</tt>
              has changed. Clients should invalidate any caches and update UI as appropriate.
 */
-extern NSString *const MFMessageComposeViewControllerTextMessageAvailabilityDidChangeNotification API_AVAILABLE(ios(5.0)) ;
+extern NSString *const MFMessageComposeViewControllerTextMessageAvailabilityDidChangeNotification API_AVAILABLE(ios(5.0));
 
 /*!
  @const      MFMessageComposeViewControllerTextMessageAvailabilityKey
@@ -56,7 +56,7 @@ extern NSString *const MFMessageComposeViewControllerTextMessageAvailabilityDidC
  @discussion The value of this key is an NSNumber containing a BOOL value. This value matches
              the result of <tt>+[MFMessageComposeViewController canSendText]</tt>.
 */
-extern NSString *const MFMessageComposeViewControllerTextMessageAvailabilityKey API_AVAILABLE(ios(5.0)) ;
+extern NSString *const MFMessageComposeViewControllerTextMessageAvailabilityKey API_AVAILABLE(ios(5.0));
 
 @class MSMessage;
 @protocol MFMessageComposeViewControllerDelegate;
@@ -72,7 +72,7 @@ extern NSString *const MFMessageComposeViewControllerTextMessageAvailabilityKey 
 			  <p>Prior to use, clients should verify the user has set up the device for sending messages via
 			  <tt>+[MFMessageComposeViewController canSendText]</tt>.
  */
-API_AVAILABLE(ios(4.0)) 
+API_AVAILABLE(ios(4.0))
 @interface MFMessageComposeViewController : UINavigationController {
 }
 
@@ -200,7 +200,7 @@ API_AVAILABLE(ios(4.0))
  @param      controller   The MFMessageComposeViewController instance which is returning the result.
  @param      result       MessageComposeResult indicating how the user chose to complete the composition process.
  */
-- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result ;
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result;
 
 @end
 
@@ -237,7 +237,7 @@ typedef NS_ENUM(NSInteger, MFMailComposeResult) {
     MFMailComposeResultSaved,
     MFMailComposeResultSent,
     MFMailComposeResultFailed
-} API_AVAILABLE(ios(3.0)) ;
+} API_AVAILABLE(ios(3.0));
 
 /*!
     @const      MFMailComposeErrorDomain
@@ -246,7 +246,7 @@ typedef NS_ENUM(NSInteger, MFMailComposeResult) {
                 MFMailCompose API.  Valid error code values are declared in the <tt>MFMailComposeErrorCode</tt>
                 space.
 */
-extern NSErrorDomain const MFMailComposeErrorDomain API_AVAILABLE(ios(3.0)) ;
+extern NSErrorDomain const MFMailComposeErrorDomain API_AVAILABLE(ios(3.0));
 
 /*!
     @enum       MFMailComposeErrorCode
@@ -260,7 +260,7 @@ extern NSErrorDomain const MFMailComposeErrorDomain API_AVAILABLE(ios(3.0)) ;
 typedef NS_ENUM(NSInteger, MFMailComposeErrorCode) {
     MFMailComposeErrorCodeSaveFailed,
     MFMailComposeErrorCodeSendFailed
-} API_AVAILABLE(ios(3.0)) ;
+} API_AVAILABLE(ios(3.0));
 
 @protocol MFMailComposeViewControllerDelegate;
 
@@ -273,7 +273,7 @@ typedef NS_ENUM(NSInteger, MFMailComposeErrorCode) {
                  of the user's composition completion and how they chose to complete the operation.<p>Prior to use, clients
                  should verify the user has set up the device for sending email via <tt>+[MFMailComposeViewController canSendMail]</tt>.
 */
-API_AVAILABLE(ios(3.0)) 
+API_AVAILABLE(ios(3.0))
 @interface MFMailComposeViewController : UINavigationController
 {
 @private
@@ -293,7 +293,7 @@ API_AVAILABLE(ios(3.0))
     @property   mailComposeDelegate
     @abstract   This property is the delegate for the MFMailComposeViewControllerDelegate method callbacks.
  */
-@property (nonatomic, nullable, assign) id<MFMailComposeViewControllerDelegate> mailComposeDelegate;
+@property (nonatomic, nullable, weak) id<MFMailComposeViewControllerDelegate> mailComposeDelegate;
 
 /*!
     @method     setSubject:
@@ -390,7 +390,7 @@ API_AVAILABLE(ios(3.0))
     @param      error        NSError indicating the failure reason if failure did occur.  This will be <tt>nil</tt> if
                              result did not indicate failure.
 */
-- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(nullable NSError *)error ;
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(nullable NSError *)error;
 
 @end
 

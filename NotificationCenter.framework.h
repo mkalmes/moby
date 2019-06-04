@@ -89,7 +89,7 @@ typedef NS_ENUM(NSUInteger, NCUpdateResult) {
     NCUpdateResultNewData,
     NCUpdateResultNoData,
     NCUpdateResultFailed
-} NS_ENUM_AVAILABLE_IOS(8_0);
+} __API_AVAILABLE(ios(8.0));
 
 // 'NCWidgetProviding' is an optional protocol for further customizing aspects of the provided content. 
 
@@ -108,18 +108,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 // If implemented, called when the active display mode changes.
 // The widget may wish to change its preferredContentSize to better accommodate the new display mode.
-- (void)widgetActiveDisplayModeDidChange:(NCWidgetDisplayMode)activeDisplayMode withMaximumSize:(CGSize)maxSize NS_AVAILABLE_IOS(10_0);
+- (void)widgetActiveDisplayModeDidChange:(NCWidgetDisplayMode)activeDisplayMode withMaximumSize:(CGSize)maxSize __API_AVAILABLE(ios(10.0));
 
 // Widgets wishing to customize the default margin insets can return their preferred values.
 // Widgets that choose not to implement this method will receive the default margin insets.
-- (UIEdgeInsets)widgetMarginInsetsForProposedMarginInsets:(UIEdgeInsets)defaultMarginInsets NS_DEPRECATED_IOS(8_0, 10_0, "This method will not be called on widgets linked against iOS versions 10.0 and later.");
-
-@end
-
-@interface UIVibrancyEffect (NCWidgetAdditions)
-
-+ (UIVibrancyEffect *)widgetPrimaryVibrancyEffect NS_AVAILABLE_IOS(10_0); // For use with select supporting text and glyphs.
-+ (UIVibrancyEffect *)widgetSecondaryVibrancyEffect NS_AVAILABLE_IOS(10_0); // For use with select supporting text and glyphs where further diminution is required.
+- (UIEdgeInsets)widgetMarginInsetsForProposedMarginInsets:(UIEdgeInsets)defaultMarginInsets __API_DEPRECATED("This method will not be called on widgets linked against iOS versions 10.0 and later.", ios(8.0, 10.0));
 
 @end
 
@@ -127,16 +120,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Widgets can change the largest display mode they make available from the default 'NCWidgetDisplayModeCompact' by messaging the extension context.
 // Modifying this property more than once during the lifetime of the widget (perhaps due to changes in the amount of available content) is supported.
-@property (nonatomic, assign) NCWidgetDisplayMode widgetLargestAvailableDisplayMode NS_AVAILABLE_IOS(10_0);
-@property (nonatomic, assign, readonly) NCWidgetDisplayMode widgetActiveDisplayMode NS_AVAILABLE_IOS(10_0);
+@property (nonatomic, assign) NCWidgetDisplayMode widgetLargestAvailableDisplayMode __API_AVAILABLE(ios(10.0));
+@property (nonatomic, assign, readonly) NCWidgetDisplayMode widgetActiveDisplayMode __API_AVAILABLE(ios(10.0));
 
-- (CGSize)widgetMaximumSizeForDisplayMode:(NCWidgetDisplayMode)displayMode NS_AVAILABLE_IOS(10_0);
+- (CGSize)widgetMaximumSizeForDisplayMode:(NCWidgetDisplayMode)displayMode __API_AVAILABLE(ios(10.0));
+
+@end
+
+@interface UIVibrancyEffect (NCWidgetAdditions)
+
++ (UIVibrancyEffect *)widgetEffectForVibrancyStyle:(UIVibrancyEffectStyle)vibrancyStyle __API_AVAILABLE(ios(13.0));
 
 @end
 
 @interface UIVibrancyEffect (NCWidgetDeprecated)
 
-+ (UIVibrancyEffect *)notificationCenterVibrancyEffect NS_DEPRECATED_IOS(8_0, 10_0, "Please use '-[UIVibrancyEffect widgetPrimaryVibrancyEffect]' instead.");
++ (UIVibrancyEffect *)widgetPrimaryVibrancyEffect __API_DEPRECATED_WITH_REPLACEMENT("widgetEffectForVibrancyStyle:", ios(10.0, 13.0)); // For use with select supporting text and glyphs.
++ (UIVibrancyEffect *)widgetSecondaryVibrancyEffect __API_DEPRECATED_WITH_REPLACEMENT("widgetEffectForVibrancyStyle:", ios(10.0, 13.0)); // For use with select supporting text and glyphs where further diminution is required.
+
++ (UIVibrancyEffect *)notificationCenterVibrancyEffect __API_DEPRECATED_WITH_REPLACEMENT("widgetEffectForVibrancyStyle:", ios(8.0, 10.0));
 
 @end
 

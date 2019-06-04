@@ -657,9 +657,6 @@ VT_EXPORT const CFStringRef kVTDecompressionPropertyKey_UsingHardwareAccelerated
 	
 #pragma mark Decoder behavior
 
-// Standard properties regarding decoder behavior.
-// Video decoders may report optionally report these.
-	
 /*!
 	@constant	kVTDecompressionPropertyKey_RealTime
 	@abstract
@@ -1433,7 +1430,6 @@ VT_EXPORT const CFStringRef kVTPropertySupportedValueMaximumKey API_AVAILABLE(ma
 VT_EXPORT const CFStringRef kVTPropertySupportedValueListKey API_AVAILABLE(macosx(10.8), ios(8.0), tvos(10.2)); // CFArray of appropriate values
 VT_EXPORT const CFStringRef kVTPropertyDocumentationKey API_AVAILABLE(macosx(10.8), ios(8.0), tvos(10.2)); // a CFString for developer eyes only
 
-	
 CM_ASSUME_NONNULL_END
 
 /*!
@@ -1505,7 +1501,6 @@ VTSessionCopySerializableProperties(
   CM_NONNULL VTSessionRef					session,
   CM_NULLABLE CFAllocatorRef				allocator,
   CM_RETURNS_RETAINED_PARAMETER CM_NULLABLE CFDictionaryRef * CM_NONNULL	dictionaryOut ) API_AVAILABLE(macosx(10.8), ios(8.0), tvos(10.2));
-
 
 #pragma pack(pop)
     
@@ -1665,7 +1660,12 @@ VT_EXPORT const CFStringRef kVTVideoEncoderList_EncoderID API_AVAILABLE(macosx(1
 VT_EXPORT const CFStringRef kVTVideoEncoderList_CodecName API_AVAILABLE(macosx(10.8), ios(8.0), tvos(10.2)); // CFString, for display to user (eg, "H.264")
 VT_EXPORT const CFStringRef kVTVideoEncoderList_EncoderName API_AVAILABLE(macosx(10.8), ios(8.0), tvos(10.2)); // CFString, for display to user (eg, "Apple H.264")
 VT_EXPORT const CFStringRef kVTVideoEncoderList_DisplayName API_AVAILABLE(macosx(10.8), ios(8.0), tvos(10.2)); // CFString (same as CodecName if there is only one encoder for that format, otherwise same as EncoderName)
-
+VT_EXPORT const CFStringRef kVTVideoEncoderList_GPURegistryID API_AVAILABLE(macosx(10.14)); // optional. CFNumberRef.  If encoder is associated with a specific GPU, this corresponds to the GPU registryID as reported by [MTLDevice registryID].
+VT_EXPORT const CFStringRef kVTVideoEncoderList_SupportedSelectionProperties API_AVAILABLE(macosx(10.14), ios(13.0), tvos(13.0)); // optional. CFDictionary.  If present, represents a subset of supported properties that may be useful during encoder selection
+VT_EXPORT const CFStringRef kVTVideoEncoderList_PerformanceRating API_AVAILABLE(macosx(10.14), ios(13.0), tvos(13.0)); // optional. CFNumber.  If present, indicates a relative rating value for the encoder compared to other encoders of the same format.
+VT_EXPORT const CFStringRef kVTVideoEncoderList_QualityRating API_AVAILABLE(macosx(10.14), ios(13.0), tvos(13.0)); // optional. CFNumber.  If present, indicates a Quality Rating value for the encoder relative to other encoders of the same format.  This is a highly generalized value and different encoders may have strengths at different resolutions and bitrates.
+VT_EXPORT const CFStringRef kVTVideoEncoderList_InstanceLimit API_AVAILABLE(macosx(10.14), ios(13.0), tvos(13.0)); // optional. CFBoolean.  If present and set to kCFBooleanTrue, there is a global instance limit cap on this encoder.  Indicates that an encoder is a scarce resource which may potentially be unavailable.
+VT_EXPORT const CFStringRef kVTVideoEncoderList_IsHardwareAccelerated API_AVAILABLE(macosx(10.14), ios(13.0), tvos(13.0)); // optional. CFBoolean.  If present and set to kCFBooleanTrue, indicates that the encoder is hardware accelerated.
 CM_ASSUME_NONNULL_END
 
 /*!
@@ -1948,6 +1948,20 @@ VT_EXPORT const CFStringRef kVTCompressionPropertyKey_DataRateLimits API_AVAILAB
 VT_EXPORT const CFStringRef kVTCompressionPropertyKey_Quality API_AVAILABLE(macosx(10.8), ios(8.0), tvos(10.2)); // Read/write, CFNumber<Float>, Optional
 
 /*!
+	@constant	kVTCompressionPropertyKey_TargetQualityForAlpha
+	@abstract
+		The target quality to use for encoding the alpha channel.
+	@discussion
+		The desired compression level to use for encoding the alpha channel.
+		This value should be specified as a number in the range of 0.0 to 1.0.
+		0.0 is lowest quality and 1.0 implies nearly lossless.  Alpha plane
+		bit rates will tend to increase with increasing values.  When encoding
+		the alpha channel, quality is given priority over bitrate.  Note this
+		parameter is currently only applicable to HEVC with Alpha encoders.
+*/
+VT_EXPORT const CFStringRef kVTCompressionPropertyKey_TargetQualityForAlpha	API_AVAILABLE(macosx(10.15), ios(13.0), tvos(13.0)); // Read/write, CFNumber<Float>, Optional, NULL by default
+
+/*!
 	@constant	kVTCompressionPropertyKey_MoreFramesBeforeStart
 	@abstract
 		Indicates whether and how a compression session's frames will be
@@ -2224,7 +2238,31 @@ VT_EXPORT const CFStringRef kVTVideoEncoderSpecification_RequireHardwareAccelera
 */
 VT_EXPORT const CFStringRef kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder API_AVAILABLE(macosx(10.9), ios(8.0), tvos(10.2)); // CFBoolean, Read; assumed false by default
 #endif // !TARGET_OS_IPHONE
-	
+
+/*!
+	@constant	kVTVideoEncoderSpecification_RequiredEncoderGPURegistryID
+	@abstract
+		If set, the VideoToolbox will only use a hardware encoder running on the GPU specified by the provided GPU registryID.
+	@discussion
+		This specification implies kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder.  A separate hardware encode opt-in is not required.
+		The GPU registryID can be obtained from a MTLDevice using [MTLDevice registryID] or can be obtained from OpenGL or OpenCL.
+*/
+VT_EXPORT const CFStringRef kVTVideoEncoderSpecification_RequiredEncoderGPURegistryID API_AVAILABLE(macosx(10.14)); // CFNumber, Optional
+
+/*!
+	@constant	kVTVideoEncoderSpecification_PreferredEncoderGPURegistryID
+	@abstract
+		If set, the VideoToolbox will try to use a hardware encoder running on the GPU specified by the provided GPU registryID.  If the
+		GPU does not support encode of the specified format, the VideoToolbox will fall back to alternate encoders.
+	@discussion
+		This specification implies kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder.  A separate hardware encode opt-in is not required.
+		If both kVTVideoEncoderSpecification_PreferredEncoderGPURegistryID and kVTVideoEncoderSpecification_RequiredEncoderGPURegistryID are set, kVTVideoEncoderSpecification_PreferredEncoderGPURegistryID will be ignored.
+		This specification can be used in conjunction with kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder to prevent a fallback to software encode.
+		The GPU registryID can be obtained from a MTLDevice using [MTLDevice registryID] or can be obtained from OpenGL or OpenCL.
+*/
+VT_EXPORT const CFStringRef kVTVideoEncoderSpecification_PreferredEncoderGPURegistryID API_AVAILABLE(macosx(10.14)); // CFNumber, Optional
+
+
 #pragma mark Per-frame configuration
 	
 /*!
@@ -2387,6 +2425,30 @@ VT_EXPORT const CFStringRef kVTCompressionPropertyKey_MasteringDisplayColorVolum
 VT_EXPORT const CFStringRef kVTCompressionPropertyKey_ContentLightLevelInfo API_AVAILABLE(macosx(10.13), ios(11.0), tvos(11.0)); // Read/write, CFData(4 bytes) (see kCMFormatDescriptionExtension_ContentLightLevelInfo), Optional
 
 
+/*!
+	@constant  kVTCompressionPropertyKey_GammaLevel
+	@abstract
+		Indicates gamma level for compressed content.
+	@discussion
+		This property allows the caller to specify a gamma value to include in the CMVideoFormatDescription attached to output CMSampleBuffers. It does not change pixel data being encoded.
+*/
+	VT_EXPORT const CFStringRef kVTCompressionPropertyKey_GammaLevel VT_AVAILABLE_STARTING(10_9); // Read/write, CFNumber (see kCMFormatDescriptionExtension_GammaLevel), Optional
+	
+
+/*!
+	@constant	kVTCompressionPropertyKey_AlphaChannelMode
+	@abstract
+		Specifies whether the source images' RGB values have been premultiplied by the alpha channel values.
+	@discussion
+		Video compression will fail if source image buffers have a mismatched value in their kCVImageBufferAlphaChannelMode attachment.
+		If this property is not set, the encoder may read the first source image buffer's kCVImageBufferAlphaChannelMode attachment.
+		If neither the property nor the first buffer's attachment is set, defaults to kVTAlphaChannelMode_PremultipliedAlpha.
+ */
+VT_EXPORT const CFStringRef kVTCompressionPropertyKey_AlphaChannelMode	API_AVAILABLE(macosx(10.15), ios(13.0), tvos(13.0), watchos(6.0)); // Read/write, Optional, CFString(kVTAlphaChannelMode_*); if property is not set, matches first source frame's attachment; if that's also not set, defaults to premultiplied alpha
+VT_EXPORT const CFStringRef kVTAlphaChannelMode_StraightAlpha	API_AVAILABLE(macosx(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+VT_EXPORT const CFStringRef kVTAlphaChannelMode_PremultipliedAlpha	API_AVAILABLE(macosx(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+	
 #pragma mark Pre-compression processing
 
 // Standard properties about processing to be performed before compression.
@@ -2821,6 +2883,18 @@ VT_EXPORT const CFStringRef kVTPixelTransferPropertyKey_DestinationICCProfile AP
 		the destination.
 */
 VT_EXPORT const CFStringRef kVTPixelTransferPropertyKey_DestinationYCbCrMatrix API_AVAILABLE(macosx(10.8), ios(9.0), tvos(10.2)); // Read/write, CFString (see kCMFormatDescriptionExtension_YCbCrMatrix), Optional
+
+/*!
+    @constant   kVTPixelTransferPropertyKey_RealTime
+    @abstract
+        Hints the transfer session that the operation is, or is not, being performed in real time.
+    @discussion
+        Set this property to kCFBooleanTrue to indicate that the transfer is part of realtime operation.  If set to
+        true, the VTPixelTransferSession may be given precedence over non-realtime tasks.  This can be set to false
+        for transfers being performed as part of background operations.
+        By default this value is NULL indicating that it is unspecified.
+*/
+VT_EXPORT const CFStringRef kVTPixelTransferPropertyKey_RealTime; // Read/write, CFBoolean, default NULL
 
 	
 CM_ASSUME_NONNULL_END

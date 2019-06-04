@@ -21,7 +21,9 @@
 
 #ifdef IMAGEIO_BUILDING_IMAGEIO
 
+# undef __OSX_AVAILABLE_STARTING
 # define __OSX_AVAILABLE_STARTING(m0,i)
+# undef __OSX_AVAILABLE_BUT_DEPRECATED
 # define __OSX_AVAILABLE_BUT_DEPRECATED(m0,m1,i0,i1)
 # define IMAGEIO_AVAILABLE_STARTING(...)
 # define IMAGEIO_AVAILABLE_BUT_DEPRECATED(...)
@@ -73,9 +75,9 @@
 #       endif /* !defined(IMAGEIO_BUILDING_IMAGEIO) */
 #   else /* !defined(__WIN32__) */
 #       if defined(__cplusplus)
-#           define IMAGEIO_EXTERN extern "C"
+#           define IMAGEIO_EXTERN extern "C" __attribute__((visibility("default")))
 #       else /* !defined(__cplusplus) */
-#           define IMAGEIO_EXTERN extern
+#           define IMAGEIO_EXTERN extern __attribute__((visibility("default")))
 #       endif /* !defined(__cplusplus) */
 #   endif /* !defined(__WIN32__) */
 #endif /* !defined(IMAGEIO_EXTERN) */
@@ -91,7 +93,7 @@
 #   endif
 #endif
 
-#if ((TARGET_OS_MAC || TARGET_OS_IPHONE) && !TARGET_OS_SIMULATOR)
+#if (TARGET_OS_MAC || TARGET_OS_IPHONE) 
 #    define IIO_HAS_IOSURFACE 1
 #else
 #    define IIO_HAS_IOSURFACE 0
@@ -124,7 +126,6 @@
 #include <ImageIO/CGImageProperties.h>
 
 #include <ImageIO/CGImageMetadata.h>
-
 
 #endif  /* __IMAGEIO__ */
 // ==========  ImageIO.framework/Headers/CGImageMetadata.h
@@ -786,6 +787,7 @@ CF_ASSUME_NONNULL_BEGIN
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyTIFFDictionary  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyGIFDictionary  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyJFIFDictionary  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyHEICSDictionary  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifDictionary  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyPNGDictionary  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyIPTCDictionary  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
@@ -919,6 +921,14 @@ IMAGEIO_EXTERN const CFStringRef kCGImagePropertyJFIFYDensity  IMAGEIO_AVAILABLE
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyJFIFDensityUnit  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyJFIFIsProgressive  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 
+/* Possible keys for kCGImagePropertyHEICSDictionary */
+
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyHEICSLoopCount  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyHEICSDelayTime  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyHEICSUnclampedDelayTime  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyHEICSCanvasPixelWidth IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyHEICSCanvasPixelHeight IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyHEICSFrameInfoArray  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
 
 /* Possible keys for kCGImagePropertyExifDictionary */
 
@@ -937,6 +947,9 @@ IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifISOSpeedLatitudezzz  IMAGEI
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifVersion  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifDateTimeOriginal  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifDateTimeDigitized  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifOffsetTime  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifOffsetTimeOriginal  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifOffsetTimeDigitized  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifComponentsConfiguration  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifCompressedBitsPerPixel  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyExifShutterSpeedValue  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
@@ -1013,6 +1026,9 @@ IMAGEIO_EXTERN const CFStringRef kCGImagePropertyGIFDelayTime  IMAGEIO_AVAILABLE
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyGIFImageColorMap  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyGIFHasGlobalColorMap  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyGIFUnclampedDelayTime  IMAGEIO_AVAILABLE_STARTING(10.7, 4.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyGIFCanvasPixelWidth  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyGIFCanvasPixelHeight  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyGIFFrameInfoArray  IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
 
 /* Possible keys for kCGImagePropertyPNGDictionary */
 
@@ -1037,6 +1053,9 @@ IMAGEIO_EXTERN const CFStringRef kCGImagePropertyPNGYPixelsPerMeter  IMAGEIO_AVA
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyAPNGLoopCount  IMAGEIO_AVAILABLE_STARTING(10.10, 8.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyAPNGDelayTime  IMAGEIO_AVAILABLE_STARTING(10.10, 8.0);
 IMAGEIO_EXTERN const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime  IMAGEIO_AVAILABLE_STARTING(10.10, 8.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyAPNGFrameInfoArray IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyAPNGCanvasPixelWidth IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImagePropertyAPNGCanvasPixelHeight IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
 
 /* Possible keys for kCGImagePropertyGPSDictionary */
 
@@ -1486,7 +1505,7 @@ IMAGEIO_EXTERN const CFStringRef  kCGImagePropertyOpenEXRAspectRatio  IMAGEIO_AV
 
 
 /* Possible int values for kCGImagePropertyTIFFOrientation */
-typedef CF_ENUM(uint32_t, CGImagePropertyOrientation) {
+typedef CF_CLOSED_ENUM(uint32_t, CGImagePropertyOrientation) {
     kCGImagePropertyOrientationUp = 1,        // 0th row at top,    0th column on left   - default orientation
     kCGImagePropertyOrientationUpMirrored,    // 0th row at top,    0th column on right  - horizontal flip
     kCGImagePropertyOrientationDown,          // 0th row at bottom, 0th column on right  - 180 deg rotation
@@ -1524,6 +1543,9 @@ IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataTypeDepth IMAGEIO_AVAILABL
 IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataTypeDisparity IMAGEIO_AVAILABLE_STARTING(10.13, 11.0);
 IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataTypePortraitEffectsMatte IMAGEIO_AVAILABLE_STARTING(10.14, 12.0);
 
+IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataTypeSemanticSegmentationSkinMatte IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataTypeSemanticSegmentationHairMatte IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
+IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataTypeSemanticSegmentationTeethMatte IMAGEIO_AVAILABLE_STARTING(10.15, 13.0);
 
 /* Depth/Disparity data support for JPEG, HEIF, and DNG images:
  * CGImageSourceCopyAuxiliaryDataInfoAtIndex and CGImageDestinationAddAuxiliaryDataInfo will use these keys in the dictionary:
@@ -1870,15 +1892,17 @@ IMAGEIO_EXTERN CFArrayRef _iio_Nonnull CGImageDestinationCopyTypeIdentifiers(voi
 
 /* Create an image destination writing to the data consumer `consumer'.
  * The parameter `type' specifies the type identifier of the resulting
- * image file.  The parameter `count' specifies number of images (not
- * including thumbnails) that the image file will contain. The `options'
- * dictionary is reserved for future use; currently, you should pass NULL
- * for this parameter. */
+ * image file.  Constants for `type' are found in the LaunchServices framework
+ * header UTCoreTypes.h.  The parameter `count' specifies number of images
+ * (not including thumbnails) that the image file will contain. The `options'
+ * dictionary is reserved for future use; currently, you should pass NULL for
+ * this parameter. */
 
 IMAGEIO_EXTERN CGImageDestinationRef _iio_Nullable CGImageDestinationCreateWithDataConsumer(CGDataConsumerRef _iio_Nonnull consumer, CFStringRef _iio_Nonnull type, size_t count, CFDictionaryRef _iio_Nullable options)  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 
 /* Create an image destination writing to `data'. The parameter `type'
- * specifies the type identifier of the resulting image file.  The
+ * specifies the type identifier of the resulting image file.  Constants for
+ * `type' are found in the LaunchServices framework header UTCoreTypes.h.  The
  * parameter `count' specifies number of images (not including thumbnails)
  * that the image file will contain. The `options' dictionary is reserved
  * for future use; currently, you should pass NULL for this parameter. */
@@ -1886,7 +1910,8 @@ IMAGEIO_EXTERN CGImageDestinationRef _iio_Nullable CGImageDestinationCreateWithD
 IMAGEIO_EXTERN CGImageDestinationRef _iio_Nullable CGImageDestinationCreateWithData(CFMutableDataRef _iio_Nonnull data, CFStringRef _iio_Nonnull type, size_t count, CFDictionaryRef _iio_Nullable options)  IMAGEIO_AVAILABLE_STARTING(10.4, 4.0);
 
 /* Create an image destination writing to `url'. The parameter `type'
- * specifies the type identifier of the resulting image file.  The
+ * specifies the type identifier of the resulting image file.  Constants for
+ * `type' are found in the LaunchServices framework header UTCoreTypes.h.  The
  * parameter `count' specifies number of images (not including thumbnails)
  * that the image file will contain. The `options' dictionary is reserved
  * for future use; currently, you should pass NULL for this parameter.

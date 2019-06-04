@@ -3,7 +3,7 @@
 //  GKChallenge.h
 //  Game Center
 //
-//  Copyright 2012-2018 Apple Inc. All rights reserved.
+//  Copyright 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -135,7 +135,7 @@ NS_ASSUME_NONNULL_END
 //  GKBasePlayer.h
 //  Game Center
 //
-//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//  Copyright 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -155,7 +155,7 @@ NS_CLASS_AVAILABLE(10_12, 10_0) __WATCHOS_AVAILABLE(3_0)
 //  GKGameSessionError.h
 //  Game Center
 //
-//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//  Copyright 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -185,7 +185,7 @@ typedef  NS_ENUM(NSInteger, GKGameSessionErrorCode) {
 //  GKAchievementViewController.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #if TARGET_OS_IPHONE
@@ -225,7 +225,7 @@ NS_DEPRECATED(10_8, 10_10, 4_1, 7_0, "Use GKGameCenterViewController instead")
 //  GKGameCenterViewController.h
 //  Game Center
 //
-//  Copyright 2012-2018 Apple Inc. All rights reserved.
+//  Copyright 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <GameKit/GKLeaderboard.h>
@@ -243,7 +243,7 @@ typedef NS_ENUM(NSInteger, GKGameCenterViewControllerState) {
 #import <UIKit/UIKit.h>
 #else
 #import <Cocoa/Cocoa.h>
-#import <GameKit/GKDialogController.h>
+#import <GameCenterUICore/GKDialogController.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -255,7 +255,7 @@ NS_CLASS_AVAILABLE(10_9, 6_0)
 #else
 NS_CLASS_AVAILABLE(10_9, 6_0)
 @interface GKGameCenterViewController : NSViewController  <GKViewController> {
-	id _internal1,_internal2,_internal3;
+	id _internal1, __weak _internal2, _internal3;
     GKGameCenterViewControllerState _viewState;
     NSString *_leaderboardIdentifier;
     NSString *_leaderboardCategory;
@@ -266,18 +266,17 @@ NS_CLASS_AVAILABLE(10_9, 6_0)
 #endif
 
 @interface GKGameCenterViewController ()
-@property (assign, nullable, NS_NONATOMIC_IOSONLY)   id<GKGameCenterControllerDelegate>      gameCenterDelegate;
-@property (assign, NS_NONATOMIC_IOSONLY)   GKGameCenterViewControllerState         viewState ;
-
+@property (weak, nullable, NS_NONATOMIC_IOSONLY) id<GKGameCenterControllerDelegate> gameCenterDelegate;
+@property (assign, NS_NONATOMIC_IOSONLY) GKGameCenterViewControllerState viewState ;
 
 @end
 
 @interface GKGameCenterViewController (Leaderboards)
 
-@property (nonatomic, assign)   GKLeaderboardTimeScope leaderboardTimeScope NS_AVAILABLE(10_8, 4_1) ;
-@property (nonatomic, nullable, retain)   NSString *leaderboardIdentifier NS_AVAILABLE(10_10, 7_0) ;
+@property (nonatomic, assign) GKLeaderboardTimeScope leaderboardTimeScope NS_AVAILABLE(10_8, 4_1) ;
+@property (nonatomic, nullable, strong) NSString *leaderboardIdentifier NS_AVAILABLE(10_10, 7_0) ;
 
-@property (nonatomic, nullable, retain)   NSString *leaderboardCategory    NS_DEPRECATED(10_8, 10_10, 4_1, 7_0, "GKGameCenterViewController's leaderboardCategory property is deprecated. Use leaderboardIdentifier instead.") ;
+@property (nonatomic, nullable, strong) NSString *leaderboardCategory    NS_DEPRECATED(10_8, 10_10, 4_1, 7_0, "GKGameCenterViewController's leaderboardCategory property is deprecated. Use leaderboardIdentifier instead.") ;
 
 @end
 
@@ -292,7 +291,7 @@ NS_ASSUME_NONNULL_END
 //  GKGameSession.h
 //  Game Center
 //
-//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//  Copyright 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -385,7 +384,7 @@ NS_ASSUME_NONNULL_END
 //  GKPlayer.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -408,19 +407,24 @@ NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 // 3. Invalid player identifier
 + (void)loadPlayersForIdentifiers:(nonnull NSArray<NSString *> *)identifiers withCompletionHandler:(void(^__nullable)(NSArray<GKPlayer *> * __nullable players, NSError * __nullable error))completionHandler;
 
-@property(readonly, nullable, retain, NS_NONATOMIC_IOSONLY)  NSString    *playerID;
+//  This is the local player's unique and persistent ID that is scoped to this application. For non-local players, this ID is unique for this instantiation of this app.
+@property(NS_NONATOMIC_IOSONLY, readonly, nonnull, retain) NSString *gamePlayerID API_AVAILABLE(ios(12.4), macos(10.14.6), tvos(12.4)) API_UNAVAILABLE(watchos);
 
-// This player's full name as displayed in the Game Center in-game UI. Use this when you need to display the player's name. The display name may be very long, so be sure to use appropriate string truncation API when drawing.
-@property(readonly, nullable, NS_NONATOMIC_IOSONLY)          NSString    *displayName NS_AVAILABLE(10_8, 6_0) __WATCHOS_AVAILABLE(3_0);
+//  This is the local player's unique and persistent ID that is scoped to the Apple Store Connect Team identifier of this application. For non-local players, this ID is unique for this instantiation of this app.
+@property(NS_NONATOMIC_IOSONLY, readonly, nonnull, retain) NSString *teamPlayerID API_AVAILABLE(ios(12.4), macos(10.14.6), tvos(12.4)) API_UNAVAILABLE(watchos);
+
+// This is player's alias to be displayed. The display name may be very long, so be sure to use appropriate string truncation API when drawing.
+@property(readonly, nonnull, NS_NONATOMIC_IOSONLY)          NSString    *displayName NS_AVAILABLE(10_8, 6_0) __WATCHOS_AVAILABLE(3_0);
 
 // The alias property contains the player's nickname. When you need to display the name to the user, consider using displayName instead. The nickname is unique but not invariant: the player may change their nickname. The nickname may be very long, so be sure to use appropriate string truncation API when drawing.
-@property(readonly, copy, nullable, NS_NONATOMIC_IOSONLY)    NSString    *alias;
+@property(readonly, copy, nonnull, NS_NONATOMIC_IOSONLY)    NSString    *alias;
 
 + (nonnull instancetype)anonymousGuestPlayerWithIdentifier:(nonnull NSString *)guestIdentifier NS_AVAILABLE(10_11, 9_0) __WATCHOS_PROHIBITED;
 @property(readonly, nullable, NS_NONATOMIC_IOSONLY) NSString *guestIdentifier NS_AVAILABLE(10_11, 9_0) __WATCHOS_PROHIBITED;
 
 @end
 
+#import <GameKit/GKPlayer.h>
 
 @interface GKPlayer (UI)
 
@@ -448,14 +452,14 @@ GK_EXTERN_WEAK NSNotificationName __nonnull GKPlayerDidChangeNotificationName;
 @interface GKPlayer (Deprecated)
 
 @property(readonly, NS_NONATOMIC_IOSONLY)          BOOL         isFriend NS_DEPRECATED(10_8, 10_10, 4_1, 8_0, "use -[GKLocalPlayer loadFriendPlayers...]") ;    // True if this player is a friend of the local player
-
+@property(readonly, nonnull, retain, NS_NONATOMIC_IOSONLY)  NSString *playerID GK_API_DEPRECATED( "use the teamPlayerID property to identify a player",ios(4.1,13.0),tvos(9.0,13.0),macosx(10.8,10.15));
 @end
 // ==========  GameKit.framework/Headers/GKDefines.h
 //
 //  GKDefines.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef GK_EXTERN
@@ -470,13 +474,29 @@ GK_EXTERN_WEAK NSNotificationName __nonnull GKPlayerDidChangeNotificationName;
 #define GK_EXTERN_WEAK  GK_EXTERN __attribute__((weak_import))
 #endif
 
+#if !defined(__GK_HAS_COMPILER_ATTRIBUTE)
+# if defined(__has_attribute)
+#  define __GK_HAS_COMPILER_ATTRIBUTE(attribute) __has_attribute(attribute)
+# elif defined(__GNUC__) && __GNUC__ >= 4
+#  define __GK_HAS_COMPILER_ATTRIBUTE(attribute) (1)
+# else
+#  define __GK_HAS_COMPILER_ATTRIBUTE(attribute) (0)
+# endif
+#endif
 
+#if !defined(GK_API_DEPRECATED)
+# if __GK_HAS_COMPILER_ATTRIBUTE(deprecated) && !defined(GK_BUILDING_GK)
+#  define GK_API_DEPRECATED(...) API_DEPRECATED(__VA_ARGS__)
+# else
+#  define GK_API_DEPRECATED(...)
+# endif
+#endif
 // ==========  GameKit.framework/Headers/GKCloudPlayer.h
 //
 //  GKCloudPlayer.h
 //  Game Center
 //
-//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//  Copyright 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <GameKit/GKBasePlayer.h>
@@ -501,7 +521,7 @@ NS_ASSUME_NONNULL_END
 //  GameKit.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <TargetConditionals.h>
@@ -549,6 +569,7 @@ NS_ASSUME_NONNULL_END
 #import <GameKit/GKPlayer.h>
 #import <GameKit/GKPublicConstants.h>
 #import <GameKit/GKPublicProtocols.h>
+#import <GameKit/GKRemoteUIController.h>
 #import <GameKit/GKSavedGame.h>
 #import <GameKit/GKSavedGameListener.h>
 #import <GameKit/GKScore.h>
@@ -563,7 +584,7 @@ NS_ASSUME_NONNULL_END
 //  GKMatch.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -655,7 +676,7 @@ NS_ASSUME_NONNULL_END
 //  GKTurnBasedMatch.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <GameKit/GKPlayer.h>
@@ -975,7 +996,7 @@ NS_ASSUME_NONNULL_END
 //  GKLeaderboard.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1066,12 +1087,70 @@ NS_ASSUME_NONNULL_END
 @end
  
 
+// ==========  GameKit.framework/Headers/GKRemoteUIController.h
+//
+//  GKViewController.h
+//  GameCenterSettings
+//
+//  Created by Jeff Watkins on 2/6/13.
+//  Copyright (c) 2013 Apple. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@class GKRemoteUIController;
+
+typedef void (^GKRemoteUIControllerCompletionHandler)(GKRemoteUIController *controller, NSError *error);
+
+extern NSString * const GKRemoteUIApplyThemeKey;
+extern NSString * const GKRemoteUILayoutStyleKey;
+extern NSString * const GKRemoteUIErrorDomain;
+
+extern NSString * const GKRemoteUIAuthTitle;
+extern NSString * const GKRemoteUIAuthOKURL;
+extern NSString * const GKRemoteUIAuthCancelURL;
+extern NSString * const GKRemoteUIAuthUserName;
+extern NSString * const GKRemoteUIAuthPassword;
+extern NSString * const GKRemoteUIAuthErrorMessage;
+
+typedef enum {
+    GKRemoteUILayoutStylePhone,
+    GKRemoteUILayoutStyleModalPad,
+    GKRemoteUILayoutStyleFullscreenPad
+} GKRemoteUILayoutStyle;
+
+typedef enum {
+    GKRemoteUIErrorTypeCancelledByServer = 0,
+    GKRemoteUIErrorTypeNoServerImplementation = 1,
+    GKRemoteUIErrorTypeNoData = 2,
+    GKRemoteUIErrorTypeNeedsAuth = 3,
+    GKRemoteUIErrorTypeCanceledByUser = 4
+} GKRemoteUIErrorType;
+
+@protocol GKRemoteUIAuxiliaryViewDelegate <NSObject>
+@optional
+- (void)auxiliaryView:(UIView *)auxiliaryView pressedButton:(NSString *)buttonName attributes:(NSDictionary *)attributes;
+- (void)auxiliaryView:(UIView *)auxiliaryView pressedLink:(NSString *)linkURLString attributes:(NSDictionary *)attributes;
+@end
+
+@interface GKRemoteUIController : NSObject <GKRemoteUIAuxiliaryViewDelegate>
+
+@property (nonatomic, copy) GKRemoteUIControllerCompletionHandler completionHandler;
+@property (nonatomic, readonly, strong) NSError *error;
+@property (nonatomic, readonly) BOOL loading;
+@property (nonatomic, assign) BOOL shouldApplyGameCenterTheme; /// Default is YES
+
++ (instancetype)remoteUIController;
+
+- (void)presentInParentNavigationController:(UINavigationController *)navigationController animated:(BOOL)animated;
+
+@end
 // ==========  GameKit.framework/Headers/GKLeaderboardSet.h
 //
 //  GKLeaderboardSet.h
 //  Game Center
 //
-//  Copyright 2012-2018 Apple Inc. All rights reserved.
+//  Copyright 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1107,6 +1186,7 @@ NS_CLASS_AVAILABLE(10_10, 7_0) __WATCHOS_AVAILABLE(3_0)
 @end
 NS_ASSUME_NONNULL_END
 
+#import <GameKit/GKLeaderboardSet.h>
 
 @interface GKLeaderboardSet (UI)
 
@@ -1126,7 +1206,7 @@ NS_ASSUME_NONNULL_END
 //  GKNotificationBanner.h
 //  Game Center
 //
-//  Copyright 2012-2018 Apple Inc. All rights reserved.
+//  Copyright 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1184,7 +1264,7 @@ typedef NS_ENUM(int, GKSessionError)
 //  GKChallengeEventHandler.h
 //  Game Center
 //
-//  Copyright 2012-2018 Apple Inc. All rights reserved.
+//  Copyright 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1313,7 +1393,7 @@ NS_ASSUME_NONNULL_END
 //  GKEventListener.h
 //  Game Center
 //
-//  Copyright 2012-2018 Apple Inc. All rights reserved.
+//  Copyright 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1353,7 +1433,7 @@ NS_ASSUME_NONNULL_END
 //  GKFriendRequestComposeViewController.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #if TARGET_OS_IPHONE
@@ -1373,7 +1453,7 @@ NS_CLASS_DEPRECATED(10_8, 10_12, 4_2, 10_0)
 @interface GKFriendRequestComposeViewController : UINavigationController
 @end
 #else
-#import <GameKit/GKDialogController.h>
+#import <GameCenterUICore/GKDialogController.h>
 NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_DEPRECATED(10_8, 10_12, 4_2, 10_0)
 @interface GKFriendRequestComposeViewController : NSViewController <GKViewController> {
@@ -1507,7 +1587,7 @@ NS_ASSUME_NONNULL_END// ==========  GameKit.framework/Headers/GKSavedGame.h
 //  GKSavedGame.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <GameKit/GKLocalPlayer.h>
@@ -1528,7 +1608,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH && !TARGET_OS_TV
 @interface GKLocalPlayer (GKSavedGame) <GKSavedGameListener>
 
 // Asynchronously fetch saved games. The handler is called with an array of GKSavedGame objects or an error.
@@ -1707,7 +1787,7 @@ GK_EXTERN_WEAK    NSString *  const GKVoiceChatServiceErrorDomain;
 //  GKAchievement.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1772,7 +1852,7 @@ NS_ASSUME_NONNULL_END
 //  GKTurnBasedMatchmakerViewController.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 @protocol GKTurnBasedMatchmakerViewControllerDelegate;
@@ -1792,12 +1872,12 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 @interface GKTurnBasedMatchmakerViewController : UINavigationController
 @end
 #else
-#import <GameKit/GKDialogController.h>
+#import <GameCenterUICore/GKDialogController.h>
 NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_AVAILABLE(10_8, 5_0)
 @interface GKTurnBasedMatchmakerViewController : NSViewController <GKViewController> {
     id _remoteViewController;
-    id<GKTurnBasedMatchmakerViewControllerDelegate> _turnBasedMatchmakerDelegateWeak;
+    id<GKTurnBasedMatchmakerViewControllerDelegate> __weak _turnBasedMatchmakerDelegate;
     GKMatchRequest *_matchRequest;
     BOOL _showExistingMatches;
     BOOL _internalFlag;
@@ -1807,7 +1887,7 @@ NS_CLASS_AVAILABLE(10_8, 5_0)
 
 @interface GKTurnBasedMatchmakerViewController ()
 
-@property (nonatomic, nullable, readwrite, assign) id<GKTurnBasedMatchmakerViewControllerDelegate> turnBasedMatchmakerDelegate;
+@property (nonatomic, nullable, readwrite, weak) id<GKTurnBasedMatchmakerViewControllerDelegate> turnBasedMatchmakerDelegate;
 @property (nonatomic, readwrite, assign) BOOL showExistingMatches; // defaults to YES
 
 - (id)initWithMatchRequest:(GKMatchRequest *)request;
@@ -1840,7 +1920,7 @@ NS_ASSUME_NONNULL_END
 //  GKVoiceChat.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1989,7 +2069,7 @@ Failure results in a call to delegate -session:connectionWithPeerFailed:withErro
 //  GKGameSessionEventListener.h
 //  Game Center
 //
-//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//  Copyright 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import "GKGameSession.h"
@@ -2019,7 +2099,7 @@ NS_ASSUME_NONNULL_END
 //  GKSavedGameListener.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/NSObjCRuntime.h> // NS_ASSUME_NONNULL_BEGIN
@@ -2030,7 +2110,7 @@ NS_ASSUME_NONNULL_END
 @class GKSavedGame;
 
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_10, 8_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_10, 8_0) __WATCHOS_PROHIBITED 
 @protocol GKSavedGameListener <NSObject>
 @optional
 
@@ -2047,7 +2127,7 @@ NS_ASSUME_NONNULL_END
 //  GKAchievementDescription.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2078,6 +2158,8 @@ NS_ASSUME_NONNULL_END
 #else
 @class NSImage;
 #endif
+
+#import <GameKit/GKAchievementDescription.h>
 
 @interface GKAchievementDescription (UI)
 
@@ -2123,7 +2205,7 @@ NS_ASSUME_NONNULL_END
 //  GKLocalPlayer.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2154,10 +2236,16 @@ NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 // Obtain the primary GKLocalPlayer object.
 // The player is only available for offline play until logged in.
 // A temporary player is created if no account is set up.
+@property (class, readonly, nonnull) GKLocalPlayer *local;
+
+// TODO: deprecate this <rdar://problem/42128153> Swiftification: Should update objective C APIs to match our changes in swift (GKLocalPlayere.localPlayer -> local, nullability, lightweight generics)
 @property (class, readonly, nonnull) GKLocalPlayer *localPlayer;
 
 @property(readonly, getter=isAuthenticated, NS_NONATOMIC_IOSONLY)  BOOL authenticated; // Authentication state
 @property(readonly, getter=isUnderage, NS_NONATOMIC_IOSONLY)       BOOL underage;      // Underage state
+
+// A Boolean value that declares whether or not multiplayer gaming is restricted on this device.
+@property(readonly, getter=isMultiplayerGamingRestricted, nonatomic) BOOL multiplayerGamingRestricted API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 // The authenticate handler will be called whenever the authentication process finishes or needs to show UI. The handler may be called multiple times. Authentication will happen automatically when the handler is first set and whenever the app returns to the foreground.
 // If the authentication process needs to display UI the viewController property will be non-nil. Your application should present this view controller and continue to wait for another call of the authenticateHandler.  The view controller will be dismissed automatically.
@@ -2179,6 +2267,14 @@ NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 // 2. Unauthenticated player
 - (void)loadRecentPlayersWithCompletionHandler:(void(^__nullable)(NSArray<GKPlayer *> * __nullable recentPlayers, NSError * __nullable error))completionHandler NS_AVAILABLE(10_11, 10_0) __WATCHOS_AVAILABLE(3_0);
 ;
+
+// Asynchronously load the challengable friends list as an array of GKPlayer.  A challengable player is a friend player with friend level FL1 and FL2.  Calls completionHandler when finished. Error will be nil on success.
+// Possible reasons for error:
+// 1. Communications problem
+// 2. Unauthenticated player
+- (void)loadChallengableFriendsWithCompletionHandler:(void(^__nullable)(NSArray<GKPlayer *> * __nullable challengableFriends, NSError * __nullable error))completionHandler;
+
+
 // Set the default leaderboard for the current game
 // Possible reasons for error:
 // 1. Communications problem
@@ -2204,6 +2300,9 @@ NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 @end
 
 #if TARGET_OS_WATCH
+@protocol GKLocalPlayerListener <GKChallengeListener, GKInviteEventListener, GKTurnBasedEventListener>
+@end
+#elif TARGET_OS_TV
 @protocol GKLocalPlayerListener <GKChallengeListener, GKInviteEventListener, GKTurnBasedEventListener>
 @end
 #else
@@ -2243,7 +2342,7 @@ NS_ASSUME_NONNULL_END
 //  GKError.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2280,15 +2379,39 @@ typedef NS_ENUM(NSInteger, GKErrorCode) {
     GKErrorPlayerPhotoFailure                   = 26,
     GKErrorUbiquityContainerUnavailable         = 27,
     GKErrorMatchNotConnected                    = 28,
-    GKErrorGameSessionRequestInvalid            = 29
+    GKErrorGameSessionRequestInvalid            = 29,
+    GKErrorRestrictedToAutomatch                = 30
 };
 
+// FIXME: do we need to merge this into GKError?
+
+GK_EXTERN_WEAK NSString *__nonnull GKTournamentErrorDomain;
+
+typedef NS_ENUM(NSInteger, GKTournamentErrorCode) {
+    GKTournamentErrorUnknown                            = 1,
+    GKTournamentErrorInvalidTournament                  = 2,
+    GKTournamentErrorRegistrationNotOpen                = 3,
+    GKTournamentErrorPlayerNotRegistered                = 4,
+    GKTournamentErrorInvalidTournamentState             = 5,
+    GKTournamentErrorInvalidParticipantState            = 6,
+    GKTournamentErrorAlreadyRegistered                  = 7,
+    GKTournamentErrorDeviceConflict                     = 8,
+    GKTournamentErrorLocalPlayerCustomTournamentLimit   = 9,
+    GKTournamentErrorNotEnoughPlayers                   = 10,      // Tournament could not start because there aren't enough players
+    GKTournamentErrorCheatingDetected                   = 11,      // Cheating was detected in this tournament instance
+    GKTournamentErrorInvalidTryToken                    = 12,
+    GKTournamentErrorNetworkError                       = 13,      // Network error
+
+    // Below are temporary for the CloudKit prototype.
+    GKTournamentErrorNotSignedIntoICloud,
+    GKTournamentErrorCKServerRecordChanged,
+};
 // ==========  GameKit.framework/Headers/GKMatchmakerViewController.h
 //
 //  GKMatchmakerViewController.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 @class GKMatchRequest, GKInvite, GKMatch, GKPlayer;
@@ -2306,7 +2429,7 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 @interface GKMatchmakerViewController : UINavigationController
 
 #else
-#import <GameKit/GKDialogController.h>
+#import <GameCenterUICore/GKDialogController.h>
 NS_ASSUME_NONNULL_BEGIN
 NS_CLASS_AVAILABLE(10_8, 4_1)
 @interface GKMatchmakerViewController : NSViewController <GKViewController> {
@@ -2323,7 +2446,7 @@ NS_CLASS_AVAILABLE(10_8, 4_1)
 
 #endif
 @property(nonatomic, nullable, assign) id<GKMatchmakerViewControllerDelegate>     matchmakerDelegate;
-@property(nonatomic, readonly, retain) GKMatchRequest                   *matchRequest;
+@property(nonatomic, readonly, strong) GKMatchRequest                   *matchRequest;
 @property(nonatomic, assign, getter=isHosted) BOOL                      hosted;  // set to YES to receive hosted (eg. not peer-to-peer) match results. Will cause the controller to return an array of players instead of a match.
 
 // Initialize with a matchmaking request, allowing the user to send invites and/or start matchmaking
@@ -2376,7 +2499,7 @@ NS_ASSUME_NONNULL_END
 //  GKGameSessionSharingViewController.h
 //  Game Center
 //
-//  Copyright 2016-2018 Apple Inc. All rights reserved.
+//  Copyright 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2414,7 +2537,7 @@ NS_ASSUME_NONNULL_END
 //  GKLeaderboardViewController.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <GameKit/GKLeaderboard.h>
@@ -2452,7 +2575,7 @@ NS_DEPRECATED(10_8, 10_10, 4_1, 7_0, "Use GKGameCenterViewController instead")
 //  GKScore.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2517,13 +2640,14 @@ NS_ASSUME_NONNULL_END
 //  GKMatchmaker.h
 //  Game Center
 //
-//  Copyright 2010-2018 Apple Inc. All rights reserved.
+//  Copyright 2010-2019 Apple Inc. All rights reserved.
 //
 
 #include <Foundation/Foundation.h>
 
 @class GKPlayer;
 @class GKMatch;
+@class GKTournament;
 
 
 // Possible invitee responses
@@ -2563,6 +2687,15 @@ NS_CLASS_AVAILABLE(10_8, 4_1) __WATCHOS_AVAILABLE(3_0)
 
 // Default number of players to use during matchmaking.  If not set we default to maxPlayers
 @property(assign) NSUInteger defaultNumberOfPlayers NS_AVAILABLE(10_8, 6_0);
+
+// Whether or not a match will be created only using auto-match.  If YES, then a player will not be able to
+// invite anyone (including contacts, friends, and nearby players) to the match, but rely on auto-matching to
+// find players for the match.  Default is NO.
+@property(assign) BOOL restrictToAutomatch API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+// If supplied, then the match created from this request may only include players that are registered in this tournament.
+// If nil, then all players available for matchmaking will be considered for both tournament matches and non-tournament matches.
+@property (retain, nullable) GKTournament *tournamentForInvitePool API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 // An recipientResponseHandler can be set in order to receive responses from programmatically invited players.
 @property(copy, nullable) void(^recipientResponseHandler)(GKPlayer *player, GKInviteRecipientResponse response) NS_AVAILABLE(10_10, 8_0);

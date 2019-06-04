@@ -12,7 +12,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// An incident of communication via some medium.
-IL_EXTERN API_AVAILABLE(ios(12.0))
+IL_EXTERN API_AVAILABLE(ios(12.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILCommunication : NSObject <NSSecureCoding>
 
 /// The phone number or e-mail address of the sender.  The value will be nil if the sender is unknown.
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-IL_EXTERN NSErrorDomain const ILMessageFilterErrorDomain API_AVAILABLE(ios(11.0));
+IL_EXTERN NSErrorDomain const ILMessageFilterErrorDomain API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
 typedef NS_ERROR_ENUM(ILMessageFilterErrorDomain, ILMessageFilterError) {
     /// An unspecified system error occurred.
@@ -57,7 +57,7 @@ typedef NS_ERROR_ENUM(ILMessageFilterErrorDomain, ILMessageFilterError) {
 
     /// Extension requested to defer a request to its network service more than once. Requests may be deferred to the network at most once.
     ILMessageFilterErrorRedundantNetworkDeferral = 5,
-} API_AVAILABLE(ios(11.0));
+} API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
 NS_ASSUME_NONNULL_END
 // ==========  IdentityLookup.framework/Headers/ILMessageFilterQueryHandling.h
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  Subclasses of ILMessageFilterExtension which support querying must conform to this protocol.
  */
-IL_EXTERN API_AVAILABLE(ios(11.0))
+IL_EXTERN API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @protocol ILMessageFilterQueryHandling <NSObject>
 
 /**
@@ -120,7 +120,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-IL_EXTERN API_AVAILABLE(ios(12.0))
+IL_EXTERN API_AVAILABLE(ios(12.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILCallCommunication : ILCommunication
 
 - (BOOL)isEqualToCallCommunication:(ILCallCommunication *)communication NS_SWIFT_UNAVAILABLE("Use == operator instead");;
@@ -153,7 +153,7 @@ typedef NS_ENUM(NSInteger, ILClassificationAction) {
     
     /// Report communication(s) as junk and block the sender.
     ILClassificationActionReportJunkAndBlockSender = 3,
-} API_AVAILABLE(ios(12.0));
+} API_AVAILABLE(ios(12.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
 NS_ASSUME_NONNULL_END
 
@@ -172,7 +172,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 /// A response to an ILMessageFilterQueryRequest.
-IL_EXTERN API_AVAILABLE(ios(11.0))
+IL_EXTERN API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILMessageFilterQueryResponse : NSObject <NSSecureCoding>
 
 /// Action to take for the received message.
@@ -195,7 +195,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class ILCallCommunication;
 
-IL_EXTERN API_AVAILABLE(ios(12.0))
+IL_EXTERN API_AVAILABLE(ios(12.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILCallClassificationRequest : ILClassificationRequest <NSSecureCoding>
 
 // An array of call communications sorted by date received
@@ -273,7 +273,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 /// A response to an HTTPS network request.
-IL_EXTERN API_AVAILABLE(ios(11.0))
+IL_EXTERN API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILNetworkResponse : NSObject <NSSecureCoding>
 
 /// Represents the URL response itself. See documentation for NSHTTPURLResponse.
@@ -299,7 +299,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-IL_EXTERN API_AVAILABLE(ios(12.0))
+IL_EXTERN API_AVAILABLE(ios(12.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILMessageCommunication : ILCommunication
 
 // Contains the contents of the message
@@ -326,7 +326,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class ILMessageCommunication;
 
-IL_EXTERN API_AVAILABLE(ios(12.0))
+IL_EXTERN API_AVAILABLE(ios(12.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILMessageClassificationRequest : ILClassificationRequest <NSSecureCoding>
 
 // An array of message communications sorted by date received
@@ -351,7 +351,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 /// A request to query a MessageFilter extension about how to interpret a received message.
-IL_EXTERN API_AVAILABLE(ios(11.0))
+IL_EXTERN API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILMessageFilterQueryRequest : NSObject <NSSecureCoding>
 
 /// The sender of the message the receiver relates to.
@@ -378,7 +378,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 /// A request to classify a communication.
-IL_EXTERN API_AVAILABLE(ios(12.0))
+IL_EXTERN API_AVAILABLE(ios(12.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILClassificationRequest : NSObject <NSSecureCoding>
 
 @end
@@ -398,7 +398,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 /// Parent class for a MessageFilter extension's principal class.
-IL_EXTERN API_AVAILABLE(ios(11.0))
+IL_EXTERN API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILMessageFilterExtension : NSObject
 @end
 
@@ -419,7 +419,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class ILNetworkResponse;
 
 /// Represents a MessageFilter extension request's context.
-IL_EXTERN API_AVAILABLE(ios(11.0))
+IL_EXTERN API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILMessageFilterExtensionContext : NSExtensionContext
 
 /**
@@ -458,7 +458,7 @@ typedef NS_ENUM(NSInteger, ILMessageFilterAction) {
 
     /// Prevent the message from being shown normally.
     ILMessageFilterActionFilter = 2,
-} API_AVAILABLE(ios(11.0));
+} API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
 NS_ASSUME_NONNULL_END
 // ==========  IdentityLookup.framework/Headers/ILClassificationResponse.h
@@ -475,16 +475,22 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 /// A response to an ILClassificationRequest.
-IL_EXTERN API_AVAILABLE(ios(12.0))
+IL_EXTERN API_AVAILABLE(ios(12.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface ILClassificationResponse : NSObject <NSSecureCoding>
 
 @property (nonatomic, readonly, assign) ILClassificationAction action;
 
 /*
- This data will be sent to developers as either a JSON string or object,
- depending on the transport medium. The keys and values in this
- dictionary must conform to the NSJSONSerialization specifications:
- 
+ The value of this string will be sent when a value for
+ ILClassificationExtensionSMSReportDestination has been set in the extension's Info.plist
+ */
+@property (nonatomic, readwrite, copy, nullable) NSString *userString API_AVAILABLE(ios(12.1));
+
+/*
+ The JSON representation of this dictionary will be sent when a value for
+ ILClassificationExtensionNetworkReportDestination has been set in the extension's Info.plist
+
+ The keys and values in this dictionary must conform to the NSJSONSerialization specifications:
  - Top level object is an NSDictionary
  - All objects are NSString, NSNumber, NSArray, NSDictionary, or NSNull
  - All dictionary keys are NSStrings

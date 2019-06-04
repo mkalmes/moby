@@ -1979,6 +1979,7 @@ CFN_EXPORT Boolean
 CFNetServiceRegister(CFNetServiceRef theService, CFStreamError * __nullable error) CF_DEPRECATED(10_2, 10_4, NA, NA);
 
 
+
 /*
  *  CFNetServiceResolve()   *** DEPRECATED ***
  *  
@@ -2022,72 +2023,6 @@ CFNetServiceRegister(CFNetServiceRef theService, CFStreamError * __nullable erro
  */
 CFN_EXPORT Boolean 
 CFNetServiceResolve(CFNetServiceRef theService, CFStreamError * __nullable error) CF_DEPRECATED(10_2, 10_4, NA, NA);
-
-
-
-/*
- *  CFNetServiceGetProtocolSpecificInformation()   *** DEPRECATED ***
- *  
- *  Discussion:
- *	Query a Network Service for its protocol specific information.
- *	
- *	
- *	As a result of new, better performing API's in Service Discovery,
- *	users should now call CFNetServiceGetTXTData.  If needing to
- *	monitor TXT record changes, users should use the new
- *	CFNetServiceMonitor object. Using the new calls will allow your
- *	application to perform better on the network.
- *  
- *  Mac OS X threading:
- *	Thread safe
- *	The function gets the data in a thread-safe manner, but the
- *	resulting data is not safe.  Since it is returned as a matter of
- *	a get opposed to a copy, the data is not safe if the service is
- *	being altered from another thread.
- *  
- *  Parameters:
- *	
- *	theService:
- *	  The Network Service to be queried.  Must be non-NULL.
- *  
- *  Result:
- *	Returns NULL if a resolve has not been performed or if
- *	CFNetServiceSetProtocolSpecificInformation has not been called. 
- *	It will return a CFStringRef containing the specific information
- *	if there is some.
- *  
- */
-CFN_EXPORT __nullable CFStringRef
-CFNetServiceGetProtocolSpecificInformation(CFNetServiceRef theService) CF_DEPRECATED(10_2, 10_4, NA, NA);
-
-
-
-/*
- *  CFNetServiceSetProtocolSpecificInformation()   *** DEPRECATED ***
- *  
- *  Discussion:
- *	Set a Network Service's protocol specific information. 
- *	
- *	As a result of new, better performing API's in Service Discovery,
- *	users should now call CFNetServiceSetTXTData.  Using the new
- *	calls will allow your application to perform better on the
- *	network.
- *  
- *  Mac OS X threading:
- *	Thread safe
- *  
- *  Parameters:
- *	
- *	theService:
- *	  The Network Service to be queried.  Must be non-NULL.
- *	
- *	theInfo:
- *	  The protocol specific information to be added.  Pass NULL to
- *	  remove the information from the service.
- *  
- */
-CFN_EXPORT void 
-CFNetServiceSetProtocolSpecificInformation(CFNetServiceRef theService, CFStringRef __nullable theInfo) CF_DEPRECATED(10_2, 10_4, NA, NA);
 
 
 #endif  /* defined(__MACH__) */
@@ -2347,6 +2282,8 @@ CFN_EXPORT const CFStringRef kCFStreamNetworkServiceTypeVoice      CF_AVAILABLE(
 CFN_EXPORT const CFStringRef kCFStreamNetworkServiceTypeBackground CF_AVAILABLE(10_7, 5_0);   // background
 CFN_EXPORT const CFStringRef kCFStreamNetworkServiceTypeResponsiveData __OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_6_0); // responsive (time sensitive) data
 CFN_EXPORT const CFStringRef kCFStreamNetworkServiceTypeCallSignaling	   CF_AVAILABLE(10_12, 10_0); //Call Signaling
+CFN_EXPORT const CFStringRef kCFStreamNetworkServiceTypeAVStreaming __OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_6_0);					// multimedia audio/video streaming
+CFN_EXPORT const CFStringRef kCFStreamNetworkServiceTypeResponsiveAV __OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_6_0);				// responsive multimedia audio/video
 
 /* deprecated network service type: */
 CFN_EXPORT const CFStringRef kCFStreamNetworkServiceTypeVoIP       CF_DEPRECATED(10_7, 10_11, 4_0, 9_0, "use PushKit for VoIP control purposes");   // voice over IP control - this service type is deprecated in favor of using PushKit for VoIP control
@@ -2374,6 +2311,43 @@ CFN_EXPORT const CFStringRef kCFStreamPropertyNoCellular CF_AVAILABLE(10_8, 5_0)
  *  interface or has not yet established a connection.
  */
 CFN_EXPORT const CFStringRef kCFStreamPropertyConnectionIsCellular CF_AVAILABLE(10_8, 6_0);
+
+/*
+ *  kCFStreamPropertyAllowExpensiveNetworkAccess
+ *
+ *  Discussion:
+ *  Stream property value, for both set and copy operations.
+ *  The value is a CFBooleanRef which indicates whether the connection
+ *  is allowed to use network interfaces that are marked expensive.  A value of
+ *  kCFBooleanTrue (the default) allows use of expensive interfaces.  kCFBooleanFalse
+ *  disallows use of expensive interfaces.
+ *
+ */
+CFN_EXPORT const CFStringRef kCFStreamPropertyAllowExpensiveNetworkAccess API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ *  kCFStreamPropertyConnectionIsExpensive
+ *
+ *  Discussion:
+ *  Stream property key for copy operations.  Returns a CFBooleanRef value
+ *  of kCFBooleanTrue if the stream has connected using an "expensive" interface.
+ *  It returns kCFBooleanFalse if the stream is conneceted over an "inexpensive"
+ *  interface.  If the connection has not been established yet NULL will be returned.
+ */
+CFN_EXPORT const CFStringRef kCFStreamPropertyConnectionIsExpensive API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ *  kCFStreamPropertyAllowConstrainedNetworkAccess
+ *
+ *  Discussion:
+ *  Stream property value, for both set and copy operations.
+ *  The value is a CFBooleanRef which indicates whether the connection
+ *  is allowed to use "constrained" networks.  A value of kCFBooleanTrue (the default)
+ *  allows the  use of constrained interfaces.  kCFBooleanFalse
+ *  disallows use of constrained interfaces.
+ *
+ */
+CFN_EXPORT const CFStringRef kCFStreamPropertyAllowConstrainedNetworkAccess API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
 
 /*
  *  kCFStreamErrorDomainWinSock
@@ -3864,29 +3838,6 @@ CFReadStreamCreateForHTTPRequest(CFAllocatorRef __nullable alloc, CFHTTPMessageR
 CFN_EXPORT CFReadStreamRef 
 CFReadStreamCreateForStreamedHTTPRequest(CFAllocatorRef __nullable alloc, CFHTTPMessageRef requestHeaders, CFReadStreamRef requestBody) CF_DEPRECATED(10_2, 10_11, 2_0, 9_0, "Use NSURLSession API for http requests");
 
-
-/*
- *  CFHTTPReadStreamSetRedirectsAutomatically()   *** DEPRECATED ***
- *  
- *  Deprecated:
- *	Use the kCFStreamPropertyHTTPShouldAutoredirect property above
- *	instead.
- *  
- *  Discussion:
- *	Sets the redirection property on the http stream.
- *  
- *  Parameters:
- *	
- *	httpStream:
- *	  A pointer to the CFHTTPStream to be set.
- *	
- *	shouldAutoRedirect:
- *	  A boolean indicating whether to redirect or not.
- *  
- */
-CFN_EXPORT void
-CFHTTPReadStreamSetRedirectsAutomatically(CFReadStreamRef httpStream, Boolean shouldAutoRedirect) CF_DEPRECATED(10_1, 10_3, NA, NA);
-
 #if PRAGMA_ENUM_ALWAYSINT
 	#pragma enumsalwaysint reset
 #endif
@@ -3917,6 +3868,7 @@ CF_EXTERN_C_END
 
 // To pick-up the CALLBACK_API_C definition.
 #include <ConditionalMacros.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 /* Standard incantation for exporting/importing DLL symbols */
 #if defined(__WIN32__)

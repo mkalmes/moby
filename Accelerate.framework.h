@@ -6,7 +6,7 @@
 
      Version:    Accelerate-1
 
-     Copyright:  Copyright (c) 2000-2018 by Apple Inc. All rights reserved.
+     Copyright:  Copyright (c) 2000-2019 by Apple Inc. All rights reserved.
 
      Bugs:       For bug reports, consult the following page on
                  the World Wide Web:
@@ -19810,7 +19810,7 @@ extern "C" {
 #if __has_attribute(nonnull)
 #   define VIMAGE_NON_NULL(...)         __attribute__ ((nonnull(__VA_ARGS__)))
 #else
-#   define VIMAGE_NON_NULL(...)         
+#   define VIMAGE_NON_NULL(...)
 #endif
 
 /*!
@@ -24447,9 +24447,9 @@ VIMAGE_PF vImagePixelCount vImageGetResamplingFilterExtent( ResamplingFilter fil
  
      Contains:   Master include for vecLib framework
  
-     Version:    vecLib-671.200
+     Version:    vecLib-728.0
  
-     Copyright:  Copyright (c) 2000-2018 by Apple Inc. All rights reserved.
+     Copyright:  Copyright (c) 2000-2019 by Apple Inc. All rights reserved.
  
      Bugs:       For bug reports, consult the following page on
                  the World Wide Web:
@@ -24531,12 +24531,11 @@ VIMAGE_PF vImagePixelCount vImageGetResamplingFilterExtent( ResamplingFilter fil
 #endif	/* defined _AltiVecPIMLanguageExtensionsAreEnabled */
 
 #elif defined(__i386__) || defined(__x86_64__)
+#include <immintrin.h>
 #ifdef __SSE__
 #if defined(__GNUC__)
-#include <xmmintrin.h>
 typedef float                   vFloat          __attribute__ ((__vector_size__ (16)));
 #else /* not __GNUC__ */
-#include <xmmintrin.h>
 typedef __m128                          vFloat;
 #endif /* __GNUC__ */
 #endif  /* defined(__SSE__) */
@@ -24546,7 +24545,6 @@ typedef __m128                          vFloat;
     
     #if defined(__GNUC__)
         #if defined(__GNUC_MINOR__) && (((__GNUC__ == 3) && (__GNUC_MINOR__ <= 3)) || (__GNUC__ < 3))
-            #include <xmmintrin.h>
             typedef __m128i vUInt8;
             typedef __m128i vSInt8;
             typedef __m128i vUInt16;
@@ -24558,7 +24556,6 @@ typedef __m128                          vFloat;
             typedef __m128i vSInt64;
             typedef __m128d vDouble;
         #else /* gcc-3.5 or later */
-            #include <emmintrin.h>
             typedef unsigned char           vUInt8          __attribute__ ((__vector_size__ (16)));
             typedef char                    vSInt8          __attribute__ ((__vector_size__ (16)));
             typedef unsigned short          vUInt16         __attribute__ ((__vector_size__ (16)));
@@ -24571,7 +24568,6 @@ typedef __m128                          vFloat;
             typedef double                  vDouble         __attribute__ ((__vector_size__ (16)));
         #endif /* __GNUC__ <= 3.3 */
     #else /* not __GNUC__ */
-        #include <emmintrin.h>
         typedef __m128i                         vUInt8;
         typedef __m128i                         vSInt8;
         typedef __m128i                         vUInt16;
@@ -24652,9 +24648,9 @@ typedef __m128                          vFloat;
  
      Contains:   Master include for vecLib framework
  
-     Version:    vecLib-671.200
+     Version:    vecLib-728.0
  
-     Copyright:  Copyright (c) 2000-2018 by Apple Inc. All rights reserved.
+     Copyright:  Copyright (c) 2000-2019 by Apple Inc. All rights reserved.
  
      Bugs:       For bug reports, consult the following page on
                  the World Wide Web:
@@ -24822,15 +24818,15 @@ typedef __m128                          vFloat;
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // Availability
 #if __has_include( <Availability.h> )
 #include <Availability.h>
 #else
 #define __API_AVAILABLE(...)
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 // Nullability
@@ -25509,8 +25505,8 @@ __API_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 #endif // __BNNS_HEADER__
 // ==========  Accelerate.framework/Frameworks/vecLib.framework/Headers/vfp.h
-/*  vfp.h (from vecLib-671.200)
- *  Copyright (c) 1999-2018 by Apple Inc. All rights reserved.
+/*  vfp.h (from vecLib-728.0)
+ *  Copyright (c) 1999-2019 by Apple Inc. All rights reserved.
  *
  *  Overview:
  *  vfp.h provides math library operations for SIMD vectors.  These functions
@@ -25536,6 +25532,7 @@ __API_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 #include "vecLibTypes.h"
 #include <stdint.h>
+
 #include <os/availability.h>
 
 #ifdef __cplusplus
@@ -25786,9 +25783,9 @@ extern vUInt32 vtablelookup(vSInt32, uint32_t *) API_AVAILABLE(macos(10.0), ios(
  
      Contains:   Master include for vecLib framework
  
-     Version:    vecLib-671.200
+     Version:    vecLib-728.0
  
-     Copyright:  Copyright (c) 2000-2018 by Apple Inc. All rights reserved.
+     Copyright:  Copyright (c) 2000-2019 by Apple Inc. All rights reserved.
  
      Bugs:       For bug reports, consult the following page on
                  the World Wide Web:
@@ -25866,9 +25863,9 @@ extern vUInt32 vtablelookup(vSInt32, uint32_t *) API_AVAILABLE(macos(10.0), ios(
  
      Contains:   Algebraic and logical operations on large operands.
  
-     Version:    vecLib-671.200
+     Version:    vecLib-728.0
  
-     Copyright:  Copyright (c) 1999-2018 by Apple Inc. All rights reserved.
+     Copyright:  Copyright (c) 1999-2019 by Apple Inc. All rights reserved.
  
      Bugs:       For bug reports, consult the following page on
                  the World Wide Web:
@@ -38327,9 +38324,9 @@ __API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
     Contains:   AltiVec DSP Interfaces
 
-    Version:    vecLib-671.200
+    Version:    vecLib-728.0
 
-    Copyright:  Copyright (c) 2000-2018 by Apple Inc. All rights reserved.
+    Copyright:  Copyright (c) 2000-2019 by Apple Inc. All rights reserved.
 
     For vDSP documentation, search for "vDSP" at <http://developer.apple.com>
     or search for one of the routine names below.
@@ -38562,8 +38559,8 @@ extern "C" {
     vDSP_Version0 is a major version number.
     vDSP_Version1 is a minor version number.
 */
-#define vDSP_Version0   671
-#define vDSP_Version1   200
+#define vDSP_Version0   728
+#define vDSP_Version1   0
 
 
 /*  Define types:
@@ -44395,7 +44392,7 @@ extern void vDSP_vsbsbmD(
         These compute:
 
             for (n = 0; n < N; ++n)
-                C[n] = (A[n] - B[n]) * (C[n] - D[n]);
+                E[n] = (A[n] - B[n]) * (C[n] - D[n]);
     */
 
 
@@ -48331,9 +48328,9 @@ typedef DSPDoubleSplitComplex           DOUBLE_COMPLEX_SPLIT;
  
      Contains:   Basic Algebraic Operations for AltiVec
  
-     Version:    vecLib-671.200
+     Version:    vecLib-728.0
  
-     Copyright:  Copyright (c) 1999-2018 by Apple Inc. All rights reserved.
+     Copyright:  Copyright (c) 1999-2019 by Apple Inc. All rights reserved.
  
      Bugs:       For bug reports, consult the following page on
                  the World Wide Web:
@@ -51189,9 +51186,9 @@ typedef void (*la_deallocator_t)(void *ptr);
  
      Contains:   vector and matrix functions for AltiVec
  
-     Version:    vecLib-671.200
+     Version:    vecLib-728.0
  
-     Copyright:  Copyright (c) 1999-2018 by Apple Inc. All rights reserved.
+     Copyright:  Copyright (c) 1999-2019 by Apple Inc. All rights reserved.
  
      Bugs:       For bug reports, consult the following page on
                  the World Wide Web:
@@ -52524,10 +52521,33 @@ vSgevv(
 # include <cblas.h>
 #endif
 
-#if __has_include(<os/object.h>)
-# include <os/object.h>
+// Due to changes in the implementation of OS_ENUM that would break ABI,
+// we now define our own SPARSE_ENUM instead.
+// Note that as specifying an enum_extensibility attribute causes Swift to import things
+// differently compared to previous versions of Sparse, we disable it here to avoid
+// breaking backwards compatability.
+#if __has_attribute(enum_extensibility) && !defined(__swift__)
+#  define __SPARSE_ENUM_ATTR __attribute__((enum_extensibility(open)))
+#  define __SPARSE_ENUM_ATTR_CLOSED __attribute__((enum_extensibility(closed)))
 #else
-# define OS_ENUM(_name, _type, ...) enum { __VA_ARGS__ }; typedef _type _name##_t
+#  define __SPARSE_ENUM_ATTR
+#  define __SPARSE_ENUM_ATTR_CLOSED
+#endif // __has_attribute(enum_extensibility)
+
+#if __has_feature(objc_fixed_enum) || __has_extension(cxx_strong_enums)
+# define SPARSE_ENUM(_name, _type, ...) \
+         typedef enum : _type { __VA_ARGS__ } _name##_t
+# define SPARSE_CLOSED_ENUM(_name, _type, ...) \
+         typedef enum : _type { __VA_ARGS__ } \
+             __SPARSE_ENUM_ATTR_CLOSED _name##_t
+#else
+# define __SPARSE_ENUM_C_FALLBACK(_name, _type, ...) \
+         typedef _type _name##_t; enum _name { __VA_ARGS__ }
+# define SPARSE_ENUM(_name, _type, ...) \
+         typedef _type _name##_t; enum { __VA_ARGS__ }
+# define SPARSE_CLOSED_ENUM(_name, _type, ...) \
+         __SPARSE_ENUM_C_FALLBACK(_name, _type, ## __VA_ARGS__) \
+         __SPARSE_ENUM_ATTR_CLOSED
 #endif
 
 #if __has_include(<os/availability.h>)
@@ -52562,7 +52582,7 @@ vSgevv(
  *  @constant SparseSymmetric A symmetric sparse matrix.  The SparseTriangle_t
  *    field indicates which triangle (upper or lower) is used to represent
  *    the matrix.                                                             */
-OS_ENUM(SparseKind, unsigned int,
+SPARSE_ENUM(SparseKind, unsigned int,
   SparseOrdinary       = 0,
   SparseTriangular     = 1,
   SparseUnitTriangular = 2,
@@ -52583,7 +52603,7 @@ OS_ENUM(SparseKind, unsigned int,
  *            be used, and the upper triangle is implicitly zero.
  *            For symmetric matrices, indicates that the lower triangle is to
  *            be used; the upper triangle is implicitly defined by reflection.*/
-OS_ENUM(SparseTriangle, unsigned char,
+SPARSE_CLOSED_ENUM(SparseTriangle, unsigned char,
   SparseUpperTriangle = 0,
   SparseLowerTriangle = 1
 );
@@ -52992,7 +53012,7 @@ typedef struct {
  *  @constant SparseParameterError        Error in user-supplied parameter.
  *  @constant SparseStatusReleased        Factorization object has been freed.
  */
-OS_ENUM(SparseStatus, int,
+SPARSE_ENUM(SparseStatus, int,
   SparseStatusOK            =  0,
   SparseFactorizationFailed = -1,
   SparseMatrixIsSingular    = -2,
@@ -53018,7 +53038,7 @@ OS_ENUM(SparseStatus, int,
  *  @constant SparseFactorizationCholeskyAtA
  *              QR factorization without storing Q (equivalent to A^TA = R^T R).
  */
-OS_ENUM(SparseFactorization, uint8_t,
+SPARSE_ENUM(SparseFactorization, uint8_t,
   SparseFactorizationCholesky = 0,
   SparseFactorizationLDLT = 1,
   SparseFactorizationLDLTUnpivoted = 2,
@@ -53032,7 +53052,7 @@ OS_ENUM(SparseFactorization, uint8_t,
  *
  *  @constant SparseDefaultControl  Use default values.
  */
-OS_ENUM(SparseControl, uint32_t,
+SPARSE_ENUM(SparseControl, uint32_t,
   SparseDefaultControl = 0
 );
 
@@ -53070,7 +53090,7 @@ OS_ENUM(SparseControl, uint32_t,
  *  @constant SparseOrderCOLAMD
  *              Column AMD ordering for A^T A. Not valid for symmetric
  *              factorizations (use AMD instead).                             */
-OS_ENUM(SparseOrder, uint8_t,
+SPARSE_ENUM(SparseOrder, uint8_t,
   SparseOrderDefault = 0,
   SparseOrderUser = 1,
   SparseOrderAMD = 2,
@@ -53088,7 +53108,7 @@ OS_ENUM(SparseOrder, uint8_t,
  *              scaling.
  *  @constant SparseScalingEquilibriationInf
  *              Norm equilibriation scaling using inf norm.                   */
-OS_ENUM(SparseScaling, uint8_t,
+SPARSE_ENUM(SparseScaling, uint8_t,
   SparseScalingDefault = 0,
   SparseScalingUser = 1,
   SparseScalingEquilibriationInf = 2,
@@ -53419,7 +53439,7 @@ typedef struct {
  *    R factor subfactor, valid for QR and CholeskyAtA only.
  *  @constant SparseSubfactorRP
  *    Half-solve subfactor, valid for QR and CholeskyAtA only.                   */
-OS_ENUM(SparseSubfactor, uint8_t,
+SPARSE_ENUM(SparseSubfactor, uint8_t,
         SparseSubfactorInvalid = 0,
         SparseSubfactorP = 1,
         SparseSubfactorS = 2,
@@ -55262,7 +55282,7 @@ void SparseMultiply(SparseOpaqueSubfactor_Float Subfactor, DenseVector_Float x,
  *    Diagonal scaling preconditioner D_ii = 1.0 / || A_i ||_2, where A_i is
  *    i-th column of A.
  */
-OS_ENUM(SparsePreconditioner, int,
+SPARSE_ENUM(SparsePreconditioner, int,
   SparsePreconditionerNone = 0,
   SparsePreconditionerUser = 1,
   SparsePreconditionerDiagonal = 2,
@@ -55368,7 +55388,7 @@ SparseOpaquePreconditioner_Float SparseCreatePreconditioner(
  *    unlikely.
  *  @const SparseIterativeInternalError
  *    Some internal failure occured (e.g. memory allocation failed).          */
-OS_ENUM(SparseIterativeStatus, int,
+SPARSE_ENUM(SparseIterativeStatus, int,
   SparseIterativeConverged = 0,
   SparseIterativeMaxIterations = 1,
   SparseIterativeParameterError = -1,
@@ -55473,7 +55493,7 @@ typedef struct {
  *    Use standard restarted GMRES. This method is not flexible.
  *  @const SparseVariantFGMRES
  *    Use Flexible GMRES. This method is flexible.                            */
-OS_ENUM(SparseGMRESVariant, uint8_t,
+SPARSE_ENUM(SparseGMRESVariant, uint8_t,
   SparseVariantDQGMRES = 0,
   SparseVariantGMRES = 1,
   SparseVariantFGMRES = 2
@@ -55550,11 +55570,11 @@ typedef struct {
  *      || A^Tb - A^TAx ||_2 < rtol * || A^Tb - A^TAx_0 ||_2 + atol.
  *
  *  @const SparseLSMRCTFongSaunders
- *    Use the convergence test of Fond and Saunders:
+ *    Use the convergence test of Fong and Saunders:
  *      Either || b-Ax ||_2 < btol * || b ||_2 + atol * || A ||_2 || x ||_2
  *      or     || A^T (b-Ax) ||_2 < atol * || A ||_2 * || A-bx ||_2
  *      or     Estimated condition of matrix >= conditionLimit                */
-OS_ENUM(SparseLSMRConvergenceTest, int,
+SPARSE_ENUM(SparseLSMRConvergenceTest, int,
   SparseLSMRCTDefault = 0,
   SparseLSMRCTFongSaunders = 1,
 );
@@ -55576,7 +55596,7 @@ OS_ENUM(SparseLSMRConvergenceTest, int,
  *  For square, full rank unsymmetric or indefinite equations, use GMRES instead.
  *
  *  LSMR is described in the following paper:
- *  [1] D.C.-L. Fond and M.A. Saunders (2011), "LSMR: An iterative algoirthm for
+ *  [1] D.C.-L. Fong and M.A. Saunders (2011), "LSMR: An iterative algoirthm for
  *      sparse least-squares problems", SIAM J. Scientific Computing 33(5),
  *      pp 2950--2971.
  *
@@ -57043,6 +57063,7 @@ _SPARSE_VARIANT(SparseMatrix) SparseConvertFromCoordinate(
   SPARSE_PARAMETER_CHECK(workspace, _SPARSE_VARIANT(_SparseNullMatrix),
                          "Failed to allocate workspace of size %ld.\n", rowCount*sizeof(int));
   _SPARSE_VARIANT(SparseMatrix) result =  _SPARSE_VARIANT(_SparseConvertFromCoordinate)(rowCount, columnCount, blockCount, blockSize, attributes, row, column, data, storage, workspace);
+  result.structure.columnStarts = (long *)storage; // redundant to assignment in _SparseConvertFromCoordinate call, used to suppress static analyzer warning
   free(workspace);
   result.structure.attributes._allocatedBySparse = true;
   return result;
@@ -57096,10 +57117,10 @@ void SparseMultiply(_SPARSE_IMPLEMENTATION_TYPE alpha, _SPARSE_VARIANT(SparseMat
   int m = A.structure.blockSize * ((A.structure.attributes.transpose) ? A.structure.columnCount : A.structure.rowCount);
   int n = A.structure.blockSize * ((A.structure.attributes.transpose) ? A.structure.rowCount : A.structure.columnCount);
   SPARSE_PARAMETER_CHECK(n == x.count, /* No result */,
-                         "Matix dimensions (%dx%d) do not match x vector dimensions %dx%d\n",
+                         "Matrix dimensions (%dx%d) do not match x vector dimensions %dx%d\n",
                          m, n, x.count, 1);
   SPARSE_PARAMETER_CHECK(m == y.count, /* No result */,
-                         "Matix dimensions (%dx%d) do not match y vector dimensions %dx%d\n",
+                         "Matrix dimensions (%dx%d) do not match y vector dimensions %dx%d\n",
                          m, n, y.count, 1);
   _SPARSE_VARIANT(_SparseSpMV)(alpha, A, _SPARSE_VARIANT(_DenseMatrixFromVector)(x),
                                false, _SPARSE_VARIANT(_DenseMatrixFromVector)(y));
@@ -57145,10 +57166,10 @@ void SparseMultiplyAdd(_SPARSE_IMPLEMENTATION_TYPE alpha, _SPARSE_VARIANT(Sparse
   int m = A.structure.blockSize * ((A.structure.attributes.transpose) ? A.structure.columnCount : A.structure.rowCount);
   int n = A.structure.blockSize * ((A.structure.attributes.transpose) ? A.structure.rowCount : A.structure.columnCount);
   SPARSE_PARAMETER_CHECK(n == x.count, /* No result */,
-                         "Matix dimensions (%dx%d) do not match x vector dimensions %dx%d\n",
+                         "Matrix dimensions (%dx%d) do not match x vector dimensions %dx%d\n",
                          m, n, x.count, 1);
   SPARSE_PARAMETER_CHECK(m == y.count, /* No result */,
-                         "Matix dimensions (%dx%d) do not match y vector dimensions %dx%d\n",
+                         "Matrix dimensions (%dx%d) do not match y vector dimensions %dx%d\n",
                          m, n, y.count, 1);
   _SPARSE_VARIANT(_SparseSpMV)(alpha, A, _SPARSE_VARIANT(_DenseMatrixFromVector)(x),
                                true, _SPARSE_VARIANT(_DenseMatrixFromVector)(y));
@@ -57263,7 +57284,6 @@ _SPARSE_VARIANT(SparseOpaqueFactorization) SparseFactor(SparseOpaqueSymbolicFact
   }
   result.userFactorStorage = userFactorStorage; // Flag whether we should free memory on destruction or not
   if(!userWorkspace) options.free(workspace); // If we allocated workspace, free it
-  if(result.status < 0 && !userFactorStorage) options.free(factorStorage); // free anything we allocated on error
   return result;
 }
 
@@ -58326,12 +58346,12 @@ _SPARSE_VARIANT(SparseOpaqueSubfactor) SparseRetain(_SPARSE_VARIANT(SparseOpaque
 
 static inline SPARSE_PUBLIC_INTERFACE
 void SparseCleanup(_SPARSE_VARIANT(SparseOpaqueFactorization) toFree) {
-  if (toFree.status >= 0) _SPARSE_VARIANT(_SparseDestroyOpaqueNumeric)(&toFree);
+  _SPARSE_VARIANT(_SparseDestroyOpaqueNumeric)(&toFree);
 }
 
 static inline SPARSE_PUBLIC_INTERFACE
 void SparseCleanup(_SPARSE_VARIANT(SparseOpaqueSubfactor) toFree) {
-  if (toFree.factor.status >= 0) _SPARSE_VARIANT(_SparseDestroyOpaqueNumeric)(&toFree.factor);
+  _SPARSE_VARIANT(_SparseDestroyOpaqueNumeric)(&toFree.factor);
 }
 
 static inline SPARSE_PUBLIC_INTERFACE
@@ -60697,7 +60717,7 @@ SPARSE_PARAMETER_CHECK((sf).status == SparseStatusOK && \
 #endif /* SPARSE_CHECK_CONSISTENT_DS_VEC_OUT_PLACE */
 
 /* Iterative Methods */
-OS_ENUM(_SparseIterativeMethod, int,
+SPARSE_ENUM(_SparseIterativeMethod, int,
   /*! @abstract Conjugate Gradient */
   _SparseMethodCG = 0,
   /*! @abstract GMRES or variant */
@@ -60859,8 +60879,8 @@ SparseIterativeMethod SparseLSMR(SparseLSMROptions options) {
 #undef sparse_mul_overflow
 // ==========  Accelerate.framework/Frameworks/vecLib.framework/Headers/vForce.h
 /*
-vForce.h (from vecLib-671.200)
-Copyright (c) 1999-2018 by Apple Inc. All rights reserved.
+vForce.h (from vecLib-728.0)
+Copyright (c) 1999-2019 by Apple Inc. All rights reserved.
 
 @APPLE_LICENSE_HEADER_START@
 

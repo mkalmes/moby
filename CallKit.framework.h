@@ -14,13 +14,14 @@ NS_ASSUME_NONNULL_BEGIN
 @class CXCall;
 @class CXCallObserver;
 
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @protocol CXCallObserverDelegate <NSObject>
 
 - (void)callObserver:(CXCallObserver *)callObserver callChanged:(CXCall *)call;
 
 @end
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXCallObserver : NSObject
 
 /// Retrieve the current call list, blocking on initial state retrieval if necessary
@@ -45,11 +46,14 @@ NS_ASSUME_NONNULL_END
 
 #import <CallKit/CXBase.h>
 
-#import <CallKit/CXCallUpdate.h>
-#import <CallKit/CXHandle.h>
 #import <CallKit/CXError.h>
 
 #import <CallKit/CXAction.h>
+#import <CallKit/CXTransaction.h>
+
+#import <CallKit/CXCallUpdate.h>
+#import <CallKit/CXHandle.h>
+
 #import <CallKit/CXCallAction.h>
 #import <CallKit/CXStartCallAction.h>
 #import <CallKit/CXAnswerCallAction.h>
@@ -58,8 +62,6 @@ NS_ASSUME_NONNULL_END
 #import <CallKit/CXSetMutedCallAction.h>
 #import <CallKit/CXSetGroupCallAction.h>
 #import <CallKit/CXPlayDTMFCallAction.h>
-
-#import <CallKit/CXTransaction.h>
 
 #import <CallKit/CXProvider.h>
 #import <CallKit/CXProviderConfiguration.h>
@@ -91,6 +93,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class CXProvider;
 @class CXProviderConfiguration;
 @class CXTransaction;
+@class CXAction;
+@class CXCallAction;
 @class CXStartCallAction;
 @class CXAnswerCallAction;
 @class CXEndCallAction;
@@ -107,8 +111,9 @@ typedef NS_ENUM(NSInteger, CXCallEndedReason) {
     CXCallEndedReasonUnanswered = 3, // The call never started connecting and was never explicitly ended (e.g. outgoing/incoming call timeout)
     CXCallEndedReasonAnsweredElsewhere = 4, // The call was answered on another device
     CXCallEndedReasonDeclinedElsewhere = 5, // The call was declined on another device
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @protocol CXProviderDelegate <NSObject>
 
 /// Called when the provider has been reset. Delegates must respond to this callback by cleaning up all internal call state (disconnecting communication channels, releasing network resources, etc.). This callback can be treated as a request to end all calls without the need to respond to any actions
@@ -145,8 +150,11 @@ typedef NS_ENUM(NSInteger, CXCallEndedReason) {
 
 @end
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXProvider : NSObject
+
+/// In some regions, this functionality may not be supported. Query this value to determine whether your application is allowed to use CXProvider or not.
+@property (class, readonly, getter=isSupported) BOOL supported API_AVAILABLE(ios(13.0));
 
 /// Initialize a new provider instance with the supplied configuration
 - (instancetype)initWithConfiguration:(CXProviderConfiguration *)configuration NS_DESIGNATED_INITIALIZER;
@@ -178,7 +186,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
 /// The receiver's current configuration.
 @property (nonatomic, readwrite, copy) CXProviderConfiguration *configuration;
 
-/// Invalidate the provider. All existing calls will be marked as ended in failure. The provider must be invalidated before it is deallocated.
+/// Invalidate the receiver. All existing calls will be marked as ended in failure. The provider must be invalidated before it is deallocated.
 - (void)invalidate;
 
 /// List of all transactions that are incomplete.
@@ -203,7 +211,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXCall : NSObject
 
 @property (nonatomic, readonly, copy) NSUUID *UUID;
@@ -215,7 +223,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (BOOL)isEqualToCall:(CXCall *)call NS_SWIFT_UNAVAILABLE("Use == operator instead");
+- (BOOL)isEqualToCall:(CXCall *)call;
 
 @end
 
@@ -237,7 +245,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class CXCallObserver;
 @class CXTransaction;
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXCallController : NSObject
 
 /// Initialize call controller with a private, serial queue.
@@ -262,7 +270,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
 /// A non-nil error indicates that the requested transaction could not be executed.
 ///
 /// Completion block is performed on the queue supplied to designated initializer.
-- (void)requestTransactionWithActions:(NSArray<CXAction *> *)actions completion:(void (^)(NSError *_Nullable error))completion API_AVAILABLE(ios(11.0));
+- (void)requestTransactionWithActions:(NSArray<CXAction *> *)actions completion:(void (^)(NSError *_Nullable error))completion API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE(macos, watchos);
 
 /// Request a transaction containing the specified action to be performed by the in-app provider.
 ///
@@ -270,7 +278,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
 /// A non-nil error indicates that the requested transaction could not be executed.
 ///
 /// Completion block is performed on the queue supplied to designated initializer.
-- (void)requestTransactionWithAction:(CXAction *)action completion:(void (^)(NSError *_Nullable error))completion API_AVAILABLE(ios(11.0));
+- (void)requestTransactionWithAction:(CXAction *)action completion:(void (^)(NSError *_Nullable error))completion API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE(macos, watchos);
 
 @end
 
@@ -287,7 +295,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXEndCallAction : CXCallAction
 
 /// Normally, providers can just call -[CXAction fulfill] to indicate action fulfillment. Use this method to note a specific date that the call ended.
@@ -329,13 +337,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class CXCallDirectoryExtensionContext;
 
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @protocol CXCallDirectoryExtensionContextDelegate <NSObject>
 
 - (void)requestFailedForExtensionContext:(CXCallDirectoryExtensionContext *)extensionContext withError:(NSError *)error;
 
 @end
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXCallDirectoryExtensionContext : NSExtensionContext
 
 @property (nonatomic, weak, nullable) id<CXCallDirectoryExtensionContextDelegate> delegate;
@@ -349,7 +358,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
  a "complete" set of entries, adding the full list of entries from scratch (and removing none), regardless of whether data has ever been
  successfully loaded in the past.
  */
-@property (nonatomic, readonly, getter=isIncremental) BOOL incremental API_AVAILABLE(ios(11.0));
+@property (nonatomic, readonly, getter=isIncremental) BOOL incremental API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE(macos, watchos);
 
 - (void)addBlockingEntryWithNextSequentialPhoneNumber:(CXCallDirectoryPhoneNumber)phoneNumber;
 
@@ -361,7 +370,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
 
  @param phoneNumber The blocking entry phone number to remove.
  */
-- (void)removeBlockingEntryWithPhoneNumber:(CXCallDirectoryPhoneNumber)phoneNumber API_AVAILABLE(ios(11.0));
+- (void)removeBlockingEntryWithPhoneNumber:(CXCallDirectoryPhoneNumber)phoneNumber API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE(macos, watchos);
 
 /**
  Remove all currently-stored blocking entries.
@@ -369,7 +378,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
  May only be used when `-isIncremental` returns YES, indicating that the request should provide incremental entries and thus may use this
  API to remove all previously-added blocking entries.
  */
-- (void)removeAllBlockingEntries API_AVAILABLE(ios(11.0));
+- (void)removeAllBlockingEntries API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE(macos, watchos);
 
 - (void)addIdentificationEntryWithNextSequentialPhoneNumber:(CXCallDirectoryPhoneNumber)phoneNumber label:(NSString *)label;
 
@@ -382,7 +391,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
 
  @param phoneNumber The identification entry phone number to remove.
  */
-- (void)removeIdentificationEntryWithPhoneNumber:(CXCallDirectoryPhoneNumber)phoneNumber API_AVAILABLE(ios(11.0));
+- (void)removeIdentificationEntryWithPhoneNumber:(CXCallDirectoryPhoneNumber)phoneNumber API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE(macos, watchos);
 
 /**
  Remove all currently-stored identification entries.
@@ -390,7 +399,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
  May only be used when `-isIncremental` returns YES, indicating that the request should provide incremental entries and thus may use this
  API to remove all previously-added identification entries.
  */
-- (void)removeAllIdentificationEntries API_AVAILABLE(ios(11.0));
+- (void)removeAllIdentificationEntries API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE(macos, watchos);
 
 - (void)completeRequestWithCompletionHandler:(nullable void (^)(BOOL expired))completion;
 
@@ -413,7 +422,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXAction : NSObject <NSCopying, NSSecureCoding>
 
 /// Unique ID
@@ -448,7 +457,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXSetMutedCallAction : CXCallAction
 
 - (instancetype)initWithCallUUID:(NSUUID *)callUUID muted:(BOOL)muted NS_DESIGNATED_INITIALIZER;
@@ -474,11 +483,11 @@ typedef NS_ENUM(NSInteger, CXPlayDTMFCallActionType) {
     CXPlayDTMFCallActionTypeSingleTone = 1, // The user tapped a digit on the in-call keypad
     CXPlayDTMFCallActionTypeSoftPause = 2, // The user included digits after a soft pause in their dial string
     CXPlayDTMFCallActionTypeHardPause = 3, // The user included digits after a hard pause in their dial string
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXPlayDTMFCallAction : CXCallAction
 
 - (instancetype)initWithCallUUID:(NSUUID *)callUUID digits:(NSString *)digits type:(CXPlayDTMFCallActionType)type NS_DESIGNATED_INITIALIZER;
@@ -506,7 +515,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXAnswerCallAction : CXCallAction
 
 /// Normally, providers can just call -[CXAction fulfill] to indicate action fulfillment. Use this method to note a specific date that the call connected. A call is considered connected when both caller and callee can start communicating.
@@ -527,7 +536,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXCallAction : CXAction
 
 @property (nonatomic, readonly, copy) NSUUID *callUUID;
@@ -551,7 +560,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXSetHeldCallAction : CXCallAction
 
 - (instancetype)initWithCallUUID:(NSUUID *)callUUID onHold:(BOOL)onHold NS_DESIGNATED_INITIALIZER;
@@ -575,7 +584,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXSetGroupCallAction : CXCallAction
 
 - (instancetype)initWithCallUUID:(NSUUID *)callUUID callUUIDToGroupWith:(nullable NSUUID *)callUUIDToGroupWith NS_DESIGNATED_INITIALIZER;
@@ -608,9 +617,9 @@ typedef NS_ENUM(NSInteger, CXHandleType) {
     CXHandleTypeGeneric = 1,
     CXHandleTypePhoneNumber = 2,
     CXHandleTypeEmailAddress = 3,
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXHandle : NSObject <NSCopying, NSSecureCoding>
 
 @property (nonatomic, readonly) CXHandleType type;
@@ -619,7 +628,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
 - (instancetype)initWithType:(CXHandleType)type value:(NSString *)value NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 
-- (BOOL)isEqualToHandle:(CXHandle *)handle NS_SWIFT_UNAVAILABLE("Use == operator instead");
+- (BOOL)isEqualToHandle:(CXHandle *)handle;
 
 @end
 
@@ -639,7 +648,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class CXAction;
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXTransaction : NSObject <NSCopying, NSSecureCoding>
 
 /// Unique ID
@@ -698,9 +707,9 @@ typedef NS_ENUM(NSInteger, CXCallDirectoryEnabledStatus) {
     CXCallDirectoryEnabledStatusUnknown = 0,
     CXCallDirectoryEnabledStatusDisabled = 1,
     CXCallDirectoryEnabledStatusEnabled = 2,
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXCallDirectoryManager : NSObject
 
 @property (readonly, class) CXCallDirectoryManager *sharedInstance;
@@ -726,7 +735,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class CXCallDirectoryExtensionContext;
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXCallDirectoryProvider : NSObject <NSExtensionRequestHandling>
 
 - (void)beginRequestWithExtensionContext:(CXCallDirectoryExtensionContext *)context;
@@ -748,7 +757,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class CXHandle;
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXStartCallAction : CXCallAction
 
 - (instancetype)initWithCallUUID:(NSUUID *)callUUID handle:(CXHandle *)handle NS_DESIGNATED_INITIALIZER;
@@ -781,14 +790,14 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_EXTERN NSErrorDomain const CXErrorDomain API_AVAILABLE(ios(10.0));
-CX_EXTERN NSErrorDomain const CXErrorDomainIncomingCall API_AVAILABLE(ios(10.0));
-CX_EXTERN NSErrorDomain const CXErrorDomainRequestTransaction API_AVAILABLE(ios(10.0));
-CX_EXTERN NSErrorDomain const CXErrorDomainCallDirectoryManager API_AVAILABLE(ios(10.0));
+CX_EXTERN NSErrorDomain const CXErrorDomain API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
+CX_EXTERN NSErrorDomain const CXErrorDomainIncomingCall API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
+CX_EXTERN NSErrorDomain const CXErrorDomainRequestTransaction API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
+CX_EXTERN NSErrorDomain const CXErrorDomainCallDirectoryManager API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
 typedef NS_ERROR_ENUM(CXErrorDomain, CXErrorCode) {
     CXErrorCodeUnknownError = 0,
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
 typedef NS_ERROR_ENUM(CXErrorDomainIncomingCall, CXErrorCodeIncomingCallError) {
     CXErrorCodeIncomingCallErrorUnknown = 0,
@@ -796,7 +805,7 @@ typedef NS_ERROR_ENUM(CXErrorDomainIncomingCall, CXErrorCodeIncomingCallError) {
     CXErrorCodeIncomingCallErrorCallUUIDAlreadyExists = 2,
     CXErrorCodeIncomingCallErrorFilteredByDoNotDisturb = 3,
     CXErrorCodeIncomingCallErrorFilteredByBlockList = 4,
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
 typedef NS_ERROR_ENUM(CXErrorDomainRequestTransaction, CXErrorCodeRequestTransactionError) {
     CXErrorCodeRequestTransactionErrorUnknown = 0,
@@ -807,7 +816,7 @@ typedef NS_ERROR_ENUM(CXErrorDomainRequestTransaction, CXErrorCodeRequestTransac
     CXErrorCodeRequestTransactionErrorCallUUIDAlreadyExists = 5,
     CXErrorCodeRequestTransactionErrorInvalidAction = 6,
     CXErrorCodeRequestTransactionErrorMaximumCallGroupsReached = 7,
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
 typedef NS_ERROR_ENUM(CXErrorDomainCallDirectoryManager, CXErrorCodeCallDirectoryManagerError) {
     CXErrorCodeCallDirectoryManagerErrorUnknown = 0,
@@ -817,9 +826,9 @@ typedef NS_ERROR_ENUM(CXErrorDomainCallDirectoryManager, CXErrorCodeCallDirector
     CXErrorCodeCallDirectoryManagerErrorDuplicateEntries = 4,
     CXErrorCodeCallDirectoryManagerErrorMaximumEntriesExceeded = 5,
     CXErrorCodeCallDirectoryManagerErrorExtensionDisabled = 6,
-    CXErrorCodeCallDirectoryManagerErrorCurrentlyLoading API_AVAILABLE(ios(10.3)) = 7,
-    CXErrorCodeCallDirectoryManagerErrorUnexpectedIncrementalRemoval API_AVAILABLE(ios(11.0)) = 8,
-} API_AVAILABLE(ios(10.0));
+    CXErrorCodeCallDirectoryManagerErrorCurrentlyLoading API_AVAILABLE(ios(10.3), uikitformac(13.0)) = 7,
+    CXErrorCodeCallDirectoryManagerErrorUnexpectedIncrementalRemoval API_AVAILABLE(ios(11.0), uikitformac(13.0)) = 8,
+} API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos);
 
 NS_ASSUME_NONNULL_END
 // ==========  CallKit.framework/Headers/CXProviderConfiguration.h
@@ -835,7 +844,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXProviderConfiguration : NSObject <NSCopying>
 
 /// Localized name of the provider
@@ -850,7 +859,7 @@ CX_CLASS_AVAILABLE(ios(10.0))
 
 /// Whether this provider's calls should be included in the system's Recents list at the end of each call.
 /// Default: YES
-@property (nonatomic) BOOL includesCallsInRecents API_AVAILABLE(ios(11.0));
+@property (nonatomic) BOOL includesCallsInRecents API_AVAILABLE(ios(11.0), uikitformac(13.0)) API_UNAVAILABLE(macos, watchos);
 
 @property (nonatomic) BOOL supportsVideo; // Default NO
 
@@ -880,7 +889,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Any property that is not set will be ignored
 
-CX_CLASS_AVAILABLE(ios(10.0))
+CX_EXTERN API_AVAILABLE(ios(10.0), uikitformac(13.0)) API_UNAVAILABLE( tvos) API_UNAVAILABLE(macos, watchos)
 @interface CXCallUpdate : NSObject <NSCopying>
 
 /// Handle for the remote party (for an incoming call, the caller; for an outgoing call, the callee)

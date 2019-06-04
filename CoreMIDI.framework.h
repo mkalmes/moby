@@ -1571,7 +1571,7 @@ typedef struct MIDIIOErrorNotification MIDIIOErrorNotification;
 		A setup editor may allow the user to set the names of both driver-owned and external
 		devices.
 */
-extern const CFStringRef	kMIDIPropertyName					API_AVAILABLE(macos(10.0), ios(4.2));
+extern const CFStringRef	kMIDIPropertyName					API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyManufacturer
@@ -1584,7 +1584,7 @@ extern const CFStringRef	kMIDIPropertyName					API_AVAILABLE(macos(10.0), ios(4.
 
 		Creators of virtual endpoints may set this property on their endpoints.
 */
-extern const CFStringRef	kMIDIPropertyManufacturer			API_AVAILABLE(macos(10.0), ios(4.2));
+extern const CFStringRef	kMIDIPropertyManufacturer			API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyModel
@@ -1597,7 +1597,7 @@ extern const CFStringRef	kMIDIPropertyManufacturer			API_AVAILABLE(macos(10.0), 
 
 		Creators of virtual endpoints may set this property on their endpoints.
 */
-extern const CFStringRef	kMIDIPropertyModel					API_AVAILABLE(macos(10.0), ios(4.2));
+extern const CFStringRef	kMIDIPropertyModel					API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyUniqueID
@@ -1608,7 +1608,7 @@ extern const CFStringRef	kMIDIPropertyModel					API_AVAILABLE(macos(10.0), ios(4
 		this property on their endpoints, though doing so may fail if the chosen ID is not
 		unique.
 */
-extern const CFStringRef	kMIDIPropertyUniqueID				API_AVAILABLE(macos(10.0), ios(4.2));
+extern const CFStringRef	kMIDIPropertyUniqueID				API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyDeviceID
@@ -1621,7 +1621,7 @@ extern const CFStringRef	kMIDIPropertyUniqueID				API_AVAILABLE(macos(10.0), ios
 
 		Setup editors may allow the user to set this property on external devices.
 */
-extern const CFStringRef	kMIDIPropertyDeviceID				API_AVAILABLE(macos(10.0), ios(4.2));
+extern const CFStringRef	kMIDIPropertyDeviceID				API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyReceiveChannels
@@ -1637,7 +1637,7 @@ extern const CFStringRef	kMIDIPropertyDeviceID				API_AVAILABLE(macos(10.0), ios
 
 		Virtual destination may set this property on their endpoints.
 */
-extern const CFStringRef	kMIDIPropertyReceiveChannels		API_AVAILABLE(macos(10.0), ios(4.2));
+extern const CFStringRef	kMIDIPropertyReceiveChannels		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyTransmitChannels
@@ -1647,7 +1647,7 @@ extern const CFStringRef	kMIDIPropertyReceiveChannels		API_AVAILABLE(macos(10.0)
 		The value is a bitmap of channels on which the object transmits: 1=ch 1, 2=ch 2, 4=ch 3
 		... 0x8000=ch 16.
 */
-extern const CFStringRef	kMIDIPropertyTransmitChannels		API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyTransmitChannels		API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyMaxSysExSpeed
@@ -1658,7 +1658,7 @@ extern const CFStringRef	kMIDIPropertyTransmitChannels		API_AVAILABLE(macos(10.2
 		The value is the maximum rate, in bytes/second, at which sysex messages may
 		be sent reliably to this object. (The default value is 3125, as with MIDI 1.0)
 */
-extern const CFStringRef	kMIDIPropertyMaxSysExSpeed			API_AVAILABLE(macos(10.0), ios(4.2));
+extern const CFStringRef	kMIDIPropertyMaxSysExSpeed			API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -1680,7 +1680,7 @@ extern const CFStringRef	kMIDIPropertyMaxSysExSpeed			API_AVAILABLE(macos(10.0),
 		time, it receives timestamped messages as soon as they are sent, and must do its own
 		internal scheduling of received events.
 */
-extern const CFStringRef	kMIDIPropertyAdvanceScheduleTimeMuSec	API_AVAILABLE(macos(10.0), ios(4.2));
+extern const CFStringRef	kMIDIPropertyAdvanceScheduleTimeMuSec	API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyIsEmbeddedEntity
@@ -1689,7 +1689,7 @@ extern const CFStringRef	kMIDIPropertyAdvanceScheduleTimeMuSec	API_AVAILABLE(mac
 
 		0 if there are external MIDI connectors, 1 if not.
 */
-extern const CFStringRef	kMIDIPropertyIsEmbeddedEntity			API_AVAILABLE(macos(10.1), ios(4.2));
+extern const CFStringRef	kMIDIPropertyIsEmbeddedEntity			API_AVAILABLE(macos(10.1), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -1700,7 +1700,7 @@ extern const CFStringRef	kMIDIPropertyIsEmbeddedEntity			API_AVAILABLE(macos(10.
 		1 if the endpoint broadcasts messages to all of the other endpoints in the device, 0 if
 		not.  Set by the owning driver; should not be touched by other clients.
 */
-extern const CFStringRef	kMIDIPropertyIsBroadcast				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyIsBroadcast				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertySingleRealtimeEntity
@@ -1715,7 +1715,7 @@ extern const CFStringRef	kMIDIPropertyIsBroadcast				API_AVAILABLE(macos(10.2), 
 		entity on which incoming realtime messages from the device will appear to have
 		originated from.
 */
-extern const CFStringRef	kMIDIPropertySingleRealtimeEntity		API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertySingleRealtimeEntity		API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyConnectionUniqueID
@@ -1736,7 +1736,7 @@ extern const CFStringRef	kMIDIPropertySingleRealtimeEntity		API_AVAILABLE(macos(
 		signifies a MIDI Thru connection to another external device/entity/endpoint (again,
 		it is strongly recommended that it be an endpoint).
 */
-extern const CFStringRef	kMIDIPropertyConnectionUniqueID			API_AVAILABLE(macos(10.1), ios(4.2));
+extern const CFStringRef	kMIDIPropertyConnectionUniqueID			API_AVAILABLE(macos(10.1), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -1748,7 +1748,7 @@ extern const CFStringRef	kMIDIPropertyConnectionUniqueID			API_AVAILABLE(macos(1
 		the device; should not be touched by other clients. Property is inherited from the
 		device by its entities and endpoints.
 */
-extern const CFStringRef	kMIDIPropertyOffline					API_AVAILABLE(macos(10.1), ios(4.2));
+extern const CFStringRef	kMIDIPropertyOffline					API_AVAILABLE(macos(10.1), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyPrivate
@@ -1759,7 +1759,7 @@ extern const CFStringRef	kMIDIPropertyOffline					API_AVAILABLE(macos(10.1), ios
 		but they will still appear in the API; only affects whether the owned endpoints are
 		hidden.
 */
-extern const CFStringRef	kMIDIPropertyPrivate					API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyPrivate					API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyDriverOwner
@@ -1770,7 +1770,7 @@ extern const CFStringRef	kMIDIPropertyPrivate					API_AVAILABLE(macos(10.2), ios
 		not be touched by other clients. Property is inherited from the device by its entities
 		and endpoints.
 */
-extern const CFStringRef	kMIDIPropertyDriverOwner				API_AVAILABLE(macos(10.1), ios(4.2));
+extern const CFStringRef	kMIDIPropertyDriverOwner				API_AVAILABLE(macos(10.1), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyFactoryPatchNameFile
@@ -1804,7 +1804,7 @@ extern const CFStringRef	kMIDIPropertyUserPatchNameFile			API_DEPRECATED_WITH_RE
 
 		This specifies the device's current patch, note and control name values using the
 		MIDINameDocument XML format.  This specification requires the use of higher-level,
-		OS-specific constructs outside of the specification, to fully define the current names
+		OS-specific constructs outside of the specification to fully define the current names
 		for a device.
 
 		The MIDINameConfiguration property is implementated as a CFDictionary:
@@ -1829,10 +1829,42 @@ extern const CFStringRef	kMIDIPropertyUserPatchNameFile			API_DEPRECATED_WITH_RE
 		key "currentDeviceMode" maps to a CFStringRef containing the name of the device's mode.
 
 		Clients setting this property must take particular care to preserve dictionary values
-		other than the ones they are interested in changing, and to properly structure the
+		other than the ones they are interested in changing and to properly structure the
 		dictionary.
 */
-extern const CFStringRef	kMIDIPropertyNameConfiguration			API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyNameConfiguration			API_DEPRECATED_WITH_REPLACEMENT("kMIDIPropertyNameConfigurationDictionary", macos(10.2, 10.15), ios(4.2, 13.0), tvos(12.0, 13.0));
+
+/*!
+    @constant        kMIDIPropertyNameConfigurationDictionary
+    @discussion
+        device/entity/endpoint property, CFDictionary
+
+        This specifies the device's current patch, note and control name values using the
+        MIDINameDocument XML format.  This specification requires the use of higher-level,
+        OS-specific constructs outside of the specification to fully define the current names
+        for a device.
+
+        The MIDINameConfiguration property is implementated as a CFDictionary:
+
+        key "masterDocumentPath" maps to a CFStringRef containing the filesystem path to the device's
+        master name document.
+
+        key "banks" maps to a CFDictionaryRef.  This dictionary's keys are CFStringRef names of
+        patchBank elements in the master document, and its values are each a CFDictionaryRef:
+        key "file" maps to a CFDataRef containing URL bookmark data to a document containing
+        patches that override those in the master document, and key "patchNameList" maps to a
+        CFStringRef which is the name of the patchNameList element in the overriding document.
+
+        key "currentChannelNameSets" maps to a 16-element CFArrayRef, each element of which is a
+        CFStringRef of the name of the current mode for each of the 16 MIDI channels.
+
+        key "currentDeviceMode" maps to a CFStringRef containing the name of the device's mode.
+
+        Clients setting this property must take particular care to preserve dictionary values
+        other than the ones they are interested in changing and to properly structure the
+        dictionary.
+*/
+extern const CFStringRef    kMIDIPropertyNameConfigurationDictionary            API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
 
 /*!
 	@constant		kMIDIPropertyImage
@@ -1846,7 +1878,7 @@ extern const CFStringRef	kMIDIPropertyNameConfiguration			API_AVAILABLE(macos(10
 
 		A studio setup editor should allow the user to choose icons for external devices.
 */
-extern const CFStringRef	kMIDIPropertyImage						API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyImage						API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyDriverVersion
@@ -1855,7 +1887,7 @@ extern const CFStringRef	kMIDIPropertyImage						API_AVAILABLE(macos(10.2), ios(
 		driver (only for driver- owned devices).  Drivers need not set this property;
 		applications should not write to it.
 */
-extern const CFStringRef	kMIDIPropertyDriverVersion				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyDriverVersion				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertySupportsGeneralMIDI
@@ -1863,7 +1895,7 @@ extern const CFStringRef	kMIDIPropertyDriverVersion				API_AVAILABLE(macos(10.2)
 		device/entity property, integer (0/1). Indicates whether the device or entity implements
 		the General MIDI specification.
 */
-extern const CFStringRef	kMIDIPropertySupportsGeneralMIDI		API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertySupportsGeneralMIDI		API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertySupportsMMC
@@ -1871,7 +1903,7 @@ extern const CFStringRef	kMIDIPropertySupportsGeneralMIDI		API_AVAILABLE(macos(1
 		device/entity property, integer (0/1). Indicates whether the device or entity implements
 		the MIDI Machine Control portion of the MIDI specification.
 */
-extern const CFStringRef	kMIDIPropertySupportsMMC				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertySupportsMMC				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyCanRoute
@@ -1880,7 +1912,7 @@ extern const CFStringRef	kMIDIPropertySupportsMMC				API_AVAILABLE(macos(10.2), 
 		MIDI messages to or from other external MIDI devices (as with MIDI patch bays). This
 		should NOT be set on devices which are controlled by drivers.
 */
-extern const CFStringRef	kMIDIPropertyCanRoute					API_AVAILABLE(macos(10.0), ios(4.2));
+extern const CFStringRef	kMIDIPropertyCanRoute					API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyReceivesClock
@@ -1888,7 +1920,7 @@ extern const CFStringRef	kMIDIPropertyCanRoute					API_AVAILABLE(macos(10.0), io
 		device/entity property, integer (0/1). Indicates whether the device or entity  responds
 		to MIDI beat clock messages.
 */
-extern const CFStringRef	kMIDIPropertyReceivesClock				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyReceivesClock				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyReceivesMTC
@@ -1896,7 +1928,7 @@ extern const CFStringRef	kMIDIPropertyReceivesClock				API_AVAILABLE(macos(10.2)
 		device/entity property, integer (0/1). Indicates whether the device or entity responds
 		to MIDI Time Code messages.
 */
-extern const CFStringRef	kMIDIPropertyReceivesMTC				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyReceivesMTC				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyReceivesNotes
@@ -1904,7 +1936,7 @@ extern const CFStringRef	kMIDIPropertyReceivesMTC				API_AVAILABLE(macos(10.2), 
 		device/entity property, integer (0/1). Indicates whether the device or entity responds
 		to MIDI Note On messages.
 */
-extern const CFStringRef	kMIDIPropertyReceivesNotes				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyReceivesNotes				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyReceivesProgramChanges
@@ -1912,7 +1944,7 @@ extern const CFStringRef	kMIDIPropertyReceivesNotes				API_AVAILABLE(macos(10.2)
 		device/entity property, integer (0/1). Indicates whether the device or entity responds
 		to MIDI program change messages.
 */
-extern const CFStringRef	kMIDIPropertyReceivesProgramChanges		API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyReceivesProgramChanges		API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyReceivesBankSelectMSB
@@ -1920,7 +1952,7 @@ extern const CFStringRef	kMIDIPropertyReceivesProgramChanges		API_AVAILABLE(maco
 		device/entity property, integer (0/1). Indicates whether the device or entity responds
 		to MIDI bank select MSB messages (control 0).
 */
-extern const CFStringRef	kMIDIPropertyReceivesBankSelectMSB		API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyReceivesBankSelectMSB		API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyReceivesBankSelectLSB
@@ -1928,7 +1960,7 @@ extern const CFStringRef	kMIDIPropertyReceivesBankSelectMSB		API_AVAILABLE(macos
 		device/entity property, integer (0/1). Indicates whether the device or entity responds
 		to MIDI bank select LSB messages (control 32).
 */
-extern const CFStringRef	kMIDIPropertyReceivesBankSelectLSB		API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyReceivesBankSelectLSB		API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyTransmitsClock
@@ -1936,7 +1968,7 @@ extern const CFStringRef	kMIDIPropertyReceivesBankSelectLSB		API_AVAILABLE(macos
 		device/entity property, integer (0/1). Indicates whether the device or entity transmits
 		MIDI beat clock messages.
 */
-extern const CFStringRef	kMIDIPropertyTransmitsClock				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyTransmitsClock				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyTransmitsMTC
@@ -1944,7 +1976,7 @@ extern const CFStringRef	kMIDIPropertyTransmitsClock				API_AVAILABLE(macos(10.2
 		device/entity property, integer (0/1). Indicates whether the device or entity transmits
 		MIDI Time Code messages.
 */
-extern const CFStringRef	kMIDIPropertyTransmitsMTC				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyTransmitsMTC				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyTransmitsNotes
@@ -1952,7 +1984,7 @@ extern const CFStringRef	kMIDIPropertyTransmitsMTC				API_AVAILABLE(macos(10.2),
 		device/entity property, integer (0/1). Indicates whether the device or entity transmits
 		MIDI note messages.
 */
-extern const CFStringRef	kMIDIPropertyTransmitsNotes				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyTransmitsNotes				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyTransmitsProgramChanges
@@ -1960,7 +1992,7 @@ extern const CFStringRef	kMIDIPropertyTransmitsNotes				API_AVAILABLE(macos(10.2
 		device/entity property, integer (0/1). Indicates whether the device or entity transmits
 		MIDI program change messages.
 */
-extern const CFStringRef	kMIDIPropertyTransmitsProgramChanges	API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyTransmitsProgramChanges	API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyTransmitsBankSelectMSB
@@ -1968,7 +2000,7 @@ extern const CFStringRef	kMIDIPropertyTransmitsProgramChanges	API_AVAILABLE(maco
 		device/entity property, integer (0/1). Indicates whether the device or entity transmits
 		MIDI bank select MSB messages (control 0).
 */
-extern const CFStringRef	kMIDIPropertyTransmitsBankSelectMSB		API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyTransmitsBankSelectMSB		API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyTransmitsBankSelectLSB
@@ -1976,7 +2008,7 @@ extern const CFStringRef	kMIDIPropertyTransmitsBankSelectMSB		API_AVAILABLE(maco
 		device/entity property, integer (0/1). Indicates whether the device or entity transmits
 		MIDI bank select LSB messages (control 32).
 */
-extern const CFStringRef	kMIDIPropertyTransmitsBankSelectLSB		API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyTransmitsBankSelectLSB		API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyPanDisruptsStereo
@@ -1985,7 +2017,7 @@ extern const CFStringRef	kMIDIPropertyTransmitsBankSelectLSB		API_AVAILABLE(maco
 		10), when sent to the device or entity, cause undesirable effects when playing stereo
 		sounds (e.g. converting the signal to mono).
 */
-extern const CFStringRef	kMIDIPropertyPanDisruptsStereo			API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyPanDisruptsStereo			API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyIsSampler
@@ -1993,7 +2025,7 @@ extern const CFStringRef	kMIDIPropertyPanDisruptsStereo			API_AVAILABLE(macos(10
 		device/entity property, integer (0/1). Indicates whether the device or entity plays
 		audio samples in response to MIDI note messages.
 */
-extern const CFStringRef	kMIDIPropertyIsSampler					API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyIsSampler					API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyIsDrumMachine
@@ -2001,7 +2033,7 @@ extern const CFStringRef	kMIDIPropertyIsSampler					API_AVAILABLE(macos(10.2), i
 		device/entity property, integer (0/1). Indicates whether the device or entity's sound
 		presets tend to be collections of non-transposable samples (e.g. drum kits).
 */
-extern const CFStringRef	kMIDIPropertyIsDrumMachine				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyIsDrumMachine				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyIsMixer
@@ -2009,7 +2041,7 @@ extern const CFStringRef	kMIDIPropertyIsDrumMachine				API_AVAILABLE(macos(10.2)
 		device/entity property, integer (0/1). Indicates whether the device or entity mixes
 		external audio signals, controlled by MIDI messages.
 */
-extern const CFStringRef	kMIDIPropertyIsMixer					API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyIsMixer					API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyIsEffectUnit
@@ -2017,7 +2049,7 @@ extern const CFStringRef	kMIDIPropertyIsMixer					API_AVAILABLE(macos(10.2), ios
 		device/entity property, integer (0/1). Indicates whether the device or entity is
 		primarily a MIDI-controlled audio effect unit (i.e. does not generate sound on its own).
 */
-extern const CFStringRef	kMIDIPropertyIsEffectUnit				API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyIsEffectUnit				API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyMaxReceiveChannels
@@ -2028,7 +2060,7 @@ extern const CFStringRef	kMIDIPropertyIsEffectUnit				API_AVAILABLE(macos(10.2),
 		(fully multitimbral devices). Other values are possible, for example devices which are
 		multi-timbral but have fewer than 16 "parts".
 */
-extern const CFStringRef	kMIDIPropertyMaxReceiveChannels			API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyMaxReceiveChannels			API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyMaxTransmitChannels
@@ -2037,7 +2069,7 @@ extern const CFStringRef	kMIDIPropertyMaxReceiveChannels			API_AVAILABLE(macos(1
 		which a device may simultaneously transmit MIDI Channel Messages. Common values are 0, 1
 		and 16.
 */
-extern const CFStringRef	kMIDIPropertyMaxTransmitChannels		API_AVAILABLE(macos(10.2), ios(4.2));
+extern const CFStringRef	kMIDIPropertyMaxTransmitChannels		API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyDriverDeviceEditorApp
@@ -2046,7 +2078,7 @@ extern const CFStringRef	kMIDIPropertyMaxTransmitChannels		API_AVAILABLE(macos(1
 		configure this driver-owned devices. Drivers may set this property on their owned
 		devices. Applications must not write to it.
 */
-extern const CFStringRef	kMIDIPropertyDriverDeviceEditorApp		API_AVAILABLE(macos(10.3), ios(4.2));
+extern const CFStringRef	kMIDIPropertyDriverDeviceEditorApp		API_AVAILABLE(macos(10.3), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertySupportsShowControl
@@ -2054,7 +2086,7 @@ extern const CFStringRef	kMIDIPropertyDriverDeviceEditorApp		API_AVAILABLE(macos
 		device/entity property, integer (0/1). Indicates whether the device implements the MIDI
 		Show Control specification.
 */
-extern const CFStringRef	kMIDIPropertySupportsShowControl		API_AVAILABLE(macos(10.4), ios(4.2));
+extern const CFStringRef	kMIDIPropertySupportsShowControl		API_AVAILABLE(macos(10.4), ios(4.2), tvos(12.0));
 
 /*!
 	@constant		kMIDIPropertyDisplayName
@@ -2066,7 +2098,7 @@ extern const CFStringRef	kMIDIPropertySupportsShowControl		API_AVAILABLE(macos(1
 
 		For objects other than endpoints, the display name is the same as the name.
 */
-extern const CFStringRef	kMIDIPropertyDisplayName				API_AVAILABLE(macos(10.4), ios(4.2));
+extern const CFStringRef	kMIDIPropertyDisplayName				API_AVAILABLE(macos(10.4), ios(4.2), tvos(12.0));
 
 //==================================================================================================
 #pragma mark	Clients
@@ -2099,7 +2131,7 @@ extern OSStatus
 MIDIClientCreate(	CFStringRef					name,
 					MIDINotifyProc __nullable	notifyProc,
 					void * __nullable			notifyRefCon,
-					MIDIClientRef *				outClient )				API_AVAILABLE(macos(10.0), ios(4.2));
+					MIDIClientRef *				outClient )				API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIClientCreateWithBlock
@@ -2123,7 +2155,7 @@ extern OSStatus
 MIDIClientCreateWithBlock(
 					CFStringRef					name,
 					MIDIClientRef *				outClient,
-					MIDINotifyBlock __nullable	notifyBlock )			API_AVAILABLE(macos(10.11), ios(9.0));
+					MIDINotifyBlock __nullable	notifyBlock )			API_AVAILABLE(macos(10.11), ios(9.0), tvos(12.0));
 
 
 /*!
@@ -2140,7 +2172,7 @@ MIDIClientCreateWithBlock(
 		dispose all MIDIClients when an application terminates.
 */
 extern OSStatus
-MIDIClientDispose(	MIDIClientRef client )					API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIClientDispose(	MIDIClientRef client )					API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 //==================================================================================================
 #pragma mark	Ports
@@ -2179,7 +2211,7 @@ MIDIInputPortCreate(	MIDIClientRef		client,
 						CFStringRef			portName,
 						MIDIReadProc		readProc,
 						void * __nullable	refCon,
-						MIDIPortRef * 		outPort )			API_AVAILABLE(macos(10.0), ios(4.2));
+						MIDIPortRef * 		outPort )			API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIInputPortCreateWithBlock
@@ -2209,7 +2241,7 @@ extern OSStatus
 MIDIInputPortCreateWithBlock(	MIDIClientRef	client,
 								CFStringRef		portName,
 								MIDIPortRef *	outPort,
-								MIDIReadBlock	readBlock )	API_AVAILABLE(macos(10.11), ios(9.0));
+								MIDIReadBlock	readBlock )	API_AVAILABLE(macos(10.11), ios(9.0), tvos(12.0));
 
 
 /*!
@@ -2238,7 +2270,7 @@ MIDIInputPortCreateWithBlock(	MIDIClientRef	client,
 extern OSStatus
 MIDIOutputPortCreate(	MIDIClientRef	client, 
 						CFStringRef		portName,
-						MIDIPortRef *	outPort )			API_AVAILABLE(macos(10.0), ios(4.2));
+						MIDIPortRef *	outPort )			API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIPortDispose
@@ -2255,7 +2287,7 @@ MIDIOutputPortCreate(	MIDIClientRef	client,
 		client's ports are automatically disposed at that time.
 */
 extern OSStatus
-MIDIPortDispose(	MIDIPortRef port )						API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIPortDispose(	MIDIPortRef port )						API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -2278,7 +2310,7 @@ MIDIPortDispose(	MIDIPortRef port )						API_AVAILABLE(macos(10.0), ios(4.2));
 extern OSStatus
 MIDIPortConnectSource(	MIDIPortRef		port, 
 						MIDIEndpointRef	source, 
-						void * __nullable			connRefCon )		API_AVAILABLE(macos(10.0), ios(4.2));
+						void * __nullable			connRefCon )		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -2298,7 +2330,7 @@ MIDIPortConnectSource(	MIDIPortRef		port,
 */
 extern OSStatus
 MIDIPortDisconnectSource(	MIDIPortRef		port, 
-							MIDIEndpointRef	source )		API_AVAILABLE(macos(10.0), ios(4.2));
+							MIDIEndpointRef	source )		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 //==================================================================================================
@@ -2316,7 +2348,7 @@ MIDIPortDisconnectSource(	MIDIPortRef		port,
 					occurred.
 */
 extern ItemCount
-MIDIGetNumberOfDevices(void)								API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIGetNumberOfDevices(void)								API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -2346,7 +2378,7 @@ MIDIGetNumberOfDevices(void)								API_AVAILABLE(macos(10.0), ios(4.2));
 		entities to locate endpoints.
 */
 extern MIDIDeviceRef
-MIDIGetDevice(	ItemCount deviceIndex0 )					API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIGetDevice(	ItemCount deviceIndex0 )					API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIDeviceGetNumberOfEntities
@@ -2360,7 +2392,7 @@ MIDIGetDevice(	ItemCount deviceIndex0 )					API_AVAILABLE(macos(10.0), ios(4.2))
 					error occurred.
 */
 extern ItemCount 
-MIDIDeviceGetNumberOfEntities(	MIDIDeviceRef device )		API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIDeviceGetNumberOfEntities(	MIDIDeviceRef device )		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIDeviceGetEntity
@@ -2377,7 +2409,7 @@ MIDIDeviceGetNumberOfEntities(	MIDIDeviceRef device )		API_AVAILABLE(macos(10.0)
 */
 extern MIDIEntityRef
 MIDIDeviceGetEntity(	MIDIDeviceRef	device,
-						ItemCount		entityIndex0 )		API_AVAILABLE(macos(10.0), ios(4.2));
+						ItemCount		entityIndex0 )		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 //==================================================================================================
 #pragma mark	Entities
@@ -2397,7 +2429,7 @@ MIDIDeviceGetEntity(	MIDIDeviceRef	device,
 					error occurred.
 */
 extern ItemCount
-MIDIEntityGetNumberOfSources(	MIDIEntityRef entity )		API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIEntityGetNumberOfSources(	MIDIEntityRef entity )		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIEntityGetSource
@@ -2414,7 +2446,7 @@ MIDIEntityGetNumberOfSources(	MIDIEntityRef entity )		API_AVAILABLE(macos(10.0),
 */
 extern MIDIEndpointRef
 MIDIEntityGetSource(	MIDIEntityRef entity, 
-						ItemCount sourceIndex0 )			API_AVAILABLE(macos(10.0), ios(4.2));
+						ItemCount sourceIndex0 )			API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIEntityGetNumberOfDestinations
@@ -2428,7 +2460,7 @@ MIDIEntityGetSource(	MIDIEntityRef entity,
 					if an error occurred.
 */
 extern ItemCount
-MIDIEntityGetNumberOfDestinations(	MIDIEntityRef entity )	API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIEntityGetNumberOfDestinations(	MIDIEntityRef entity )	API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIEntityGetDestination
@@ -2445,7 +2477,7 @@ MIDIEntityGetNumberOfDestinations(	MIDIEntityRef entity )	API_AVAILABLE(macos(10
 */
 extern MIDIEndpointRef
 MIDIEntityGetDestination(	MIDIEntityRef	entity,
-							ItemCount		destIndex0 )	API_AVAILABLE(macos(10.0), ios(4.2));
+							ItemCount		destIndex0 )	API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIEntityGetDevice
@@ -2459,7 +2491,7 @@ MIDIEntityGetDestination(	MIDIEntityRef	entity,
 */
 extern OSStatus
 MIDIEntityGetDevice(		MIDIEntityRef		inEntity,
-							MIDIDeviceRef * __nullable		outDevice)	API_AVAILABLE(macos(10.2), ios(4.2));
+							MIDIDeviceRef * __nullable		outDevice)	API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 //==================================================================================================
 #pragma mark	Endpoints
@@ -2476,7 +2508,7 @@ MIDIEntityGetDevice(		MIDIEntityRef		inEntity,
 					occurred.
 */
 extern ItemCount
-MIDIGetNumberOfSources(void)								API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIGetNumberOfSources(void)								API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -2490,7 +2522,7 @@ MIDIGetNumberOfSources(void)								API_AVAILABLE(macos(10.0), ios(4.2));
 	@result			A reference to a source, or NULL if an error occurred.
 */
 extern MIDIEndpointRef
-MIDIGetSource(	ItemCount sourceIndex0 )					API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIGetSource(	ItemCount sourceIndex0 )					API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -2502,7 +2534,7 @@ MIDIGetSource(	ItemCount sourceIndex0 )					API_AVAILABLE(macos(10.0), ios(4.2))
 					occurred.
 */
 extern ItemCount
-MIDIGetNumberOfDestinations(void)							API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIGetNumberOfDestinations(void)							API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -2516,7 +2548,7 @@ MIDIGetNumberOfDestinations(void)							API_AVAILABLE(macos(10.0), ios(4.2));
 	@result			A reference to a destination, or NULL if an error occurred.
 */
 extern MIDIEndpointRef
-MIDIGetDestination(	ItemCount destIndex0 )					API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIGetDestination(	ItemCount destIndex0 )					API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIEndpointGetEntity
@@ -2533,7 +2565,7 @@ MIDIGetDestination(	ItemCount destIndex0 )					API_AVAILABLE(macos(10.0), ios(4.
 */
 extern OSStatus
 MIDIEndpointGetEntity(		MIDIEndpointRef		inEndpoint,
-							MIDIEntityRef * __nullable		outEntity)	API_AVAILABLE(macos(10.2), ios(4.2));
+							MIDIEntityRef * __nullable		outEntity)	API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIDestinationCreate
@@ -2574,7 +2606,7 @@ MIDIDestinationCreate(	MIDIClientRef 		client,
 						CFStringRef  		name,
 						MIDIReadProc 		readProc,
 						void * __nullable	refCon,
-						MIDIEndpointRef *	outDest )		API_AVAILABLE(macos(10.0), ios(4.2));
+						MIDIEndpointRef *	outDest )		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIDestinationCreateWithBlock
@@ -2612,7 +2644,7 @@ extern OSStatus
 MIDIDestinationCreateWithBlock(	MIDIClientRef 		client,
 								CFStringRef  		name,
 								MIDIEndpointRef * 	outDest,
-								MIDIReadBlock 		readBlock ) API_AVAILABLE(macos(10.11), ios(9.0));
+								MIDIReadBlock 		readBlock ) API_AVAILABLE(macos(10.11), ios(9.0), tvos(12.0));
 
 /*!
 	@function		MIDISourceCreate
@@ -2643,7 +2675,7 @@ MIDIDestinationCreateWithBlock(	MIDIClientRef 		client,
 extern OSStatus
 MIDISourceCreate(	MIDIClientRef 		client, 
 					CFStringRef  		name,
-					MIDIEndpointRef * 	outSrc )			API_AVAILABLE(macos(10.0), ios(4.2));
+					MIDIEndpointRef * 	outSrc )			API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -2657,7 +2689,7 @@ MIDISourceCreate(	MIDIClientRef 		client,
 	@result			An OSStatus result code.
 */
 extern OSStatus
-MIDIEndpointDispose(	MIDIEndpointRef endpt )				API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIEndpointDispose(	MIDIEndpointRef endpt )				API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 //==================================================================================================
@@ -2679,7 +2711,7 @@ MIDIEndpointDispose(	MIDIEndpointRef endpt )				API_AVAILABLE(macos(10.0), ios(4
 		adds them.
 */
 extern ItemCount
-MIDIGetNumberOfExternalDevices(void)						API_AVAILABLE(macos(10.1), ios(4.2));
+MIDIGetNumberOfExternalDevices(void)						API_AVAILABLE(macos(10.1), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIGetExternalDevice
@@ -2695,7 +2727,7 @@ MIDIGetNumberOfExternalDevices(void)						API_AVAILABLE(macos(10.1), ios(4.2));
 		Use this to enumerate the external devices in the system.
 */
 extern MIDIDeviceRef
-MIDIGetExternalDevice(	ItemCount deviceIndex0 )			API_AVAILABLE(macos(10.1), ios(4.2));
+MIDIGetExternalDevice(	ItemCount deviceIndex0 )			API_AVAILABLE(macos(10.1), ios(4.2), tvos(12.0));
 
 //==================================================================================================
 #pragma mark	Objects and Properties
@@ -2722,7 +2754,7 @@ MIDIGetExternalDevice(	ItemCount deviceIndex0 )			API_AVAILABLE(macos(10.1), ios
 extern OSStatus
 MIDIObjectGetIntegerProperty(	MIDIObjectRef	obj, 
 								CFStringRef		propertyID,
-								SInt32 *		outValue )	API_AVAILABLE(macos(10.0), ios(4.2));
+								SInt32 *		outValue )	API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIObjectSetIntegerProperty
@@ -2743,7 +2775,7 @@ MIDIObjectGetIntegerProperty(	MIDIObjectRef	obj,
 extern OSStatus
 MIDIObjectSetIntegerProperty(	MIDIObjectRef	obj, 
 								CFStringRef		propertyID,
-								SInt32			value )		API_AVAILABLE(macos(10.0), ios(4.2));
+								SInt32			value )		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIObjectGetStringProperty
@@ -2764,7 +2796,7 @@ MIDIObjectSetIntegerProperty(	MIDIObjectRef	obj,
 extern OSStatus
 MIDIObjectGetStringProperty(	MIDIObjectRef			obj,
 								CFStringRef				propertyID,
-								CFStringRef __nullable * __nonnull str )		API_AVAILABLE(macos(10.0), ios(4.2));
+								CFStringRef __nullable * __nonnull str )		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIObjectSetStringProperty
@@ -2785,7 +2817,7 @@ MIDIObjectGetStringProperty(	MIDIObjectRef			obj,
 extern OSStatus
 MIDIObjectSetStringProperty(	MIDIObjectRef	obj, 
 								CFStringRef		propertyID,
-								CFStringRef		str )		API_AVAILABLE(macos(10.0), ios(4.2));
+								CFStringRef		str )		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIObjectGetDataProperty
@@ -2807,7 +2839,7 @@ MIDIObjectSetStringProperty(	MIDIObjectRef	obj,
 extern OSStatus
 MIDIObjectGetDataProperty(		MIDIObjectRef			obj,
 								CFStringRef				propertyID,
-								CFDataRef __nullable * __nonnull outData )	API_AVAILABLE(macos(10.0), ios(4.2));
+								CFDataRef __nullable * __nonnull outData )	API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIObjectSetDataProperty
@@ -2828,7 +2860,7 @@ MIDIObjectGetDataProperty(		MIDIObjectRef			obj,
 extern OSStatus
 MIDIObjectSetDataProperty(		MIDIObjectRef	obj, 
 								CFStringRef		propertyID,
-								CFDataRef		data )		API_AVAILABLE(macos(10.0), ios(4.2));
+								CFDataRef		data )		API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIObjectGetDictionaryProperty
@@ -2850,7 +2882,7 @@ extern OSStatus
 MIDIObjectGetDictionaryProperty(	MIDIObjectRef					obj,
 									CFStringRef						propertyID,
 									CFDictionaryRef __nullable * __nonnull outDict )
-															API_AVAILABLE(macos(10.2), ios(4.2));
+															API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIObjectSetDictionaryProperty
@@ -2871,7 +2903,7 @@ MIDIObjectGetDictionaryProperty(	MIDIObjectRef					obj,
 extern OSStatus
 MIDIObjectSetDictionaryProperty(MIDIObjectRef	obj, 
 								CFStringRef		propertyID,
-								CFDictionaryRef dict )		API_AVAILABLE(macos(10.2), ios(4.2));
+								CFDictionaryRef dict )		API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIObjectGetProperties
@@ -2897,7 +2929,7 @@ MIDIObjectSetDictionaryProperty(MIDIObjectRef	obj,
 extern OSStatus
 MIDIObjectGetProperties(		MIDIObjectRef 		obj, 
 								CFPropertyListRef __nullable * __nonnull outProperties,
-								Boolean				deep )	API_AVAILABLE(macos(10.1), ios(4.2));
+								Boolean				deep )	API_AVAILABLE(macos(10.1), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIObjectRemoveProperty
@@ -2915,7 +2947,7 @@ MIDIObjectGetProperties(		MIDIObjectRef 		obj,
 extern OSStatus
 MIDIObjectRemoveProperty(		MIDIObjectRef 		obj, 
 								CFStringRef			propertyID )
-															API_AVAILABLE(macos(10.2), ios(4.2));
+															API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIObjectFindByUniqueID
@@ -2944,7 +2976,7 @@ MIDIObjectFindByUniqueID(	MIDIUniqueID 		inUniqueID,
 							MIDIObjectRef * __nullable outObject,
 							MIDIObjectType * __nullable outObjectType)
 							
-															API_AVAILABLE(macos(10.2), ios(4.2));
+															API_AVAILABLE(macos(10.2), ios(4.2), tvos(12.0));
 
 //==================================================================================================
 #pragma mark	MIDI I/O
@@ -2972,7 +3004,7 @@ MIDIObjectFindByUniqueID(	MIDIUniqueID 		inUniqueID,
 extern OSStatus
 MIDISend(	MIDIPortRef 			port, 
 			MIDIEndpointRef 		dest, 
-			const MIDIPacketList *	pktlist )				API_AVAILABLE(macos(10.0), ios(4.2));
+			const MIDIPacketList *	pktlist )				API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 				
 /*!
 	@function		MIDISendSysex
@@ -2987,7 +3019,7 @@ MIDISend(	MIDIPortRef 			port,
 		request->data must point to a single MIDI system-exclusive message, or portion thereof.
 */
 extern OSStatus 
-MIDISendSysex(	MIDISysexSendRequest *request )				API_AVAILABLE(macos(10.0), ios(4.2));
+MIDISendSysex(	MIDISysexSendRequest *request )				API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIReceived
@@ -3012,7 +3044,7 @@ MIDISendSysex(	MIDISysexSendRequest *request )				API_AVAILABLE(macos(10.0), ios
 */
 extern OSStatus 
 MIDIReceived(	MIDIEndpointRef			src, 
-				const MIDIPacketList * 	pktlist )			API_AVAILABLE(macos(10.0), ios(4.2));
+				const MIDIPacketList * 	pktlist )			API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIFlushOutput
@@ -3029,7 +3061,7 @@ MIDIReceived(	MIDIEndpointRef			src,
 		scheduled for future delivery.
 */
 extern OSStatus
-MIDIFlushOutput(	MIDIEndpointRef		dest )				API_AVAILABLE(macos(10.1), ios(4.2));
+MIDIFlushOutput(	MIDIEndpointRef		dest )				API_AVAILABLE(macos(10.1), ios(4.2), tvos(12.0));
 
 /*!
 	@function		MIDIRestart
@@ -3042,7 +3074,7 @@ MIDIFlushOutput(	MIDIEndpointRef		dest )				API_AVAILABLE(macos(10.1), ios(4.2))
 	@result			An OSStatus result code.
 */
 extern OSStatus
-MIDIRestart(void)											API_AVAILABLE(macos(10.1), ios(4.2));
+MIDIRestart(void)											API_AVAILABLE(macos(10.1), ios(4.2), tvos(12.0));
 
 
 
@@ -3094,7 +3126,7 @@ CF_INLINE MIDIPacket *MIDIPacketNext(const MIDIPacket *pkt)
 	@result			A pointer to the first MIDIPacket in the packet list.
 */
 extern MIDIPacket *
-MIDIPacketListInit(	MIDIPacketList *pktlist )				API_AVAILABLE(macos(10.0), ios(4.2));
+MIDIPacketListInit(	MIDIPacketList *pktlist )				API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 /*!
@@ -3131,7 +3163,7 @@ MIDIPacketListAdd(	MIDIPacketList *	pktlist,
 					MIDIPacket *		curPacket,
 					MIDITimeStamp		time,
 					ByteCount			nData,
-					const Byte *		data)			API_AVAILABLE(macos(10.0), ios(4.2));
+					const Byte *		data)			API_AVAILABLE(macos(10.0), ios(4.2), tvos(12.0));
 
 
 #ifdef __cplusplus
@@ -3159,11 +3191,11 @@ CF_ASSUME_NONNULL_END
 #ifndef __MIDINetworkSession_h__
 #define __MIDINetworkSession_h__
 
-#ifdef __OBJC__
+#if defined(__OBJC__)
 #import <CoreMIDI/MIDIServices.h>
 #import <Foundation/Foundation.h>
 
-#define MIDINETWORKSESSION_AVAILABLE API_AVAILABLE(ios(4.2)) API_UNAVAILABLE(macos, watchos, tvos)
+#define MIDINETWORKSESSION_AVAILABLE API_AVAILABLE(macos(15.0), ios(4.2)) API_UNAVAILABLE(watchos, tvos)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -3268,7 +3300,7 @@ OS_EXPORT MIDINETWORKSESSION_AVAILABLE
 
 NS_ASSUME_NONNULL_END
 
-#endif /* __OBJC__ */
+#endif // defined(__OBJC__)
 
 #endif /* __MIDINetworkSession_h__ */
 // ==========  CoreMIDI.framework/Headers/MIDICapabilityInquiry.h
@@ -3841,7 +3873,7 @@ CF_ASSUME_NONNULL_END
  
  	Contains:   Umbrella header for the CoreMIDI framework.
  
- 	Copyright:  (c) 2000-2015 by Apple Inc., all rights reserved.
+ 	Copyright:  (c) 2000-2018 by Apple Inc., all rights reserved.
  
  	Bugs?:  	For bug reports, consult the following page on
  				the World Wide Web:

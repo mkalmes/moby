@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @brief This class is used to represent a generic HomeKit event.
  */
-API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMEvent : NSObject
 
 /*!
@@ -121,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @abstract Represents a camera stream.
  */
-API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCameraStream : HMCameraSource
 
 /*!
@@ -779,7 +779,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief This class represents an event that is evaluated based on entry to and/or
  *        exit from a Region
  */
-API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMLocationEvent : HMEvent <NSCopying, NSMutableCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -817,7 +817,7 @@ API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
  * @brief This class represents an event that is evaluated based on entry to and/or
  *        exit from a Region
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMMutableLocationEvent : HMLocationEvent
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -849,7 +849,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @abstract This class can be used to control the settings on a camera.
  */
-API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCameraSettingsControl : HMCameraControl
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -921,7 +921,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @abstract Represents a profile implemented by an accessory.
  */
-API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMAccessoryProfile : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -960,7 +960,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @brief Represents the access control of a user associated with a home.
  */
-API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMHomeAccessControl : HMAccessControl
 
 /*!
@@ -988,7 +988,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief This class describes a range of numbers: [min, max]
  *
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMNumberRange : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -1047,7 +1047,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  *  @abstract   The HMAccessControl class represents a generic access control.
  */
-API_AVAILABLE(ios(11.2), watchos(4.2), tvos(11.2)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.2), watchos(4.2), tvos(11.2)) API_UNAVAILABLE(macos)
 @interface HMAccessControl : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -1071,7 +1071,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @brief Abstract class for source of data from a camera.
  */
-API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCameraSource : NSObject
 
 @end
@@ -1087,9 +1087,9 @@ NS_ASSUME_NONNULL_END
 
 #import <Foundation/Foundation.h>
 #import <HomeKit/HMDefines.h>
-#import <HomeKit/HMTrigger.h>
 #import <HomeKit/HMEventTriggerActivationState.h>
 #import <HomeKit/HMSignificantTimeEvent.h>
+#import <HomeKit/HMTrigger.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1124,7 +1124,7 @@ HM_EXTERN NSString * const HMPresenceKeyPath API_AVAILABLE(ios(11.0), watchos(4.
  *
  * @discussion This class represents a trigger that is based on events.
  */
-API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMEventTrigger : HMTrigger
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -1178,8 +1178,7 @@ API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 /*!
  * @brief The events that correspond to executing the restore of the scene before the trigger was executed.
  *        E.g. Execute the scene for 10 mins and restore original state is achieved by specifying a corresponding
- *        HMDurationEvent in the list of endEvents. HMCharacteristicEvent or HMCharacteristicThresholdRangeEvents
- *        can also be added to end events
+ *        HMDurationEvent in the list of endEvents.
  */
 @property(readonly, copy, nonatomic) NSArray<HMEvent *> *endEvents API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0));
 
@@ -1240,7 +1239,7 @@ API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 /*!
  * @brief Updates the set of events in the event trigger.
  *
- * @param events Events to update in the event trigger
+ * @param endEvents Events to update in the event trigger
  *
  * @param completion Block that is invoked once the request is processed.
  *                   The NSError provides more information on the status of the request, error
@@ -1375,9 +1374,9 @@ API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 /*!
  * @brief Creates a predicate that will evaluate whether the event occurred between two times.
  *
- * @param firstSignificantEvent The first date component.
+ * @param firstDateComponents The first date component.
  *
- * @param secondSignificantEvent The second date component.
+ * @param secondDateWithComponents The second date component.
  *
  * @return Predicate object representing a condition to evaluate before executing the action set.
  */
@@ -1529,6 +1528,8 @@ typedef NS_ENUM(NSInteger, HMErrorCode) {
     HMErrorCodeIncompatibleAccessory                   API_AVAILABLE(ios(11.3)) = 93,
     HMErrorCodeIncompatibleHomeHub                     API_DEPRECATED_WITH_REPLACEMENT("HMErrorCodeNoCompatibleHomeHub", ios(11.0, 11.0), watchos(4.0, 4.0), tvos(11.0, 11.0)) API_UNAVAILABLE(macos) = HMErrorCodeNoCompatibleHomeHub,
     HMErrorCodeObjectWithSimilarNameExists             API_AVAILABLE(ios(12.0)) = 95,
+    HMErrorCodeOwnershipFailure                        API_AVAILABLE(ios(13.0)) = 96,
+    HMErrorCodeMaximumAccessoriesOfTypeInHome          API_AVAILABLE(ios(13.0)) = 97,
 } API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
 
 NS_ASSUME_NONNULL_END
@@ -1547,7 +1548,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCameraAudioControl : HMCameraControl
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -1585,7 +1586,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief This class represents an event that is evaluated based on the value of a characteristic
  *        set to a particular value.
  */
-API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCharacteristicEvent<TriggerValueType : id<NSCopying>> : HMEvent <NSCopying, NSMutableCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -1635,7 +1636,7 @@ API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
  * @brief This class represents an event that is evaluated based on the value of a characteristic
  *        set to a particular value.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMMutableCharacteristicEvent<TriggerValueType : id<NSCopying>> : HMCharacteristicEvent
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -1663,15 +1664,15 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <HomeKit/HMDefines.h>
 #import <HomeKit/HMAccessoryCategoryTypes.h>
+#import <HomeKit/HMDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /*!
  * @brief This class is used to represent an accessory category.
  */
-API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMAccessoryCategory : NSObject
 
 /*!
@@ -1705,7 +1706,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @brief This class describes a room in the home.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMRoom : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -2488,7 +2489,7 @@ NS_ASSUME_NONNULL_BEGIN
  *             This allows for association of a set of accessory services into a group.
  *             Eg. A collection of lights can be grouped as the "Desk Lamps" service group.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMServiceGroup : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -2560,7 +2561,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @brief This class is used to represent a generic action.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMAction : NSObject
 
 /*!
@@ -2594,7 +2595,7 @@ NS_ASSUME_NONNULL_BEGIN
  *             Eg. "Living Room" and "Kitchen" rooms can be grouped together
  *             in the "Downstairs" zone.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMZone : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -2882,7 +2883,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief This class is used to discover new accessories in the home
  *        that have never been paired with and therefore not part of the home.
  */
-API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, watchos, tvos) 
+HM_EXTERN API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, watchos, tvos)
 @interface HMAccessoryBrowser : NSObject
 
 /*!
@@ -2929,7 +2930,7 @@ API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, watchos, tvos)
 /*!
  * @brief This delegate receives updates about new accessories in the home.
  */
-API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, watchos, tvos) 
+HM_EXTERN API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos, watchos, tvos) 
 @protocol HMAccessoryBrowserDelegate <NSObject>
 
 @optional
@@ -2965,7 +2966,6 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <HomeKit/HMDefines.h>
 #import <HomeKit/HMServiceTypes.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -2980,7 +2980,7 @@ NS_ASSUME_NONNULL_BEGIN
  *             A service is composed of one or more characteristics that can be 
  *             modified.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMService : NSObject
 
 /*!
@@ -3094,8 +3094,8 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <HomeKit/HMDefines.h>
 #import <HomeKit/HMAction.h>
+#import <HomeKit/HMDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -3105,7 +3105,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief This class is used to represent an entry in an action set that writes a specific
  *        value to a characteristic.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCharacteristicWriteAction<TargetValueType : id<NSCopying>> : HMAction
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -3119,8 +3119,7 @@ API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
  *
  * @return Instance object representing the characteristic write action.
  */
-- (instancetype)initWithCharacteristic:(HMCharacteristic *)characteristic
-                           targetValue:(TargetValueType)targetValue NS_DESIGNATED_INITIALIZER API_UNAVAILABLE(watchos, tvos);
+- (instancetype)initWithCharacteristic:(HMCharacteristic *)characteristic targetValue:(TargetValueType)targetValue NS_DESIGNATED_INITIALIZER API_UNAVAILABLE(watchos, tvos);
 
 /*!
  * @brief The characteristic associated with the action.
@@ -3192,7 +3191,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @brief This class is used to represent a duration of time.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMDurationEvent : HMTimeEvent <NSCopying, NSMutableCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -3217,7 +3216,7 @@ API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 /*!
  * @brief This class is used to represent a duration of time.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMMutableDurationEvent : HMDurationEvent
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -3246,7 +3245,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @brief This class is used to represent the presence of users in a home.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMPresenceEvent : HMEvent <NSCopying, NSMutableCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -3278,7 +3277,7 @@ API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 /*!
  * @brief This class is used to represent the presence of users in a home.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMMutablePresenceEvent : HMPresenceEvent
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -3316,7 +3315,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief This class represents a collection of action objects that can be executed. 
  *        The order of execution of these actions is undefined.
  */             
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMActionSet : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -3388,31 +3387,38 @@ API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 
 @end
 
+typedef NSString * HMActionSetType NS_STRING_ENUM;
+
 /*!
  * @brief Builtin action set type for WakeUp.
  */
 
-HM_EXTERN NSString * const HMActionSetTypeWakeUp API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
+HM_EXTERN HMActionSetType const HMActionSetTypeWakeUp API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
 
 /*!
  * @brief Type for builtin action set Sleep.
  */
-HM_EXTERN NSString * const HMActionSetTypeSleep API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
+HM_EXTERN HMActionSetType const HMActionSetTypeSleep API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
 
 /*!
  * @brief Type for builtin action set HomeDeparture.
  */
-HM_EXTERN NSString * const HMActionSetTypeHomeDeparture API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
+HM_EXTERN HMActionSetType const HMActionSetTypeHomeDeparture API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
 
 /*!
  * @brief Type for builtin action set HomeArrival.
  */
-HM_EXTERN NSString * const HMActionSetTypeHomeArrival API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
+HM_EXTERN HMActionSetType const HMActionSetTypeHomeArrival API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
 
 /*!
  * @brief Type for user-defined action sets.
  */
-HM_EXTERN NSString * const HMActionSetTypeUserDefined API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
+HM_EXTERN HMActionSetType const HMActionSetTypeUserDefined API_AVAILABLE(ios(9.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos);
+
+/*!
+ * @brief Type for action sets that are part of a Shortcut.
+ */
+HM_EXTERN HMActionSetType const HMActionSetTypeShortcutsComponent API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0)) API_UNAVAILABLE(macos);
 
 /*!
  * @brief Type for trigger-owned action sets.
@@ -3421,7 +3427,9 @@ HM_EXTERN NSString * const HMActionSetTypeUserDefined API_AVAILABLE(ios(9.0), wa
  *             as part of the home. An action set of this type cannot be executed,
  *             renamed, or associated with a different trigger.
  */
-HM_EXTERN NSString * const HMActionSetTypeTriggerOwned API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos);
+HM_EXTERN HMActionSetType const HMActionSetTypeTriggerOwned API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos);
+
+HM_EXTERN HMActionSetType const HMActionSetTypeShortcutsOwned API_DEPRECATED_WITH_REPLACEMENT("HMActionSetTypeTriggerOwned", macos(10.15, 10.15), ios(13.0, 13.0), watchos(6.0, 6.0), tvos(13.0, 13.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  HomeKit.framework/Headers/HomeKit.h
@@ -3451,6 +3459,7 @@ NS_ASSUME_NONNULL_END
 #import <HomeKit/HMUser.h>
 #import <HomeKit/HMHomeAccessControl.h>
 #import <HomeKit/HMAccessoryCategory.h>
+#import <HomeKit/HMAccessoryCategoryTypes.h>
 
 #import <HomeKit/HMEvent.h>
 #import <HomeKit/HMCharacteristicEvent.h>
@@ -3507,7 +3516,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief This class represents an event when a characteristic's value falls within the specified 
  * number range.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMCharacteristicThresholdRangeEvent : HMEvent <NSCopying, NSMutableCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -3518,7 +3527,7 @@ API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
  * @param characteristic The characteristic bound to the event. The characteristic must
  *                       support notification. An exception will be thrown otherwise.
  *
- * @param numberRange The range for the characteristic value to trigger the event.
+ * @param thresholdRange The range for the characteristic value to trigger the event.
  *
  * @return Instance object representing the characteristic event.
  */
@@ -3542,7 +3551,7 @@ API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
  * @brief This class represents an event when a characteristic's value falls within the specified
  * number range.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMMutableCharacteristicThresholdRangeEvent : HMCharacteristicThresholdRangeEvent
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -3569,7 +3578,6 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <HomeKit/HMDefines.h>
 #import <HomeKit/HMEvent.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -3577,7 +3585,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @brief This class is used to represent a generic time event.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMTimeEvent : HMEvent
 
 @end
@@ -3611,7 +3619,7 @@ NS_ASSUME_NONNULL_BEGIN
  *             one relationship between a physical accessory and an object of this
  *             class. An accessory is composed of one or more services.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMAccessory : NSObject
 
 /*!
@@ -3750,7 +3758,7 @@ API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
  * @brief This defines the protocol for a delegate to receive updates about
  *        different aspects of an accessory
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @protocol HMAccessoryDelegate <NSObject>
 
 @optional
@@ -3852,7 +3860,7 @@ NS_ASSUME_NONNULL_BEGIN
  *		  further information about a characteristic’s value, which can be used
  * 		  for presentation purposes.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCharacteristicMetadata : NSObject
 
 /*!
@@ -4052,7 +4060,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @abstract This class can be used to take an image snapshot from a camera.
  */
-API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCameraSnapshotControl : HMCameraControl
 
 /*!
@@ -4084,7 +4092,7 @@ API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 /*!
  * @brief Informs the delegate that the snapshot was taken.
  *
- * @param cameraStreamControl Sender of this message.
+ * @param cameraSnapshotControl Sender of this message.
  *
  * @param snapshot Snapshot will be valid if snapshot was successfully taken.
  *
@@ -4097,7 +4105,7 @@ API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 /*!
  * @brief Informs the delegate that the mostRecentSnapshot was updated.
  *
- * @param cameraStreamControl Sender of this message.
+ * @param cameraSnapshotControl Sender of this message.
  */
 - (void)cameraSnapshotControlDidUpdateMostRecentSnapshot:(HMCameraSnapshotControl *)cameraSnapshotControl;
 
@@ -4121,6 +4129,7 @@ NS_ASSUME_NONNULL_END
 #endif
 #endif
 
+typedef void (^HMErrorBlock)(NSError * _Nullable error);
 // ==========  HomeKit.framework/Headers/HMAccessorySetupPayload.h
 //
 //  HMAccessorySetupPayload.h
@@ -4132,10 +4141,10 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 #import <HomeKit/HMDefines.h>
 
-API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos) 
+HM_EXTERN API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos) 
 @interface HMAccessorySetupPayload : NSObject
 
-- (instancetype)init NS_UNAVAILABLE;
+- (nullable instancetype)init NS_UNAVAILABLE;
 
 /*!
  * @brief Creates a new accessory setup payload to add an accessory to the home.
@@ -4144,7 +4153,7 @@ API_AVAILABLE(ios(11.3)) API_UNAVAILABLE(macos, watchos, tvos)
  *
  * @return Returns an accessory setup payload object if successful or nil on error.
  */
-- (instancetype)initWithURL:(NSURL *)setupPayloadURL;
+- (nullable instancetype)initWithURL:(nullable NSURL *)setupPayloadURL;
 
 @end
 // ==========  HomeKit.framework/Headers/HMUser.h
@@ -4165,7 +4174,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @brief This class describes a user in the home.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMUser : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -4208,7 +4217,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @discussion Provides an interface to interact with a Camera in an Accessory.
  */
-API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCameraProfile : HMAccessoryProfile
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -4292,7 +4301,7 @@ typedef NS_ENUM(NSUInteger, HMHomeHubState)
  *             all the rooms, zones, service groups, users, triggers, and action sets in
  *             the home.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMHome : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -4418,6 +4427,7 @@ API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 
 /*!
  * @brief Add accessory with the given setup payload to the home.
+ * @note  This SPI requires entitlement: com.apple.homekit.developer.allow-setup-payload
  *
  * @param completion Block that is invoked once the request is processed.
  *                   Accessories provides the list of added accessories.
@@ -5013,8 +5023,8 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <HomeKit/HMDefines.h>
 #import <HomeKit/HMCharacteristicTypes.h>
+#import <HomeKit/HMDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -5025,7 +5035,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @brief Represent a characteristic on a service of an accessory.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCharacteristic : NSObject
 
 /*!
@@ -5145,7 +5155,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @abstract Represents a camera snapshot.
  */
-API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCameraSnapshot : HMCameraSource
 
 /*!
@@ -5163,16 +5173,15 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2017 Apple Inc. All rights reserved.
 
 #import <Foundation/Foundation.h>
-#import <HomeKit/HMDefines.h>
-#import <HomeKit/HMTimeEvent.h>
 #import <HomeKit/HMSignificantEvents.h>
+#import <HomeKit/HMTimeEvent.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /*!
  * @brief This class is used to represent a significant time event.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMSignificantTimeEvent : HMTimeEvent <NSCopying, NSMutableCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -5197,7 +5206,7 @@ API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @property(readonly, strong, nonatomic) HMSignificantEvent significantEvent;
 
 /*!
- * @param offset An offset from the time of the signficant event. To specify an offset before the significant event, the
+ * @brief offset An offset from the time of the signficant event. To specify an offset before the significant event, the
  *               properties of the NSDateComponents must be negative value. e.g. To specify 30 mins before sunset, the
  *               'minute' property must be set to -30.
  */
@@ -5211,7 +5220,7 @@ API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 /*!
  * @brief This class is used to represent a significant time event.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMMutableSignificantTimeEvent : HMSignificantTimeEvent
 
 /*!
@@ -5220,7 +5229,7 @@ API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @property(readwrite, strong, nonatomic) HMSignificantEvent significantEvent;
 
 /*!
- * @param offset An offset from the time of the signficant event. To specify an offset before the significant event, the
+ * @brief offset An offset from the time of the signficant event. To specify an offset before the significant event, the
  *               properties of the NSDateComponents must be negative value. e.g. To specify 30 mins before sunset, the
  *               'minute' property must be set to -30.
  */
@@ -5245,7 +5254,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @abstract Represents a generic camera control.
  */
-API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCameraControl : NSObject
 
 @end
@@ -5274,7 +5283,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @abstract This view can render a camera source.
  */
 
-API_AVAILABLE(ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos)
+HM_EXTERN API_AVAILABLE(ios(10.0), tvos(10.0)) API_UNAVAILABLE(watchos)
 @interface HMCameraView : UIView
 
 /*!
@@ -5295,9 +5304,9 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2016 Apple Inc. All rights reserved.
 //
 
-#import <HomeKit/HMDefines.h>
 #import <HomeKit/HMCameraControl.h>
 #import <HomeKit/HMCameraDefines.h>
+#import <HomeKit/HMDefines.h>
 
 #import <CoreGraphics/CoreGraphics.h>
 
@@ -5309,7 +5318,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @abstract This class can be used to control the stream from a camera.
  */
-API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMCameraStreamControl : HMCameraControl
 
 /*!
@@ -5377,7 +5386,6 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <Foundation/Foundation.h>
-#import <HomeKit/HMDefines.h>
 #import <HomeKit/HMTrigger.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -5387,7 +5395,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @discussion This class represents a trigger that is based on timers.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMTimerTrigger : HMTrigger
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -5516,15 +5524,15 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2017 Apple Inc. All rights reserved.
 
 #import <Foundation/Foundation.h>
-#import <HomeKit/HMTimeEvent.h>
 #import <HomeKit/HMDefines.h>
+#import <HomeKit/HMTimeEvent.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /*!
  * @brief This class is used to represent a calendar event.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMCalendarEvent : HMTimeEvent <NSCopying, NSMutableCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -5553,7 +5561,7 @@ API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 /*!
  * @brief This class is used to represent a calendar event.
  */
-API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0), tvos(11.0)) API_UNAVAILABLE(macos)
 @interface HMMutableCalendarEvent : HMCalendarEvent
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -5627,6 +5635,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class HMUserActivityInformation;
 @class HMHome;
 
 @protocol HMHomeManagerDelegate;
@@ -5636,7 +5645,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @discussion This class is responsible for managing a collection of homes. 
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMHomeManager : NSObject
 
 /*!
@@ -5991,7 +6000,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion This class describes a trigger which is an event that can
  *             be used to execute one or more action sets when the event fires.
  */
-API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
+HM_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0), tvos(10.0)) API_UNAVAILABLE(macos)
 @interface HMTrigger : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;

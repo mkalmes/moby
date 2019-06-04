@@ -203,7 +203,19 @@ API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos)
 /**
  symbolSet is a @c CPImageSet representing the maneuver.
  */
-@property (nullable, nonatomic, strong) CPImageSet *symbolSet;
+@property (nullable, nonatomic, strong) CPImageSet *symbolSet API_DEPRECATED_WITH_REPLACEMENT("symbolImage", ios(12.0, 13.0)) API_UNAVAILABLE(macos, watchos, tvos);
+
+/**
+ symbolImage is a @c UIImage representing the maneuver. Provide variants for UIUserInterfaceStyleLight and UIUserInterfaceStyleDark that will be used against light backgrounds and dark backgrounds.
+ */
+@property (nullable, nonatomic, strong) UIImage *symbolImage;
+
+/**
+ junctionImage is a @c UIImage used to display a junction for the maneuver.
+ 
+ @note The maximum image size is 140 points by 100 points. If necessary, images will be scaled down to fit while maintaining the aspect ratio.
+ */
+@property (nullable, nonatomic, strong) UIImage *junctionImage;
 
 /**
  instructionVariants is an array of @c NSString representing the instruction for this maneuver, arranged from most to least preferred. You must provide at least one variant.
@@ -436,6 +448,12 @@ API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos)
  The delegate for this interface controller.
  */
 @property (nonatomic, weak) id<CPInterfaceControllerDelegate> delegate;
+
+/**
+ Set the preferred interface style to UIUserInterfaceStyleDark for all templates. Set this value to YES prior to setting a root template
+ or pushing any templates for first appearance to have style UIUserInterfaceStyleDark.
+ */
+@property (nonatomic, assign) BOOL prefersDarkUserInterfaceStyle API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
 #pragma mark - Templates
 
@@ -684,7 +702,7 @@ API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos)
 @property (nonatomic, strong) UIColor *guidanceBackgroundColor;
 
 /**
- The style used to display trip estimates during active navigation. Default is CPTripEstimateStyleDark.
+ The style used to display trip estimates during active navigation. If not set, will update automatically with changes to UIUserInterfaceStyle.
  */
 @property (nonatomic, assign) CPTripEstimateStyle tripEstimateStyle;
 
@@ -793,7 +811,7 @@ API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos)
  in the completion block indicates whether any visible alert was dismissed (YES) or
  if no action was taken because there was no alert to dismiss (NO).
  */
-- (void)dismissNavigationAlertAnimated:(BOOL)animated completion:(void (^)(BOOL))completion;
+- (void)dismissNavigationAlertAnimated:(BOOL)animated completion:(void (^)(BOOL dismissed))completion;
 
 @end
 
@@ -1051,6 +1069,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class CPTemplateApplicationScene;
+
 /**
  @c CPWindow is the main window for content presented on the car screen.
  */
@@ -1061,6 +1081,16 @@ API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos)
  @c mapButtonSafeAreaLayoutGuide can be used to layout content that appears above the map buttons presented on the map template.
  */
 @property (nonatomic, readonly) UILayoutGuide *mapButtonSafeAreaLayoutGuide;
+
+/**
+ @c windowScene is not available for CPWindow's
+ */
+@property(nullable, nonatomic, weak) UIWindowScene *windowScene NS_UNAVAILABLE;
+
+/**
+ @c back-reference to the CPTemplateApplicationScene containing this CPWindow
+ */
+@property(nullable, nonatomic, weak) CPTemplateApplicationScene *templateApplicationScene;
 
 @end
 
@@ -1144,6 +1174,7 @@ API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos)
  A grid template presenting more than 4 buttons will balance the buttons between 2 rows.
  */
 - (instancetype)initWithTitle:(nullable NSString *)title gridButtons:(NSArray <CPGridButton *> *)gridButtons;
+
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
@@ -1290,6 +1321,13 @@ API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos)
                              imageSet:(nullable CPImageSet *)imageSet
                         primaryAction:(CPAlertAction *)primaryAction
                       secondaryAction:(nullable CPAlertAction *)secondaryAction
+                             duration:(NSTimeInterval)duration API_DEPRECATED_WITH_REPLACEMENT("initWithTitleVariants:subtitleVariants:image:primaryAction:secondaryAction:duration", ios(12.0, 13.0)) API_UNAVAILABLE(macos, watchos, tvos);
+
+- (instancetype)initWithTitleVariants:(NSArray <NSString *> *)titleVariants
+                     subtitleVariants:(nullable NSArray <NSString *> *)subtitleVariants
+                                image:(nullable UIImage *)image
+                        primaryAction:(CPAlertAction *)primaryAction
+                      secondaryAction:(nullable CPAlertAction *)secondaryAction
                              duration:(NSTimeInterval)duration;
 
 /**
@@ -1307,6 +1345,7 @@ API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos)
 @property (nonatomic, readonly, copy) NSArray <NSString *> *titleVariants;
 @property (nonatomic, readonly, copy) NSArray <NSString *> *subtitleVariants;
 @property (nullable, nonatomic, readonly, copy) CPImageSet *imageSet;
+@property (nullable, nonatomic, readonly, copy) UIImage *image;
 @property (nonatomic, readonly, strong) CPAlertAction *primaryAction;
 @property (nullable, nonatomic, readonly, strong) CPAlertAction *secondaryAction;
 @property (nonatomic, readonly) NSTimeInterval duration;
@@ -1732,6 +1771,8 @@ API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(macos, watchos, tvos)
  Setting more than 2 buttons to this property will only display the first 2 buttons.
  */
 @property (nonatomic, strong) NSArray<CPBarButton *> *trailingNavigationBarButtons;
+
+@property (nonatomic, strong, nullable) CPBarButton *backButton;
 
 @end
 

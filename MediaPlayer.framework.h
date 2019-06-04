@@ -6,8 +6,8 @@
 //  Copyright © 2015 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 #import <MediaPlayer/AVFoundation+MPNowPlayingInfoLanguageOptionAdditions.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -135,8 +135,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2013 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -203,10 +203,10 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2013 Apple Inc. All rights reserved.
 //
 
+#import <MediaPlayer/MediaPlayerDefines.h>
 #import <Foundation/Foundation.h>
 #import <MediaPlayer/MPPlayableContentDataSource.h>
 #import <MediaPlayer/MPPlayableContentDelegate.h>
-#import <MediaPlayer/MediaPlayerDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -224,7 +224,7 @@ MP_PROHIBITED(tvos, macos, watchos)
 @property (nonatomic, readonly) MPPlayableContentManagerContext *context MP_API(ios(8.4));
 
 /// Tells the content manager which MPContentItems are currently playing based on their identifiers.
-@property (nonatomic, strong) NSArray<NSString *> *nowPlayingIdentifiers MP_API(ios(10.0));
+@property (nonatomic, copy) NSArray<NSString *> *nowPlayingIdentifiers MP_API(ios(10.0));
 
 /// Returns the application's instance of the content manager.
 + (instancetype)sharedContentManager;
@@ -247,17 +247,19 @@ NS_ASSUME_NONNULL_END
 //  MediaPlayerDefines.h
 //  MediaPlayer
 //
-//  Copyright 2008 Apple, Inc. All rights reserved.
+//  Copyright 2008-2019 Apple Inc. All rights reserved.
 //
 
 #import <Availability.h>
 #import <TargetConditionals.h>
 
 #ifdef __cplusplus
-#define MP_EXTERN extern "C" __attribute__((visibility ("default")))
+#define _MP_EXTERN extern "C"
 #else
-#define MP_EXTERN extern __attribute__((visibility ("default")))
+#define _MP_EXTERN extern
 #endif
+
+#define MP_EXTERN _MP_EXTERN __attribute__((visibility("default")))
 
 #define MP_API(...) __API_AVAILABLE(__VA_ARGS__)
 #define MP_DEPRECATED(...) __API_DEPRECATED(__VA_ARGS__)
@@ -297,8 +299,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2013 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -359,13 +361,13 @@ NS_ASSUME_NONNULL_END
 //  MediaPlayer.h
 //  MediaPlayer
 //
-//  Copyright 2008-2011 Apple, Inc. All rights reserved.
+//  Copyright 2008-2019 Apple Inc. All rights reserved.
 //
 
 #import <MediaPlayer/MediaPlayerDefines.h>
 #import <TargetConditionals.h>
 
-#if TARGET_OS_IPHONE
+#if !TARGET_OS_OSX
 #import <MediaPlayer/MPMediaItemCollection.h>
 #import <MediaPlayer/MPMediaLibrary.h>
 #import <MediaPlayer/MPMediaPickerController.h>
@@ -377,10 +379,6 @@ NS_ASSUME_NONNULL_END
 #import <MediaPlayer/MPMusicPlayerApplicationController.h>
 #import <MediaPlayer/MPMusicPlayerController.h>
 #import <MediaPlayer/MPMusicPlayerQueueDescriptor.h>
-#import <MediaPlayer/MPPlayableContentDataSource.h>
-#import <MediaPlayer/MPPlayableContentDelegate.h>
-#import <MediaPlayer/MPPlayableContentManager.h>
-#import <MediaPlayer/MPPlayableContentManagerContext.h>
 #import <MediaPlayer/MPVolumeSettings.h>
 #import <MediaPlayer/MPVolumeView.h>
 #import <MediaPlayer/NSUserActivity+MediaPlayerAdditions.h>
@@ -392,6 +390,10 @@ NS_ASSUME_NONNULL_END
 #import <MediaPlayer/MPMediaItem.h>
 #import <MediaPlayer/MPNowPlayingInfoCenter.h>
 #import <MediaPlayer/MPNowPlayingInfoLanguageOption.h>
+#import <MediaPlayer/MPPlayableContentDataSource.h>
+#import <MediaPlayer/MPPlayableContentDelegate.h>
+#import <MediaPlayer/MPPlayableContentManager.h>
+#import <MediaPlayer/MPPlayableContentManagerContext.h>
 #import <MediaPlayer/MPRemoteCommand.h>
 #import <MediaPlayer/MPRemoteCommandCenter.h>
 #import <MediaPlayer/MPRemoteCommandEvent.h>
@@ -404,8 +406,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2013 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -464,8 +466,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2015 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -481,7 +483,7 @@ typedef NS_ENUM(NSInteger, MPErrorCode) {
     MPErrorNotSupported,                            // the request is not supported (ex: trying to add items to a smart playlist)
     MPErrorCancelled MP_API(ios(10.1)),             // the request was cancelled before it could complete
     MPErrorRequestTimedOut MP_API(ios(10.3)),
-} MP_API(ios(9.3)) MP_PROHIBITED(watchos);
+} MP_API(ios(9.3), macos(10.14.2)) MP_PROHIBITED(watchos);
 
 NS_ASSUME_NONNULL_END
 // ==========  MediaPlayer.framework/Headers/MPMusicPlayerQueueDescriptor.h
@@ -492,8 +494,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2016-2017 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -569,8 +571,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2013 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 #import <MediaPlayer/MPRemoteControlTypes.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -1125,7 +1127,9 @@ MP_PROHIBITED(tvos, watchos)
 //  Copyright © 2016-2017 Apple Inc. All rights reserved.
 //
 
-#import <MediaPlayer/MediaPlayer.h>
+#import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
+#import <MediaPlayer/MPMediaItem.h>
 #import <MediaPlayer/MPMusicPlayerController.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -1169,8 +1173,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2016 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, MPShuffleType) {
     MPShuffleTypeOff,           /// Nothing is shuffled during playback.
@@ -1197,8 +1201,8 @@ typedef NS_ENUM(NSInteger, MPChangeLanguageOptionSetting) {
 //  Copyright © 2008-2017 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 #import <MediaPlayer/MPMediaItemCollection.h>
 #import <MediaPlayer/MPMediaItem.h>
 #import <MediaPlayer/MPMediaQuery.h>
@@ -1331,8 +1335,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright 2009-2010 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 @protocol MPMediaPlayback
 
@@ -1377,8 +1381,8 @@ MP_EXTERN NSString * const MPMediaPlaybackIsPreparedToPlayDidChangeNotification 
 //  Copyright 2010 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1423,8 +1427,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright 2008 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 #import <MediaPlayer/MPMediaItemCollection.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -1498,8 +1502,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright 2010 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1525,8 +1529,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2013 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1578,7 +1582,7 @@ MP_API(ios(7.1), tvos(7.1), macos(10.12.2), watchos(5.0))
 @property (nonatomic, readonly) MPFeedbackCommand *bookmarkCommand;
 
 + (MPRemoteCommandCenter *)sharedCommandCenter;
-- (id)init NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 
@@ -1588,12 +1592,12 @@ NS_ASSUME_NONNULL_END
 //  MPVolumeSettings.h
 //  MediaPlayer
 //
-//  Copyright 2008 Apple, Inc. All rights reserved.
+//  Copyright 2008-2019 Apple Inc. All rights reserved.
 //
 
+#import <MediaPlayer/MediaPlayerDefines.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <MediaPlayer/MediaPlayerDefines.h>
 
 MP_EXTERN void MPVolumeSettingsAlertShow(void) MP_DEPRECATED("Use MPVolumeView to present volume controls.", ios(2.0, 11.3)) MP_PROHIBITED(tvos, watchos);
 MP_EXTERN void MPVolumeSettingsAlertHide(void) MP_DEPRECATED("Use MPVolumeView to present volume controls.", ios(2.0, 11.3)) MP_PROHIBITED(tvos, watchos);
@@ -1606,8 +1610,8 @@ MP_EXTERN BOOL MPVolumeSettingsAlertIsVisible(void) MP_DEPRECATED("Use MPVolumeV
 //  Copyright © 2015 Apple Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 /// MPPlayableContentManagerContext represents the current state of
 /// the playable content endpoint. A context is retrievable from an instance
@@ -1639,8 +1643,8 @@ MP_PROHIBITED(tvos, macos, watchos)
 //  Copyright 2008 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1751,8 +1755,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright (c) 2013 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 #import <MediaPlayer/MPNowPlayingInfoLanguageOption.h>
 #import <MediaPlayer/MPRemoteControlTypes.h>
 
@@ -1945,14 +1949,14 @@ MP_PROHIBITED(tvos, macos, watchos)
 @interface MPVolumeView : UIView <NSCoding>
 
 @property (nonatomic) BOOL showsVolumeSlider MP_API(ios(4.2)); // Default is YES.
-@property (nonatomic) BOOL showsRouteButton MP_API(ios(4.2));  // Default is YES.
+@property (nonatomic) BOOL showsRouteButton MP_DEPRECATED("Use AVRoutePickerView instead.", ios(4.2, 13.0));
 
 // Returns YES if wireless routes (AirPlay, Bluetooth, etc) are available for user selection.
 // Note that the view must be in present in a window hierarchy in order to discover some types of wireless routes.
-@property (nonatomic, readonly, getter=areWirelessRoutesAvailable) BOOL wirelessRoutesAvailable MP_API(ios(7.0));
+@property (nonatomic, readonly, getter=areWirelessRoutesAvailable) BOOL wirelessRoutesAvailable MP_DEPRECATED("Use AVRouteDetector.multipleRoutesDetected instead.", ios(7.0, 13.0));
 
 // Returns YES if a wireless route is active.
-@property (nonatomic, readonly, getter=isWirelessRouteActive) BOOL wirelessRouteActive MP_API(ios(7.0));
+@property (nonatomic, readonly, getter=isWirelessRouteActive) BOOL wirelessRouteActive MP_DEPRECATED("Use AVPlayer.externalPlaybackActive instead.", ios(7.0, 13.0));
 
 // Volume slider customization
 
@@ -1976,18 +1980,18 @@ MP_PROHIBITED(tvos, macos, watchos)
 
 // Route button customization
 
-- (void)setRouteButtonImage:(nullable UIImage *)image forState:(UIControlState)state MP_API(ios(6.0));
-- (nullable UIImage *)routeButtonImageForState:(UIControlState)state MP_API(ios(6.0));
+- (void)setRouteButtonImage:(nullable UIImage *)image forState:(UIControlState)state MP_DEPRECATED("Use AVRoutePickerView.routePickerButtonStyle instead.", ios(6.0, 13.0));
+- (nullable UIImage *)routeButtonImageForState:(UIControlState)state MP_DEPRECATED("See AVRoutePickerView for possible replacements.", ios(6.0, 13.0));
 
-- (CGRect)routeButtonRectForBounds:(CGRect)bounds MP_API(ios(6.0));
+- (CGRect)routeButtonRectForBounds:(CGRect)bounds MP_DEPRECATED("See AVRoutePickerView for possible replacements.", ios(6.0, 13.0));
 
 @end
 
 // Posted when the wirelessRoutesAvailable property changes.
-MP_EXTERN NSString * const MPVolumeViewWirelessRoutesAvailableDidChangeNotification MP_API(ios(7.0)) MP_PROHIBITED(tvos, watchos);
+MP_EXTERN NSString * const MPVolumeViewWirelessRoutesAvailableDidChangeNotification MP_DEPRECATED("Use AVRouteDetectorMultipleRoutesDetectedDidChangeNotification instead.", ios(7.0, 13.0)) MP_PROHIBITED(tvos, watchos);
 
 // Posted when the wirelessRouteActive property changes.
-MP_EXTERN NSString * const MPVolumeViewWirelessRouteActiveDidChangeNotification MP_API(ios(7.0)) MP_PROHIBITED(tvos, watchos);
+MP_EXTERN NSString * const MPVolumeViewWirelessRouteActiveDidChangeNotification MP_DEPRECATED("Use AVPlayer.externalPlaybackActive KVO instead.", ios(7.0, 13.0)) MP_PROHIBITED(tvos, watchos);
 
 NS_ASSUME_NONNULL_END
 #endif
@@ -1999,8 +2003,9 @@ NS_ASSUME_NONNULL_END
 //  Copyright 2008 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
+#import <MediaPlayer/MPMediaEntity.h>
 #import <MediaPlayer/MPMediaItem.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -2041,8 +2046,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright 2011 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -2103,7 +2108,7 @@ MP_API(ios(5.0), tvos(5.0), macos(10.12.2), watchos(5.0))
 /// the application's audio session. This property must be set every time
 /// the app begins or halts playback, otherwise remote control functionality may
 /// not work as expected.
-@property (nonatomic) MPNowPlayingPlaybackState playbackState MP_API(macos(10.12.2));
+@property (nonatomic) MPNowPlayingPlaybackState playbackState MP_API(macos(10.12.2), ios(13.0), uikitformac(13.0));
 
 @end
 
@@ -2209,9 +2214,9 @@ NS_ASSUME_NONNULL_END
 //  Copyright 2008 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <CoreGraphics/CoreGraphics.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
 #import <MediaPlayer/MPMediaEntity.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -2408,8 +2413,8 @@ NS_ASSUME_NONNULL_END
 //  Copyright 2008 Apple, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayerDefines.h>
+#import <Foundation/Foundation.h>
 #import <MediaPlayer/MPMediaItem.h>
 #import <MediaPlayer/MPMediaItemCollection.h>
 

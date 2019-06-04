@@ -3,7 +3,7 @@
 //  INRestaurantReservationBooking.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_END
 //  INGetAvailableRestaurantReservationBookingDefaultsIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_END
 //  INCancelRideIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -118,7 +118,7 @@ NS_ASSUME_NONNULL_END
 //  INCallRecordTypeOptionsResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -127,19 +127,20 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13))
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
 @interface INCallRecordTypeOptionsResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCallRecordTypeOptions. The resolvedValue can be different than the original INCallRecordTypeOptions. This allows app extensions to apply business logic constraints.
 // Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedCallRecordTypeOptions:(INCallRecordTypeOptions)resolvedCallRecordTypeOptions NS_SWIFT_NAME(success(with:));
 
-+ (instancetype)successWithResolvedValue:(INCallRecordTypeOptions)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCallRecordTypeOptions:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
++ (instancetype)successWithResolvedValue:(INCallRecordTypeOptions)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCallRecordTypeOptions:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
 + (instancetype)confirmationRequiredWithCallRecordTypeOptionsToConfirm:(INCallRecordTypeOptions)callRecordTypeOptionsToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
 
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INCallRecordTypeOptions)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCallRecordTypeOptionsToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
++ (instancetype)confirmationRequiredWithValueToConfirm:(INCallRecordTypeOptions)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCallRecordTypeOptionsToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 @end
 
@@ -149,7 +150,7 @@ NS_ASSUME_NONNULL_END
 //  INDoubleResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -174,7 +175,7 @@ NS_ASSUME_NONNULL_END
 //  INCarDefroster.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INCarDefroster_h
@@ -191,12 +192,42 @@ typedef NS_ENUM(NSInteger, INCarDefroster) {
 } API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INCarDefroster_h
+// ==========  Intents.framework/Headers/INMediaDestination.h
+//
+//  INMediaDestination.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INMediaDestinationType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INMediaDestination : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
++ (instancetype)libraryDestination;
++ (instancetype)playlistDestinationWithName:(NSString *)playlistName;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INMediaDestinationType mediaDestinationType;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *playlistName;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INVisualCodeType.h
 //
 //  INVisualCodeType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INVisualCodeType_h
@@ -221,7 +252,7 @@ typedef NS_ENUM(NSInteger, INVisualCodeType) {
 //  INMessageAttributeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -253,7 +284,7 @@ NS_ASSUME_NONNULL_END
 //  INRelevantShortcut.h
 //  Intents
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INRelevanceProvider.h>
@@ -264,23 +295,66 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+/*!
+ @abstract The role of the relevant shortcut.
+ @discussion Provides a hint to Siri about the expected user experience.
+ */
 typedef NS_ENUM(NSInteger, INRelevantShortcutRole) {
+    
+    /*!
+     @abstract The relevant shortcut represents an action that the user may want to perform using your app.
+     */
     INRelevantShortcutRoleAction,
+    
+    /*!
+     @abstract The relevant shortcut represents information that the user may want to glance at.
+     */
     INRelevantShortcutRoleInformation,
 } API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(macosx);
 
+/*!
+ @abstract Lets you provide relevant shortcut to Siri, for display on the Siri Watch Face.
+ @discussion Including relevance information allows Siri to make suggestions for shortcuts that the user might be interested in but has not previously performed.
+ */
 API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(macosx)
 @interface INRelevantShortcut : NSObject <NSSecureCoding, NSCopying>
 
+/*!
+ @abstract A collection of relevance information that is attached to the relevant shortcuts.
+ @discussion Providing additional relevance information allows Siri to suggest a shortcut that the user is interested in but has not previously performed.
+ @seealso INRelevanceProvider
+ */
 @property (copy, NS_NONATOMIC_IOSONLY) NSArray<INRelevanceProvider *> *relevanceProviders;
+
+/*!
+ @abstract Customizes the display of the relevant shortcut on the Siri watch face.
+ @discussion By default, the UI for the relevant shortcut can be derivied from the information provided in the @c INShortcut. In certain situations, it may be desirable to override this behavior and provide a custom template.
+ @seealso INDefaultCardTemplate
+ */
 @property (copy, nullable, NS_NONATOMIC_IOSONLY) INDefaultCardTemplate *watchTemplate;
+
+/*!
+ @abstract The role of the relevant shortcut.
+ @discussion Provides a hint to Siri about the expected user experience. The default is @c INRelevantShortcutRoleAction.
+ @seealso INRelevantShortcutRole
+ */
 @property (NS_NONATOMIC_IOSONLY) INRelevantShortcutRole shortcutRole;
 
+/*!
+ @abstract The shortcut that will be performed when this relevant shortcut is invoked.
+ @seealso INShortcut
+ */
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) INShortcut *shortcut;
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
+/*!
+ @abstract Creates a relevant shortcut for the given shortcut.
+ */
 - (instancetype)initWithShortcut:(INShortcut *)shortcut NS_DESIGNATED_INITIALIZER;
+
+/*!
+ @note Must be initilaized with a shortcut, using that initializer.
+ */
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 
@@ -290,7 +364,7 @@ NS_ASSUME_NONNULL_END
 //  INSaveProfileInCarIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -322,12 +396,95 @@ API_UNAVAILABLE(watchos, macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INPlaybackQueueLocation.h
+//
+//  INPlaybackQueueLocation.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INPlaybackQueueLocation_h
+#define INPlaybackQueueLocation_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INPlaybackQueueLocation) {
+    INPlaybackQueueLocationUnknown = 0,
+    INPlaybackQueueLocationNow,
+    INPlaybackQueueLocationNext,
+    INPlaybackQueueLocationLater,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INPlaybackQueueLocation_h
+// ==========  Intents.framework/Headers/INMediaSearch.h
+//
+//  INMediaSearch.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INMediaItemType.h>
+#import <Intents/INMediaReference.h>
+#import <Intents/INMediaSortOrder.h>
+
+@class INDateComponentsRange;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INMediaSearch : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithMediaType:(INMediaItemType)mediaType
+                        sortOrder:(INMediaSortOrder)sortOrder
+                        mediaName:(nullable NSString *)mediaName
+                       artistName:(nullable NSString *)artistName
+                        albumName:(nullable NSString *)albumName
+                       genreNames:(nullable NSArray<NSString *> *)genreNames
+                        moodNames:(nullable NSArray<NSString *> *)moodNames
+                    activityNames:(nullable NSArray<NSString *> *)activityNames
+                      releaseDate:(nullable INDateComponentsRange *)releaseDate
+                        reference:(INMediaReference)reference
+                  mediaIdentifier:(nullable NSString *)mediaIdentifier NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INMediaItemType mediaType;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INMediaSortOrder sortOrder;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *mediaName;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *artistName;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *albumName;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *genreNames;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *moodNames;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *activityNames;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *releaseDate;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INMediaReference reference;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *mediaIdentifier;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSetSeatSettingsInCarIntent_Deprecated.h
 //
 //  INSetSeatSettingsInCarIntent_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2018 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSetSeatSettingsInCarIntent.h>
@@ -351,7 +508,7 @@ NS_ASSUME_NONNULL_END
 //  INGetCarPowerLevelStatusIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -398,11 +555,12 @@ NS_ASSUME_NONNULL_END
 //  INIntents.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSearchCallHistoryIntent.h>
 #import <Intents/INStartAudioCallIntent.h>
+#import <Intents/INStartCallIntent.h>
 #import <Intents/INStartVideoCallIntent.h>
 
 #import <Intents/INActivateCarSignalIntent.h>
@@ -422,7 +580,10 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INResumeWorkoutIntent.h>
 #import <Intents/INStartWorkoutIntent.h>
 
+#import <Intents/INAddMediaIntent.h>
 #import <Intents/INPlayMediaIntent.h>
+#import <Intents/INSearchForMediaIntent.h>
+#import <Intents/INUpdateMediaAffinityIntent.h>
 
 #import <Intents/INSetRadioStationIntent.h>
 
@@ -434,8 +595,10 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INAppendToNoteIntent.h>
 #import <Intents/INCreateNoteIntent.h>
 #import <Intents/INCreateTaskListIntent.h>
+#import <Intents/INDeleteTasksIntent.h>
 #import <Intents/INSearchForNotebookItemsIntent.h>
 #import <Intents/INSetTaskAttributeIntent.h>
+#import <Intents/INSnoozeTasksIntent.h>
 
 #import <Intents/INPayBillIntent.h>
 #import <Intents/INRequestPaymentIntent.h>
@@ -446,6 +609,8 @@ NS_ASSUME_NONNULL_END
 
 #import <Intents/INSearchForPhotosIntent.h>
 #import <Intents/INStartPhotoPlaybackIntent.h>
+
+#import <Intents/INGetReservationDetailsIntent.h>
 
 #import <Intents/INGetRideStatusIntent.h>
 #import <Intents/INListRideOptionsIntent.h>
@@ -460,7 +625,7 @@ NS_ASSUME_NONNULL_END
 //  INSendRideFeedbackIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -495,7 +660,7 @@ NS_ASSUME_NONNULL_END
 //  INRequestRideIntent_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSearchForMessagesIntent.h>
@@ -534,7 +699,7 @@ NS_ASSUME_NONNULL_END
 //  INCarSeat.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INCarSeat_h
@@ -560,12 +725,33 @@ typedef NS_ENUM(NSInteger, INCarSeat) {
 } API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INCarSeat_h
+// ==========  Intents.framework/Headers/INMediaAffinityType.h
+//
+//  INMediaAffinityType.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INMediaAffinityType_h
+#define INMediaAffinityType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INMediaAffinityType) {
+    INMediaAffinityTypeUnknown = 0,
+    INMediaAffinityTypeLike,
+    INMediaAffinityTypeDislike,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INMediaAffinityType_h
 // ==========  Intents.framework/Headers/INSetDefrosterSettingsInCarIntentResponse.h
 //
 //  INSetDefrosterSettingsInCarIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -597,12 +783,215 @@ API_UNAVAILABLE(watchos, macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INStartCallIntent.h
+//
+//  INStartCallIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INCallAudioRoute.h>
+#import <Intents/INCallCapability.h>
+#import <Intents/INCallDestinationType.h>
+
+@class INCallCapabilityResolutionResult;
+@class INCallDestinationTypeResolutionResult;
+@class INPerson;
+@class INPersonResolutionResult;
+@class INStartCallCallCapabilityResolutionResult;
+@class INStartCallContactResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INStartCallIntent : INIntent
+
+- (instancetype)initWithAudioRoute:(INCallAudioRoute)audioRoute
+                   destinationType:(INCallDestinationType)destinationType
+                          contacts:(nullable NSArray<INPerson *> *)contacts
+                    callCapability:(INCallCapability)callCapability NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallAudioRoute audioRoute;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallDestinationType destinationType;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPerson *> *contacts;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallCapability callCapability;
+
+@end
+
+@class INStartCallIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INStartCallIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@protocol INStartCallIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INStartCallIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INStartCallIntentResponse containing the details of the result of having executed the intent
+
+ @see  INStartCallIntentResponse
+ */
+
+- (void)handleStartCall:(INStartCallIntent *)intent
+             completion:(void (^)(INStartCallIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INStartCallIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INStartCallIntentResponse
+ */
+
+- (void)confirmStartCall:(INStartCallIntent *)intent
+              completion:(void (^)(INStartCallIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveDestinationTypeForStartCall:(INStartCallIntent *)intent
+                    withCompletion:(void (^)(INCallDestinationTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDestinationType(for:with:));
+
+- (void)resolveContactsForStartCall:(INStartCallIntent *)intent
+                    withCompletion:(void (^)(NSArray<INStartCallContactResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveContacts(for:with:));
+
+- (void)resolveCallCapabilityForStartCall:(INStartCallIntent *)intent
+                    withCompletion:(void (^)(INStartCallCallCapabilityResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCallCapability(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAddMediaIntent.h
+//
+//  INAddMediaIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INAddMediaMediaDestinationResolutionResult;
+@class INAddMediaMediaItemResolutionResult;
+@class INMediaDestination;
+@class INMediaDestinationResolutionResult;
+@class INMediaItem;
+@class INMediaItemResolutionResult;
+@class INMediaSearch;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INAddMediaIntent : INIntent
+
+- (instancetype)initWithMediaItems:(nullable NSArray<INMediaItem *> *)mediaItems
+                       mediaSearch:(nullable INMediaSearch *)mediaSearch
+                  mediaDestination:(nullable INMediaDestination *)mediaDestination NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INMediaItem *> *mediaItems;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INMediaSearch *mediaSearch;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INMediaDestination *mediaDestination;
+
+@end
+
+@class INAddMediaIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INAddMediaIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@protocol INAddMediaIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INAddMediaIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INAddMediaIntentResponse containing the details of the result of having executed the intent
+
+ @see  INAddMediaIntentResponse
+ */
+
+- (void)handleAddMedia:(INAddMediaIntent *)intent
+            completion:(void (^)(INAddMediaIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INAddMediaIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INAddMediaIntentResponse
+ */
+
+- (void)confirmAddMedia:(INAddMediaIntent *)intent
+             completion:(void (^)(INAddMediaIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveMediaItemsForAddMedia:(INAddMediaIntent *)intent
+                    withCompletion:(void (^)(NSArray<INAddMediaMediaItemResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveMediaItems(for:with:));
+
+- (void)resolveMediaDestinationForAddMedia:(INAddMediaIntent *)intent
+                    withCompletion:(void (^)(INAddMediaMediaDestinationResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveMediaDestination(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INStartAudioCallIntent.h
 //
 //  INStartAudioCallIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -616,13 +1005,14 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_UNAVAILABLE(macosx)
+API_DEPRECATED("INStartAudioCallIntent is deprecated. Please adopt INStartCallIntent instead", ios(10.0, 13.0), watchos(3.2, 6.0))
 @interface INStartAudioCallIntent : INIntent
 
 - (instancetype)initWithDestinationType:(INCallDestinationType)destinationType
                                contacts:(nullable NSArray<INPerson *> *)contacts NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
 
-@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallDestinationType destinationType API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallDestinationType destinationType API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 // Recipients of the audio call.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPerson *> *contacts;
@@ -636,7 +1026,8 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_UNAVAILABLE(macosx)
+API_DEPRECATED("INStartAudioCallIntent is deprecated. Please adopt INStartCallIntent instead", ios(10.0, 13.0), watchos(3.2, 6.0))
 @protocol INStartAudioCallIntentHandling <NSObject>
 
 @required
@@ -680,7 +1071,7 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
  */
 
 - (void)resolveDestinationTypeForStartAudioCall:(INStartAudioCallIntent *)intent
-                    withCompletion:(void (^)(INCallDestinationTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDestinationType(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+                    withCompletion:(void (^)(INCallDestinationTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDestinationType(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 - (void)resolveContactsForStartAudioCall:(INStartAudioCallIntent *)intent
                     withCompletion:(void (^)(NSArray<INPersonResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveContacts(for:with:));
@@ -693,7 +1084,7 @@ NS_ASSUME_NONNULL_END
 //  INSetClimateSettingsInCarIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -730,7 +1121,7 @@ NS_ASSUME_NONNULL_END
 //  INAccountType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INAccountType_h
@@ -756,7 +1147,7 @@ typedef NS_ENUM(NSInteger, INAccountType) {
 //  INSetAudioSourceInCarIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -788,12 +1179,79 @@ API_UNAVAILABLE(watchos, macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTicketedEvent.h
+//
+//  INTicketedEvent.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INTicketedEventCategory.h>
+
+@class CLPlacemark;
+@class INDateComponentsRange;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INTicketedEvent : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithCategory:(INTicketedEventCategory)category
+                            name:(nullable NSString *)name
+                   eventDuration:(nullable INDateComponentsRange *)eventDuration
+                        location:(nullable CLPlacemark *)location NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INTicketedEventCategory category;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *name;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *eventDuration;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *location;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INMediaAffinityTypeResolutionResult.h
+//
+//  INMediaAffinityTypeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INMediaAffinityType.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INMediaAffinityTypeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INMediaAffinityType. The resolvedValue can be different than the original INMediaAffinityType. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedMediaAffinityType:(INMediaAffinityType)resolvedMediaAffinityType NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithMediaAffinityTypeToConfirm:(INMediaAffinityType)mediaAffinityTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INGetUserCurrentRestaurantReservationBookingsIntentResponse.h
 //
 //  INGetUserCurrentRestaurantReservationBookingsIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -828,7 +1286,7 @@ NS_ASSUME_NONNULL_END
 //  INPaymentMethod.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -869,7 +1327,7 @@ NS_ASSUME_NONNULL_END
 //  INSetRadioStationIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -907,7 +1365,7 @@ NS_ASSUME_NONNULL_END
 //  INPaymentRecord.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -958,12 +1416,40 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INPlayMediaPlaybackSpeedResolutionResult.h
+//
+//  INPlayMediaPlaybackSpeedResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INDoubleResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INPlayMediaPlaybackSpeedUnsupportedReason) {
+    INPlayMediaPlaybackSpeedUnsupportedReasonBelowMinimum = 1,
+    INPlayMediaPlaybackSpeedUnsupportedReasonAboveMaximum,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INPlayMediaPlaybackSpeedResolutionResult : INDoubleResolutionResult
+
++ (instancetype)unsupportedForReason:(INPlayMediaPlaybackSpeedUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithDoubleResolutionResult:(INDoubleResolutionResult *)doubleResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INTaskList.h
 //
 //  INTaskList.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1004,7 +1490,7 @@ NS_ASSUME_NONNULL_END
 //  INStartAudioCallIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -1018,12 +1504,13 @@ typedef NS_ENUM(NSInteger, INStartAudioCallIntentResponseCode) {
     INStartAudioCallIntentResponseCodeFailureAppConfigurationRequired,
     INStartAudioCallIntentResponseCodeFailureCallingServiceNotAvailable,
     INStartAudioCallIntentResponseCodeFailureContactNotSupportedByApp,
-    INStartAudioCallIntentResponseCodeFailureNoValidNumber API_AVAILABLE(ios(11.0), macosx(10.13)),
-} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+    INStartAudioCallIntentResponseCodeFailureNoValidNumber API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macosx),
+} API_UNAVAILABLE(macosx) API_DEPRECATED("INStartAudioCallIntent is deprecated. Please adopt INStartCallIntent instead", ios(10.0, 13.0), watchos(3.2, 6.0));
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_UNAVAILABLE(macosx)
+API_DEPRECATED("INStartAudioCallIntent is deprecated. Please adopt INStartCallIntent instead", ios(10.0, 13.0), watchos(3.2, 6.0))
 @interface INStartAudioCallIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -1043,7 +1530,7 @@ NS_ASSUME_NONNULL_END
 //  INRideDriver.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INPerson.h>
@@ -1074,7 +1561,7 @@ NS_ASSUME_NONNULL_END
 //  INRequestPaymentPayerResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INPersonResolutionResult.h>
@@ -1103,7 +1590,7 @@ NS_ASSUME_NONNULL_END
 //  INAmountType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INAmountType_h
@@ -1128,7 +1615,7 @@ typedef NS_ENUM(NSInteger, INAmountType) {
 //  INEndWorkoutIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -1212,7 +1699,7 @@ NS_ASSUME_NONNULL_END
 //  INCarSeatResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -1244,7 +1731,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchCallHistoryIntent_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INCallRecordType.h>
@@ -1257,10 +1744,56 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithCallType:(INCallRecordType)callType
                      dateCreated:(nullable INDateComponentsRange *)dateCreated
                        recipient:(nullable INPerson *)recipient
-                callCapabilities:(INCallCapabilityOptions)callCapabilities API_DEPRECATED("Use the designated initializer instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+                callCapabilities:(INCallCapabilityOptions)callCapabilities API_DEPRECATED("Use the designated initializer instead", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 // What type of call record to search for.
-@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallRecordType callType API_DEPRECATED("Use callTypes instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallRecordType callType API_DEPRECATED("Use callTypes instead", ios(10.0, 11.0), watchos(3.2, 4.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INLodgingReservation.h
+//
+//  INLodgingReservation.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Intents/INReservation.h>
+
+@class CLPlacemark;
+@class INDateComponentsRange;
+@class INReservation;
+@class INSpeakableString;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INLodgingReservation : INReservation <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithItemReference:(nullable INSpeakableString *)itemReference
+                    reservationNumber:(nullable NSString *)reservationNumber
+                          bookingTime:(nullable NSDate *)bookingTime
+                    reservationStatus:(INReservationStatus)reservationStatus
+                reservationHolderName:(nullable NSString *)reservationHolderName
+                              actions:(nullable NSArray<INReservationAction *> *)actions
+              lodgingBusinessLocation:(nullable CLPlacemark *)lodgingBusinessLocation
+                  reservationDuration:(nullable INDateComponentsRange *)reservationDuration
+                       numberOfAdults:(nullable NSNumber *)numberOfAdults
+                     numberOfChildren:(nullable NSNumber *)numberOfChildren NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *lodgingBusinessLocation;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *reservationDuration;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *numberOfAdults NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *numberOfChildren NS_REFINED_FOR_SWIFT;
 
 @end
 
@@ -1270,7 +1803,7 @@ NS_ASSUME_NONNULL_END
 //  INMessage.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1300,16 +1833,17 @@ typedef NS_ENUM(NSInteger, INMessageType) {
     INMessageTypeMediaVideo,
     INMessageTypeMediaPass,
     INMessageTypeMediaAudio,
-    INMessageTypePaymentSent API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0)),
-    INMessageTypePaymentRequest API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0)),
-    INMessageTypePaymentNote API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0)),
-    INMessageTypeAnimoji API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0)),
-    INMessageTypeActivitySnippet API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0)),
-    INMessageTypeFile API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0)),
-    INMessageTypeLink API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0)),
-} API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+    INMessageTypePaymentSent API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+    INMessageTypePaymentRequest API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+    INMessageTypePaymentNote API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+    INMessageTypeAnimoji API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+    INMessageTypeActivitySnippet API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+    INMessageTypeFile API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+    INMessageTypeLink API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INMessage : NSObject <NSCopying, NSSecureCoding>
 
 - (id)init NS_UNAVAILABLE;
@@ -1321,7 +1855,7 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
                             sender:(nullable INPerson *)sender
                         recipients:(nullable NSArray<INPerson *> *)recipients
                          groupName:(nullable INSpeakableString *)groupName
-                       messageType:(INMessageType)messageType NS_DESIGNATED_INITIALIZER API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+                       messageType:(INMessageType)messageType NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 - (instancetype)initWithIdentifier:(NSString *)identifier
             conversationIdentifier:(nullable NSString *)conversationIdentifier
@@ -1329,7 +1863,7 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
                           dateSent:(nullable NSDate *)dateSent
                             sender:(nullable INPerson *)sender
                         recipients:(nullable NSArray<INPerson *> *)recipients
-                       messageType:(INMessageType)messageType API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+                       messageType:(INMessageType)messageType API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 - (instancetype)initWithIdentifier:(NSString *)identifier
                            content:(nullable NSString *)content
@@ -1339,7 +1873,7 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *identifier;
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *conversationIdentifier API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *conversationIdentifier API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *content;
 
@@ -1349,9 +1883,9 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPerson *> *recipients;
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *groupName API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *groupName API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
-@property (readonly, NS_NONATOMIC_IOSONLY) INMessageType messageType API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
+@property (readonly, NS_NONATOMIC_IOSONLY) INMessageType messageType API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 @end
 
@@ -1361,7 +1895,7 @@ NS_ASSUME_NONNULL_END
 //  INGetVisualCodeIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -1404,7 +1938,7 @@ NS_ASSUME_NONNULL_END
 //  INShortcut.h
 //  Intents
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -1414,7 +1948,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  @abstract A shortcut is an action that can be suggested by the system or added to Siri.
  */
-API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx, tvos)
 @interface INShortcut : NSObject <NSSecureCoding, NSCopying>
 
 /*!
@@ -1441,7 +1975,7 @@ API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(mac
 
 /*!
  @abstract Creates a shortcut with the given intent.
- @param intent Must have a title and have valid shortcut types.
+ @param intent Unless user configurable, must have a title and have valid shortcut types.
  @return Will return @c nil (and log an error) if the intent isn't valid.
  */
 - (nullable instancetype)initWithIntent:(INIntent *)intent;
@@ -1459,7 +1993,7 @@ NS_ASSUME_NONNULL_END
 //  INRequestPaymentCurrencyAmountResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INCurrencyAmountResolutionResult.h>
@@ -1488,7 +2022,7 @@ NS_ASSUME_NONNULL_END
 //  INWorkoutNameIdentifier.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -1517,12 +2051,69 @@ INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierExercise NS_
 INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierHike NS_SWIFT_NAME(INWorkoutNameIdentifier.hike) API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
 INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierHighIntensityIntervalTraining NS_SWIFT_NAME(INWorkoutNameIdentifier.highIntensityIntervalTraining) API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
 INTENTS_EXTERN INWorkoutNameIdentifier const INWorkoutNameIdentifierSwim NS_SWIFT_NAME(INWorkoutNameIdentifier.swim) API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
+// ==========  Intents.framework/Headers/INMassResolutionResult.h
+//
+//  INMassResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INMassResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given mass. The resolvedMass can be different than the original mass. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedMass:(NSMeasurement<NSUnitMass *> *)resolvedMass NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided mass.
++ (instancetype)disambiguationWithMassToDisambiguate:(NSArray<NSMeasurement<NSUnitMass *> *> *)massToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the mass with which the user wants to continue.
++ (instancetype)confirmationRequiredWithMassToConfirm:(nullable NSMeasurement<NSUnitMass *> *)massToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INPlaybackQueueLocationResolutionResult.h
+//
+//  INPlaybackQueueLocationResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INPlaybackQueueLocation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INPlaybackQueueLocationResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INPlaybackQueueLocation. The resolvedValue can be different than the original INPlaybackQueueLocation. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedPlaybackQueueLocation:(INPlaybackQueueLocation)resolvedPlaybackQueueLocation NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithPlaybackQueueLocationToConfirm:(INPlaybackQueueLocation)playbackQueueLocationToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INAppendToNoteIntentResponse.h
 //
 //  INAppendToNoteIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -1564,7 +2155,7 @@ NS_ASSUME_NONNULL_END
 //  INConditionalOperator.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INConditionalOperator_h
@@ -1576,7 +2167,7 @@ typedef NS_ENUM(NSInteger, INConditionalOperator) {
     INConditionalOperatorAll = 0,
     INConditionalOperatorAny,
     INConditionalOperatorNone,
-} API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INConditionalOperator_h
 // ==========  Intents.framework/Headers/INSetRadioStationIntent.h
@@ -1584,7 +2175,7 @@ typedef NS_ENUM(NSInteger, INConditionalOperator) {
 //  INSetRadioStationIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -1695,23 +2286,44 @@ NS_ASSUME_NONNULL_END
 //  INDefaultCardTemplate.h
 //  Intents
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INImage.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+/*!
+ @abstract A template for customizing the display of relevant shortcuts.
+ @seealso INRelevantShortcut
+ */
 API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx)
 @interface INDefaultCardTemplate : NSObject <NSCopying, NSSecureCoding>
 
+/*!
+ @abstract The title used when displaying the relevant shortcut.
+ */
 @property (copy, NS_NONATOMIC_IOSONLY) NSString *title;
+
+/*!
+ @abstract The subtitle used when displaying the relevant shortcut.
+ */
 @property (copy, nullable, NS_NONATOMIC_IOSONLY) NSString *subtitle;
+
+/*!
+ @abstract The image used when displaying the relevant shortcut.
+ */
 @property (copy, nullable, NS_NONATOMIC_IOSONLY) INImage *image;
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
+/*!
+ @abstract Initializes a default card template with the provided title.
+ */
 - (instancetype)initWithTitle:(NSString *)title NS_DESIGNATED_INITIALIZER;
+
+/*!
+ @note Must be initilaized with a title, using those initializers.
+ */
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 
@@ -1721,7 +2333,7 @@ NS_ASSUME_NONNULL_END
 //  INSpeakableStringResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -1730,7 +2342,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INSpeakableStringResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given INSpeakableString. The resolvedString can be different than the original INSpeakableString. This allows app extensions to add a pronunciationHint, or otherwise tweak the string.
@@ -1751,7 +2363,7 @@ NS_ASSUME_NONNULL_END
 //  INStartAudioCallIntent_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INStartAudioCallIntent.h>
@@ -1760,7 +2372,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface INStartAudioCallIntent (Deprecated)
 
-- (instancetype)initWithContacts:(nullable NSArray<INPerson *> *)contacts API_DEPRECATED("Use the designated initializer instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+- (instancetype)initWithContacts:(nullable NSArray<INPerson *> *)contacts API_DEPRECATED("Use the designated initializer instead", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 @end
 
@@ -1770,7 +2382,7 @@ NS_ASSUME_NONNULL_END
 //  INCallCapability.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INCallCapability_h
@@ -1783,7 +2395,7 @@ typedef NS_ENUM(NSInteger, INCallCapability) {
     INCallCapabilityUnknown = 0,
     INCallCapabilityAudioCall,
     INCallCapabilityVideoCall,
-} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INCallCapability_h
 // ==========  Intents.framework/Headers/INGetCarPowerLevelStatusIntent.h
@@ -1791,7 +2403,7 @@ typedef NS_ENUM(NSInteger, INCallCapability) {
 //  INGetCarPowerLevelStatusIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -1874,7 +2486,7 @@ NS_ASSUME_NONNULL_END
 //  INResumeWorkoutIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -1958,7 +2570,7 @@ NS_ASSUME_NONNULL_END
 //  INVoiceShortcut.h
 //  Intents
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2006,7 +2618,7 @@ NS_ASSUME_NONNULL_END
 //  INVocabulary.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2037,22 +2649,37 @@ typedef NS_ENUM(NSInteger, INVocabularyStringType) {
     INVocabularyStringTypeCarProfileName = 300,
     
     /// The name of a vehicle as a person will say it, for example “BMW”, “My Convertible”.
-    INVocabularyStringTypeCarName API_AVAILABLE(ios(10.3)),
+    INVocabularyStringTypeCarName API_AVAILABLE(ios(10.3), watchos(6.0)),
     
     /// The name of an organization to pay as a person will say it, for example “PG&E”, “Comcast”.
-    INVocabularyStringTypePaymentsOrganizationName API_AVAILABLE(ios(10.3)) = 400,
+    INVocabularyStringTypePaymentsOrganizationName API_AVAILABLE(ios(10.3), watchos(6.0)) = 400,
     
     /// The name of an account nick name as a person will say it, for example “Checking”, “Rainy day savings”.
-    INVocabularyStringTypePaymentsAccountNickname API_AVAILABLE(ios(10.3)),
+    INVocabularyStringTypePaymentsAccountNickname API_AVAILABLE(ios(10.3), watchos(6.0)),
     
     /// The title of a note, task, or task list as a person will say it; for example, "Grocery list" or "Weekly meeting minutes".
-    INVocabularyStringTypeNotebookItemTitle API_AVAILABLE(ios(11.0)) = 500,
+    INVocabularyStringTypeNotebookItemTitle API_AVAILABLE(ios(11.0), watchos(6.0)) = 500,
     
     /// The name of the note or task list's group (folder, directory, account); for example, "iCloud" or "Shopping"
-    INVocabularyStringTypeNotebookItemGroupName API_AVAILABLE(ios(11.0)),
-} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos, tvos, macosx);
+    INVocabularyStringTypeNotebookItemGroupName API_AVAILABLE(ios(11.0), watchos(6.0)),
+    
+    /// The title of a playlist as a person will say it, for example "Today's Hits".
+    INVocabularyStringTypeMediaPlaylistTitle API_AVAILABLE(ios(13.0), watchos(6.0)) = 700,
+    
+    /// The name of a music artist as a person will say it, for example "The Beatles".
+    INVocabularyStringTypeMediaMusicArtistName API_AVAILABLE(ios(13.0), watchos(6.0)),
+    
+    /// The title of an audiobook as a person will say it, for example "The Time Machine".
+    INVocabularyStringTypeMediaAudiobookTitle API_AVAILABLE(ios(13.0), watchos(6.0)),
+    
+    /// The name of an audiobook author as a person will say it, for example "Mary Shelley".
+    INVocabularyStringTypeMediaAudiobookAuthorName API_AVAILABLE(ios(13.0), watchos(6.0)),
+    
+    /// The name of a Podcast or Radio show title as a person will say it, for example "Fresh Air".
+    INVocabularyStringTypeMediaShowTitle API_AVAILABLE(ios(13.0), watchos(6.0))
+} API_AVAILABLE(ios(10.0), watchos(6.0)) API_UNAVAILABLE(tvos, macosx);
 
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos, tvos, macosx)
+API_AVAILABLE(ios(10.0), watchos(6.0)) API_UNAVAILABLE(tvos, macosx)
 @interface INVocabulary : NSObject
 
 + (instancetype)sharedVocabulary;
@@ -2061,12 +2688,35 @@ API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos, tvos, macosx)
 /// Strings should be sorted by their expected importance to the user, in descending order.
 /// There is no guarantee that every provided string will be used, but preference is given to strings at the beginning of the set.
 /// Any strings larger than 1024 bytes when encoded as UTF-16 (roughly 500 characters) will be discarded.
-- (void)setVocabularyStrings:(NSOrderedSet<NSString *> *)vocabulary ofType:(INVocabularyStringType)type NS_EXTENSION_UNAVAILABLE("INVocabulary is not available to extensions. The main app is responsible for providing all vocabulary.");
+- (void)setVocabularyStrings:(NSOrderedSet<NSString *> *)vocabulary ofType:(INVocabularyStringType)type;
 
-- (void)setVocabulary:(NSOrderedSet<id<INSpeakable>> *)vocabulary ofType:(INVocabularyStringType)type API_AVAILABLE(ios(11.0)) NS_EXTENSION_UNAVAILABLE("INVocabulary is not available to extensions. The main app is responsible for providing all vocabulary.");
+- (void)setVocabulary:(NSOrderedSet<id<INSpeakable>> *)vocabulary ofType:(INVocabularyStringType)type API_AVAILABLE(ios(11.0), watchos(6.0));
 
 /// Removes all vocabulary strings for every INVocabularyStringType the calling app has previously registered.
-- (void)removeAllVocabularyStrings NS_EXTENSION_UNAVAILABLE("INVocabulary is not available to extensions. The main app is responsible for providing all vocabulary.");
+- (void)removeAllVocabularyStrings;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INUserContext.h
+//
+//  INUserContext.h
+//  Intents
+//
+//  Copyright (c) 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos, macosx)
+@interface INUserContext : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/// Each call replaces previous context object of the same underlying type. Use this only in your iOS/watchOS app. Do not try to set the user context as current from your Intents extension or Intents UI extension.
+- (void)becomeCurrent NS_EXTENSION_UNAVAILABLE_IOS("User context is not available in extensions");
 
 @end
 
@@ -2076,7 +2726,7 @@ NS_ASSUME_NONNULL_END
 //  INRelevantShortcutStore.h
 //  Intents
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2085,12 +2735,25 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+/*!
+ @abstract Where relevant shortcuts are provided to Siri.
+ @seealso INRelevantShortcut
+ */
 API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(macosx)
 @interface INRelevantShortcutStore : NSObject
 
 @property (class, readonly, strong) INRelevantShortcutStore *defaultStore;
 
+/*!
+ @abstract Provide a new set of relevant shortcuts that should be suggested by Siri.
+ @note Setting new relevant shortcuts will replace all relevant shortcuts that were previously provided.
+ */
 - (void)setRelevantShortcuts:(NSArray<INRelevantShortcut *> *)shortcuts completionHandler:(void (^ __nullable)(NSError * __nullable error))completionHandler;
+
+/*!
+ @note Use the @c defaultStore singleton.
+ */
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 
@@ -2100,7 +2763,7 @@ NS_ASSUME_NONNULL_END
 //  INAccountTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -2132,7 +2795,7 @@ NS_ASSUME_NONNULL_END
 //  INListRideOptionsIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -2221,7 +2884,7 @@ NS_ASSUME_NONNULL_END
 //  INBillDetails.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2273,12 +2936,10 @@ NS_ASSUME_NONNULL_END
 //  INTemperatureResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
-
-@class INTemperature;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -2303,7 +2964,7 @@ NS_ASSUME_NONNULL_END
 //  INSaveProfileInCarIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -2392,7 +3053,7 @@ NS_ASSUME_NONNULL_END
 //  INBookRestaurantReservationIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -2486,12 +3147,46 @@ API_UNAVAILABLE(macosx, watchos)
 
 @end
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INMediaUserContext.h
+//
+//  INMediaUserContext.h
+//  Intents
+//
+//  Copyright (c) 2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INUserContext.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, INMediaUserContextSubscriptionStatus) {
+    /// The app does not offer subscriptions, or the subscription status is unavailable
+    INMediaUserContextSubscriptionStatusUnknown = 0,
+    /// The user is not a subscriber, but subscriptions are offered
+    INMediaUserContextSubscriptionStatusNotSubscribed,
+    /// The user is registered with a subscription (free, trial, or paid)
+    INMediaUserContextSubscriptionStatusSubscribed
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos, macosx) NS_SWIFT_NAME(INMediaUserContext.SubscriptionStatus);
+
+API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(tvos, macosx)
+@interface INMediaUserContext : INUserContext
+
+- (instancetype)init;
+
+/// Used as a signal of user affinity for the app
+@property (readwrite, assign, NS_NONATOMIC_IOSONLY) INMediaUserContextSubscriptionStatus subscriptionStatus;
+/// Approximate number of relevant items available in the user's library (playlists, songs, podcasts, albums, etc.) - used as a signal of user affinity for the app
+@property (nullable, readwrite, copy, NS_NONATOMIC_IOSONLY) NSNumber *numberOfLibraryItems NS_REFINED_FOR_SWIFT;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRestaurantGuestDisplayPreferences.h
 //
 //  INRestaurantGuestDisplayPreferences.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -2520,7 +3215,7 @@ API_UNAVAILABLE(macosx, watchos)
 //  INDateSearchTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -2548,7 +3243,7 @@ NS_ASSUME_NONNULL_END
 //  INTransferMoneyIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -2655,12 +3350,113 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INStartCallIntentResponse.h
+//
+//  INStartCallIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+typedef NS_ENUM(NSInteger, INStartCallIntentResponseCode) {
+    INStartCallIntentResponseCodeUnspecified = 0,
+    INStartCallIntentResponseCodeReady,
+    INStartCallIntentResponseCodeContinueInApp,
+    INStartCallIntentResponseCodeUserConfirmationRequired,
+    INStartCallIntentResponseCodeFailure,
+    INStartCallIntentResponseCodeFailureRequiringAppLaunch,
+    INStartCallIntentResponseCodeFailureCallingServiceNotAvailable,
+    INStartCallIntentResponseCodeFailureContactNotSupportedByApp,
+    INStartCallIntentResponseCodeFailureAirplaneModeEnabled,
+    INStartCallIntentResponseCodeFailureUnableToHandOff,
+    INStartCallIntentResponseCodeFailureAppConfigurationRequired,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INStartCallIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INStartCallIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INStartCallIntentResponseCode code;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INMediaDestinationResolutionResult.h
+//
+//  INMediaDestinationResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INMediaDestination;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INMediaDestinationResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INMediaDestination. The resolvedMediaDestination can be different than the original INMediaDestination. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedMediaDestination:(INMediaDestination *)resolvedMediaDestination NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INMediaDestination.
++ (instancetype)disambiguationWithMediaDestinationsToDisambiguate:(NSArray<INMediaDestination *> *)mediaDestinationsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the mediaDestination with which the user wants to continue.
++ (instancetype)confirmationRequiredWithMediaDestinationToConfirm:(nullable INMediaDestination *)mediaDestinationToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTaskPriorityResolutionResult.h
+//
+//  INTaskPriorityResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INTaskPriority.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INTaskPriorityResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INTaskPriority. The resolvedValue can be different than the original INTaskPriority. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedTaskPriority:(INTaskPriority)resolvedTaskPriority NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithTaskPriorityToConfirm:(INTaskPriority)taskPriorityToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INBalanceAmount.h
 //
 //  INBalanceAmount.h
 //  Intents
 //
-//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2696,11 +3492,12 @@ NS_ASSUME_NONNULL_END
 //  INIntentResponses.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSearchCallHistoryIntentResponse.h>
 #import <Intents/INStartAudioCallIntentResponse.h>
+#import <Intents/INStartCallIntentResponse.h>
 #import <Intents/INStartVideoCallIntentResponse.h>
 
 #import <Intents/INActivateCarSignalIntentResponse.h>
@@ -2720,7 +3517,10 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INResumeWorkoutIntentResponse.h>
 #import <Intents/INStartWorkoutIntentResponse.h>
 
+#import <Intents/INAddMediaIntentResponse.h>
 #import <Intents/INPlayMediaIntentResponse.h>
+#import <Intents/INSearchForMediaIntentResponse.h>
+#import <Intents/INUpdateMediaAffinityIntentResponse.h>
 
 #import <Intents/INSetRadioStationIntentResponse.h>
 
@@ -2732,8 +3532,10 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INAppendToNoteIntentResponse.h>
 #import <Intents/INCreateNoteIntentResponse.h>
 #import <Intents/INCreateTaskListIntentResponse.h>
+#import <Intents/INDeleteTasksIntentResponse.h>
 #import <Intents/INSearchForNotebookItemsIntentResponse.h>
 #import <Intents/INSetTaskAttributeIntentResponse.h>
+#import <Intents/INSnoozeTasksIntentResponse.h>
 
 #import <Intents/INPayBillIntentResponse.h>
 #import <Intents/INRequestPaymentIntentResponse.h>
@@ -2744,6 +3546,8 @@ NS_ASSUME_NONNULL_END
 
 #import <Intents/INSearchForPhotosIntentResponse.h>
 #import <Intents/INStartPhotoPlaybackIntentResponse.h>
+
+#import <Intents/INGetReservationDetailsIntentResponse.h>
 
 #import <Intents/INGetRideStatusIntentResponse.h>
 #import <Intents/INListRideOptionsIntentResponse.h>
@@ -2758,7 +3562,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchForMessagesIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -2774,11 +3578,12 @@ typedef NS_ENUM(NSInteger, INSearchForMessagesIntentResponseCode) {
     INSearchForMessagesIntentResponseCodeFailureRequiringAppLaunch,
     INSearchForMessagesIntentResponseCodeFailureMessageServiceNotAvailable,
     INSearchForMessagesIntentResponseCodeFailureMessageTooManyResults,
-} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INSearchForMessagesIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -2795,12 +3600,108 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INDeleteTasksIntent.h
+//
+//  INDeleteTasksIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INDeleteTasksTaskListResolutionResult;
+@class INDeleteTasksTaskResolutionResult;
+@class INTask;
+@class INTaskList;
+@class INTaskListResolutionResult;
+@class INTaskResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INDeleteTasksIntent : INIntent
+
+- (instancetype)initWithTaskList:(nullable INTaskList *)taskList
+                           tasks:(nullable NSArray<INTask *> *)tasks
+                             all:(nullable NSNumber *)all NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INTaskList *taskList;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INTask *> *tasks;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *all NS_REFINED_FOR_SWIFT;
+
+@end
+
+@class INDeleteTasksIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INDeleteTasksIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@protocol INDeleteTasksIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INDeleteTasksIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INDeleteTasksIntentResponse containing the details of the result of having executed the intent
+
+ @see  INDeleteTasksIntentResponse
+ */
+
+- (void)handleDeleteTasks:(INDeleteTasksIntent *)intent
+               completion:(void (^)(INDeleteTasksIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INDeleteTasksIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INDeleteTasksIntentResponse
+ */
+
+- (void)confirmDeleteTasks:(INDeleteTasksIntent *)intent
+                completion:(void (^)(INDeleteTasksIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveTaskListForDeleteTasks:(INDeleteTasksIntent *)intent
+                    withCompletion:(void (^)(INDeleteTasksTaskListResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTaskList(for:with:));
+
+- (void)resolveTasksForDeleteTasks:(INDeleteTasksIntent *)intent
+                    withCompletion:(void (^)(NSArray<INDeleteTasksTaskResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveTasks(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRidePartySizeOption.h
 //
 //  INRidePartySizeOption.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2830,7 +3731,7 @@ NS_ASSUME_NONNULL_END
 //  INCallRecord.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2842,7 +3743,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13))
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
 @interface INCallRecord : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -2853,7 +3755,16 @@ API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13))
                     callRecordType:(INCallRecordType)callRecordType
                     callCapability:(INCallCapability)callCapability
                       callDuration:(nullable NSNumber *)callDuration
-                            unseen:(nullable NSNumber *)unseen NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+                            unseen:(nullable NSNumber *)unseen
+                     numberOfCalls:(nullable NSNumber *)numberOfCalls NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(13.0), watchos(6.0), macosx(10.15));
+
+- (instancetype)initWithIdentifier:(NSString *)identifier
+                       dateCreated:(nullable NSDate *)dateCreated
+                            caller:(nullable INPerson *)caller
+                    callRecordType:(INCallRecordType)callRecordType
+                    callCapability:(INCallCapability)callCapability
+                      callDuration:(nullable NSNumber *)callDuration
+                            unseen:(nullable NSNumber *)unseen NS_REFINED_FOR_SWIFT;
 
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *identifier;
 
@@ -2869,6 +3780,8 @@ API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13))
 
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallCapability callCapability;
 
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *numberOfCalls NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -2877,7 +3790,7 @@ NS_ASSUME_NONNULL_END
 //  INSetDefrosterSettingsInCarIntent_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2018 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSetDefrosterSettingsInCarIntent.h>
@@ -2892,12 +3805,61 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTrainTrip.h
+//
+//  INTrainTrip.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class CLPlacemark;
+@class INDateComponentsRange;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INTrainTrip : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithProvider:(nullable NSString *)provider
+                       trainName:(nullable NSString *)trainName
+                     trainNumber:(nullable NSString *)trainNumber
+                    tripDuration:(nullable INDateComponentsRange *)tripDuration
+        departureStationLocation:(nullable CLPlacemark *)departureStationLocation
+               departurePlatform:(nullable NSString *)departurePlatform
+          arrivalStationLocation:(nullable CLPlacemark *)arrivalStationLocation
+                 arrivalPlatform:(nullable NSString *)arrivalPlatform NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *provider;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *trainName;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *trainNumber;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *tripDuration;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *departureStationLocation;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *departurePlatform;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *arrivalStationLocation;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *arrivalPlatform;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/NSString+Intents.h
 //
 //  NSString+Intents.h
 //  Intents
 //
-//  Copyright © 2017 Apple. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2924,15 +3886,23 @@ NS_ASSUME_NONNULL_END
 //  INPlayMediaIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
 #import <Intents/INIntentResolutionResult.h>
 
+#import <Intents/INPlaybackQueueLocation.h>
 #import <Intents/INPlaybackRepeatMode.h>
 
+@class INBooleanResolutionResult;
 @class INMediaItem;
+@class INMediaItemResolutionResult;
+@class INMediaSearch;
+@class INPlayMediaMediaItemResolutionResult;
+@class INPlayMediaPlaybackSpeedResolutionResult;
+@class INPlaybackQueueLocationResolutionResult;
+@class INPlaybackRepeatModeResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -2944,19 +3914,28 @@ API_UNAVAILABLE(macosx)
                     mediaContainer:(nullable INMediaItem *)mediaContainer
                       playShuffled:(nullable NSNumber *)playShuffled
                 playbackRepeatMode:(INPlaybackRepeatMode)playbackRepeatMode
-                    resumePlayback:(nullable NSNumber *)resumePlayback NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+                    resumePlayback:(nullable NSNumber *)resumePlayback
+             playbackQueueLocation:(INPlaybackQueueLocation)playbackQueueLocation
+                     playbackSpeed:(nullable NSNumber *)playbackSpeed
+                       mediaSearch:(nullable INMediaSearch *)mediaSearch NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(13.0), watchos(6.0), macosx(10.15));
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INMediaItem *> *mediaItems;
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INMediaItem *> *mediaItems API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INMediaItem *mediaContainer;
 
-// An NSNumber representing a boolean value where true indicates that the media should be shuffled
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *playShuffled NS_REFINED_FOR_SWIFT;
+// An NSNumber representing a boolean value where true indicates that the media should be shuffled.
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *playShuffled NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
 
-@property (readonly, assign, NS_NONATOMIC_IOSONLY) INPlaybackRepeatMode playbackRepeatMode;
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INPlaybackRepeatMode playbackRepeatMode API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
 
-// An NSNumber representing a boolean value where true indicates that the media should be resumed
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *resumePlayback NS_REFINED_FOR_SWIFT;
+// An NSNumber representing a boolean value where true indicates that the media should be resumed.
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *resumePlayback NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INPlaybackQueueLocation playbackQueueLocation API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *playbackSpeed NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INMediaSearch *mediaSearch API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
 
 @end
 
@@ -3011,6 +3990,24 @@ API_UNAVAILABLE(macosx)
  @see INIntentResolutionResult
  */
 
+- (void)resolveMediaItemsForPlayMedia:(INPlayMediaIntent *)intent
+                    withCompletion:(void (^)(NSArray<INPlayMediaMediaItemResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveMediaItems(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+- (void)resolvePlayShuffledForPlayMedia:(INPlayMediaIntent *)intent
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePlayShuffled(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+- (void)resolvePlaybackRepeatModeForPlayMedia:(INPlayMediaIntent *)intent
+                    withCompletion:(void (^)(INPlaybackRepeatModeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePlaybackRepeatMode(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+- (void)resolveResumePlaybackForPlayMedia:(INPlayMediaIntent *)intent
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveResumePlayback(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+- (void)resolvePlaybackQueueLocationForPlayMedia:(INPlayMediaIntent *)intent
+                    withCompletion:(void (^)(INPlaybackQueueLocationResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePlaybackQueueLocation(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+- (void)resolvePlaybackSpeedForPlayMedia:(INPlayMediaIntent *)intent
+                    withCompletion:(void (^)(INPlayMediaPlaybackSpeedResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePlaybackSpeed(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -3019,7 +4016,7 @@ NS_ASSUME_NONNULL_END
 //  INStartPhotoPlaybackIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -3150,7 +4147,7 @@ NS_ASSUME_NONNULL_END
 //  INGetCarLockStatusIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -3189,7 +4186,7 @@ NS_ASSUME_NONNULL_END
 //  INPlayMediaIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -3223,7 +4220,7 @@ API_UNAVAILABLE(macosx)
 
 @property (readonly, NS_NONATOMIC_IOSONLY) INPlayMediaIntentResponseCode code;
 
-// This dictionary should be populated using the keys from MPNowPlayingInfoCenter
+// This dictionary should be populated using the keys from MPNowPlayingInfoCenter.
 @property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSDictionary<NSString *, id> *nowPlayingInfo;
 
 @end
@@ -3234,7 +4231,7 @@ NS_ASSUME_NONNULL_END
 //  CLPlacemark+IntentsAdditions.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3258,7 +4255,7 @@ NS_ASSUME_NONNULL_END
 //  INCarAudioSourceResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -3290,7 +4287,7 @@ NS_ASSUME_NONNULL_END
 //  INSetDefrosterSettingsInCarIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -3389,7 +4386,7 @@ NS_ASSUME_NONNULL_END
 //  INPaymentAmount.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3421,7 +4418,7 @@ NS_ASSUME_NONNULL_END
 //  INCancelWorkoutIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -3460,7 +4457,7 @@ NS_ASSUME_NONNULL_END
 //  INSetClimateSettingsInCarIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -3620,7 +4617,7 @@ NS_ASSUME_NONNULL_END
 //  INCarAirCirculationModeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -3652,7 +4649,7 @@ NS_ASSUME_NONNULL_END
 //  INRequestPaymentIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -3700,7 +4697,7 @@ NS_ASSUME_NONNULL_END
 //  INCarSignalOptionsResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -3732,7 +4729,7 @@ NS_ASSUME_NONNULL_END
 //  INSendMessageRecipientResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INPersonResolutionResult.h>
@@ -3741,14 +4738,15 @@ typedef NS_ENUM(NSInteger, INSendMessageRecipientUnsupportedReason) {
     INSendMessageRecipientUnsupportedReasonNoAccount = 1,
     INSendMessageRecipientUnsupportedReasonOffline,
     INSendMessageRecipientUnsupportedReasonMessagingServiceNotEnabledForRecipient,
-    INSendMessageRecipientUnsupportedReasonNoValidHandle API_AVAILABLE(ios(12.0), watchos(5.0), macosx(10.14)),
-    INSendMessageRecipientUnsupportedReasonRequestedHandleInvalid API_AVAILABLE(ios(12.0), watchos(5.0), macosx(10.14)),
-    INSendMessageRecipientUnsupportedReasonNoHandleForLabel API_AVAILABLE(ios(12.0), watchos(5.0), macosx(10.14)),
-} API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+    INSendMessageRecipientUnsupportedReasonNoValidHandle API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+    INSendMessageRecipientUnsupportedReasonRequestedHandleInvalid API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+    INSendMessageRecipientUnsupportedReasonNoHandleForLabel API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13))
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
 @interface INSendMessageRecipientResolutionResult : INPersonResolutionResult
 
 + (instancetype)unsupportedForReason:(INSendMessageRecipientUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
@@ -3758,12 +4756,56 @@ API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INFlight.h
+//
+//  INFlight.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class INAirline;
+@class INAirportGate;
+@class INDateComponentsRange;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INFlight : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithAirline:(nullable INAirline *)airline
+                   flightNumber:(nullable NSString *)flightNumber
+                   boardingTime:(nullable INDateComponentsRange *)boardingTime
+                 flightDuration:(nullable INDateComponentsRange *)flightDuration
+           departureAirportGate:(nullable INAirportGate *)departureAirportGate
+             arrivalAirportGate:(nullable INAirportGate *)arrivalAirportGate NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INAirline *airline;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *flightNumber;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *boardingTime;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *flightDuration;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INAirportGate *departureAirportGate;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INAirportGate *arrivalAirportGate;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INImage.h
 //
 //  INImage.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3772,13 +4814,13 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INImage : NSObject <NSCopying, NSSecureCoding>
 
 + (instancetype)imageNamed:(NSString *)name;
 + (instancetype)imageWithImageData:(NSData *)imageData;
 + (nullable instancetype)imageWithURL:(NSURL *)URL;
-+ (nullable instancetype)imageWithURL:(NSURL *)URL width:(double)width height:(double)height API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0));
++ (nullable instancetype)imageWithURL:(NSURL *)URL width:(double)width height:(double)height API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 @end
 
@@ -3788,7 +4830,7 @@ NS_ASSUME_NONNULL_END
 //  INSetProfileInCarIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -3892,7 +4934,7 @@ NS_ASSUME_NONNULL_END
 //  INRidePhase.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INRidePhase_h
@@ -3917,7 +4959,7 @@ typedef NS_ENUM(NSInteger, INRidePhase) {
 //  INRideFareLineItem.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -3940,7 +4982,7 @@ API_UNAVAILABLE(macosx)
 //  INWorkoutLocationType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INWorkoutLocationType_h
@@ -3961,7 +5003,7 @@ typedef NS_ENUM(NSInteger, INWorkoutLocationType) {
 //  INGetRestaurantGuestIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -4017,7 +5059,7 @@ NS_ASSUME_NONNULL_END
 //  INRelativeSettingResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -4049,7 +5091,7 @@ NS_ASSUME_NONNULL_END
 //  INMediaItemType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INMediaItemType_h
@@ -4074,6 +5116,10 @@ typedef NS_ENUM(NSInteger, INMediaItemType) {
     INMediaItemTypeTVShow,
     INMediaItemTypeTVShowEpisode,
     INMediaItemTypeMusicVideo,
+    INMediaItemTypePodcastStation API_AVAILABLE(ios(13.0), watchos(6.0)),
+    INMediaItemTypeRadioStation API_AVAILABLE(ios(13.0), watchos(6.0)),
+    INMediaItemTypeStation API_AVAILABLE(ios(13.0), watchos(6.0)),
+    INMediaItemTypeMusic API_AVAILABLE(ios(13.0), watchos(6.0)),
 } API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
 
 #endif // INMediaItemType_h
@@ -4082,7 +5128,7 @@ typedef NS_ENUM(NSInteger, INMediaItemType) {
 //  Intents.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4104,6 +5150,7 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INIntentIdentifiers.h>
 #import <Intents/INIntentResponse.h>
 #import <Intents/INIntentResolutionResult.h>
+#import <Intents/INIntentResolutionResult+Custom.h>
 #import <Intents/INDomainHandling.h>
 #import <Intents/INInteraction.h>
 #import <Intents/INSpeakable.h>
@@ -4128,6 +5175,7 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INPerson.h>
 #import <Intents/INRecurrenceRule.h>
 #import <Intents/INSpeakableString.h>
+#import <Intents/INFile.h>
 
 // Common Resolution Results
 #import <Intents/INBooleanResolutionResult.h>
@@ -4142,6 +5190,15 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INDateComponentsResolutionResult.h>
 #import <Intents/INRestaurantResolutionResult.h>
 #import <Intents/INRestaurantGuestResolutionResult.h>
+#import <Intents/INURLResolutionResult.h>
+#import <Intents/INLengthResolutionResult.h>
+#import <Intents/INMassResolutionResult.h>
+#import <Intents/INVolumeResolutionResult.h>
+#import <Intents/INSpeedResolutionResult.h>
+#import <Intents/INEnergyResolutionResult.h>
+#import <Intents/INEnumResolutionResult.h>
+#import <Intents/INObjectResolutionResult.h>
+#import <Intents/INTimeIntervalResolutionResult.h>
 
 // Messages Domain
 #import <Intents/INMessage.h>
@@ -4159,8 +5216,21 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INRidePartySizeOption.h>
 #import <Intents/INRideCompletionStatus.h>
 
+// Reservation Common
+#import <Intents/INReservation.h>
+#import <Intents/INReservationAction.h>
+
+// Flight Reservation
+#import <Intents/INFlightReservation.h>
+
 // Restaurant Booking
 #import <Intents/INIntentRestaurantReservation.h>
+
+#import <Intents/INLodgingReservation.h>
+#import <Intents/INRentalCarReservation.h>
+#import <Intents/INRestaurantReservation.h>
+#import <Intents/INTicketedEventReservation.h>
+#import <Intents/INTrainReservation.h>
 
 // User Vocabulary
 #import <Intents/INVocabulary.h>
@@ -4174,6 +5244,11 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/NSUserActivity+IntentsAdditions.h>
 #import <Intents/INPerson+SiriAdditions.h>
 #import <Intents/NSString+Intents.h>
+#import <Intents/NSExtensionContext+ShareExtension.h>
+
+// User Context
+#import <Intents/INUserContext.h>
+#import <Intents/INMediaUserContext.h>
 
 // Notes
 #import <Intents/INNoteContent.h>
@@ -4186,6 +5261,9 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INShortcut.h>
 #import <Intents/INVoiceShortcut.h>
 #import <Intents/INVoiceShortcutCenter.h>
+
+// Media
+#import <Intents/INMediaItem.h>
 
 // Deprecated
 #import <Intents/INPerson_Deprecated.h>
@@ -4201,12 +5279,16 @@ FOUNDATION_EXPORT const unsigned char IntentsVersionString[];
 #import <Intents/INSetDefrosterSettingsInCarIntent_Deprecated.h>
 #import <Intents/INSetSeatSettingsInCarIntent_Deprecated.h>
 #import <Intents/INSearchForNotebookItemsIntent_Deprecated.h>
+#import <Intents/INPlayMediaIntent_Deprecated.h>
+#import <Intents/INSetTaskAttributeIntent_Deprecated.h>
+#import <Intents/INAddTasksIntent_Deprecated.h>
+
 // ==========  Intents.framework/Headers/INCreateTaskListIntent.h
 //
 //  INCreateTaskListIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -4296,12 +5378,84 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INUpdateMediaAffinityMediaItemResolutionResult.h
+//
+//  INUpdateMediaAffinityMediaItemResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INMediaItemResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INUpdateMediaAffinityMediaItemUnsupportedReason) {
+    INUpdateMediaAffinityMediaItemUnsupportedReasonLoginRequired = 1,
+    INUpdateMediaAffinityMediaItemUnsupportedReasonSubscriptionRequired,
+    INUpdateMediaAffinityMediaItemUnsupportedReasonUnsupportedMediaType,
+    INUpdateMediaAffinityMediaItemUnsupportedReasonExplicitContentSettings,
+    INUpdateMediaAffinityMediaItemUnsupportedReasonCellularDataSettings,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INUpdateMediaAffinityMediaItemResolutionResult : INMediaItemResolutionResult
+
++ (instancetype)unsupportedForReason:(INUpdateMediaAffinityMediaItemUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithMediaItemResolutionResult:(INMediaItemResolutionResult *)mediaItemResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INDeleteTasksIntentResponse.h
+//
+//  INDeleteTasksIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INTask;
+
+typedef NS_ENUM(NSInteger, INDeleteTasksIntentResponseCode) {
+    INDeleteTasksIntentResponseCodeUnspecified = 0,
+    INDeleteTasksIntentResponseCodeReady,
+    INDeleteTasksIntentResponseCodeInProgress,
+    INDeleteTasksIntentResponseCodeSuccess,
+    INDeleteTasksIntentResponseCodeFailure,
+    INDeleteTasksIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INDeleteTasksIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INDeleteTasksIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INDeleteTasksIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INTask *> *deletedTasks;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSendPaymentIntent.h
 //
 //  INSendPaymentIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -4407,7 +5561,7 @@ NS_ASSUME_NONNULL_END
 //  INRideStatus.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4467,7 +5621,7 @@ NS_ASSUME_NONNULL_END
 //  INMessageAttributeOptions.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INMessageAttributeOptions_h
@@ -4481,8 +5635,8 @@ typedef NS_OPTIONS(NSUInteger, INMessageAttributeOptions) {
     INMessageAttributeOptionUnread = (1UL << 1),
     INMessageAttributeOptionFlagged = (1UL << 2),
     INMessageAttributeOptionUnflagged = (1UL << 3),
-    INMessageAttributeOptionPlayed API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)) = (1UL << 4),
-} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+    INMessageAttributeOptionPlayed API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx) = (1UL << 4),
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INMessageAttributeOptions_h
 // ==========  Intents.framework/Headers/INIntentResponse.h
@@ -4490,19 +5644,19 @@ typedef NS_OPTIONS(NSUInteger, INMessageAttributeOptions) {
 //  INIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INIntentResponse : NSObject <NSCopying, NSSecureCoding>
 
 // This user activity will be used to launch the containing application when host application finds appropriate or when users request so.
 // The containing application should implement the continuity app delegate method(s) to consume this user activity.
-@property (copy, readwrite, nullable, NS_NONATOMIC_IOSONLY) NSUserActivity *userActivity;
+@property (copy, readwrite, nullable, nonatomic) NSUserActivity *userActivity;
 
 @end
 
@@ -4512,11 +5666,12 @@ NS_ASSUME_NONNULL_END
 //  INSpeakable.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @protocol INSpeakable <NSObject>
 
 @property (readonly, strong, nonnull, NS_NONATOMIC_IOSONLY) NSString *spokenPhrase;
@@ -4527,7 +5682,7 @@ NS_ASSUME_NONNULL_END
 
 @optional
 
-@property (readonly, strong, nullable, NS_NONATOMIC_IOSONLY) NSString *identifier API_DEPRECATED("Please use vocabularyIdentifier", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+@property (readonly, strong, nullable, NS_NONATOMIC_IOSONLY) NSString *identifier API_DEPRECATED("Please use vocabularyIdentifier", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 @end
 // ==========  Intents.framework/Headers/INGetVisualCodeIntent.h
@@ -4535,7 +5690,7 @@ NS_ASSUME_NONNULL_END
 //  INGetVisualCodeIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -4619,7 +5774,7 @@ NS_ASSUME_NONNULL_END
 //  INImageNoteContent.h
 //  Intents
 //
-//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INNoteContent.h>
@@ -4628,7 +5783,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx)
 @interface INImageNoteContent : INNoteContent <NSSecureCoding, NSCopying>
 
 - (instancetype)initWithImage:(INImage *)image;
@@ -4643,7 +5798,7 @@ NS_ASSUME_NONNULL_END
 //  INSendPaymentCurrencyAmountResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INCurrencyAmountResolutionResult.h>
@@ -4667,12 +5822,43 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAirport.h
+//
+//  INAirport.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INAirport : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithName:(nullable NSString *)name
+                    iataCode:(nullable NSString *)iataCode
+                    icaoCode:(nullable NSString *)icaoCode NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *name;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *iataCode;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *icaoCode;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INGetCarLockStatusIntent.h
 //
 //  INGetCarLockStatusIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -4755,7 +5941,7 @@ NS_ASSUME_NONNULL_END
 //  INCallDestinationTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -4764,7 +5950,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13))
+API_AVAILABLE(ios(11.0), watchos(4.0))
+API_UNAVAILABLE(macosx)
 @interface INCallDestinationTypeResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCallDestinationType. The resolvedValue can be different than the original INCallDestinationType. This allows app extensions to apply business logic constraints.
@@ -4782,7 +5969,7 @@ NS_ASSUME_NONNULL_END
 //  INRequestRideIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -4800,6 +5987,7 @@ typedef NS_ENUM(NSInteger, INRequestRideIntentResponseCode) {
     INRequestRideIntentResponseCodeFailureRequiringAppLaunchNoServiceInArea,
     INRequestRideIntentResponseCodeFailureRequiringAppLaunchServiceTemporarilyUnavailable,
     INRequestRideIntentResponseCodeFailureRequiringAppLaunchPreviousRideNeedsCompletion,
+    INRequestRideIntentResponseCodeFailureRequiringAppLaunchRideScheduledTooFar API_AVAILABLE(ios(12.0), watchos(5.0)),
 } API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
@@ -4827,7 +6015,7 @@ NS_ASSUME_NONNULL_END
 //  INNote.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4863,12 +6051,53 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INGetReservationDetailsIntentResponse.h
+//
+//  INGetReservationDetailsIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INReservation;
+
+typedef NS_ENUM(NSInteger, INGetReservationDetailsIntentResponseCode) {
+    INGetReservationDetailsIntentResponseCodeUnspecified = 0,
+    INGetReservationDetailsIntentResponseCodeReady,
+    INGetReservationDetailsIntentResponseCodeInProgress,
+    INGetReservationDetailsIntentResponseCodeSuccess,
+    INGetReservationDetailsIntentResponseCodeFailure,
+    INGetReservationDetailsIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INGetReservationDetailsIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INGetReservationDetailsIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INGetReservationDetailsIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INReservation *> *reservations;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INPlaybackRepeatMode.h
 //
 //  INPlaybackRepeatMode.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INPlaybackRepeatMode_h
@@ -4890,7 +6119,7 @@ typedef NS_ENUM(NSInteger, INPlaybackRepeatMode) {
 //  INPayBillIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -4944,7 +6173,7 @@ NS_ASSUME_NONNULL_END
 //  INPersonHandle.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4955,20 +6184,51 @@ typedef NS_ENUM(NSInteger, INPersonHandleType) {
     INPersonHandleTypeUnknown = 0,
     INPersonHandleTypeEmailAddress,
     INPersonHandleTypePhoneNumber,
-} API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INPersonHandle : NSObject <NSCopying, NSSecureCoding>
 
 @property (readonly, nullable, copy, NS_NONATOMIC_IOSONLY) NSString *value;
 @property (readonly, NS_NONATOMIC_IOSONLY) INPersonHandleType type;
-@property (readonly, nullable, NS_NONATOMIC_IOSONLY) INPersonHandleLabel label API_AVAILABLE(ios(10.2), macosx(10.12.2));
+@property (readonly, nullable, NS_NONATOMIC_IOSONLY) INPersonHandleLabel label API_AVAILABLE(ios(10.2)) API_UNAVAILABLE(macosx);
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithValue:(nullable NSString *)value type:(INPersonHandleType)type label:(nullable INPersonHandleLabel)label NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(10.2), macosx(10.12.2));
+- (instancetype)initWithValue:(nullable NSString *)value type:(INPersonHandleType)type label:(nullable INPersonHandleLabel)label NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(10.2)) API_UNAVAILABLE(macosx);
 - (instancetype)initWithValue:(nullable NSString *)value type:(INPersonHandleType)type;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSearchForMediaMediaItemResolutionResult.h
+//
+//  INSearchForMediaMediaItemResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INMediaItemResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INSearchForMediaMediaItemUnsupportedReason) {
+    INSearchForMediaMediaItemUnsupportedReasonLoginRequired = 1,
+    INSearchForMediaMediaItemUnsupportedReasonSubscriptionRequired,
+    INSearchForMediaMediaItemUnsupportedReasonUnsupportedMediaType,
+    INSearchForMediaMediaItemUnsupportedReasonExplicitContentSettings,
+    INSearchForMediaMediaItemUnsupportedReasonCellularDataSettings,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INSearchForMediaMediaItemResolutionResult : INMediaItemResolutionResult
+
++ (instancetype)unsupportedForReason:(INSearchForMediaMediaItemUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithMediaItemResolutionResult:(INMediaItemResolutionResult *)mediaItemResolutionResult;
 
 @end
 
@@ -4978,7 +6238,7 @@ NS_ASSUME_NONNULL_END
 //  INSendRideFeedbackIntent.h
 //  Intents
 //
-//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -4993,7 +6253,7 @@ API_UNAVAILABLE(watchos, macos)
 
 - (id)init NS_UNAVAILABLE;
 
-- (instancetype)initWithRideIdentifier:(NSString *)rideIdentifier NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+- (instancetype)initWithRideIdentifier:(NSString *)rideIdentifier NS_DESIGNATED_INITIALIZER;
 
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSString *rideIdentifier; // Specifies the identifier of the ride to send feedback for.
 @property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *rating; // Will be between 0 and 10 inclusive.
@@ -5044,12 +6304,82 @@ API_UNAVAILABLE(watchos, macos)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INStartCallContactResolutionResult.h
+//
+//  INStartCallContactResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INPersonResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INStartCallContactUnsupportedReason) {
+    INStartCallContactUnsupportedReasonNoContactFound = 1,
+    INStartCallContactUnsupportedReasonMultipleContactsUnsupported,
+    INStartCallContactUnsupportedReasonNoHandleForLabel,
+    INStartCallContactUnsupportedReasonInvalidHandle,
+    INStartCallContactUnsupportedReasonUnsupportedMmiUssd,
+    INStartCallContactUnsupportedReasonNoCallHistoryForRedial,
+    INStartCallContactUnsupportedReasonNoUsableHandleForRedial,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INStartCallContactResolutionResult : INPersonResolutionResult
+
++ (instancetype)unsupportedForReason:(INStartCallContactUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithPersonResolutionResult:(INPersonResolutionResult *)personResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INRentalCar.h
+//
+//  INRentalCar.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INRentalCar : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithRentalCompanyName:(nullable NSString *)rentalCompanyName
+                                     type:(nullable NSString *)type
+                                     make:(nullable NSString *)make
+                                    model:(nullable NSString *)model
+                     rentalCarDescription:(nullable NSString *)rentalCarDescription NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *rentalCompanyName;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *type;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *make;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *model;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *rentalCarDescription;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSearchForBillsIntentResponse.h
 //
 //  INSearchForBillsIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -5092,7 +6422,7 @@ NS_ASSUME_NONNULL_END
 //  INSetAudioSourceInCarIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -5184,7 +6514,7 @@ NS_ASSUME_NONNULL_END
 //  INLocationSearchTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -5231,7 +6561,7 @@ NS_ASSUME_NONNULL_END
 //  INNoteContentType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INNoteContentType_h
@@ -5244,7 +6574,7 @@ typedef NS_ENUM(NSInteger, INNoteContentType) {
     INNoteContentTypeUnknown = 0,
     INNoteContentTypeText,
     INNoteContentTypeImage,
-} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+} API_DEPRECATED("This enum is no longer used", ios(11.0, 12.0), watchos(4.0, 5.0)) API_UNAVAILABLE(macosx);
 
 #endif // INNoteContentType_h
 // ==========  Intents.framework/Headers/INCreateNoteIntent.h
@@ -5252,7 +6582,7 @@ typedef NS_ENUM(NSInteger, INNoteContentType) {
 //  INCreateNoteIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -5344,12 +6674,42 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INGetReservationDetailsIntent.h
+//
+//  INGetReservationDetailsIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INGetReservationDetailsIntent : INIntent
+
+- (instancetype)initWithReservationContainerReference:(nullable INSpeakableString *)reservationContainerReference
+                            reservationItemReferences:(nullable NSArray<INSpeakableString *> *)reservationItemReferences NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *reservationContainerReference;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INSpeakableString *> *reservationItemReferences;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INCancelWorkoutIntent.h
 //
 //  INCancelWorkoutIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -5433,7 +6793,7 @@ NS_ASSUME_NONNULL_END
 //  INPaymentStatus.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INPaymentStatus_h
@@ -5452,12 +6812,39 @@ typedef NS_ENUM(NSInteger, INPaymentStatus) {
 } API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INPaymentStatus_h
+// ==========  Intents.framework/Headers/INDeleteTasksTaskResolutionResult.h
+//
+//  INDeleteTasksTaskResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INTaskResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INDeleteTasksTaskUnsupportedReason) {
+    INDeleteTasksTaskUnsupportedReasonNoTasksFound = 1,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INDeleteTasksTaskResolutionResult : INTaskResolutionResult
+
++ (instancetype)unsupportedForReason:(INDeleteTasksTaskUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithTaskResolutionResult:(INTaskResolutionResult *)taskResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INMediaItem.h
 //
 //  INMediaItem.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5477,7 +6864,13 @@ API_UNAVAILABLE(macosx)
 - (instancetype)initWithIdentifier:(nullable NSString *)identifier
                              title:(nullable NSString *)title
                               type:(INMediaItemType)type
-                           artwork:(nullable INImage *)artwork NS_DESIGNATED_INITIALIZER;
+                           artwork:(nullable INImage *)artwork
+                            artist:(nullable NSString *)artist NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(13.0), watchos(6.0));
+
+- (instancetype)initWithIdentifier:(nullable NSString *)identifier
+                             title:(nullable NSString *)title
+                              type:(INMediaItemType)type
+                           artwork:(nullable INImage *)artwork;
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *identifier;
 
@@ -5487,6 +6880,8 @@ API_UNAVAILABLE(macosx)
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INImage *artwork;
 
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *artist API_AVAILABLE(ios(13.0), watchos(6.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -5495,7 +6890,7 @@ NS_ASSUME_NONNULL_END
 //  INPerson+SiriAdditions.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INPerson.h>
@@ -5515,12 +6910,34 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSetTaskAttributeIntent_Deprecated.h
+//
+//  INSetTaskAttributeIntent_Deprecated.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INSetTaskAttributeIntent.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INSetTaskAttributeIntent (Deprecated)
+
+- (instancetype)initWithTargetTask:(nullable INTask *)targetTask
+                            status:(INTaskStatus)status
+               spatialEventTrigger:(nullable INSpatialEventTrigger *)spatialEventTrigger
+              temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger API_DEPRECATED("Use the designated initializer instead", ios(11.0, 13.0), watchos(4.0, 6.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INTemporalEventTriggerResolutionResult.h
 //
 //  INTemporalEventTriggerResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -5551,7 +6968,7 @@ NS_ASSUME_NONNULL_END
 //  INSetTaskAttributeIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -5592,7 +7009,7 @@ NS_ASSUME_NONNULL_END
 //  INRideFeedbackTypeOptions.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INRideFeedbackTypeOptions_h
@@ -5612,7 +7029,7 @@ typedef NS_OPTIONS(NSUInteger, INRideFeedbackTypeOptions) {
 //  INTaskStatus.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INTaskStatus_h
@@ -5633,18 +7050,22 @@ typedef NS_ENUM(NSInteger, INTaskStatus) {
 //  INAddTasksIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
 #import <Intents/INIntentResolutionResult.h>
 
+#import <Intents/INTaskPriority.h>
+
+@class INAddTasksTargetTaskListResolutionResult;
 @class INSpatialEventTrigger;
 @class INSpatialEventTriggerResolutionResult;
 @class INSpeakableString;
 @class INSpeakableStringResolutionResult;
 @class INTaskList;
 @class INTaskListResolutionResult;
+@class INTaskPriorityResolutionResult;
 @class INTemporalEventTrigger;
 @class INTemporalEventTriggerResolutionResult;
 
@@ -5657,7 +7078,8 @@ API_UNAVAILABLE(macosx)
 - (instancetype)initWithTargetTaskList:(nullable INTaskList *)targetTaskList
                             taskTitles:(nullable NSArray<INSpeakableString *> *)taskTitles
                    spatialEventTrigger:(nullable INSpatialEventTrigger *)spatialEventTrigger
-                  temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger NS_DESIGNATED_INITIALIZER;
+                  temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger
+                              priority:(INTaskPriority)priority NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(13.0), watchos(6.0));
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INTaskList *targetTaskList;
 
@@ -5666,6 +7088,8 @@ API_UNAVAILABLE(macosx)
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpatialEventTrigger *spatialEventTrigger;
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INTemporalEventTrigger *temporalEventTrigger;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INTaskPriority priority API_AVAILABLE(ios(13.0), watchos(6.0));
 
 @end
 
@@ -5721,7 +7145,10 @@ API_UNAVAILABLE(macosx)
  */
 
 - (void)resolveTargetTaskListForAddTasks:(INAddTasksIntent *)intent
-                    withCompletion:(void (^)(INTaskListResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTargetTaskList(for:with:));
+                    withCompletion:(void (^)(INTaskListResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTargetTaskList(for:with:)) API_DEPRECATED("resolveTargetTaskListForAddTasks:withCompletion: is deprecated. Use resolveTargetTaskListForAddTasks:completion: instead", ios(11.0, 13.0), watchos(4.0, 6.0));
+
+- (void)resolveTargetTaskListForAddTasks:(INAddTasksIntent *)intent
+                    completion:(void (^)(INAddTasksTargetTaskListResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTargetTaskList(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0));
 
 - (void)resolveTaskTitlesForAddTasks:(INAddTasksIntent *)intent
                     withCompletion:(void (^)(NSArray<INSpeakableStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveTaskTitles(for:with:));
@@ -5732,6 +7159,9 @@ API_UNAVAILABLE(macosx)
 - (void)resolveTemporalEventTriggerForAddTasks:(INAddTasksIntent *)intent
                     withCompletion:(void (^)(INTemporalEventTriggerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTemporalEventTrigger(for:with:));
 
+- (void)resolvePriorityForAddTasks:(INAddTasksIntent *)intent
+                    withCompletion:(void (^)(INTaskPriorityResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePriority(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -5740,7 +7170,7 @@ NS_ASSUME_NONNULL_END
 //  INAddTasksIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -5784,7 +7214,7 @@ NS_ASSUME_NONNULL_END
 //  INResumeWorkoutIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -5823,7 +7253,7 @@ NS_ASSUME_NONNULL_END
 //  INNotebookItemTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -5854,7 +7284,7 @@ NS_ASSUME_NONNULL_END
 //  INRadioType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INRadioType_h
@@ -5878,7 +7308,7 @@ typedef NS_ENUM(NSInteger, INRadioType) {
 //  INPaymentAccount.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5928,7 +7358,7 @@ NS_ASSUME_NONNULL_END
 //  INIntentIdentifiers.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5936,13 +7366,13 @@ NS_ASSUME_NONNULL_END
 #import <Intents/IntentsDefines.h>
 
 // Identifier for INStartAudioCallIntent class.
-INTENTS_EXTERN NSString *const INStartAudioCallIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+INTENTS_EXTERN NSString *const INStartAudioCallIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INStartVideoCallIntent class.
-INTENTS_EXTERN NSString *const INStartVideoCallIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos);
+INTENTS_EXTERN NSString *const INStartVideoCallIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx) API_UNAVAILABLE(watchos);
 
 // Identifier for INSearchCallHistoryIntent class.
-INTENTS_EXTERN NSString *const INSearchCallHistoryIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+INTENTS_EXTERN NSString *const INSearchCallHistoryIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INSetAudioSourceInCarIntent class.
 INTENTS_EXTERN NSString *const INSetAudioSourceInCarIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos);
@@ -5981,13 +7411,13 @@ INTENTS_EXTERN NSString *const INResumeWorkoutIntentIdentifier API_AVAILABLE(ios
 INTENTS_EXTERN NSString *const INSetRadioStationIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx, watchos);
 
 // Identifier for INSendMessageIntent class.
-INTENTS_EXTERN NSString *const INSendMessageIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+INTENTS_EXTERN NSString *const INSendMessageIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INSearchForMessagesIntent class.
-INTENTS_EXTERN NSString *const INSearchForMessagesIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+INTENTS_EXTERN NSString *const INSearchForMessagesIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // Identifier for INSetMessageAttributeIntent class.
-INTENTS_EXTERN NSString *const INSetMessageAttributeIntentIdentifier API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos);
+INTENTS_EXTERN NSString *const INSetMessageAttributeIntentIdentifier API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx) API_UNAVAILABLE(watchos);
 
 // Identifier for INSendPaymentIntent class.
 INTENTS_EXTERN NSString *const INSendPaymentIntentIdentifier API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
@@ -6014,7 +7444,7 @@ INTENTS_EXTERN NSString *const INGetRideStatusIntentIdentifier API_AVAILABLE(ios
 //  INBillTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -6046,7 +7476,7 @@ NS_ASSUME_NONNULL_END
 //  INListRideOptionsIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -6097,7 +7527,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchCallHistoryIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -6113,11 +7543,12 @@ typedef NS_ENUM(NSInteger, INSearchCallHistoryIntentResponseCode) {
     INSearchCallHistoryIntentResponseCodeFailureAppConfigurationRequired,
     INSearchCallHistoryIntentResponseCodeInProgress API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)),
     INSearchCallHistoryIntentResponseCodeSuccess API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)),
-} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INSearchCallHistoryIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -6129,7 +7560,7 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 
 @property (readonly, NS_NONATOMIC_IOSONLY) INSearchCallHistoryIntentResponseCode code;
 
-@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INCallRecord *> *callRecords API_AVAILABLE(ios(11.0), macosx(10.13));
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INCallRecord *> *callRecords API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macosx);
 
 @end
 
@@ -6139,7 +7570,7 @@ NS_ASSUME_NONNULL_END
 //  INCallRecordTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -6148,19 +7579,20 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INCallRecordTypeResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCallRecordType. The resolvedValue can be different than the original INCallRecordType. This allows app extensions to apply business logic constraints.
 // Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedCallRecordType:(INCallRecordType)resolvedCallRecordType NS_SWIFT_NAME(success(with:));
 
-+ (instancetype)successWithResolvedValue:(INCallRecordType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCallRecordType:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
++ (instancetype)successWithResolvedValue:(INCallRecordType)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedCallRecordType:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
 + (instancetype)confirmationRequiredWithCallRecordTypeToConfirm:(INCallRecordType)callRecordTypeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
 
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INCallRecordType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCallRecordTypeToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
++ (instancetype)confirmationRequiredWithValueToConfirm:(INCallRecordType)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithCallRecordTypeToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 @end
 
@@ -6170,7 +7602,7 @@ NS_ASSUME_NONNULL_END
 //  INSendPaymentIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -6219,7 +7651,7 @@ NS_ASSUME_NONNULL_END
 //  INSaveProfileInCarIntent_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSaveProfileInCarIntent.h>
@@ -6236,12 +7668,216 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INMediaReference.h
+//
+//  INMediaReference.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INMediaReference_h
+#define INMediaReference_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INMediaReference) {
+    INMediaReferenceUnknown = 0,
+    INMediaReferenceCurrentlyPlaying,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INMediaReference_h
+// ==========  Intents.framework/Headers/INSearchForMediaIntentResponse.h
+//
+//  INSearchForMediaIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INMediaItem;
+
+typedef NS_ENUM(NSInteger, INSearchForMediaIntentResponseCode) {
+    INSearchForMediaIntentResponseCodeUnspecified = 0,
+    INSearchForMediaIntentResponseCodeReady,
+    INSearchForMediaIntentResponseCodeContinueInApp,
+    INSearchForMediaIntentResponseCodeInProgress,
+    INSearchForMediaIntentResponseCodeSuccess,
+    INSearchForMediaIntentResponseCodeFailure,
+    INSearchForMediaIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INSearchForMediaIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INSearchForMediaIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INSearchForMediaIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INMediaItem *> *mediaItems;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSnoozeTasksIntent.h
+//
+//  INSnoozeTasksIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INDateComponentsRange;
+@class INDateComponentsRangeResolutionResult;
+@class INSnoozeTasksTaskResolutionResult;
+@class INTask;
+@class INTaskResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INSnoozeTasksIntent : INIntent
+
+- (instancetype)initWithTasks:(nullable NSArray<INTask *> *)tasks
+              nextTriggerTime:(nullable INDateComponentsRange *)nextTriggerTime
+                          all:(nullable NSNumber *)all NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INTask *> *tasks;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *nextTriggerTime;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *all NS_REFINED_FOR_SWIFT;
+
+@end
+
+@class INSnoozeTasksIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INSnoozeTasksIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@protocol INSnoozeTasksIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INSnoozeTasksIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INSnoozeTasksIntentResponse containing the details of the result of having executed the intent
+
+ @see  INSnoozeTasksIntentResponse
+ */
+
+- (void)handleSnoozeTasks:(INSnoozeTasksIntent *)intent
+               completion:(void (^)(INSnoozeTasksIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INSnoozeTasksIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INSnoozeTasksIntentResponse
+ */
+
+- (void)confirmSnoozeTasks:(INSnoozeTasksIntent *)intent
+                completion:(void (^)(INSnoozeTasksIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveTasksForSnoozeTasks:(INSnoozeTasksIntent *)intent
+                    withCompletion:(void (^)(NSArray<INSnoozeTasksTaskResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveTasks(for:with:));
+
+- (void)resolveNextTriggerTimeForSnoozeTasks:(INSnoozeTasksIntent *)intent
+                    withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveNextTriggerTime(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INRentalCarReservation.h
+//
+//  INRentalCarReservation.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Intents/INReservation.h>
+
+@class CLPlacemark;
+@class INDateComponentsRange;
+@class INRentalCar;
+@class INReservation;
+@class INReservationAction;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INRentalCarReservation : INReservation <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithItemReference:(nullable INSpeakableString *)itemReference
+                    reservationNumber:(nullable NSString *)reservationNumber
+                          bookingTime:(nullable NSDate *)bookingTime
+                    reservationStatus:(INReservationStatus)reservationStatus
+                reservationHolderName:(nullable NSString *)reservationHolderName
+                              actions:(nullable NSArray<INReservationAction *> *)actions
+                            rentalCar:(nullable INRentalCar *)rentalCar
+                       rentalDuration:(nullable INDateComponentsRange *)rentalDuration
+                       pickupLocation:(nullable CLPlacemark *)pickupLocation
+                      dropOffLocation:(nullable CLPlacemark *)dropOffLocation NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INRentalCar *rentalCar;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *rentalDuration;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *pickupLocation;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *dropOffLocation;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSetClimateSettingsInCarIntent_Deprecated.h
 //
 //  INSetClimateSettingsInCarIntent_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2018 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSetClimateSettingsInCarIntent.h>
@@ -6265,12 +7901,53 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSnoozeTasksIntentResponse.h
+//
+//  INSnoozeTasksIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+@class INTask;
+
+typedef NS_ENUM(NSInteger, INSnoozeTasksIntentResponseCode) {
+    INSnoozeTasksIntentResponseCodeUnspecified = 0,
+    INSnoozeTasksIntentResponseCodeReady,
+    INSnoozeTasksIntentResponseCodeInProgress,
+    INSnoozeTasksIntentResponseCodeSuccess,
+    INSnoozeTasksIntentResponseCodeFailure,
+    INSnoozeTasksIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INSnoozeTasksIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INSnoozeTasksIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INSnoozeTasksIntentResponseCode code;
+
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INTask *> *snoozedTasks;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INBalanceTypeResolutionResult.h
 //
 //  INBalanceTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -6293,12 +7970,41 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INLengthResolutionResult.h
+//
+//  INLengthResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2018 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INLengthResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given length. The resolvedLength can be different than the original length. This allows app extensions to apply business logic constraints to the length. For example, constraining it to a maximum or minimum value.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedLength:(NSMeasurement<NSUnitLength *> *)resolvedLength NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided lengths.
++ (instancetype)disambiguationWithLengthsToDisambiguate:(NSArray<NSMeasurement<NSUnitLength *> *> *)lengthsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the length with which the user wants to continue.
++ (instancetype)confirmationRequiredWithLengthToConfirm:(nullable NSMeasurement<NSUnitLength *> *)lengthToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSearchCallHistoryIntent.h
 //
 //  INSearchCallHistoryIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -6318,7 +8024,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INSearchCallHistoryIntent : INIntent
 
 - (instancetype)initWithDateCreated:(nullable INDateComponentsRange *)dateCreated
@@ -6334,9 +8041,9 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallCapabilityOptions callCapabilities;
 
-@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallRecordTypeOptions callTypes API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INCallRecordTypeOptions callTypes API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *unseen NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *unseen NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 @end
 
@@ -6347,7 +8054,8 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @protocol INSearchCallHistoryIntentHandling <NSObject>
 
 @required
@@ -6391,7 +8099,7 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
  */
 
 - (void)resolveCallTypeForSearchCallHistory:(INSearchCallHistoryIntent *)intent
-                    withCompletion:(void (^)(INCallRecordTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCallType(for:with:)) API_DEPRECATED("resolveCallTypeForSearchCallHistory:withCompletion: is deprecated. Use resolveCallTypesForSearchCallHistory:withCompletion: instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+                    withCompletion:(void (^)(INCallRecordTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCallType(for:with:)) API_DEPRECATED("resolveCallTypeForSearchCallHistory:withCompletion: is deprecated. Use resolveCallTypesForSearchCallHistory:withCompletion: instead", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 - (void)resolveDateCreatedForSearchCallHistory:(INSearchCallHistoryIntent *)intent
                     withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateCreated(for:with:));
@@ -6400,10 +8108,39 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
                     withCompletion:(void (^)(INPersonResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveRecipient(for:with:));
 
 - (void)resolveCallTypesForSearchCallHistory:(INSearchCallHistoryIntent *)intent
-                    withCompletion:(void (^)(INCallRecordTypeOptionsResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCallTypes(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+                    withCompletion:(void (^)(INCallRecordTypeOptionsResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveCallTypes(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 - (void)resolveUnseenForSearchCallHistory:(INSearchCallHistoryIntent *)intent
-                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveUnseen(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+                    withCompletion:(void (^)(INBooleanResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveUnseen(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INURLResolutionResult.h
+//
+//  INURLResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INURLResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given url. The resolvedURL can be different than the original url. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedURL:(NSURL *)resolvedURL NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided urls.
++ (instancetype)disambiguationWithURLsToDisambiguate:(NSArray<NSURL *> *)urlsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the url with which the user wants to continue.
++ (instancetype)confirmationRequiredWithURLToConfirm:(nullable NSURL *)urlToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
 
 @end
 
@@ -6413,7 +8150,7 @@ NS_ASSUME_NONNULL_END
 //  INActivateCarSignalIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -6454,7 +8191,7 @@ NS_ASSUME_NONNULL_END
 //  INSetSeatSettingsInCarIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -6491,7 +8228,7 @@ NS_ASSUME_NONNULL_END
 //  INGetAvailableRestaurantReservationBookingDefaultsIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -6568,7 +8305,7 @@ NS_ASSUME_NONNULL_END
 //  INBillPayee.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6601,7 +8338,7 @@ NS_ASSUME_NONNULL_END
 //  INRecurrenceRule.h
 //  Intents
 //
-//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6609,13 +8346,13 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INRecurrenceFrequency.h>
 
 NS_ASSUME_NONNULL_BEGIN
-API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx)
 @interface INRecurrenceRule : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)initWithInterval:(NSUInteger)interval frequency:(INRecurrenceFrequency)frequency;
 
-@property (readonly) NSUInteger interval;
-@property (readonly) INRecurrenceFrequency frequency;
+@property (nonatomic, readonly) NSUInteger interval;
+@property (nonatomic, readonly) INRecurrenceFrequency frequency;
 
 @end
 NS_ASSUME_NONNULL_END
@@ -6624,7 +8361,7 @@ NS_ASSUME_NONNULL_END
 //  INPerson.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6636,7 +8373,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INPerson : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -6676,12 +8413,12 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *customIdentifier;
 
 // This person's relationship to the user
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPersonRelationship relationship API_AVAILABLE(ios(10.2), macosx(10.12.2));
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INPersonRelationship relationship API_AVAILABLE(ios(10.2)) API_UNAVAILABLE(macosx);
 
 @end
 
 typedef NS_ENUM(NSInteger, INPersonSuggestionType) {
-    INPersonSuggestionTypeNone API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0)) = 0,
+    INPersonSuggestionTypeNone API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx) = 0,
     INPersonSuggestionTypeSocialProfile,
     INPersonSuggestionTypeInstantMessageAddress
 };
@@ -6711,7 +8448,7 @@ NS_ASSUME_NONNULL_END
 //  INStartVideoCallIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -6722,8 +8459,9 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), macosx(10.12))
 API_UNAVAILABLE(watchos)
+API_UNAVAILABLE(macosx)
+API_DEPRECATED("INStartVideoCallIntent is deprecated. Please adopt INStartCallIntent instead", ios(10.0, 13.0))
 @interface INStartVideoCallIntent : INIntent
 
 - (instancetype)initWithContacts:(nullable NSArray<INPerson *> *)contacts NS_DESIGNATED_INITIALIZER;
@@ -6740,8 +8478,9 @@ API_UNAVAILABLE(watchos)
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0), macosx(10.12))
 API_UNAVAILABLE(watchos)
+API_UNAVAILABLE(macosx)
+API_DEPRECATED("INStartVideoCallIntent is deprecated. Please adopt INStartCallIntent instead", ios(10.0, 13.0))
 @protocol INStartVideoCallIntentHandling <NSObject>
 
 @required
@@ -6795,7 +8534,7 @@ NS_ASSUME_NONNULL_END
 //  INDateComponentsRange.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6805,7 +8544,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INDateComponentsRange : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -6834,7 +8573,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchForPhotosIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -6968,7 +8707,7 @@ NS_ASSUME_NONNULL_END
 //  INGetUserCurrentRestaurantReservationBookingsIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -7053,7 +8792,7 @@ NS_ASSUME_NONNULL_END
 //  INActivateCarSignalIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -7140,12 +8879,41 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INReservation.h
+//
+//  INReservation.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INReservationStatus.h>
+
+@class INReservationAction;
+@class INSpeakableString;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INReservation : NSObject <NSCopying, NSSecureCoding>
+- (instancetype)init NS_UNAVAILABLE;
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *itemReference;
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *reservationNumber;
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSDate *bookingTime;
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INReservationStatus reservationStatus;
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *reservationHolderName;
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INReservationAction *> *actions;
+@end
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INPersonRelationship.h
 //
 //  INPersonRelationship.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7164,12 +8932,14 @@ INTENTS_EXTERN INPersonRelationship const INPersonRelationshipSpouse NS_SWIFT_NA
 INTENTS_EXTERN INPersonRelationship const INPersonRelationshipPartner NS_SWIFT_NAME(INPersonRelationship.partner) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
 INTENTS_EXTERN INPersonRelationship const INPersonRelationshipAssistant NS_SWIFT_NAME(INPersonRelationship.assistant) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
 INTENTS_EXTERN INPersonRelationship const INPersonRelationshipManager NS_SWIFT_NAME(INPersonRelationship.manager) API_AVAILABLE(ios(10.2), watchos(3.2), macosx(10.12.2));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipSon NS_SWIFT_NAME(INPersonRelationship.son) API_AVAILABLE(ios(13.0), watchos(6.0), macosx(10.15));
+INTENTS_EXTERN INPersonRelationship const INPersonRelationshipDaughter NS_SWIFT_NAME(INPersonRelationship.daughter) API_AVAILABLE(ios(13.0), watchos(6.0), macosx(10.15));
 // ==========  Intents.framework/Headers/INRecurrenceFrequency.h
 //
 //  INRecurrenceFrequency.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INRecurrenceFrequency_h
@@ -7194,7 +8964,7 @@ typedef NS_ENUM(NSInteger, INRecurrenceFrequency) {
 //  INMessageAttributeOptionsResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -7203,19 +8973,20 @@ typedef NS_ENUM(NSInteger, INRecurrenceFrequency) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INMessageAttributeOptionsResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given INMessageAttributeOptions. The resolvedValue can be different than the original INMessageAttributeOptions. This allows app extensions to apply business logic constraints.
 // Use +notRequired to continue with a 'nil' value.
 + (instancetype)successWithResolvedMessageAttributeOptions:(INMessageAttributeOptions)resolvedMessageAttributeOptions NS_SWIFT_NAME(success(with:));
 
-+ (instancetype)successWithResolvedValue:(INMessageAttributeOptions)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedMessageAttributeOptions:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
++ (instancetype)successWithResolvedValue:(INMessageAttributeOptions)resolvedValue NS_SWIFT_UNAVAILABLE("Please use 'success(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+successWithResolvedMessageAttributeOptions:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 // This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
 + (instancetype)confirmationRequiredWithMessageAttributeOptionsToConfirm:(INMessageAttributeOptions)messageAttributeOptionsToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
 
-+ (instancetype)confirmationRequiredWithValueToConfirm:(INMessageAttributeOptions)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithMessageAttributeOptionsToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0), macos(10.12, 10.13));
++ (instancetype)confirmationRequiredWithValueToConfirm:(INMessageAttributeOptions)valueToConfirm NS_SWIFT_UNAVAILABLE("Please use 'confirmationRequired(with:)' instead.") API_DEPRECATED_WITH_REPLACEMENT("+confirmationRequiredWithMessageAttributeOptionsToConfirm:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 @end
 
@@ -7225,7 +8996,7 @@ NS_ASSUME_NONNULL_END
 //  INWorkoutGoalUnitTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -7257,14 +9028,14 @@ NS_ASSUME_NONNULL_END
 //  INNoteContent.h
 //  Intents
 //
-//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx)
 @interface INNoteContent : NSObject <NSSecureCoding, NSCopying>
 
 @end
@@ -7274,7 +9045,7 @@ NS_ASSUME_NONNULL_END
 //  INBookRestaurantReservationIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -7311,7 +9082,7 @@ NS_ASSUME_NONNULL_END
 //  INRideDriver_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INRideDriver.h>
@@ -7347,7 +9118,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchForBillsIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -7456,12 +9227,60 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INMediaDestinationType.h
+//
+//  INMediaDestinationType.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INMediaDestinationType_h
+#define INMediaDestinationType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INMediaDestinationType) {
+    INMediaDestinationTypeUnknown = 0,
+    INMediaDestinationTypeLibrary,
+    INMediaDestinationTypePlaylist,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INMediaDestinationType_h
+// ==========  Intents.framework/Headers/INAddTasksTargetTaskListResolutionResult.h
+//
+//  INAddTasksTargetTaskListResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INTaskListResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INAddTasksTargetTaskListConfirmationReason) {
+    INAddTasksTargetTaskListConfirmationReasonListShouldBeCreated = 1,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INAddTasksTargetTaskListResolutionResult : INTaskListResolutionResult
+
++ (instancetype)confirmationRequiredWithTaskListToConfirm:(nullable INTaskList *)taskListToConfirm forReason:(INAddTasksTargetTaskListConfirmationReason)reason NS_SWIFT_NAME(confirmationRequired(with:forReason:));
+
+- (instancetype)initWithTaskListResolutionResult:(INTaskListResolutionResult *)taskListResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/NSUserActivity+IntentsAdditions.h
 //
 //  NSUserActivity+IntentsAdditions.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -7472,7 +9291,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSUserActivity (IntentsAdditions)
 
-@property (readonly, nullable, NS_NONATOMIC_IOSONLY) INInteraction *interaction API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+@property (readonly, nullable, NS_NONATOMIC_IOSONLY) INInteraction *interaction API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 // A human-understandable string that can be used to suggest a voice shortcut phrase to the user
 @property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *suggestedInvocationPhrase API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx, tvos);
@@ -7485,7 +9304,7 @@ NS_ASSUME_NONNULL_END
 //  INSetSeatSettingsInCarIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -7611,11 +9430,17 @@ NS_ASSUME_NONNULL_END
 //  Intents_Generated.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INAccountType.h>
 #import <Intents/INAccountTypeResolutionResult.h>
+#import <Intents/INAddMediaMediaDestinationResolutionResult.h>
+#import <Intents/INAddMediaMediaItemResolutionResult.h>
+#import <Intents/INAddTasksTargetTaskListResolutionResult.h>
+#import <Intents/INAirline.h>
+#import <Intents/INAirport.h>
+#import <Intents/INAirportGate.h>
 #import <Intents/INAmountType.h>
 #import <Intents/INBalanceType.h>
 #import <Intents/INBalanceTypeResolutionResult.h>
@@ -7624,8 +9449,10 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INBillPayeeResolutionResult.h>
 #import <Intents/INBillType.h>
 #import <Intents/INBillTypeResolutionResult.h>
+#import <Intents/INCallAudioRoute.h>
 #import <Intents/INCallCapability.h>
 #import <Intents/INCallCapabilityOptions.h>
+#import <Intents/INCallCapabilityResolutionResult.h>
 #import <Intents/INCallDestinationType.h>
 #import <Intents/INCallDestinationTypeResolutionResult.h>
 #import <Intents/INCallRecord.h>
@@ -7646,10 +9473,22 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INCurrencyAmountResolutionResult.h>
 #import <Intents/INDateSearchType.h>
 #import <Intents/INDateSearchTypeResolutionResult.h>
+#import <Intents/INDeleteTasksTaskListResolutionResult.h>
+#import <Intents/INDeleteTasksTaskResolutionResult.h>
+#import <Intents/INFileResolutionResult.h>
+#import <Intents/INFlight.h>
 #import <Intents/INLocationSearchType.h>
 #import <Intents/INLocationSearchTypeResolutionResult.h>
-#import <Intents/INMediaItem.h>
+#import <Intents/INMediaAffinityType.h>
+#import <Intents/INMediaAffinityTypeResolutionResult.h>
+#import <Intents/INMediaDestination.h>
+#import <Intents/INMediaDestinationResolutionResult.h>
+#import <Intents/INMediaDestinationType.h>
+#import <Intents/INMediaItemResolutionResult.h>
 #import <Intents/INMediaItemType.h>
+#import <Intents/INMediaReference.h>
+#import <Intents/INMediaSearch.h>
+#import <Intents/INMediaSortOrder.h>
 #import <Intents/INMessageAttribute.h>
 #import <Intents/INMessageAttributeOptions.h>
 #import <Intents/INMessageAttributeOptionsResolutionResult.h>
@@ -7661,12 +9500,12 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INNoteResolutionResult.h>
 #import <Intents/INNotebookItemType.h>
 #import <Intents/INNotebookItemTypeResolutionResult.h>
-#import <Intents/INObject.h>
 #import <Intents/INPaymentAccount.h>
 #import <Intents/INPaymentAccountResolutionResult.h>
 #import <Intents/INPaymentAmount.h>
 #import <Intents/INPaymentAmountResolutionResult.h>
 #import <Intents/INPaymentMethod.h>
+#import <Intents/INPaymentMethodResolutionResult.h>
 #import <Intents/INPaymentMethodType.h>
 #import <Intents/INPaymentRecord.h>
 #import <Intents/INPaymentStatus.h>
@@ -7674,7 +9513,12 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INPersonHandleLabel.h>
 #import <Intents/INPersonRelationship.h>
 #import <Intents/INPhotoAttributeOptions.h>
+#import <Intents/INPlayMediaMediaItemResolutionResult.h>
+#import <Intents/INPlayMediaPlaybackSpeedResolutionResult.h>
+#import <Intents/INPlaybackQueueLocation.h>
+#import <Intents/INPlaybackQueueLocationResolutionResult.h>
 #import <Intents/INPlaybackRepeatMode.h>
+#import <Intents/INPlaybackRepeatModeResolutionResult.h>
 #import <Intents/INRadioType.h>
 #import <Intents/INRadioTypeResolutionResult.h>
 #import <Intents/INRecurrenceFrequency.h>
@@ -7682,26 +9526,42 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INRelativeReferenceResolutionResult.h>
 #import <Intents/INRelativeSetting.h>
 #import <Intents/INRelativeSettingResolutionResult.h>
+#import <Intents/INRentalCar.h>
 #import <Intents/INRequestPaymentCurrencyAmountResolutionResult.h>
 #import <Intents/INRequestPaymentPayerResolutionResult.h>
+#import <Intents/INReservationActionType.h>
+#import <Intents/INReservationStatus.h>
 #import <Intents/INRideFeedbackTypeOptions.h>
 #import <Intents/INRidePhase.h>
+#import <Intents/INSearchForMediaMediaItemResolutionResult.h>
+#import <Intents/INSeat.h>
 #import <Intents/INSendMessageRecipientResolutionResult.h>
 #import <Intents/INSendPaymentCurrencyAmountResolutionResult.h>
 #import <Intents/INSendPaymentPayeeResolutionResult.h>
+#import <Intents/INSnoozeTasksTaskResolutionResult.h>
 #import <Intents/INSortType.h>
 #import <Intents/INSpatialEvent.h>
 #import <Intents/INSpatialEventTrigger.h>
 #import <Intents/INSpatialEventTriggerResolutionResult.h>
+#import <Intents/INStartCallCallCapabilityResolutionResult.h>
+#import <Intents/INStartCallContactResolutionResult.h>
 #import <Intents/INTask.h>
 #import <Intents/INTaskList.h>
 #import <Intents/INTaskListResolutionResult.h>
+#import <Intents/INTaskPriority.h>
+#import <Intents/INTaskPriorityResolutionResult.h>
 #import <Intents/INTaskResolutionResult.h>
 #import <Intents/INTaskStatus.h>
 #import <Intents/INTaskStatusResolutionResult.h>
 #import <Intents/INTaskType.h>
 #import <Intents/INTemporalEventTrigger.h>
 #import <Intents/INTemporalEventTriggerResolutionResult.h>
+#import <Intents/INTemporalEventTriggerTypeOptions.h>
+#import <Intents/INTemporalEventTriggerTypeOptionsResolutionResult.h>
+#import <Intents/INTicketedEvent.h>
+#import <Intents/INTicketedEventCategory.h>
+#import <Intents/INTrainTrip.h>
+#import <Intents/INUpdateMediaAffinityMediaItemResolutionResult.h>
 #import <Intents/INVisualCodeType.h>
 #import <Intents/INVisualCodeTypeResolutionResult.h>
 #import <Intents/INWorkoutGoalUnitType.h>
@@ -7714,7 +9574,7 @@ NS_ASSUME_NONNULL_END
 //  INGetRideStatusIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -7778,16 +9638,6 @@ API_UNAVAILABLE(macosx)
 - (void)confirmGetRideStatus:(INGetRideStatusIntent *)intent
                   completion:(void (^)(INGetRideStatusIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
 
-/*!
- @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
- @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
-
- @param  intent The input intent
- @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
-
- @see INIntentResolutionResult
- */
-
 @end
 
 API_AVAILABLE(ios(10.0), watchos(3.2))
@@ -7799,12 +9649,80 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INIntentResolutionResult+Custom.h
+//
+//  INIntentResolutionResult+Custom.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INIntentResolutionResult (Custom)
+
++ (instancetype)unsupportedWithReason:(NSInteger)reason NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(13.0), watchos(6.0));
++ (instancetype)confirmationRequiredWithItemToConfirm:(id)itemToConfirm forReason:(NSInteger)reason NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(13.0), watchos(6.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTicketedEventCategory.h
+//
+//  INTicketedEventCategory.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INTicketedEventCategory_h
+#define INTicketedEventCategory_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INTicketedEventCategory) {
+    INTicketedEventCategoryUnknown = 0,
+    INTicketedEventCategoryMovie,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INTicketedEventCategory_h
+// ==========  Intents.framework/Headers/INTemporalEventTriggerTypeOptionsResolutionResult.h
+//
+//  INTemporalEventTriggerTypeOptionsResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INTemporalEventTriggerTypeOptions.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INTemporalEventTriggerTypeOptionsResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INTemporalEventTriggerTypeOptions. The resolvedValue can be different than the original INTemporalEventTriggerTypeOptions. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedTemporalEventTriggerTypeOptions:(INTemporalEventTriggerTypeOptions)resolvedTemporalEventTriggerTypeOptions NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithTemporalEventTriggerTypeOptionsToConfirm:(INTemporalEventTriggerTypeOptions)temporalEventTriggerTypeOptionsToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSendMessageIntent.h
 //
 //  INSendMessageIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -7819,7 +9737,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INSendMessageIntent : INIntent
 
 - (instancetype)initWithRecipients:(nullable NSArray<INPerson *> *)recipients
@@ -7827,7 +9746,7 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
                 speakableGroupName:(nullable INSpeakableString *)speakableGroupName
             conversationIdentifier:(nullable NSString *)conversationIdentifier
                        serviceName:(nullable NSString *)serviceName
-                            sender:(nullable INPerson *)sender NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+                            sender:(nullable INPerson *)sender NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(11.0), watchos(4.0));
 
 // Contacts to whom the message should be sent.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INPerson *> *recipients;
@@ -7835,9 +9754,9 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 // Body text of the message.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *content;
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *speakableGroupName API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *speakableGroupName API_AVAILABLE(ios(11.0), watchos(4.0));
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *conversationIdentifier API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *conversationIdentifier API_AVAILABLE(ios(11.0), watchos(4.0));
 
 // Specified service for the message.
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *serviceName;
@@ -7854,7 +9773,8 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @protocol INSendMessageIntentHandling <NSObject>
 
 @required
@@ -7904,13 +9824,13 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
                     completion:(void (^)(NSArray<INSendMessageRecipientResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveRecipients(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0));
 
 - (void)resolveGroupNameForSendMessage:(INSendMessageIntent *)intent
-                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveGroupName(for:with:)) API_DEPRECATED("resolveGroupNameForSendMessage:withCompletion: is deprecated. Use resolveSpeakableGroupNameForSendMessage:withCompletion: instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+                    withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveGroupName(for:with:)) API_DEPRECATED("resolveGroupNameForSendMessage:withCompletion: is deprecated. Use resolveSpeakableGroupNameForSendMessage:withCompletion: instead", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 - (void)resolveContentForSendMessage:(INSendMessageIntent *)intent
                     withCompletion:(void (^)(INStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveContent(for:with:));
 
 - (void)resolveSpeakableGroupNameForSendMessage:(INSendMessageIntent *)intent
-                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveSpeakableGroupName(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveSpeakableGroupName(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0));
 
 @end
 
@@ -7920,7 +9840,7 @@ NS_ASSUME_NONNULL_END
 //  INCancelRideIntent.h
 //  Intents
 //
-//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -7983,12 +9903,33 @@ API_UNAVAILABLE(watchos, macos)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTaskPriority.h
+//
+//  INTaskPriority.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INTaskPriority_h
+#define INTaskPriority_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INTaskPriority) {
+    INTaskPriorityUnknown = 0,
+    INTaskPriorityNotFlagged,
+    INTaskPriorityFlagged,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INTaskPriority_h
 // ==========  Intents.framework/Headers/INPriceRange.h
 //
 //  INPriceRange.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8022,12 +9963,35 @@ API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INEnumResolutionResult.h
+//
+//  INEnumResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INEnumResolutionResult : INIntentResolutionResult
+
++ (instancetype)successWithResolvedValue:(NSInteger)resolvedValue NS_REFINED_FOR_SWIFT;
+
++ (instancetype)confirmationRequiredWithValueToConfirm:(NSInteger)valueToConfirm NS_REFINED_FOR_SWIFT;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INNoteContentResolutionResult.h
 //
 //  INNoteContentResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -8058,7 +10022,7 @@ NS_ASSUME_NONNULL_END
 //  INBillType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INBillType_h
@@ -8099,7 +10063,7 @@ typedef NS_ENUM(NSInteger, INBillType) {
 //  INSearchForAccountsIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -8144,7 +10108,7 @@ NS_ASSUME_NONNULL_END
 //  INSpatialEvent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INSpatialEvent_h
@@ -8160,12 +10124,55 @@ typedef NS_ENUM(NSInteger, INSpatialEvent) {
 } API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 #endif // INSpatialEvent_h
+// ==========  Intents.framework/Headers/INRestaurantReservation.h
+//
+//  INRestaurantReservation.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Intents/INReservation.h>
+
+@class CLPlacemark;
+@class INDateComponentsRange;
+@class INSpeakableString;
+@class INReservationAction;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INRestaurantReservation : INReservation <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithItemReference:(nullable INSpeakableString *)itemReference
+                    reservationNumber:(nullable NSString *)reservationNumber
+                          bookingTime:(nullable NSDate *)bookingTime
+                    reservationStatus:(INReservationStatus)reservationStatus
+                reservationHolderName:(nullable NSString *)reservationHolderName
+                              actions:(nullable NSArray<INReservationAction *> *)actions
+                  reservationDuration:(nullable INDateComponentsRange *)reservationDuration
+                            partySize:(nullable NSNumber *)partySize
+                   restaurantLocation:(nullable CLPlacemark *)restaurantLocation NS_DESIGNATED_INITIALIZER NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *reservationDuration;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSNumber *partySize NS_REFINED_FOR_SWIFT;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) CLPlacemark *restaurantLocation;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INPerson_Deprecated.h
 //
 //  INPerson_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INPerson.h>
@@ -8199,12 +10206,41 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INVolumeResolutionResult.h
+//
+//  INVolumeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INVolumeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given volume. The resolvedVolume can be different than the original volume. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedVolume:(NSMeasurement<NSUnitVolume *> *)resolvedVolume NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided volume.
++ (instancetype)disambiguationWithVolumeToDisambiguate:(NSArray<NSMeasurement<NSUnitVolume *> *> *)volumeToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the volume with which the user wants to continue.
++ (instancetype)confirmationRequiredWithVolumeToConfirm:(nullable NSMeasurement<NSUnitVolume *> *)volumeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INTaskType.h
 //
 //  INTaskType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INTaskType_h
@@ -8225,7 +10261,7 @@ typedef NS_ENUM(NSInteger, INTaskType) {
 //  INPaymentAmountResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -8256,7 +10292,7 @@ NS_ASSUME_NONNULL_END
 //  INPaymentAccountResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -8282,12 +10318,45 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAirportGate.h
+//
+//  INAirportGate.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class INAirport;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INAirportGate : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithAirport:(nullable INAirport *)airport
+                       terminal:(nullable NSString *)terminal
+                           gate:(nullable NSString *)gate NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INAirport *airport;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *terminal;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *gate;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRadioTypeResolutionResult.h
 //
 //  INRadioTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -8319,7 +10388,7 @@ NS_ASSUME_NONNULL_END
 //  INPauseWorkoutIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -8358,7 +10427,7 @@ NS_ASSUME_NONNULL_END
 //  INStartWorkoutIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -8398,7 +10467,7 @@ NS_ASSUME_NONNULL_END
 //  INCarSignalOptions.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INCarSignalOptions_h
@@ -8418,108 +10487,108 @@ typedef NS_OPTIONS(NSUInteger, INCarSignalOptions) {
 //  INDomainHandling.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntents.h>
 
 #if !TARGET_OS_WATCH
-API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macosx)
+API_DEPRECATED("Please conform to INStartAudioCallIntentHandling, INStartVideoCallIntentHandling and INSearchCallHistoryIntentHandling instead", ios(11.0, 13.0)) API_UNAVAILABLE(macosx)
 @protocol INCallsDomainHandling <INStartAudioCallIntentHandling, INStartVideoCallIntentHandling, INSearchCallHistoryIntentHandling>
 @end
 #else
-API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
+API_DEPRECATED("Please conform to INStartAudioCallIntentHandling and INSearchCallHistoryIntentHandling instead", ios(10.0, 13.0), watchos(3.2, 6.0)) API_UNAVAILABLE(macosx)
 @protocol INCallsDomainHandling <INStartAudioCallIntentHandling, INSearchCallHistoryIntentHandling>
 @end
 #endif
 
-API_AVAILABLE(ios(10.3), watchos(3.2))
+API_DEPRECATED("Please conform to INActivateCarSignalIntentHandling, INSetCarLockStatusIntentHandling, INGetCarLockStatusIntentHandling and INGetCarPowerLevelStatusIntentHandling instead", ios(10.3, 13.0), watchos(3.2, 6.0))
 API_UNAVAILABLE(macosx)
 @protocol INCarCommandsDomainHandling <INActivateCarSignalIntentHandling, INSetCarLockStatusIntentHandling, INGetCarLockStatusIntentHandling, INGetCarPowerLevelStatusIntentHandling>
 @end
 
-API_AVAILABLE(ios(10.0))
+API_DEPRECATED("Please conform to INSetAudioSourceInCarIntentHandling, INSetClimateSettingsInCarIntentHandling, INSetDefrosterSettingsInCarIntentHandling, INSetSeatSettingsInCarIntentHandling, INSetProfileInCarIntentHandling and INSaveProfileInCarIntentHandling instead", ios(10.0, 13.0))
 API_UNAVAILABLE(macosx, watchos)
 @protocol INCarPlayDomainHandling <INSetAudioSourceInCarIntentHandling, INSetClimateSettingsInCarIntentHandling, INSetDefrosterSettingsInCarIntentHandling, INSetSeatSettingsInCarIntentHandling, INSetProfileInCarIntentHandling, INSaveProfileInCarIntentHandling>
 @end
 
-API_AVAILABLE(ios(10.0), watchos(3.2))
+API_DEPRECATED("Please conform to INStartWorkoutIntentHandling, INPauseWorkoutIntentHandling, INEndWorkoutIntentHandling, INCancelWorkoutIntentHandling and INResumeWorkoutIntentHandling instead", ios(10.0, 13.0), watchos(3.2, 6.0))
 API_UNAVAILABLE(macosx)
 @protocol INWorkoutsDomainHandling <INStartWorkoutIntentHandling, INPauseWorkoutIntentHandling, INEndWorkoutIntentHandling, INCancelWorkoutIntentHandling, INResumeWorkoutIntentHandling>
 @end
 
-API_AVAILABLE(ios(10.0))
+API_DEPRECATED("Please conform to INSetRadioStationIntentHandling instead", ios(10.0, 13.0))
 API_UNAVAILABLE(macosx, watchos)
 @protocol INRadioDomainHandling <INSetRadioStationIntentHandling>
 @end
 
 #if !TARGET_OS_WATCH
-API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx)
+API_DEPRECATED("Please conform to INSendMessageIntentHandling, INSearchForMessagesIntentHandling and INSetMessageAttributeIntentHandling instead", ios(10.0, 13.0)) API_UNAVAILABLE(macosx)
 @protocol INMessagesDomainHandling <INSendMessageIntentHandling, INSearchForMessagesIntentHandling, INSetMessageAttributeIntentHandling>
 @end
 #else
-API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
+API_DEPRECATED("Please conform to INSendMessageIntentHandling and INSearchForMessagesIntentHandling instead", ios(10.0, 13.0), watchos(3.2, 6.0)) API_UNAVAILABLE(macosx)
 @protocol INMessagesDomainHandling <INSendMessageIntentHandling, INSearchForMessagesIntentHandling>
 @end
 #endif
 
-#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MIN_REQUIRED >= 110000
+#if (TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MIN_REQUIRED >= 110000) || TARGET_OS_OSX
 
-API_AVAILABLE(ios(11.0), watchos(4.0))
+API_DEPRECATED("Please conform to INSendPaymentIntentHandling, INRequestPaymentIntentHandling, INPayBillIntentHandling, INSearchForBillsIntentHandling, INSearchForAccountsIntentHandling and INTransferMoneyIntentHandling instead", ios(11.0, 13.0), watchos(4.0, 6.0))
 API_UNAVAILABLE(macosx)
 @protocol INPaymentsDomainHandling <INSendPaymentIntentHandling, INRequestPaymentIntentHandling, INPayBillIntentHandling, INSearchForBillsIntentHandling, INSearchForAccountsIntentHandling, INTransferMoneyIntentHandling>
 @end
 
 #elif TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MIN_REQUIRED >= 100300
 
-API_AVAILABLE(ios(10.3), watchos(3.2))
+API_DEPRECATED("Please conform to INSendPaymentIntentHandling, INRequestPaymentIntentHandling, INPayBillIntentHandling and INSearchForBillsIntentHandling instead", ios(10.3, 13.0), watchos(3.2, 6.0))
 API_UNAVAILABLE(macosx)
 @protocol INPaymentsDomainHandling <INSendPaymentIntentHandling, INRequestPaymentIntentHandling, INPayBillIntentHandling, INSearchForBillsIntentHandling>
 @end
 
 #else
 
-API_AVAILABLE(ios(10.0))
+API_DEPRECATED("Please conform to INSendPaymentIntentHandling and INRequestPaymentIntentHandling instead", ios(10.0, 13.0))
 API_UNAVAILABLE(macosx)
 @protocol INPaymentsDomainHandling <INSendPaymentIntentHandling, INRequestPaymentIntentHandling>
 @end
 
 #endif
 
-API_AVAILABLE(ios(10.0), watchos(3.2))
+API_DEPRECATED("Please conform to INSearchForPhotosIntentHandling and INStartPhotoPlaybackIntentHandling instead", ios(10.0, 13.0), watchos(3.2, 6.0))
 API_UNAVAILABLE(macosx)
 @protocol INPhotosDomainHandling <INSearchForPhotosIntentHandling, INStartPhotoPlaybackIntentHandling>
 @end
 
 #if !TARGET_OS_WATCH
-#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MIN_REQUIRED >= 110000
+#if (TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MIN_REQUIRED >= 110000) || TARGET_OS_OSX
 
-API_AVAILABLE(ios(11.0), watchos(4.0))
+API_DEPRECATED("Please conform to INListRideOptionsIntentHandling, INRequestRideIntentHandling, INGetRideStatusIntentHandling, INCancelRideIntentHandling and INSendRideFeedbackIntentHandling instead", ios(11.0, 13.0), watchos(4.0, 6.0))
 API_UNAVAILABLE(macosx)
 @protocol INRidesharingDomainHandling <INListRideOptionsIntentHandling, INRequestRideIntentHandling, INGetRideStatusIntentHandling, INCancelRideIntentHandling, INSendRideFeedbackIntentHandling>
 @end
 
 #else
 
-API_AVAILABLE(ios(10.0), watchos(3.2))
+API_DEPRECATED("Please conform to INListRideOptionsIntentHandling, INRequestRideIntentHandling and INGetRideStatusIntentHandling instead", ios(10.0, 13.0), watchos(3.2, 6.0))
 API_UNAVAILABLE(macosx)
 @protocol INRidesharingDomainHandling <INListRideOptionsIntentHandling, INRequestRideIntentHandling, INGetRideStatusIntentHandling>
 @end
 
 #endif
 #else
-API_AVAILABLE(ios(10.0), watchos(3.2))
+API_DEPRECATED("Please conform to INListRideOptionsIntentHandling, INRequestRideIntentHandling and INGetRideStatusIntentHandling instead", ios(10.0, 13.0), watchos(3.2, 6.0))
 API_UNAVAILABLE(macosx)
 @protocol INRidesharingDomainHandling <INListRideOptionsIntentHandling, INRequestRideIntentHandling, INGetRideStatusIntentHandling>
 @end
 #endif
 
-API_AVAILABLE(ios(11.0), watchos(4.0))
+API_DEPRECATED("Please conform to INCreateNoteIntentHandling, INAppendToNoteIntentHandling, INAddTasksIntentHandling, INCreateTaskListIntentHandling, INSetTaskAttributeIntentHandling and INSearchForNotebookItemsIntentHandling instead", ios(11.0, 13.0), watchos(4.0, 6.0))
 API_UNAVAILABLE(macosx)
 @protocol INNotebookDomainHandling <INCreateNoteIntentHandling, INAppendToNoteIntentHandling, INAddTasksIntentHandling, INCreateTaskListIntentHandling, INSetTaskAttributeIntentHandling, INSearchForNotebookItemsIntentHandling>
 @end
 
-API_AVAILABLE(ios(11.0), watchos(4.0))
+API_DEPRECATED("Please conform to INGetVisualCodeIntentHandling instead", ios(11.0, 13.0), watchos(4.0, 6.0))
 API_UNAVAILABLE(macosx)
 @protocol INVisualCodeDomainHandling <INGetVisualCodeIntentHandling>
 @end
@@ -8529,7 +10598,7 @@ API_UNAVAILABLE(macosx)
 //  INTermsAndConditions.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -8556,7 +10625,7 @@ NS_ASSUME_NONNULL_END
 //  INIntentRestaurantReservation.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -8584,7 +10653,7 @@ NS_ASSUME_NONNULL_END
 //  INRequestRideIntent_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INRequestRideIntent.h>
@@ -8607,7 +10676,7 @@ NS_ASSUME_NONNULL_END
 //  INPauseWorkoutIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -8691,7 +10760,7 @@ NS_ASSUME_NONNULL_END
 //  INTemporalEventTrigger.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8716,7 +10785,7 @@ NS_ASSUME_NONNULL_END
 //  INBooleanResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -8740,7 +10809,7 @@ NS_ASSUME_NONNULL_END
 //  INTaskListResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -8771,7 +10840,7 @@ NS_ASSUME_NONNULL_END
 //  INWorkoutLocationTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -8798,12 +10867,36 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTimeIntervalResolutionResult.h
+//
+//  INTimeIntervalResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx)
+@interface INTimeIntervalResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed with a given value. The resolvedValue need not be identical to the input value. If the app extension wants to continue with a 'nil' value, it must use +notRequired.
++ (instancetype)successWithResolvedTimeInterval:(NSTimeInterval)resolvedTimeInterval NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to confirm if this is the time interval value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithTimeIntervalToConfirm:(NSTimeInterval)timeIntervalToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSetProfileInCarIntent_Deprecated.h
 //
 //  INSetProfileInCarIntent_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSetProfileInCarIntent.h>
@@ -8830,7 +10923,7 @@ NS_ASSUME_NONNULL_END
 //  INGetRideStatusIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -8873,7 +10966,7 @@ NS_ASSUME_NONNULL_END
 //  INPersonResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -8882,7 +10975,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INPersonResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given INPerson. The resolvedPerson can be different than the original INPerson. This allows app extensions to add and correct attributes of the INPerson. For example, an extension may add a nickname from the app.
@@ -8903,7 +10996,7 @@ NS_ASSUME_NONNULL_END
 //  INRelativeSetting.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INRelativeSetting_h
@@ -8921,12 +11014,41 @@ typedef NS_ENUM(NSInteger, INRelativeSetting) {
 } API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INRelativeSetting_h
+// ==========  Intents.framework/Headers/INEnergyResolutionResult.h
+//
+//  INEnergyResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INEnergyResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given energy. The resolvedEnergy can be different than the original energy. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedEnergy:(NSMeasurement<NSUnitEnergy *> *)resolvedEnergy NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided energy.
++ (instancetype)disambiguationWithEnergyToDisambiguate:(NSArray<NSMeasurement<NSUnitEnergy *> *> *)energyToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the energy with which the user wants to continue.
++ (instancetype)confirmationRequiredWithEnergyToConfirm:(nullable NSMeasurement<NSUnitEnergy *> *)energyToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INPaymentStatusResolutionResult.h
 //
 //  INPaymentStatusResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -8953,22 +11075,78 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCallAudioRoute.h
+//
+//  INCallAudioRoute.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INCallAudioRoute_h
+#define INCallAudioRoute_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INCallAudioRoute) {
+    INCallAudioRouteUnknown = 0,
+    INCallAudioRouteSpeakerphoneAudioRoute,
+    INCallAudioRouteBluetoothAudioRoute,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INCallAudioRoute_h
+// ==========  Intents.framework/Headers/INAddMediaMediaItemResolutionResult.h
+//
+//  INAddMediaMediaItemResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INMediaItemResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INAddMediaMediaItemUnsupportedReason) {
+    INAddMediaMediaItemUnsupportedReasonLoginRequired = 1,
+    INAddMediaMediaItemUnsupportedReasonSubscriptionRequired,
+    INAddMediaMediaItemUnsupportedReasonUnsupportedMediaType,
+    INAddMediaMediaItemUnsupportedReasonExplicitContentSettings,
+    INAddMediaMediaItemUnsupportedReasonCellularDataSettings,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INAddMediaMediaItemResolutionResult : INMediaItemResolutionResult
+
++ (instancetype)unsupportedForReason:(INAddMediaMediaItemUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithMediaItemResolutionResult:(INMediaItemResolutionResult *)mediaItemResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSetTaskAttributeIntent.h
 //
 //  INSetTaskAttributeIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
 #import <Intents/INIntentResolutionResult.h>
 
+#import <Intents/INTaskPriority.h>
 #import <Intents/INTaskStatus.h>
 
 @class INSpatialEventTrigger;
 @class INSpatialEventTriggerResolutionResult;
+@class INSpeakableString;
+@class INSpeakableStringResolutionResult;
 @class INTask;
+@class INTaskPriorityResolutionResult;
 @class INTaskResolutionResult;
 @class INTaskStatusResolutionResult;
 @class INTemporalEventTrigger;
@@ -8981,13 +11159,19 @@ API_UNAVAILABLE(macosx)
 @interface INSetTaskAttributeIntent : INIntent
 
 - (instancetype)initWithTargetTask:(nullable INTask *)targetTask
+                         taskTitle:(nullable INSpeakableString *)taskTitle
                             status:(INTaskStatus)status
+                          priority:(INTaskPriority)priority
                spatialEventTrigger:(nullable INSpatialEventTrigger *)spatialEventTrigger
-              temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger NS_DESIGNATED_INITIALIZER;
+              temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(13.0), watchos(6.0), macosx(10.15));
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INTask *targetTask;
 
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *taskTitle API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INTaskStatus status;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INTaskPriority priority API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpatialEventTrigger *spatialEventTrigger;
 
@@ -9049,8 +11233,14 @@ API_UNAVAILABLE(macosx)
 - (void)resolveTargetTaskForSetTaskAttribute:(INSetTaskAttributeIntent *)intent
                     withCompletion:(void (^)(INTaskResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTargetTask(for:with:));
 
+- (void)resolveTaskTitleForSetTaskAttribute:(INSetTaskAttributeIntent *)intent
+                    withCompletion:(void (^)(INSpeakableStringResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTaskTitle(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
 - (void)resolveStatusForSetTaskAttribute:(INSetTaskAttributeIntent *)intent
                     withCompletion:(void (^)(INTaskStatusResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveStatus(for:with:));
+
+- (void)resolvePriorityForSetTaskAttribute:(INSetTaskAttributeIntent *)intent
+                    withCompletion:(void (^)(INTaskPriorityResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolvePriority(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
 
 - (void)resolveSpatialEventTriggerForSetTaskAttribute:(INSetTaskAttributeIntent *)intent
                     withCompletion:(void (^)(INSpatialEventTriggerResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveSpatialEventTrigger(for:with:));
@@ -9066,7 +11256,7 @@ NS_ASSUME_NONNULL_END
 //  INCarAirCirculationMode.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INCarAirCirculationMode_h
@@ -9087,7 +11277,7 @@ typedef NS_ENUM(NSInteger, INCarAirCirculationMode) {
 //  INSetProfileInCarIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -9124,7 +11314,7 @@ NS_ASSUME_NONNULL_END
 //  INRestaurantOffer.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -9149,7 +11339,7 @@ NS_ASSUME_NONNULL_END
 //  INSendMessageIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -9164,11 +11354,14 @@ typedef NS_ENUM(NSInteger, INSendMessageIntentResponseCode) {
     INSendMessageIntentResponseCodeFailure,
     INSendMessageIntentResponseCodeFailureRequiringAppLaunch,
     INSendMessageIntentResponseCodeFailureMessageServiceNotAvailable,
-} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+    INSendMessageIntentResponseCodeFailureMessageAttachmentError,
+    INSendMessageIntentResponseCodeFailureMessageLocationNotAllowed,
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INSendMessageIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -9180,7 +11373,7 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 
 @property (readonly, NS_NONATOMIC_IOSONLY) INSendMessageIntentResponseCode code;
 
-@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INMessage *sentMessage API_AVAILABLE(ios(10.3), watchos(3.2), macosx(10.13));
+@property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) INMessage *sentMessage API_AVAILABLE(ios(10.3), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 @end
 
@@ -9190,7 +11383,7 @@ NS_ASSUME_NONNULL_END
 //  INRestaurant.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -9214,12 +11407,43 @@ API_UNAVAILABLE(macosx, watchos)
 
 @end
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INObjectResolutionResult.h
+//
+//  INObjectResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INObject;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INObjectResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INObject. The resolvedObject can be different than the original INObject. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedObject:(INObject *)resolvedObject NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INObject.
++ (instancetype)disambiguationWithObjectsToDisambiguate:(NSArray<INObject *> *)objectsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the object with which the user wants to continue.
++ (instancetype)confirmationRequiredWithObjectToConfirm:(nullable INObject *)objectToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INTransferMoneyIntentResponse.h
 //
 //  INTransferMoneyIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -9270,12 +11494,66 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INReservationStatus.h
+//
+//  INReservationStatus.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INReservationStatus_h
+#define INReservationStatus_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INReservationStatus) {
+    INReservationStatusUnknown = 0,
+    INReservationStatusCanceled,
+    INReservationStatusPending,
+    INReservationStatusHold,
+    INReservationStatusConfirmed,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INReservationStatus_h
+// ==========  Intents.framework/Headers/INFileResolutionResult.h
+//
+//  INFileResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INFile;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INFileResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INFile. The resolvedFile can be different than the original INFile. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedFile:(INFile *)resolvedFile NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INFile.
++ (instancetype)disambiguationWithFilesToDisambiguate:(NSArray<INFile *> *)filesToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the file with which the user wants to continue.
++ (instancetype)confirmationRequiredWithFileToConfirm:(nullable INFile *)fileToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INMessageAttribute.h
 //
 //  INMessageAttribute.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INMessageAttribute_h
@@ -9290,7 +11568,7 @@ typedef NS_ENUM(NSInteger, INMessageAttribute) {
     INMessageAttributeUnread,
     INMessageAttributeFlagged,
     INMessageAttributeUnflagged,
-    INMessageAttributePlayed API_AVAILABLE(ios(11.0), watchos(4.0)),
+    INMessageAttributePlayed API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx),
 } API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INMessageAttribute_h
@@ -9299,7 +11577,7 @@ typedef NS_ENUM(NSInteger, INMessageAttribute) {
 //  INRideVehicle.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -9324,7 +11602,7 @@ API_UNAVAILABLE(macosx)
 //  INRideCompletionStatus.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -9396,7 +11674,7 @@ NS_ASSUME_NONNULL_END
 //  INLocationSearchType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INLocationSearchType_h
@@ -9416,7 +11694,7 @@ typedef NS_ENUM(NSInteger, INLocationSearchType) {
 //  INIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -9427,7 +11705,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class INParameter;
 @class INParameterImage;
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INIntent : NSObject <NSCopying, NSSecureCoding>
 
 // Returns the identifier of the receiver.
@@ -9435,14 +11713,14 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *identifier;
 
 // A human-understandable string representation of the intent's user-facing behavior
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *intentDescription API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *intentDescription API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 // A human-understandable string that can be shown to the user as an suggestion of the phrase they might want to use when adding intent as a shortcut to Siri.
 @property (readwrite, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *suggestedInvocationPhrase API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
 
 // Set an image associated with a parameter on the receiver. This image will be used in display of the receiver throughout the system.
-- (void)setImage:(INImage * _Nullable)image forParameterNamed:(NSString *)parameterName API_AVAILABLE(ios(12.0), watchos(5.0), macosx(10.14)) NS_REFINED_FOR_SWIFT;
-- (INImage * _Nullable)imageForParameterNamed:(NSString *)parameterName API_AVAILABLE(ios(12.0), watchos(5.0), macosx(10.14)) NS_REFINED_FOR_SWIFT;
+- (void)setImage:(INImage * _Nullable)image forParameterNamed:(NSString *)parameterName API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx) NS_REFINED_FOR_SWIFT;
+- (INImage * _Nullable)imageForParameterNamed:(NSString *)parameterName API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx) NS_REFINED_FOR_SWIFT;
 
 // The image most relevant for display to the receiver, accounting for both parameter-associated images and other images defined in the receiver.
 - (INImage * _Nullable)keyImage;
@@ -9455,7 +11733,7 @@ NS_ASSUME_NONNULL_END
 //  INCurrencyAmount.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -9483,7 +11761,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchForNotebookItemsIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -9534,7 +11812,7 @@ NS_ASSUME_NONNULL_END
 //  INBalanceType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INBalanceType_h
@@ -9556,7 +11834,7 @@ typedef NS_ENUM(NSInteger, INBalanceType) {
 //  IntentsDefines.h
 //  Intents
 //
-//  Copyright (c) 2016 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Availability.h>
@@ -9573,11 +11851,12 @@ typedef NS_ENUM(NSInteger, INBalanceType) {
 //  INTask.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
+#import <Intents/INTaskPriority.h>
 #import <Intents/INTaskStatus.h>
 #import <Intents/INTaskType.h>
 
@@ -9598,7 +11877,17 @@ API_UNAVAILABLE(macosx)
          temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger
         createdDateComponents:(nullable NSDateComponents *)createdDateComponents
        modifiedDateComponents:(nullable NSDateComponents *)modifiedDateComponents
-                   identifier:(nullable NSString *)identifier NS_DESIGNATED_INITIALIZER;
+                   identifier:(nullable NSString *)identifier
+                     priority:(INTaskPriority)priority NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(13.0), watchos(6.0));
+
+- (instancetype)initWithTitle:(INSpeakableString *)title
+                       status:(INTaskStatus)status
+                     taskType:(INTaskType)taskType
+          spatialEventTrigger:(nullable INSpatialEventTrigger *)spatialEventTrigger
+         temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger
+        createdDateComponents:(nullable NSDateComponents *)createdDateComponents
+       modifiedDateComponents:(nullable NSDateComponents *)modifiedDateComponents
+                   identifier:(nullable NSString *)identifier;
 
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) INSpeakableString *title;
 
@@ -9616,6 +11905,8 @@ API_UNAVAILABLE(macosx)
 
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INTaskType taskType;
 
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INTaskPriority priority API_AVAILABLE(ios(13.0), watchos(6.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -9624,7 +11915,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchForNotebookItemsIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -9633,7 +11924,9 @@ NS_ASSUME_NONNULL_END
 #import <Intents/INDateSearchType.h>
 #import <Intents/INLocationSearchType.h>
 #import <Intents/INNotebookItemType.h>
+#import <Intents/INTaskPriority.h>
 #import <Intents/INTaskStatus.h>
+#import <Intents/INTemporalEventTriggerTypeOptions.h>
 
 @class CLPlacemark;
 @class INDateComponentsRange;
@@ -9645,7 +11938,9 @@ NS_ASSUME_NONNULL_END
 @class INSpeakableString;
 @class INSpeakableStringResolutionResult;
 @class INStringResolutionResult;
+@class INTaskPriorityResolutionResult;
 @class INTaskStatusResolutionResult;
+@class INTemporalEventTriggerTypeOptionsResolutionResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -9661,7 +11956,9 @@ API_UNAVAILABLE(macosx)
            locationSearchType:(INLocationSearchType)locationSearchType
                      dateTime:(nullable INDateComponentsRange *)dateTime
                dateSearchType:(INDateSearchType)dateSearchType
-       notebookItemIdentifier:(nullable NSString *)notebookItemIdentifier NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(11.2), watchos(4.2));
+    temporalEventTriggerTypes:(INTemporalEventTriggerTypeOptions)temporalEventTriggerTypes
+                 taskPriority:(INTaskPriority)taskPriority
+       notebookItemIdentifier:(nullable NSString *)notebookItemIdentifier NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(13.0), watchos(6.0), macosx(10.15));
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSpeakableString *title;
 
@@ -9678,6 +11975,10 @@ API_UNAVAILABLE(macosx)
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *dateTime;
 
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INDateSearchType dateSearchType;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INTemporalEventTriggerTypeOptions temporalEventTriggerTypes API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INTaskPriority taskPriority API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
 
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *notebookItemIdentifier API_AVAILABLE(ios(11.2), watchos(4.2));
 
@@ -9758,6 +12059,12 @@ API_UNAVAILABLE(macosx)
 - (void)resolveDateSearchTypeForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
                     withCompletion:(void (^)(INDateSearchTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateSearchType(for:with:));
 
+- (void)resolveTemporalEventTriggerTypesForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                    withCompletion:(void (^)(INTemporalEventTriggerTypeOptionsResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTemporalEventTriggerTypes(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+- (void)resolveTaskPriorityForSearchForNotebookItems:(INSearchForNotebookItemsIntent *)intent
+                    withCompletion:(void (^)(INTaskPriorityResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveTaskPriority(for:with:)) API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -9766,8 +12073,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchForNotebookItemsIntent_Deprecated.h
 //  Intents
 //
-//  Created by Kyle Zhao on 9/18/17.
-//  Copyright © 2017 Apple. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSearchForNotebookItemsIntent.h>
@@ -9785,6 +12091,16 @@ NS_ASSUME_NONNULL_BEGIN
                      dateTime:(nullable INDateComponentsRange *)dateTime
                dateSearchType:(INDateSearchType)dateSearchType API_DEPRECATED("Use the designated initializer instead", ios(11.0, 11.2), watchos(4.0, 4.2));
 
+- (instancetype)initWithTitle:(nullable INSpeakableString *)title
+                      content:(nullable NSString *)content
+                     itemType:(INNotebookItemType)itemType
+                       status:(INTaskStatus)status
+                     location:(nullable CLPlacemark *)location
+           locationSearchType:(INLocationSearchType)locationSearchType
+                     dateTime:(nullable INDateComponentsRange *)dateTime
+               dateSearchType:(INDateSearchType)dateSearchType
+       notebookItemIdentifier:(nullable NSString *)notebookItemIdentifier API_DEPRECATED("Use the designated initializer instead", ios(11.2, 13.0), watchos(4.2, 6.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -9793,7 +12109,7 @@ NS_ASSUME_NONNULL_END
 //  INSetCarLockStatusIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -9830,7 +12146,7 @@ NS_ASSUME_NONNULL_END
 //  INPlacemarkResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -9839,7 +12155,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INPlacemarkResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given CLPlacemark. The resolvedPlacemark can be different than the original CLPlacemark. This allows app extensions to dynamically fill-in details about the CLPlacemark, as appropriate. To make a new CLPlacemark, see <Intents/CLPlacemark+IntentsAdditions.h>. 
@@ -9856,12 +12172,51 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INFlightReservation.h
+//
+//  INFlightReservation.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Intents/INReservation.h>
+
+@class INFlight;
+@class INSeat;
+@class INReservationAction;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INFlightReservation : INReservation <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithItemReference:(nullable INSpeakableString *)itemReference
+                    reservationNumber:(nullable NSString *)reservationNumber
+                          bookingTime:(nullable NSDate *)bookingTime
+                    reservationStatus:(INReservationStatus)reservationStatus
+                reservationHolderName:(nullable NSString *)reservationHolderName
+                              actions:(nullable NSArray<INReservationAction *> *)actions
+                         reservedSeat:(nullable INSeat *)reservedSeat
+                               flight:(nullable INFlight *)flight NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSeat *reservedSeat;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INFlight *flight;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INCallCapabilityOptions.h
 //
 //  INCallCapabilityOptions.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INCallCapabilityOptions_h
@@ -9873,7 +12228,7 @@ NS_ASSUME_NONNULL_END
 typedef NS_OPTIONS(NSUInteger, INCallCapabilityOptions) {
     INCallCapabilityOptionAudioCall = (1UL << 0),
     INCallCapabilityOptionVideoCall = (1UL << 1),
-} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INCallCapabilityOptions_h
 // ==========  Intents.framework/Headers/INSearchForAccountsIntent.h
@@ -9881,7 +12236,7 @@ typedef NS_OPTIONS(NSUInteger, INCallCapabilityOptions) {
 //  INSearchForAccountsIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -9987,7 +12342,7 @@ NS_ASSUME_NONNULL_END
 //  INDateComponentsRangeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -9996,7 +12351,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INDateComponentsRangeResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given INDateComponentsRange. The resolvedDateComponentsRange can be different than the original INDateComponentsRange. This allows app extensions to pick a suitable range.
@@ -10012,12 +12367,39 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAddMediaMediaDestinationResolutionResult.h
+//
+//  INAddMediaMediaDestinationResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INMediaDestinationResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INAddMediaMediaDestinationUnsupportedReason) {
+    INAddMediaMediaDestinationUnsupportedReasonPlaylistNameNotFound = 1,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INAddMediaMediaDestinationResolutionResult : INMediaDestinationResolutionResult
+
++ (instancetype)unsupportedForReason:(INAddMediaMediaDestinationUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithMediaDestinationResolutionResult:(INMediaDestinationResolutionResult *)mediaDestinationResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRequestPaymentIntent.h
 //
 //  INRequestPaymentIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -10123,7 +12505,7 @@ NS_ASSUME_NONNULL_END
 //  INSendPaymentPayeeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INPersonResolutionResult.h>
@@ -10148,12 +12530,41 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INStartCallCallCapabilityResolutionResult.h
+//
+//  INStartCallCallCapabilityResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INCallCapabilityResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INStartCallCallCapabilityUnsupportedReason) {
+    INStartCallCallCapabilityUnsupportedReasonVideoCallUnsupported = 1,
+    INStartCallCallCapabilityUnsupportedReasonMicrophoneNotAccessible,
+    INStartCallCallCapabilityUnsupportedReasonCameraNotAccessible,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INStartCallCallCapabilityResolutionResult : INCallCapabilityResolutionResult
+
++ (instancetype)unsupportedForReason:(INStartCallCallCapabilityUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithCallCapabilityResolutionResult:(INCallCapabilityResolutionResult *)callCapabilityResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSpeakableString.h
 //
 //  INSpeakableString.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -10162,7 +12573,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INSpeakableString : NSObject <INSpeakable, NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -10173,9 +12584,9 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
 
 - (instancetype)initWithIdentifier:(NSString *)identifier
                       spokenPhrase:(NSString *)spokenPhrase
-                 pronunciationHint:(nullable NSString *)pronunciationHint API_DEPRECATED("Please use -initWithVocabularyIdentifier:spokenPhrase:pronunciationHint:", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+                 pronunciationHint:(nullable NSString *)pronunciationHint API_DEPRECATED("Please use -initWithVocabularyIdentifier:spokenPhrase:pronunciationHint:", ios(10.0, 11.0), watchos(3.2, 4.0));
 
-- (instancetype)initWithSpokenPhrase:(NSString *)spokenPhrase API_AVAILABLE(ios(10.2), macosx(10.12.2));
+- (instancetype)initWithSpokenPhrase:(NSString *)spokenPhrase API_AVAILABLE(ios(10.2)) API_UNAVAILABLE(macosx);
 
 @end
 
@@ -10186,15 +12597,15 @@ NS_ASSUME_NONNULL_END
 //  INIntentResolution.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
-@interface INIntentResolutionResult<ObjectType> : NSObject
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
+@interface INIntentResolutionResult : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -10215,7 +12626,7 @@ NS_ASSUME_NONNULL_END
 //  INCreateTaskListIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -10251,12 +12662,103 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAirline.h
+//
+//  INAirline.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INAirline : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithName:(nullable NSString *)name
+                    iataCode:(nullable NSString *)iataCode
+                    icaoCode:(nullable NSString *)icaoCode NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *name;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *iataCode;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *icaoCode;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INPlayMediaMediaItemResolutionResult.h
+//
+//  INPlayMediaMediaItemResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INMediaItemResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INPlayMediaMediaItemUnsupportedReason) {
+    INPlayMediaMediaItemUnsupportedReasonLoginRequired = 1,
+    INPlayMediaMediaItemUnsupportedReasonSubscriptionRequired,
+    INPlayMediaMediaItemUnsupportedReasonUnsupportedMediaType,
+    INPlayMediaMediaItemUnsupportedReasonExplicitContentSettings,
+    INPlayMediaMediaItemUnsupportedReasonCellularDataSettings,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INPlayMediaMediaItemResolutionResult : INMediaItemResolutionResult
+
++ (instancetype)unsupportedForReason:(INPlayMediaMediaItemUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithMediaItemResolutionResult:(INMediaItemResolutionResult *)mediaItemResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSpeedResolutionResult.h
+//
+//  INSpeedResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INSpeedResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given speed. The resolvedSpeed can be different than the original speed. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedSpeed:(NSMeasurement<NSUnitSpeed *> *)resolvedSpeed NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided speed.
++ (instancetype)disambiguationWithSpeedToDisambiguate:(NSArray<NSMeasurement<NSUnitSpeed *> *> *)speedToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the speed with which the user wants to continue.
++ (instancetype)confirmationRequiredWithSpeedToConfirm:(nullable NSMeasurement<NSUnitSpeed *> *)speedToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INGetAvailableRestaurantReservationBookingsIntentResponse.h
 //
 //  INGetAvailableRestaurantReservationBookingsIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -10295,7 +12797,7 @@ NS_ASSUME_NONNULL_END
 //  INSetMessageAttributeIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -10382,7 +12884,7 @@ NS_ASSUME_NONNULL_END
 //  INRestaurantGuestResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 //  This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -10416,7 +12918,7 @@ NS_ASSUME_NONNULL_END
 //  INIntentHandlerProviding.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -10440,7 +12942,7 @@ NS_ASSUME_NONNULL_END
 //  INVisualCodeTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -10468,7 +12970,7 @@ NS_ASSUME_NONNULL_END
 //  INCurrencyAmountResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -10499,7 +13001,7 @@ NS_ASSUME_NONNULL_END
 //  INEndWorkoutIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -10538,7 +13040,7 @@ NS_ASSUME_NONNULL_END
 //  INCreateNoteIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -10574,12 +13076,39 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INDeleteTasksTaskListResolutionResult.h
+//
+//  INDeleteTasksTaskListResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INTaskListResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INDeleteTasksTaskListUnsupportedReason) {
+    INDeleteTasksTaskListUnsupportedReasonNoTaskListFound = 1,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INDeleteTasksTaskListResolutionResult : INTaskListResolutionResult
+
++ (instancetype)unsupportedForReason:(INDeleteTasksTaskListUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithTaskListResolutionResult:(INTaskListResolutionResult *)taskListResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSearchForPhotosIntentResponse.h
 //
 //  INSearchForPhotosIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -10618,7 +13147,7 @@ NS_ASSUME_NONNULL_END
 //  INTaskResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -10649,7 +13178,7 @@ NS_ASSUME_NONNULL_END
 //  INTaskStatusResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -10677,7 +13206,7 @@ NS_ASSUME_NONNULL_END
 //  INSpatialEventTrigger.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -10707,7 +13236,7 @@ NS_ASSUME_NONNULL_END
 //  INRequestRideIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -10821,19 +13350,78 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAddMediaIntentResponse.h
+//
+//  INAddMediaIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+typedef NS_ENUM(NSInteger, INAddMediaIntentResponseCode) {
+    INAddMediaIntentResponseCodeUnspecified = 0,
+    INAddMediaIntentResponseCodeReady,
+    INAddMediaIntentResponseCodeInProgress,
+    INAddMediaIntentResponseCodeSuccess,
+    INAddMediaIntentResponseCodeHandleInApp API_UNAVAILABLE(watchos),
+    INAddMediaIntentResponseCodeFailure,
+    INAddMediaIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INAddMediaIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INAddMediaIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INAddMediaIntentResponseCode code;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INTemporalEventTriggerTypeOptions.h
+//
+//  INTemporalEventTriggerTypeOptions.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INTemporalEventTriggerTypeOptions_h
+#define INTemporalEventTriggerTypeOptions_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_OPTIONS(NSUInteger, INTemporalEventTriggerTypeOptions) {
+    INTemporalEventTriggerTypeOptionNotScheduled = (1UL << 0),
+    INTemporalEventTriggerTypeOptionScheduledNonRecurring = (1UL << 1),
+    INTemporalEventTriggerTypeOptionScheduledRecurring = (1UL << 2),
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INTemporalEventTriggerTypeOptions_h
 // ==========  Intents.framework/Headers/INStringResolutionResult.h
 //
 //  INStringResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INStringResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given string. The resolvedString can be different than the original string. This allows app extensions to apply business logic constraints to the string.
@@ -10854,7 +13442,7 @@ NS_ASSUME_NONNULL_END
 //  INGetRestaurantGuestIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -10889,12 +13477,13 @@ NS_ASSUME_NONNULL_END
 //  INObject.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 #import <Intents/INSpeakable.h>
+#import <Intents/INSpeakableString.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10917,15 +13506,37 @@ API_UNAVAILABLE(macosx)
 
 @property (readonly, strong, nullable, NS_NONATOMIC_IOSONLY) NSString *pronunciationHint;
 
+@property (readwrite, strong, nullable, NS_NONATOMIC_IOSONLY) NSArray<INSpeakableString *> *alternativeSpeakableMatches API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INReservationActionType.h
+//
+//  INReservationActionType.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INReservationActionType_h
+#define INReservationActionType_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INReservationActionType) {
+    INReservationActionTypeUnknown = 0,
+    INReservationActionTypeCheckIn,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INReservationActionType_h
 // ==========  Intents.framework/Headers/INUpcomingMediaManager.h
 //
 //  INUpcomingMediaManager.h
 //  Intents
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INPlayMediaIntent.h>
@@ -10955,7 +13566,7 @@ NS_ASSUME_NONNULL_END
 //  INGetAvailableRestaurantReservationBookingsIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -11050,7 +13661,7 @@ NS_ASSUME_NONNULL_END
 //  INRestaurantReservationUserBooking.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -11088,7 +13699,7 @@ NS_ASSUME_NONNULL_END
 //  INRelativeReference.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INRelativeReference_h
@@ -11109,7 +13720,7 @@ typedef NS_ENUM(NSInteger, INRelativeReference) {
 //  INSpatialEventTriggerResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -11140,7 +13751,7 @@ NS_ASSUME_NONNULL_END
 //  INNotebookItemType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INNotebookItemType_h
@@ -11157,12 +13768,46 @@ typedef NS_ENUM(NSInteger, INNotebookItemType) {
 } API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 #endif // INNotebookItemType_h
+// ==========  Intents.framework/Headers/INMediaItemResolutionResult.h
+//
+//  INMediaItemResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INMediaItem;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(12.0), watchos(5.0))
+API_UNAVAILABLE(macosx)
+@interface INMediaItemResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INMediaItem. The resolvedMediaItem can be different than the original INMediaItem. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedMediaItem:(INMediaItem *)resolvedMediaItem NS_SWIFT_NAME(success(with:));
+
+// Convenience method to return multiple success resolution results for an array of INMediaItems
++ (NSArray<__kindof INMediaItemResolutionResult *> *)successesWithResolvedMediaItems:(NSArray<INMediaItem *> *)resolvedMediaItems NS_SWIFT_NAME(successes(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INMediaItem.
++ (instancetype)disambiguationWithMediaItemsToDisambiguate:(NSArray<INMediaItem *> *)mediaItemsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the mediaItem with which the user wants to continue.
++ (instancetype)confirmationRequiredWithMediaItemToConfirm:(nullable INMediaItem *)mediaItemToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INNoteContentTypeResolutionResult.h
 //
 //  INNoteContentTypeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -11171,7 +13816,7 @@ typedef NS_ENUM(NSInteger, INNotebookItemType) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(11.0), watchos(4.0))
+API_DEPRECATED("This resolution result is no longer used", ios(11.0, 13.0), watchos(4.0, 6.0))
 API_UNAVAILABLE(macosx)
 @interface INNoteContentTypeResolutionResult : INIntentResolutionResult
 
@@ -11185,12 +13830,137 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INUpdateMediaAffinityIntentResponse.h
+//
+//  INUpdateMediaAffinityIntentResponse.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResponse.h>
+
+typedef NS_ENUM(NSInteger, INUpdateMediaAffinityIntentResponseCode) {
+    INUpdateMediaAffinityIntentResponseCodeUnspecified = 0,
+    INUpdateMediaAffinityIntentResponseCodeReady,
+    INUpdateMediaAffinityIntentResponseCodeInProgress,
+    INUpdateMediaAffinityIntentResponseCodeSuccess,
+    INUpdateMediaAffinityIntentResponseCodeFailure,
+    INUpdateMediaAffinityIntentResponseCodeFailureRequiringAppLaunch,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INUpdateMediaAffinityIntentResponse : INIntentResponse
+
+- (id)init NS_UNAVAILABLE;
+
+// The app extension has the option of capturing its private state as an NSUserActivity and returning it as the 'currentActivity'.
+// If the the app is launched, an NSUserActivity will be passed in with the private state.  The NSUserActivity may also be used to query the app's UI extension (if provided) for a view controller representing the current intent handling state.
+// In the case of app launch, the NSUserActivity will have its activityType set to the name of the intent. This intent object will also be available in the NSUserActivity.interaction property.
+- (instancetype)initWithCode:(INUpdateMediaAffinityIntentResponseCode)code userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, NS_NONATOMIC_IOSONLY) INUpdateMediaAffinityIntentResponseCode code;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSearchForMediaIntent.h
+//
+//  INSearchForMediaIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+@class INMediaItem;
+@class INMediaItemResolutionResult;
+@class INMediaSearch;
+@class INSearchForMediaMediaItemResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INSearchForMediaIntent : INIntent
+
+- (instancetype)initWithMediaItems:(nullable NSArray<INMediaItem *> *)mediaItems
+                       mediaSearch:(nullable INMediaSearch *)mediaSearch NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INMediaItem *> *mediaItems;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INMediaSearch *mediaSearch;
+
+@end
+
+@class INSearchForMediaIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INSearchForMediaIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@protocol INSearchForMediaIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INSearchForMediaIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INSearchForMediaIntentResponse containing the details of the result of having executed the intent
+
+ @see  INSearchForMediaIntentResponse
+ */
+
+- (void)handleSearchForMedia:(INSearchForMediaIntent *)intent
+                  completion:(void (^)(INSearchForMediaIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INSearchForMediaIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INSearchForMediaIntentResponse
+ */
+
+- (void)confirmSearchForMedia:(INSearchForMediaIntent *)intent
+                   completion:(void (^)(INSearchForMediaIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveMediaItemsForSearchForMedia:(INSearchForMediaIntent *)intent
+                    withCompletion:(void (^)(NSArray<INSearchForMediaMediaItemResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveMediaItems(for:with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INAppendToNoteIntent.h
 //
 //  INAppendToNoteIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -11281,14 +14051,14 @@ NS_ASSUME_NONNULL_END
 //  INIntentErrors.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 #import <Intents/IntentsDefines.h>
 
-INTENTS_EXTERN NSString * const INIntentErrorDomain API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+INTENTS_EXTERN NSString * const INIntentErrorDomain API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 typedef NS_ENUM(NSInteger, INIntentErrorCode) {
     // Interactions
@@ -11307,6 +14077,7 @@ typedef NS_ENUM(NSInteger, INIntentErrorCode) {
     
     // Requests
     INIntentErrorRequestTimedOut = 3001,
+    INIntentErrorMissingInformation = 3002,
     
     // User Vocabulary Sync
     INIntentErrorInvalidUserVocabularyFileLocation = 4000,
@@ -11340,13 +14111,47 @@ typedef NS_ENUM(NSInteger, INIntentErrorCode) {
     // Decoding
     INIntentErrorDecodingGeneric = 9000,
     
-} API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
+// ==========  Intents.framework/Headers/INSeat.h
+//
+//  INSeat.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INSeat : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithSeatSection:(nullable NSString *)seatSection
+                            seatRow:(nullable NSString *)seatRow
+                         seatNumber:(nullable NSString *)seatNumber
+                        seatingType:(nullable NSString *)seatingType NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *seatSection;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *seatRow;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *seatNumber;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *seatingType;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INCallRecordTypeOptions.h
 //
 //  INCallRecordTypeOptions.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INCallRecordTypeOptions_h
@@ -11359,9 +14164,12 @@ typedef NS_OPTIONS(NSUInteger, INCallRecordTypeOptions) {
     INCallRecordTypeOptionOutgoing = (1UL << 0),
     INCallRecordTypeOptionMissed = (1UL << 1),
     INCallRecordTypeOptionReceived = (1UL << 2),
-    INCallRecordTypeOptionLatest API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)) = (1UL << 3),
-    INCallRecordTypeOptionVoicemail API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)) = (1UL << 4),
-} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+    INCallRecordTypeOptionLatest API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx) = (1UL << 3),
+    INCallRecordTypeOptionVoicemail API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx) = (1UL << 4),
+    INCallRecordTypeOptionRinging API_UNAVAILABLE(ios, watchos, macosx) = (1UL << 5),
+    INCallRecordTypeOptionInProgress API_UNAVAILABLE(ios, watchos, macosx) = (1UL << 6),
+    INCallRecordTypeOptionOnHold API_UNAVAILABLE(ios, watchos, macosx) = (1UL << 7),
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INCallRecordTypeOptions_h
 // ==========  Intents.framework/Headers/INSiriAuthorizationStatus.h
@@ -11369,7 +14177,7 @@ typedef NS_OPTIONS(NSUInteger, INCallRecordTypeOptions) {
 //  INSiriAuthorizationStatus.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INSiriAuthorizationStatus_h
@@ -11407,7 +14215,7 @@ typedef NS_ENUM(NSInteger, INSiriAuthorizationStatus) {
 //  INRelativeReferenceResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -11439,7 +14247,7 @@ NS_ASSUME_NONNULL_END
 //  INWorkoutGoalUnitType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INWorkoutGoalUnitType_h
@@ -11463,12 +14271,40 @@ typedef NS_ENUM(NSInteger, INWorkoutGoalUnitType) {
 } API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INWorkoutGoalUnitType_h
+// ==========  Intents.framework/Headers/INPlaybackRepeatModeResolutionResult.h
+//
+//  INPlaybackRepeatModeResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INPlaybackRepeatMode.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(12.0), watchos(5.0))
+API_UNAVAILABLE(macosx)
+@interface INPlaybackRepeatModeResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INPlaybackRepeatMode. The resolvedValue can be different than the original INPlaybackRepeatMode. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedPlaybackRepeatMode:(INPlaybackRepeatMode)resolvedPlaybackRepeatMode NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithPlaybackRepeatModeToConfirm:(INPlaybackRepeatMode)playbackRepeatModeToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INSetMessageAttributeIntentResponse.h
 //
 //  INSetMessageAttributeIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -11507,7 +14343,7 @@ NS_ASSUME_NONNULL_END
 //  INPhotoAttributeOptions.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INPhotoAttributeOptions_h
@@ -11554,7 +14390,7 @@ typedef NS_OPTIONS(NSUInteger, INPhotoAttributeOptions) {
 //  INRequestRideIntent_Deprecated.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSendMessageIntent.h>
@@ -11567,9 +14403,9 @@ NS_ASSUME_NONNULL_BEGIN
                            content:(nullable NSString *)content
                          groupName:(nullable NSString *)groupName
                        serviceName:(nullable NSString *)serviceName
-                            sender:(nullable INPerson *)sender API_DEPRECATED("Use the designated initializer instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+                            sender:(nullable INPerson *)sender API_DEPRECATED("Use the designated initializer instead", ios(10.0, 11.0), watchos(3.2, 4.0));
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *groupName API_DEPRECATED("Use speakableGroupNames instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSString *groupName API_DEPRECATED("Use speakableGroupNames instead", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 @end
 
@@ -11579,7 +14415,7 @@ NS_ASSUME_NONNULL_END
 //  INDateSearchType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INDateSearchType_h
@@ -11601,7 +14437,7 @@ typedef NS_ENUM(NSInteger, INDateSearchType) {
 //  INSortType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INSortType_h
@@ -11622,14 +14458,15 @@ typedef NS_ENUM(NSInteger, INSortType) {
 //  INIntegerResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INIntegerResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given integer. The resolvedValue can be different than the original integer. This allows app extensions to apply business logic constraints. For example, the extension could constrain the value to some maximum.
@@ -11647,7 +14484,7 @@ NS_ASSUME_NONNULL_END
 //  INStartPhotoPlaybackIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -11681,12 +14518,65 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INPaymentMethodResolutionResult.h
+//
+//  INPaymentMethodResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+@class INPaymentMethod;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INPaymentMethodResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INPaymentMethod. The resolvedPaymentMethod can be different than the original INPaymentMethod. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedPaymentMethod:(INPaymentMethod *)resolvedPaymentMethod NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to disambiguate between the provided INPaymentMethod.
++ (instancetype)disambiguationWithPaymentMethodsToDisambiguate:(NSArray<INPaymentMethod *> *)paymentMethodsToDisambiguate NS_SWIFT_NAME(disambiguation(with:));
+
+// This resolution result is to ask Siri to confirm if this is the paymentMethod with which the user wants to continue.
++ (instancetype)confirmationRequiredWithPaymentMethodToConfirm:(nullable INPaymentMethod *)paymentMethodToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INAddTasksIntent_Deprecated.h
+//
+//  INAddTasksIntent+Deprecated.h
+//  Intents
+//
+//  Copyright © 2019 Apple. All rights reserved.
+//
+
+#import <Intents/INAddTasksIntent.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INAddTasksIntent (Deprecated)
+
+- (instancetype)initWithTargetTaskList:(nullable INTaskList *)targetTaskList
+                            taskTitles:(nullable NSArray<INSpeakableString *> *)taskTitles
+                   spatialEventTrigger:(nullable INSpatialEventTrigger *)spatialEventTrigger
+                  temporalEventTrigger:(nullable INTemporalEventTrigger *)temporalEventTrigger API_DEPRECATED_WITH_REPLACEMENT("-initWithTargetTaskList:taskTitles:spatialEventTrigger:temporalEventTrigger:priority:", ios(11.0, 13.0), watchos(4.0, 6.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRelevanceProvider.h
 //
 //  INRelevanceProvider.h
 //  Intents
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -11694,48 +14584,268 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+/*!
+ @abstract A relevant daily routine situation.
+ @seealso INDailyRoutineRelevanceProvider
+ */
 typedef NS_ENUM(NSInteger, INDailyRoutineSituation) {
+    /*!
+     @abstract A situation that occurs in the morning, around the time the user wakes up.
+     */
     INDailyRoutineSituationMorning,
+    
+    /*!
+     @abstract A situation that occurs in the evening, around the time the user goes to bed.
+     */
     INDailyRoutineSituationEvening,
+    
+    /*!
+     @abstract A situation that occurs when the user is at home.
+     @note Your app needs Always location authorization to use this situation.
+     @seealso CLLocationManager
+     */
     INDailyRoutineSituationHome,
+    
+    /*!
+     @abstract A situation that occurs when the user is at work.
+     @note Your app needs Always location authorization to use this situation.
+     @seealso CLLocationManager
+     */
     INDailyRoutineSituationWork,
+    
+    /*!
+     @abstract A situation that occurs when the user is at school.
+     @note Your app needs Always location authorization to use this situation.
+     @seealso CLLocationManager
+     */
     INDailyRoutineSituationSchool,
+    
+    /*!
+     @abstract A situation that occurs when the user is at the gym.
+     @note Your app needs Always location authorization to use this situation.
+     @seealso CLLocationManager
+     */
     INDailyRoutineSituationGym,
+    
+    /*!
+     @abstract A situation that occurs when the user is commuting, for example driving into work.
+     */
+    INDailyRoutineSituationCommute API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx),
+    
+    /*!
+     @abstract A situation that occurs when the user connects headphones.
+     */
+    INDailyRoutineSituationHeadphonesConnected API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx),
+    
+    /*!
+     @abstract A situation that occurs when the user is currently in a workout.
+     */
+    INDailyRoutineSituationActiveWorkout API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx),
+    
+    /*!
+     @abstract A situation that occurs when the user is expected to perform more physical activity during the day.
+     */
+    INDailyRoutineSituationPhysicalActivityIncomplete API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx),
 } NS_SWIFT_NAME(INDailyRoutineRelevanceProvider.Situation) API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
 
+/*!
+ @abstract A relevance provider represents a piece of relevance information that can be used by Siri when predicting relevant shortcuts.
+ */
 API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx)
 @interface INRelevanceProvider : NSObject <NSCopying, NSSecureCoding>
 
-+ (instancetype)new NS_UNAVAILABLE;
+/*!
+ @note @c INRelevanceProvider should not be initilaized directly. Use one of the subclasses instead.
+ */
 - (instancetype)init NS_UNAVAILABLE;
 
 @end
 
+/*!
+ @abstract A relevance provider to indicate relevance at a date or date interval.
+ */
 API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx)
 @interface INDateRelevanceProvider : INRelevanceProvider
 
+/*!
+ @abstract The start date of the relevant time interval.
+ */
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) NSDate *startDate;
+
+/*!
+ @abstract The end date of the relevant time interval.
+ @note If @c endDate is @c nil, the relevant time interval will be assumed to represent a single point in time instead of a time interval.
+ */
 @property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSDate *endDate;
 
+/*!
+ @abstract Initializes a date relevance provider with the specified relevant date interval.
+ */
 - (instancetype)initWithStartDate:(NSDate *)startDate endDate:(nullable NSDate *)endDate NS_DESIGNATED_INITIALIZER;
 
 @end
 
+/*!
+ @abstract A relevance provider to indicate relevance at a specific location.
+ @note Your app needs Always or When in Use location authorization to use this relevance provider.
+ */
 API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx)
 @interface INLocationRelevanceProvider : INRelevanceProvider
 
+/*!
+ @abstract The region representing the relevant location.
+ @seealso CLCircularRegion
+ */
 @property (readonly, copy, NS_NONATOMIC_IOSONLY) CLRegion *region;
 
+/*!
+ @abstract Initializes a location relevance provider with the specified region.
+ */
 - (instancetype)initWithRegion:(CLRegion *)region NS_DESIGNATED_INITIALIZER;
 
 @end
 
+/*!
+ @abstract A relevance provider that specifies relevance during a specific situation.
+ @seealso INDailyRoutineSituation
+ */
 API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx)
 @interface INDailyRoutineRelevanceProvider : INRelevanceProvider
 
+/*!
+ @abstract The relevant daily routine situation of the provider.
+ */
 @property (readonly, NS_NONATOMIC_IOSONLY) INDailyRoutineSituation situation;
 
+/*!
+ @abstract Initializes a daily routine relevance provider with the specified situation.
+ */
 - (instancetype)initWithSituation:(INDailyRoutineSituation)situation NS_DESIGNATED_INITIALIZER;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INCallCapabilityResolutionResult.h
+//
+//  INCallCapabilityResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INCallCapability.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INCallCapabilityResolutionResult : INIntentResolutionResult
+
+// This resolution result is for when the app extension wants to tell Siri to proceed, with a given INCallCapability. The resolvedValue can be different than the original INCallCapability. This allows app extensions to apply business logic constraints.
+// Use +notRequired to continue with a 'nil' value.
++ (instancetype)successWithResolvedCallCapability:(INCallCapability)resolvedCallCapability NS_SWIFT_NAME(success(with:));
+
+// This resolution result is to ask Siri to confirm if this is the value with which the user wants to continue.
++ (instancetype)confirmationRequiredWithCallCapabilityToConfirm:(INCallCapability)callCapabilityToConfirm NS_SWIFT_NAME(confirmationRequired(with:));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INUpdateMediaAffinityIntent.h
+//
+//  INUpdateMediaAffinityIntent.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INIntent.h>
+#import <Intents/INIntentResolutionResult.h>
+
+#import <Intents/INMediaAffinityType.h>
+
+@class INMediaAffinityTypeResolutionResult;
+@class INMediaItem;
+@class INMediaItemResolutionResult;
+@class INMediaSearch;
+@class INUpdateMediaAffinityMediaItemResolutionResult;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INUpdateMediaAffinityIntent : INIntent
+
+- (instancetype)initWithMediaItems:(nullable NSArray<INMediaItem *> *)mediaItems
+                       mediaSearch:(nullable INMediaSearch *)mediaSearch
+                      affinityType:(INMediaAffinityType)affinityType NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INMediaItem *> *mediaItems;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INMediaSearch *mediaSearch;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INMediaAffinityType affinityType;
+
+@end
+
+@class INUpdateMediaAffinityIntentResponse;
+
+/*!
+ @abstract Protocol to declare support for handling an INUpdateMediaAffinityIntent. By implementing this protocol, a class can provide logic for resolving, confirming and handling the intent.
+ @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
+ */
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@protocol INUpdateMediaAffinityIntentHandling <NSObject>
+
+@required
+
+/*!
+ @abstract Handling method - Execute the task represented by the INUpdateMediaAffinityIntent that's passed in
+ @discussion Called to actually execute the intent. The app must return a response for this intent.
+
+ @param  intent The input intent
+ @param  completion The response handling block takes a INUpdateMediaAffinityIntentResponse containing the details of the result of having executed the intent
+
+ @see  INUpdateMediaAffinityIntentResponse
+ */
+
+- (void)handleUpdateMediaAffinity:(INUpdateMediaAffinityIntent *)intent
+                       completion:(void (^)(INUpdateMediaAffinityIntentResponse *response))completion NS_SWIFT_NAME(handle(intent:completion:));
+
+@optional
+
+/*!
+ @abstract Confirmation method - Validate that this intent is ready for the next step (i.e. handling)
+ @discussion Called prior to asking the app to handle the intent. The app should return a response object that contains additional information about the intent, which may be relevant for the system to show the user prior to handling. If unimplemented, the system will assume the intent is valid following resolution, and will assume there is no additional information relevant to this intent.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INUpdateMediaAffinityIntentResponse containing additional details about the intent that may be relevant for the system to show the user prior to handling.
+
+ @see INUpdateMediaAffinityIntentResponse
+ */
+
+- (void)confirmUpdateMediaAffinity:(INUpdateMediaAffinityIntent *)intent
+                        completion:(void (^)(INUpdateMediaAffinityIntentResponse *response))completion NS_SWIFT_NAME(confirm(intent:completion:));
+
+/*!
+ @abstract Resolution methods - Determine if this intent is ready for the next step (confirmation)
+ @discussion Called to make sure the app extension is capable of handling this intent in its current form. This method is for validating if the intent needs any further fleshing out.
+
+ @param  intent The input intent
+ @param  completion The response block contains an INIntentResolutionResult for the parameter being resolved
+
+ @see INIntentResolutionResult
+ */
+
+- (void)resolveMediaItemsForUpdateMediaAffinity:(INUpdateMediaAffinityIntent *)intent
+                    withCompletion:(void (^)(NSArray<INUpdateMediaAffinityMediaItemResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveMediaItems(for:with:));
+
+- (void)resolveAffinityTypeForUpdateMediaAffinity:(INUpdateMediaAffinityIntent *)intent
+                    withCompletion:(void (^)(INMediaAffinityTypeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveAffinityType(for:with:));
 
 @end
 
@@ -11745,7 +14855,7 @@ NS_ASSUME_NONNULL_END
 //  INInteraction.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -11760,14 +14870,14 @@ typedef NS_ENUM(NSInteger, INIntentHandlingStatus) {
     INIntentHandlingStatusSuccess,
     INIntentHandlingStatusFailure,
     INIntentHandlingStatusDeferredToApplication,
-    INIntentHandlingStatusUserConfirmationRequired API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0)),
-} API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+    INIntentHandlingStatusUserConfirmationRequired API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx),
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 typedef NS_ENUM(NSInteger, INInteractionDirection) {
     INInteractionDirectionUnspecified = 0,
     INInteractionDirectionOutgoing,
     INInteractionDirectionIncoming,
-} API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2));
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11777,7 +14887,7 @@ NS_ASSUME_NONNULL_BEGIN
  The system may also launch the app with an NSUserActivity containing an INInteraction such that the app can perform the action if it chooses.
 */
 
-API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.2))
+API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INInteraction : NSObject <NSSecureCoding, NSCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -11823,7 +14933,7 @@ NS_ASSUME_NONNULL_END
 //  INSearchForMessagesIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -11843,7 +14953,8 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INSearchForMessagesIntent : INIntent
 
 - (instancetype)initWithRecipients:(nullable NSArray<INPerson *> *)recipients
@@ -11890,15 +15001,15 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
 // Describes how to combine the contents of the notificationIdentifier array.
 @property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator notificationIdentifiersOperator;
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INSpeakableString *> *speakableGroupNames API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<INSpeakableString *> *speakableGroupNames API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 // Describes how to combine the contents of the speakableGroupName array.
-@property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator speakableGroupNamesOperator API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator speakableGroupNamesOperator API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
-@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *conversationIdentifiers API_AVAILABLE(ios(12.0), watchos(5.0), macosx(10.14));
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSArray<NSString *> *conversationIdentifiers API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
 
 // Describes how to combine the contents of the conversationIdentifier array.
-@property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator conversationIdentifiersOperator API_AVAILABLE(ios(12.0), watchos(5.0), macosx(10.14));
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INConditionalOperator conversationIdentifiersOperator API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(macosx);
 
 @end
 
@@ -11909,7 +15020,8 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
  @discussion The minimum requirement for an implementing class is that it should be able to handle the intent. The resolution and confirmation methods are optional. The handling method is always called last, after resolving and confirming the intent.
  */
 
-API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
+API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @protocol INSearchForMessagesIntentHandling <NSObject>
 
 @required
@@ -11965,10 +15077,10 @@ API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12))
                     withCompletion:(void (^)(INDateComponentsRangeResolutionResult *resolutionResult))completion NS_SWIFT_NAME(resolveDateTimeRange(for:with:));
 
 - (void)resolveGroupNamesForSearchForMessages:(INSearchForMessagesIntent *)intent
-                    withCompletion:(void (^)(NSArray<INStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveGroupNames(for:with:)) API_DEPRECATED("resolveGroupNamesForSearchForMessages:withCompletion: is deprecated. Use resolveSpeakableGroupNamesForSearchForMessages:withCompletion: instead", ios(10.0, 11.0), watchos(3.2, 4.0), macosx(10.12, 10.13));
+                    withCompletion:(void (^)(NSArray<INStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveGroupNames(for:with:)) API_DEPRECATED("resolveGroupNamesForSearchForMessages:withCompletion: is deprecated. Use resolveSpeakableGroupNamesForSearchForMessages:withCompletion: instead", ios(10.0, 11.0), watchos(3.2, 4.0));
 
 - (void)resolveSpeakableGroupNamesForSearchForMessages:(INSearchForMessagesIntent *)intent
-                    withCompletion:(void (^)(NSArray<INSpeakableStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveSpeakableGroupNames(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+                    withCompletion:(void (^)(NSArray<INSpeakableStringResolutionResult *> *resolutionResults))completion NS_SWIFT_NAME(resolveSpeakableGroupNames(for:with:)) API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 @end
 
@@ -11978,7 +15090,7 @@ NS_ASSUME_NONNULL_END
 //  INRestaurantResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 //  This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -12012,7 +15124,7 @@ NS_ASSUME_NONNULL_END
 //  INParameter.h
 //  Intents
 //
-//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INInteraction.h>
@@ -12023,11 +15135,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface INInteraction ()
 
-- (nullable id)parameterValueForParameter:(INParameter *)parameter API_AVAILABLE(ios(11.0));
+- (nullable id)parameterValueForParameter:(INParameter *)parameter API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macosx, watchos);
 
 @end
 
-API_AVAILABLE(ios(11.0))
+API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macosx, watchos)
 @interface INParameter : NSObject <NSSecureCoding, NSCopying>
 
 + (instancetype)parameterForClass:(Class)aClass keyPath:(NSString *)keyPath;
@@ -12048,7 +15160,7 @@ NS_ASSUME_NONNULL_END
 //  INSetCarLockStatusIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -12138,14 +15250,14 @@ NS_ASSUME_NONNULL_END
 //  INTextNoteContent.h
 //  Intents
 //
-//  Copyright (c) 2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INNoteContent.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(macosx(10.13), ios(11.0), watchos(4.0))
+API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx)
 @interface INTextNoteContent : INNoteContent <NSSecureCoding, NSCopying>
 
 - (instancetype)initWithText:(NSString *)text;
@@ -12160,7 +15272,7 @@ NS_ASSUME_NONNULL_END
 //  INBillPayeeResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -12186,12 +15298,39 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INSnoozeTasksTaskResolutionResult.h
+//
+//  INSnoozeTasksTaskResolutionResult.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INTaskResolutionResult.h>
+
+typedef NS_ENUM(NSInteger, INSnoozeTasksTaskUnsupportedReason) {
+    INSnoozeTasksTaskUnsupportedReasonNoTasksFound = 1,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INSnoozeTasksTaskResolutionResult : INTaskResolutionResult
+
++ (instancetype)unsupportedForReason:(INSnoozeTasksTaskUnsupportedReason)reason NS_SWIFT_NAME(unsupported(forReason:));
+
+- (instancetype)initWithTaskResolutionResult:(INTaskResolutionResult *)taskResolutionResult;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INPaymentMethodType.h
 //
 //  INPaymentMethodType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INPaymentMethodType_h
@@ -12213,12 +15352,51 @@ typedef NS_ENUM(NSInteger, INPaymentMethodType) {
 } API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INPaymentMethodType_h
+// ==========  Intents.framework/Headers/INTrainReservation.h
+//
+//  INTrainReservation.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Intents/INReservation.h>
+
+@class INSeat;
+@class INTrainTrip;
+@class INSpeakableString;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INTrainReservation : INReservation <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithItemReference:(nullable INSpeakableString *)itemReference
+                    reservationNumber:(nullable NSString *)reservationNumber
+                          bookingTime:(nullable NSDate *)bookingTime
+                    reservationStatus:(INReservationStatus)reservationStatus
+                reservationHolderName:(nullable NSString *)reservationHolderName
+                              actions:(nullable NSArray<INReservationAction *> *)actions 
+                         reservedSeat:(nullable INSeat *)reservedSeat
+                            trainTrip:(nullable INTrainTrip *)trainTrip NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSeat *reservedSeat;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INTrainTrip *trainTrip;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INRestaurantGuest.h
 //
 //  INRestaurantGuest.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 // This API requires you to work with Apple Maps before your application can use it. For information on how to get started, please go to MapsConnect.
 //
@@ -12244,7 +15422,7 @@ NS_ASSUME_NONNULL_END
 //  INStartWorkoutIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -12359,7 +15537,7 @@ NS_ASSUME_NONNULL_END
 //  INCallDestinationType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INCallDestinationType_h
@@ -12374,19 +15552,87 @@ typedef NS_ENUM(NSInteger, INCallDestinationType) {
     INCallDestinationTypeEmergency,
     INCallDestinationTypeVoicemail,
     INCallDestinationTypeRedial,
+    INCallDestinationTypeCallBack API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx),
     INCallDestinationTypeNormalDestination API_DEPRECATED("Use INCallDestinationTypeNormal instead", ios(11.0, 11.0), watchos(4.0, 4.0), macosx(10.13, 10.13)) = 1,
     INCallDestinationTypeEmergencyDestination API_DEPRECATED("Use INCallDestinationTypeEmergency instead", ios(11.0, 11.0), watchos(4.0, 4.0), macosx(10.13, 10.13)) = 2,
     INCallDestinationTypeVoicemailDestination API_DEPRECATED("Use INCallDestinationTypeVoicemail instead", ios(11.0, 11.0), watchos(4.0, 4.0), macosx(10.13, 10.13)) = 3,
     INCallDestinationTypeRedialDestination API_DEPRECATED("Use INCallDestinationTypeRedial instead", ios(11.0, 11.0), watchos(4.0, 4.0), macosx(10.13, 10.13)) = 4,
-} API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13));
+} API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx);
 
 #endif // INCallDestinationType_h
+// ==========  Intents.framework/Headers/INMediaSortOrder.h
+//
+//  INMediaSortOrder.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#ifndef INMediaSortOrder_h
+#define INMediaSortOrder_h
+
+#import <Foundation/Foundation.h>
+#import <Intents/IntentsDefines.h>
+
+typedef NS_ENUM(NSInteger, INMediaSortOrder) {
+    INMediaSortOrderUnknown = 0,
+    INMediaSortOrderNewest,
+    INMediaSortOrderOldest,
+    INMediaSortOrderBest,
+    INMediaSortOrderWorst,
+    INMediaSortOrderPopular,
+    INMediaSortOrderUnpopular,
+    INMediaSortOrderTrending,
+    INMediaSortOrderRecommended,
+} API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+#endif // INMediaSortOrder_h
+// ==========  Intents.framework/Headers/INTicketedEventReservation.h
+//
+//  INTicketedEventReservation.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Intents/INReservation.h>
+
+@class INSeat;
+@class INTicketedEvent;
+@class INSpeakableString;
+@class INReservationAction;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INTicketedEventReservation : INReservation <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithItemReference:(nullable INSpeakableString *)itemReference
+                    reservationNumber:(nullable NSString *)reservationNumber
+                          bookingTime:(nullable NSDate *)bookingTime
+                    reservationStatus:(INReservationStatus)reservationStatus
+                reservationHolderName:(nullable NSString *)reservationHolderName
+                              actions:(nullable NSArray<INReservationAction *> *)actions
+                         reservedSeat:(nullable INSeat *)reservedSeat
+                                event:(nullable INTicketedEvent *)event NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INTicketedEvent *event;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INSeat *reservedSeat;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INCarDefrosterResolutionResult.h
 //
 //  INCarDefrosterResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -12418,7 +15664,7 @@ NS_ASSUME_NONNULL_END
 //  INPersonHandleLabel.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12440,7 +15686,7 @@ INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabelOther NS_SWIFT_NAME(
 //  INDateComponentsResolutionResult.m
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -12448,6 +15694,7 @@ INTENTS_EXTERN INPersonHandleLabel const INPersonHandleLabelOther NS_SWIFT_NAME(
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(10.0), watchos(3.2))
+API_UNAVAILABLE(macosx)
 @interface INDateComponentsResolutionResult : INIntentResolutionResult
 
 // This resolution result is for when the app extension wants to tell Siri to proceed, with a given NSDateComponents. The resolvedDateComponents can be different than the original NSDateComponents. This allows app extensions to apply business logic constraints. For example, the extension could round the interval to the nearest day.
@@ -12463,12 +15710,47 @@ API_AVAILABLE(ios(10.0), watchos(3.2))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/INReservationAction.h
+//
+//  INReservationAction.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <Intents/INReservationActionType.h>
+
+@class INDateComponentsRange;
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INReservationAction : NSObject <NSCopying, NSSecureCoding>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithType:(INReservationActionType)type
+               validDuration:(nullable INDateComponentsRange *)validDuration
+                userActivity:(nullable NSUserActivity *)userActivity NS_DESIGNATED_INITIALIZER;
+
+@property (readonly, assign, NS_NONATOMIC_IOSONLY) INReservationActionType type;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) INDateComponentsRange *validDuration;
+
+@property (readonly, copy, nullable, NS_NONATOMIC_IOSONLY) NSUserActivity *userActivity;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INVoiceShortcutCenter.h
 //
 //  INVoiceShortcutCenter.h
 //  Intents
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12500,7 +15782,7 @@ API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(mac
 
 /*!
  @abstract Get all of the shortcuts associated with this app that have been added to Siri.
- These could have either been added with `INUIAddVoiceShortcutViewController`, or separately by the user, in the Settings app.
+ These could have either been added with `INUIAddVoiceShortcutViewController`, or separately by the user in the Shortcuts app.
  */
 - (void)getAllVoiceShortcutsWithCompletion:(void(^)(NSArray<INVoiceShortcut *> * _Nullable voiceShortcuts, NSError * _Nullable error))completionHandler;
 
@@ -12511,7 +15793,7 @@ API_AVAILABLE(ios(12.0), watchos(5.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(mac
 
 /*!
  @abstract Set some shortcuts that should be suggested to the user to add to Siri.
- @discussion These suggestions are shown to the user in the Settings app.
+ @discussion These suggestions are shown to the user in the Shortcuts app.
  */
 - (void)setShortcutSuggestions:(NSArray<INShortcut *> *)suggestions;
 
@@ -12523,7 +15805,7 @@ NS_ASSUME_NONNULL_END
 //  INNoteResolutionResult.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResolutionResult.h>
@@ -12549,12 +15831,33 @@ API_UNAVAILABLE(macosx)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Intents.framework/Headers/NSExtensionContext+ShareExtension.h
+//
+//  NSExtensionContext+ShareExtension.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class INIntent;
+
+@interface NSExtensionContext (ShareExtension)
+
+@property (readonly, strong, nullable, NS_NONATOMIC_IOSONLY) INIntent *intent API_AVAILABLE(ios(13.0), watchos(6.0)) API_UNAVAILABLE(macosx);
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INStartVideoCallIntentResponse.h
 //
 //  INStartVideoCallIntentResponse.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntentResponse.h>
@@ -12568,13 +15871,14 @@ typedef NS_ENUM(NSInteger, INStartVideoCallIntentResponseCode) {
     INStartVideoCallIntentResponseCodeFailureAppConfigurationRequired,
     INStartVideoCallIntentResponseCodeFailureCallingServiceNotAvailable,
     INStartVideoCallIntentResponseCodeFailureContactNotSupportedByApp,
-    INStartVideoCallIntentResponseCodeFailureInvalidNumber API_AVAILABLE(ios(11.0), macosx(10.13)),
-} API_AVAILABLE(ios(10.0), macosx(10.12)) API_UNAVAILABLE(watchos);
+    INStartVideoCallIntentResponseCodeFailureInvalidNumber API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macosx),
+} API_UNAVAILABLE(watchos) API_UNAVAILABLE(macosx) API_DEPRECATED("INStartVideoCallIntent is deprecated. Please adopt INStartCallIntent instead", ios(10.0, 13.0));
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(10.0), macosx(10.12))
 API_UNAVAILABLE(watchos)
+API_UNAVAILABLE(macosx)
+API_DEPRECATED("INStartVideoCallIntent is deprecated. Please adopt INStartCallIntent instead", ios(10.0, 13.0))
 @interface INStartVideoCallIntentResponse : INIntentResponse
 
 - (id)init NS_UNAVAILABLE;
@@ -12594,7 +15898,7 @@ NS_ASSUME_NONNULL_END
 //  INCallRecordType.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INCallRecordType_h
@@ -12608,17 +15912,44 @@ typedef NS_ENUM(NSInteger, INCallRecordType) {
     INCallRecordTypeOutgoing,
     INCallRecordTypeMissed,
     INCallRecordTypeReceived,
-    INCallRecordTypeLatest API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)),
-    INCallRecordTypeVoicemail API_AVAILABLE(ios(11.0), watchos(4.0), macosx(10.13)),
-} API_AVAILABLE(ios(10.0), watchos(3.2), macosx(10.12));
+    INCallRecordTypeLatest API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx),
+    INCallRecordTypeVoicemail API_AVAILABLE(ios(11.0), watchos(4.0)) API_UNAVAILABLE(macosx),
+    INCallRecordTypeRinging API_UNAVAILABLE(ios, watchos, macosx),
+    INCallRecordTypeInProgress API_UNAVAILABLE(ios, watchos, macosx),
+    INCallRecordTypeOnHold API_UNAVAILABLE(ios, watchos, macosx),
+} API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx);
 
 #endif // INCallRecordType_h
+// ==========  Intents.framework/Headers/INPlayMediaIntent_Deprecated.h
+//
+//  INPlayMediaIntent_Deprecated.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INPlayMediaIntent.h>
+#import <Intents/INPlaybackRepeatMode.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface INPlayMediaIntent (Deprecated)
+
+- (instancetype)initWithMediaItems:(nullable NSArray<INMediaItem *> *)mediaItems
+                    mediaContainer:(nullable INMediaItem *)mediaContainer
+                      playShuffled:(nullable NSNumber *)playShuffled
+                playbackRepeatMode:(INPlaybackRepeatMode)playbackRepeatMode
+                    resumePlayback:(nullable NSNumber *)resumePlayback NS_REFINED_FOR_SWIFT API_DEPRECATED("Use the designated initializer instead", ios(12.0, 13.0), watchos(5.0, 6.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Intents.framework/Headers/INPayBillIntent.h
 //
 //  INPayBillIntent.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INIntent.h>
@@ -12747,7 +16078,7 @@ NS_ASSUME_NONNULL_END
 //  INRideOption.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12804,7 +16135,7 @@ NS_ASSUME_NONNULL_END
 //  INPreferences.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #import <Intents/INSiriAuthorizationStatus.h>
@@ -12814,8 +16145,8 @@ NS_ASSUME_NONNULL_BEGIN
 API_AVAILABLE(ios(10.0), watchos(3.2)) API_UNAVAILABLE(macosx)
 @interface INPreferences : NSObject
 
-+ (INSiriAuthorizationStatus)siriAuthorizationStatus NS_EXTENSION_UNAVAILABLE("siriAuthorizationStatus is not available to extensions. The main app is responsible for Siri authorization.") API_UNAVAILABLE(watchos);
-+ (void)requestSiriAuthorization:(void (^)(INSiriAuthorizationStatus status))handler NS_EXTENSION_UNAVAILABLE("requestSiriAuthorization is not available to extensions. The main app is responsible for Siri authorization.") API_UNAVAILABLE(watchos);
++ (INSiriAuthorizationStatus)siriAuthorizationStatus API_AVAILABLE(watchos(6.0));
++ (void)requestSiriAuthorization:(void (^)(INSiriAuthorizationStatus status))handler API_AVAILABLE(watchos(6.0));
 + (NSString *)siriLanguageCode;
 
 @end
@@ -12826,7 +16157,7 @@ NS_ASSUME_NONNULL_END
 //  INCarAudioSource.h
 //  Intents
 //
-//  Copyright (c) 2016-2017 Apple Inc. All rights reserved.
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
 //
 
 #ifndef INCarAudioSource_h
@@ -12849,3 +16180,30 @@ typedef NS_ENUM(NSInteger, INCarAudioSource) {
 } API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(macosx);
 
 #endif // INCarAudioSource_h
+// ==========  Intents.framework/Headers/INFile.h
+//
+//  INFile.h
+//  Intents
+//
+//  Copyright (c) 2016-2019 Apple Inc. All rights reserved.
+//
+
+#import <Intents/INObject.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), watchos(6.0))
+API_UNAVAILABLE(macosx)
+@interface INFile : NSObject
+
++ (INFile *)fileWithData:(NSData *)data filename:(NSString *)filename typeIdentifier:(nullable NSString *)typeIdentifier;
++ (INFile *)fileWithFileURL:(NSURL *)fileURL filename:(nullable NSString *)filename typeIdentifier:(nullable NSString *)typeIdentifier;
+
+@property (readonly, copy, NS_NONATOMIC_IOSONLY) NSData *data;
+@property (copy, NS_NONATOMIC_IOSONLY) NSString *filename;
+@property (nullable, readonly, copy, NS_NONATOMIC_IOSONLY) NSString *typeIdentifier;
+@property (nullable, readonly, strong, NS_NONATOMIC_IOSONLY) NSURL *fileURL;
+
+@end
+
+NS_ASSUME_NONNULL_END

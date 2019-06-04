@@ -14,15 +14,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SFContentBlockerState;
 
-SF_EXTERN NSString * const SFContentBlockerErrorDomain API_DEPRECATED_WITH_REPLACEMENT("SFErrorDomain", ios(9.0, 10.0));
+SF_EXTERN NSString * const SFContentBlockerErrorDomain API_DEPRECATED_WITH_REPLACEMENT("SFErrorDomain", ios(9.0, 10.0)) API_UNAVAILABLE(uikitformac);
 
 typedef NS_ENUM(NSInteger, SFContentBlockerErrorCode) {
     SFContentBlockerNoExtensionFound API_DEPRECATED_WITH_REPLACEMENT("SFErrorNoExtensionFound", ios(9.0, 10.0)) = SFErrorNoExtensionFound,
     SFContentBlockerNoAttachmentFound API_DEPRECATED_WITH_REPLACEMENT("SFErrorNoAttachmentFound", ios(9.0, 10.0)) = SFErrorNoAttachmentFound,
     SFContentBlockerLoadingInterrupted API_DEPRECATED_WITH_REPLACEMENT("SFErrorLoadingInterrupted", ios(9.0, 10.0)) = SFErrorLoadingInterrupted,
-} API_DEPRECATED_WITH_REPLACEMENT("SFErrorCode", ios(9.0, 10.0));
+} API_DEPRECATED_WITH_REPLACEMENT("SFErrorCode", ios(9.0, 10.0)) API_UNAVAILABLE(uikitformac);
 
-SF_EXTERN API_AVAILABLE(ios(9.0))
+SF_EXTERN API_AVAILABLE(ios(9.0)) API_UNAVAILABLE(uikitformac)
 @interface SFContentBlockerManager : NSObject
 
 + (void)reloadContentBlockerWithIdentifier:(NSString *)identifier completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler;
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/Foundation.h>
 #import <SafariServices/SFFoundation.h>
 
-SF_EXTERN API_AVAILABLE(ios(10.0))
+SF_EXTERN API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(uikitformac)
 @interface SFContentBlockerState : NSObject
 
 @property (nonatomic, readonly, getter=isEnabled) BOOL enabled;
@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
     @class SSReadingList
     Provides an interface for adding to a user's Reading List.
 */
-SF_EXTERN API_AVAILABLE(ios(7.0))
+SF_EXTERN API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(uikitformac)
 @interface SSReadingList : NSObject
 
 /*!
@@ -116,11 +116,11 @@ SF_EXTERN API_AVAILABLE(ios(7.0))
 @end
 
 // domain for NSError
-SF_EXTERN NSString * const SSReadingListErrorDomain API_AVAILABLE(ios(7.0));
+SF_EXTERN NSString * const SSReadingListErrorDomain API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(uikitformac);
 
 typedef NS_ENUM(NSInteger, SSReadingListErrorCode) {
     SSReadingListErrorURLSchemeNotAllowed = 1,
-} API_AVAILABLE(ios(7.0));
+} API_AVAILABLE(ios(7.0)) API_UNAVAILABLE(uikitformac);
 
 NS_ASSUME_NONNULL_END
 // ==========  SafariServices.framework/Headers/SFError.h
@@ -140,7 +140,7 @@ typedef NS_ENUM(NSInteger, SFErrorCode) {
     SFErrorNoExtensionFound = 1,
     SFErrorNoAttachmentFound = 2,
     SFErrorLoadingInterrupted = 3,
-} API_AVAILABLE(ios(10.0));
+} API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(uikitformac);
 // ==========  SafariServices.framework/Headers/SFFoundation.h
 //
 //  SFFoundation.h

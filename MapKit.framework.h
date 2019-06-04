@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  An MKGeodesicPolyline follows the shortest path along the surface of the earth,
  which may appear as a curved line when drawn on the projected MKMapView.
  */
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKGeodesicPolyline : MKPolyline
 
 + (instancetype)polylineWithPoints:(const MKMapPoint *)points count:(NSUInteger)count;
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKPolygon : MKMultiPoint <MKOverlay>
 
 + (instancetype)polygonWithPoints:(const MKMapPoint *)points count:(NSUInteger)count;
@@ -46,7 +46,7 @@ NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 + (instancetype)polygonWithCoordinates:(const CLLocationCoordinate2D *)coords count:(NSUInteger)count;
 + (instancetype)polygonWithCoordinates:(const CLLocationCoordinate2D *)coords count:(NSUInteger)count interiorPolygons:(nullable NSArray<MKPolygon *> *)interiorPolygons;
 
-@property (readonly, nullable) NSArray<MKPolygon *> *interiorPolygons;
+@property (atomic, readonly, nullable) NSArray<MKPolygon *> *interiorPolygons;
 
 @end
 
@@ -69,13 +69,14 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKMapCamera : NSObject <NSSecureCoding, NSCopying>
 
 @property (nonatomic) CLLocationCoordinate2D centerCoordinate;
+@property (nonatomic) CLLocationDistance centerCoordinateDistance API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
 @property (nonatomic) CLLocationDirection heading;
 @property (nonatomic) CGFloat pitch; // In degrees where 0 is looking straight down. Pitch may be clamped to an appropriate value.
-@property (nonatomic) CLLocationDistance altitude;
+@property (nonatomic) CLLocationDistance altitude API_DEPRECATED("Use centerCoordinateDistance", ios(7.0, API_TO_BE_DEPRECATED), macos(10.9, API_TO_BE_DEPRECATED), tvos(9.2, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(watchos);
 
 + (instancetype)camera;
 
@@ -111,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^MKLocalSearchCompletionHandler)(MKLocalSearchResponse * __nullable response, NSError * __nullable error);
 
-NS_CLASS_AVAILABLE(10_9, 6_1) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 6_1) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKLocalSearch : NSObject
 
 // The request will be copied during initialization, so any changes made to the request
@@ -141,7 +142,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKCircleRenderer : MKOverlayPathRenderer
 
 - (instancetype)initWithCircle:(MKCircle *)circle;
@@ -165,7 +166,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKPolyline : MKMultiPoint <MKOverlay>
 
 + (instancetype)polylineWithPoints:(const MKMapPoint *)points count:(NSUInteger)count;
@@ -188,12 +189,73 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE_IOS(11_0) __TVOS_PROHIBITED
+NS_CLASS_AVAILABLE_IOS(11_0) API_UNAVAILABLE(tvos) API_UNAVAILABLE(watchos)
 @interface MKUserTrackingButton : UIView
 
 + (instancetype)userTrackingButtonWithMapView:(nullable MKMapView *)mapView;
 @property (nonatomic, nullable, weak) MKMapView *mapView;
 
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  MapKit.framework/Headers/MKGeoJSONSerialization.h
+//
+//  MKGeoJSONSerialization.h
+//  MapKit
+//
+//  Copyright (c) 2019, Apple Inc. All rights reserved.
+//
+
+#import <MapKit/MapKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@protocol MKGeoJSONObject <NSObject>
+@end
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKGeoJSONDecoder : NSObject
+
+- (NSArray<id<MKGeoJSONObject>> * _Nullable)geoJSONObjectsWithData:(NSData *)data error:(NSError ** _Nullable)errorPtr NS_SWIFT_NAME(decode(_:));
+
+@end
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKGeoJSONFeature : NSObject <MKGeoJSONObject>
+
+// If set, will be either a string or a number, depending on the original source data
+@property (nonatomic, readonly, nullable) NSString *identifier;
+
+// Serialized JSON
+@property (nonatomic, readonly, nullable) NSData *properties;
+
+@property (nonatomic, readonly) NSArray<__kindof MKShape<MKGeoJSONObject> *> *geometry;
+
+@end
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKPointAnnotation (MKGeoJSONSerialization) <MKGeoJSONObject>
+@end
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKMultiPoint (MKGeoJSONSerialization) <MKGeoJSONObject>
+@end
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKMultiPolyline (MKGeoJSONSerialization) <MKGeoJSONObject>
+@end
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKMultiPolygon (MKGeoJSONSerialization) <MKGeoJSONObject>
+@end
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKPolyline (MKGeoJSONSerialization) <MKGeoJSONObject>
+@end
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKPolygon (MKGeoJSONSerialization) <MKGeoJSONObject>
 @end
 
 NS_ASSUME_NONNULL_END
@@ -211,7 +273,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKPolylineRenderer : MKOverlayPathRenderer
 
 - (instancetype)initWithPolyline:(MKPolyline *)polyline;
@@ -239,7 +301,7 @@ NS_ASSUME_NONNULL_END
 
 // MKReverseGeocoder is now deprecated.
 // Use CLGeocoder in CoreLocation instead.
-NS_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+NS_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) API_UNAVAILABLE(tvos, watchos)
 @interface MKReverseGeocoder : NSObject
 
 - (instancetype)initWithCoordinate:(CLLocationCoordinate2D)coordinate NS_DEPRECATED_IOS(3_0,5_0);
@@ -256,7 +318,7 @@ NS_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 
 @end
 
-NS_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+NS_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) API_UNAVAILABLE(tvos, watchos)
 @protocol MKReverseGeocoderDelegate <NSObject>
 @required
 - (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFindPlacemark:(MKPlacemark *)placemark NS_DEPRECATED_IOS(3_0,5_0);
@@ -279,7 +341,7 @@ NS_CLASS_DEPRECATED(NA, NA, 3_0, 5_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKPolygonRenderer : MKOverlayPathRenderer
 
 - (instancetype)initWithPolygon:(MKPolygon *)polygon;
@@ -305,7 +367,7 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKOverlayView.h>
 
 // Prefer MKOverlayPathRenderer
-NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+API_DEPRECATED_WITH_REPLACEMENT("MKOverlayPathRenderer", ios(4.0, 13.0)) API_UNAVAILABLE(macos, tvos, watchos)
 @interface MKOverlayPathView : MKOverlayView
 
 @property (strong) UIColor *fillColor NS_DEPRECATED_IOS(4_0, 7_0);
@@ -353,7 +415,7 @@ NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 #import <MapKit/MKOverlayPathView.h>
 
 // Prefer MKCircleRenderer
-NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+API_DEPRECATED_WITH_REPLACEMENT("MKCircleRenderer", ios(4.0, 13.0)) API_UNAVAILABLE(macos, tvos, watchos)
 @interface MKCircleView : MKOverlayPathView
 
 - (instancetype)initWithCircle:(MKCircle *)circle NS_DEPRECATED_IOS(4_0, 7_0);
@@ -392,22 +454,22 @@ typedef NS_ENUM(NSUInteger, MKAnnotationViewDragState) {
     MKAnnotationViewDragStateDragging,      // View is dragging ("lift" animations are complete)
     MKAnnotationViewDragStateCanceling,     // View was not dragged and should return to its starting position (e.g. pin drop)
     MKAnnotationViewDragStateEnding         // View was dragged, new coordinate is set and view should return to resting position (e.g. pin drop)
-} NS_ENUM_AVAILABLE(10_9, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+} NS_ENUM_AVAILABLE(10_9, 4_0) API_UNAVAILABLE(tvos, watchos);
 
-typedef float MKFeatureDisplayPriority NS_TYPED_EXTENSIBLE_ENUM NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED;
-static const MKFeatureDisplayPriority MKFeatureDisplayPriorityRequired NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED = 1000;
-static const MKFeatureDisplayPriority MKFeatureDisplayPriorityDefaultHigh NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED = 750;
-static const MKFeatureDisplayPriority MKFeatureDisplayPriorityDefaultLow NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED = 250;
+typedef float MKFeatureDisplayPriority NS_TYPED_EXTENSIBLE_ENUM NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) API_UNAVAILABLE(watchos);
+static const MKFeatureDisplayPriority MKFeatureDisplayPriorityRequired NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) API_UNAVAILABLE(watchos) = 1000;
+static const MKFeatureDisplayPriority MKFeatureDisplayPriorityDefaultHigh NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) API_UNAVAILABLE(watchos) = 750;
+static const MKFeatureDisplayPriority MKFeatureDisplayPriorityDefaultLow NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) API_UNAVAILABLE(watchos) = 250;
 
 typedef NS_ENUM(NSInteger, MKAnnotationViewCollisionMode) {
     MKAnnotationViewCollisionModeRectangle,
     MKAnnotationViewCollisionModeCircle
-} NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED;
+} NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) API_UNAVAILABLE(watchos);
 
 @protocol MKAnnotation;
 
 #if TARGET_OS_IPHONE
-NS_CLASS_AVAILABLE(NA, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 3_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKAnnotationView : UIView
 #else
 NS_CLASS_AVAILABLE(10_9, NA)
@@ -484,14 +546,14 @@ NS_CLASS_AVAILABLE(10_9, NA)
 
 // If YES and the underlying id<MKAnnotation> responds to setCoordinate:, 
 // the user will be able to drag this annotation view around the map.
-@property (nonatomic, getter=isDraggable) BOOL draggable NS_AVAILABLE(10_9, 4_0) __TVOS_PROHIBITED;
+@property (nonatomic, getter=isDraggable) BOOL draggable NS_AVAILABLE(10_9, 4_0) API_UNAVAILABLE(tvos);
 
 // Automatically set to MKAnnotationViewDragStateStarting, Canceling, and Ending when necessary.
 // Implementer is responsible for transitioning to Dragging and None states as appropriate.
-@property (nonatomic) MKAnnotationViewDragState dragState NS_AVAILABLE(10_9, 4_0) __TVOS_PROHIBITED;
+@property (nonatomic) MKAnnotationViewDragState dragState NS_AVAILABLE(10_9, 4_0) API_UNAVAILABLE(tvos);
 
 // Developers targeting iOS 4.2 and after must use setDragState:animated: instead of setDragState:.
-- (void)setDragState:(MKAnnotationViewDragState)newDragState animated:(BOOL)animated NS_AVAILABLE(10_9, 4_2) __TVOS_PROHIBITED;
+- (void)setDragState:(MKAnnotationViewDragState)newDragState animated:(BOOL)animated NS_AVAILABLE(10_9, 4_2) API_UNAVAILABLE(tvos);
 
 // Annotation views with equal non-nil identifiers can cluster together.
 @property (nonatomic, copy, nullable) NSString *clusteringIdentifier  NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
@@ -542,6 +604,39 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  MapKit.framework/Headers/MKMapCameraZoomRange.h
+//
+//  MKMapCameraZoomRange.h
+//  MapKit
+//
+//  Copyright © 2018 Apple, Inc. All rights reserved.
+//
+
+#import <MapKit/MKFoundation.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
+#import <CoreLocation/CoreLocation.h>
+
+MK_EXTERN const CLLocationDistance MKMapCameraZoomDefault API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos)
+@interface MKMapCameraZoomRange : NSObject <NSSecureCoding, NSCopying>
+
+- (nullable instancetype)initWithMinCenterCoordinateDistance:(CLLocationDistance)minDistance maxCenterCoordinateDistance:(CLLocationDistance)maxDistance NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithMinCenterCoordinateDistance:(CLLocationDistance)minDistance;
+- (nullable instancetype)initWithMaxCenterCoordinateDistance:(CLLocationDistance)maxDistance;
+
+@property (nonatomic, readonly) CLLocationDistance minCenterCoordinateDistance;
+@property (nonatomic, readonly) CLLocationDistance maxCenterCoordinateDistance;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
 // ==========  MapKit.framework/Headers/MKDistanceFormatter.h
 //
 //  MKDistanceFormatter.h
@@ -637,7 +732,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-__WATCHOS_PROHIBITED
+API_AVAILABLE(ios(4.0), tvos(9.2), macos(10.9)) API_UNAVAILABLE(watchos)
 @protocol MKOverlay <MKAnnotation>
 @required
 
@@ -674,7 +769,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKMultiPoint : MKShape
 
 - (MKMapPoint *)points NS_RETURNS_INNER_POINTER;
@@ -702,7 +797,7 @@ typedef NS_OPTIONS(NSUInteger, MKDirectionsTransportType) {
     MKDirectionsTransportTypeWalking = 1 << 1,
     MKDirectionsTransportTypeTransit NS_ENUM_AVAILABLE(10_11, 9_0) = 1 << 2, // Only supported for ETA calculations
     MKDirectionsTransportTypeAny = 0x0FFFFFFF
-} NS_ENUM_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+} NS_ENUM_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos);
 // ==========  MapKit.framework/Headers/MKCircle.h
 //
 //  MKCircle.h
@@ -718,7 +813,7 @@ typedef NS_OPTIONS(NSUInteger, MKDirectionsTransportType) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKCircle : MKShape <MKOverlay>
 
 + (instancetype)circleWithCenterCoordinate:(CLLocationCoordinate2D)coord
@@ -750,9 +845,11 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKTypes.h>
 #import <MapKit/MKMapView.h>
 
+@class MKPointOfInterestFilter;
+
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKMapSnapshotOptions : NSObject <NSCopying>
 
 @property (nonatomic, copy) MKMapCamera *camera;
@@ -760,7 +857,8 @@ NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @property (nonatomic, assign) MKCoordinateRegion region;
 @property (nonatomic, assign) MKMapType mapType;
 
-@property (nonatomic) BOOL showsPointsOfInterest; // Affects MKMapTypeStandard and MKMapTypeHybrid
+@property (nonatomic, copy, nullable) MKPointOfInterestFilter *pointOfInterestFilter API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+@property (nonatomic) BOOL showsPointsOfInterest API_DEPRECATED("Use pointOfInterestFilter", macos(10.9, 10.15), ios(7.0, 13.0), tvos(9.2, 13.0)) API_UNAVAILABLE(watchos); // Affects MKMapTypeStandard and MKMapTypeHybrid
 @property (nonatomic) BOOL showsBuildings; // Affects MKMapTypeStandard
 
 // The size of the image to create. Defaults to 256x256
@@ -773,7 +871,8 @@ NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 
 #if TARGET_OS_IPHONE
 // Defaults to the device's screen scale
-@property (nonatomic, assign) CGFloat scale;
+@property (nonatomic, assign) CGFloat scale API_DEPRECATED("Use traitCollection.displayScale", ios(7.0, API_TO_BE_DEPRECATED), tvos(9.2, API_TO_BE_DEPRECATED));
+@property (nonatomic, copy) UITraitCollection *traitCollection API_AVAILABLE(ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos) API_UNAVAILABLE(macos);
 #endif
 
 @end
@@ -796,8 +895,12 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKPointAnnotation : MKShape
+
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithCoordinate:(CLLocationCoordinate2D)coordinate NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos);
+- (instancetype)initWithCoordinate:(CLLocationCoordinate2D)coordinate title:(nullable NSString *)title subtitle:(nullable NSString *)subtitle NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos);
 
 @property (nonatomic, assign) CLLocationCoordinate2D coordinate;
 
@@ -838,7 +941,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^MKMapSnapshotCompletionHandler)(MKMapSnapshot * __nullable snapshot, NSError * __nullable error);
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKMapSnapshotter : NSObject
 
 - (instancetype)initWithOptions:(MKMapSnapshotOptions *)options NS_DESIGNATED_INITIALIZER;
@@ -870,11 +973,11 @@ typedef NS_ENUM(NSUInteger, MKPinAnnotationColor) {
     MKPinAnnotationColorRed = 0,
     MKPinAnnotationColorGreen,
     MKPinAnnotationColorPurple
-} NS_ENUM_DEPRECATED(10_9, 10_11, 3_0, 9_0, "Use MKPinAnnotationView's pinTintColor instead") __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+} NS_ENUM_DEPRECATED(10_9, 10_11, 3_0, 9_0, "Use MKPinAnnotationView's pinTintColor instead") API_UNAVAILABLE(tvos) API_UNAVAILABLE(watchos);
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKPinAnnotationView : MKAnnotationView
 
 #if TARGET_OS_IPHONE
@@ -895,7 +998,7 @@ NS_CLASS_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 
 @property (nonatomic) BOOL animatesDrop;
 
-@property (nonatomic) MKPinAnnotationColor pinColor NS_DEPRECATED(10_9, 10_11, 3_0, 9_0, "Use pinTintColor instead") __TVOS_PROHIBITED;
+@property (nonatomic) MKPinAnnotationColor pinColor NS_DEPRECATED(10_9, 10_11, 3_0, 9_0, "Use pinTintColor instead") API_UNAVAILABLE(tvos);
 
 @end
 
@@ -929,6 +1032,10 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKShape.h>
 #import <MapKit/MKPointAnnotation.h>
 #import <MapKit/MKMultiPoint.h>
+#import <MapKit/MKMultiPolygon.h>
+#import <MapKit/MKMultiPolygonRenderer.h>
+#import <MapKit/MKMultiPolyline.h>
+#import <MapKit/MKMultiPolylineRenderer.h>
 #import <MapKit/MKPolyline.h>
 #import <MapKit/MKPolygon.h>
 #import <MapKit/MKCircle.h>
@@ -952,6 +1059,11 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKTileOverlayRenderer.h>
 #import <MapKit/MKTypes.h>
 #import <MapKit/MKMapCamera.h>
+#import <MapKit/MKGeoJSONSerialization.h>
+#import <MapKit/MKMapCameraZoomRange.h>
+#import <MapKit/MKMapCameraBoundary.h>
+#import <MapKit/MKPointOfInterestCategory.h>
+#import <MapKit/MKPointOfInterestFilter.h>
 
 #if TARGET_OS_IPHONE
 #import <MapKit/MKReverseGeocoder.h>
@@ -965,10 +1077,10 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKUserTrackingBarButtonItem.h>
 #endif // TARGET_OS_IPHONE
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_UIKITFORMAC
 #import <MapKit/MKCompassButton.h>
 #import <MapKit/MKUserTrackingButton.h>
-#endif // TARGET_OS_IOS
+#endif // TARGET_OS_IOS || TARGET_OS_UIKITFORMAC
 
 #endif // __has_include(<MapKit/MKMapView.h>)
 // ==========  MapKit.framework/Headers/MKScaleView.h
@@ -1026,7 +1138,7 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKOverlayPathView.h>
 
 // Prefer MKPolygonRenderer
-NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+API_DEPRECATED_WITH_REPLACEMENT("MKPolygonRenderer", ios(4.0, 13.0)) API_UNAVAILABLE(macos, tvos, watchos)
 @interface MKPolygonView : MKOverlayPathView
 
 - (instancetype)initWithPolygon:(MKPolygon *)polygon NS_DEPRECATED_IOS(4_0, 7_0);
@@ -1049,7 +1161,7 @@ NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKOverlayRenderer : NSObject
 
 - (instancetype)initWithOverlay:(id <MKOverlay>)overlay NS_DESIGNATED_INITIALIZER;
@@ -1083,16 +1195,16 @@ NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 - (void)setNeedsDisplayInMapRect:(MKMapRect)mapRect
                        zoomScale:(MKZoomScale)zoomScale;
 
-@property CGFloat alpha;
+@property (atomic) CGFloat alpha;
 
-@property (readonly) CGFloat contentScaleFactor;
+@property (atomic, readonly) CGFloat contentScaleFactor;
 
 @end
 
 // Road widths are typically not drawn to scale on the map.  This function
 // returns the approximate width in points of roads at the specified zoomScale.
 // The result of this function is suitable for use with CGContextSetLineWidth.
-MK_EXTERN CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoomScale) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+MK_EXTERN CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoomScale) NS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos);
 
 NS_ASSUME_NONNULL_END
 // ==========  MapKit.framework/Headers/MKDirectionsResponse.h
@@ -1114,7 +1226,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKDirectionsResponse : NSObject
 
 // Source and destination may be filled with additional details compared to the request object.
@@ -1125,7 +1237,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 
 @end
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKRoute : NSObject
 
 @property (nonatomic, readonly) NSString *name; // localized description of the route's significant feature, e.g. "US-101"
@@ -1143,7 +1255,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 
 @end
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKRouteStep : NSObject
 
 @property (nonatomic, readonly) NSString *instructions; // localized written instructions
@@ -1157,7 +1269,7 @@ NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 
 @end
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKETAResponse : NSObject
 
 // Source and destination may be filled with additional details compared to the request object.
@@ -1185,12 +1297,35 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKTileOverlayRenderer : MKOverlayRenderer
 
 - (instancetype)initWithTileOverlay:(MKTileOverlay *)overlay;
 
 - (void)reloadData;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  MapKit.framework/Headers/MKMultiPolygonRenderer.h
+//
+//  MKMultiPolygonRenderer.h
+//  MapKit
+//
+//  Copyright (c) 2019, Apple Inc. All rights reserved.
+//
+
+#import <MapKit/MKMultiPolygon.h>
+#import <MapKit/MKOverlayPathRenderer.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKMultiPolygonRenderer : MKOverlayPathRenderer
+
+- (instancetype)initWithMultiPolygon:(MKMultiPolygon *)multiPolygon;
+
+@property (nonatomic, readonly) MKMultiPolygon *multiPolygon;
 
 @end
 
@@ -1211,7 +1346,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKUserLocation : NSObject <MKAnnotation>
 
 // Returns YES if the user's location is being updated.
@@ -1221,7 +1356,7 @@ NS_CLASS_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @property (readonly, nonatomic, nullable) CLLocation *location;
 
 // Returns nil if not in MKUserTrackingModeFollowWithHeading
-@property (readonly, nonatomic, nullable) CLHeading *heading NS_AVAILABLE(10_9, 5_0) __TVOS_PROHIBITED;
+@property (readonly, nonatomic, nullable) CLHeading *heading NS_AVAILABLE(10_9, 5_0) API_UNAVAILABLE(tvos);
 
 // The title to be displayed for the user location annotation.
 @property (nonatomic, copy, nullable) NSString *title;
@@ -1246,19 +1381,28 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 @class MKLocalSearchCompletion;
+@class MKPointOfInterestFilter;
 @protocol MKLocalSearchCompleterDelegate;
 
 typedef NS_ENUM(NSInteger, MKSearchCompletionFilterType) {
     MKSearchCompletionFilterTypeLocationsAndQueries = 0, // Returns completions for points of interest as well as query suggestions (e.g., "coffee")
     MKSearchCompletionFilterTypeLocationsOnly, // Returns completions only for points of interest
-} NS_ENUM_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+} API_DEPRECATED("Use MKLocalSearchCompleterResultType", ios(9.3, 13.0), macos(10.11.4, 10.15), tvos(9.2, 13.0)) API_UNAVAILABLE(watchos);
 
-NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+typedef NS_OPTIONS(NSUInteger, MKLocalSearchCompleterResultType) {
+    MKLocalSearchCompleterResultTypeAddress = 1 << 0,
+    MKLocalSearchCompleterResultTypePointOfInterest = 1 << 1,
+    MKLocalSearchCompleterResultTypeQuery = 1 << 2
+} API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKLocalSearchCompleter : NSObject
 
 @property (nonatomic, copy) NSString *queryFragment;
 @property (nonatomic, assign) MKCoordinateRegion region;
-@property (nonatomic, assign) MKSearchCompletionFilterType filterType; // Defaults to MKSearchCompletionFilterTypeLocationsAndQueries
+@property (nonatomic, assign) MKSearchCompletionFilterType filterType API_DEPRECATED("Use resultTypes", ios(9.3, 13.0), macos(10.11.4, 10.15), tvos(9.2, 13.0)) API_UNAVAILABLE(watchos); // Defaults to MKSearchCompletionFilterTypeLocationsAndQueries
+@property (nonatomic, assign) MKLocalSearchCompleterResultType resultTypes API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+@property (nonatomic, copy, nullable) MKPointOfInterestFilter *pointOfInterestFilter API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 @property (nonatomic, weak, nullable) id<MKLocalSearchCompleterDelegate> delegate;
 
@@ -1270,7 +1414,7 @@ NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 
 @end
 
-NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @protocol MKLocalSearchCompleterDelegate <NSObject>
 @optional
 
@@ -1279,7 +1423,7 @@ NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 
 @end
 
-NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKLocalSearchCompletion : NSObject
 
 @property (nonatomic, readonly, strong) NSString *title;
@@ -1291,7 +1435,7 @@ NS_CLASS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @end
 
 @interface MKLocalSearchRequest ()
-- (instancetype)initWithCompletion:(MKLocalSearchCompletion *)completion NS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+- (instancetype)initWithCompletion:(MKLocalSearchCompletion *)completion NS_DESIGNATED_INITIALIZER NS_AVAILABLE(10_11_4, 9_3) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos);
 @end
 
 NS_ASSUME_NONNULL_END
@@ -1310,7 +1454,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 6_1) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 6_1) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKLocalSearchResponse : NSObject
 
 // An array of MKMapItems sorted by relevance in descending order
@@ -1340,7 +1484,7 @@ typedef NS_ENUM(NSUInteger, MKMapType) {
     MKMapTypeSatelliteFlyover NS_ENUM_AVAILABLE(10_11, 9_0),
     MKMapTypeHybridFlyover NS_ENUM_AVAILABLE(10_11, 9_0),
     MKMapTypeMutedStandard NS_ENUM_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0),
-} NS_ENUM_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+} NS_ENUM_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos);
 
 MK_EXTERN NSString *MKErrorDomain __TVOS_AVAILABLE(9_2);
 
@@ -1349,14 +1493,39 @@ typedef NS_ENUM(NSUInteger, MKErrorCode) {
     MKErrorServerFailure,
     MKErrorLoadingThrottled,
     MKErrorPlacemarkNotFound,
-    MKErrorDirectionsNotFound NS_ENUM_AVAILABLE(10_9, 7_0)
-} NS_ENUM_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+    MKErrorDirectionsNotFound NS_ENUM_AVAILABLE(10_9, 7_0),
+    MKErrorDecodingFailed API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos),
+} NS_ENUM_AVAILABLE(10_9, 3_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos);
 
 typedef NS_ENUM(NSInteger, MKFeatureVisibility) {
     MKFeatureVisibilityAdaptive,
     MKFeatureVisibilityHidden,
     MKFeatureVisibilityVisible
-} NS_AVAILABLE_IOS(11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED;
+} API_AVAILABLE(ios(11.0), tvos(11.0)) API_UNAVAILABLE(macos, watchos);
+
+NS_ASSUME_NONNULL_END
+// ==========  MapKit.framework/Headers/MKMultiPolygon.h
+//
+//  MKMultiPolygon.h
+//  MapKit
+//
+//  Copyright (c) 2019, Apple Inc. All rights reserved.
+//
+
+#import <MapKit/MKOverlay.h>
+#import <MapKit/MKPolygon.h>
+#import <MapKit/MKShape.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKMultiPolygon : MKShape <MKOverlay>
+
+- (instancetype)initWithPolygons:(NSArray<MKPolygon *> *)polygons NS_DESIGNATED_INITIALIZER;
+
+@property (nonatomic, readonly, copy) NSArray<MKPolygon *> *polygons;
+
+@end
 
 NS_ASSUME_NONNULL_END
 // ==========  MapKit.framework/Headers/MKGeometry.h
@@ -1540,8 +1709,31 @@ MK_EXTERN MKMapRect MKMapRectRemainder(MKMapRect rect) NS_AVAILABLE(10_9, 4_0) _
 + (NSValue *)valueWithMKCoordinate:(CLLocationCoordinate2D)coordinate __TVOS_AVAILABLE(9_2);
 + (NSValue *)valueWithMKCoordinateSpan:(MKCoordinateSpan)span __TVOS_AVAILABLE(9_2);
 
-@property (readonly) CLLocationCoordinate2D MKCoordinateValue __TVOS_AVAILABLE(9_2);
-@property (readonly) MKCoordinateSpan MKCoordinateSpanValue __TVOS_AVAILABLE(9_2);
+@property (atomic, readonly) CLLocationCoordinate2D MKCoordinateValue __TVOS_AVAILABLE(9_2);
+@property (atomic, readonly) MKCoordinateSpan MKCoordinateSpanValue __TVOS_AVAILABLE(9_2);
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  MapKit.framework/Headers/MKMultiPolylineRenderer.h
+//
+//  MKMultiPolylineRenderer.h
+//  MapKit
+//
+//  Copyright (c) 2019, Apple Inc. All rights reserved.
+//
+
+#import <MapKit/MKMultiPolyline.h>
+#import <MapKit/MKOverlayPathRenderer.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKMultiPolylineRenderer : MKOverlayPathRenderer
+
+- (instancetype)initWithMultiPolyline:(MKMultiPolyline *)multiPolyline;
+
+@property (nonatomic, readonly) MKMultiPolyline *multiPolyline;
 
 @end
 
@@ -1564,7 +1756,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(NA, 5_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 5_0) API_UNAVAILABLE(tvos, watchos)
 @interface MKUserTrackingBarButtonItem : UIBarButtonItem
 
 - (instancetype)initWithMapView:(nullable MKMapView *)mapView NS_DESIGNATED_INITIALIZER;
@@ -1589,20 +1781,20 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 // MKTileOverlay represents a data source for raster image tiles in the spherical mercator projection (EPSG:3857).
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKTileOverlay : NSObject <MKOverlay>
 
 - (instancetype)initWithURLTemplate:(nullable NSString *)URLTemplate NS_DESIGNATED_INITIALIZER; // URL template is a string where the substrings "{x}", "{y}", "{z}", and "{scale}" are replaced with values from a tile path to create a URL to load. For example: http://server/path?x={x}&y={y}&z={z}&scale={scale}.
 
-@property CGSize tileSize; // default is 256x256
+@property (atomic) CGSize tileSize; // default is 256x256
 
-@property (getter=isGeometryFlipped) BOOL geometryFlipped; // Default is NO. If NO, a tile at x=0, y=0 is the upper left, otherwise it is in the lower left.
+@property (atomic, getter=isGeometryFlipped) BOOL geometryFlipped; // Default is NO. If NO, a tile at x=0, y=0 is the upper left, otherwise it is in the lower left.
 
 // The minimum/maximum zoom level at which tile data is available for this overlay. A tile at level 0 covers the entire world, at level 1 it covers 1/4th of the world, at level 2 it covers 1/16th of the world, and so on.
-@property NSInteger minimumZ;
-@property NSInteger maximumZ;
+@property (atomic) NSInteger minimumZ;
+@property (atomic) NSInteger maximumZ;
 
-@property (readonly, nullable) NSString *URLTemplate;
+@property (atomic, readonly, nullable) NSString *URLTemplate;
 
 @property (nonatomic) BOOL canReplaceMapContent;
 
@@ -1641,7 +1833,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 6_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 6_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKDirectionsRequest : NSObject
 
 @property (nonatomic, strong, nullable) MKMapItem *source;
@@ -1689,7 +1881,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE_IOS(11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE_IOS(11_0) __TVOS_AVAILABLE(11_0) API_UNAVAILABLE(watchos)
 @interface MKMarkerAnnotationView : MKAnnotationView
 
 @property (nonatomic) MKFeatureVisibility titleVisibility;
@@ -1709,6 +1901,88 @@ NS_CLASS_AVAILABLE_IOS(11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED
 NS_ASSUME_NONNULL_END
 
 #endif // MK_SUPPORTS_VIEW_CLASSES
+// ==========  MapKit.framework/Headers/MKPointOfInterestCategory.h
+//
+//  MKPointOfInterestCategory.h
+//  MapKit
+//
+//  Copyright (c) 2019, Apple Inc. All rights reserved.
+//
+
+#import <MapKit/MKFoundation.h>
+
+typedef NSString * MKPointOfInterestCategory NS_TYPED_ENUM;
+
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryAirport API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryAmusementPark API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryAquarium API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryATM NS_SWIFT_NAME(atm) API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryBakery API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryBank API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryBeach API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryBrewery API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryCafe API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryCampground API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryCarRental API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryEVCharger API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryFireStation API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryFitnessCenter API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryFoodMarket API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryGasStation API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryHospital API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryHotel API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryLaundry API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryLibrary API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryMarina API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryMovieTheater API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryMuseum API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryNationalPark API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryNightlife API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryPark API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryParking API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryPharmacy API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryPlayground API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryPolice API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryPostOffice API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryPublicTransport API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryReligiousSite API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryRestaurant API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryRestroom API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategorySchool API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryStadium API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryStore API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryTheater API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryUniversity API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryWinery API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+MK_EXTERN MKPointOfInterestCategory const MKPointOfInterestCategoryZoo API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+// ==========  MapKit.framework/Headers/MKPointOfInterestFilter.h
+//
+//  MKPointOfInterestFilter.h
+//  MapKit
+//
+//  Copyright (c) 2019, Apple Inc. All rights reserved.
+//
+
+#import <MapKit/MKFoundation.h>
+#import <MapKit/MKPointOfInterestCategory.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKPointOfInterestFilter : NSObject <NSSecureCoding, NSCopying>
+
+@property (nonatomic, class, readonly) MKPointOfInterestFilter *filterIncludingAllCategories;
+@property (nonatomic, class, readonly) MKPointOfInterestFilter *filterExcludingAllCategories;
+
+- (instancetype)initIncludingCategories:(NSArray<MKPointOfInterestCategory> *)categories NS_DESIGNATED_INITIALIZER;
+- (instancetype)initExcludingCategories:(NSArray<MKPointOfInterestCategory> *)categories NS_DESIGNATED_INITIALIZER;
+
+- (BOOL)includesCategory:(MKPointOfInterestCategory)category;
+- (BOOL)excludesCategory:(MKPointOfInterestCategory)category;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  MapKit.framework/Headers/MKFoundation.h
 //
 //  MKFoundation.h
@@ -1729,6 +2003,30 @@ NS_ASSUME_NONNULL_END
 #define MK_CLASS_AVAILABLE(_macIntro, _iphoneIntro) __attribute__((visibility("default"))) NS_CLASS_AVAILABLE(_macIntro, _iphoneIntro)
 
 #define MK_SUPPORTS_VIEW_CLASSES (__has_include(<UIKit/UIView.h>) || !TARGET_OS_IPHONE)
+// ==========  MapKit.framework/Headers/MKMultiPolyline.h
+//
+//  MKMultiPolyline.h
+//  MapKit
+//
+//  Copyright (c) 2019, Apple Inc. All rights reserved.
+//
+
+#import <MapKit/MKOverlay.h>
+#import <MapKit/MKPolyline.h>
+#import <MapKit/MKShape.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos)
+@interface MKMultiPolyline : MKShape <MKOverlay>
+
+- (instancetype)initWithPolylines:(NSArray<MKPolyline *> *)polylines NS_DESIGNATED_INITIALIZER;
+
+@property (nonatomic, readonly, copy) NSArray<MKPolyline *> *polylines;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  MapKit.framework/Headers/MKLocalSearchRequest.h
 //
 //  MKLocalSearchRequest.h
@@ -1740,13 +2038,27 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKFoundation.h>
 #import <MapKit/MKGeometry.h>
 
+@class MKPointOfInterestFilter;
+
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 6_1) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+typedef NS_OPTIONS(NSUInteger, MKLocalSearchResultType) {
+    MKLocalSearchResultTypeAddress = 1 << 0,
+    MKLocalSearchResultTypePointOfInterest = 1 << 1
+} API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+NS_CLASS_AVAILABLE(10_9, 6_1) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKLocalSearchRequest : NSObject <NSCopying>
+
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithNaturalLanguageQuery:(NSString *)naturalLanguageQuery NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos);
+- (instancetype)initWithNaturalLanguageQuery:(NSString *)naturalLanguageQuery region:(MKCoordinateRegion)region NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos);
 
 @property (nonatomic, copy, nullable) NSString *naturalLanguageQuery;
 @property (nonatomic, assign) MKCoordinateRegion region;
+
+@property (nonatomic, assign) MKLocalSearchResultType resultTypes API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+@property (nonatomic, copy, nullable) MKPointOfInterestFilter *pointOfInterestFilter API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -1761,6 +2073,7 @@ NS_ASSUME_NONNULL_END
 
 #import <MapKit/MKFoundation.h>
 #import <MapKit/MKPlacemark.h>
+#import <MapKit/MKPointOfInterestCategory.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1778,29 +2091,31 @@ NS_CLASS_AVAILABLE(10_9, 6_0) __TVOS_AVAILABLE(9_2)
 
 @property (nonatomic, copy, nullable) NSTimeZone *timeZone NS_AVAILABLE(10_11, 9_0);
 
+@property (nonatomic, copy, nullable) MKPointOfInterestCategory pointOfInterestCategory API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+
 + (MKMapItem *)mapItemForCurrentLocation;
 - (instancetype)initWithPlacemark:(MKPlacemark *)placemark;
 
-- (BOOL)openInMapsWithLaunchOptions:(nullable NSDictionary<NSString *, id> *)launchOptions __TVOS_PROHIBITED;
-+ (BOOL)openMapsWithItems:(NSArray<MKMapItem *> *)mapItems launchOptions:(nullable NSDictionary<NSString *, id> *)launchOptions __TVOS_PROHIBITED;
+- (BOOL)openInMapsWithLaunchOptions:(nullable NSDictionary<NSString *, id> *)launchOptions API_UNAVAILABLE(tvos);
++ (BOOL)openMapsWithItems:(NSArray<MKMapItem *> *)mapItems launchOptions:(nullable NSDictionary<NSString *, id> *)launchOptions API_UNAVAILABLE(tvos);
 
 @end
 
-MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeKey     NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED; // Key to a directions mode
-MK_EXTERN NSString * const MKLaunchOptionsMapTypeKey            NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // Key to an NSNumber corresponding to a MKMapType
-MK_EXTERN NSString * const MKLaunchOptionsShowsTrafficKey       NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // Key to a boolean NSNumber
+MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeKey     NS_AVAILABLE(10_9, 6_0) API_UNAVAILABLE(tvos); // Key to a directions mode
+MK_EXTERN NSString * const MKLaunchOptionsMapTypeKey            NS_AVAILABLE(10_9, 6_0) API_UNAVAILABLE(tvos, watchos); // Key to an NSNumber corresponding to a MKMapType
+MK_EXTERN NSString * const MKLaunchOptionsShowsTrafficKey       NS_AVAILABLE(10_9, 6_0) API_UNAVAILABLE(tvos, watchos); // Key to a boolean NSNumber
 
 // Directions modes
-MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeDefault NS_AVAILABLE(10_12, 10_0) __TVOS_PROHIBITED __WATCHOS_AVAILABLE(3_0); // Will pick the best directions mode, given the user's preferences
-MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeDriving NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED;
-MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeWalking NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED;
-MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeTransit NS_AVAILABLE(10_11, 9_0) __TVOS_PROHIBITED;
+MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeDefault NS_AVAILABLE(10_12, 10_0) __WATCHOS_AVAILABLE(3_0) API_UNAVAILABLE(tvos); // Will pick the best directions mode, given the user's preferences
+MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeDriving NS_AVAILABLE(10_9, 6_0) API_UNAVAILABLE(tvos);
+MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeWalking NS_AVAILABLE(10_9, 6_0) API_UNAVAILABLE(tvos);
+MK_EXTERN NSString * const MKLaunchOptionsDirectionsModeTransit NS_AVAILABLE(10_11, 9_0) API_UNAVAILABLE(tvos);
 
 // If center and span are present, having a camera as well is undefined
-MK_EXTERN NSString * const MKLaunchOptionsMapCenterKey          NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED; // Key to an NSValue-encoded CLLocationCoordinate2D
-MK_EXTERN NSString * const MKLaunchOptionsMapSpanKey            NS_AVAILABLE(10_9, 6_0) __TVOS_PROHIBITED; // Key to an NSValue-encoded MKCoordinateSpan
+MK_EXTERN NSString * const MKLaunchOptionsMapCenterKey          NS_AVAILABLE(10_9, 6_0) API_UNAVAILABLE(tvos); // Key to an NSValue-encoded CLLocationCoordinate2D
+MK_EXTERN NSString * const MKLaunchOptionsMapSpanKey            NS_AVAILABLE(10_9, 6_0) API_UNAVAILABLE(tvos); // Key to an NSValue-encoded MKCoordinateSpan
 
-MK_EXTERN NSString * const MKLaunchOptionsCameraKey             NS_AVAILABLE(10_10, 7_1) __TVOS_PROHIBITED; // Key to MKMapCamera object
+MK_EXTERN NSString * const MKLaunchOptionsCameraKey             NS_AVAILABLE(10_10, 7_1) API_UNAVAILABLE(tvos); // Key to MKMapCamera object
 
 
 @interface MKMapItem (MKMapItemSerialization) <NSSecureCoding>
@@ -1838,7 +2153,10 @@ NS_ASSUME_NONNULL_END
 
 @class MKUserLocation;
 @class MKMapCamera;
+@class MKMapCameraZoomRange;
+@class MKMapCameraBoundary;
 @class MKClusterAnnotation;
+@class MKPointOfInterestFilter;
 
 @protocol MKMapViewDelegate;
 
@@ -1847,14 +2165,14 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, MKUserTrackingMode) {
 	MKUserTrackingModeNone = 0, // the user's location is not followed
 	MKUserTrackingModeFollow, // the map follows the user's location
-	MKUserTrackingModeFollowWithHeading __TVOS_PROHIBITED, // the map follows the user's location and heading
-} NS_ENUM_AVAILABLE(NA, 5_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+	MKUserTrackingModeFollowWithHeading API_UNAVAILABLE(tvos), // the map follows the user's location and heading
+} NS_ENUM_AVAILABLE(NA, 5_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos);
 
 MK_EXTERN NSString * const MKMapViewDefaultAnnotationViewReuseIdentifier NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
 MK_EXTERN NSString * const MKMapViewDefaultClusterAnnotationViewReuseIdentifier NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0);
 
 #if TARGET_OS_IPHONE
-NS_CLASS_AVAILABLE(NA, 3_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(NA, 3_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKMapView : UIView <NSCoding>
 #else
 NS_CLASS_AVAILABLE(10_9, NA)
@@ -1898,6 +2216,12 @@ NS_CLASS_AVAILABLE(10_9, NA)
 @property (nonatomic, copy) MKMapCamera *camera NS_AVAILABLE(10_9, 7_0);
 - (void)setCamera:(MKMapCamera *)camera animated:(BOOL)animated NS_AVAILABLE(10_9, 7_0);
 
+@property (nonatomic, copy, null_resettable) MKMapCameraZoomRange *cameraZoomRange API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+- (void)setCameraZoomRange:(nullable MKMapCameraZoomRange *)cameraZoomRange animated:(BOOL)animated API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+
+@property (nonatomic, copy, nullable) MKMapCameraBoundary *cameraBoundary API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+- (void)setCameraBoundary:(nullable MKMapCameraBoundary *)cameraBoundary animated:(BOOL)animated API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+
 #if TARGET_OS_IPHONE
 - (CGPoint)convertCoordinate:(CLLocationCoordinate2D)coordinate toPointToView:(nullable UIView *)view;
 - (CLLocationCoordinate2D)convertPoint:(CGPoint)point toCoordinateFromView:(nullable UIView *)view;
@@ -1915,18 +2239,19 @@ NS_CLASS_AVAILABLE(10_9, NA)
 @property (nonatomic, getter=isZoomEnabled) BOOL zoomEnabled;
 @property (nonatomic, getter=isScrollEnabled) BOOL scrollEnabled;
 // Rotate and pitch are enabled by default on Mac OS X and on iOS 7.0 and later.
-@property (nonatomic, getter=isRotateEnabled) BOOL rotateEnabled NS_AVAILABLE(10_9, 7_0) __TVOS_PROHIBITED;
-@property (nonatomic, getter=isPitchEnabled) BOOL pitchEnabled NS_AVAILABLE(10_9, 7_0) __TVOS_PROHIBITED;
+@property (nonatomic, getter=isRotateEnabled) BOOL rotateEnabled NS_AVAILABLE(10_9, 7_0) API_UNAVAILABLE(tvos);
+@property (nonatomic, getter=isPitchEnabled) BOOL pitchEnabled NS_AVAILABLE(10_9, 7_0) API_UNAVAILABLE(tvos);
 
-#if !TARGET_OS_IPHONE
-@property (nonatomic) BOOL showsZoomControls NS_AVAILABLE(10_9, NA);
+#if TARGET_OS_OSX || TARGET_OS_UIKITFORMAC
+@property (nonatomic) BOOL showsZoomControls API_AVAILABLE(macos(10.9), uikitformac(13.0)) API_UNAVAILABLE(ios, watchos, tvos);
 #endif
 
 
-@property (nonatomic) BOOL showsCompass NS_AVAILABLE(10_9, 9_0) __TVOS_PROHIBITED;
+@property (nonatomic) BOOL showsCompass NS_AVAILABLE(10_9, 9_0) API_UNAVAILABLE(tvos);
 @property (nonatomic) BOOL showsScale NS_AVAILABLE(10_10, 9_0);
 
-@property (nonatomic) BOOL showsPointsOfInterest NS_AVAILABLE(10_9, 7_0); // Affects MKMapTypeStandard and MKMapTypeHybrid
+@property (nonatomic, copy, nullable) MKPointOfInterestFilter *pointOfInterestFilter API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos);
+@property (nonatomic) BOOL showsPointsOfInterest API_DEPRECATED("Use pointOfInterestFilter", macos(10.9, 10.15), ios(7.0, 13.0), tvos(9.0, 13.0)) API_UNAVAILABLE(watchos); // Affects MKMapTypeStandard and MKMapTypeHybrid
 @property (nonatomic) BOOL showsBuildings NS_AVAILABLE(10_9, 7_0); // Affects MKMapTypeStandard
 @property (nonatomic) BOOL showsTraffic NS_AVAILABLE(10_11, 9_0); // Affects MKMapTypeStandard and MKMapTypeHybrid
 
@@ -1984,7 +2309,7 @@ NS_CLASS_AVAILABLE(10_9, NA)
 typedef NS_ENUM(NSInteger, MKOverlayLevel) {
     MKOverlayLevelAboveRoads = 0, // note that labels include shields and point of interest icons.
     MKOverlayLevelAboveLabels
-} NS_ENUM_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED;
+} NS_ENUM_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos);
 
 @interface MKMapView (OverlaysAPI)
 
@@ -2013,7 +2338,7 @@ typedef NS_ENUM(NSInteger, MKOverlayLevel) {
 #if TARGET_OS_IPHONE
 // Currently displayed view for overlay; returns nil if the view has not been created yet.
 // Prefer using MKOverlayRenderer and -rendererForOverlay.
-- (MKOverlayView *)viewForOverlay:(id <MKOverlay>)overlay NS_DEPRECATED_IOS(4_0, 7_0) __TVOS_PROHIBITED;
+- (MKOverlayView *)viewForOverlay:(id <MKOverlay>)overlay API_DEPRECATED_WITH_REPLACEMENT("-rendererForOverlay:", ios(4.0, 13.0)) API_UNAVAILABLE(macos, tvos, watchos);
 #endif
 
 // These methods operate implicitly on overlays in MKOverlayLevelAboveLabels and may be deprecated in a future release in favor of the methods that specify the level.
@@ -2025,7 +2350,7 @@ typedef NS_ENUM(NSInteger, MKOverlayLevel) {
 
 @end
 
-__WATCHOS_PROHIBITED
+API_UNAVAILABLE(watchos)
 @protocol MKMapViewDelegate <NSObject>
 @optional
 
@@ -2053,7 +2378,7 @@ __WATCHOS_PROHIBITED
 
 #if TARGET_OS_IPHONE
 // mapView:annotationView:calloutAccessoryControlTapped: is called when the user taps on left & right callout accessory UIControls.
-- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control __TVOS_PROHIBITED;
+- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control API_UNAVAILABLE(tvos);
 #endif
 
 - (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view NS_AVAILABLE(10_9, 4_0);
@@ -2065,7 +2390,7 @@ __WATCHOS_PROHIBITED
 - (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error NS_AVAILABLE(10_9, 4_0);
 
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view didChangeDragState:(MKAnnotationViewDragState)newState 
-   fromOldState:(MKAnnotationViewDragState)oldState NS_AVAILABLE(10_9, 4_0) __TVOS_PROHIBITED;
+   fromOldState:(MKAnnotationViewDragState)oldState NS_AVAILABLE(10_9, 4_0) API_UNAVAILABLE(tvos);
 
 #if TARGET_OS_IPHONE
 - (void)mapView:(MKMapView *)mapView didChangeUserTrackingMode:(MKUserTrackingMode)mode animated:(BOOL)animated NS_AVAILABLE(NA, 5_0);
@@ -2076,14 +2401,14 @@ __WATCHOS_PROHIBITED
 
 #if TARGET_OS_IPHONE
 // Prefer -mapView:rendererForOverlay:
-- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay NS_DEPRECATED_IOS(4_0, 7_0) __TVOS_PROHIBITED;
+- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay API_DEPRECATED_WITH_REPLACEMENT("-mapView:rendererForOverlay:", ios(4.0, 13.0)) API_UNAVAILABLE(macos, tvos, watchos);
 // Called after the provided overlay views have been added and positioned in the map.
 // Prefer -mapView:didAddOverlayRenderers:
-- (void)mapView:(MKMapView *)mapView didAddOverlayViews:(NSArray *)overlayViews NS_DEPRECATED_IOS(4_0, 7_0) __TVOS_PROHIBITED;
+- (void)mapView:(MKMapView *)mapView didAddOverlayViews:(NSArray *)overlayViews API_DEPRECATED_WITH_REPLACEMENT("-mapView:didAddOverlayRenderers:", ios(4.0, 13.0)) API_UNAVAILABLE(macos, tvos, watchos);
 #endif
 
 // Return nil for default MKClusterAnnotation, it is illegal to return a cluster annotation not containing the identical array of member annotations given.
-- (MKClusterAnnotation *)mapView:(MKMapView *)mapView clusterAnnotationForMemberAnnotations:(NSArray<id<MKAnnotation>>*)memberAnnotations NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED;
+- (MKClusterAnnotation *)mapView:(MKMapView *)mapView clusterAnnotationForMemberAnnotations:(NSArray<id<MKAnnotation>>*)memberAnnotations NS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -2108,7 +2433,7 @@ NS_ASSUME_NONNULL_END
 #import <MapKit/MKOverlayPathView.h>
 
 // Prefer MKPolylineRenderer
-NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+API_DEPRECATED_WITH_REPLACEMENT("MKPolylineRenderer", ios(4.0, 13.0)) API_UNAVAILABLE(macos, tvos, watchos)
 @interface MKPolylineView : MKOverlayPathView
 
 - (instancetype)initWithPolyline:(MKPolyline *)polyline NS_DEPRECATED_IOS(4_0, 7_0);
@@ -2130,7 +2455,7 @@ NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_13, 11_0) __TVOS_AVAILABLE(11_0) API_UNAVAILABLE(watchos)
 @interface MKClusterAnnotation : NSObject <MKAnnotation>
 
 @property (nonatomic, copy, nullable) NSString *title;
@@ -2162,7 +2487,7 @@ NS_ASSUME_NONNULL_END
 
 
 // Prefer MKOverlayRenderer
-NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
+API_DEPRECATED_WITH_REPLACEMENT("MKOverlayRenderer", ios(4.0, 13.0)) API_UNAVAILABLE(macos, tvos, watchos)
 @interface MKOverlayView : UIView
 
 - (instancetype)initWithOverlay:(id <MKOverlay>)overlay NS_DESIGNATED_INITIALIZER NS_DEPRECATED_IOS(4_0, 7_0);
@@ -2199,9 +2524,39 @@ NS_CLASS_AVAILABLE(NA, 4_0) __TVOS_PROHIBITED __WATCHOS_PROHIBITED
 // Road widths are typically not drawn to scale on the map.  This function
 // returns the approximate width in points of roads at the specified zoomScale.
 // The result of this function is suitable for use with CGContextSetLineWidth.
-MK_EXTERN CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoomScale) NS_AVAILABLE(10_9, 4_0) __WATCHOS_PROHIBITED;
+MK_EXTERN CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoomScale) NS_AVAILABLE(10_9, 4_0) API_UNAVAILABLE(watchos);
 
 #endif // MK_SUPPORTS_VIEW_CLASSES
+// ==========  MapKit.framework/Headers/MKMapCameraBoundary.h
+//
+//  MKMapCameraBoundary.h
+//  MapKit
+//
+//  Copyright © 2018 Apple, Inc. All rights reserved.
+//
+
+#import <MapKit/MKFoundation.h>
+#import <MapKit/MKGeometry.h>
+
+#if MK_SUPPORTS_VIEW_CLASSES
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0), macos(10.15), tvos(13.0)) API_UNAVAILABLE(watchos)
+@interface MKMapCameraBoundary : NSObject <NSSecureCoding, NSCopying>
+
+- (nullable instancetype)initWithMapRect:(MKMapRect)mapRect NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoordinateRegion:(MKCoordinateRegion)region NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(nonnull NSCoder *)coder NS_DESIGNATED_INITIALIZER;
+
+@property (nonatomic, readonly) MKMapRect mapRect;
+@property (nonatomic, readonly) MKCoordinateRegion region;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif
 // ==========  MapKit.framework/Headers/MKShape.h
 //
 //  MKShape.h
@@ -2215,7 +2570,7 @@ MK_EXTERN CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoomScale) NS_AVAILABLE(10_
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 4_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKShape : NSObject <MKAnnotation>
 
 @property (nonatomic, copy, nullable) NSString *title;
@@ -2242,7 +2597,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKOverlayPathRenderer : MKOverlayRenderer
 
 #if TARGET_OS_IPHONE
@@ -2259,6 +2614,16 @@ NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
 @property CGFloat miterLimit; // defaults to 10
 @property CGFloat lineDashPhase; // defaults to 0
 @property (copy, nullable) NSArray<NSNumber *> *lineDashPattern; // defaults to nil
+
+/*
+ For renderers which support vector drawing, controls whether the overlay is rendered
+ as a bitmap when being composited with the map.
+
+ When false (the default), the overlay will be rendered as vector geometry whenever possible.
+ Note that certain geometry or configurations may force rasterization even when the value
+ of this property is false.
+ */
+@property (nonatomic, assign) BOOL shouldRasterize API_AVAILABLE(ios(13.0), tvos(13.0), macos(10.15)) API_UNAVAILABLE(watchos);
 
 // subclassers should override this to create a path and then set it on
 // themselves with self.path = newPath;
@@ -2297,7 +2662,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void (^MKDirectionsHandler)(MKDirectionsResponse * __nullable response, NSError * __nullable error);
 typedef void (^MKETAHandler)(MKETAResponse * __nullable response, NSError * __nullable error);
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKDirections : NSObject
 
 // The request will be copied during initialization, so any changes made to the request
@@ -2359,12 +2724,13 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) __WATCHOS_PROHIBITED
+NS_CLASS_AVAILABLE(10_9, 7_0) __TVOS_AVAILABLE(9_2) API_UNAVAILABLE(watchos)
 @interface MKMapSnapshot : NSObject
 
 #if TARGET_OS_IPHONE
 @property (nonatomic, readonly) UIImage *image;
 - (CGPoint)pointForCoordinate:(CLLocationCoordinate2D)coordinate;
+@property (nonatomic, readonly) UITraitCollection *traitCollection API_AVAILABLE(ios(13.0), tvos(13.0)) API_UNAVAILABLE(watchos) API_UNAVAILABLE(macos);
 #else
 @property (nonatomic, readonly) NSImage *image;
 @property (nonatomic, readonly) NSAppearance *appearance API_AVAILABLE(macos(10.14)) API_UNAVAILABLE(ios, tvos, watchos);

@@ -1,3 +1,269 @@
+// ==========  ARKit.framework/Headers/ARMatteGenerator.h
+//
+//  ARMatteGenerator.h
+//  ARKit
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class ARFrame;
+
+@protocol MTLTexture;
+@protocol MTLCommandBuffer;
+@protocol MTLDevice;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ The resolution at which the matte is to be generated.
+ @discussion The matte generated per frame can be full resolution of the captured camera image or half resolution. The caller chooses one of the options from ARMatteResolution during initialization.
+ */
+typedef NS_ENUM(NSInteger, ARMatteResolution) {
+    
+    /* Matte generated at camera image resolution. */
+    ARMatteResolutionFull      = 0,
+    
+    /* Matte generated at half the camera image resolution. */
+    ARMatteResolutionHalf    = 1
+    
+} NS_SWIFT_NAME(ARMatteGenerator.Resolution);
+
+/**
+ An object designed to generate either full resolution or half resolution matte given the ARFrame.
+ @discussion The caller initializes the object once and calls the alpha matte generation API for every ARFrame with the captured image and segmentation stencil.
+ */
+@interface ARMatteGenerator : NSObject
+
+/**
+ Initializes an instance of ARMatteGenerator.
+ 
+ @discussion For efficient creation of alpha mattes in real time it is recommended to instantiate this object only once and to generate an alpha matte for every incoming frame.
+ @see ARFrame
+ @see -[ARMatteGenerator generateMatteFromFrame:commandBuffer:]
+ @param device The device the filter will run on.
+ @param matteResolution The resolution at which the matte is to be generated. Set using one of the values from 'ARMatteResolution'.
+ @see ARMatteResolution
+ @return Instance of ARMatteGenerator.
+ */
+- (instancetype)initWithDevice:(id <MTLDevice>)device matteResolution:(ARMatteResolution)matteResolution NS_DESIGNATED_INITIALIZER;
+
+/**
+ Generates alpha matte at either full resolution or half the resolution of the captured image.
+ 
+ @param frame Current ARFrame containing camera image and segmentation stencil. The caller is to ensure that a valid segmentation buffer is present.
+ @param commandBuffer Metal command buffer for encoding matting related operations. The command buffer is committed by the caller externally.
+ @return Alpha matte MTLTexture for the given ARFrame at full resolution or half resolution as chosen by the  caller during initialization.
+ */
+- (id <MTLTexture>)generateMatteFromFrame:(ARFrame*)frame commandBuffer:(id <MTLCommandBuffer>)commandBuffer;
+
+/**
+ Generates dilated depth at the resolution of the segmentation stencil.
+ @discussion The caller can use depth information when compositing a virtual object with the captured scene. This API returns the dilated linear depth to the caller. The reprojection of this depth to the caller's scene space is carried out externally.
+ @param frame Current ARFrame containing camera image and estimated depth buffer. The caller is to ensure that a valid depth buffer is present.
+ @param commandBuffer Metal command buffer for encoding depth dilation operations. The command buffer is committed by the caller externally.
+ @return Dilated depth MTLTexture for the given ARFrame at the segmentation stencil resolution. The texture consists of a single channel and is of type float32.
+ */
+- (id <MTLTexture>)generateDilatedDepthFromFrame:(ARFrame*)frame commandBuffer:(id <MTLCommandBuffer>)commandBuffer;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARBody2D.h
+//
+//  ARBody2D.h
+//  ARKit
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <ARKit/ARSkeleton.h>
+#import <simd/simd.h>
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ Representation of a body in 2D.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARBody2D : NSObject
+
+/**
+ The body's skeleton.
+ */
+@property (nonatomic, readonly) ARSkeleton2D *skeleton;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARCollaborationData.h
+//
+//  ARCollaborationData.h
+//  ARKit
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <ARKit/ARSession.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ Object representing data for collaborative session.
+ 
+ @discussion This data needs to be sent to each participants in the collaborative session.
+ */
+API_AVAILABLE(ios(13.0))
+NS_SWIFT_NAME(ARSession.CollaborationData)
+@interface ARCollaborationData : NSObject
+
+/**
+ Data representation of the object.
+ @discussion The data representation should be sent to other participants in the collaborative session.
+ */
+@property (nonatomic, readonly) NSData *data;
+
+/**
+ Initialize from data representation.
+ @discussion This data is recieved from other participants in the collaborative session.
+ 
+ @param data Data representation.
+ */
+- (instancetype)initWithData:(NSData *)data;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARSkeleton.h
+//
+//  ARSkeleton.h
+//  ARKit
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <ARKit/ARSkeletonDefinition.h>
+#import <simd/simd.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ An object representing a skeleton.
+ @discussion A skeleton's structure is defined by a skeleton definition.
+ @see ARSkeletonDefinition
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARSkeleton : NSObject
+
+/**
+ Skeleton definition.
+ */
+@property (nonatomic, readonly) ARSkeletonDefinition *definition;
+
+/**
+ The number of joints.
+ */
+@property (nonatomic, readonly) NSUInteger jointCount NS_REFINED_FOR_SWIFT;
+
+/**
+ Tracking state for a given joint.
+ 
+ @param jointIndex The index of the joint.
+ @return True if the joint is tracked. False otherwise.
+ */
+- (BOOL)isJointTracked:(NSInteger)jointIndex;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+/**
+ An object representing a skeleton in 3D.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARSkeleton3D : ARSkeleton
+
+/**
+ The model space transforms for each joint.
+ */
+@property (nonatomic, readonly) const simd_float4x4 *jointModelTransforms NS_REFINED_FOR_SWIFT;
+
+/**
+ The local space joint data for each joint.
+ */
+@property (nonatomic, readonly) const simd_float4x4 *jointLocalTransforms NS_REFINED_FOR_SWIFT;
+
+/**
+ Returns the model transform for a joint with a given name.
+ 
+ @discussion If an invalid joint name is passed the returned matrix will be filled with NaN values.
+ @param jointName The name of the joint.
+ @return Model transform
+ */
+- (simd_float4x4)modelTransformForJointName:(ARSkeletonJointName)jointName NS_REFINED_FOR_SWIFT;
+
+/**
+ Returns the local transform for a joint with a given name.
+ 
+ @discussion If an invalid joint name is passed the returned matrix will be filled with NaN values.
+ @param jointName The name of the joint.
+ @return Local transform
+ */
+- (simd_float4x4)localTransformForJointName:(ARSkeletonJointName)jointName NS_REFINED_FOR_SWIFT;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+
+/**
+ An object representing a skeleton in 2D.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARSkeleton2D : ARSkeleton
+
+/**
+ The joint landmarks in normalized coordinates.
+ @discussion The joint landmarks are detected in the captured image on the ARFrame.
+ @see -[ARFrame capturedImage]
+ */
+@property (nonatomic, readonly) const simd_float2 *jointLandmarks NS_REFINED_FOR_SWIFT;
+
+/**
+ Returns the landmark point for a joint with a given name.
+ @discussion If an invalid joint name is passed the returned point will be filled with NaN values.
+ 
+ @param jointName The name of the joint.
+ @return Landmark in normalized image coordinates.
+ */
+- (simd_float2)landmarkForJointNamed:(ARSkeletonJointName)jointName NS_REFINED_FOR_SWIFT;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  ARKit.framework/Headers/ARLightEstimate.h
 //
 //  ARLightEstimate.h
@@ -260,7 +526,7 @@ API_AVAILABLE(ios(11.0))
  @discussion The view draws the camera background, and projects and maps anchors to nodes.
  */
 API_AVAILABLE(ios(11.0))
-@interface ARSKView : SKView
+@interface ARSKView : SKView<ARSessionProviding>
 
 /**
  Specifies the view’s delegate.
@@ -294,6 +560,62 @@ API_AVAILABLE(ios(11.0))
  @return An array of all hit-test results sorted from nearest to farthest.
  */
 - (NSArray<ARHitTestResult *> *)hitTest:(CGPoint)point types:(ARHitTestResultType)types;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARQuickLookPreviewItem.h
+//
+//  ARQuickLookPreviewItem.h
+//  ARKit
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <QuickLook/QLPreviewItem.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(13.0))
+@interface ARQuickLookPreviewItem : NSObject <QLPreviewItem>
+
+/**
+ Creates an object representing the 3D content that will be previewed in AR Quick Look.
+ 
+ @discussion This object will be previewed in AR Quick Look using the default
+ behavior:
+ 
+ - Start in Object mode without camera passthrough
+ 
+ - Display the Share button for 3D content sharing
+ 
+ - Allow scaling content in both Object and AR mode
+ 
+ This is a promise to the ARQuickLookPreviewItem class that the URL points to a 3D content file. This class does not deal with the file's existence or content, and leaves it up to QuickLook to handle and process the URL.
+ 
+ @param url A file URL to 3D content file (e.g. usdz).
+ @return The preview object to display in AR Quick Look.
+ */
+- (instancetype)initWithFileAtURL:(NSURL *)url NS_DESIGNATED_INITIALIZER;
+
+/**
+ An optional canonical web page URL for the 3D content that will be shared.
+ 
+ @discussion If this is supplied, the URL to the canonical web page is shared instead of the 3D content file.
+ For example, providing https://developer.apple.com/arkit/gallery/ as the canonical web page URL string will be shared via the Share button. If the web page URL string is malformed or not provided, then AR Quick Look will default to sharing the 3D content.
+ */
+@property (nonatomic, strong, nullable) NSURL *canonicalWebPageURL;
+
+/**
+ Whether or not AR Quick Look allows content scaling in AR mode.
+ Defaults to `YES` which allows scaling content in AR mode.
+ */
+@property (nonatomic, assign) BOOL allowsContentScaling;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 
@@ -380,6 +702,210 @@ API_AVAILABLE(ios(11.0))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARTrackedRaycast.h
+//
+//  ARTrackedRaycast.h
+//  ARKit
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <simd/simd.h>
+#import "ARRaycastQuery.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ A tracked raycast representation.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARTrackedRaycast: NSObject
+
+/**
+ Update the raycast query.
+ @discussion If raycast of the new query fails, an empty result is sent to the update handler and the query's ray will be no longer tracked.
+ */
+- (void)updateQuery:(ARRaycastQuery *)query;
+
+/**
+ Stop raycasting.
+ @discussion The raycast will be continuously tracked until stopped.
+ Resetting session's tracking, changing its configuration or deallocation of ARTrackedRaycast object cause the raycast to stop.
+ */
+- (void)stopTracking;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARRaycastQuery.h
+//
+//  ARRaycastQuery.h
+//  ARKit
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <simd/simd.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ A value describing the target of a ray used for raycasting.
+ */
+API_AVAILABLE(ios(13.0))
+typedef NS_ENUM(NSInteger, ARRaycastTarget) {
+    
+    /** Ray's target is an already detected plane, considering the plane's estimated size and shape. */
+    ARRaycastTargetExistingPlaneGeometry,
+    
+    /** Ray's target is an already detected plane, without considering the plane's size. */
+    ARRaycastTargetExistingPlaneInfinite,
+    
+    /**
+     Ray's target is a plane that is estimated using the feature points around the ray.
+     When alignment is ARRaycastTargetAlignmentAny, alignment of estimated planes is based on the normal of the real world
+     surface corresponding to the estimated plane.
+     */
+    ARRaycastTargetEstimatedPlane,
+} NS_SWIFT_NAME(ARRaycastQuery.Target);
+
+/**
+ A value describing the alignment of a target.
+ */
+API_AVAILABLE(ios(13.0))
+typedef NS_ENUM(NSInteger, ARRaycastTargetAlignment) {
+    /** A target that is horizontal with respect to gravity. */
+    ARRaycastTargetAlignmentHorizontal,
+    
+    /** A target that is vertical with respect to gravity. */
+    ARRaycastTargetAlignmentVertical,
+    
+    /** A target that is in any alignment, inclusive of horizontal and vertical. */
+    ARRaycastTargetAlignmentAny
+    
+} NS_SWIFT_NAME(ARRaycastQuery.TargetAlignment);
+
+
+/**
+ Representation of a ray and its target which is used for raycasting.
+ @discussion Represents a 3D ray and its target which is used to perform raycasting.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARRaycastQuery : NSObject
+
+/**
+ Origin of the ray.
+ */
+@property (nonatomic, readonly) simd_float3 origin;
+
+/**
+ Direction of the ray.
+ */
+@property (nonatomic, readonly) simd_float3 direction;
+
+/**
+ Type of target where the ray should terminate.
+ */
+@property (nonatomic, readonly) ARRaycastTarget target;
+
+/**
+ The alignment of the target that should be considered for raycasting.
+ */
+@property (nonatomic, readonly) ARRaycastTargetAlignment targetAlignment;
+
+/**
+ Create a new ARRaycastQuery with the provided origin, direction, allowed target and its alignment.
+ @param origin Origin of the ray.
+ @param direction Direction of the ray.
+ @param target Type of target where the ray is allowed to terminate.
+ @param alignment Alignment of the target that should be considered for raycasting.
+ */
+- (instancetype)initWithOrigin:(simd_float3)origin direction:(simd_float3)direction allowingTarget:(ARRaycastTarget)target alignment:(ARRaycastTargetAlignment)alignment;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARParticipantAnchor.h
+//
+//  ARParticipantAnchor.h
+//  ARKit
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <ARKit/ARAnchor.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ This anchor represents the physical position and orientation of another participant in the collaborative session.
+ 
+ @discussion The participant anchors are automatically added to the ARSession and are updated with each frame.
+           The participant can be identified by `sessionIdentifier` property of the anchor.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARParticipantAnchor : ARAnchor
+
+/** Unavailable */
+- (instancetype)initWithTransform:(simd_float4x4)transform NS_UNAVAILABLE;
+- (instancetype)initWithName:(NSString *)name transform:(simd_float4x4)transform NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARBodyAnchor.h
+//
+//  ARBodyAnchor.h
+//  ARKit
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <ARKit/ARAnchor.h>
+#import <CoreGraphics/CGGeometry.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class ARBody2D;
+@class ARSkeleton3D;
+
+/**
+ An anchor representing a body in the world.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARBodyAnchor : ARAnchor <ARTrackable>
+
+/**
+ The tracked skeleton in 3D.
+ @note The default height of this skeleton is defined to be 1.8 meters.
+ */
+@property (nonatomic, strong, readonly) ARSkeleton3D *skeleton;
+
+/**
+ The factor between estimated physical size and default size of the skeleton.
+ @see -[ARSkeletonDefinition neutralBodySkeleton3D]
+ 
+ @discussion This value will be estimated if automaticSkeletonScaleEstimationEnabled is set to true on the ARBodyTrackingConfiguration.
+ It is used to correct the transform's translation. Default value is 1.0.
+ */
+@property (nonatomic, readonly) CGFloat estimatedScaleFactor;
+
+/** Unavailable */
+- (instancetype)initWithTransform:(simd_float4x4)transform NS_UNAVAILABLE;
+- (instancetype)initWithName:(NSString *)name transform:(simd_float4x4)transform NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  ARKit.framework/Headers/ARReferenceImage.h
 //
 //  ARReferenceImage.h
@@ -412,6 +938,22 @@ API_AVAILABLE(ios(11.3))
  The physical size of the image in meters.
  */
 @property (nonatomic, readonly) CGSize physicalSize;
+
+/**
+ The AR resource group name for this image.
+ @discussion If this image was loaded via an AR resource group in the Xcode asset catalogue this property will have the name of the resource group,
+ else be set to nil.
+ */
+@property (nonatomic, strong, nullable, readonly) NSString *resourceGroupName API_AVAILABLE(ios(13.0));
+
+/**
+ Validate if this image can be used for image detection or tracking.
+ @discussion When loading reference images from the asset catalog this verification is not needed as the same verification happens
+ at compile time.
+ @param completionHandler Completion handler invoked when validation is done. The completion handler takes the following parameters:
+ error - An error that indicates why the image is not suitable for tracking, or nil if no error occured.
+ */
+- (void)validateWithCompletionHandler:(void (^)(NSError * _Nullable error))completionHandler API_AVAILABLE(ios(13.0));
 
 /**
  Creates a new reference image.
@@ -457,12 +999,18 @@ NS_ASSUME_NONNULL_END
 
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
+#import <AVFoundation/AVCaptureDevice.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(11.3))
 NS_SWIFT_NAME(ARConfiguration.VideoFormat)
 @interface ARVideoFormat : NSObject <NSCopying>
+
+/**
+ Indicates the physical position of an AVCaptureDevice's hardware on the system.
+ */
+@property (nonatomic, readonly) AVCaptureDevicePosition captureDevicePosition API_AVAILABLE(ios(13.0));
 
 /**
  Image resolution.
@@ -505,7 +1053,11 @@ NS_ASSUME_NONNULL_END
 #import <ARKit/ARReferenceImage.h>
 #import <ARKit/ARReferenceObject.h>
 #import <ARKit/ARVideoFormat.h>
+#import <ARKit/ARCollaborationData.h>
 #import <ARKit/ARWorldMap.h>
+#import <ARKit/ARRaycastQuery.h>
+#import <ARKit/ARTrackedRaycast.h>
+#import <ARKit/ARRaycastResult.h>
 
 #import <ARKit/ARAnchor.h>
 #import <ARKit/AREnvironmentProbeAnchor.h>
@@ -513,11 +1065,21 @@ NS_ASSUME_NONNULL_END
 #import <ARKit/ARFaceGeometry.h>
 #import <ARKit/ARImageAnchor.h>
 #import <ARKit/ARObjectAnchor.h>
+#import <ARKit/ARParticipantAnchor.h>
 #import <ARKit/ARPlaneAnchor.h>
 #import <ARKit/ARPlaneGeometry.h>
 
+#import <ARKit/ARSkeleton.h>
+#import <ARKit/ARSkeletonDefinition.h>
+#import <ARKit/ARBody2D.h>
+#import <ARKit/ARBodyAnchor.h>
+
+#import <ARKit/ARCoachingOverlayView.h>
 #import <ARKit/ARSCNView.h>
 #import <ARKit/ARSKView.h>
+#import <ARKit/ARMatteGenerator.h>
+
+#import <ARKit/ARQuickLookPreviewItem.h>
 // ==========  ARKit.framework/Headers/ARCamera.h
 //
 //  ARCamera.h
@@ -621,6 +1183,16 @@ API_AVAILABLE(ios(11.0))
  The camera image resolution in pixels.
  */
 @property (nonatomic, readonly) CGSize imageResolution;
+
+/**
+ The camera exposure duration in seconds.
+ */
+@property (nonatomic, readonly) NSTimeInterval exposureDuration API_AVAILABLE(ios(13.0));
+
+/**
+ The camera exposure offset in EV (exposure value) units.
+ */
+@property (nonatomic, readonly) float exposureOffset API_AVAILABLE(ios(13.0));
 
 /**
  The projection matrix of the camera.
@@ -786,14 +1358,36 @@ NS_ASSUME_NONNULL_END
 #import <UIKit/UIApplication.h>
 #import <simd/simd.h>
 #import <ARKit/ARHitTestResult.h>
+#import <ARKit/ARRaycastQuery.h>
 
 @class ARAnchor;
 @class ARCamera;
 @class ARLightEstimate;
 @class ARPointCloud;
 @class AVDepthData;
+@class ARBody2D;
+
+@protocol MTLTexture;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ Segmentation classes which defines a pixel's semantic label.
+ @discussion When running a configuration with 'ARFrameSemanticPersonSegmentation' every pixel in the
+ segmentationBuffer on the ARFrame will conform to one of these classes.
+ @see -[ARConfiguration setFrameSemantics:]
+ @see -[ARFrame segmentationBuffer]
+*/
+API_AVAILABLE(ios(13.0))
+typedef NS_ENUM(uint8_t, ARSegmentationClass) {
+
+     /* Pixel has been not been classified. */
+    ARSegmentationClassNone      = 0,
+
+    /* Pixel has been classified as person. */
+    ARSegmentationClassPerson    = 255
+
+} NS_SWIFT_NAME(ARFrame.SegmentationClass);
 
 /**
  A value describing the world mapping status for the area visible in a given frame.
@@ -832,6 +1426,27 @@ API_AVAILABLE(ios(11.0))
  The frame’s captured image.
  */
 @property (nonatomic, readonly) CVPixelBufferRef capturedImage;
+
+/**
+ A tileable texture that contains image noise matching the current camera streams
+ noise properties.
+ 
+ @discussion A camera stream depicts image noise that gives the captured image
+    a grainy look and varies with light conditions.
+ The variations are stored along the depth dimension of the camera grain texture
+ and can be selected at runtime using the camera grain intensity of the current frame.
+ */
+@property (nonatomic, nullable, readonly) id<MTLTexture> cameraGrainTexture API_AVAILABLE(ios(13.0));
+
+/**
+ The frame’s camera grain intensity in range 0 to 1.
+ 
+ @discussion A camera stream depicts image noise that gives the captured image
+ a grainy look and varies with light conditions.
+ The camera grain intensity can be used to select a texture slice from the frames
+ camera grain texture.
+ */
+@property (nonatomic, readonly) float cameraGrainIntensity API_AVAILABLE(ios(13.0));
 
 /**
  The frame’s captured depth data.
@@ -875,6 +1490,29 @@ API_AVAILABLE(ios(11.0))
 @property (nonatomic, readonly) ARWorldMappingStatus worldMappingStatus API_AVAILABLE(ios(12.0));
 
 /**
+ A buffer that represents the segmented content of the capturedImage.
+ @discussion In order to identify to which class a pixel has been classified one needs to compare its intensity value with the values
+ found in `ARSegmentationClass`.
+ @see ARSegmentationClass
+ @see -[ARConfiguration setFrameSemantics:]
+*/
+@property (nonatomic, nullable, readonly) CVPixelBufferRef segmentationBuffer API_AVAILABLE(ios(13.0));
+
+/**
+ A buffer that represents the estimated depth values for a performed segmentation.
+ @discussion For each non-background pixel in the segmentation buffer the corresponding depth value can be accessed in this buffer.
+ @see -[ARConfiguration setFrameSemantics:]
+ @see -[ARFrame segmentationBuffer]
+ */
+@property (nonatomic, nullable, readonly) CVPixelBufferRef estimatedDepthData API_AVAILABLE(ios(13.0));
+
+/**
+ A detected body in the current frame.
+ @see -[ARConfiguration setFrameSemantics:]
+ */
+@property (nonatomic, nullable, readonly) ARBody2D *detectedBody API_AVAILABLE(ios(13.0));
+
+/**
  Searches the frame for objects corresponding to a point in the captured image.
  
  @discussion A 2D point in the captured image’s coordinate space can refer to any point along a line segment
@@ -887,6 +1525,16 @@ API_AVAILABLE(ios(11.0))
 - (NSArray<ARHitTestResult *> *)hitTest:(CGPoint)point types:(ARHitTestResultType)types;
 
 /**
+ Creates a raycast query originating from the point on the captured image, aligned along the center of the field of view of the camera.
+ @discussion A 2D point in the captured image’s coordinate space and the field of view of the frame's camera is used to create a ray in the 3D cooridnate space originating at the point.
+ @param point A point in the image-space coordinate system of the captured image.
+ Values should range from (0,0) - upper left corner to (1,1) - lower right corner.
+ @param target Type of target where the ray should terminate.
+ @param alignment Alignment of the target.
+ */
+- (ARRaycastQuery *)raycastQueryFromPoint:(CGPoint)point allowingTarget:(ARRaycastTarget)target alignment:(ARRaycastTargetAlignment)alignment API_AVAILABLE(ios(13.0));
+
+/**
  Returns a display transform for the provided viewport size and orientation.
  
  @discussion The display transform can be used to convert normalized points in the image-space coordinate system
@@ -896,6 +1544,7 @@ API_AVAILABLE(ios(11.0))
  @param viewportSize The size of the viewport.
  */
 - (CGAffineTransform)displayTransformForOrientation:(UIInterfaceOrientation)orientation viewportSize:(CGSize)viewportSize;
+
 
 /** Unavailable */
 - (instancetype)init NS_UNAVAILABLE;
@@ -920,9 +1569,14 @@ NS_ASSUME_NONNULL_BEGIN
 @class ARAnchor;
 @class ARCamera;
 @class ARFrame;
+@class ARCollaborationData;
 @class ARWorldMap;
+@class ARRay;
+@class ARRaycastQuery;
+@class ARRaycastResult;
+@class ARTrackedRaycast;
+
 @protocol ARSessionDelegate;
-@protocol MTLTexture;
 
 /**
  Set of options for running the session.
@@ -946,6 +1600,13 @@ API_AVAILABLE(ios(11.0))
 @interface ARSession : NSObject
 
 /**
+ Unique identifier of the running session.
+ 
+ @discussion The identifier may change after calling runWithConfiguration.
+ */
+@property (atomic, strong, readonly) NSUUID *identifier API_AVAILABLE(ios(13.0));
+
+/**
  A delegate for receiving ARSession updates.
  */
 @property (nonatomic, weak, nullable) id <ARSessionDelegate> delegate;
@@ -966,13 +1627,16 @@ API_AVAILABLE(ios(11.0))
  */
 @property (nonatomic, copy, nullable, readonly) ARConfiguration *configuration;
 
+
 /**
  Runs the session with the provided configuration.
  @discussion Calling run on a session that has already started will
  transition immediately to using the new configuration.
  @param configuration The configuration to use.
  */
+
 - (void)runWithConfiguration:(ARConfiguration *)configuration NS_SWIFT_UNAVAILABLE("Use run(_:options:) instead");
+
 
 /**
  Runs the session with the provided configuration and options.
@@ -982,6 +1646,7 @@ API_AVAILABLE(ios(11.0))
  @param configuration The configuration to use.
  @param options The run options to use.
  */
+
 - (void)runWithConfiguration:(ARConfiguration *)configuration options:(ARSessionRunOptions)options NS_SWIFT_NAME(run(_:options:));
 
 /**
@@ -1045,8 +1710,40 @@ API_AVAILABLE(ios(11.0))
                           completionHandler:(void (^)(ARReferenceObject * _Nullable referenceObject, NSError * _Nullable error))completionHandler
 NS_SWIFT_NAME(createReferenceObject(transform:center:extent:completionHandler:)) API_AVAILABLE(ios(12.0));
 
-@end
+#pragma mark - Raycasting
 
+/**
+ Perform a raycast.
+ @param query Raycast query used for raycasting.
+ @return List of raycast results, sorted from nearest to farthest (in distance from the camera). The results could be empty if raycast fails.
+ */
+- (NSArray<ARRaycastResult *> *)raycast:(ARRaycastQuery *)query API_AVAILABLE(ios(13.0));
+
+/**
+ Perform a tracked raycast.
+ @discussion The session performs continuous raycasting and calls the update handler with the updated results.
+ The ARTrackedRaycast object returned can be used to update the raycast with a new raycast query or stop raycasting.
+ @param query Raycast query used for raycasting.
+ @param updateHandler update handler where updated list of results, sorted from nearest to farthest (in distance from
+        the camera) are delivered. updateHandler will be called on session's delegate queue.
+ @return Tracked raycast object used to update or stop raycasting. This could be nil if the raycast fails or if the
+         configuration is not `ARWorldTrackingConfiguration` or its subclasses.
+ */
+- (nullable ARTrackedRaycast *)trackedRaycast:(ARRaycastQuery *)query updateHandler:(void (^)(NSArray<ARRaycastResult *> *))updateHandler API_AVAILABLE(ios(13.0));
+
+#pragma mark - Collaboration
+
+/**
+ Update session with collaboration data.
+ 
+ @discussion Use this to update the session with collaboration data received from other participants.
+ 
+ @param collaborationData Collaboration data for updating the session.
+ @see ARCollaborationData
+ */
+- (void)updateWithCollaborationData:(ARCollaborationData *)collaborationData API_AVAILABLE(ios(13.0));
+
+@end
 
 #pragma mark - ARSessionObserver
 
@@ -1119,6 +1816,17 @@ API_AVAILABLE(ios(11.0))
  */
 - (void)session:(ARSession *)session didOutputAudioSampleBuffer:(CMSampleBufferRef)audioSampleBuffer;
 
+/**
+ This is called when the session generated new collaboration data.
+ 
+ @discussion This data should be sent to all participants.
+ 
+ @param session The session that produced world tracking collaboration data.
+ @param data Collaboration data to be sent to participants.
+ @see ARCollaborationData
+ */
+- (void)session:(ARSession *)session didOutputCollaborationData:(ARCollaborationData *)data API_AVAILABLE(ios(13.0));
+
 @end
 
 #pragma mark - ARSessionDelegate
@@ -1160,6 +1868,15 @@ API_AVAILABLE(ios(11.0))
  @param anchors An array of removed anchors.
  */
 - (void)session:(ARSession *)session didRemoveAnchors:(NSArray<ARAnchor*>*)anchors;
+
+@end
+
+/**
+ A data source for an ARSession
+ */
+@protocol ARSessionProviding <NSObject>
+
+@property (readonly) ARSession *session;
 
 @end
 
@@ -1301,6 +2018,142 @@ API_AVAILABLE(ios(12.0))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARCoachingOverlayView.h
+//
+//  ARCoachingOverlayView.h
+//  ARKit
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class ARSession;
+
+@protocol ARCoachingOverlayViewDelegate;
+@protocol ARSessionProviding;
+
+/**
+ A value describing the context required for successful coaching
+ */
+API_AVAILABLE(ios(13.0))
+typedef NS_ENUM(NSInteger, ARCoachingGoal) {
+    /** Session requires normal tracking */
+    ARCoachingGoalTracking,
+    /** Session requires a horizontal plane */
+    ARCoachingGoalHorizontalPlane,
+    /** Session requires a vertical plane */
+    ARCoachingGoalVerticalPlane,
+    /** Session requires one plane of any type */
+    ARCoachingGoalAnyPlane,
+} NS_SWIFT_NAME(ARCoachingOverlayView.Goal);
+
+/**
+ A view that guides users through session initialization
+ 
+ @discussion The view will use context aware messaging and animations to instruct the user on gathering required info for the AR session.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARCoachingOverlayView : UIView
+
+/**
+ Specifies the delegate used for callbacks
+ */
+@property (nonatomic, weak, nullable) IBOutlet id<ARCoachingOverlayViewDelegate> delegate;
+
+/**
+ A provider of a session to use
+
+ @discussion This property can be used to set the `session` when loading from a storyboard. Setting this property at runtime will also
+ set the `session` property.
+ */
+@property (nonatomic, weak, nullable) IBOutlet id<ARSessionProviding> sessionProvider;
+
+/**
+ The session that the view uses to update coaching
+ */
+@property (nonatomic, strong, nullable) ARSession *session;
+
+/**
+ The coaching type used to resolve what messaging to display to the user while activated
+ Defaults to `ARCoachingGoalTracking`
+ */
+@property (nonatomic, assign) ARCoachingGoal goal;
+
+/**
+ Whether or not the view should activate/deactivate automatically, depending on the current state of the session
+ Defaults to `YES`
+ 
+ @discussion When set to automatically activate, the view will transition to active when the session loses normal tracking for a set amount
+ of time.
+ When tracking resumes and other requirements (based on `goal`) are met, the view will deactivate.
+
+ */
+@property (nonatomic, assign) BOOL activatesAutomatically;
+
+/**
+ Whether or not the view is currently active.
+
+ @discussion Set this to transition to the activated or deactivated state. On activation the view will check the current session, and if
+ relocalization is needed it will present a modified UI with relocalization coaching and a reset button.
+
+ @see -[ARCoachingOverlayView setActive:animated:]
+ */
+@property (nonatomic, assign, getter=isActive) BOOL active;
+
+/**
+ Transition the view to either an activated or deactivated state
+ 
+ @discussion On activation the view will check the current session, and if relocalization is needed it will present a modified UI with
+ relocalization coaching and a reset button.
+ 
+ On deactivation the view will become hidden
+ @param active Whether the view should activate, or deactivate
+ @param animated Whether the view animated to activated/deactivated states, or transitions instantly
+
+ @see -[ARCoachingOverlayViewDelegate coachingOverlayViewDidTriggerReset:]
+ */
+- (void)setActive:(BOOL)active animated:(BOOL)animated;
+
+@end
+
+API_AVAILABLE(ios(13.0))
+@protocol ARCoachingOverlayViewDelegate <NSObject>
+
+@optional
+
+/**
+ This is called when the user taps the reset button in the relocalization state
+
+ @discussion By default, when the relocalization reset button is tapped, the overlay will call run on the session using the current
+ `configuration`, and the `ARSessionRunOptionResetTracking` and `ARSessionRunOptionRemoveExistingAnchors` options. The delegate may
+ implement this method to override this behavior. The delegate is then responsible for resetting the session.
+ 
+ @param coachingOverlayView The view currently active
+ */
+- (void)coachingOverlayViewDidRequestSessionReset:(ARCoachingOverlayView *)coachingOverlayView;
+
+/**
+ This is called when the view activate, either manually or automatically
+ 
+ @discussion The Developer may hide their application UI in in this callback, and take other appropriate actions to allow
+ `ARCoachingOverlayView` to take over the full screen.
+ @param coachingOverlayView The view that will be activated
+ */
+- (void)coachingOverlayViewWillActivate:(ARCoachingOverlayView *)coachingOverlayView;
+
+/**
+ This is called when the view deactivates, either manually or automatically
+ 
+ @param coachingOverlayView The view that was deactivated
+ */
+- (void)coachingOverlayViewDidDeactivate:(ARCoachingOverlayView *)coachingOverlayView;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  ARKit.framework/Headers/ARPlaneAnchor.h
 //
 //  ARPlaneAnchor.h
@@ -1353,7 +2206,9 @@ typedef NS_ENUM(NSInteger, ARPlaneClassification) {
     ARPlaneClassificationFloor,
     ARPlaneClassificationCeiling,
     ARPlaneClassificationTable,
-    ARPlaneClassificationSeat
+    ARPlaneClassificationSeat,
+    ARPlaneClassificationWindow,
+    ARPlaneClassificationDoor
 } NS_REFINED_FOR_SWIFT;
 
 /**
@@ -1416,6 +2271,7 @@ NS_ASSUME_NONNULL_END
 #import <SceneKit/SceneKit.h>
 #import <ARKit/ARSession.h>
 #import <ARKit/ARHitTestResult.h>
+#import <ARKit/ARTrackedRaycast.h>
 
 @protocol ARSCNViewDelegate;
 
@@ -1428,7 +2284,7 @@ NS_ASSUME_NONNULL_BEGIN
  manages nodes for anchors, and updates lighting.
  */
 API_AVAILABLE(ios(11.0))
-@interface ARSCNView : SCNView
+@interface ARSCNView : SCNView<ARSessionProviding>
 
 /**
  Specifies the renderer delegate.
@@ -1452,6 +2308,23 @@ API_AVAILABLE(ios(11.0))
  light estimates the session provides. Defaults to YES.
  */
 @property (nonatomic, assign) BOOL automaticallyUpdatesLighting;
+
+/**
+ Determines whether view renders camera grain.
+ 
+ @discussion When set, the view will automatically add camera grain to rendered
+ content that matches the grainy noise of the camera stream. Enabled by default.
+ */
+@property (nonatomic, assign) BOOL rendersCameraGrain API_AVAILABLE(ios(13.0));
+
+/**
+ Determines whether view renders motion blur.
+ 
+ @discussion When set, the view will automatically add motion blur to rendered
+ content that matches the motion blur of the camera stream.
+ Overwrites SCNCamera's motionBlurIntensity property. Disabled by default.
+ */
+@property (nonatomic, assign) BOOL rendersMotionBlur API_AVAILABLE(ios(13.0));
 
 /**
  Searches the scene hierarchy for an anchor associated with the provided node.
@@ -1487,6 +2360,15 @@ API_AVAILABLE(ios(11.0))
  @return 3D position in world coordinates or a NAN values if unprojection is not possible.
  */
 - (simd_float3)unprojectPoint:(CGPoint)point ontoPlaneWithTransform:(simd_float4x4)planeTransform API_AVAILABLE(ios(12.0)) NS_REFINED_FOR_SWIFT;
+
+/**
+ Creates a raycast query originating from the point on view, aligned along the center of the field of view of the camera.
+ @discussion A 2D point in the view's coordinate space and the frame camera's field of view is used to create a ray in the 3D cooridnate space originating at the point.
+ @param point A point in the view’s coordinate system.
+ @param target Type of target where the ray should terminate.
+ @param alignment Alignment of the target.
+ */
+- (nullable ARRaycastQuery *)raycastQueryFromPoint:(CGPoint)point allowingTarget:(ARRaycastTarget)target alignment:(ARRaycastTargetAlignment)alignment API_AVAILABLE(ios(13.0));
 
 @end
 
@@ -1620,6 +2502,42 @@ NS_ASSUME_NONNULL_BEGIN
 @class ARWorldMap;
 
 /**
+Option set indicating semantic understanding types of the image frame.
+*/
+API_AVAILABLE(ios(13.0))
+typedef NS_OPTIONS(NSUInteger, ARFrameSemantics) {
+    /** No semantic operation is run. */
+    ARFrameSemanticNone                              = 0,
+    
+    /**
+    Person segmentation.
+    @discussion A pixel in the image frame that gets classified as person will have an intensity value equal to 'ARSegmentationClassPerson'.
+    @see -[ARFrame segmentationBuffer]
+    @see ARSegmentationClass
+    */
+    ARFrameSemanticPersonSegmentation                = (1 << 0),
+    
+    /**
+     Person segmentation with depth.
+     @discussion A pixel in the image frame that gets classified as person will have an intensity value equal to 'ARSegmentationClassPerson'.
+     Additionally, every pixel in the image frame that gets classified as person will also have a depth value.
+     @see -[ARFrame estimatedDepthData]
+     @see -[ARFrame segmentationBuffer]
+     */
+    ARFrameSemanticPersonSegmentationWithDepth       = (1 << 1) | (1 << 0),
+    
+    /**
+     Body detection.
+
+     @discussion Once activated an ARFrame will contain information about a detected body.
+     @see -[ARFrame detectedBody]
+     @see ARBody2D
+     */
+    ARFrameSemanticBodyDetection                     = (1 << 2)
+    
+} NS_SWIFT_NAME(ARConfiguration.FrameSemantics);
+
+/**
  Enum constants for indicating the world alignment.
  */
 API_AVAILABLE(ios(11.0))
@@ -1709,6 +2627,25 @@ API_AVAILABLE(ios(11.0))
  */
 @property (nonatomic, assign) BOOL providesAudioData;
 
+/**
+The type of semantic understanding to provide with each frame.
+
+@discussion  Use `+[ARConfiguration supportsFrameSemantics:]` to check if an option is supported before setting. An exception is thrown if the
+option is not supported. Defaults to ARFrameSemanticNone.
+@see ARFrameSemantics
+@see +[ARConfiguration supportsFrameSemantics:]
+*/
+@property (nonatomic, assign) ARFrameSemantics frameSemantics API_AVAILABLE(ios(13.0));
+
+/**
+ Determines whether the type of frame semantics is supported by the device and ARConfiguration class.
+
+ @discussion Semantic frame understanding is not supported on all devices.
+ @see ARFrameSemantics
+*/
++ (BOOL)supportsFrameSemantics:(ARFrameSemantics)frameSemantics API_AVAILABLE(ios(13.0));
+
+
 /** Unavailable */
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
@@ -1741,6 +2678,11 @@ API_AVAILABLE(ios(11.0))
 @property (nonatomic, assign) AREnvironmentTexturing environmentTexturing API_AVAILABLE(ios(12.0));
 
 /**
+ Determines whether environment textures will be provided with high dynamic range. Enabled by default.
+ */
+@property (nonatomic, assign) BOOL wantsHDREnvironmentTextures API_AVAILABLE(ios(13.0));
+
+/**
  Type of planes to detect in the scene.
  @discussion If set, new planes will continue to be detected and updated over time. Detected planes will be added to the session as
  ARPlaneAnchor objects. In the event that two planes are merged, the newer plane will be removed. Defaults to ARPlaneDetectionNone.
@@ -1763,6 +2705,14 @@ API_AVAILABLE(ios(11.0))
 @property (nonatomic, copy, null_resettable) NSSet<ARReferenceImage *> *detectionImages API_AVAILABLE(ios(11.3));
 
 /**
+ Enables the estimation of a scale factor which may be used to correct the physical size of an image.
+ @discussion If set to true ARKit will attempt to use the computed camera positions in order to compute the scale by which the given physical size
+ differs from the estimated one. The information about the estimated scale can be found as the property estimatedScaleFactor on the ARImageAnchor.
+ @note When set to true the transform of a returned ARImageAnchor will use the estimated scale factor to correct the translation. Default value is NO.
+  */
+@property (nonatomic, assign) BOOL automaticImageScaleEstimationEnabled API_AVAILABLE(ios(13.0));
+
+/**
  Maximum number of images to track simultaneously.
  @discussion Setting the maximum number of tracked images will limit the number of images that can be tracked in a given frame.
  If more than the maximum is visible, only the images already being tracked will continue to track until tracking is lost or another image is removed.
@@ -1775,6 +2725,30 @@ API_AVAILABLE(ios(11.0))
  @discussion If set the session will attempt to detect the specified objects. When an object is detected an ARObjectAnchor will be added to the session.
  */
 @property (nonatomic, copy) NSSet<ARReferenceObject *> *detectionObjects API_AVAILABLE(ios(12.0));
+
+/**
+ Enable/disable a collaborative session. Disabled by default.
+ 
+ @discussion When enabled, ARSession will output collaboration data for other participants using its delegate didOutputCollaborationData.
+ It is the responsibility of the caller to send the data to each participant. When data is received by a participant, it
+ should be passed to the ARSession by calling updateWithCollaborationData.
+ */
+@property (nonatomic, assign, getter=isCollaborationEnabled) BOOL collaborationEnabled API_AVAILABLE(ios(13.0));
+
+/**
+ Indicates whether user face tracking using the front facing camera can be enabled on this device.
+ */
+@property (class, nonatomic, readonly) BOOL supportsUserFaceTracking API_AVAILABLE(ios(13.0));
+
+/**
+ Enable or disable running Face Tracking using the front facing camera. Disabled by default.
+ When enabled, ARSession detects faces (if visible in the front-facing camera image) and adds to its list of anchors,
+ an ARFaceAnchor object representing each face.
+ 
+ @discussion The transform of the ARFaceAnchor objects will be in the world coordinate space.
+ @see ARFaceAnchor
+ */
+@property (nonatomic, assign, getter=userFaceTrackingEnabled) BOOL userFaceTrackingEnabled API_AVAILABLE(ios(13.0));
 
 - (instancetype)init;
 + (instancetype)new NS_SWIFT_UNAVAILABLE("Use init() instead");
@@ -1810,6 +2784,31 @@ API_AVAILABLE(ios(11.0))
  */
 API_AVAILABLE(ios(11.0))
 @interface ARFaceTrackingConfiguration : ARConfiguration
+
+/**
+ Maximum number of faces which can be tracked simultaneously.
+ */
+@property (class, nonatomic, readonly) NSInteger supportedNumberOfTrackedFaces API_AVAILABLE(ios(13.0));
+
+/**
+ Maximum number of faces to track simultaneously.
+ @discussion Setting the maximum number of tracked faces will limit the number of faces that can be tracked in a given frame.
+ If more than the maximum is visible, only the faces already being tracked will continue to track until tracking is lost or another face is removed.
+ Default value is one.
+ */
+@property (nonatomic, assign) NSInteger maximumNumberOfTrackedFaces API_AVAILABLE(ios(13.0));
+
+/**
+ Indicates whether world tracking can be enabled on this device.
+ */
+@property (class, nonatomic, readonly) BOOL supportsWorldTracking API_AVAILABLE(ios(13.0));
+
+/**
+ Enable or disable World Tracking. Disabled by default.
+ 
+ @discussion When enabled, ARSession uses the back facing camera to track the device's orientation and position in the world. The camera transform and the ARFaceAnchor transform will be in the world coordinate space.
+ */
+@property (nonatomic, assign, getter=isWorldTrackingEnabled) BOOL worldTrackingEnabled API_AVAILABLE(ios(13.0));
 
 - (instancetype)init;
 + (instancetype)new NS_SWIFT_UNAVAILABLE("Use init() instead");
@@ -1878,6 +2877,117 @@ API_AVAILABLE(ios(12.0))
 
 @end
 
+
+/**
+ A configuration for running body tracking.
+ 
+ @discussion Body tracking provides 6 degrees of freedom tracking of a detected body in the scene. By default, ARFrameSemanticBodyDetection will be
+ enabled.
+ @see ARBodyAnchor
+ @see -[ARFrame detectedBody]
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARBodyTrackingConfiguration : ARConfiguration
+
+/**
+ Enable or disable continuous auto focus.
+ @discussion Enabled by default.
+ */
+@property (nonatomic, assign, getter=isAutoFocusEnabled) BOOL autoFocusEnabled;
+
+/**
+ The initial map of the physical space that world tracking will localize to and track.
+ @discussion If set, the session will attempt to localize to the provided map with
+ a limited tracking state until localization is successful or run is called again
+ with a different (or no) initial map specified. Once localized, the map will be extended
+ and can again be saved using the `getCurrentWorldMap` method on the session.
+ */
+@property (nonatomic, strong, nullable) ARWorldMap *initialWorldMap;
+
+/**
+ The mode of environment texturing to run.
+ @discussion If set, texture information will be accumulated and updated. Adding an AREnvironmentProbeAnchor to the session
+ will get the current environment texture available from that probe's perspective which can be used for lighting
+ virtual objects in the scene. Defaults to AREnvironmentTexturingNone.
+ */
+@property (nonatomic, assign) AREnvironmentTexturing environmentTexturing;
+
+/**
+ Determines whether environment textures will be provided with high dynamic range. Enabled by default.
+ */
+@property (nonatomic, assign) BOOL wantsHDREnvironmentTextures;
+
+/**
+ Type of planes to detect in the scene.
+ @discussion If set, new planes will continue to be detected and updated over time. Detected planes will be added to the session as
+ ARPlaneAnchor objects. In the event that two planes are merged, the newer plane will be removed. Defaults to ARPlaneDetectionNone.
+ */
+@property (nonatomic, assign) ARPlaneDetection planeDetection;
+
+/**
+Images to detect in the scene.
+@discussion If set the session will attempt to detect the specified images. When an image is detected an ARImageAnchor will be added to the session.
+*/
+@property (nonatomic, copy) NSSet<ARReferenceImage *> *detectionImages;
+
+/**
+ Enables the estimation of a scale factor which may be used to correct the physical size of an image.
+ @discussion If set to true ARKit will attempt to use the computed camera positions in order to compute the scale by which the given physical size
+ differs from the estimated one. The information about the estimated scale can be found as the property estimatedScaleFactor on the ARImageAnchor.
+ @note When set to true the transform of a returned ARImageAnchor will use the estimated scale factor to correct the translation. Default value is NO.
+ */
+@property (nonatomic, assign) BOOL automaticImageScaleEstimationEnabled;
+
+/**
+ Enables the estimation of a scale factor which may be used to correct the physical size of a skeleton in 3D.
+ @discussion If set to true ARKit will attempt to use the computed camera positions in order to compute the scale by which the given physical size
+ differs from the default one. The information about the estimated scale can be found as the property estimatedScaleFactor on the ARBodyAnchor.
+ @note When set to true the transform of a returned ARBodyAnchor will use the estimated scale factor to correct the translation. Default value is YES.
+ */
+@property (nonatomic, assign) BOOL automaticSkeletonScaleEstimationEnabled;
+/**
+ Maximum number of images to track simultaneously.
+ @discussion Setting the maximum number of tracked images will limit the number of images that can be tracked in a given frame.
+ If more than the maximum is visible, only the images already being tracked will continue to track until tracking is lost or another image is removed.
+ Images will continue to be detected regardless of images tracked. Default value is zero.
+ */
+@property (nonatomic, assign) NSInteger maximumNumberOfTrackedImages;
+
+- (instancetype)init;
++ (instancetype)new NS_SWIFT_UNAVAILABLE("Use init() instead");
+
+@end
+
+/**
+ A configuration for running positional tracking.
+ 
+ @discussion Positional tracking provides 6 degrees of freedom tracking of the device by running the camera at lowest possible resolution and frame rate.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARPositionalTrackingConfiguration : ARConfiguration
+
+/**
+ Type of planes to detect in the scene.
+ @discussion If set, new planes will continue to be detected and updated over time. Detected planes will be added to the session as
+ ARPlaneAnchor objects. In the event that two planes are merged, the newer plane will be removed. Defaults to ARPlaneDetectionNone.
+ */
+@property (nonatomic, assign) ARPlaneDetection planeDetection;
+
+/**
+ The initial map of the physical space that world tracking will localize to and track.
+ @discussion If set, the session will attempt to localize to the provided map with
+ a limited tracking state until localization is successful or run is called again
+ with a different (or no) initial map specified. Once localized, the map will be extended
+ and can again be saved using the `getCurrentWorldMap` method on the session.
+ */
+@property (nonatomic, strong, nullable) ARWorldMap *initialWorldMap;
+
+- (instancetype)init;
++ (instancetype)new NS_SWIFT_UNAVAILABLE("Use init() instead");
+
+@end
+
+
 NS_ASSUME_NONNULL_END
 // ==========  ARKit.framework/Headers/ARError.h
 //
@@ -1925,6 +3035,9 @@ typedef NS_ERROR_ENUM(ARErrorDomain, ARErrorCode) {
     
     /** Invalid configuration. */
     ARErrorCodeInvalidConfiguration          API_AVAILABLE(ios(12.0)) = 303,
+    
+    /** Collaboration data is not available. */
+    ARErrorCodeCollaborationDataUnavailable  API_AVAILABLE(ios(13.0)) = 304,
     
     /** Insufficient features. */
     ARErrorCodeInsufficientFeatures          API_AVAILABLE(ios(12.0)) = 400,
@@ -1985,6 +3098,13 @@ API_AVAILABLE(ios(11.0))
 @property (nonatomic, nullable, readonly) NSString *name API_AVAILABLE(ios(12.0));
 
 /**
+ Identifier of the session that owns the anchor.
+ 
+ @discussion The session identifier will be assigned to anchor when added to the session.
+ */
+@property (nonatomic, nullable, readonly) NSUUID *sessionIdentifier API_AVAILABLE(ios(13.0));
+
+/**
  The transformation matrix that defines the anchor’s rotation, translation and scale in world coordinates.
  */
 @property (nonatomic, readonly) simd_float4x4 transform;
@@ -2021,6 +3141,57 @@ API_AVAILABLE(ios(11.0))
  camera image, its anchor will return NO for isTracked.
  */
 @property (nonatomic, readonly) BOOL isTracked;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARRaycastResult.h
+//
+//  ARRaycastResult.h
+//  ARKit
+//
+//  Copyright © 2018 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <simd/simd.h>
+#import "ARRaycastQuery.h"
+
+@class ARAnchor;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ Result of a raycast on a single target.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARRaycastResult : NSObject
+
+/**
+ The transformation matrix that defines the raycast result's rotation, translation and scale relative to the world.
+ */
+@property (nonatomic, readonly) simd_float4x4 worldTransform;
+
+/**
+ Type of the target where the ray terminated.
+ */
+@property (nonatomic, readonly, assign) ARRaycastTarget target;
+
+/**
+ Alignment of the target.
+ */
+@property (nonatomic, readonly, assign) ARRaycastTargetAlignment targetAlignment;
+
+/**
+ The anchor that the ray intersected.
+ 
+ @discussion In case of an existing plane target, an anchor will always be provided. In case of an estimated plane target,
+ an anchor may be provided if the ray hit an existing plane.
+ */
+@property (nonatomic, readonly, strong, nullable) ARAnchor *anchor;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)new NS_UNAVAILABLE;
 
 @end
 
@@ -2143,6 +3314,88 @@ API_AVAILABLE(ios(11.0))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  ARKit.framework/Headers/ARSkeletonDefinition.h
+//
+//  ARSkeletonDefinition.h
+//  ARKit
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NSString *ARSkeletonJointName NS_TYPED_ENUM NS_SWIFT_NAME(ARSkeleton.JointName)       API_AVAILABLE(ios(13.0));
+FOUNDATION_EXTERN ARSkeletonJointName const ARSkeletonJointNameRoot                            API_AVAILABLE(ios(13.0));
+FOUNDATION_EXTERN ARSkeletonJointName const ARSkeletonJointNameHead                            API_AVAILABLE(ios(13.0));
+FOUNDATION_EXTERN ARSkeletonJointName const ARSkeletonJointNameLeftHand                        API_AVAILABLE(ios(13.0));
+FOUNDATION_EXTERN ARSkeletonJointName const ARSkeletonJointNameRightHand                       API_AVAILABLE(ios(13.0));
+FOUNDATION_EXTERN ARSkeletonJointName const ARSkeletonJointNameLeftFoot                        API_AVAILABLE(ios(13.0));
+FOUNDATION_EXTERN ARSkeletonJointName const ARSkeletonJointNameRightFoot                       API_AVAILABLE(ios(13.0));
+FOUNDATION_EXTERN ARSkeletonJointName const ARSkeletonJointNameLeftShoulder                    API_AVAILABLE(ios(13.0));
+FOUNDATION_EXTERN ARSkeletonJointName const ARSkeletonJointNameRightShoulder                   API_AVAILABLE(ios(13.0));
+
+@class ARSkeleton2D;
+@class ARSkeleton3D;
+
+/**
+ Definition of a skeleton.
+
+ @discussion A skeleton consists of a set of labeled joints that are defined in a certain hierarchy, i.e. joints are parented to other joints.
+ One may use the parentIndices property to identify the hierarchy for a given skeleton definition.
+ */
+API_AVAILABLE(ios(13.0))
+@interface ARSkeletonDefinition : NSObject
+
+/**
+ Default skeleton definition for bodies defined in 3D.
+ @note The default height of this skeleton is defined to be 1.8 meters.
+ @see ARSkeleton3D
+ */
+@property (class, nonatomic, readonly) ARSkeletonDefinition *defaultBody3DSkeletonDefinition;
+
+/**
+ Default skeleton definition for bodies defined in 2D.
+ @see ARBody2D
+ */
+@property (class, nonatomic, readonly) ARSkeletonDefinition *defaultBody2DSkeletonDefinition;
+
+/**
+ The joint names.
+ */
+@property (nonatomic, readonly) NSArray<NSString *> *jointNames;
+
+/**
+ The parent index for each joint.
+ @discussion This property may be used to identify the hierarchical dependency between joints. If a line is drawn for every joint and its parent joint
+ the result is a visualization of the underlying skeleton. The joint with no parent is denoted as the root joint. The root joint's parent index has
+ a value of -1.
+  */
+@property (nonatomic, readonly) NSArray<NSNumber *> *parentIndices NS_REFINED_FOR_SWIFT;
+
+/**
+ The 3D skeleton in neutral pose.
+ @discussion The neutral skeleton pose assumes a standardized size of the skeleton in meters. The neutral pose is defined as the skeleton's T-pose.
+ */
+@property (nonatomic, nullable, readonly) ARSkeleton3D *neutralBodySkeleton3D;
+
+/**
+ Returns the index for a given joint identifier.
+ 
+ @param jointName Name of a given joint.
+ @discussion This function returns NSNotFound if an invalid joint name is passed.
+ @return Joint index.
+ */
+- (NSUInteger)indexForJointName:(ARSkeletonJointName)jointName NS_REFINED_FOR_SWIFT;
+
+/** Unavailable */
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  ARKit.framework/Headers/ARReferenceObject.h
 //
 //  ARReferenceObject.h
@@ -2188,6 +3441,13 @@ API_AVAILABLE(ios(12.0))
  @discussion Multiplying the extent by this scale will result in the physical extent of the object, measured in meters.
  */
 @property (nonatomic, readonly) simd_float3 scale;
+
+/**
+ The AR resource group name for this object.
+ @discussion If this object was loaded via an AR resource group in the Xcode asset catalogue this property will have the name of the resource group,
+ else be set to nil.
+ */
+@property (nonatomic, strong, nullable, readonly) NSString *resourceGroupName API_AVAILABLE(ios(13.0));
 
 /**
  The feature points of the object.
@@ -2272,6 +3532,14 @@ API_AVAILABLE(ios(11.3))
  Reference to the detected image.
  */
 @property (nonatomic, strong, readonly) ARReferenceImage *referenceImage;
+
+/**
+ The factor between estimated physical size and provided size.
+ 
+ @discussion This value will be estimated if automaticImageScaleEstimationEnabled is set to true on the ARWorldTrackingConfiguration. It is used to
+ correct the transform's translation. Default value is 1.0.
+ */
+@property (nonatomic, readonly) CGFloat estimatedScaleFactor API_AVAILABLE(ios(13.0));
 
 /** Unavailable */
 - (instancetype)initWithTransform:(simd_float4x4)transform NS_UNAVAILABLE;

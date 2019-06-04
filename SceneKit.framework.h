@@ -3,7 +3,7 @@
 //  SCNPhysicsWorld.h
 //  SceneKit
 //
-//  Copyright © 2014-2018 Apple Inc. All rights reserved.
+//  Copyright © 2014-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_END
 //  SCNParticleSystem.h
 //  SceneKit
 //
-//  Copyright © 2014-2018 Apple Inc. All rights reserved.
+//  Copyright © 2014-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -267,7 +267,7 @@ SCN_EXPORT API_AVAILABLE(macos(10.10))
 @property(nonatomic) CGFloat inputBias;
 
 // Specifies an origin for the variation mode "SCNParticleInputModeOverDistance".
-@property(nonatomic, weak, nullable) SCNNode *inputOrigin;
+@property(nonatomic, unsafe_unretained, nullable) SCNNode *inputOrigin;
 
 // Specifies which property to use as input for the input mode "SCNParticleInputModeOverOtherProperty".
 @property(nonatomic, copy, nullable) SCNParticleProperty inputProperty;
@@ -551,7 +551,7 @@ NS_ASSUME_NONNULL_END
 //  SceneKit.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 /*! @framework SceneKit
@@ -602,12 +602,15 @@ NS_ASSUME_NONNULL_END
 
 //scripting
 #import <SceneKit/SCNJavascript.h>
+
+//deprecated
+#import <SceneKit/SceneKitDeprecated.h>
 // ==========  SceneKit.framework/Headers/SCNSceneRenderer.h
 //
 //  SCNSceneRenderer.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -644,7 +647,7 @@ typedef NS_ENUM(NSUInteger, SCNAntialiasingMode) {
  */
 typedef NS_ENUM(NSUInteger, SCNRenderingAPI) {
     SCNRenderingAPIMetal,
-    SCNRenderingAPIOpenGLES2
+    SCNRenderingAPIOpenGLES2 API_UNAVAILABLE(uikitformac)
 } API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
@@ -699,7 +702,7 @@ typedef NS_OPTIONS(NSUInteger, SCNDebugOptions) {
  @property delegate
  @abstract Specifies the renderer delegate.
  */
-@property(nonatomic, weak, nullable) id <SCNSceneRendererDelegate> delegate;
+@property(nonatomic, unsafe_unretained, nullable) id <SCNSceneRendererDelegate> delegate;
 
 /*!
  @method hitTest:options:
@@ -769,12 +772,18 @@ typedef NS_OPTIONS(NSUInteger, SCNDebugOptions) {
  */
 @property(nonatomic) BOOL autoenablesDefaultLighting;
 
-/*! 
+/*!
  @property jitteringEnabled
- @abstract Specifies whether the receiver should jitter the rendered scene to reduce aliasing artifacts. 
+ @abstract Specifies whether the receiver should jitter the rendered scene to reduce aliasing artifacts.
  @discussion When enabled, the jittering is performed asynchronously and automatically by SCNView and SCNLayer. It is done synchronously by SCNRenderer.
  */
 @property(nonatomic, getter=isJitteringEnabled) BOOL jitteringEnabled;
+
+/*!
+ @property temporalAntialiasingEnabled
+ @abstract Specifies whether the receiver should reduce aliasing artifacts in real time based on temporal coherency.
+ */
+@property(nonatomic, getter=isTemporalAntialiasingEnabled) BOOL temporalAntialiasingEnabled API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));;
 
 /*!
  @method prepareObject:shouldAbortBlock:
@@ -820,11 +829,15 @@ typedef NS_OPTIONS(NSUInteger, SCNDebugOptions) {
  */
 @property(nonatomic, readonly) SCNRenderingAPI renderingAPI API_AVAILABLE(macos(10.11), ios(9.0));
 
+#if SCN_ENABLE_OPENGL
+
 /*!
  @property context
  @abstract A Core OpenGL render context that is used as the render target (a CGLContextObj on macOS, an EAGLContext on iOS).
  */
 @property(nonatomic, readonly, nullable) void *context;
+
+#endif
 
 #if SCN_ENABLE_METAL
 
@@ -885,11 +898,22 @@ typedef NS_OPTIONS(NSUInteger, SCNDebugOptions) {
  */
 @property(nonatomic, retain, nullable) SCNNode *audioListener API_AVAILABLE(macos(10.11), ios(9.0));
 
+/*!
+ @property currentViewport
+ @abstract Returns the current viewport for this renderer, can be used to get the actual viewport from within the delegate callback during a live resize.
+ */
+@property(nonatomic, readonly) CGRect currentViewport API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
 
+
+
+/*!
+ @property usesReverseZ
+ @abstract Specifies if the renderer should use the reverse Z technique. Defaults to YES.
+ @discussion This property is only valid on a renderer created with a Metal device.
+ */
+@property (nonatomic) BOOL usesReverseZ API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
 
 @end
-
-
 
 /*!
  @protocol SCNSceneRendererDelegate
@@ -962,7 +986,7 @@ NS_ASSUME_NONNULL_END
 //  SCNLight.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -985,6 +1009,7 @@ SCN_EXPORT SCNLightType const SCNLightTypeDirectional;                          
 SCN_EXPORT SCNLightType const SCNLightTypeSpot;                                                                   // Spot light
 SCN_EXPORT SCNLightType const SCNLightTypeIES   API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));               // IES light
 SCN_EXPORT SCNLightType const SCNLightTypeProbe API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));               // Light probe
+SCN_EXPORT SCNLightType const SCNLightTypeArea  API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0)); // Area light
 
 /*! @enum SCNShadowMode
  @abstract The different modes available to compute shadows.
@@ -998,13 +1023,29 @@ typedef NS_ENUM(NSInteger, SCNShadowMode) {
     SCNShadowModeModulated = 2
 } API_AVAILABLE(macos(10.10));
 
+typedef NS_ENUM(NSInteger, SCNLightProbeType) {
+    SCNLightProbeTypeIrradiance  = 0, // Probe type that was existing before macOS 10.15. Bakes and stores spherical harmonics.
+    SCNLightProbeTypeRadiance    = 1  // Probe that captures radiance (reflections) in its `probeExtents`. Either captured or provided as a cube texture using the `probeEnvironment` property.
+} API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+typedef NS_ENUM(NSInteger, SCNLightProbeUpdateType) {
+    SCNLightProbeUpdateTypeNever         = 0, // Probe that isn't automatically updated (for instance when baked using the Xcode's SceneKit scene editor or when `probeEnvironment` is specified)
+    SCNLightProbeUpdateTypeRealtime      = 1  // Probe that is automatically updated by SceneKit at every frame
+} API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+typedef NS_ENUM(NSInteger, SCNLightAreaType) {
+    SCNLightAreaTypeLine      = 0,
+    SCNLightAreaTypeRectangle = 1,
+    SCNLightAreaTypePolygon   = 4
+} API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
 /*!
  @class SCNLight
  @abstract SCNLight represents a light that can be attached to a SCNNode. 
  */
 
 SCN_EXPORT
-@interface SCNLight : NSObject <SCNAnimatable, SCNTechniqueSupport, NSCopying, NSSecureCoding>
+@interface SCNLight : NSObject <SCNAnimatable, NSCopying, NSSecureCoding>
 
 /*! 
  @method light
@@ -1210,12 +1251,75 @@ SCN_EXPORT
  */
 @property(nonatomic, copy, readonly) NSData *sphericalHarmonicsCoefficients API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
+// Type of the probe. Defaults to SCNLightProbeTypeIrradiance.
+@property(nonatomic) SCNLightProbeType probeType API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+// Update type of the probe. Defaults to SCNLightProbeUpdateTypeNever.
+@property(nonatomic) SCNLightProbeUpdateType probeUpdateType API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+// Dimensions of the reflection probe, in local space. Used when `parallaxCorrectionEnabled` is YES.
+@property(nonatomic) simd_float3 probeExtents API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+// Position from which the reflection is shooted, in local space.
+@property(nonatomic) simd_float3 probeOffset API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+// Whether parallax correction is enabled for the reflection probe. Defaults to NO.
+@property(nonatomic) BOOL parallaxCorrectionEnabled API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+// Size of the parallax correction box, has a factor of probeExtents. Defaults to (1, 1, 1).
+@property(nonatomic) simd_float3 parallaxExtentsFactor API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+// Center offset of the parallax correction box, relative to `probeExtents`. Defaults to (0, 0, 0).
+@property(nonatomic) simd_float3 parallaxCenterOffset API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+// Only applies to a probe of type SCNLightProbeTypeRadiance.
+@property(nonatomic, readonly, nullable) SCNMaterialProperty *probeEnvironment API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
+
+
+#pragma mark - Area light parameters
+
+/*!
+ @property areaType
+ @abstract Determines the shape of a light of type SCNLightTypeArea. Defaults to SCNLightAreaTypeRectangle.
+ */
+@property(nonatomic) SCNLightAreaType areaType API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property areaExtents
+ @abstract Determines the extents of a light of type SCNLightTypeArea. Defaults to (1.0, 1.0, 1.0).
+ @discussion The extents are interpreted differently for each type of area light
+             SCNLightAreaTypeLine      : areaExtents.x   = (width)
+             SCNLightAreaTypeRectangle : areaExtents.xy  = (width, height)
+             SCNLightAreaTypePolygon   : ignored (see `areaPolygonVertices`)
+ */
+@property(nonatomic) simd_float3 areaExtents API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property areaPolygonVertices
+ @abstract Determines the shape of light of an area light of type SCNLightAreaTypePolygon. Defaults nil.
+ @discussion An array of CGPoint values corresponding to the coordinates if the polygon's vertices in the XY plane.
+ */
+@property(nonatomic, copy, nullable) NSArray<NSValue *> *areaPolygonVertices API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property drawsArea
+ @abstract Determines whether the shape of a light of type SCNLightTypeArea is drawn in the scene. Defaults to YES.
+ */
+@property(nonatomic) BOOL drawsArea API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property doubleSided
+ @abstract Determines whether a light of type SCNLightTypeArea is double-sided. Defaults NO.
+ @discussion Area lights of type SCNLightAreaTypeRectangle or SCNLightAreaTypePolygon emit light along the -Z axis. When set to YES, they also emit light along the +Z axis.
+ */
+@property(nonatomic) BOOL doubleSided API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
 
 #pragma mark - Other
 
 /*!
  @property gobo
- @abstract Specifies the gobo (or "cookie") of the light, used to control the shape of emitted light. Defaults to nil.
+ @abstract Specifies the gobo (or "cookie") of the light, used to control the shape of emitted light.
  @discussion Gobos are only supported by spot lights.
  */
 @property(nonatomic, readonly, nullable) SCNMaterialProperty *gobo API_AVAILABLE(macos(10.9));
@@ -1226,10 +1330,7 @@ SCN_EXPORT
  */
 @property(nonatomic) NSUInteger categoryBitMask API_AVAILABLE(macos(10.10));
 
-
-
 @end
-
 
 NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNBoundingVolume.h
@@ -1237,7 +1338,7 @@ NS_ASSUME_NONNULL_END
 //  SCNBoundingVolume.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -1288,7 +1389,7 @@ NS_ASSUME_NONNULL_END
 //  SCNCameraController.h
 //  SceneKit
 //
-//  Copyright (c) 2017-2018 Apple Inc. All rights reserved.
+//  Copyright (c) 2017-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -1413,7 +1514,7 @@ NS_ASSUME_NONNULL_END
 //  SCNAudioSource.h
 //  SceneKit
 //
-//  Copyright © 2015-2018 Apple Inc. All rights reserved.
+//  Copyright © 2015-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SCNNode.h>
@@ -1584,7 +1685,7 @@ NS_ASSUME_NONNULL_END
 //  SCNAnimation.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -2005,7 +2106,7 @@ NS_ASSUME_NONNULL_END
 //  SCNLevelOfDetail.h
 //  SceneKit
 //
-//  Copyright © 2013-2018 Apple Inc. All rights reserved.
+//  Copyright © 2013-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2062,7 +2163,7 @@ NS_ASSUME_NONNULL_END
 //  SCNPhysicsBehavior.h
 //  SceneKit
 //
-//  Copyright © 2014-2018 Apple Inc. All rights reserved.
+//  Copyright © 2014-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -2282,7 +2383,7 @@ NS_ASSUME_NONNULL_END
 //  SCNTechnique.h
 //  SceneKit
 //
-//  Copyright © 2014-2018 Apple Inc. All rights reserved.
+//  Copyright © 2014-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SCNShadable.h>
@@ -2341,7 +2442,12 @@ SCN_EXPORT API_AVAILABLE(macos(10.10))
          <target description>
      }
      [...]
-   }
+   },
+
+   //optional
+
+   bundle: <bundleIdentifier>,
+   metalLibraryName: <metalLibraryName>,
 }
 
 <outputs>:
@@ -2492,6 +2598,12 @@ The values can be a single string referencing a symbol or a semantic or a target
  scaleFactor: a float value (encapsulated in a NSNumber) that controls the size of the render target. Defaults to 1, which means 1x the size of the main viewport.
  size: a string with the format %dx%d that controls the size of the render target.
  persistent: a boolean that tells if this target should persist from one frame to the next. It permits to create temporal effects suchs as motion blur. Defaults to NO.
+
+ <bundleIdentifier>
+ An optional bundle identifier to load metal programs from
+
+ <metalLibraryName>
+ An optional metal library name to load metal programs from. The metallib file is located from the default or specified bundle using NSBundle pathForResource:ofType:.
  */
 + (nullable SCNTechnique *)techniqueWithDictionary:(NSDictionary<NSString *, id> *)dictionary;
 
@@ -2542,6 +2654,14 @@ The values can be a single string referencing a symbol or a semantic or a target
 - (nullable id)objectForKeyedSubscript:(id)key API_AVAILABLE(macos(10.11), ios(9.0));
 - (void)setObject:(nullable id)obj forKeyedSubscript:(id <NSCopying>)key API_AVAILABLE(macos(10.11), ios(9.0));
 
+#if SCN_ENABLE_METAL
+/*!
+ @property library
+ @abstract The Metal library to use to load the Metal programs specified in the technique description. Defaults to nil which corresponds to the default Metal library.
+ */
+@property(nonatomic, strong, nullable) id<MTLLibrary> library API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0), watchos(5.0));
+#endif
+
 @end
 
 
@@ -2566,7 +2686,7 @@ NS_ASSUME_NONNULL_END
 //  SCNPhysicsBody.h
 //  SceneKit
 //
-//  Copyright © 2014-2018 Apple Inc. All rights reserved.
+//  Copyright © 2014-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -2715,7 +2835,7 @@ NS_ASSUME_NONNULL_END
 //  SCNShadable.h
 //  SceneKit
 //
-//  Copyright © 2013-2018 Apple Inc. All rights reserved.
+//  Copyright © 2013-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -2745,7 +2865,7 @@ typedef NS_ENUM(NSInteger, SCNBufferFrequency) {
 } API_AVAILABLE(macos(10.11), ios(9.0));
 
 @protocol SCNBufferStream <NSObject>
-- (void)writeBytes:(void *)bytes length:(NSUInteger)length;
+- (void)writeBytes:(void const *)bytes length:(NSUInteger)length;
 @end
 
 /*!
@@ -3056,7 +3176,7 @@ API_UNAVAILABLE(watchos)
  @param program The queried program.
  @discussion This is deprecated. Use SCNProgram's opaque property instead.
  */
-- (BOOL)programIsOpaque:(SCNProgram *)program API_DEPRECATED("Use SCNProgram.opaque instead", macos(10.8, 10.10)) API_UNAVAILABLE(ios, tvos, watchos);
+- (BOOL)programIsOpaque:(SCNProgram *)program API_DEPRECATED("Use SCNProgram.opaque instead", macos(10.8, 10.10)) API_UNAVAILABLE(ios, tvos, watchos, uikitformac);
 
 @end
 
@@ -3112,35 +3232,41 @@ SCN_EXPORT SCNShaderModifierEntryPoint const SCNShaderModifierEntryPointGeometry
  Structures available from the SCNShaderModifierEntryPointSurface entry point:
  
  | struct SCNShaderSurface {
- |    float3 view;                     // Direction from the point on the surface toward the camera (V)
- |    float3 position;                 // Position of the fragment
- |    float3 normal;                   // Normal of the fragment (N)
- |    float3 geometryNormal;           // Geometric normal of the fragment (normal map is ignored)
- |    float3 tangent;                  // Tangent of the fragment
- |    float3 bitangent;                // Bitangent of the fragment
- |    float4 ambient;                  // Ambient property of the fragment
- |    float2 ambientTexcoord;          // Ambient texture coordinates
- |    float4 diffuse;                  // Diffuse property of the fragment. Alpha contains the opacity.
- |    float2 diffuseTexcoord;          // Diffuse texture coordinates
- |    float4 specular;                 // Specular property of the fragment
- |    float2 specularTexcoord;         // Specular texture coordinates
- |    float4 emission;                 // Emission property of the fragment
- |    float2 emissionTexcoord;         // Emission texture coordinates
- |    float4 multiply;                 // Multiply property of the fragment
- |    float2 multiplyTexcoord;         // Multiply texture coordinates
- |    float4 transparent;              // Transparent property of the fragment
- |    float2 transparentTexcoord;      // Transparent texture coordinates
- |    float4 reflective;               // Reflective property of the fragment
- |    float  metalness;                // Metalness property of the fragment
- |    float2 metalnessTexcoord;        // Metalness texture coordinates
- |    float  roughness;                // Roughness property of the fragment
- |    float2 roughnessTexcoord;        // Roughness texture coordinates
- |    float4 selfIllumination;         // Self Illumination property of the fragment. Available since macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `emission` in previous versions.
- |    float2 selfIlluminationTexcoord; // Self Illumination texture coordinates. Available since macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `emissionTexcoord` in previous versions.
- |    float  ambientOcclusion;         // Ambient Occlusion property of the fragment. Available macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `multiply` in previous versions.
- |    float2 ambientOcclusionTexcoord; // Ambient Occlusion texture coordinates. Available since macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `multiplyTexcoord` in previous versions.
- |    float  shininess;                // Shininess property of the fragment
- |    float  fresnel;                  // Fresnel property of the fragment
+ |    float3 view;                       // Direction from the point on the surface toward the camera (V)
+ |    float3 position;                   // Position of the fragment
+ |    float3 normal;                     // Normal of the fragment (N)
+ |    float3 geometryNormal;             // Geometric normal of the fragment (normal map is ignored)
+ |    float3 tangent;                    // Tangent of the fragment
+ |    float3 bitangent;                  // Bitangent of the fragment
+ |    float4 ambient;                    // Ambient property of the fragment
+ |    float2 ambientTexcoord;            // Ambient texture coordinates
+ |    float4 diffuse;                    // Diffuse property of the fragment. Alpha contains the opacity.
+ |    float2 diffuseTexcoord;            // Diffuse texture coordinates
+ |    float4 specular;                   // Specular property of the fragment
+ |    float2 specularTexcoord;           // Specular texture coordinates
+ |    float4 emission;                   // Emission property of the fragment
+ |    float2 emissionTexcoord;           // Emission texture coordinates
+ |    float4 multiply;                   // Multiply property of the fragment
+ |    float2 multiplyTexcoord;           // Multiply texture coordinates
+ |    float4 transparent;                // Transparent property of the fragment
+ |    float2 transparentTexcoord;        // Transparent texture coordinates
+ |    float4 reflective;                 // Reflective property of the fragment
+ |    float  metalness;                  // Metalness property of the fragment
+ |    float2 metalnessTexcoord;          // Metalness texture coordinates
+ |    float  roughness;                  // Roughness property of the fragment
+ |    float2 roughnessTexcoord;          // Roughness texture coordinates
+ |    float  clearCoat;                  // Clear Coat property of the fragment.           Available since macOS 10.15, iOS 13, tvOS 13 and watchOS 6.
+ |    float2 clearCoatTexcoord;          // Clear Coat texture coordinates.                Available since macOS 10.15, iOS 13, tvOS 13 and watchOS 6.
+ |    float  clearCoatRoughness;         // Clear Coat Roughness property of the fragment. Available since macOS 10.15, iOS 13, tvOS 13 and watchOS 6.
+ |    float2 clearCoatRoughnessTexcoord; // Clear Coat Roughness texture coordinates.      Available since macOS 10.15, iOS 13, tvOS 13 and watchOS 6.
+ |    float3 clearCoatNormal;            // Clear Coat Normal property of the fragment.    Available since macOS 10.15, iOS 13, tvOS 13 and watchOS 6.
+ |    float2 clearCoatNormalTexcoord;    // Clear Coat Normnal texture coordinates.        Available since macOS 10.15, iOS 13, tvOS 13 and watchOS 6.
+ |    float4 selfIllumination;           // Self Illumination property of the fragment.    Available since macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `emission` in previous versions.
+ |    float2 selfIlluminationTexcoord;   // Self Illumination texture coordinates.         Available since macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `emissionTexcoord` in previous versions.
+ |    float  ambientOcclusion;           // Ambient Occlusion property of the fragment.    Available since macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `multiply` in previous versions.
+ |    float2 ambientOcclusionTexcoord;   // Ambient Occlusion texture coordinates.         Available since macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Available as `multiplyTexcoord` in previous versions.
+ |    float  shininess;                  // Shininess property of the fragment
+ |    float  fresnel;                    // Fresnel property of the fragment
  | } _surface;
  |
  | Access: ReadWrite
@@ -3268,7 +3394,7 @@ NS_ASSUME_NONNULL_END
 //  SCNCAAnimationExtensions.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SCNAnimation.h>
@@ -3327,7 +3453,7 @@ NS_ASSUME_NONNULL_END
 //  SCNGeometry.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -3503,7 +3629,7 @@ SCN_EXPORT
 /*!
  @property edgeCreasesElement
  @abstract Specifies the edges creases that control the subdivision. Defaults to nil.
- @discussion The primitive type of this geometry element must be SCNGeometryPrimitiveTypeLine. See subdivisionLevel above to control the level of subdivision. See edgeCreasesElement above to specify edges for edge creases.
+ @discussion The primitive type of this geometry element must be SCNGeometryPrimitiveTypeLine. See subdivisionLevel above to control the level of subdivision. See edgeCreasesSource below to specify sharpness of the creases.
  */
 @property(nonatomic, retain, nullable) SCNGeometryElement *edgeCreasesElement API_AVAILABLE(macos(10.10));
 
@@ -4000,7 +4126,7 @@ NS_ASSUME_NONNULL_END
 //  SCNTransaction.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4065,7 +4191,7 @@ NS_ASSUME_NONNULL_END
 //  SCNPhysicsField.h
 //  SceneKit
 //
-//  Copyright © 2014-2018 Apple Inc. All rights reserved.
+//  Copyright © 2014-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -4190,7 +4316,7 @@ NS_ASSUME_NONNULL_END
 //  ModelIO.h
 //  SceneKit
 //
-//  Copyright © 2015-2018 Apple Inc. All rights reserved.
+//  Copyright © 2015-2019 Apple Inc. All rights reserved.
 //
 
 #import <ModelIO/ModelIO.h>
@@ -4275,7 +4401,7 @@ NS_ASSUME_NONNULL_END
 //  SCNMorpher.h
 //  SceneKit
 //
-//  Copyright © 2013-2018 Apple Inc. All rights reserved.
+//  Copyright © 2013-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4355,7 +4481,7 @@ NS_ASSUME_NONNULL_END
 //  SceneKitAvailability.h
 //  SceneKit
 //
-//  Copyright © 2017-2018 Apple Inc. All rights reserved.
+//  Copyright © 2017-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -4366,7 +4492,7 @@ NS_ASSUME_NONNULL_END
 //  SCNParametricGeometry.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SCNGeometry.h>
@@ -5094,7 +5220,7 @@ NS_ASSUME_NONNULL_END
 //  SCNReferenceNode.h
 //  SceneKit
 //
-//  Copyright © 2015-2018 Apple Inc. All rights reserved.
+//  Copyright © 2015-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SCNNode.h>
@@ -5175,7 +5301,7 @@ NS_ASSUME_NONNULL_END
 //  SCNCamera.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -5278,6 +5404,7 @@ SCN_EXPORT
  @abstract Determines the projection transform used by the camera to project the world onscreen. 
  */
 @property(nonatomic) SCNMatrix4 projectionTransform;
+- (SCNMatrix4)projectionTransformWithViewportSize:(CGSize)viewportSize API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
 
 // MARK: Depth of Field
 
@@ -5369,7 +5496,7 @@ SCN_EXPORT
 
 /*!
  @property exposureOffset
- @abstract Determines the logarithimc exposure biasing, in EV. Defaults to 0.
+ @abstract Determines the logarithmic exposure biasing, in EV. Defaults to 0.
  */
 @property(nonatomic) CGFloat exposureOffset API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 
@@ -5422,6 +5549,18 @@ SCN_EXPORT
 @property(nonatomic) CGFloat bloomThreshold API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 
 /*!
+ @property bloomIteration
+ @abstract Determines the number of blur iterations. Defaults to 1.
+ */
+@property(nonatomic) NSInteger bloomIterationCount API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property bloomIterationSpread
+ @abstract Determines how the bloom iterations are spread. Defaults to 0.
+ */
+@property(nonatomic) CGFloat bloomIterationSpread API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
  @property bloomIntensity
  @abstract Determines the intensity of the bloom effect. Animatable. Defaults to 0 (no effect).
  */
@@ -5470,6 +5609,36 @@ SCN_EXPORT
 @property(nonatomic) CGFloat contrast API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 
 /*!
+ @property grainIntensity
+ @abstract Controls the intensity of the grain. Defaults to 0 (no effect).
+ */
+@property(nonatomic) CGFloat grainIntensity API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property grainScale
+ @abstract Controls the scale of the grain. Defaults to 1.
+ */
+@property(nonatomic) CGFloat grainScale API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property grainIsColored
+ @abstract Determines if the grain is colored or not. Defaults to NO.
+ */
+@property(nonatomic) BOOL grainIsColored API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property whiteBalanceTemperature
+ @abstract Controls the overall white balance temperature of the scene. Defaults to 0 (no effect).
+ */
+@property(nonatomic) CGFloat whiteBalanceTemperature API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property whiteBalanceTint
+ @abstract Controls the overall white balance tint of the scene. Defaults to 0 (no effect).
+ */
+@property(nonatomic) CGFloat whiteBalanceTint API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
  @property colorGrading
  @abstract Specifies a lookup texture to apply color grading. The contents must a 2D image representing `n` slices of a unit color cube texture, arranged in an horizontal row of `n` images. For instance, a color cube of dimension 16x16x16 should be provided as an image of size 256x16.
  */
@@ -5481,50 +5650,6 @@ SCN_EXPORT
  */
 @property(nonatomic) NSUInteger categoryBitMask API_AVAILABLE(macos(10.10));
 
-// MARK: - Deprecated APIs
-
-/*!
- @property focalBlurRadius
- @abstract Determines the receiver's focal radius. Animatable.
- @discussion Determines the maximum amount of blur for objects out of focus. Defaults to 0.
- */
-@property(nonatomic) CGFloat focalBlurRadius API_DEPRECATED("Use fStop instead", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
-
-/*!
- @property xFov
- @abstract Determines the receiver's field of view on the X axis (in degree). Animatable.
- @discussion When both xFov and yFov are null an yFov of 60° is used. When both are set, the one that best fits the renderer's aspect ratio is used. When only one is set, it is used. Defaults to 0.
- */
-@property(nonatomic) double xFov API_DEPRECATED("Use -[SCNCamera fieldOfView] or -[SCNCamera focalLength] instead", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
-
-/*!
- @property yFov
- @abstract Determines the receiver's field of view on the Y axis (in degree). Animatable.
- @discussion When both xFov and yFov are null an yFov of 60° is used. When both are set, the one that best fits the renderer's aspect ratio is used. When only one is set, it is used. Defaults to 0.
- */
-@property(nonatomic) double yFov API_DEPRECATED("Use -[SCNCamera fieldOfView] or -[SCNCamera focalLength] instead", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
-
-/*!
- @property aperture
- @abstract Determines the receiver's aperture. Animatable.
- @discussion Defaults to 1/8.0.
- */
-@property(nonatomic) CGFloat aperture API_DEPRECATED("Use -[SCNCamera fStop] instead with fStop = sensorHeight / aperture.", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
-
-/*!
- @property focalSize
- @abstract Determines the receiver's focal size. Animatable.
- @discussion Determines the size of the area around focalDistance where the objects are in focus. Defaults to 0.
- */
-@property(nonatomic) CGFloat focalSize API_DEPRECATED_WITH_REPLACEMENT("-focusDistance", macos(10.9, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
-
-/*!
- @property focalDistance
- @abstract Determines the receiver's focal distance. Animatable.
- @discussion When non zero, the focal distance determines how the camera focuses the objects in the 3d scene. Defaults to 10.0 prior to macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Defaults to 2.5 otherwise.
- */
-@property(nonatomic) CGFloat focalDistance API_DEPRECATED_WITH_REPLACEMENT("-focusDistance", macos(10.9, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
-
 @end
 
 NS_ASSUME_NONNULL_END
@@ -5533,7 +5658,7 @@ NS_ASSUME_NONNULL_END
 //  SCNPhysicsContact.h
 //  SceneKit
 //
-//  Copyright © 2014-2018 Apple Inc. All rights reserved.
+//  Copyright © 2014-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -5568,7 +5693,7 @@ NS_ASSUME_NONNULL_END
 //  SCNMaterialProperty.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -5646,7 +5771,7 @@ SCN_EXPORT
 /*! 
  @property mipFilter
  @abstract Specifies the mipmap filter to use during minification.
- @discussion Defaults to SCNFilterModeNone on macOS 10.11 or earlier and iOS 9 or earlier, SCNFilterModeNearest starting in macOS 10.12 and iOS 10.
+ @discussion Defaults to SCNFilterModeNearest starting macOS 10.12, iOS 10, tvOS 10 and watchOS 3. Defaults to SCNFilterModeNone in previous versions.
  */
 @property(nonatomic) SCNFilterMode mipFilter;
 
@@ -5667,13 +5792,6 @@ SCN_EXPORT
  @abstract Determines the receiver's wrap mode for the t texture coordinate. Defaults to SCNWrapModeClamp.
  */
 @property(nonatomic) SCNWrapMode wrapT;
-
-/*! 
- @property borderColor
- @abstract Determines the receiver's border color (CGColorRef or UIColor). Animatable.
- @discussion The border color is ignored on iOS and is always considered as clear color (0,0,0,0) when the texture has an alpha channel and opaque back (0,0,0,1) otherwise.
- */
-@property(nonatomic, retain, nullable) id borderColor API_DEPRECATED("Deprecated", macos(10.8, 10.12), ios(8.0, 10.0)) API_UNAVAILABLE(watchos, tvos);
 
 /*! 
  @property mappingChannel
@@ -5705,7 +5823,7 @@ NS_ASSUME_NONNULL_END
 //  SCNPhysicsShape.h
 //  SceneKit
 //
-//  Copyright © 2014-2018 Apple Inc. All rights reserved.
+//  Copyright © 2014-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -5764,7 +5882,7 @@ NS_ASSUME_NONNULL_END
 //  SCNHitTest.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -5793,6 +5911,7 @@ SCN_EXPORT SCNHitTestOption const SCNHitTestRootNodeKey;                        
 SCN_EXPORT SCNHitTestOption const SCNHitTestIgnoreHiddenNodesKey  API_AVAILABLE(macos(10.9));                                       // Determines whether hidden nodes should be ignored. Defaults to YES.
 SCN_EXPORT SCNHitTestOption const SCNHitTestOptionCategoryBitMask API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));               // Determines the node categories to test. Defaults to all bits set.
 SCN_EXPORT SCNHitTestOption const SCNHitTestOptionSearchMode      API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)); // Determines whether the search should be exhaustive. Defaults to SCNHitTestSearchModeClosest.
+SCN_EXPORT SCNHitTestOption const SCNHitTestOptionIgnoreLightArea API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0)); // Determines whether the shape of an area light should not be taken into account. Defaults to YES.
 
 SCN_EXPORT SCNHitTestOption const SCNHitTestFirstFoundOnlyKey;                                                                      // Deprecated, use SCNHitTestSearchModeAny for the SCNHitTestOptionSearchMode option instead
 SCN_EXPORT SCNHitTestOption const SCNHitTestSortResultsKey;                                                                         // Deprecated, use SCNHitTestSearchModeAll for the SCNHitTestOptionSearchMode option instead
@@ -5849,32 +5968,55 @@ SCN_EXPORT
 
 @end
 
+@interface SCNHitTestResult (SIMD)
+
+@property(nonatomic, readonly) simd_float3 simdLocalCoordinates API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+@property(nonatomic, readonly) simd_float3 simdWorldCoordinates API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+@property(nonatomic, readonly) simd_float3 simdLocalNormal API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+@property(nonatomic, readonly) simd_float3 simdWorldNormal API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+@property(nonatomic, readonly) simd_float4x4 simdModelTransform API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+@end
+
 NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SceneKitTypes.h
 //
 //  SceneKitTypes.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitAvailability.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <simd/simd.h>
 
-#import <QuartzCore/QuartzCore.h>
-#import <GLKit/GLKMathTypes.h>
-
 /*! @header SceneKitTypes
  @abstract Various types and utility functions used throughout SceneKit
  */
 
-#define SCN_ENABLE_METAL (!TARGET_OS_SIMULATOR)
+#define SCN_ENABLE_METAL 1
+#define SCN_ENABLE_OPENGL 1
+
+#ifdef SCN_SILENCE_GL_DEPRECATION
+#define SCN_GL_DEPRECATED_MAC(from, to) NS_AVAILABLE_MAC(from)
+#define SCN_GL_DEPRECATED_IOS(from, to) NS_AVAILABLE_IOS(from)
+#define SCN_GL_DEPRECATED(fromM,toM, fromI,toI) NS_AVAILABLE(fromM,fromI)
+#else
+#define SCN_GL_DEPRECATED_MAC(from, to) NS_DEPRECATED_MAC(from, to, "OpenGL API deprecated, please use Metal instead. (Define SCN_SILENCE_GL_DEPRECATION to silence these warnings)")
+#define SCN_GL_DEPRECATED_IOS(from, to) NS_DEPRECATED_IOS(from, to, "OpenGL API deprecated, please use Metal instead. (Define SCN_SILENCE_GL_DEPRECATION to silence these warnings)")
+#define SCN_GL_DEPRECATED(fromM, toM, fromI, toI) NS_DEPRECATED(fromM, toM, fromI, toI, "OpenGL API deprecated, please use Metal instead. (Define SCN_SILENCE_GL_DEPRECATION to silence these warnings)")
+#endif
 
 #if SCN_ENABLE_METAL
 #import <Metal/Metal.h>
 #endif
 
+#if SCN_ENABLE_OPENGL
+#import <GLKit/GLKMathTypes.h>
+#endif
+
+#import <QuartzCore/QuartzCore.h>
 
 // Color
 #define SCNColor UIColor
@@ -5996,7 +6138,8 @@ NS_INLINE SCNMatrix4 SCNMatrix4Translate(SCNMatrix4 m, float tx, float ty, float
 SCN_EXPORT SCNMatrix4 SCNMatrix4Scale(SCNMatrix4 m, float sx, float sy, float sz) API_AVAILABLE(macos(10.10));
 
 /* Rotate 'm' by 'angle' radians about the vector '(x, y, z)' and return the result:
- * m' = rotation(angle, x, y, z) * m. */
+ * m' = rotation(angle, x, y, z) * m.
+ Note: on iOS 10.12 or before, the matrix are combined in the wrong order: m' = m * rotation(angle, x, y, z) */
 SCN_EXPORT SCNMatrix4 SCNMatrix4Rotate(SCNMatrix4 m, float angle, float x, float y, float z) API_AVAILABLE(macos(10.10));
 
 /* Invert 'm' and return the result. */
@@ -6008,6 +6151,8 @@ SCN_EXPORT SCNMatrix4 SCNMatrix4Mult(SCNMatrix4 a, SCNMatrix4 b) API_AVAILABLE(m
 
 #pragma mark - GLKit Bridge
 
+#if SCN_ENABLE_OPENGL
+    
 NS_INLINE SCNVector3 SCNVector3FromGLKVector3(GLKVector3 vector) {
     return (SCNVector3){vector.v[0], vector.v[1], vector.v[2]};
 }
@@ -6026,6 +6171,8 @@ NS_INLINE GLKVector4 SCNVector4ToGLKVector4(SCNVector4 vector) {
 
 SCN_EXPORT GLKMatrix4 SCNMatrix4ToGLKMatrix4(SCNMatrix4 mat) API_AVAILABLE(macos(10.10));
 SCN_EXPORT SCNMatrix4 SCNMatrix4FromGLKMatrix4(GLKMatrix4 mat) API_AVAILABLE(macos(10.10));
+
+#endif //SCN_ENABLE_OPENGL
 
 
 #pragma mark - SIMD Bridge
@@ -6102,7 +6249,7 @@ NS_ASSUME_NONNULL_END
 //  SCNRenderer.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SCNSceneRenderer.h>
@@ -6123,6 +6270,8 @@ API_UNAVAILABLE(watchos)
 SCN_EXPORT
 @interface SCNRenderer : NSObject <SCNSceneRenderer, SCNTechniqueSupport>
 
+#if SCN_ENABLE_OPENGL
+
 /*! 
  @method rendererWithContext:options:
  @abstract Creates a new renderer object.
@@ -6130,6 +6279,8 @@ SCN_EXPORT
  @param options An optional dictionary for future extensions.
  */
 + (instancetype)rendererWithContext:(nullable EAGLContext *)context options:(nullable NSDictionary *)options;
+
+#endif
 
 /*!
  @method rendererWithDevice:options:
@@ -6193,15 +6344,6 @@ SCN_EXPORT
  */
 - (void)updateProbes:(NSArray<SCNNode*> *)lightProbes atTime:(CFTimeInterval)time API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 
-
-// Deprecated
-/*!
- @method render
- @abstract renders the receiver's scene at the current system time.
- @discussion This method only work if the receiver was allocated with an OpenGL context and it is deprecated (use renderAtTime: instead). Use renderAtTime:withEncoder:pass:commandQueue: to render with Metal.
- */
-- (void)render API_DEPRECATED_WITH_REPLACEMENT("-renderAtTime:withEncoder:pass:commandQueue:", macos(10.8, 10.11), ios(8.0, 9.0)) API_UNAVAILABLE(watchos, tvos);
-
 @end
 
 NS_ASSUME_NONNULL_END
@@ -6210,7 +6352,7 @@ NS_ASSUME_NONNULL_END
 //  SCNMaterial.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -6439,6 +6581,25 @@ SCN_EXPORT
  */
 @property(nonatomic, readonly) SCNMaterialProperty *roughness API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 
+/*!
+ @property clearCoat
+ @abstract The clearCoat property specifies color and intensity of the coat layer.
+ */
+@property(nonatomic, readonly) SCNMaterialProperty *clearCoat API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property clearCoatRoughness
+ @abstract The clearCoat property specifies color and intensity of the coat roughness.
+ */
+@property(nonatomic, readonly) SCNMaterialProperty *clearCoatRoughness API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property clearCoatNormal
+ @abstract The clearCoatNormal property specifies color and intensity of the optional coat normal map.
+ */
+@property(nonatomic, readonly) SCNMaterialProperty *clearCoatNormal API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+
 // MARK: -
 
 /*! 
@@ -6534,7 +6695,7 @@ NS_ASSUME_NONNULL_END
 //  SCNJavascript.h
 //  SceneKit
 //
-//  Copyright © 2014-2018 Apple Inc. All rights reserved.
+//  Copyright © 2014-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6588,12 +6749,101 @@ NS_ASSUME_NONNULL_BEGIN
 SCN_EXPORT void SCNExportJavaScriptModule(JSContext *context) API_AVAILABLE(macos(10.10));
 
 NS_ASSUME_NONNULL_END
+// ==========  SceneKit.framework/Headers/SceneKitDeprecated.h
+//
+//  SceneKitDeprecated.h
+//  SceneKit
+//
+//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//
+
+#import <SceneKit/SceneKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+@interface SCNLight (SCNDeprecated) <SCNTechniqueSupport>
+@end
+
+
+@interface SCNCamera (SCNDeprecated)
+
+/*!
+ @property focalBlurRadius
+ @abstract Determines the receiver's focal radius. Animatable.
+ @discussion Determines the maximum amount of blur for objects out of focus. Defaults to 0.
+ */
+@property(nonatomic) CGFloat focalBlurRadius API_DEPRECATED("Use fStop instead", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @property xFov
+ @abstract Determines the receiver's field of view on the X axis (in degree). Animatable.
+ @discussion When both xFov and yFov are null an yFov of 60° is used. When both are set, the one that best fits the renderer's aspect ratio is used. When only one is set, it is used. Defaults to 0.
+ */
+@property(nonatomic) double xFov API_DEPRECATED("Use -[SCNCamera fieldOfView] or -[SCNCamera focalLength] instead", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @property yFov
+ @abstract Determines the receiver's field of view on the Y axis (in degree). Animatable.
+ @discussion When both xFov and yFov are null an yFov of 60° is used. When both are set, the one that best fits the renderer's aspect ratio is used. When only one is set, it is used. Defaults to 0.
+ */
+@property(nonatomic) double yFov API_DEPRECATED("Use -[SCNCamera fieldOfView] or -[SCNCamera focalLength] instead", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @property aperture
+ @abstract Determines the receiver's aperture. Animatable.
+ @discussion Defaults to 1/8.0.
+ */
+@property(nonatomic) CGFloat aperture API_DEPRECATED("Use -[SCNCamera fStop] instead with fStop = sensorHeight / aperture.", macos(10.8, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @property focalSize
+ @abstract Determines the receiver's focal size. Animatable.
+ @discussion Determines the size of the area around focalDistance where the objects are in focus. Defaults to 0.
+ */
+@property(nonatomic) CGFloat focalSize API_DEPRECATED_WITH_REPLACEMENT("-focusDistance", macos(10.9, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+/*!
+ @property focalDistance
+ @abstract Determines the receiver's focal distance. Animatable.
+ @discussion When non zero, the focal distance determines how the camera focuses the objects in the 3d scene. Defaults to 10.0 prior to macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Defaults to 2.5 otherwise.
+ */
+@property(nonatomic) CGFloat focalDistance API_DEPRECATED_WITH_REPLACEMENT("-focusDistance", macos(10.9, 10.13), ios(8.0, 11.0), tvos(9.0, 11.0), watchos(3.0, 4.0));
+
+@end
+
+
+@interface SCNRenderer (SCNDeprecated)
+
+// Deprecated
+/*!
+ @method render
+ @abstract renders the receiver's scene at the current system time.
+ @discussion This method only work if the receiver was allocated with an OpenGL context and it is deprecated (use renderAtTime: instead). Use renderAtTime:withEncoder:pass:commandQueue: to render with Metal.
+ */
+- (void)render API_DEPRECATED_WITH_REPLACEMENT("-renderAtTime:withEncoder:pass:commandQueue:", macos(10.8, 10.11), ios(8.0, 9.0)) API_UNAVAILABLE(watchos, tvos, uikitformac);
+
+@end
+
+
+@interface SCNMaterialProperty (SCNDeprecated)
+
+/*!
+ @property borderColor
+ @abstract Determines the receiver's border color (CGColorRef or UIColor). Animatable.
+ @discussion The border color is ignored on iOS and is always considered as clear color (0,0,0,0) when the texture has an alpha channel and opaque back (0,0,0,1) otherwise.
+ */
+@property(nonatomic, retain, nullable) id borderColor API_DEPRECATED("Deprecated", macos(10.8, 10.12), ios(8.0, 10.0)) API_UNAVAILABLE(watchos, tvos, uikitformac);
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  SceneKit.framework/Headers/SCNScene.h
 //
 //  SCNScene.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -6603,6 +6853,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class UIImage;
 @class SCNNode;
 @class SCNPhysicsWorld;
 @protocol SCNSceneExportDelegate;
@@ -6779,6 +7030,35 @@ SCN_EXPORT
  */
 @property(nonatomic, retain) id fogColor API_AVAILABLE(macos(10.10));
 
+#pragma mark - SSR
+
+/*!
+ @property wantsScreenSpaceReflection
+ @abstract Determines if the scene use screen space reflection.
+ @discussion Defaults to NO.
+ */
+@property(nonatomic) BOOL wantsScreenSpaceReflection API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property screenSpaceReflectionSampleCount
+ @abstract Determines the sample count of the screen space reflection.
+ @discussion Defaults to 64.
+ */
+@property(nonatomic) NSInteger screenSpaceReflectionSampleCount API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property screenSpaceReflectionMaximumDistance
+ @abstract Determines the maximum distance in world units.
+ @discussion Defaults to 1000.
+ */
+@property(nonatomic) CGFloat screenSpaceReflectionMaximumDistance API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/*!
+ @property screenSpaceReflectionStride
+ @abstract Raytracing step size in pixel. The lower the better, the higher the faster.
+ @discussion Defaults to 8.
+ */
+@property(nonatomic) CGFloat screenSpaceReflectionStride API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
 
 #pragma mark - Pause
 
@@ -6788,7 +7068,6 @@ SCN_EXPORT
  @discussion Pausing a scene will pause animations, actions, particles and physics.
  */
 @property(nonatomic, getter=isPaused) BOOL paused API_AVAILABLE(macos(10.10));
-
 
 @end
 
@@ -6813,7 +7092,7 @@ NS_ASSUME_NONNULL_END
 //  SCNSkinner.h
 //  SceneKit
 //
-//  Copyright © 2013-2018 Apple Inc. All rights reserved.
+//  Copyright © 2013-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -6898,7 +7177,7 @@ NS_ASSUME_NONNULL_END
 //  SCNConstraint.h
 //  SceneKit
 //
-//  Copyright © 2013-2018 Apple Inc. All rights reserved.
+//  Copyright © 2013-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SceneKitTypes.h>
@@ -6930,7 +7209,7 @@ SCN_EXPORT API_AVAILABLE(macos(10.9))
 
 /*!
  @property incremental
- @abstract Specifies whether or not the contraint should applies incrementally and have it's effect being cumulated over the rendered frames. Defaults to YES on macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Defaults to NO in earlier versions.
+ @abstract Specifies whether or not the contraint should applies incrementally and have it's effect being cumulated over the rendered frames. Defaults to YES starting macOS 10.13, iOS 11, tvOS 11 and watchOS 4. Defaults to NO in previous versions.
  */
 @property(nonatomic, getter=isIncremental) BOOL incremental API_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0));
 
@@ -7330,7 +7609,7 @@ NS_ASSUME_NONNULL_END
 //  SCNNode.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <SceneKit/SCNAnimation.h>
@@ -7353,6 +7632,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SCNHitTestResult;
 @class SCNRenderer;
 @protocol SCNNodeRendererDelegate;
+@protocol UIFocusItem;
 
 /*! @group Rendering arguments
     @discussion These keys are used for the 'semantic' argument of -[SCNProgram setSemantic:forSymbol:options:]
@@ -8023,7 +8303,7 @@ NS_ASSUME_NONNULL_END
 //  SCNSceneSource.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -8150,8 +8430,8 @@ SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceAnimationImportPolicy
 
 /*!
  @constant SCNSceneSourceLoadingOptionPreserveOriginalTopology
- @abstract Pass YES to make SceneKit preserve the original topology instead of triangulating at load time.
- This can be useful to get better results when subdividing a geometry. Defaults to NO.
+ @abstract Pass YES to make SceneKit preserve the original topology instead of triangulating at load time. This can be useful to get better results when subdividing a geometry.
+ @discussion Defaults to YES starting macOS 10.15, iOS 13, tvOS 13 and watchOS 6. Defaults to NO in previous versions.
  */
 SCN_EXPORT SCNSceneSourceLoadingOption const SCNSceneSourceLoadingOptionPreserveOriginalTopology API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0));
 
@@ -8372,7 +8652,7 @@ NS_ASSUME_NONNULL_END
 //  SCNView.h
 //  SceneKit
 //
-//  Copyright © 2012-2018 Apple Inc. All rights reserved.
+//  Copyright © 2012-2019 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -8390,16 +8670,16 @@ typedef NSString * SCNViewOption NS_STRING_ENUM;
  @constant SCNViewOptionPreferredRenderingAPI Specifies the preferred rendering API to be used by the renderer.
  @discussion Pass it as the key in the options dictionary given to initWithFrame:options:. The value is a NSNumber wrapping a SCNRenderingAPI. You can also select the preferred rendering API directly from the SCNView inspector in InterfaceBuilder.
  */
-SCN_EXPORT SCNViewOption const SCNPreferredRenderingAPIKey API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos);
+SCN_EXPORT SCNViewOption const SCNPreferredRenderingAPIKey API_AVAILABLE(macos(10.11), ios(9.0)) API_UNAVAILABLE(watchos, uikitformac);
 
 /*!
- @constant SCNViewOptionPreferredDevice Specifies the preferred metal device to be used by the renderer.
+ @constant SCNViewOptionPreferredDevice Specifies the preferred Metal device to be used by the renderer.
  @discussion The value is directly a id <MTLDevice>.
  */
 SCN_EXPORT SCNViewOption const SCNPreferredDeviceKey API_AVAILABLE(macos(10.11), ios(9.0));
 
 /*!
- @constant SCNViewOptionPreferLowPowerDevice Specifies if the renderer should prefer a low power metal device.
+ @constant SCNViewOptionPreferLowPowerDevice Specifies if the renderer should prefer a low power Metal device.
  @discussion The value is a NSNumber wrapping a BOOL. Defaults to NO.
  */
 SCN_EXPORT SCNViewOption const SCNPreferLowPowerDeviceKey API_AVAILABLE(macos(10.11), ios(9.0));
@@ -8515,12 +8795,17 @@ SCN_EXPORT
  */
 @property(nonatomic) NSInteger preferredFramesPerSecond API_AVAILABLE(macos(10.12));
 
+
+#if SCN_ENABLE_OPENGL
+
 /*!
  @property eaglContext
  @abstract Specifies the EAGL context associated with the receiver.
  @discussion This property returns nil and has no effect if the current API is Metal.
  */
-@property(nonatomic, retain, nullable) EAGLContext *eaglContext;
+@property(nonatomic, retain, nullable) EAGLContext *eaglContext SCN_GL_DEPRECATED_IOS(8_0, 12_0); // SCN_GL_DEPRECATED(ios(8.0, 12.0), tvos(9.0, 12.0));
+
+#endif
 
 /*!
  @property antialiasingMode

@@ -84,6 +84,44 @@ ML_EXPORT
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreML.framework/Headers/MLMetricKey.h
+//
+//  MLMetricKey.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <CoreML/CoreML.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * A class to specify list of supported model update metrics.
+ */
+ML_EXPORT
+API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MLMetricKey : MLKey
+
+// Float metric indicating the current loss
+@property (class, readonly, nonatomic) MLMetricKey *lossValue;
+
+// Int64 metric indicating the index of the epoch
+@property (class, readonly, nonatomic) MLMetricKey *epochIndex;
+
+// Int64 metric indicating the index of mini batches in the current epoch
+@property (class, readonly, nonatomic) MLMetricKey *miniBatchIndex;
+
+// cannot construct MLMetricKey without parameters.
+- (instancetype)init NS_UNAVAILABLE;
+
+// cannot construct MLMetricKey without parameters.
++ (id)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  CoreML.framework/Headers/MLFeatureType.h
 //
 //  MLFeatureType.h
@@ -220,13 +258,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 ML_EXPORT
-@interface MLImageSize : NSObject
+@interface MLImageSize : NSObject <NSSecureCoding>
 
 @property (readonly) NSInteger pixelsWide;
 
 @property (readonly) NSInteger pixelsHigh;
 
 @end
+
+NS_ASSUME_NONNULL_END
+// ==========  CoreML.framework/Headers/MLUpdateProgressEvent.h
+//
+//  MLUpdateProgressEvent.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <CoreML/CoreML.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * Events on which update task is capable of invoking progress handler.
+ *
+ * @note MLUpdateProgressEventMiniBatchEnd may induce performance problems
+ *       during pipeline execution.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0))
+typedef NS_OPTIONS(NSInteger, MLUpdateProgressEvent) {
+    MLUpdateProgressEventTrainingBegin = 1 << 0,
+    MLUpdateProgressEventEpochEnd = 1 << 1,
+    MLUpdateProgressEventMiniBatchEnd = 1 << 2,
+};
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreML.framework/Headers/MLMultiArrayConstraint.h
@@ -249,7 +313,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0))
 ML_EXPORT
-@interface MLMultiArrayConstraint : NSObject
+@interface MLMultiArrayConstraint : NSObject <NSSecureCoding>
 
 // Required or default shape of multiarray
 @property (readonly, nonatomic) NSArray<NSNumber *> *shape;
@@ -259,6 +323,41 @@ ML_EXPORT
 
 // Detailed shape constraint
 @property (readonly, nonatomic) MLMultiArrayShapeConstraint *shapeConstraint API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+// ==========  CoreML.framework/Headers/MLUpdateProgressHandlers.h
+//
+//  MLUpdateProgressHandlers.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <CoreML/CoreML.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class MLUpdateContext;
+
+/*!
+ * Allows applications to register for progress and completion handlers.
+ */
+ML_EXPORT
+API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MLUpdateProgressHandlers : NSObject
+
+- (instancetype)initForEvents:(MLUpdateProgressEvent)interestedEvents
+              progressHandler:(nullable void (^)(MLUpdateContext * context))progressHandler
+            completionHandler:(void (^)(MLUpdateContext * context))completionHandler;
+
+// cannot construct MLUpdateTask without parameters.
+- (instancetype)init NS_UNAVAILABLE;
+
+// cannot construct MLUpdateTask without parameters.
++ (id)new NS_UNAVAILABLE;
 
 @end
 
@@ -279,7 +378,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 ML_EXPORT
-@interface MLMultiArrayShapeConstraint : NSObject
+@interface MLMultiArrayShapeConstraint : NSObject <NSSecureCoding>
 
 @property (readonly, nonatomic) MLMultiArrayShapeConstraintType type;
 
@@ -305,6 +404,7 @@ NS_ASSUME_NONNULL_END
 
 #import <CoreML/MLFeatureType.h>
 #import <CoreML/MLFeatureValue.h>
+#import <CoreML/MLFeatureValue+MLImageConversion.h>
 #import <CoreML/MLFeatureDescription.h>
 #import <CoreML/MLFeatureProvider.h>
 #import <CoreML/MLDictionaryFeatureProvider.h>
@@ -339,6 +439,18 @@ NS_ASSUME_NONNULL_END
 #import <CoreML/MLCustomModel.h>
 
 #import <CoreML/MLExport.h>
+
+#import <CoreML/MLKey.h>
+#import <CoreML/MLTask.h>
+#import <CoreML/MLUpdateTask.h>
+#import <CoreML/MLWritable.h>
+#import <CoreML/MLUpdateProgressEvent.h>
+#import <CoreML/MLUpdateContext.h>
+#import <CoreML/MLUpdateProgressHandlers.h>
+#import <CoreML/MLMetricKey.h>
+#import <CoreML/MLNumericConstraint.h>
+#import <CoreML/MLParameterDescription.h>
+#import <CoreML/MLParameterKey.h>
 // ==========  CoreML.framework/Headers/MLImageSizeConstraint.h
 //
 //  MLImageSizeConstraint.h
@@ -355,7 +467,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 ML_EXPORT
-@interface MLImageSizeConstraint  : NSObject
+@interface MLImageSizeConstraint  : NSObject <NSSecureCoding>
 
 @property (readonly, nonatomic) MLImageSizeConstraintType type;
 
@@ -370,6 +482,90 @@ ML_EXPORT
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreML.framework/Headers/MLParameterDescription.h
+//
+//  MLParameterDescription.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <CoreML/CoreML.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class MLNumericConstraint;
+
+/*!
+ * Describes a model parameter along with a default value and any applicable constaint on the values.
+ */
+ML_EXPORT
+API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MLParameterDescription : NSObject
+
+// Name and type of the parameter
+@property (readonly, nonatomic) MLParameterKey *key;
+
+// Default value of the parameter
+@property (readonly, nonatomic) id defaultValue;
+
+// Any applicable constraint on the parameter value
+@property (readonly, nonatomic) MLNumericConstraint *numericConstraint;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+// ==========  CoreML.framework/Headers/MLUpdateTask.h
+//
+//  MLUpdateTask.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <CoreML/CoreML.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class MLUpdateContext;
+@class MLUpdateProgressHandlers;
+
+/*!
+ * Main class for setting up and controlling a model update. It provides some utility class methods for performing an update synchronously as well as class constructors for configuring an update and give developers control for the execution of that update.
+ */
+ML_EXPORT
+API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MLUpdateTask : MLTask
+
+// Update via task control with completion handler
++ (nullable instancetype)updateTaskForModelAtURL:(NSURL *)modelURL
+                                    trainingData:(id<MLBatchProvider>)trainingData
+                                   configuration:(nullable MLModelConfiguration *)configuration
+                               completionHandler:(void (^)(MLUpdateContext * context))completionHandler
+                                           error:(NSError * _Nullable * _Nullable)error;
+
+// Update via task control and custom progress callbacks
++ (nullable instancetype)updateTaskForModelAtURL:(NSURL *)modelURL
+                                    trainingData:(id<MLBatchProvider>)trainingData
+                                   configuration:(nullable MLModelConfiguration *)configuration
+                                progressHandlers:(MLUpdateProgressHandlers *)progressHandlers
+                                           error:(NSError * _Nullable * _Nullable)error;
+
+// Request a resume with new parameters. Should be used within a progressHandler
+- (void)resumeWithParameters:(NSDictionary<MLParameterKey *, id> *)updateParameters;
+
+// cannot construct MLUpdateTask without parameters.
+- (instancetype)init NS_UNAVAILABLE;
+
+// cannot construct MLUpdateTask without parameters.
++ (id)new NS_UNAVAILABLE;
+
+@end
+
+
+NS_ASSUME_NONNULL_END
+
 // ==========  CoreML.framework/Headers/MLFeatureDescription.h
 //
 //  MLFeatureDescription.h
@@ -394,7 +590,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0))
 ML_EXPORT
-@interface MLFeatureDescription : NSObject<NSCopying>
+@interface MLFeatureDescription : NSObject<NSCopying, NSSecureCoding>
 
 /// Name of feature
 @property (readonly, nonatomic, copy) NSString *name;
@@ -431,6 +627,92 @@ API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreML.framework/Headers/MLParameterKey.h
+//
+//  MLParameterKey.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <CoreML/CoreML.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * A class to specify list of supported model update parameters.
+ */
+ML_EXPORT
+API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MLParameterKey : MLKey<NSSecureCoding>
+
+// Double parameter used to control the learning rate of an optimizer. Adjustable in progress
+@property (class, readonly, nonatomic) MLParameterKey *learningRate;
+
+// Double parameter used to control the momentum of gradient based optimizers. Adjustable in progress
+@property (class, readonly, nonatomic) MLParameterKey *momentum;
+
+// Int64 parameter used to specify the size of a miniBatch used by optimizer. Not adjustable in progress
+@property (class, readonly, nonatomic) MLParameterKey *miniBatchSize;
+
+// Double parameter used to control the beta1 of Adam optimizer. Adjustable in progress
+@property (class, readonly, nonatomic) MLParameterKey *beta1;
+
+// Double parameter used to control the beta2 of Adam optimizer. Adjustable in progress
+@property (class, readonly, nonatomic) MLParameterKey *beta2;
+
+// Double parameter used to control the epsilon of Adam optimizer. Adjustable in progress
+@property (class, readonly, nonatomic) MLParameterKey *eps;
+
+// Int64 parameter used to specify the number of epochs used by optimizer. Not adjustable in progress
+@property (class, readonly, nonatomic) MLParameterKey *epochs;
+
+// Bool parameter used to specify whether an update should remove examples (applicable to kNN). Not adjustable in progress
+@property (class, readonly, nonatomic) MLParameterKey *removeExamples;
+
+// cannot construct MLParameterKey without parameters.
+- (instancetype)init NS_UNAVAILABLE;
+
+// cannot construct MLParameterKey without parameters.
++ (id)new NS_UNAVAILABLE;
+
+@end
+
+@interface MLParameterKey (MLLinkedModelParameters)
+
+// String parameter used to specify the name of a linked model
+@property (class, readonly, nonatomic) MLParameterKey *linkedModelFileName;
+
+// String parameteru sed to specify the search path for a linked model
+@property (class, readonly, nonatomic) MLParameterKey *linkedModelSearchPath;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+// ==========  CoreML.framework/Headers/MLWritable.h
+//
+//  MLWritable.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <CoreML/CoreML.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+ML_EXPORT
+API_AVAILABLE(macos(10.15), ios(13.0))
+@protocol MLWritable <NSObject>
+
+// Writes the model to disk and returns YES if the write is successful.
+- (BOOL)writeToURL:(NSURL *)url error:(NSError * _Nullable * _Nullable)error;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  CoreML.framework/Headers/MLDictionaryConstraint.h
 //
 //  MLDictionaryConstraint.h
@@ -452,10 +734,42 @@ NS_ASSUME_NONNULL_BEGIN
  */
 API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0))
 ML_EXPORT
-@interface MLDictionaryConstraint : NSObject
+@interface MLDictionaryConstraint : NSObject <NSSecureCoding>
 
 /// Required key type, described as MLFeatureType
 @property (readonly, nonatomic) MLFeatureType keyType;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+// ==========  CoreML.framework/Headers/MLNumericConstraint.h
+//
+//  MLNumericConstraint.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <CoreML/CoreML.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * Allows enforcement of constraints on the values of update parameters.
+ */
+ML_EXPORT
+API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MLNumericConstraint : NSObject
+
+// Minimum value of the parameter can take.
+@property (readonly, nonatomic) NSNumber *minNumber;
+
+// Maximum value of the parameter can take.
+@property (readonly, nonatomic) NSNumber *maxNumber;
+
+// If not nil, list of restricted set of values the parameter can take.
+@property (readonly, nonatomic, nullable) NSSet<NSNumber *> *enumeratedNumbers;
 
 @end
 
@@ -641,6 +955,48 @@ ML_EXPORT
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreML.framework/Headers/MLUpdateContext.h
+//
+//  MLUpdateContext.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <CoreML/CoreML.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class MLUpdateTask;
+@class MLMetricKey;
+@protocol MLWritable;
+
+/*!
+ * Provides context for the update process when the progress or completion handlers are invoked.
+ */
+ML_EXPORT
+API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MLUpdateContext : NSObject
+
+// Reference to the update task that invokved the progress or completion handlers.
+@property (readonly, nonatomic) MLUpdateTask *task;
+
+// Reference to the updated model that can be used for additional validation or evaluation.
+@property (readonly, nonatomic) MLModel<MLWritable> *model;
+
+// Indicates the event the progress handler invocation corresponds to. This will be one of the events app registered via MLUpdateProgressHandlers.interestedEvents.
+@property (readonly, nonatomic) MLUpdateProgressEvent event;
+
+// Metrics computed on the training input during the update process.
+@property (readonly, nonatomic) NSDictionary <MLMetricKey *, id> *metrics;
+
+// A snapshot of parameters (including their values) used during the update process.
+@property (readonly, nonatomic) NSDictionary <MLParameterKey *, id> *parameters;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  CoreML.framework/Headers/MLModelMetadataKeys.h
 //
 //  MLModelMetadataKeys.h
@@ -712,7 +1068,8 @@ typedef enum MLModelError : NSInteger {
     MLModelErrorFeatureType = 1,
     MLModelErrorIO = 3,
     MLModelErrorCustomLayer API_AVAILABLE(macos(10.13.2), ios(11.2), watchos(4.2), tvos(11.2)) = 4,
-    MLModelErrorCustomModel API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0)) = 5
+    MLModelErrorCustomModel API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0)) = 5,
+    MLModelErrorUpdate API_AVAILABLE(macos(10.15), ios(13.0)) = 6 
 } MLModelError API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
 
 NS_ASSUME_NONNULL_END
@@ -721,7 +1078,6 @@ NS_ASSUME_NONNULL_END
 //  MLModelConfiguration.h
 //  CoreML_framework
 //
-//  Created by Bill March on 6/20/18.
 //  Copyright © 2018 Apple Inc. All rights reserved.
 //
 
@@ -730,13 +1086,13 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class MLParameterKey;
+@protocol MTLDevice;
+
 typedef NS_ENUM(NSInteger, MLComputeUnits) {
     MLComputeUnitsCPUOnly = 0,
-    MLComputeUnitsCPUAndGPU = 1
-
-    ,
+    MLComputeUnitsCPUAndGPU = 1,
     MLComputeUnitsAll = 2
-
 } API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
 
 /*!
@@ -744,9 +1100,48 @@ typedef NS_ENUM(NSInteger, MLComputeUnits) {
  */
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 ML_EXPORT
-@interface MLModelConfiguration : NSObject <NSCopying>
+@interface MLModelConfiguration : NSObject <NSCopying, NSSecureCoding>
 
 @property (readwrite) MLComputeUnits computeUnits;
+
+@end
+
+/*!
+ * Allows app to specify  GPU configuration options
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+ML_EXPORT
+@interface MLModelConfiguration (MLGPUConfigurationOptions)
+
+/// Set to YES to allow low precision accumulation on GPU when available. Defaults to NO
+@property (readwrite) BOOL allowLowPrecisionAccumulationOnGPU ;
+
+/// Set to specify a preferred Metal device. Defaults to nil which indicates automatic selection
+@property (readwrite, nonatomic, nullable) id<MTLDevice> preferredMetalDevice;
+
+@end
+
+/*!
+ * Allows app to set updateParameters as a dictionary.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0))
+ML_EXPORT
+@interface MLModelConfiguration (MLUpdateAdditions)
+
+// Allows application to override update parameters provided in the model before starting the update process.
+@property (readwrite, nonatomic, nullable) NSDictionary<MLParameterKey *, id> *updateParameters;
+
+@end
+
+/*!
+ * Allows app to set modelParameters as a dictionary.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+ML_EXPORT
+@interface MLModelConfiguration (MLModelParameterAdditions)
+
+// Allows application to override model parameters on loading of a model
+@property (readwrite, nonatomic, nullable) NSDictionary<MLParameterKey *, id> *modelParameters;
 
 @end
 
@@ -850,6 +1245,63 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreML.framework/Headers/MLTask.h
+//
+//  MLTask.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <CoreML/MLExport.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * All possible states an MLTask can be in.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0))
+typedef NS_ENUM(NSInteger, MLTaskState) {
+    MLTaskStateSuspended = 1,
+    MLTaskStateRunning = 2,
+    MLTaskStateCancelling = 3,
+    MLTaskStateCompleted = 4,
+    MLTaskStateFailed = 5,
+};
+
+/*!
+ * Class that abstracts state transitions and basic task controls.
+ */
+ML_EXPORT
+API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MLTask : NSObject
+
+// Unique identifier for the task.
+@property (readonly, copy, nonatomic) NSString *taskIdentifier;
+
+// Represents the current state of task.
+@property (readonly, assign, atomic) MLTaskState state;
+
+// Indicates error if the task failed for any reason.
+@property (readonly, copy, atomic, nullable) NSError *error;
+
+// When called, resumes the task and changes state to "Running".
+- (void)resume;
+
+// When called, starts cancelling the task and changes the state to "Cancelling".
+- (void)cancel;
+
+// cannot construct MLTask without parameters.
+- (instancetype)init NS_UNAVAILABLE;
+
+// cannot construct MLTask without parameters.
++ (id)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  CoreML.framework/Headers/MLModelDescription.h
 //
 //  MLModelDescription.h
@@ -865,13 +1317,16 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class MLParameterKey;
+@class MLParameterDescription;
+
 /*!
  * A description of a model containing input and output feature descriptions, optionally outputted features
  * with special meaning and metadata.
  */
 API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0))
 ML_EXPORT
-@interface MLModelDescription : NSObject
+@interface MLModelDescription : NSObject <NSSecureCoding>
 
 /// Description of the inputs to the model
 @property (readonly, nonatomic) NSDictionary<NSString *, MLFeatureDescription *> *inputDescriptionsByName;
@@ -889,6 +1344,24 @@ ML_EXPORT
 @property (readonly, nonatomic) NSDictionary<MLModelMetadataKey, id> *metadata;
 
 @end
+
+/*!
+ * Additions to model descriptions related to model update API.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MLModelDescription (MLUpdateAdditions)
+
+// Indicates if the model has to been configured for updation using model update API.
+@property (readonly, nonatomic) BOOL isUpdatable;
+
+// Allows for access of each training input as a feature description.
+@property (readonly, nonatomic) NSDictionary<NSString *, MLFeatureDescription *> *trainingInputDescriptionsByName;
+
+// Allows for access of each update parameter as parameter description.
+@property (readonly, nonatomic) NSDictionary<MLParameterKey *, MLParameterDescription *> *updateParameterDescriptionsByKey;
+
+@end
+
 
 NS_ASSUME_NONNULL_END
 // ==========  CoreML.framework/Headers/MLSequenceConstraint.h
@@ -911,7 +1384,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 ML_EXPORT
-@interface MLSequenceConstraint : NSObject
+@interface MLSequenceConstraint : NSObject <NSSecureCoding>
 
 // Description all sequence elements / values must match
 @property (readonly, nonatomic) MLFeatureDescription *valueDescription;
@@ -922,12 +1395,43 @@ ML_EXPORT
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  CoreML.framework/Headers/MLKey.h
+//
+//  MLKey.h
+//  CoreML
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <CoreML/MLExport.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ * A class representing key used to store any value against
+ */
+API_AVAILABLE(macos(10.15), ios(13.0))
+@interface MLKey : NSObject <NSCopying>
+
+// Name of the key
+@property (readonly, nonatomic) NSString *name;
+
+// cannot construct MLKey without parameters.
+- (instancetype)init NS_UNAVAILABLE;
+
+// cannot construct MLKey without parameters.
++ (id)new NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  CoreML.framework/Headers/MLExport.h
 //
 //  MLExport.h
 //  CoreML_framework
 //
-//  Created by Steve Peters on 1/28/18.
 //  Copyright © 2018 Apple Inc. All rights reserved.
 //
 
@@ -991,7 +1495,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0))
 ML_EXPORT
-@interface MLImageConstraint : NSObject
+@interface MLImageConstraint : NSObject <NSSecureCoding>
 
 /// The required or default height of the image
 @property (readonly, nonatomic) NSInteger pixelsHigh;
@@ -1011,7 +1515,7 @@ NS_ASSUME_NONNULL_END
 
 // ==========  CoreML.framework/Headers/MLCustomModel.h
 //
-//  MLCustomLayer.h
+//  MLCustomModel.h
 //  CoreML
 //
 //  Copyright © 2018 Apple Inc. All rights reserved.
@@ -1053,7 +1557,7 @@ API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 
 @optional
 
-/// Batch prediction with explict options, if not implemented the single input predictionFromFeatures:options:error will be used
+/// Batch prediction with explicit options, if not implemented the single input predictionFromFeatures:options:error will be used
 - (nullable id<MLBatchProvider>)predictionsFromBatch:(id<MLBatchProvider>)inputBatch
                                              options:(MLPredictionOptions *)options
                                                error:(NSError **)error;
@@ -1111,12 +1615,16 @@ ML_EXPORT
 - (nullable id<MLFeatureProvider>)predictionFromFeatures:(id<MLFeatureProvider>)input
                                                    error:(NSError **)error;
 
-/// Prediction with explict options
+/// Prediction with explicit options
 - (nullable id<MLFeatureProvider>)predictionFromFeatures:(id<MLFeatureProvider>)input
                                                  options:(MLPredictionOptions *)options
                                                    error:(NSError **)error;
 
-/// Batch prediction with explict options
+/// Batch prediction without explicit options
+- (nullable id<MLBatchProvider>)predictionsFromBatch:(id<MLBatchProvider>)inputBatch
+                                               error:(NSError **)error API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
+
+/// Batch prediction with explicit options
 - (nullable id<MLBatchProvider>)predictionsFromBatch:(id<MLBatchProvider>)inputBatch
                                              options:(MLPredictionOptions *)options
                                                error:(NSError **)error API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
@@ -1153,3 +1661,67 @@ ML_EXPORT
 
 NS_ASSUME_NONNULL_END
 
+// ==========  CoreML.framework/Headers/MLFeatureValue+MLImageConversion.h
+//
+//  MLFeatureValue+MLImageConversion.h
+//  CoreML_framework
+//
+//  Copyright © 2019 Apple Inc. All rights reserved.
+//
+
+#import <CoreML/MLFeatureValue.h>
+#import <CoreML/MLImageConstraint.h>
+#import <CoreGraphics/CGImage.h>
+#import <Foundation/NSURL.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// Options keys passed into the MLFeatureValue construction for image types
+typedef NSString * MLFeatureValueImageOption NS_SWIFT_NAME(MLFeatureValue.ImageOption) NS_TYPED_EXTENSIBLE_ENUM;
+
+
+/// Key for CGRect describing a crop region of interest of image source in normalized coordinates
+ML_EXPORT MLFeatureValueImageOption const MLFeatureValueImageOptionCropRect API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0));
+
+/// Key for VNImageCropAndScaleOption describing how to crop and scale the image (or region of interest) to the desired size
+ML_EXPORT MLFeatureValueImageOption const MLFeatureValueImageOptionCropAndScale API_AVAILABLE(macos(10.15), ios(13.0),tvos(13.0));
+
+
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0))
+ML_EXPORT
+@interface MLFeatureValue (MLImageConversion)
+
+
+/// Construct image feature value from an image on disk
++ (nullable instancetype)featureValueWithImageAtURL:(NSURL *)url
+                                         pixelsWide:(NSInteger)pixelsWide
+                                         pixelsHigh:(NSInteger)pixelsHigh
+                                    pixelFormatType:(OSType)pixelFormatType
+                                            options:(nullable NSDictionary<MLFeatureValueImageOption, id> *)options
+                                              error:(NSError * _Nullable __autoreleasing *)error;
+
+/// Construct image feature value from an image on disk, using a model specified image constraint
++ (nullable instancetype)featureValueWithImageAtURL:(NSURL *)url
+                                         constraint:(MLImageConstraint *)constraint
+                                            options:(nullable NSDictionary<MLFeatureValueImageOption, id> *)options
+                                              error:(NSError * _Nullable __autoreleasing *)error;
+
+
+/// Construct image feature value from CGImage
++ (nullable instancetype)featureValueWithCGImage:(CGImageRef)cgImage
+                                      pixelsWide:(NSInteger)pixelsWide
+                                      pixelsHigh:(NSInteger)pixelsHigh
+                                 pixelFormatType:(OSType)pixelFormatType
+                                         options:(nullable NSDictionary<MLFeatureValueImageOption, id> *)options
+                                           error:(NSError * _Nullable __autoreleasing *)error;
+
+/// Construct image feature value from CGImage, using the size and type information required by feature description
++ (nullable instancetype)featureValueWithCGImage:(CGImageRef)cgImage
+                                      constraint:(MLImageConstraint *)constraint
+                                         options:(nullable NSDictionary<MLFeatureValueImageOption, id> *)options
+                                           error:(NSError * _Nullable __autoreleasing *)error;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

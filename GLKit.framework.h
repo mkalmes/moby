@@ -3442,7 +3442,7 @@ GLK_INLINE GLKVector4 GLKQuaternionRotateVector4(GLKQuaternion quaternion, GLKVe
 
 #import <TargetConditionals.h>
 #import <os/availability.h>
-#if TARGET_OS_IPHONE && (!0 || !0)
+#if TARGET_OS_IPHONE && (!defined(TARGET_OS_UIKITFORMAC) || !TARGET_OS_UIKITFORMAC)
 #import <OpenGLES/gltypes.h>
 #else // !TARGET_OS_IPHONE
 #import <OpenGL/gltypes.h>
@@ -3455,7 +3455,7 @@ GLK_INLINE GLKVector4 GLKQuaternionRotateVector4(GLKQuaternion quaternion, GLKVe
 	#define GLK_EXTERN extern 
 #endif
 
-#if TARGET_OS_IPHONE && (!0 || !0)
+#if TARGET_OS_IPHONE && (!defined(TARGET_OS_UIKITFORMAC) || !TARGET_OS_UIKITFORMAC)
 #import <OpenGLES/OpenGLESAvailability.h>
 #define OPENGL_DEPRECATED(...)
 #else

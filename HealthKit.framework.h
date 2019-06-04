@@ -541,6 +541,31 @@ HK_EXTERN NSString * const HKMetadataKeyIndoorBikeDistance API_AVAILABLE(ios(12.
  */
 HK_EXTERN NSString * const HKMetadataKeyCrossTrainerDistance API_AVAILABLE(ios(12.0), watchos(5.0));
 
+/*!
+ @constant      HKMetadataKeyHeartRateEventThreshold
+ @abstract      Represents the threshold heart rate that triggered a heart rate event.
+ @discussion    The expected value is an HKQuantity object with a compatible unit (e.g. count/min).
+                This key will be set on heart rate event samples of type HKCategoryTypeIdentifierHighHeartRateEvent and
+                HKCategoryTypeIdentifierLowHeartRateEvent.
+ */
+HK_EXTERN NSString * const HKMetadataKeyHeartRateEventThreshold API_AVAILABLE(ios(12.2), watchos(5.2));
+
+/*!
+ @constant      HKMetadataKeyAverageMETs
+ @abstract      Represents the average METs, or Metabolic Equivalent of Task during a workout.
+ @discussion    The expected value type is an HKQuantity expressed in a METs (kcal/(kg*hr)) unit. This key may be set on an
+                HKWorkout object to represent the average workout intensity represented as METs over the entire workout duration.
+ */
+HK_EXTERN NSString * const HKMetadataKeyAverageMETs API_AVAILABLE(ios(13.0), watchos(6.0));
+
+/*!
+ @constant      HKMetadataKeyAudioExposureLevel
+ @abstract      Represents the audio level associated with an audio event.
+ @discussion    The expected value is an HKQuantity whose value is the audio level
+                associated with the event measured in dbASPL units.
+ */
+HK_EXTERN NSString * const HKMetadataKeyAudioExposureLevel API_AVAILABLE(ios(13.0), watchos(6.0));
+
 NS_ASSUME_NONNULL_END
 // ==========  HealthKit.framework/Headers/HKSeriesBuilder.h
 //
@@ -591,6 +616,7 @@ NS_ASSUME_NONNULL_END
 
 #import <HealthKit/HKActivitySummary.h>
 #import <HealthKit/HKActivitySummaryQuery.h>
+#import <HealthKit/HKAudiogramSample.h>
 #import <HealthKit/HKAnchoredObjectQuery.h>
 #import <HealthKit/HKCDADocumentSample.h>
 #import <HealthKit/HKCategorySample.h>
@@ -599,14 +625,19 @@ NS_ASSUME_NONNULL_END
 #import <HealthKit/HKClinicalType.h>
 #import <HealthKit/HKCorrelation.h>
 #import <HealthKit/HKCorrelationQuery.h>
+#import <HealthKit/HKCumulativeQuantitySample.h>
 #import <HealthKit/HKCumulativeQuantitySeriesSample.h>
 #import <HealthKit/HKDefines.h>
 #import <HealthKit/HKDeletedObject.h>
 #import <HealthKit/HKDevice.h>
+#import <HealthKit/HKDiscreteQuantitySample.h>
 #import <HealthKit/HKDocumentQuery.h>
 #import <HealthKit/HKDocumentSample.h>
 #import <HealthKit/HKFHIRResource.h>
 #import <HealthKit/HKHealthStore.h>
+#import <HealthKit/HKHeartbeatSeriesBuilder.h>
+#import <HealthKit/HKHeartbeatSeriesQuery.h>
+#import <HealthKit/HKHeartbeatSeriesSample.h>
 #import <HealthKit/HKLiveWorkoutBuilder.h>
 #import <HealthKit/HKLiveWorkoutDataSource.h>
 #import <HealthKit/HKMetadata.h>
@@ -618,6 +649,7 @@ NS_ASSUME_NONNULL_END
 #import <HealthKit/HKQuantitySeriesSampleBuilder.h>
 #import <HealthKit/HKQuantitySeriesSampleQuery.h>
 #import <HealthKit/HKQuery.h>
+#import <HealthKit/HKQueryAnchor.h>
 #import <HealthKit/HKSample.h>
 #import <HealthKit/HKSampleQuery.h>
 #import <HealthKit/HKSeriesBuilder.h>
@@ -919,7 +951,7 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
                 will transition to HKWorkoutSessionStatePaused. An HKWorkoutEventTypePause will be generated and
                 delivered to the workout session's delegate.
  */
-- (void)pauseWorkoutSession:(HKWorkoutSession *)workoutSession API_DEPRECATED("Use HKWorkoutSession's pause method", watchos(2.0, 5.0)) __IOS_PROHIBITED;
+- (void)pauseWorkoutSession:(HKWorkoutSession *)workoutSession API_DEPRECATED("Use HKWorkoutSession's pause method", watchos(3.0, 5.0)) __IOS_PROHIBITED;
 
 /*!
  @method        resumeWorkoutSession:
@@ -928,7 +960,7 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
                 will transition to HKWorkoutSessionStateRunning. An HKWorkoutEventTypeResume will be generated and
                 delivered to the workout session's delegate.
  */
-- (void)resumeWorkoutSession:(HKWorkoutSession *)workoutSession API_DEPRECATED("Use HKWorkoutSession's resume method", watchos(2.0, 5.0)) __IOS_PROHIBITED;
+- (void)resumeWorkoutSession:(HKWorkoutSession *)workoutSession API_DEPRECATED("Use HKWorkoutSession's resume method", watchos(3.0, 5.0)) __IOS_PROHIBITED;
 
 /*!
  @method        startWatchAppWithWorkoutConfiguration:completion:
@@ -996,6 +1028,29 @@ HK_EXTERN NSString * const HKUserPreferencesDidChangeNotification API_AVAILABLE(
                 The returned dictionary will map HKQuantityType to HKUnit.
  */
 - (void)preferredUnitsForQuantityTypes:(NSSet<HKQuantityType *> *)quantityTypes completion:(void(^)(NSDictionary<HKQuantityType *, HKUnit *> *preferredUnits, NSError * _Nullable error))completion API_AVAILABLE(ios(8.2), watchos(2.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  HealthKit.framework/Headers/HKHeartbeatSeriesSample.h
+//
+//  HKHeartbeatSeriesSample.h
+//  HealthKit
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <HealthKit/HKSeriesSample.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ @class         HKHeartbeatSeriesSample
+ @abstract      An HKHeartbeatSeriesSample represents a series of heartbeats.
+ @discussion    To retrieve the underlying series data for an HKHeartbeatSeriesSample, use HKHeartbeatSeriesQuery
+ */
+HK_EXTERN API_AVAILABLE(ios(13.0), watchos(6.0))
+@interface HKHeartbeatSeriesSample : HKSeriesSample
 
 @end
 
@@ -1122,6 +1177,7 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
 // mmHg (millimeters of mercury) = 133.3224 Pa          
 // cmAq (centimeters of water)   = 98.06650 Pa
 // atm  (atmospheres)            = 101325.0 Pa
+// dBASPL (sound pressure level)  = 10^(dBASPL/20) * 2.0E-05 Pa
 //
 // [Volume]
 // fl_oz_us  (US customary fluid ounces)= 0.0295735295625 L
@@ -1154,6 +1210,9 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
 // count = 1
 // %     = 1/100
 //
+// [Hearing Sensitivity]
+// dBHL (decibel Hearing Level)
+//
 
 // Units can be combined using multiplication (. or *) and division (/), and raised to integral powers (^).
 // For simplicity, only a single '/' is allowed in a unit string, and multiplication is evaluated first.
@@ -1176,20 +1235,21 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
 @end
 
 typedef NS_ENUM(NSInteger, HKMetricPrefix) {
-    HKMetricPrefixNone = 0, //10^0
+    HKMetricPrefixNone      = 0,    //10^0
     
-    HKMetricPrefixPico,     //10^-12
-    HKMetricPrefixNano,     //10^-9
-    HKMetricPrefixMicro,    //10^-6
-    HKMetricPrefixMilli,    //10^-3
-    HKMetricPrefixCenti,    //10^-2
-    HKMetricPrefixDeci,     //10^-1
-    HKMetricPrefixDeca,     //10^1
-    HKMetricPrefixHecto,    //10^2
-    HKMetricPrefixKilo,     //10^3
-    HKMetricPrefixMega,     //10^6
-    HKMetricPrefixGiga,     //10^9
-    HKMetricPrefixTera      //10^12
+    HKMetricPrefixFemto     API_AVAILABLE(ios(13.0), watchos(6.0)) = 13, //10^-15
+    HKMetricPrefixPico      = 1,    //10^-12
+    HKMetricPrefixNano      = 2,    //10^-9
+    HKMetricPrefixMicro     = 3,    //10^-6
+    HKMetricPrefixMilli     = 4,    //10^-3
+    HKMetricPrefixCenti     = 5,    //10^-2
+    HKMetricPrefixDeci      = 6,    //10^-1
+    HKMetricPrefixDeca      = 7,    //10^1
+    HKMetricPrefixHecto     = 8,    //10^2
+    HKMetricPrefixKilo      = 9,    //10^3
+    HKMetricPrefixMega      = 10,   //10^6
+    HKMetricPrefixGiga      = 11,   //10^9
+    HKMetricPrefixTera      = 12,   //10^12
 } API_AVAILABLE(ios(8.0), watchos(2.0));
 
 /* Mass Units */
@@ -1232,6 +1292,7 @@ typedef NS_ENUM(NSInteger, HKMetricPrefix) {
 + (instancetype)millimeterOfMercuryUnit;    // mmHg
 + (instancetype)centimeterOfWaterUnit;      // cmAq
 + (instancetype)atmosphereUnit;             // atm
++ (instancetype)decibelAWeightedSoundPressureLevelUnit API_AVAILABLE(ios(13.0), watchos(6.0)); // dBASPL
 @end
 
 /* Time Units */
@@ -1277,6 +1338,11 @@ typedef NS_ENUM(NSInteger, HKMetricPrefix) {
 + (instancetype)percentUnit;    // % (0.0 - 1.0)
 @end
 
+/* Hearing Sensitivity */
+@interface HKUnit (HearingSensitivity)
++ (instancetype)decibelHearingLevelUnit API_AVAILABLE(ios(13.0), watchos(6.0));  // dBHL
+@end
+
 @interface HKUnit (Math)
 - (HKUnit *)unitMultipliedByUnit:(HKUnit *)unit;
 - (HKUnit *)unitDividedByUnit:(HKUnit *)unit;
@@ -1284,10 +1350,139 @@ typedef NS_ENUM(NSInteger, HKMetricPrefix) {
 - (HKUnit *)reciprocalUnit;
 @end
 
+/* Frequency Units */
+@interface HKUnit (Frequency)
++ (instancetype)hertzUnitWithMetricPrefix:(HKMetricPrefix)prefix API_AVAILABLE(ios(13.0), watchos(6.0));      // Hz
++ (instancetype)hertzUnit API_AVAILABLE(ios(13.0), watchos(6.0));  // Hz
+@end
+
 /* Mole Constants */
 #define HKUnitMolarMassBloodGlucose (180.15588000005408)
 
 NS_ASSUME_NONNULL_END
+// ==========  HealthKit.framework/Headers/HKQueryAnchor.h
+//
+//  HKQueryAnchor.h
+//  HealthKit
+//
+//  Created by Allan Shortlidge on 2/21/19.
+//  Copyright © 2019 Apple. All rights reserved.
+//
+
+#import <HealthKit/HKDefines.h>
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/*!
+ @class         HKQueryAnchor
+ @discussion    This object encapsulates the state of an HKAnchoredObjectQuery
+ */
+HK_EXTERN API_AVAILABLE(ios(9.0), watchos(2.0))
+@interface HKQueryAnchor : NSObject <NSSecureCoding, NSCopying>
+
+/*!
+ @method        anchorFromValue:
+ @discussion    Creates an HKQueryAnchor with an integer anchor which was previously obtained from an
+                HKAnchoredObjectQuery prior to iOS 9.0.
+ */
++ (instancetype)anchorFromValue:(NSUInteger)value;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  HealthKit.framework/Headers/HKAudiogramSample.h
+//
+//  HKAudiogramSample.h
+//  HealthKit
+//
+//  Created by David Harrison on 12/18/17.
+//  Copyright © 2017 Apple. All rights reserved.
+//
+//  Sample for capturing the results of a hearing test.
+//
+
+#import <HealthKit/HKQuantity.h>
+#import <HealthKit/HKSample.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class HKAudiogramSensitivityPoint;
+
+/*!
+ @class     HKAudiogramSample
+ @abstract  A sample object representing the results of a standard hearing test.
+ */
+HK_EXTERN API_AVAILABLE(ios(13.0), watchos(6.0))
+@interface HKAudiogramSample : HKSample
+
+/*!
+ @property  sensitivityPoints
+ @abstract  The hearing sensitivity readings associated with a hearing test.
+ */
+@property (readonly, copy) NSArray<HKAudiogramSensitivityPoint *> *sensitivityPoints;
+
+/*!
+ @method                   audiogramSampleWithsensitivityPoints:startDate:endDate:metadata:
+ @abstract                 Creates a new audiogram sample with the specified attributes.
+ @param sensitivityPoints  Sensitivity data associated with the sample, with a maximum limit of 30 points. Frequencies must be unique, and ordered ascending.
+ @param startDate          The start date for the hearing test.
+ @param endDate            The end date for the hearing test.
+ @param metadata           Optional meta data associated with the sample.
+ @return                   A new instance of an audiogram sample.
+ */
++ (instancetype)audiogramSampleWithSensitivityPoints:(NSArray<HKAudiogramSensitivityPoint *> *)sensitivityPoints
+                                           startDate:(NSDate *)startDate
+                                             endDate:(NSDate *)endDate
+                                            metadata:(nullable NSDictionary<NSString *, id> *)metadata;
+
+@end
+
+HK_EXTERN API_AVAILABLE(ios(13.0), watchos(6.0))
+@interface HKAudiogramSensitivityPoint : NSObject
+
+/*!
+ @property frequency  Frequency where sensitivity was measured.  The unit of measurement
+ is [HKUnit hertzUnit] or "Hz".
+ */
+@property (readonly, copy) HKQuantity *frequency;
+
+/*!
+ @property sensitivity Left ear sensitivity measured in attenuated dB from a baseline of 0 dB.
+ The unit of measurement is [HKUnit decibelHearingLevelUnit] or "dBHL".
+ */
+@property (readonly, copy, nullable) HKQuantity *leftEarSensitivity;
+
+/*!
+ @property sensitivity Right ear sensitivity measured in attenuated dB from a baseline of 0 dB.
+ The unit of measurement is [HKUnit decibelHearingLevelUnit] or "dBHL".
+ */
+@property (readonly, copy, nullable) HKQuantity *rightEarSensitivity;
+
+/*!
+ @method                    sensitivityPointWithFrequency:leftEarSensitivity:rightEarSensitivity:error:
+ @abstract                  Creates a point that can be included in a audiogram.
+ @param frequency           Frequency where sensitivity was measured.
+ @param leftEarSensitivity  Left ear sensitivity measured in attenuated dB from a baseline of 0 dB.
+ @param rightEarSensitivity Right ear sensitivity measured in attenuated dB from a baseline of 0 dB.
+ @param error               If there was a problem creating this instance this will contain the error.
+ @return                    New instance of a sensitivity point or nil if there were problems
+                            creating the instance.  Errors may include incorrect quantity units
+                            or data that is out of an expected range.
+ */
++ (nullable instancetype)sensitivityPointWithFrequency:(HKQuantity *)frequency
+                                    leftEarSensitivity:(nullable HKQuantity *)leftEarSensitivity
+                                   rightEarSensitivity:(nullable HKQuantity *)rightEarSensitivity
+                                                 error:(NSError * _Nullable *)error;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
 // ==========  HealthKit.framework/Headers/HKSourceRevision.h
 //
 //  HKSourceRevision.h
@@ -1362,6 +1557,39 @@ HK_EXTERN API_AVAILABLE(ios(9.0), watchos(2.0))
 HK_EXTERN NSString * const HKSourceRevisionAnyVersion API_AVAILABLE(ios(11.0), watchos(4.0));
 HK_EXTERN NSString * const HKSourceRevisionAnyProductType API_AVAILABLE(ios(11.0), watchos(4.0));
 HK_EXTERN NSOperatingSystemVersion const HKSourceRevisionAnyOperatingSystem API_AVAILABLE(ios(11.0), watchos(4.0));
+
+NS_ASSUME_NONNULL_END
+// ==========  HealthKit.framework/Headers/HKCumulativeQuantitySample.h
+//
+//  HKCumulativeQuantitySample.h
+//  HealthKit
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <HealthKit/HKQuantitySample.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class HKQuantity;
+
+/*!
+ @class         HKCumulativeQuantitySample
+ @abstract      An HKQuantitySample subclass representing a quantity measurement with cumulative aggregation style.
+ */
+HK_EXTERN API_AVAILABLE(ios(13.0), watchos(6.0))
+@interface HKCumulativeQuantitySample : HKQuantitySample
+
+/*!
+ @property      sumQuantity
+ @abstract      The sum of quantities represented by the receiver.
+ */
+@property (readonly, copy) HKQuantity *sumQuantity;
+
+@end
+
+// Predicate Key Paths
+HK_EXTERN NSString * const HKPredicateKeyPathSum API_AVAILABLE(ios(12.0), watchos(5.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  HealthKit.framework/Headers/HKStatisticsQuery.h
@@ -1793,29 +2021,16 @@ NS_ASSUME_NONNULL_END
 //  Copyright © 2018 Apple. All rights reserved.
 //
 
-#import <HealthKit/HKQuantitySample.h>
+#import <HealthKit/HKCumulativeQuantitySample.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HKQuantity;
+HK_EXTERN API_DEPRECATED_WITH_REPLACEMENT("HKCumulativeQuantitySample", ios(12.0, 13.0), watchos(5.0, 6.0))
+@interface HKCumulativeQuantitySeriesSample : HKCumulativeQuantitySample
 
-/*!
- @class         HKCumulativeQuantitySeriesSample
- @abstract      An HKQuantitySample subclass representing a series of cumulative quantity measurements.
- */
-HK_EXTERN API_AVAILABLE(ios(12.0), watchos(5.0))
-@interface HKCumulativeQuantitySeriesSample : HKQuantitySample
-
-/*!
- @property      sum
- @abstract      The sum of quantities in the series represented by the receiver.
- */
 @property (readonly, copy) HKQuantity *sum;
 
 @end
-
-// Predicate Key Paths
-HK_EXTERN NSString * const HKPredicateKeyPathSum API_AVAILABLE(ios(12.0), watchos(5.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  HealthKit.framework/Headers/HKSampleQuery.h
@@ -2335,29 +2550,13 @@ NS_ASSUME_NONNULL_END
 //
 
 #import <HealthKit/HKQuery.h>
+#import <HealthKit/HKQueryAnchor.h>
 
 @class HKDeletedObject;
 
 NS_ASSUME_NONNULL_BEGIN
 
 #define HKAnchoredObjectQueryNoAnchor (0)
-
-/*!
- @class         HKQueryAnchor
- @discussion    This object encapsulates the state of an HKAnchoredObjectQuery
- */
-HK_EXTERN API_AVAILABLE(ios(9.0), watchos(2.0))
-@interface HKQueryAnchor : NSObject <NSSecureCoding, NSCopying>
-
-/*!
- @method        anchorFromValue:
- @discussion    Creates an HKQueryAnchor with an integer anchor which was previously obtained from an HKAnchoredObjectQuery prior to iOS 9.0.
- */
-+ (instancetype)anchorFromValue:(NSUInteger)value;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
 
 /*!
  @class         HKAnchoredObjectQuery
@@ -2404,6 +2603,70 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
            completionHandler:(void(^)(HKAnchoredObjectQuery *query, NSArray<__kindof HKSample *> * __nullable results, NSUInteger newAnchor, NSError * __nullable error))handler API_DEPRECATED_WITH_REPLACEMENT("initWithType:predicate:anchor:limit:resultsHandler:", ios(8.0, 9.0));
 
 @end
+
+NS_ASSUME_NONNULL_END
+// ==========  HealthKit.framework/Headers/HKDiscreteQuantitySample.h
+//
+//  HKDiscreteQuantitySample.h
+//  HealthKit
+//
+//  Copyright © 2019 Apple. All rights reserved.
+//
+
+#import <HealthKit/HKQuantitySample.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class HKQuantity;
+
+/*!
+ @class         HKDiscreteQuantitySample
+ @abstract      An HKQuantitySample subclass representing a quantity measurement with
+                discrete aggregation style.
+ */
+HK_EXTERN API_AVAILABLE(ios(13.0), watchos(6.0))
+@interface HKDiscreteQuantitySample : HKQuantitySample
+
+/*!
+ @property      minimumQuantity
+ @abstract      The minimum of the receiver's quantities
+ */
+@property (readonly, copy) HKQuantity *minimumQuantity;
+
+/*!
+ @property      averageQuantity
+ @abstract      The average of the receiver's quantities
+ */
+@property (readonly, copy) HKQuantity *averageQuantity;
+
+/*!
+ @property      maximumQuantity
+ @abstract      The maximum of the receiver's quantities
+ */
+@property (readonly, copy) HKQuantity *maximumQuantity;
+
+/*!
+ @property      mostRecentQuantity
+ @abstract      The receiver's quantity with most recent date interval
+ */
+@property (readonly, copy) HKQuantity *mostRecentQuantity;
+
+/*!
+ @property      mostRecentQuantityDateInterval
+ @abstract      The date interval for the receiver's most recent quantity
+ */
+@property (readonly, copy) NSDateInterval *mostRecentQuantityDateInterval;
+
+@end
+
+// Predicate Key Paths
+HK_EXTERN NSString * const HKPredicateKeyPathMin API_AVAILABLE(ios(13.0), watchos(6.0));
+HK_EXTERN NSString * const HKPredicateKeyPathAverage API_AVAILABLE(ios(13.0), watchos(6.0));
+HK_EXTERN NSString * const HKPredicateKeyPathMax API_AVAILABLE(ios(13.0), watchos(6.0));
+HK_EXTERN NSString * const HKPredicateKeyPathMostRecent API_AVAILABLE(ios(13.0), watchos(6.0));
+HK_EXTERN NSString * const HKPredicateKeyPathMostRecentStartDate API_AVAILABLE(ios(13.0), watchos(6.0));
+HK_EXTERN NSString * const HKPredicateKeyPathMostRecentEndDate API_AVAILABLE(ios(13.0), watchos(6.0));
+HK_EXTERN NSString * const HKPredicateKeyPathMostRecentDuration API_AVAILABLE(ios(13.0), watchos(6.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  HealthKit.framework/Headers/HKActivitySummary.h
@@ -2862,7 +3125,7 @@ NS_ASSUME_NONNULL_END
 //  HKQuantitySample.h
 //  HealthKit
 //
-//  Copyright (c) 2013-2018 Apple Inc. All rights reserved.
+//  Copyright (c) 2013-2019 Apple Inc. All rights reserved.
 //
 
 #import <HealthKit/HKSample.h>
@@ -2874,7 +3137,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @class         HKQuantitySample
- @abstract      An HKObject subclass representing a quantity measurement.
+ @abstract      An abstract HKSample subclass representing a quantity measurement.
  */
 HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
 @interface HKQuantitySample : HKSample
@@ -2934,6 +3197,7 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
 
 // Predicate Key Paths
 HK_EXTERN NSString * const HKPredicateKeyPathQuantity API_AVAILABLE(ios(8.0), watchos(2.0));
+HK_EXTERN NSString * const HKPredicateKeyPathCount API_AVAILABLE(ios(13.0), watchos(6.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  HealthKit.framework/Headers/HKDefines.h
@@ -3166,6 +3430,14 @@ typedef NS_ENUM(NSInteger, HKCategoryValueMenstrualFlow) {
 typedef NS_ENUM(NSInteger, HKCategoryValue) {
     HKCategoryValueNotApplicable = 0,
 } API_AVAILABLE(ios(9.0), watchos(2.0));
+
+/*!
+ @enum          HKCategoryValueAudioExposureEvent
+ @abstract      Specifies the kind of audio exposure event associated with the sample.
+ */
+typedef NS_ENUM(NSInteger, HKCategoryValueAudioExposureEvent) {
+    HKCategoryValueAudioExposureEventLoudEnvironment = 1,
+} API_AVAILABLE(ios(13.0), watchos(6.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  HealthKit.framework/Headers/HKSeriesSample.h
@@ -3703,6 +3975,46 @@ HK_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0))
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  HealthKit.framework/Headers/HKHeartbeatSeriesQuery.h
+//
+//  HKHeartbeatSeriesQuery.h
+//  HealthKit
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <HealthKit/HKQuery.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class HKHeartbeatSeriesSample;
+
+/*!
+ @class         HKHeartbeatSeriesQuery
+ @abstract      An HKHeartbeatSeriesQuery is used to access data associated with an HKHeartbeatSeriesSample.
+ @discussion    Once instantiated, call HKHealthStore executeQuery to begin enumerating the heartbeat series data.
+ */
+HK_EXTERN API_AVAILABLE(ios(13.0), watchos(6.0))
+@interface HKHeartbeatSeriesQuery : HKQuery
+
+/*!
+ @method        initWithHeartbeatSeries:dataHandler:
+ @abstract      Returns a query that will retrieve heartbeat timestamps for the specified HKHeartbeatSeriesSample.
+ 
+ @param         heartbeatSeries    The HKHeartbeatSeriesSample for which the heartbeat data will be returned.
+ @param         dataHandler        The block to invoke with results from the query. It is called repeatedly for each
+                                   heartbeat in the series. timeSinceSeriesStart is the time elapsed in seconds after the
+                                   series startDate that represents when the heartbeat occured. precededByGap indicates if
+                                   there was a gap in data collection before the current heartbeat, meaning that one or more
+                                   heartbeats may have occured since the previous heartbeat in the series. Once done is YES,
+                                   or stopQuery called, the query is complete and no more calls to the handler will be made.
+ */
+- (instancetype)initWithHeartbeatSeries:(HKHeartbeatSeriesSample *)heartbeatSeries
+                            dataHandler:(void(^)(HKHeartbeatSeriesQuery *query, NSTimeInterval timeSinceSeriesStart, BOOL precededByGap, BOOL done, NSError * _Nullable error))dataHandler NS_DESIGNATED_INITIALIZER;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  HealthKit.framework/Headers/HKQuantitySeriesSampleBuilder.h
 //
 //  HKQuantitySeriesSampleBuilder.h
@@ -3743,8 +4055,6 @@ HK_EXTERN API_AVAILABLE(ios(12.0), watchos(5.0))
 
  @param         healthStore     Specifies the HKHealthStore object to use for building the series.
  @param         quantityType    Specifies the quantity type for which to build the series.
-                                The type can be any HKQuantityType with aggregationStyle
-                                HKQuantityAggregationStyleCumulative.
  @param         startDate       The date from which the produced sample(s) start.
  @param         device          The optional device represents the HKDevice from which the data is
                                 provided.
@@ -3771,25 +4081,77 @@ HK_EXTERN API_AVAILABLE(ios(12.0), watchos(5.0))
  */
 @property (readonly, copy, nullable) HKDevice *device;
 
-
 /*!
- @method            insertQuantity:date:completion:
- @abstract          Associate a new quantity with the receiver at a specific date.
+ @method            insertQuantity:dateInterval:completion:
+ @abstract          Associate a new quantity with the receiver with a specific date interval.
  @discussion        Use this method to add a quantity to the series. The quantity must have a unit
                     that is compatible with the receiver's quantity type.
                     See -[HKQuantityType isCompatibleWithUnit:].
-                    Note that quantities may be inserted in any order, but will be sorted according
-                    to date when the series is finished.
+                    Note that quantities may be inserted in any order,
+                    but will be sorted by dateInterval.startDate when the series is finished.
+ 
+ @param             quantity        The quantity to insert.
+ @param             dateInterval    The dateInterval associated with the quantity.
+                                    If dateInterval.startDate is the same as a previously-provided
+                                    quantity, the new value will replace the old value.
+                                    An HKErrorInvalidArgument will be returned if
+                                    dateInterval.startDate is earlier than the receiver's startDate.
+ */
+- (BOOL)insertQuantity:(HKQuantity *)quantity
+          dateInterval:(NSDateInterval *)dateInterval
+                 error:(NSError **)error NS_SWIFT_NAME(insert(_:for:)) API_AVAILABLE(ios(13.0), watchos(6.0));
+
+/*!
+ @method            insertQuantity:date:completion:
+ @abstract          Associate a new quantity with the receiver at a specific instantaneous
+                    date interval.
+ @discussion        This method acts as a convenience for insertQuantity:dateInterval:completion:
+                    where dateInterval has a duration of 0.
 
  @param             quantity    The quantity to insert.
- @param             date        The date associated with the quantity. If this is the same date
-                                as a previously-provided quantity, the new value will replace
-                                the old value. An HKErrorInvalidArgument will be returned if date
-                                is earlier than the receiver's startDate.
+ @param             date        The start date associated with the quantity. If this is the same
+                                start date as a previously-provided quantity, the new value will
+                                replace the old value. An HKErrorInvalidArgument will be returned
+                                if date is earlier than the receiver's startDate.
  */
 - (BOOL)insertQuantity:(HKQuantity *)quantity
                   date:(NSDate *)date
                  error:(NSError **)error NS_SWIFT_NAME(insert(_:at:));
+
+/*!
+ @method            finishSeriesWithMetadata:endDate:completion:
+ @abstract          Finalizes the series and returns the resulting HKQuantitySample(s).
+ @discussion        Call this method when all quantities for the series have been inserted.
+                    The completion handler will return the resulting HKQuantitySample(s)
+                    Note that it is possible for a single HKQuantitySeriesSampleBuilder to produce
+                    multiple samples. If no quantity data was added, then samples will be nil and
+                    an error will be returned. After calling this method, the receiver will be
+                    considered invalid and calling any other method will result in an error.
+ 
+ @param             metadata    Optional metadata may be added to associate with the series.
+                                Predefined keys are found in HKMetadata.h, or custom NSString
+                                keys used by the client are allowed. Acceptable metadata value types
+                                are NSString, NSDate, NSNumber and HKQuantity.
+ @param             endDate     Optional date at which the produced sample(s) end.
+                                An HKErrorInvalidArgument will be returned if endDate
+                                is earlier than the receiver's startDate,
+                                or is earlier than the dateInterval.endDate of any inserted quantity.
+ @param             completion  The completion handler will return the resulting HKQuantitySample(s)
+                                for the series. Note that it is possible for a single
+                                HKQuantitySeriesSampleBuilder to produce multiple samples.
+                                If data could not be inserted because of an authorization failure,
+                                samples will be nil and and an error with code
+                                HKErrorAuthorizationDenied or HKErrorAuthorizationNotDetermined
+                                will be returned. If the resulting sample(s) could not be accessed
+                                after they have been created, then samples will be nil and an error
+                                with code HKErrorDatabaseInaccessible will be returned. Any other
+                                error indicates the resulting samples could not be returned.
+                                After calling this method, the receiver will be considered invalid
+                                and calling any other method will result in an error.
+ */
+- (void)finishSeriesWithMetadata:(nullable NSDictionary<NSString *, id> *)metadata
+                         endDate:(nullable NSDate *)endDate
+                      completion:(void(^)(NSArray<__kindof HKQuantitySample *> * _Nullable samples, NSError * _Nullable error))completion NS_SWIFT_NAME(finishSeries(metadata:endDate:completion:));
 
 /*!
  @method            finishSeriesWithMetadata:completion:
@@ -3798,8 +4160,10 @@ HK_EXTERN API_AVAILABLE(ios(12.0), watchos(5.0))
                     The completion handler will return the resulting HKQuantitySample(s)
                     Note that it is possible for a single HKQuantitySeriesSampleBuilder to produce
                     multiple samples. If no quantity data was added, then samples will be nil and
-                    an error will be returned. After calling this method, the receiver will be
-                    considered invalid and calling any other method will result in an error.
+                    an error will be returned. This method functions as a convenience for
+                    finishSeriesWithMetadata:endDate:completion: when endDate is nil.
+                    After calling this method, the receiver will be considered invalid
+                    and calling any other method will result in an error.
 
  @param             metadata    Optional metadata may be added to associate with the series.
                                 Predefined keys are found in HKMetadata.h, or custom NSString
@@ -4023,7 +4387,8 @@ NS_ASSUME_NONNULL_BEGIN
  @constant      HKStatisticsOptionDiscreteMin          Calculate minQuantity when creating statistics.
  @constant      HKStatisticsOptionDiscreteMax          Calculate maxQuantity when creating statistics.
  @constant      HKStatisticsOptionCumulativeSum        Calculate sumQuantity when creating statistics.
- @constant      HKStatisticsOptionDiscreteMostRecent   Calculate mostRecentQuantity when creating statistics.
+ @constant      HKStatisticsOptionMostRecent           Calculate mostRecentQuantity when creating statistics.
+ @constant      HKStatisticsOptionDuration             Calculate duration when creating statistics.
  */
 typedef NS_OPTIONS(NSUInteger, HKStatisticsOptions) {
     HKStatisticsOptionNone              		= 0,
@@ -4032,7 +4397,9 @@ typedef NS_OPTIONS(NSUInteger, HKStatisticsOptions) {
     HKStatisticsOptionDiscreteMin               = 1 << 2,
     HKStatisticsOptionDiscreteMax               = 1 << 3,
     HKStatisticsOptionCumulativeSum             = 1 << 4,
-    HKStatisticsOptionDiscreteMostRecent API_AVAILABLE(ios(12.0), watchos(5.0))  = 1 << 5,
+    HKStatisticsOptionMostRecent API_AVAILABLE(ios(13.0), watchos(6.0))  = 1 << 5,
+    HKStatisticsOptionDiscreteMostRecent API_DEPRECATED_WITH_REPLACEMENT("HKStatisticsOptionMostRecent", ios(12.0, 13.0), watchos(5.0, 6.0))  = HKStatisticsOptionMostRecent,
+    HKStatisticsOptionDuration API_AVAILABLE(ios(13.0), watchos(6.0))  = 1 << 6,
 } API_AVAILABLE(ios(8.0), watchos(2.0));
 
 /*!
@@ -4046,6 +4413,7 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
 @property (readonly, strong) NSDate *startDate;
 @property (readonly, strong) NSDate *endDate;
 @property (readonly, strong, nullable) NSArray<HKSource *> *sources;
+
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -4131,6 +4499,22 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
  @abstract      Returns the sum of quantities in the time period represented by the receiver.
  */
 - (nullable HKQuantity *)sumQuantity;
+
+/// Total duration (in seconds) covered by the samples represented by these statistics.
+/// Only present if HKStatisticsOptionDuration is is specified.
+/*!
+ @method        duration
+ @abstract      Total duration, as a time-unit compatible quantity, covered by the samples represented by these statistics.
+ @discussion    Only present if HKStatisticsOptionDuration is is specified.
+ */
+- (nullable HKQuantity *)duration API_AVAILABLE(ios(13.0), watchos(6.0));
+
+/*!
+ @method        durationForSource:
+ @abstract      Returns the duration, as a time-unit compatible quantity, for the given source in the time period represented by the receiver.
+ @discussion    If HKStatisticsOptionSeparateBySource is not specified, then this will always be nil.
+ */
+- (nullable HKQuantity *)durationForSource:(HKSource *)source API_AVAILABLE(ios(13.0), watchos(6.0));
 
 @end
 
@@ -4221,7 +4605,7 @@ typedef NS_ENUM(NSInteger, HKWorkoutSessionLocationType) {
 
 /*!
  @class         HKWorkoutConfiguration
- @abstract      An HKWorkoutConfiguration is an object that can be used to describe the a workout activity.
+ @abstract      An HKWorkoutConfiguration is an object that can be used to describe the workout activity.
  */
 HK_EXTERN API_AVAILABLE(ios(10.0), watchos(3.0))
 @interface HKWorkoutConfiguration : NSObject <NSCopying, NSSecureCoding>
@@ -4270,6 +4654,7 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 @class HKActivitySummaryType;
+@class HKAudiogramSampleType;
 @class HKCategoryType;
 @class HKCharacteristicType;
 @class HKCorrelationType;
@@ -4303,6 +4688,7 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
 + (nullable HKSeriesType *)seriesTypeForIdentifier:(NSString *)identifier API_AVAILABLE(ios(11.0), watchos(4.0));
 + (HKWorkoutType *)workoutType;
 + (HKActivitySummaryType *)activitySummaryType API_AVAILABLE(ios(9.3), watchos(2.2));
++ (HKAudiogramSampleType *)audiogramSampleType API_AVAILABLE(ios(13.0), watchos(6.0));
 
 @end
 
@@ -4320,6 +4706,21 @@ HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
  */
 HK_EXTERN API_AVAILABLE(ios(8.0), watchos(2.0))
 @interface HKSampleType : HKObjectType
+
+/*!
+ @property      isDurationRestricted
+ @abstract      Returns YES if the start and end date for samples of this type are restricted by a maximum duration.
+ */
+@property (nonatomic, readonly) BOOL isDurationRestricted;
+
+/*!
+ @property      maximumAllowedDuration
+ @abstract      When the duration is restricted for samples of this type, returns the maximum duration allowed,
+                calculated as the difference between end and start dates.
+ @discussion    Throws an exception if the duration is not restricted for samples of this type.
+ */
+@property (nonatomic, readonly) NSTimeInterval maximumAllowedDuration;
+
 @end
 
 /*!
@@ -4380,6 +4781,7 @@ HK_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0))
 @interface HKSeriesType : HKSampleType
 
 + (instancetype)workoutRouteType;
++ (instancetype)heartbeatSeriesType API_AVAILABLE(ios(13.0), watchos(6.0));
 
 @end
 
@@ -4390,6 +4792,15 @@ HK_EXTERN API_AVAILABLE(ios(11.0), watchos(4.0))
 HK_EXTERN API_AVAILABLE(ios(9.3), watchos(2.2))
 @interface HKActivitySummaryType : HKObjectType
 @end
+
+/*!
+ @class    HKAudiogramSampleType
+ @abstract Represents an audiogram sample.
+ */
+HK_EXTERN API_AVAILABLE(ios(13.0), watchos(6.0))
+@interface HKAudiogramSampleType : HKSampleType
+@end
+
 
 
 NS_ASSUME_NONNULL_END
@@ -4644,6 +5055,8 @@ typedef NS_ENUM(NSUInteger, HKWorkoutActivityType) {
     HKWorkoutActivityTypeTaiChi             API_AVAILABLE(ios(11.0), watchos(4.0)),
     HKWorkoutActivityTypeMixedCardio        API_AVAILABLE(ios(11.0), watchos(4.0)),    // HKWorkoutActivityTypeMixedMetabolicCardioTraining
     HKWorkoutActivityTypeHandCycling        API_AVAILABLE(ios(11.0), watchos(4.0)),
+    HKWorkoutActivityTypeDiscSports         API_AVAILABLE(ios(13.0), watchos(6.0)),
+    HKWorkoutActivityTypeFitnessGaming      API_AVAILABLE(ios(13.0), watchos(6.0)),
     
     HKWorkoutActivityTypeOther = 3000,
 } API_AVAILABLE(ios(8.0), watchos(2.0));
@@ -5023,13 +5436,120 @@ NS_ASSUME_NONNULL_END
  @enum          HKQuantityAggregationStyle
  @discussion    Describes how quantities can be aggregated over time.
  
- @constant      HKQuantityAggregationStyleCumulative    Samples may be summed over a time interval.
- @constant      HKQuantityAggregationStyleDiscrete      Samples may be averaged over a time interval.
+ @constant      HKQuantityAggregationStyleCumulative                        Samples may be summed over a time interval.
+ @constant      HKQuantityAggregationStyleDiscreteArithmetic                Samples may be averaged over a time interval using the arithmetic mean
+ @constant      HKQuantityAggregationStyleDiscreteTemporallyWeighted        Samples may be averaged over a time interval using a temporally weighted integration function
+ @constant      HKQuantityAggregationStyleDiscreteEquivalentContinuousLevel Samples may be combined over a time interval by computing the equivalent continuous sound level; see IEC 61672-1
+
  */
 typedef NS_ENUM(NSInteger, HKQuantityAggregationStyle) {
     HKQuantityAggregationStyleCumulative = 0,
-    HKQuantityAggregationStyleDiscrete,
+    HKQuantityAggregationStyleDiscreteArithmetic API_AVAILABLE(ios(13.0), watchos(6.0)),
+    HKQuantityAggregationStyleDiscrete API_DEPRECATED_WITH_REPLACEMENT("HKQuantityAggregationStyleDiscreteArithmetic", ios(8.0, 13.0), watchos(2.0, 6.0)) = HKQuantityAggregationStyleDiscreteArithmetic,
+    HKQuantityAggregationStyleDiscreteTemporallyWeighted API_AVAILABLE(ios(13.0), watchos(6.0)),
+    HKQuantityAggregationStyleDiscreteEquivalentContinuousLevel API_AVAILABLE(ios(13.0), watchos(6.0)),
 } API_AVAILABLE(ios(8.0), watchos(2.0));
+// ==========  HealthKit.framework/Headers/HKHeartbeatSeriesBuilder.h
+//
+//  HKHeartbeatSeriesBuilder.h
+//  HealthKit
+//
+//  Copyright © 2018 Apple. All rights reserved.
+//
+
+#import <HealthKit/HKSeriesBuilder.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class HKHealthStore;
+@class HKDevice;
+@class HKHeartbeatSeriesSample;
+
+/*!
+ @class              HKHeartbeatSeriesBuilder
+ @abstract           An HKHeartbeatSeriesBuilder is used to generate an HKHeartbeatSeriesSample.
+ @discussion         This class is intended for generating an HKHeartbeatSeriesSample which represents a series of
+                     heartbeats. If the discard method is called, collected data will be deleted.
+                     Calling finishSeriesWithcompletion: will stop and complete the series. If the builder is deleted,
+                     or the client goes away before calling the finish method, data will be lost.
+ */
+HK_EXTERN API_AVAILABLE(ios(13.0), watchos(6.0))
+@interface HKHeartbeatSeriesBuilder : HKSeriesBuilder
+
+/*!
+ @property           maximumCount
+ @abstract           The maximum number of heartbeats that can be added to an HKHeartbeatSeriesBuilder.
+ @discussion         Any calls to addHeartbeatWithTimeIntervalSinceSeriesStartDate:precededByGap:completion: once
+                     maximumCount has been reached will fail and an error will be returned in the completion handler.
+ */
+@property (class, readonly) NSUInteger maximumCount;
+
+/*!
+ @method             initWithHealthStore:device:startDate:
+ @abstract           The designated initializer to create an HKHeartbeatSeriesBuilder.
+ @discussion         The HKHealthStore is retained during the life of the object for the saving of the series data and final
+                     return of the series sample.
+ 
+ @param              healthStore  Specifies the HKHealthStore object to use for building the series.
+ @param              device       The optional device represents the HKDevice from which the data is provided.
+ @param              startDate    The start date of the HKHeartbeatSeriesSample that will be generated.
+ */
+- (instancetype)initWithHealthStore:(HKHealthStore *)healthStore
+                             device:(nullable HKDevice *)device
+                          startDate:(NSDate *)startDate NS_DESIGNATED_INITIALIZER;
+
+/*!
+ @method             addHeartbeatWithTimeIntervalSinceSeriesStartDate:precededByGap:completion:
+ @abstract           Associate a heartbeat with the receiver.
+ @discussion         Use this method to asynchronously add a heartbeat to the series.
+ 
+ @param              timeInterval   The elapsed time between the series startDate and the heartbeat occurence. Must be
+                                    a positive value.
+ @param              precededByGap  Whether or not this heartbeat was preceded by a gap in data collection.
+ @param              completion     The completion callback handler returns the status of the save. If the completion
+                                    handler success is NO, then error is non-nil. An error here is considered fatal and
+                                    the series builder will be complete.
+ */
+- (void)addHeartbeatWithTimeIntervalSinceSeriesStartDate:(NSTimeInterval)timeInterval
+                                           precededByGap:(BOOL)precededByGap
+                                              completion:(void(^)(BOOL success, NSError * _Nullable error))completion;
+
+/*!
+ @method             addMetadata:completion:
+ @discussion         Adds new metadata to the builder instance. This method can be called more than once; each time
+                     the newly provided metadata will be incorporated in the same manner as
+                     -[NSMutableDictionary addEntriesFromDictionary:].
+                     This operation is performed asynchronously and the completion will be executed on an arbitrary
+                     background queue.
+ 
+ @param              metadata    The metadata to add to the builder.
+ @param              completion  Block to be called when the addition of metadata to the builder is complete.
+                                 If success is YES, the metadata has been added to the builder successfully. If success
+                                 is NO, error will be non-null and will contain the error encountered during the
+                                 insertion operation. When an error occurs, the builder's metadata will remain unchanged.
+ */
+- (void)addMetadata:(NSDictionary<NSString *, id> *)metadata
+         completion:(void(^)(BOOL success, NSError * _Nullable error))completion;
+
+/*!
+ @method             finishSeriesWithCompletion:
+ @abstract           Method to stop data collection and return the associated HKHeartbeatSeriesSample.
+ @discussion         Call this method when you have added all heartbeats to this builder. The completion handler will
+                     return the saved HKHeartbeatSeriesSample. If no heartbeat was added, then heartbeatSeries will be
+                     nil and an error returned. The receiver will be considered invalid afterwards and any further calls
+                     to it will result in an error.
+
+ @param              completion  The completion callback handler returns the saved HKHeartbeatSeriesSample object. If
+                                 heartbeatSeries is nil, an error will indicate why the series could not be returned
+                                 including database inaccessibility during device lock. Subsequent requests for the
+                                 HKHeartbeatSeriesSample can be made through HKSampleQuery or similar queries. To
+                                 retrieve the data stored with an HKHeartbeatSeriesSample use HKHeartbeatSeriesQuery.
+ */
+- (void)finishSeriesWithCompletion:(void(^)(HKHeartbeatSeriesSample * _Nullable heartbeatSeries, NSError * _Nullable error))completion;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  HealthKit.framework/Headers/HKQuantitySeriesSampleQuery.h
 //
 //  HKQuantitySeriesSampleQuery.h
@@ -5047,30 +5567,68 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @class         HKQuantitySeriesSampleQuery
- @abstract      An HKQuantitySeriesSampleQuery is used to access series data associated with an
-                HKQuantitySample.
- @discussion    Once instantiated, call -[HKHealthStore executeQuery:] to begin enumerating the series data.
+ @abstract      An HKQuantitySeriesSampleQuery is used to access series data associated with
+                HKQuantitySample(s).
+ @discussion    Once instantiated, call -[HKHealthStore executeQuery:] to begin enumerating
+                the series data.
                 Call -[HKHealthStore stopQuery:] to discontinue further quantity data reporting.
  */
 HK_EXTERN API_AVAILABLE(ios(12.0), watchos(5.0))
 @interface HKQuantitySeriesSampleQuery : HKQuery
 
 /*!
+ @property      includeSample
+ @abstract      Include owning HKQuantitySample in quantityHandler handler.
+ @discussion    Default value is NO.
+                If includeSample is set then the quantitySample parameter of quantityHandler will
+                be non-nil anytime the quantity parameter is non-nil.
+                Specifying this option has a performance cost.
+                This property may not be modified once the query has been executed.
+ */
+@property (nonatomic, assign) BOOL includeSample API_AVAILABLE(ios(13.0), watchos(6.0));
+
+/*!
+ @property      orderByQuantitySampleStartDate
+ @abstract      Order enumerated results first by quantitySample.startDate,
+                then by the quantity's dateInterval.startDate.
+ @discussion    Default value is NO.
+                All quantities owned by a given quantitySample will be
+                enumerated before any quantities owned by any other quantity sample,
+                and the quantity samples will be enumerated in their startDate order.
+                Note that individual quantities may not be returned in their
+                dateInterval.startDate order if more than one quantitySample overlap in time.
+                This property may not be modified once the query has been executed.
+ */
+@property (nonatomic, assign) BOOL orderByQuantitySampleStartDate API_AVAILABLE(ios(13.0), watchos(6.0));
+
+/*!
  @method        initWithSample:dataHandler:
- @abstract      Returns a query that will retrieve HKQuantity objects for the specified sample.
+ @abstract      Returns a query that will retrieve HKQuantity objects for samples of a specified
+                type that match the specified predicate.
  
- @param         quantitySample      The HKQuantitySample for which the quantity data will
-                                    be returned.
+ @param         quantityType        The type of HKQuantitySample to retrieve.
+ @param         predicate           The predicate which the query results should match.
+                                    To query for the quantities for a specific quantity sample
+                                    see: +[HKPredicates predicateForObjectWithUUID:]
+
  @param         quantityHandler     The block to invoke with results from the query. It will be
-                                    called repeatedly with HKQuantity and NSDate objects,
-                                    in ascending date order, until all quantities are returned and
-                                    the done parameter is YES or -[HKHealthStore stopQuery:] is called.
+                                    called repeatedly with HKQuantity, and NSDateInterval objects in
+                                    ascending dateInterval.startDate order, until all quantities are
+                                    returned and the done parameter is YES
+                                    or -[HKHealthStore stopQuery:] is called.
+                                    The quantitySample parameter is nil unless includeSample is YES,
+                                    in which case it will be the quantitySample which owns the current
+                                    quantity anytime the quantity paramater is non-nil.
                                     The stopQuery call can be made within the quantityHandler block.
                                     Once done is YES, or stopQuery has been called, the query is
                                     complete and no more calls to quantityHandler will be made.
  */
+- (instancetype)initWithQuantityType:(HKQuantityType *)quantityType
+                           predicate:(nullable NSPredicate *)predicate
+                     quantityHandler:(void(^)(HKQuantitySeriesSampleQuery *query, HKQuantity * _Nullable quantity, NSDateInterval * _Nullable dateInterval, __kindof HKQuantitySample * _Nullable quantitySample, BOOL done, NSError * _Nullable error))quantityHandler API_AVAILABLE(ios(13.0), watchos(6.0));
+
 - (instancetype)initWithSample:(HKQuantitySample *)quantitySample
-               quantityHandler:(void(^)(HKQuantitySeriesSampleQuery *query, HKQuantity * _Nullable quantity, NSDate * _Nullable date, BOOL done, NSError * _Nullable error))quantityHandler NS_DESIGNATED_INITIALIZER;
+               quantityHandler:(void(^)(HKQuantitySeriesSampleQuery *query, HKQuantity * _Nullable quantity, NSDate * _Nullable date, BOOL done, NSError * _Nullable error))quantityHandler API_DEPRECATED_WITH_REPLACEMENT("initWithQuantityType:predicate:quantityHandler:", ios(12.0, 13.0), watchos(5.0, 6.0));
 
 @end
 
@@ -5158,6 +5716,7 @@ HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierDistanceSwimmin
 HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierSwimmingStrokeCount API_AVAILABLE(ios(10.0), watchos(3.0));        // Scalar(Count),               Cumulative
 HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierVO2Max API_AVAILABLE(ios(11.0), watchos(4.0));                     // ml/(kg*min)                  Discrete
 HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierDistanceDownhillSnowSports API_AVAILABLE(ios(11.2), watchos(4.2)); // Length,                      Cumulative
+HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierAppleStandTime API_AVAILABLE(ios(13.0), watchos(6.0));             // Time,                        Cumulative
 
 // Vitals
 HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierHeartRate API_AVAILABLE(ios(8.0), watchos(2.0));                   // Scalar(Count)/Time,          Discrete
@@ -5185,6 +5744,8 @@ HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierBloodAlcoholCon
 HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierForcedVitalCapacity API_AVAILABLE(ios(8.0), watchos(2.0));         // Volume,                      Discrete
 HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierForcedExpiratoryVolume1 API_AVAILABLE(ios(8.0), watchos(2.0));     // Volume,                      Discrete
 HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierPeakExpiratoryFlowRate API_AVAILABLE(ios(8.0), watchos(2.0));      // Volume/Time,                 Discrete
+HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierEnvironmentalAudioExposure API_AVAILABLE(ios(13.0), watchos(6.0)); // Pressure,                    Cumulative
+HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierHeadphoneAudioExposure API_AVAILABLE(ios(13.0), watchos(6.0));     // Pressure,                    Cumulative
 
 // Nutrition
 HK_EXTERN HKQuantityTypeIdentifier const HKQuantityTypeIdentifierDietaryFatTotal API_AVAILABLE(ios(8.0), watchos(2.0));             // Mass,   Cumulative
@@ -5244,6 +5805,11 @@ HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierMenstrualFlow A
 HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierIntermenstrualBleeding API_AVAILABLE(ios(9.0), watchos(2.0));      // (Spotting) HKCategoryValue
 HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierSexualActivity API_AVAILABLE(ios(9.0), watchos(2.0));              // HKCategoryValue
 HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierMindfulSession API_AVAILABLE(ios(10.0), watchos(3.0));             // HKCategoryValue
+HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierHighHeartRateEvent API_AVAILABLE(ios(12.2), watchos(5.2));         // HKCategoryValue
+HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierLowHeartRateEvent API_AVAILABLE(ios(12.2), watchos(5.2));          // HKCategoryValue
+HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierIrregularHeartRhythmEvent API_AVAILABLE(ios(12.2), watchos(5.2));  // HKCategoryValue
+HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierAudioExposureEvent API_AVAILABLE(ios(13.0), watchos(6.0));         // HKCategoryValueAudioExposureEvent
+HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierToothbrushingEvent API_AVAILABLE(ios(13.0), watchos(6.0));         // HKCategoryValue
 
 /*--------------------------------------*/
 /*   HKCharacteristicType Identifiers   */
@@ -5256,6 +5822,7 @@ HK_EXTERN HKCharacteristicTypeIdentifier const HKCharacteristicTypeIdentifierBlo
 HK_EXTERN HKCharacteristicTypeIdentifier const HKCharacteristicTypeIdentifierDateOfBirth API_AVAILABLE(ios(8.0), watchos(2.0));             // NSDateComponents
 HK_EXTERN HKCharacteristicTypeIdentifier const HKCharacteristicTypeIdentifierFitzpatrickSkinType API_AVAILABLE(ios(9.0), watchos(2.0));     // HKFitzpatrickSkinTypeObject
 HK_EXTERN HKCharacteristicTypeIdentifier const HKCharacteristicTypeIdentifierWheelchairUse API_AVAILABLE(ios(10.0), watchos(3.0));          // HKWheelchairUseObject
+HK_EXTERN HKCharacteristicTypeIdentifier const HKCharacteristicTypeIdentifierActivityMoveMode API_AVAILABLE(ios(13.0), watchos(6.0));       // HKWActivityMoveModeObject
 
 /*-----------------------------------*/
 /*   HKCorrelationType Identifiers   */
@@ -5285,5 +5852,6 @@ HK_EXTERN NSString * const HKWorkoutTypeIdentifier API_AVAILABLE(ios(8.0), watch
 /*--------------------------------*/
 
 HK_EXTERN NSString * const HKWorkoutRouteTypeIdentifier API_AVAILABLE(ios(11.0), watchos(4.0));
+HK_EXTERN NSString * const HKDataTypeIdentifierHeartbeatSeries API_AVAILABLE(ios(13.0), watchos(6.0));
 
 NS_ASSUME_NONNULL_END

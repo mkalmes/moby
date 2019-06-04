@@ -3,7 +3,7 @@
 //  INUIAddVoiceShortcutViewController.h
 //  IntentsUI
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright © 2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion First create the @c INShortcut object that represents the shortcut the user wants to perform. Then create an @c INUIAddVoiceShortcutViewController object and set its delegate. Then, present the view controller modally from another view controller in your app. The delegate must dismiss the view controller when the user completes the set up.
  */
 API_AVAILABLE(ios(12.0))
-API_UNAVAILABLE(watchos, tvos)
+API_UNAVAILABLE(watchos, macosx, tvos)
 @interface INUIAddVoiceShortcutViewController : UIViewController
 
 @property (nonatomic, nullable, weak) id<INUIAddVoiceShortcutViewControllerDelegate> delegate;
@@ -27,12 +27,12 @@ API_UNAVAILABLE(watchos, tvos)
 /*!
  @param shortcut The shortcut is what will be run when the resulting voice shortcut is invoked. It also provides the suggested invocation phrase, via the @c suggestedInvocationPhrase property on the intent or user activity.
  */
-- (instancetype)initWithShortcut:(INShortcut *)shortcut;
+- (instancetype)initWithShortcut:(INShortcut *)shortcut API_UNAVAILABLE(uikitformac);
 
 @end
 
 API_AVAILABLE(ios(12.0))
-API_UNAVAILABLE(watchos, tvos)
+API_UNAVAILABLE(watchos, macosx, tvos)
 @protocol INUIAddVoiceShortcutViewControllerDelegate <NSObject>
 
 /*!
@@ -178,7 +178,7 @@ NS_ASSUME_NONNULL_END
 //  INUIEditVoiceShortcutViewController.h
 //  IntentsUI
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright © 2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -193,7 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion To have the user edit a voice shortcut, create an @c INUIEditVoiceShortcutViewController object with the @c INVoiceShortcut that they wish to edit, and set its delegate. Then, present the view controller modally from another view controller in your app. Your delegate must dismiss the view controller when the user finishes editing.
  */
 API_AVAILABLE(ios(12.0))
-API_UNAVAILABLE(watchos, tvos)
+API_UNAVAILABLE(watchos, macosx, tvos)
 @interface INUIEditVoiceShortcutViewController : UIViewController
 
 @property (nonatomic, nullable, weak) id<INUIEditVoiceShortcutViewControllerDelegate> delegate;
@@ -201,12 +201,12 @@ API_UNAVAILABLE(watchos, tvos)
 /*!
  @param voiceShortcut The voice shortcut to be edited.
  */
-- (instancetype)initWithVoiceShortcut:(INVoiceShortcut *)voiceShortcut;
+- (instancetype)initWithVoiceShortcut:(INVoiceShortcut *)voiceShortcut API_UNAVAILABLE(uikitformac);
 
 @end
 
 API_AVAILABLE(ios(12.0))
-API_UNAVAILABLE(watchos, tvos)
+API_UNAVAILABLE(watchos, macosx, tvos)
 @protocol INUIEditVoiceShortcutViewControllerDelegate <NSObject>
 
 /*!
@@ -267,7 +267,7 @@ NS_ASSUME_NONNULL_END
 //  INUIAddVoiceShortcutButton
 //  IntentsUI
 //
-//  Copyright © 2018 Apple. All rights reserved.
+//  Copyright © 2018 Apple Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -278,7 +278,9 @@ typedef NS_ENUM(NSUInteger, INUIAddVoiceShortcutButtonStyle) {
     INUIAddVoiceShortcutButtonStyleWhite = 0,
     INUIAddVoiceShortcutButtonStyleWhiteOutline,
     INUIAddVoiceShortcutButtonStyleBlack,
-    INUIAddVoiceShortcutButtonStyleBlackOutline
+    INUIAddVoiceShortcutButtonStyleBlackOutline,
+    INUIAddVoiceShortcutButtonStyleAutomatic API_AVAILABLE(ios(13.0)),
+    INUIAddVoiceShortcutButtonStyleAutomaticOutline API_AVAILABLE(ios(13.0)),
 } API_AVAILABLE(ios(12.0)) API_UNAVAILABLE(watchos, macosx, tvos);
 
 @class INShortcut, INUIAddVoiceShortcutButton, INUIAddVoiceShortcutViewController, INUIEditVoiceShortcutViewController;
@@ -294,14 +296,22 @@ API_UNAVAILABLE(watchos, macosx, tvos)
 
 API_AVAILABLE(ios(12.0))
 API_UNAVAILABLE(watchos, macosx, tvos)
-@interface INUIAddVoiceShortcutButton : UIButton
+IB_DESIGNABLE @interface INUIAddVoiceShortcutButton : UIButton
 
-- (instancetype)initWithStyle:(INUIAddVoiceShortcutButtonStyle)style;
+- (instancetype)initWithStyle:(INUIAddVoiceShortcutButtonStyle)style API_UNAVAILABLE(uikitformac);
 
 @property (nonatomic, readonly) INUIAddVoiceShortcutButtonStyle style;
 
+- (void)setStyle:(INUIAddVoiceShortcutButtonStyle)style API_AVAILABLE(ios(13.0));
+
 @property (nonatomic, weak) id<INUIAddVoiceShortcutButtonDelegate> delegate;
 @property (nonatomic, strong, nullable) INShortcut *shortcut;
+
+/*!
+ @abstract A custom corner radius for the @c INUIAddVoiceShortcutButton.
+ @discussion If the provided corner radius is greater than half of the button’s height, it will be capped at half of the button’s height.
+ */
+@property (nonatomic, assign) IBInspectable CGFloat cornerRadius API_AVAILABLE(ios(13.0));
 
 @end
 

@@ -8,6 +8,7 @@
 #include <MediaAccessibility/MADefinitions.h>
 #include <MediaAccessibility/MACaptionAppearance.h>
 #include <MediaAccessibility/MAAudibleMedia.h>
+#include <MediaAccessibility/MAImageCaptioning.h>
 
 #endif
 // ==========  MediaAccessibility.framework/Headers/MADefinitions.h
@@ -18,32 +19,24 @@
 #include <AvailabilityMacros.h>
 #include <TargetConditionals.h>
 
-#if TARGET_OS_WIN32
-#include <MediaAccessibility/MADefinitionsWindows.h>
-#endif
+
 
 #if defined(__cplusplus)
-#    define MA_EXTERN_C_BEGIN extern "C" {
-#    define MA_EXTERN_C_END   }
+#define MA_EXTERN_C_BEGIN extern "C" {
+#define MA_EXTERN_C_END }
 #else
-#    define MA_EXTERN_C_BEGIN
-#    define MA_EXTERN_C_END
+#define MA_EXTERN_C_BEGIN
+#define MA_EXTERN_C_END
 #endif
 
-#if TARGET_OS_WIN32
-#   if defined(BUILDING_MA)
-#       define MA_VISIBLE __declspec(dllexport)
-#   else
-#       define MA_VISIBLE __declspec(dllimport) 
-#   endif
-#else
-#   define MA_VISIBLE __attribute__((visibility ("default")))
-#endif
+
+#define MA_VISIBLE __attribute__((visibility("default")))
+
 
 #if defined(__cplusplus)
-#   define MA_EXTERN extern "C"
+#define MA_EXTERN extern "C"
 #else
-#   define MA_EXTERN extern
+#define MA_EXTERN extern
 #endif
 
 #define MA_EXPORT MA_EXTERN MA_VISIBLE
@@ -130,11 +123,11 @@ MA_EXPORT const CFStringRef kMACaptionAppearanceSettingsChangedNotification;
  @constant kMACaptionAppearanceDomainDefault
     The system defaults which will not change during a user session. These settings should be used for comparison, not to render captions. For example, when rendering a glyph some caption render engines need to get the user-defined font and the system-defined font to determeine the final pixel size to render a glyph. Most render engines will never need to use this domain.
  */
-typedef CF_ENUM(CFIndex, MACaptionAppearanceDomain) {
-    kMACaptionAppearanceDomainDefault   = 0,
-    kMACaptionAppearanceDomainUser      = 1,
+typedef CF_ENUM(CFIndex, MACaptionAppearanceDomain)
+{
+    kMACaptionAppearanceDomainDefault = 0,
+    kMACaptionAppearanceDomainUser = 1,
 } CF_ENUM_AVAILABLE(10_9, 7_0);
-
 
 /*!
  @enum MACaptionAppearanceDisplayType
@@ -149,10 +142,11 @@ typedef CF_ENUM(CFIndex, MACaptionAppearanceDomain) {
  @constant kMACaptionAppearanceDisplayTypeAlwaysOn
     The best available captioning track should always be displayed, whether it be CC, SDH, or subtitles.
  */
-typedef CF_ENUM(CFIndex, MACaptionAppearanceDisplayType) {
-    kMACaptionAppearanceDisplayTypeForcedOnly     = 0,
-    kMACaptionAppearanceDisplayTypeAutomatic      = 1,
-    kMACaptionAppearanceDisplayTypeAlwaysOn       = 2,
+typedef CF_ENUM(CFIndex, MACaptionAppearanceDisplayType)
+{
+    kMACaptionAppearanceDisplayTypeForcedOnly = 0,
+    kMACaptionAppearanceDisplayTypeAutomatic = 1,
+    kMACaptionAppearanceDisplayTypeAlwaysOn = 2,
 } CF_ENUM_AVAILABLE(10_9, 7_0);
 
 /*!
@@ -166,9 +160,10 @@ typedef CF_ENUM(CFIndex, MACaptionAppearanceDisplayType) {
  @constant kMACaptionAppearanceBehaviorUseContentIfAvailable
     Content, application, or otherwise-defined values should override the returned value. If no other value is defined, then the return value should be used.
  */
-typedef CF_ENUM(CFIndex, MACaptionAppearanceBehavior) {
-    kMACaptionAppearanceBehaviorUseValue                = 0,
-    kMACaptionAppearanceBehaviorUseContentIfAvailable   = 1,
+typedef CF_ENUM(CFIndex, MACaptionAppearanceBehavior)
+{
+    kMACaptionAppearanceBehaviorUseValue = 0,
+    kMACaptionAppearanceBehaviorUseContentIfAvailable = 1,
 } CF_ENUM_AVAILABLE(10_9, 7_0);
 
 /*!
@@ -194,15 +189,16 @@ typedef CF_ENUM(CFIndex, MACaptionAppearanceBehavior) {
  @constant kMACaptionAppearanceFontStyleSmallCapital
     Font style for fonts similar to Engravers Gothic.
  */
-typedef CF_ENUM(CFIndex, MACaptionAppearanceFontStyle) {
-    kMACaptionAppearanceFontStyleDefault                    = 0,
-    kMACaptionAppearanceFontStyleMonospacedWithSerif        = 1,
-    kMACaptionAppearanceFontStyleProportionalWithSerif      = 2,
-    kMACaptionAppearanceFontStyleMonospacedWithoutSerif     = 3,
-    kMACaptionAppearanceFontStyleProportionalWithoutSerif   = 4,
-    kMACaptionAppearanceFontStyleCasual                     = 5,
-    kMACaptionAppearanceFontStyleCursive                    = 6,
-    kMACaptionAppearanceFontStyleSmallCapital               = 7,
+typedef CF_ENUM(CFIndex, MACaptionAppearanceFontStyle)
+{
+    kMACaptionAppearanceFontStyleDefault = 0,
+    kMACaptionAppearanceFontStyleMonospacedWithSerif = 1,
+    kMACaptionAppearanceFontStyleProportionalWithSerif = 2,
+    kMACaptionAppearanceFontStyleMonospacedWithoutSerif = 3,
+    kMACaptionAppearanceFontStyleProportionalWithoutSerif = 4,
+    kMACaptionAppearanceFontStyleCasual = 5,
+    kMACaptionAppearanceFontStyleCursive = 6,
+    kMACaptionAppearanceFontStyleSmallCapital = 7,
 } CF_ENUM_AVAILABLE(10_9, 7_0);
 
 /*!
@@ -224,13 +220,14 @@ typedef CF_ENUM(CFIndex, MACaptionAppearanceFontStyle) {
  @constant kMACaptionAppearanceTextEdgeStyleDropShadow
     Shadow edge style.
  */
-typedef CF_ENUM(CFIndex, MACaptionAppearanceTextEdgeStyle) {
-    kMACaptionAppearanceTextEdgeStyleUndefined      = 0,
-    kMACaptionAppearanceTextEdgeStyleNone           = 1,
-    kMACaptionAppearanceTextEdgeStyleRaised         = 2,
-    kMACaptionAppearanceTextEdgeStyleDepressed      = 3,
-    kMACaptionAppearanceTextEdgeStyleUniform        = 4,
-    kMACaptionAppearanceTextEdgeStyleDropShadow     = 5,
+typedef CF_ENUM(CFIndex, MACaptionAppearanceTextEdgeStyle)
+{
+    kMACaptionAppearanceTextEdgeStyleUndefined = 0,
+    kMACaptionAppearanceTextEdgeStyleNone = 1,
+    kMACaptionAppearanceTextEdgeStyleRaised = 2,
+    kMACaptionAppearanceTextEdgeStyleDepressed = 3,
+    kMACaptionAppearanceTextEdgeStyleUniform = 4,
+    kMACaptionAppearanceTextEdgeStyleDropShadow = 5,
 } CF_ENUM_AVAILABLE(10_9, 7_0);
 
 /*!
@@ -255,7 +252,6 @@ MA_EXPORT CFStringRef const MAMediaCharacteristicDescribesMusicAndSoundForAccess
  A legible track provided for accessibility purposes that's associated with an audio track that has no spoken dialog can be tagged with this characteristic, because it trivially meets these requirements.
  */
 MA_EXPORT CFStringRef const MAMediaCharacteristicTranscribesSpokenDialogForAccessibility CF_AVAILABLE(10_9, 7_0);
-
 
 #pragma mark Language preferences
 /*——————————————————————————————————————————————————————————————————————————————————————*/
@@ -326,8 +322,6 @@ void MACaptionAppearanceSetDisplayType(MACaptionAppearanceDomain domain, MACapti
 MA_EXPORT
 CFArrayRef MACaptionAppearanceCopyPreferredCaptioningMediaCharacteristics(MACaptionAppearanceDomain domain) CF_AVAILABLE(10_9, 7_0);
 
-
-
 #pragma mark Color preferences
 /*——————————————————————————————————————————————————————————————————————————————————————*/
 /*! @group Color preferences                                                            */
@@ -340,7 +334,7 @@ CFArrayRef MACaptionAppearanceCopyPreferredCaptioningMediaCharacteristics(MACapt
  @result User preference for foreground/text color.
  */
 MA_EXPORT
-CGColorRef MACaptionAppearanceCopyForegroundColor(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior * __nullable behavior) CF_AVAILABLE(10_9, 7_0);
+CGColorRef MACaptionAppearanceCopyForegroundColor(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior *__nullable behavior) CF_AVAILABLE(10_9, 7_0);
 
 /*!
  @function MACaptionAppearanceCopyBackgroundColor
@@ -351,7 +345,7 @@ CGColorRef MACaptionAppearanceCopyForegroundColor(MACaptionAppearanceDomain doma
  @result User preference for background color.
  */
 MA_EXPORT
-CGColorRef MACaptionAppearanceCopyBackgroundColor(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior * __nullable behavior) CF_AVAILABLE(10_9, 7_0);
+CGColorRef MACaptionAppearanceCopyBackgroundColor(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior *__nullable behavior) CF_AVAILABLE(10_9, 7_0);
 
 /*!
  @function MACaptionAppearanceCopyWindowColor
@@ -362,7 +356,7 @@ CGColorRef MACaptionAppearanceCopyBackgroundColor(MACaptionAppearanceDomain doma
  @result User preference for window color.
  */
 MA_EXPORT
-CGColorRef MACaptionAppearanceCopyWindowColor(MACaptionAppearanceDomain domain,MACaptionAppearanceBehavior * __nullable behavior) CF_AVAILABLE(10_9, 7_0);
+CGColorRef MACaptionAppearanceCopyWindowColor(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior *__nullable behavior) CF_AVAILABLE(10_9, 7_0);
 
 /*!
  @function MACaptionAppearanceGetForegroundOpacity
@@ -372,7 +366,7 @@ CGColorRef MACaptionAppearanceCopyWindowColor(MACaptionAppearanceDomain domain,M
  @result User preference for foreground opacity.
  */
 MA_EXPORT
-CGFloat MACaptionAppearanceGetForegroundOpacity(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior * __nullable behavior) CF_AVAILABLE(10_9, 7_0);
+CGFloat MACaptionAppearanceGetForegroundOpacity(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior *__nullable behavior) CF_AVAILABLE(10_9, 7_0);
 
 /*!
  @function MACaptionAppearanceGetBackgroundOpacity
@@ -382,7 +376,7 @@ CGFloat MACaptionAppearanceGetForegroundOpacity(MACaptionAppearanceDomain domain
  @result User preference for background opacity.
  */
 MA_EXPORT
-CGFloat MACaptionAppearanceGetBackgroundOpacity(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior * __nullable behavior) CF_AVAILABLE(10_9, 7_0);
+CGFloat MACaptionAppearanceGetBackgroundOpacity(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior *__nullable behavior) CF_AVAILABLE(10_9, 7_0);
 
 /*!
  @function MACaptionAppearanceGetWindowOpacity
@@ -392,7 +386,7 @@ CGFloat MACaptionAppearanceGetBackgroundOpacity(MACaptionAppearanceDomain domain
  @result User preference for window opacity.
  */
 MA_EXPORT
-CGFloat MACaptionAppearanceGetWindowOpacity(MACaptionAppearanceDomain domain,MACaptionAppearanceBehavior * __nullable behavior) CF_AVAILABLE(10_9, 7_0);
+CGFloat MACaptionAppearanceGetWindowOpacity(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior *__nullable behavior) CF_AVAILABLE(10_9, 7_0);
 
 /*!
  @function MACaptionAppearanceGetWindowRoundedCornerRadius
@@ -402,7 +396,7 @@ CGFloat MACaptionAppearanceGetWindowOpacity(MACaptionAppearanceDomain domain,MAC
  @result User preference for caption-window corner radius.
  */
 MA_EXPORT
-CGFloat MACaptionAppearanceGetWindowRoundedCornerRadius(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior * __nullable behavior) CF_AVAILABLE(10_9, 7_0);
+CGFloat MACaptionAppearanceGetWindowRoundedCornerRadius(MACaptionAppearanceDomain domain, MACaptionAppearanceBehavior *__nullable behavior) CF_AVAILABLE(10_9, 7_0);
 
 #pragma mark Text Preferences
 /*——————————————————————————————————————————————————————————————————————————————————————*/
@@ -444,3 +438,59 @@ CF_ASSUME_NONNULL_END
 MA_EXTERN_C_END
 
 #endif /* MediaAccessibility_MACaptionAppearance_h */
+// ==========  MediaAccessibility.framework/Headers/MAImageCaptioning.h
+/*!
+ @header
+ 
+ @discussion
+ Methods to set and get an image's accessibility caption embedded in image metadata.
+ */
+
+#ifndef MediaAccessibility_MAImageCaptioning_h
+#define MediaAccessibility_MAImageCaptioning_h
+
+#include <AvailabilityMacros.h>
+
+#include <MediaAccessibility/MADefinitions.h>
+#include <CoreFoundation/CoreFoundation.h>
+
+CF_ASSUME_NONNULL_BEGIN
+
+/*!
+ @function MAImageCaptioningCopyCaption
+ @abstract Returns an accessibility caption from an image's metadata.
+ @param url The URL locating the image on disk.
+ @param error If an error occurs, a description will be provided.
+ @result A string with the image caption. Nil if there's no caption.
+ @discussion A convenience function for retrieving a caption from an image file that aims to describe the photo accurately.
+ This checks for XMP metadata field: Iptc4xmpExt:AOContentDescription.
+ */
+MA_EXPORT
+_Nullable CFStringRef MAImageCaptioningCopyCaption(CFURLRef url, CFErrorRef _Nullable * _Nullable CF_RETURNS_RETAINED error) API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0), macos(10.15)) CF_RETURNS_RETAINED;
+
+/*!
+ @function MAImageCaptioningSetCaption
+ @abstract Sets the accessibility caption into an image's metadata.
+ @param url The URL locating the image on disk.
+ @param error If an error occurs, a description will be provided.
+ @param string The accessility caption.
+ @result A bool representing whether the operation was successful.
+ @discussion A convenience function for setting a caption to an image file that aims to describe the photo accurately.
+ This sets the XMP metadata field: Iptc4xmpExt:AOContentDescription.
+ */
+MA_EXPORT
+bool MAImageCaptioningSetCaption(CFURLRef url, CFStringRef __nullable string, CFErrorRef _Nullable * _Nullable CF_RETURNS_RETAINED error) API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0), macos(10.15));
+
+/*!
+ @function MAImageCaptioningCopyMetadataTagPath
+ @abstract Returns the metadata tagpath for this key.
+ This tag path can be used to copy metadata directly using CGImageMetadataCopyTagWithPath from the CGImageMetadataRef, for example.
+ @result A string representing the tag path.
+ @discussion This returns the appropriate metadata tag path to be used.
+ */
+MA_EXPORT
+CFStringRef MAImageCaptioningCopyMetadataTagPath(void) API_AVAILABLE(ios(13.0), watchos(6.0), tvos(13.0), macos(10.15)) CF_RETURNS_RETAINED;
+
+CF_ASSUME_NONNULL_END
+
+#endif /* MediaAccessibility_MAImageCaptioning_h */

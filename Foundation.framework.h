@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Predicates wrap some combination of expressions and operators and when evaluated return a BOOL.
 
-NS_CLASS_AVAILABLE(10_4, 3_0)
+API_AVAILABLE(macos(10.4), ios(3.0), watchos(2.0), tvos(9.0))
 @interface NSPredicate : NSObject <NSSecureCoding, NSCopying> {
     struct _predicateFlags {
         unsigned int _evaluationBlocked:1;
@@ -105,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithLocaleIdentifier:(NSString *)string NS_DESIGNATED_INITIALIZER;
 
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -167,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)localeWithLocaleIdentifier:(NSString *)ident API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
-- (instancetype)init NS_UNAVAILABLE;     /* do not invoke; not a valid initializer for this class */
+- (instancetype)init API_UNAVAILABLE(macos, ios, watchos, tvos);     /* do not invoke; not a valid initializer for this class */
 
 @end
 
@@ -235,17 +235,17 @@ FOUNDATION_EXPORT NSLocaleKey const NSLocaleAlternateQuotationEndDelimiterKey AP
 #endif
 
 // Values for NSCalendar identifiers (not the NSLocaleCalendar property key)
-FOUNDATION_EXPORT NSString * const NSGregorianCalendar NS_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarIdentifierGregorian instead");
-FOUNDATION_EXPORT NSString * const NSBuddhistCalendar NS_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarIdentifierBuddhist instead");
-FOUNDATION_EXPORT NSString * const NSChineseCalendar NS_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarIdentifierChinese instead");
-FOUNDATION_EXPORT NSString * const NSHebrewCalendar NS_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarIdentifierHebrew instead");
-FOUNDATION_EXPORT NSString * const NSIslamicCalendar NS_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarIdentifierIslamic instead");
-FOUNDATION_EXPORT NSString * const NSIslamicCivilCalendar NS_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarIdentifierIslamicCivil instead");
-FOUNDATION_EXPORT NSString * const NSJapaneseCalendar NS_CALENDAR_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarIdentifierJapanese instead");
-FOUNDATION_EXPORT NSString * const NSRepublicOfChinaCalendar NS_CALENDAR_DEPRECATED(10_6, 10_10, 4_0, 8_0, "Use NSCalendarIdentifierRepublicOfChina instead");
-FOUNDATION_EXPORT NSString * const NSPersianCalendar NS_CALENDAR_DEPRECATED(10_6, 10_10, 4_0, 8_0, "Use NSCalendarIdentifierPersian instead");
-FOUNDATION_EXPORT NSString * const NSIndianCalendar NS_CALENDAR_DEPRECATED(10_6, 10_10, 4_0, 8_0, "Use NSCalendarIdentifierIndian instead");
-FOUNDATION_EXPORT NSString * const NSISO8601Calendar NS_CALENDAR_DEPRECATED(10_6, 10_10, 4_0, 8_0, "Use NSCalendarIdentifierISO8601 instead");
+FOUNDATION_EXPORT NSString * const NSGregorianCalendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierGregorian", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+FOUNDATION_EXPORT NSString * const NSBuddhistCalendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierBuddhist", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+FOUNDATION_EXPORT NSString * const NSChineseCalendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierChinese", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+FOUNDATION_EXPORT NSString * const NSHebrewCalendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierHebrew", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+FOUNDATION_EXPORT NSString * const NSIslamicCalendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierIslamic", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+FOUNDATION_EXPORT NSString * const NSIslamicCivilCalendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierIslamicCivil", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+FOUNDATION_EXPORT NSString * const NSJapaneseCalendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierJapanese", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+FOUNDATION_EXPORT NSString * const NSRepublicOfChinaCalendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierRepublicOfChina", macos(10.6, 10.10), ios(4.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+FOUNDATION_EXPORT NSString * const NSPersianCalendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierPersian", macos(10.6, 10.10), ios(4.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+FOUNDATION_EXPORT NSString * const NSIndianCalendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierIndian", macos(10.6, 10.10), ios(4.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+FOUNDATION_EXPORT NSString * const NSISO8601Calendar API_DEPRECATED_WITH_REPLACEMENT("NSCalendarIdentifierISO8601", macos(10.6, 10.10), ios(4.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 NS_ASSUME_NONNULL_END
 // ==========  Foundation.framework/Headers/NSLock.h
@@ -311,7 +311,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-NS_CLASS_AVAILABLE(10_5, 2_0)
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 @interface NSCondition : NSObject <NSLocking> {
 @private
     void *_priv;
@@ -358,7 +358,7 @@ typedef NS_OPTIONS(NSUInteger, NSFileVersionReplacingOptions) {
 
 /* Instances of NSFileVersion for the same version of the same file are equal, and instances of NSFileVersion for different versions of the same file are not equal, but the equality of NSFileVersions for different files is undefined. Repeated invocations of the methods that return NSFileVersions do not necessarily return the exact same instance of NSFileVersion.
 */
-NS_CLASS_AVAILABLE(10_7, 5_0)
+API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSFileVersion : NSObject {
 @private
     NSURL *_fileURL;
@@ -426,7 +426,7 @@ When adding or removing versions of a file you should do it as part of a "coordi
 
 /* The name components of the user who created this version of the file. Is nil if the file is not shared or if the current user is the originator.
 */
-@property (nullable, readonly, copy) NSPersonNameComponents *originatorNameComponents API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED;
+@property (nullable, readonly, copy) NSPersonNameComponents *originatorNameComponents API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos);
 
 /* The modification date of the version, or possibly nil if the receiver's storage has been deleted.
 */
@@ -520,7 +520,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NSString * NSAttributedStringKey NS_EXTENSIBLE_STRING_ENUM;
 
-NS_CLASS_AVAILABLE(10_0, 3_2)
+API_AVAILABLE(macos(10.0), ios(3.2), watchos(2.0), tvos(9.0))
 @interface NSAttributedString : NSObject <NSCopying, NSMutableCopying, NSSecureCoding>
 
 @property (readonly, copy) NSString *string;
@@ -553,7 +553,7 @@ typedef NS_OPTIONS(NSUInteger, NSAttributedStringEnumerationOptions) {
 
 @end
 
-NS_CLASS_AVAILABLE(10_0, 3_2)
+API_AVAILABLE(macos(10.0), ios(3.2), watchos(2.0), tvos(9.0))
 @interface NSMutableAttributedString : NSAttributedString
 
 - (void)replaceCharactersInRange:(NSRange)range withString:(NSString *)str;
@@ -593,7 +593,7 @@ NS_ASSUME_NONNULL_END
 // A NSExtensionItem is an immutable collection of values representing different aspects of an item for the extension to act upon.
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @interface NSExtensionItem : NSObject<NSCopying, NSSecureCoding>
 
 // (optional) title for the item
@@ -626,7 +626,7 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/NSString.h>
 #import <Foundation/NSCharacterSet.h>
 #import <Foundation/NSItemProvider.h>
-#if !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+#if TARGET_OS_OSX || TARGET_OS_UIKITFORMAC
 #import <Foundation/NSURLHandle.h>
 #endif
 
@@ -636,11 +636,7 @@ typedef NSString * NSURLResourceKey NS_EXTENSIBLE_STRING_ENUM;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
 @interface NSURL: NSObject <NSSecureCoding, NSCopying>
-#else
-@interface NSURL: NSObject <NSSecureCoding, NSCopying, NSURLHandleClient>
-#endif
 {
     NSString *_urlString;
     NSURL *_baseURL;
@@ -724,7 +720,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, readonly, copy) NSString *password;
 @property (nullable, readonly, copy) NSString *path;
 @property (nullable, readonly, copy) NSString *fragment;
-@property (nullable, readonly, copy) NSString *parameterString;
+@property (nullable, readonly, copy) NSString *parameterString API_DEPRECATED("The parameterString method is deprecated. Post deprecation for applications linked with or after the macOS 10.15, and for all iOS, watchOS, and tvOS applications, parameterString will always return nil, and the path method will return the complete path including the semicolon separator and params component if the URL string contains them.", macosx(10.2,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
 @property (nullable, readonly, copy) NSString *query;
 @property (nullable, readonly, copy) NSString *relativePath; // The same as path if baseURL is nil
 
@@ -858,7 +854,7 @@ FOUNDATION_EXPORT NSURLResourceKey const NSURLCanonicalPathKey               API
 FOUNDATION_EXPORT NSURLResourceKey const NSURLIsMountTriggerKey              API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)); // true if this URL is a file system trigger directory. Traversing or opening a file system trigger will cause an attempt to mount a file system on the trigger directory. (Read-only, value type boolean NSNumber)
 FOUNDATION_EXPORT NSURLResourceKey const NSURLGenerationIdentifierKey API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // An opaque generation identifier which can be compared using isEqual: to determine if the data in a document has been modified. For URLs which refer to the same file inode, the generation identifier will change when the data in the file's data fork is changed (changes to extended attributes or other file system metadata do not change the generation identifier). For URLs which refer to the same directory inode, the generation identifier will change when direct children of that directory are added, removed or renamed (changes to the data of the direct children of that directory will not change the generation identifier). The generation identifier is persistent across system restarts. The generation identifier is tied to a specific document on a specific volume and is not transferred when the document is copied to another volume. This property is not supported by all volumes. (Read-only, value type id <NSCopying, NSCoding, NSSecureCoding, NSObject>)
 FOUNDATION_EXPORT NSURLResourceKey const NSURLDocumentIdentifierKey API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // The document identifier -- a value assigned by the kernel to a document (which can be either a file or directory) and is used to identify the document regardless of where it gets moved on a volume. The document identifier survives "safe save” operations; i.e it is sticky to the path it was assigned to (-replaceItemAtURL:withItemAtURL:backupItemName:options:resultingItemURL:error: is the preferred safe-save API). The document identifier is persistent across system restarts. The document identifier is not transferred when the file is copied. Document identifiers are only unique within a single volume. This property is not supported by all volumes. (Read-only, value type NSNumber)
-FOUNDATION_EXPORT NSURLResourceKey const NSURLAddedToDirectoryDateKey API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // The date the resource was created, or renamed into or within its parent directory. Note that inconsistent behavior may be observed when this attribute is requested on hard-linked items. This property is not supported by all volumes. (Read-only, value type NSDate)
+FOUNDATION_EXPORT NSURLResourceKey const NSURLAddedToDirectoryDateKey API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // The date the resource was created, or renamed into or within its parent directory. Note that inconsistent behavior may be observed when this attribute is requested on hard-linked items. This property is not supported by all volumes. (Read-only before macOS 10.15, iOS 13.0, watchOS 6.0, and tvOS 13.0; Read-write after, value type NSDate)
 FOUNDATION_EXPORT NSURLResourceKey const NSURLQuarantinePropertiesKey API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, watchos, tvos); // The quarantine properties as defined in LSQuarantine.h. To remove quarantine information from a file, pass NSNull as the value when setting this property. (Read-write, value type NSDictionary)
 FOUNDATION_EXPORT NSURLResourceKey const NSURLFileResourceTypeKey            API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)); // Returns the file system object type. (Read-only, value type NSString)
 
@@ -875,13 +871,13 @@ FOUNDATION_EXPORT NSURLFileResourceType const NSURLFileResourceTypeSymbolicLink 
 FOUNDATION_EXPORT NSURLFileResourceType const NSURLFileResourceTypeSocket         API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 FOUNDATION_EXPORT NSURLFileResourceType const NSURLFileResourceTypeUnknown        API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
-FOUNDATION_EXPORT NSURLResourceKey const NSURLThumbnailDictionaryKey         API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // dictionary of NSImage/UIImage objects keyed by size
-FOUNDATION_EXPORT NSURLResourceKey const NSURLThumbnailKey                   API_AVAILABLE(macos(10.10)) API_UNAVAILABLE(ios, watchos, tvos); // returns all thumbnails as a single NSImage
+FOUNDATION_EXPORT NSURLResourceKey const NSURLThumbnailDictionaryKey         API_DEPRECATED("Use the QuickLookThumbnailing framework and extension point instead", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)); // dictionary of NSImage/UIImage objects keyed by size
+FOUNDATION_EXPORT NSURLResourceKey const NSURLThumbnailKey                   API_DEPRECATED("Use the QuickLookThumbnailing framework and extension point instead", macos(10.10, API_TO_BE_DEPRECATED)) API_UNAVAILABLE(ios, watchos, tvos); // returns all thumbnails as a single NSImage
 
 typedef NSString *NSURLThumbnailDictionaryItem NS_EXTENSIBLE_STRING_ENUM;
 /* size keys for the dictionary returned by NSURLThumbnailDictionaryKey
  */
-FOUNDATION_EXPORT NSURLThumbnailDictionaryItem const NSThumbnail1024x1024SizeKey         API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // size key for a 1024 x 1024 thumbnail image
+FOUNDATION_EXPORT NSURLThumbnailDictionaryItem const NSThumbnail1024x1024SizeKey         API_DEPRECATED("Use the QuickLookThumbnailing framework and extension point instead", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)); // size key for a 1024 x 1024 thumbnail image
 
 /* Resource keys applicable only to regular files
  */
@@ -975,11 +971,11 @@ FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousItemUploadingErrorKey   
 FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousItemDownloadRequestedKey      API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // returns whether a download of this item has already been requested with an API like -startDownloadingUbiquitousItemAtURL:error: (Read-only, value type boolean NSNumber)
 FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousItemContainerDisplayNameKey   API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // returns the name of this item's container as displayed to users.
 
-FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousItemIsSharedKey                               API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // true if the ubiquitous item is shared. (Read-only, value type boolean NSNumber)
-FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousSharedItemCurrentUserRoleKey                  API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // returns the current user's role for this shared item, or nil if not shared. (Read-only, value type NSString). Possible values below.
-FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousSharedItemCurrentUserPermissionsKey           API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // returns the permissions for the current user, or nil if not shared. (Read-only, value type NSString). Possible values below.
-FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousSharedItemOwnerNameComponentsKey              API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // returns a NSPersonNameComponents, or nil if the current user. (Read-only, value type NSPersonNameComponents)
-FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousSharedItemMostRecentEditorNameComponentsKey   API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // returns a NSPersonNameComponents for the most recent editor of the document, or nil if it is the current user. (Read-only, value type NSPersonNameComponents)
+FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousItemIsSharedKey                               API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // true if the ubiquitous item is shared. (Read-only, value type boolean NSNumber)
+FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousSharedItemCurrentUserRoleKey                  API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // returns the current user's role for this shared item, or nil if not shared. (Read-only, value type NSString). Possible values below.
+FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousSharedItemCurrentUserPermissionsKey           API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // returns the permissions for the current user, or nil if not shared. (Read-only, value type NSString). Possible values below.
+FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousSharedItemOwnerNameComponentsKey              API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // returns a NSPersonNameComponents, or nil if the current user. (Read-only, value type NSPersonNameComponents)
+FOUNDATION_EXPORT NSURLResourceKey const NSURLUbiquitousSharedItemMostRecentEditorNameComponentsKey   API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // returns a NSPersonNameComponents for the most recent editor of the document, or nil if it is the current user. (Read-only, value type NSPersonNameComponents)
 
 typedef NSString * NSURLUbiquitousItemDownloadingStatus NS_STRING_ENUM;
 /* The values returned for the NSURLUbiquitousItemDownloadingStatusKey
@@ -992,15 +988,15 @@ typedef NSString * NSURLUbiquitousSharedItemRole NS_STRING_ENUM;
 
 /* The values returned for the NSURLUbiquitousSharedItemCurrentUserRoleKey
  */
-FOUNDATION_EXPORT NSURLUbiquitousSharedItemRole const NSURLUbiquitousSharedItemRoleOwner       API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // the current user is the owner of this shared item.
-FOUNDATION_EXPORT NSURLUbiquitousSharedItemRole const NSURLUbiquitousSharedItemRoleParticipant API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // the current user is a participant of this shared item.
+FOUNDATION_EXPORT NSURLUbiquitousSharedItemRole const NSURLUbiquitousSharedItemRoleOwner       API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // the current user is the owner of this shared item.
+FOUNDATION_EXPORT NSURLUbiquitousSharedItemRole const NSURLUbiquitousSharedItemRoleParticipant API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // the current user is a participant of this shared item.
 
 typedef NSString * NSURLUbiquitousSharedItemPermissions NS_STRING_ENUM;
 
 /* The values returned for the NSURLUbiquitousSharedItemCurrentUserPermissionsKey
  */
-FOUNDATION_EXPORT NSURLUbiquitousSharedItemPermissions const NSURLUbiquitousSharedItemPermissionsReadOnly     API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // the current user is only allowed to read this item
-FOUNDATION_EXPORT NSURLUbiquitousSharedItemPermissions const NSURLUbiquitousSharedItemPermissionsReadWrite    API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // the current user is allowed to both read and write this item
+FOUNDATION_EXPORT NSURLUbiquitousSharedItemPermissions const NSURLUbiquitousSharedItemPermissionsReadOnly     API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // the current user is only allowed to read this item
+FOUNDATION_EXPORT NSURLUbiquitousSharedItemPermissions const NSURLUbiquitousSharedItemPermissionsReadWrite    API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // the current user is allowed to both read and write this item
 
 /* Working with Bookmarks and alias (bookmark) files 
  */
@@ -1009,14 +1005,14 @@ typedef NS_OPTIONS(NSUInteger, NSURLBookmarkCreationOptions) {
     NSURLBookmarkCreationPreferFileIDResolution API_DEPRECATED("Not supported", macos(10.6,10.9), ios(4.0,7.0), watchos(2.0,2.0), tvos(9.0,9.0)) = ( 1UL << 8 ), /* This option does nothing and has no effect on bookmark resolution */
     NSURLBookmarkCreationMinimalBookmark = ( 1UL << 9 ), /* creates bookmark data with "less" information, which may be smaller but still be able to resolve in certain ways */
     NSURLBookmarkCreationSuitableForBookmarkFile = ( 1UL << 10 ), /* include the properties required by writeBookmarkData:toURL:options: in the bookmark data created */
-    NSURLBookmarkCreationWithSecurityScope NS_ENUM_AVAILABLE(10_7, NA) = ( 1 << 11 ), /* include information in the bookmark data which allows the same sandboxed process to access the resource after being relaunched */
-    NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess NS_ENUM_AVAILABLE(10_7, NA) = ( 1 << 12 ), /* if used with kCFURLBookmarkCreationWithSecurityScope, at resolution time only read access to the resource will be granted */
+    NSURLBookmarkCreationWithSecurityScope API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, watchos, tvos) = ( 1 << 11 ), /* include information in the bookmark data which allows the same sandboxed process to access the resource after being relaunched */
+    NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, watchos, tvos) = ( 1 << 12 ), /* if used with kCFURLBookmarkCreationWithSecurityScope, at resolution time only read access to the resource will be granted */
 } API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 typedef NS_OPTIONS(NSUInteger, NSURLBookmarkResolutionOptions) {
     NSURLBookmarkResolutionWithoutUI = ( 1UL << 8 ), /* don't perform any user interaction during bookmark resolution */
     NSURLBookmarkResolutionWithoutMounting = ( 1UL << 9 ), /* don't mount a volume during bookmark resolution */
-    NSURLBookmarkResolutionWithSecurityScope NS_ENUM_AVAILABLE(10_7, NA) = ( 1 << 10 ) /* use the secure information included at creation time to provide the ability to access the resource in a sandboxed process */
+    NSURLBookmarkResolutionWithSecurityScope API_AVAILABLE(macos(10.7)) API_UNAVAILABLE(ios, watchos, tvos) = ( 1 << 10 ) /* use the secure information included at creation time to provide the ability to access the resource in a sandboxed process */
 } API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 typedef NSUInteger NSURLBookmarkFileCreationOptions;
@@ -1083,7 +1079,7 @@ typedef NSUInteger NSURLBookmarkFileCreationOptions;
 @end
 
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 // NSURLQueryItem encapsulates a single query name-value pair. The name and value strings of a query name-value pair are not percent encoded. For use with the NSURLComponents queryItems property.
 @interface NSURLQueryItem : NSObject <NSSecureCoding, NSCopying> {
 @private
@@ -1097,7 +1093,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @end
 
 
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0))
 @interface NSURLComponents : NSObject <NSCopying>
 
 // Initialize a NSURLComponents with all components undefined. Designated initializer.
@@ -1238,12 +1234,12 @@ NS_CLASS_AVAILABLE(10_9, 7_0)
 @end
 
 
-#if (TARGET_OS_MAC || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if (TARGET_OS_MAC || TARGET_OS_IPHONE)
 /* NSFileSecurity encapsulates a file system object's security information. NSFileSecurity and CFFileSecurity are toll-free bridged. Use the CFFileSecurity API for access to the low-level file security properties encapsulated by NSFileSecurity.
  */
-NS_CLASS_AVAILABLE(10_7, 5_0)
+API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSFileSecurity : NSObject <NSCopying, NSSecureCoding>
-- (nullable instancetype) initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype) initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 @end
 #endif
 
@@ -1251,7 +1247,7 @@ NS_CLASS_AVAILABLE(10_7, 5_0)
 /* deprecated interfaces
  */
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 /* NSURLClient and NSURLLoading are deprecated; use NSURLConnection instead.
  */
 
@@ -1301,23 +1297,23 @@ typedef NS_OPTIONS(NSUInteger, NSDataReadingOptions) {
     NSDataReadingMappedAlways API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = 1UL << 3,	// Hint to map the file in if possible. This takes precedence over NSDataReadingMappedIfSafe if both are given.
     
     // Options with old names for NSData reading methods. Please stop using these old names.
-    NSDataReadingMapped = NSDataReadingMappedIfSafe,	// Deprecated name for NSDataReadingMappedIfSafe
-    NSMappedRead = NSDataReadingMapped,			// Deprecated name for NSDataReadingMapped
-    NSUncachedRead = NSDataReadingUncached		// Deprecated name for NSDataReadingUncached
+    NSDataReadingMapped API_DEPRECATED_WITH_REPLACEMENT("NSDataReadingMappedIfSafe", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) = NSDataReadingMappedIfSafe,	// Deprecated name for NSDataReadingMappedIfSafe
+    NSMappedRead API_DEPRECATED_WITH_REPLACEMENT("NSDataReadingMapped", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) = NSDataReadingMapped,			// Deprecated name for NSDataReadingMapped
+    NSUncachedRead API_DEPRECATED_WITH_REPLACEMENT("NSDataReadingUncached", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) = NSDataReadingUncached		// Deprecated name for NSDataReadingUncached
 };
 
 typedef NS_OPTIONS(NSUInteger, NSDataWritingOptions) {
     NSDataWritingAtomic = 1UL << 0,	// Hint to use auxiliary file when saving; equivalent to atomically:YES
     NSDataWritingWithoutOverwriting API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0)) = 1UL << 1, // Hint to  prevent overwriting an existing file. Cannot be combined with NSDataWritingAtomic.
 
-    NSDataWritingFileProtectionNone NS_ENUM_AVAILABLE_IOS(4_0)                                  = 0x10000000,
-    NSDataWritingFileProtectionComplete NS_ENUM_AVAILABLE_IOS(4_0)                              = 0x20000000,
-    NSDataWritingFileProtectionCompleteUnlessOpen NS_ENUM_AVAILABLE_IOS(5_0)                    = 0x30000000,
-    NSDataWritingFileProtectionCompleteUntilFirstUserAuthentication NS_ENUM_AVAILABLE_IOS(5_0)  = 0x40000000,
-    NSDataWritingFileProtectionMask NS_ENUM_AVAILABLE_IOS(4_0)                                  = 0xf0000000,
+    NSDataWritingFileProtectionNone API_AVAILABLE(ios(4.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos)                                  = 0x10000000,
+    NSDataWritingFileProtectionComplete API_AVAILABLE(ios(4.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos)                              = 0x20000000,
+    NSDataWritingFileProtectionCompleteUnlessOpen API_AVAILABLE(ios(5.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos)                    = 0x30000000,
+    NSDataWritingFileProtectionCompleteUntilFirstUserAuthentication API_AVAILABLE(ios(5.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos)  = 0x40000000,
+    NSDataWritingFileProtectionMask API_AVAILABLE(ios(4.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos)                                  = 0xf0000000,
 
     // Options with old names for NSData writing methods. Please stop using these old names.
-    NSAtomicWrite = NSDataWritingAtomic	    // Deprecated name for NSDataWritingAtomic
+    NSAtomicWrite API_DEPRECATED_WITH_REPLACEMENT("NSDataWritingAtomic", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) = NSDataWritingAtomic	    // Deprecated name for NSDataWritingAtomic
 };
 
 
@@ -1426,6 +1422,36 @@ typedef NS_OPTIONS(NSUInteger, NSDataBase64DecodingOptions) {
 
 @end
 
+/* Various algorithms provided for compression APIs. See NSData and NSMutableData.
+ */
+typedef NS_ENUM(NSInteger, NSDataCompressionAlgorithm) {
+    
+    // LZFSE is the recommended compression algorithm if you don't have a specific reason to use another algorithm. Note that LZFSE is intended for use with Apple devices only. This algorithm generally compresses better than Zlib, but not as well as LZMA. It is generally slower than LZ4.
+    NSDataCompressionAlgorithmLZFSE = 0,
+    
+    // LZ4 is appropriate if compression speed is critical. LZ4 generally sacrifices compression ratio in order to achieve its greater speed.
+    // This implementation of LZ4 makes a small modification to the standard format, which is described in greater detail in <compression.h>.
+    NSDataCompressionAlgorithmLZ4,
+    
+    // LZMA is appropriate if compression ratio is critical and memory usage and compression speed are not a factor. LZMA is an order of magnitude slower for both compression and decompression than other algorithms. It can also use a very large amount of memory, so if you need to compress large amounts of data on embedded devices with limited memory you should probably avoid LZMA.
+    // Encoding uses LZMA level 6 only, but decompression works with any compression level.
+    NSDataCompressionAlgorithmLZMA,
+    
+    // Zlib is appropriate if you want a good balance between compression speed and compression ratio, but only if you need interoperability with non-Apple platforms. Otherwise, LZFSE is generally a better choice than Zlib.
+    // Encoding uses Zlib level 5 only, but decompression works with any compression level. It uses the raw DEFLATE format as described in IETF RFC 1951.
+    NSDataCompressionAlgorithmZlib,
+    
+} API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+@interface NSData (NSDataCompression)
+
+/* These methods return a compressed or decompressed version of the receiver using the specified algorithm.
+ */
+- (nullable instancetype)decompressedDataUsingAlgorithm:(NSDataCompressionAlgorithm)algorithm error:(NSError **)error API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+- (nullable instancetype)compressedDataUsingAlgorithm:(NSDataCompressionAlgorithm)algorithm error:(NSError **)error API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+@end
+
 
 @interface NSData (NSDeprecated)
 
@@ -1470,9 +1496,18 @@ typedef NS_OPTIONS(NSUInteger, NSDataBase64DecodingOptions) {
 
 @end
 
+@interface NSMutableData (NSMutableDataCompression)
+
+/* These methods compress or decompress the receiver's contents in-place using the specified algorithm. If the operation is not successful, these methods leave the receiver unchanged..
+ */
+- (BOOL)decompressUsingAlgorithm:(NSDataCompressionAlgorithm)algorithm error:(NSError **)error API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+- (BOOL)compressUsingAlgorithm:(NSDataCompressionAlgorithm)algorithm error:(NSError **)error API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+@end
+
 /****************	    Purgeable Data	****************/
 
-NS_CLASS_AVAILABLE(10_6, 4_0)
+API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0))
 @interface NSPurgeableData : NSMutableData <NSDiscardableContent> {
 @private
     NSUInteger _length;
@@ -1632,7 +1667,11 @@ FOUNDATION_EXPORT NSExceptionName const NSDecimalNumberDivideByZeroException;
 
 @interface NSScanner (NSDecimalNumberScanning)
 
-- (BOOL)scanDecimal:(nullable NSDecimal *)dcm;
+- (BOOL)scanDecimal:(nullable NSDecimal *)dcm
+#if defined(__swift__) // Deprecated for Swift only:
+    API_DEPRECATED_WITH_REPLACEMENT("scanDecimal()", macosx(10.0,10.15), ios(2.0,13.0), watchos(2.0,13.0), tvos(9.0,13.0))
+#endif
+    ;
 
 @end
 
@@ -1817,14 +1856,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* NSOrthography is a class used to describe the linguistic content of a piece of text, especially for the purposes of spelling and grammar checking.  It describes (a) which scripts the text contains, (b) a dominant language and possibly other languages for each of these scripts, and (c) a dominant script and language for the text as a whole.  Scripts are uniformly described by standard four-letter tags (Latn, Grek, Cyrl, etc.) with the supertags Jpan and Kore typically used for Japanese and Korean text, Hans and Hant for Chinese text; the tag Zyyy is used if a specific script cannot be identified.  Languages are uniformly described by BCP-47 tags, preferably in canonical form; the tag und is used if a specific language cannot be determined. */
 
-NS_CLASS_AVAILABLE(10_6, 4_0)
+API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0))
 @interface NSOrthography : NSObject <NSCopying, NSSecureCoding>
 
 /* These are the primitive properties which a subclass must implement.  The dominantScript should be a script tag (such as Latn, Cyrl, and so forth) and the languageMap should be a dictionary whose keys are script tags and whose values are arrays of language tags (such as en, fr, de, and so forth). */
 @property (readonly, copy) NSString *dominantScript;
 @property (readonly, copy) NSDictionary<NSString *, NSArray<NSString *> *> *languageMap;
 - (instancetype)initWithDominantScript:(NSString *)script languageMap:(NSDictionary<NSString *, NSArray<NSString *> *> *)map API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -1864,8 +1903,6 @@ NS_ASSUME_NONNULL_END
 #if __has_include(<CFNetwork/CFNetwork.h>)
 #import <CFNetwork/CFNetwork.h>
 #endif
-#elif TARGET_OS_WIN32
-#import <CFNetwork/CFNetwork.h>
 #else
 #import <CoreServices/CoreServices.h>
 #endif
@@ -1928,6 +1965,25 @@ NS_ENUM(NSInteger)
     NSURLErrorCancelledReasonInsufficientSystemResources API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)) = 2,
     
 } API_AVAILABLE(macos(10.10), ios(7.0), watchos(2.0), tvos(9.0));
+
+/*!
+    @const NSURLErrorNetworkUnavailableReasonKey
+    @abstract The NSErrorUserInfoKey used to store and retrieve the NSNumber object corresponding to the reason why the network is unavailable when the task failed due to unsatisfiable network constraints.  See the NSURLErrorNetworkUnavailableReason enum for details.
+*/
+FOUNDATION_EXPORT NSErrorUserInfoKey const NSURLErrorNetworkUnavailableReasonKey API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*!
+    @enum Codes associated with NSURLErrorNetworkUnavailableReasonKey
+    @abstract Constants used by NSError to indicate that a URLSessionTask failed because of unsatisfiable network constraints.
+    @discussion For example if the URLSessionConfiguration property allowsExpensiveNetworkAccess was set to NO and the only interfaces available were marked as expensive then the task would fail with a NSURLErrorNotConnectedToInternet error and the userInfo dictionary would contain the value NSURLErrorNetworkUnavailableReasonExpensive for the key NSURLErrorNetworkUnavailableReason.
+*/
+
+typedef NS_ENUM(NSInteger, NSURLErrorNetworkUnavailableReason)
+{
+    NSURLErrorNetworkUnavailableReasonCellular =    0,
+    NSURLErrorNetworkUnavailableReasonExpensive =   1,
+    NSURLErrorNetworkUnavailableReasonConstrained  = 2,
+} API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
 
 /*!
     @enum NSURL-related Error Codes
@@ -2048,7 +2104,7 @@ typedef NS_OPTIONS(NSUInteger, NSPointerFunctionsOptions) {
     NSPointerFunctionsCopyIn API_AVAILABLE(macos(10.5), ios(6.0), watchos(2.0), tvos(9.0)) = (1UL << 16),      // the memory acquire function will be asked to allocate and copy items on input
 };
 
-NS_CLASS_AVAILABLE(10_5, 6_0)
+API_AVAILABLE(macos(10.5), ios(6.0), watchos(2.0), tvos(9.0))
 @interface NSPointerFunctions : NSObject <NSCopying>
 // construction
 - (instancetype)initWithOptions:(NSPointerFunctionsOptions)options NS_DESIGNATED_INITIALIZER;
@@ -2120,8 +2176,7 @@ NS_ASSUME_NONNULL_END
         }
         return result;
 */
-
-#endif
+#endif // defined __FOUNDATION_NSPOINTERFUNCTIONS__
 
 // ==========  Foundation.framework/Headers/NSException.h
 /*	NSException.h
@@ -2158,12 +2213,14 @@ FOUNDATION_EXPORT NSExceptionName const NSPortReceiveException;
 
 FOUNDATION_EXPORT NSExceptionName const NSOldStyleException;
 
+FOUNDATION_EXPORT NSExceptionName const NSInconsistentArchiveException;
+
 /***************	Exception object	***************/
 
 #if __OBJC2__
 __attribute__((__objc_exception__))
 #endif
-@interface NSException : NSObject <NSCopying, NSCoding> {
+@interface NSException : NSObject <NSCopying, NSSecureCoding> {
     @private
     NSString		*name;
     NSString		*reason;
@@ -2520,6 +2577,11 @@ NS_ASSUME_NONNULL_END
  use of the pipelining option of NSURLSessionConfiguration.  See RFC
  2817 and RFC 6455 for information about the Upgrade: header, and
  comments below on turning data tasks into stream tasks.
+
+ An NSURLSessionWebSocketTask is a task that allows clients to connect to servers supporting
+ WebSocket. The task will perform the HTTP handshake to upgrade the connection
+ and once the WebSocket handshake is successful, the client can read and write
+ messages that will be framed using the WebSocket protocol by the framework.
  */
 
 @class NSURLSession;
@@ -2527,6 +2589,8 @@ NS_ASSUME_NONNULL_END
 @class NSURLSessionUploadTask;              /* UploadTask objects receive periodic progress updates but do not return a body */
 @class NSURLSessionDownloadTask;            /* DownloadTask objects represent an active download to disk.  They can provide resume data when canceled. */
 @class NSURLSessionStreamTask;              /* StreamTask objects may be used to create NSInput and NSOutputStreams, or used directly in reading and writing. */
+@class NSURLSessionWebSocketTask;           /* WebSocket objects perform a WebSocket handshake with the server and can be used to send and receive WebSocket messages */
+
 @class NSURLSessionConfiguration;
 @protocol NSURLSessionDelegate;
 
@@ -2535,22 +2599,11 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-/*
-
- NSURLSession is not available for i386 targets before Mac OS X 10.10.
-
- */
-
-#if __OBJC2__
 #define NSURLSESSION_AVAILABLE	10_9
-#else
-#define NSURLSESSION_AVAILABLE	10_10
-#endif
 
+FOUNDATION_EXPORT const int64_t NSURLSessionTransferSizeUnknown API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));    /* -1LL */
 
-FOUNDATION_EXPORT const int64_t NSURLSessionTransferSizeUnknown NS_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0);    /* -1LL */
-
-NS_CLASS_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0))
 @interface NSURLSession : NSObject
 
 /*
@@ -2638,12 +2691,32 @@ NS_CLASS_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0)
 
 /* Creates a bidirectional stream task to a given host and port.
  */
-- (NSURLSessionStreamTask *)streamTaskWithHostName:(NSString *)hostname port:(NSInteger)port API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) __WATCHOS_PROHIBITED;
+- (NSURLSessionStreamTask *)streamTaskWithHostName:(NSString *)hostname port:(NSInteger)port API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
 
 /* Creates a bidirectional stream task with an NSNetService to identify the endpoint.
  * The NSNetService will be resolved before any IO completes.
  */
-- (NSURLSessionStreamTask *)streamTaskWithNetService:(NSNetService *)service API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) __WATCHOS_PROHIBITED;
+- (NSURLSessionStreamTask *)streamTaskWithNetService:(NSNetService *)service API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) API_UNAVAILABLE(watchos);
+
+/* Creates a WebSocket task given the url. The given url must have a ws or wss scheme.
+ */
+- (NSURLSessionWebSocketTask *)webSocketTaskWithURL:(NSURL *)url API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/* Creates a WebSocket task given the url and an array of protocols. The protocols will be used in the WebSocket handshake to
+ * negotiate a prefered protocol with the server
+ * Note - The protocol will not affect the WebSocket framing. More details on the protocol can be found by reading the WebSocket RFC
+ */
+- (NSURLSessionWebSocketTask *)webSocketTaskWithURL:(NSURL *)url protocols:(NSArray<NSString *>*)protocols API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/* Creates a WebSocket task given the request. The request properties can be modified and will be used by the task during the HTTP handshake phase.
+ * Clients who want to add custom protocols can do so by directly adding headers with the key Sec-WebSocket-Protocol
+ * and a comma separated list of protocols they wish to negotiate with the server. The custom HTTP headers provided by the client will remain unchanged for the handshake with the server.
+ */
+- (NSURLSessionWebSocketTask *)webSocketTaskWithRequest:(NSURLRequest *)request API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+
+- (instancetype)init API_DEPRECATED("Please use +[NSURLSession sessionWithConfiguration:] or other class methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
++ (instancetype)new API_DEPRECATED("Please use +[NSURLSession sessionWithConfiguration:] or other class methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
 
 @end
 
@@ -2691,13 +2764,13 @@ typedef NS_ENUM(NSInteger, NSURLSessionTaskState) {
     NSURLSessionTaskStateSuspended = 1,
     NSURLSessionTaskStateCanceling = 2,                   /* The task has been told to cancel.  The session will receive a URLSession:task:didCompleteWithError: message. */
     NSURLSessionTaskStateCompleted = 3,                   /* The task has completed and the session will receive no more delegate notifications */
-} NS_ENUM_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0);
+} API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /*
  * NSURLSessionTask - a cancelable object that refers to the lifetime
  * of processing a given request.
  */
-NS_CLASS_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0))
 @interface NSURLSessionTask : NSObject <NSCopying, NSProgressReporting>
 
 @property (readonly)                 NSUInteger    taskIdentifier;    /* an identifier for this task, assigned by and unique to the owning session */
@@ -2800,6 +2873,10 @@ NS_CLASS_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0)
  */
 @property float priority API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
+
+- (instancetype)init API_DEPRECATED("Not supported", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
++ (instancetype)new API_DEPRECATED("Not supported", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
 @end
 
 FOUNDATION_EXPORT const float NSURLSessionTaskPriorityDefault API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
@@ -2812,6 +2889,10 @@ FOUNDATION_EXPORT const float NSURLSessionTaskPriorityHigh API_AVAILABLE(macos(1
  * to provide lexical differentiation from download and upload tasks.
  */
 @interface NSURLSessionDataTask : NSURLSessionTask
+
+- (instancetype)init API_DEPRECATED("Please use -[NSURLSession dataTaskWithRequest:] or other NSURLSession methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
++ (instancetype)new API_DEPRECATED("Please use -[NSURLSession dataTaskWithRequest:] or other NSURLSession methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
 @end
 
 /*
@@ -2821,6 +2902,10 @@ FOUNDATION_EXPORT const float NSURLSessionTaskPriorityHigh API_AVAILABLE(macos(1
  * to NSURLSessionUploadTasks.
  */
 @interface NSURLSessionUploadTask : NSURLSessionDataTask
+
+- (instancetype)init API_DEPRECATED("Please use -[NSURLSession uploadTaskWithStreamedRequest:] or other NSURLSession methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
++ (instancetype)new API_DEPRECATED("Please use -[NSURLSession uploadTaskWithStreamedRequest:] or other NSURLSession methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
 @end
 
 /*
@@ -2837,6 +2922,10 @@ FOUNDATION_EXPORT const float NSURLSessionTaskPriorityHigh API_AVAILABLE(macos(1
  * called with nil resumeData.
  */
 - (void)cancelByProducingResumeData:(void (^)(NSData * _Nullable resumeData))completionHandler;
+
+
+- (instancetype)init API_DEPRECATED("Please use -[NSURLSession downloadTaskWithRequest:] or other NSURLSession methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
++ (instancetype)new API_DEPRECATED("Please use -[NSURLSession downloadTaskWithRequest:] or other NSURLSession methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
 
 @end
 
@@ -2863,7 +2952,7 @@ FOUNDATION_EXPORT const float NSURLSessionTaskPriorityHigh API_AVAILABLE(macos(1
  * disassociated from the underlying session.
  */
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface NSURLSessionStreamTask : NSURLSessionTask
 
 /* Read minBytes, or at most maxBytes bytes and invoke the completion
@@ -2912,8 +3001,111 @@ NS_CLASS_AVAILABLE(10_11, 9_0)
 /*
  * Cleanly close a secure connection after all pending secure IO has 
  * completed.
+ *
+ * @warning This API is non-functional.
  */
-- (void)stopSecureConnection;
+- (void)stopSecureConnection API_DEPRECATED("TLS cannot be disabled once it is enabled", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+
+- (instancetype)init API_DEPRECATED("Please use -[NSURLSession streamTaskWithHostName:port:] or other NSURLSession methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
++ (instancetype)new API_DEPRECATED("Please use -[NSURLSession streamTaskWithHostName:port:] or other NSURLSession methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+@end
+
+typedef NS_ENUM(NSInteger, NSURLSessionWebSocketMessageType) {
+    NSURLSessionWebSocketMessageTypeData = 0,
+    NSURLSessionWebSocketMessageTypeString = 1,
+} API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/* The client can create a WebSocket message object that will be passed to the send calls
+ * and will be delivered from the receive calls. The message can be initialized with data or string.
+ * If initialized with data, the string property will be nil and vice versa.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+@interface NSURLSessionWebSocketMessage : NSObject
+
+/* Create a message with data type
+ */
+- (instancetype)initWithData:(NSData *)data NS_DESIGNATED_INITIALIZER;
+
+/* Create a message with string type
+ */
+- (instancetype)initWithString:(NSString *)string NS_DESIGNATED_INITIALIZER;
+
+@property (readonly) NSURLSessionWebSocketMessageType type;
+@property (nullable, readonly, copy) NSData *data;
+@property (nullable, readonly, copy) NSString *string;
+
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@end
+
+/* The WebSocket close codes follow the close codes given in the RFC
+ */
+typedef NS_ENUM(NSInteger, NSURLSessionWebSocketCloseCode)
+{
+    NSURLSessionWebSocketCloseCodeInvalid =                             0,
+    NSURLSessionWebSocketCloseCodeNormalClosure =                    1000,
+    NSURLSessionWebSocketCloseCodeGoingAway =                        1001,
+    NSURLSessionWebSocketCloseCodeProtocolError =                    1002,
+    NSURLSessionWebSocketCloseCodeUnsupportedData =                  1003,
+    NSURLSessionWebSocketCloseCodeNoStatusReceived =                 1005,
+    NSURLSessionWebSocketCloseCodeAbnormalClosure =                  1006,
+    NSURLSessionWebSocketCloseCodeInvalidFramePayloadData =          1007,
+    NSURLSessionWebSocketCloseCodePolicyViolation =                  1008,
+    NSURLSessionWebSocketCloseCodeMessageTooBig =                    1009,
+    NSURLSessionWebSocketCloseCodeMandatoryExtensionMissing =        1010,
+    NSURLSessionWebSocketCloseCodeInternalServerError =              1011,
+    NSURLSessionWebSocketCloseCodeTLSHandshakeFailure =              1015,
+} API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * A WebSocket task can be created with a ws or wss url. A client can also provide
+ * a list of protocols it wishes to advertise during the WebSocket handshake phase.
+ * Once the handshake is successfully completed the client will be notified through an optional delegate.
+ * All reads and writes enqueued before the completion of the handshake will be queued up and
+ * executed once the hanshake succeeds. Before the handshake completes, the client can be called to handle
+ * redirection or authentication using the same delegates as NSURLSessionTask. WebSocket task will also provide
+ * support for cookies and will store cookies to the cookie storage on the session and will attach cookies to
+ * outgoing HTTP handshake requests.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+@interface NSURLSessionWebSocketTask : NSURLSessionTask
+
+/* Sends a WebSocket message. If an error occurs, any outstanding work will also fail.
+ * Note that invocation of the completion handler does not
+ * guarantee that the remote side has received all the bytes, only
+ * that they have been written to the kernel.
+ */
+- (void)sendMessage:(NSURLSessionWebSocketMessage *)message completionHandler:(void (^)(NSError * _Nullable error))completionHandler;
+
+/* Reads a WebSocket message once all the frames of the message are available.
+ * If the maximumMessage size is hit while buffering the frames, the receiveMessage call will error out
+ * and all outstanding work will also fail resulting in the end of the task.
+ */
+- (void)receiveMessageWithCompletionHandler:(void (^)(NSURLSessionWebSocketMessage* _Nullable message, NSError * _Nullable error))completionHandler;
+
+/* Sends a ping frame from the client side. The pongReceiveHandler is invoked when the client
+ * receives a pong from the server endpoint. If a connection is lost or an error occurs before receiving
+ * the pong from the endpoint, the pongReceiveHandler block will be invoked with an error.
+ * Note - the pongReceiveHandler will always be called in the order in which the pings were sent.
+ */
+- (void)sendPingWithPongReceiveHandler:(void (^)(NSError* _Nullable error))pongReceiveHandler;
+
+/* Sends a close frame with the given closeCode. An optional reason can be provided while sending the close frame.
+ * Simply calling cancel on the task will result in a cancellation frame being sent without any reason.
+ */
+- (void)cancelWithCloseCode:(NSURLSessionWebSocketCloseCode)closeCode reason:(NSData * _Nullable)reason;
+
+@property NSInteger maximumMessageSize; /* The maximum number of bytes to be buffered before erroring out. This includes the sum of all bytes from continuation frames. Recieve calls will error out if this value is reached */
+@property (readonly) NSURLSessionWebSocketCloseCode closeCode; /* A task can be queried for it's close code at any point. When the task is not closed, it will be set to NSURLSessionWebSocketCloseCodeInvalid */
+@property (nullable, readonly, copy) NSData *closeReason; /* A task can be queried for it's close reason at any point. A nil value indicates no closeReason or that the task is still running */
+
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 
@@ -2963,7 +3155,7 @@ typedef NS_ENUM(NSInteger, NSURLSessionMultipathServiceType)
  * A background session can be used to perform networking operations
  * on behalf of a suspended application, within certain constraints.
  */
-NS_CLASS_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0))
 @interface NSURLSessionConfiguration : NSObject <NSCopying>
 
 @property (class, readonly, strong) NSURLSessionConfiguration *defaultSessionConfiguration;
@@ -2988,6 +3180,12 @@ NS_CLASS_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0)
 
 /* allow request to route over cellular. */
 @property BOOL allowsCellularAccess;
+
+/* allow request to route over expensive networks.  Defaults to YES. */
+@property BOOL allowsExpensiveNetworkAccess API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/* allow request to route over networks in constrained mode. Defaults to YES. */
+@property BOOL allowsConstrainedNetworkAccess API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
 
 /*
  * Causes tasks to wait for network connectivity to become available, rather
@@ -3074,6 +3272,10 @@ NS_CLASS_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0)
 /* multipath service type to use for connections.  The default is NSURLSessionMultipathServiceTypeNone */
 @property NSURLSessionMultipathServiceType multipathServiceType API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(macos, watchos, tvos);
 
+
+- (instancetype)init API_DEPRECATED("Please use NSURLSessionConfiguration.defaultSessionConfiguration or other class methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
++ (instancetype)new API_DEPRECATED("Please use NSURLSessionConfiguration.defaultSessionConfiguration or other class methods to create instances", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
 @end
 
 /*
@@ -3090,7 +3292,7 @@ typedef NS_ENUM(NSInteger, NSURLSessionAuthChallengeDisposition) {
     NSURLSessionAuthChallengePerformDefaultHandling = 1,                              /* Default handling for the challenge - as if this delegate were not implemented; the credential parameter is ignored. */
     NSURLSessionAuthChallengeCancelAuthenticationChallenge = 2,                       /* The entire request will be canceled; the credential parameter is ignored. */
     NSURLSessionAuthChallengeRejectProtectionSpace = 3,                               /* This challenge is rejected and the next authentication protection space should be tried; the credential parameter is ignored. */
-} NS_ENUM_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0);
+} API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 
 typedef NS_ENUM(NSInteger, NSURLSessionResponseDisposition) {
@@ -3098,7 +3300,7 @@ typedef NS_ENUM(NSInteger, NSURLSessionResponseDisposition) {
     NSURLSessionResponseAllow = 1,                                       /* Allow the load to continue */
     NSURLSessionResponseBecomeDownload = 2,                              /* Turn this request into a download */
     NSURLSessionResponseBecomeStream API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0)) = 3,  /* Turn this task into a stream task */
-} NS_ENUM_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0);
+} API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /*
  * NSURLSessionDelegate specifies the methods that a session delegate
@@ -3372,11 +3574,28 @@ typedef NS_ENUM(NSInteger, NSURLSessionResponseDisposition) {
 
 @end
 
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+@protocol NSURLSessionWebSocketDelegate <NSURLSessionTaskDelegate>
+@optional
+
+/* Indicates that the WebSocket handshake was successful and the connection has been upgraded to webSockets.
+ * It will also provide the protocol that is picked in the handshake. If the handshake fails, this delegate will not be invoked.
+ */
+- (void)URLSession:(NSURLSession *)session webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask didOpenWithProtocol:(NSString * _Nullable) protocol;
+
+/* Indicates that the WebSocket has received a close frame from the server endpoint.
+ * The close code and the close reason may be provided by the delegate if the server elects to send
+ * this information in the close frame
+ */
+- (void)URLSession:(NSURLSession *)session webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask didCloseWithCode:(NSURLSessionWebSocketCloseCode)closeCode reason:(NSData * _Nullable)reason;
+
+@end
+
 /* Key in the userInfo dictionary of an NSError received during a failed download. */
-FOUNDATION_EXPORT NSString * const NSURLSessionDownloadTaskResumeData NS_AVAILABLE(NSURLSESSION_AVAILABLE, 7_0);
+FOUNDATION_EXPORT NSString * const NSURLSessionDownloadTaskResumeData API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 @interface NSURLSessionConfiguration (NSURLSessionDeprecated)
-+ (NSURLSessionConfiguration *)backgroundSessionConfiguration:(NSString *)identifier NS_DEPRECATED(NSURLSESSION_AVAILABLE, 10_10, 7_0, 8_0, "Please use backgroundSessionConfigurationWithIdentifier: instead");
++ (NSURLSessionConfiguration *)backgroundSessionConfiguration:(NSString *)identifier API_DEPRECATED_WITH_REPLACEMENT("-backgroundSessionConfigurationWithIdentifier:", macos(10.9, 10.10), ios(7.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 @end
 
 /*
@@ -3517,9 +3736,117 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0))
  */
 @property (assign, readonly) NSURLSessionTaskMetricsResourceFetchType resourceFetchType;
 
+/*
+ * countOfRequestHeaderBytesSent is the number of bytes transferred for request header.
+ */
+@property (readonly) int64_t countOfRequestHeaderBytesSent API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
 
--(instancetype)init;
+/*
+ * countOfRequestBodyBytesSent is the number of bytes transferred for request body.
+ * It includes protocol-specific framing, transfer encoding, and content encoding.
+ */
+@property (readonly) int64_t countOfRequestBodyBytesSent API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
 
+/*
+ * countOfRequestBodyBytesBeforeEncoding is the size of upload body data, file, or stream.
+ */
+@property (readonly) int64_t countOfRequestBodyBytesBeforeEncoding API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * countOfResponseHeaderBytesReceived is the number of bytes transferred for response header.
+ */
+@property (readonly) int64_t countOfResponseHeaderBytesReceived API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * countOfResponseBodyBytesReceived is the number of bytes transferred for response header.
+ * It includes protocol-specific framing, transfer encoding, and content encoding.
+ */
+@property (readonly) int64_t countOfResponseBodyBytesReceived API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * countOfResponseBodyBytesAfterDecoding is the size of data delivered to your delegate or completion handler.
+ */
+@property (readonly) int64_t countOfResponseBodyBytesAfterDecoding API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * localAddress is the IP address string of the local interface for the connection.
+ *
+ * For multipath protocols, this is the local address of the initial flow.
+ *
+ * If a connection was not used, this attribute is set to nil.
+ */
+@property (nullable, copy, readonly) NSString *localAddress API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * localPort is the port number of the local interface for the connection.
+ *
+ * For multipath protocols, this is the local port of the initial flow.
+ *
+ * If a connection was not used, this attribute is set to nil.
+ */
+@property (nullable, copy, readonly) NSNumber *localPort API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * remoteAddress is the IP address string of the remote interface for the connection.
+ *
+ * For multipath protocols, this is the remote address of the initial flow.
+ *
+ * If a connection was not used, this attribute is set to nil.
+ */
+@property (nullable, copy, readonly) NSString *remoteAddress API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * remotePort is the port number of the remote interface for the connection.
+ *
+ * For multipath protocols, this is the remote port of the initial flow.
+ *
+ * If a connection was not used, this attribute is set to nil.
+ */
+@property (nullable, copy, readonly) NSNumber *remotePort API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * negotiatedTLSProtocolVersion is the TLS protocol version negotiated for the connection.
+ * It is a 2-byte sequence in host byte order.
+ *
+ * Please refer to tls_protocol_version_t enum in Security/SecProtocolTypes.h
+ *
+ * If an encrypted connection was not used, this attribute is set to nil.
+ */
+@property (nullable, copy, readonly) NSNumber *negotiatedTLSProtocolVersion API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * negotiatedTLSCipherSuite is the TLS cipher suite negotiated for the connection.
+ * It is a 2-byte sequence in host byte order.
+ *
+ * Please refer to tls_ciphersuite_t enum in Security/SecProtocolTypes.h
+ *
+ * If an encrypted connection was not used, this attribute is set to nil.
+ */
+@property (nullable, copy, readonly) NSNumber *negotiatedTLSCipherSuite API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * Whether the connection is established over a cellular interface.
+ */
+@property (readonly, getter=isCellular) BOOL cellular API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * Whether the connection is established over an expensive interface.
+ */
+@property (readonly, getter=isExpensive) BOOL expensive API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * Whether the connection is established over a constrained interface.
+ */
+@property (readonly, getter=isConstrained) BOOL constrained API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*
+ * Whether a multipath protocol is successfully negotiated for the connection.
+ */
+@property (readonly, getter=isMultipath) BOOL multipath API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+
+- (instancetype)init API_DEPRECATED("Not supported", macos(10.12,10.15), ios(10.0,13.0), watchos(3.0,6.0), tvos(10.0,13.0));
++ (instancetype)new API_DEPRECATED("Not supported", macos(10.12,10.15), ios(10.0,13.0), watchos(3.0,6.0), tvos(10.0,13.0));
 
 @end
 
@@ -3544,7 +3871,9 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0))
  */
 @property (assign, readonly) NSUInteger redirectCount;
 
--(instancetype)init;
+
+- (instancetype)init API_DEPRECATED("Not supported", macos(10.12,10.15), ios(10.0,13.0), watchos(3.0,6.0), tvos(10.0,13.0));
++ (instancetype)new API_DEPRECATED("Not supported", macos(10.12,10.15), ios(10.0,13.0), watchos(3.0,6.0), tvos(10.0,13.0));
 
 @end
 
@@ -3573,7 +3902,7 @@ typedef double NSTimeInterval;
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithTimeIntervalSinceReferenceDate:(NSTimeInterval)ti NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -3609,6 +3938,8 @@ typedef double NSTimeInterval;
 @property (class, readonly, copy) NSDate *distantFuture;
 @property (class, readonly, copy) NSDate *distantPast;
 
+@property (class, readonly, copy) NSDate *now API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
 - (instancetype)initWithTimeIntervalSinceNow:(NSTimeInterval)secs;
 - (instancetype)initWithTimeIntervalSince1970:(NSTimeInterval)secs;
 - (instancetype)initWithTimeInterval:(NSTimeInterval)secsToBeAdded sinceDate:(NSDate *)date;
@@ -3632,6 +3963,7 @@ NS_ASSUME_NONNULL_END
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSProgress.h>
 #import <sys/qos.h>
 #import <dispatch/dispatch.h>
 
@@ -3646,8 +3978,10 @@ NS_ASSUME_NONNULL_BEGIN
 #define NSOperationQualityOfServiceBackground NSQualityOfServiceBackground
 
 
-NS_CLASS_AVAILABLE(10_5, 2_0)
-@interface NSOperation : NSObject {
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+@interface NSOperation : NSObject
+#if !__OBJC2__
+{
 @private
     id _private;
     int32_t _private1;
@@ -3655,6 +3989,7 @@ NS_CLASS_AVAILABLE(10_5, 2_0)
     int32_t _private1b;
 #endif
 }
+#endif
 
 - (void)start;
 - (void)main;
@@ -3697,12 +4032,15 @@ typedef NS_ENUM(NSInteger, NSOperationQueuePriority) {
 
 
 
-NS_CLASS_AVAILABLE(10_6, 4_0)
-@interface NSBlockOperation : NSOperation {
+API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0))
+@interface NSBlockOperation : NSOperation
+#if !__OBJC2__
+{
 @private
     id _private2;
     void *_reserved2;
 }
+#endif
 
 + (instancetype)blockOperationWithBlock:(void (^)(void))block;
 
@@ -3712,14 +4050,17 @@ NS_CLASS_AVAILABLE(10_6, 4_0)
 @end
 
 
-NS_CLASS_AVAILABLE(10_5, 2_0)
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
 NS_SWIFT_UNAVAILABLE("NSInvocation and related APIs not available")
-@interface NSInvocationOperation : NSOperation {
+@interface NSInvocationOperation : NSOperation
+#if !__OBJC2__
+{
 @private
     id _inv;
     id _exception;
     void *_reserved2;
 }
+#endif
 
 - (nullable instancetype)initWithTarget:(id)target selector:(SEL)sel object:(nullable id)arg;
 - (instancetype)initWithInvocation:(NSInvocation *)inv NS_DESIGNATED_INITIALIZER;
@@ -3735,20 +4076,44 @@ FOUNDATION_EXPORT NSExceptionName const NSInvocationOperationCancelledException 
 
 static const NSInteger NSOperationQueueDefaultMaxConcurrentOperationCount = -1;
 
-NS_CLASS_AVAILABLE(10_5, 2_0)
-@interface NSOperationQueue : NSObject {
+API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))
+@interface NSOperationQueue : NSObject <NSProgressReporting>
+#if !__OBJC2__
+{
 @private
     id _private;
     void *_reserved;
 }
+#endif
+
+/// @property progress
+/// @discussion     The `progress` property represents a total progress of the operations executed in the queue. By default NSOperationQueue
+/// does not report progress until the `totalUnitCount` of the progress is set. When the `totalUnitCount` property of the progress is set the
+/// queue then opts into participating in progress reporting. When enabled, each operation will contribute 1 unit of completion to the
+/// overall progress of the queue for operations that are finished by the end of main (operations that override start and do not invoke super
+/// will not contribute to progress). Special attention to race conditions should be made when updating the `totalUnitCount` of the progress
+/// as well as care should be taken to avoid 'backwards progress'. For example; when a NSOperationQueue's progress is 5/10, representing 50%
+/// completed, and there are 90 more operations about to be added and the `totalUnitCount` that would then make the progress report as 5/100
+/// which represents 5%. In this example it would mean that any progress bar would jump from displaying 50% back to 5%, which might not be
+/// desirable. In the cases where the `totalUnitCount` needs to be adjusted it is suggested to do this for thread-safety in a barrier by
+/// using the `addBarrierBlock:` API. This ensures that no un-expected execution state occurs adjusting into a potentially backwards moving
+/// progress scenario.
+///
+/// @example
+/// NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+/// queue.progress.totalUnitCount = 10;
+@property (readonly, strong) NSProgress *progress API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
 
 - (void)addOperation:(NSOperation *)op;
 - (void)addOperations:(NSArray<NSOperation *> *)ops waitUntilFinished:(BOOL)wait API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
-
 - (void)addOperationWithBlock:(void (^)(void))block API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
-@property (readonly, copy) NSArray<__kindof NSOperation *> *operations;
-@property (readonly) NSUInteger operationCount API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+/// @method addBarrierBlock:
+/// @param barrier      A block to execute
+/// @discussion         The `addBarrierBlock:` method executes the block when the NSOperationQueue has finished all enqueued operations and
+/// prevents any subsequent operations to be executed until the barrier has been completed. This acts similarly to the
+/// `dispatch_barrier_async` function.
+- (void)addBarrierBlock:(void (^)(void))barrier API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
 
 @property NSInteger maxConcurrentOperationCount;
 
@@ -3766,6 +4131,16 @@ NS_CLASS_AVAILABLE(10_5, 2_0)
 
 @property (class, readonly, strong, nullable) NSOperationQueue *currentQueue API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 @property (class, readonly, strong) NSOperationQueue *mainQueue API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+
+@end
+
+@interface NSOperationQueue (NSDeprecated)
+
+// These two functions are inherently a race condition and should be avoided if possible
+
+@property (readonly, copy) NSArray<__kindof NSOperation *> *operations API_DEPRECATED("access to operations is inherently a race condition, it should not be used. For barrier style behaviors please use addBarrierBlock: instead", macos(10.5, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+
+@property (readonly) NSUInteger operationCount API_DEPRECATED_WITH_REPLACEMENT("progress.completedUnitCount", macos(10.6, API_TO_BE_DEPRECATED), ios(4.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
 
 @end
 
@@ -4086,7 +4461,7 @@ typedef NS_OPTIONS(NSUInteger, NSNetServiceOptions) {
 
 #pragma mark -
 
-__WATCHOS_PROHIBITED
+API_UNAVAILABLE(watchos)
 @interface NSNetService : NSObject {
 @private
     id _netService;
@@ -4199,7 +4574,7 @@ If publish: is called on an NSNetService instance initialized with this method, 
 
 #pragma mark -
 
-__WATCHOS_PROHIBITED
+API_UNAVAILABLE(watchos)
 @interface NSNetServiceBrowser : NSObject {
 @private
     id _netServiceBrowser;
@@ -4242,7 +4617,7 @@ __WATCHOS_PROHIBITED
 
 #pragma mark -
 
-__WATCHOS_PROHIBITED
+API_UNAVAILABLE(watchos)
 @protocol NSNetServiceDelegate <NSObject>
 @optional
 
@@ -4295,7 +4670,7 @@ __WATCHOS_PROHIBITED
 
 #pragma mark -
 
-__WATCHOS_PROHIBITED
+API_UNAVAILABLE(watchos)
 @protocol NSNetServiceBrowserDelegate <NSObject>
 @optional
 
@@ -4403,7 +4778,7 @@ NS_ASSUME_NONNULL_BEGIN
     @constant NSURLRequestReloadIgnoringLocalAndRemoteCacheData Specifies that
     not only should the local cache data be ignored, but that proxies and
     other intermediates should be instructed to disregard their caches
-    so far as the protocol allows.  Unimplemented.
+    so far as the protocol allows.
 
     @constant NSURLRequestReloadIgnoringCacheData Older name for
     NSURLRequestReloadIgnoringLocalCacheData.
@@ -4425,20 +4800,20 @@ NS_ASSUME_NONNULL_BEGIN
     @constant NSURLRequestReloadRevalidatingCacheData Specifies that
     the existing cache data may be used provided the origin source
     confirms its validity, otherwise the URL is loaded from the
-    origin source.  Unimplemented.
+    origin source.
 */
 typedef NS_ENUM(NSUInteger, NSURLRequestCachePolicy)
 {
     NSURLRequestUseProtocolCachePolicy = 0,
 
     NSURLRequestReloadIgnoringLocalCacheData = 1,
-    NSURLRequestReloadIgnoringLocalAndRemoteCacheData = 4, // Unimplemented
+    NSURLRequestReloadIgnoringLocalAndRemoteCacheData = 4,
     NSURLRequestReloadIgnoringCacheData = NSURLRequestReloadIgnoringLocalCacheData,
 
     NSURLRequestReturnCacheDataElseLoad = 2,
     NSURLRequestReturnCacheDataDontLoad = 3,
 
-    NSURLRequestReloadRevalidatingCacheData = 5, // Unimplemented
+    NSURLRequestReloadRevalidatingCacheData = 5,
 };
 
 /*!
@@ -4465,16 +4840,22 @@ typedef NS_ENUM(NSUInteger, NSURLRequestCachePolicy)
 
  @constant NSURLNetworkServiceTypeResponsiveData Specifies that the request is for responsive (time sensitive) data.
 
+ @constant NSURLNetworkServiceTypeAVStreaming Specifies that the request is streaming audio/video data.
+
+ @constant NSURLNetworkServiceTypeResponsiveAV Specifies that the request is for responsive (time sensitive) audio/video data.
+
  @constant NSURLNetworkServiceTypeCallSignaling Specifies that the request is for call signaling.
 */
 typedef NS_ENUM(NSUInteger, NSURLRequestNetworkServiceType)
 {
     NSURLNetworkServiceTypeDefault = 0,	// Standard internet traffic
-    NSURLNetworkServiceTypeVoIP = 1,	// Voice over IP control traffic
+    NSURLNetworkServiceTypeVoIP API_DEPRECATED("Use PushKit for VoIP control purposes", macos(10.7,10.15), ios(4.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0)) = 1,	// Voice over IP control traffic
     NSURLNetworkServiceTypeVideo = 2,	// Video traffic
     NSURLNetworkServiceTypeBackground = 3, // Background traffic
     NSURLNetworkServiceTypeVoice = 4,	   // Voice data
     NSURLNetworkServiceTypeResponsiveData = 6, // Responsive data
+    NSURLNetworkServiceTypeAVStreaming API_AVAILABLE(macosx(10.9), ios(7.0), watchos(2.0), tvos(9.0)) = 8 , // Multimedia Audio/Video Streaming
+    NSURLNetworkServiceTypeResponsiveAV API_AVAILABLE(macosx(10.9), ios(7.0), watchos(2.0), tvos(9.0)) = 9, // Responsive Multimedia Audio/Video
     NSURLNetworkServiceTypeCallSignaling API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) = 11, // Call Signaling
 };
 
@@ -4931,7 +5312,7 @@ typedef NS_ENUM(NSUInteger, NSExpressionType) {
 
 };
 
-NS_CLASS_AVAILABLE(10_4, 3_0)
+API_AVAILABLE(macos(10.4), ios(3.0), watchos(2.0), tvos(9.0))
 @interface NSExpression : NSObject <NSSecureCoding, NSCopying> {
     @package
     struct _expressionFlags {
@@ -4979,8 +5360,9 @@ NS_CLASS_AVAILABLE(10_4, 3_0)
     // abs:              one NSExpression instance representing a number	NSNumber
     // trunc:            one NSExpression instance representing a number	NSNumber
     // uppercase:	 one NSExpression instance representing a string	NSString
-    // lowercase:	 one NSExpression instance representing a string	NSString
-    // random            none							NSNumber (integer) 
+    // lowercase:        one NSExpression instance representing a string    NSString
+    // canonical:        one NSExpression instance representing a string    NSString
+    // random            none							NSNumber (integer)
     // randomn:          one NSExpression instance representing a number	NSNumber (integer) such that 0 <= rand < param
     // now               none							[NSDate now]
     // bitwiseAnd:with:	 two NSExpression instances representing numbers	NSNumber    (numbers will be treated as NSInteger)
@@ -5057,7 +5439,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, readonly, copy) NSDictionary *userInfo;
 
 - (instancetype)initWithName:(NSNotificationName)name object:(nullable id)object userInfo:(nullable NSDictionary *)userInfo API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -5066,7 +5448,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)notificationWithName:(NSNotificationName)aName object:(nullable id)anObject;
 + (instancetype)notificationWithName:(NSNotificationName)aName object:(nullable id)anObject userInfo:(nullable NSDictionary *)aUserInfo;
 
-- (instancetype)init /*NS_UNAVAILABLE*/;	/* do not invoke; not a valid initializer for this class */
+- (instancetype)init /*API_UNAVAILABLE(macos, ios, watchos, tvos)*/;	/* do not invoke; not a valid initializer for this class */
 
 @end
 
@@ -5146,7 +5528,7 @@ typedef NS_ENUM(NSInteger, NSDecodingFailurePolicy) {
 - (void)decodeArrayOfObjCType:(const char *)itemType count:(NSUInteger)count at:(void *)array;
 - (nullable void *)decodeBytesWithReturnedLength:(NSUInteger *)lengthp NS_RETURNS_INNER_POINTER;
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 - (void)encodePropertyList:(id)aPropertyList;
 - (nullable id)decodePropertyList;
 #endif
@@ -5187,7 +5569,7 @@ typedef NS_ENUM(NSInteger, NSDecodingFailurePolicy) {
 
 // Specify what the expected class of the allocated object is. If the coder responds YES to -requiresSecureCoding, then an exception will be thrown if the class to be decoded does not implement NSSecureCoding or is not isKindOfClass: of the argument. If the coder responds NO to -requiresSecureCoding, then the class argument is ignored and no check of the class of the decoded object is performed, exactly as if decodeObjectForKey: had been called.
 - (nullable id)decodeObjectOfClass:(Class)aClass forKey:(NSString *)key API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
-- (nullable id)decodeTopLevelObjectOfClass:(Class)aClass forKey:(NSString *)key error:(NSError **)error API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0)) NS_SWIFT_UNAVAILABLE("Use 'decodeTopLevelObjectOfClass(_:,forKey:) throws instead");
+- (nullable id)decodeTopLevelObjectOfClass:(Class)aClass forKey:(NSString *)key error:(NSError **)error API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0)) NS_SWIFT_UNAVAILABLE("Use 'decodeTopLevelObjectOfClass(_:,forKey:) throws' instead");
 
 // The class of the object may be any class in the provided NSSet, or a subclass of any class in the set. Otherwise, the behavior is the same as -decodeObjectOfClass:forKey:.
 - (nullable id)decodeObjectOfClasses:(nullable NSSet<Class> *)classes forKey:(NSString *)key API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0)) NS_REFINED_FOR_SWIFT;
@@ -5254,7 +5636,7 @@ typedef NS_ENUM(NSInteger, NSDecodingFailurePolicy) {
 
 @end
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 FOUNDATION_EXPORT NSObject * _Nullable NXReadNSObjectFromCoder(NSCoder *decoder) API_DEPRECATED("Not supported", macos(10.0,10.5), ios(2.0,2.0), watchos(2.0,2.0), tvos(9.0,9.0));
 /* Given an NSCoder, returns an object previously written with
    NXWriteNSObject(). The returned object is autoreleased. */
@@ -5284,7 +5666,7 @@ FOUNDATION_EXPORT NSObject * _Nullable NXReadNSObjectFromCoder(NSCoder *decoder)
 @interface NSCoder(NSDeprecated)
 /* This method is unsafe because it could potentially cause buffer overruns. You should use -decodeValueOfObjCType:at:size: instead.
  */
-- (void)decodeValueOfObjCType:(const char *)type at:(void *)data;
+- (void)decodeValueOfObjCType:(const char *)type at:(void *)data API_DEPRECATED_WITH_REPLACEMENT("decodeValueOfObjCType:at:size:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
 
 @end
 
@@ -5385,8 +5767,8 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0))
 
 @property (readonly, copy) NSString *symbol;
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init API_UNAVAILABLE(macos, ios, watchos, tvos);
++ (instancetype)new API_UNAVAILABLE(macos, ios, watchos, tvos);
 
 - (instancetype)initWithSymbol:(NSString *)symbol NS_DESIGNATED_INITIALIZER;
 
@@ -5496,9 +5878,13 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0))
  Base unit - seconds
  */
 
-@property (class, readonly, copy) NSUnitDuration *seconds;
-@property (class, readonly, copy) NSUnitDuration *minutes;
 @property (class, readonly, copy) NSUnitDuration *hours;
+@property (class, readonly, copy) NSUnitDuration *minutes;
+@property (class, readonly, copy) NSUnitDuration *seconds;
+@property (class, readonly, copy) NSUnitDuration *milliseconds API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+@property (class, readonly, copy) NSUnitDuration *microseconds API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+@property (class, readonly, copy) NSUnitDuration *nanoseconds API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+@property (class, readonly, copy) NSUnitDuration *picoseconds API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
 
 @end
 
@@ -5588,6 +5974,9 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0))
 @property (class, readonly, copy) NSUnitFrequency *microhertz;
 @property (class, readonly, copy) NSUnitFrequency *nanohertz;
 
+// 1 FPS ≡ 1 Hertz
+@property (class, readonly, copy) NSUnitFrequency *framesPerSecond API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
 @end
 
 API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0))
@@ -5599,6 +5988,65 @@ API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0))
 @property (class, readonly, copy) NSUnitFuelEfficiency *litersPer100Kilometers;
 @property (class, readonly, copy) NSUnitFuelEfficiency *milesPerImperialGallon;
 @property (class, readonly, copy) NSUnitFuelEfficiency *milesPerGallon;
+
+@end
+
+/*
+ A dimension for representing amounts of digital information.
+ Base Unit: Byte
+
+ The values of the below follow IEC 80000-13 definitions and conventions.
+ */
+API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0))
+NS_SWIFT_NAME(UnitInformationStorage)
+@interface NSUnitInformationStorage : NSDimension <NSSecureCoding>
+
+// Bytes are defined by IEC 80000-13: one byte is 8 bits.
+@property (readonly, class, copy) NSUnitInformationStorage *bytes;
+
+// One byte is 8 bits; one nibble is 4 bits.
+@property (readonly, class, copy) NSUnitInformationStorage *bits;
+@property (readonly, class, copy) NSUnitInformationStorage *nibbles;
+
+// SI-prefixed units (i.e. base 10):
+// 1 kilobyte = 1000¹ bytes; 1 megabyte = 1000² bytes; etc.
+@property (readonly, class, copy) NSUnitInformationStorage *yottabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *zettabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *exabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *petabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *terabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *gigabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *megabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *kilobytes;
+
+@property (readonly, class, copy) NSUnitInformationStorage *yottabits;
+@property (readonly, class, copy) NSUnitInformationStorage *zettabits;
+@property (readonly, class, copy) NSUnitInformationStorage *exabits;
+@property (readonly, class, copy) NSUnitInformationStorage *petabits;
+@property (readonly, class, copy) NSUnitInformationStorage *terabits;
+@property (readonly, class, copy) NSUnitInformationStorage *gigabits;
+@property (readonly, class, copy) NSUnitInformationStorage *megabits;
+@property (readonly, class, copy) NSUnitInformationStorage *kilobits;
+
+// IEC-prefixed units (i.e. base 2):
+// 1 kibibyte = 1024¹ bytes; 1 mebibyte = 1024² bytes; etc.
+@property (readonly, class, copy) NSUnitInformationStorage *yobibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *zebibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *exbibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *pebibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *tebibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *gibibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *mebibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *kibibytes;
+
+@property (readonly, class, copy) NSUnitInformationStorage *yobibits;
+@property (readonly, class, copy) NSUnitInformationStorage *zebibits;
+@property (readonly, class, copy) NSUnitInformationStorage *exbibits;
+@property (readonly, class, copy) NSUnitInformationStorage *pebibits;
+@property (readonly, class, copy) NSUnitInformationStorage *tebibits;
+@property (readonly, class, copy) NSUnitInformationStorage *gibibits;
+@property (readonly, class, copy) NSUnitInformationStorage *mebibits;
+@property (readonly, class, copy) NSUnitInformationStorage *kibibits;
 
 @end
 
@@ -5793,12 +6241,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable ObjectType)objectForKey:(KeyType)aKey;
 - (NSEnumerator<KeyType> *)keyEnumerator;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
-#if TARGET_OS_WIN32
-- (instancetype)initWithObjects:(const ObjectType _Nonnull [_Nullable])objects forKeys:(const KeyType _Nonnull [_Nullable])keys count:(NSUInteger)cnt;
-#else
 - (instancetype)initWithObjects:(const ObjectType _Nonnull [_Nullable])objects forKeys:(const KeyType <NSCopying> _Nonnull [_Nullable])keys count:(NSUInteger)cnt NS_DESIGNATED_INITIALIZER;
-#endif
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -5841,24 +6285,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getObjects:(ObjectType _Nonnull __unsafe_unretained [_Nullable])objects andKeys:(KeyType _Nonnull __unsafe_unretained [_Nullable])keys  NS_SWIFT_UNAVAILABLE("Use 'allKeys' and/or 'allValues' instead")  API_DEPRECATED("Use -getObjects:andKeys:count: instead", macos(10.0, 10.13), ios(2.0, 11.0), watchos(2.0, 4.0), tvos(9.0, 11.0));
 
 /* These methods are deprecated, and will be marked with API_DEPRECATED in a subsequent release. Use the variants that use errors instead. */
-+ (nullable NSDictionary<KeyType, ObjectType> *)dictionaryWithContentsOfFile:(NSString *)path;
-+ (nullable NSDictionary<KeyType, ObjectType> *)dictionaryWithContentsOfURL:(NSURL *)url;
-- (nullable NSDictionary<KeyType, ObjectType> *)initWithContentsOfFile:(NSString *)path;
-- (nullable NSDictionary<KeyType, ObjectType> *)initWithContentsOfURL:(NSURL *)url;
++ (nullable NSDictionary<KeyType, ObjectType> *)dictionaryWithContentsOfFile:(NSString *)path API_DEPRECATED_WITH_REPLACEMENT("dictionaryWithContentsOfURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
++ (nullable NSDictionary<KeyType, ObjectType> *)dictionaryWithContentsOfURL:(NSURL *)url API_DEPRECATED_WITH_REPLACEMENT("dictionaryWithContentsOfURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+- (nullable NSDictionary<KeyType, ObjectType> *)initWithContentsOfFile:(NSString *)path API_DEPRECATED_WITH_REPLACEMENT("initWithContentsOfURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+- (nullable NSDictionary<KeyType, ObjectType> *)initWithContentsOfURL:(NSURL *)url API_DEPRECATED_WITH_REPLACEMENT("initWithContentsOfURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
 
-- (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile;
-- (BOOL)writeToURL:(NSURL *)url atomically:(BOOL)atomically; // the atomically flag is ignored if url of a type that cannot be written atomically.
+- (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile API_DEPRECATED_WITH_REPLACEMENT("writeToURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+- (BOOL)writeToURL:(NSURL *)url atomically:(BOOL)atomically API_DEPRECATED_WITH_REPLACEMENT("writeToURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)); // the atomically flag is ignored if url of a type that cannot be written atomically.
 @end
 
 @interface NSDictionary<KeyType, ObjectType> (NSDictionaryCreation)
 
 + (instancetype)dictionary;
 + (instancetype)dictionaryWithObject:(ObjectType)object forKey:(KeyType <NSCopying>)key;
-#if TARGET_OS_WIN32
-+ (instancetype)dictionaryWithObjects:(const ObjectType _Nonnull [_Nullable])objects forKeys:(const KeyType _Nonnull [_Nullable])keys count:(NSUInteger)cnt;
-#else
 + (instancetype)dictionaryWithObjects:(const ObjectType _Nonnull [_Nullable])objects forKeys:(const KeyType <NSCopying> _Nonnull [_Nullable])keys count:(NSUInteger)cnt;
-#endif
 
 + (instancetype)dictionaryWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION NS_SWIFT_UNAVAILABLE("Use dictionary literals instead");
 
@@ -5886,7 +6326,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setObject:(ObjectType)anObject forKey:(KeyType <NSCopying>)aKey;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithCapacity:(NSUInteger)numItems NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -5952,12 +6392,15 @@ NS_ASSUME_NONNULL_END
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_UNAVAILABLE("NSInvocation and related APIs not available")
-@interface NSMethodSignature : NSObject {
+@interface NSMethodSignature : NSObject
+#if !__OBJC2__
+{
 @private
     void *_private;
     void *_reserved[5];
     unsigned long _flags;
 }
+#endif
 
 + (nullable NSMethodSignature *)signatureWithObjCTypes:(const char *)types;
 
@@ -5980,6 +6423,7 @@ NS_ASSUME_NONNULL_END
 */
 
 #import <Foundation/NSFormatter.h>
+#import <Foundation/NSMeasurement.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -6011,7 +6455,7 @@ typedef NS_ENUM(NSInteger, NSByteCountFormatterCountStyle) {
 };
 
 
-NS_CLASS_AVAILABLE(10_8, 6_0)
+API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0))
 @interface NSByteCountFormatter : NSFormatter {
     @private
     unsigned int _allowedUnits;
@@ -6028,6 +6472,26 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 /* Convenience method on stringForObjectValue:. Convert a byte count into a string without creating an NSNumber.
  */
 - (NSString *)stringFromByteCount:(long long)byteCount;
+
+/* Formats the value of the given measurement using the given `countStyle`.
+
+   Throws an exception if the given measurement's unit does not belong to the `NSUnitInformationStorage` dimension.
+ */
++ (NSString *)stringFromMeasurement:(NSMeasurement<NSUnitInformationStorage *> *)measurement countStyle:(NSByteCountFormatterCountStyle)countStyle API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/* Formats the value of the given measurement using the receiver's `countStyle`.
+   Converts the measurement to the units allowed by the receiver's `allowedUnits` before formatting; depending on the value of the measurement, this may result in a string which implies an approximate value (e.g. if the measurement is too large to represent in `allowedUnits`, like `1e20 YB` expressed in `NSByteCountFormatterUseBytes`).
+
+   Throws an exception if the given measurement's unit does not belong to the `NSUnitInformationStorage` dimension.
+ */
+- (NSString *)stringFromMeasurement:(NSMeasurement<NSUnitInformationStorage *> *)measurement API_AVAILABLE(macos(10.15), ios(13.0), tvos(13.0), watchos(6.0));
+
+/* Formats `obj` as a byte count (if `obj` is an `NSNumber`) or specific byte measurement (if `obj` is an `NSMeasurement`) using the receiver's settings.
+
+   Returns `nil` if `obj` is not of the correct class (`NSNumber` or `NSMeasurement`).
+   Throws an exception if `obj` is an `NSMeasurement` whose unit does not belong to the `NSUnitInformationStorage` dimension.
+ */
+- (nullable NSString *)stringForObjectValue:(nullable id)obj;
     
 /* Specify the units that can be used in the output. If NSByteCountFormatterUseDefault, uses platform-appropriate settings; otherwise will only use the specified units. This is the default value. Note that ZB and YB cannot be covered by the range of possible values, but you can still choose to use these units to get fractional display ("0.0035 ZB" for instance).
  */
@@ -6112,7 +6576,7 @@ typedef NS_ENUM(NSInteger, NSLengthFormatterUnit) {
     NSLengthFormatterUnitMile = (5 << 8) + 4,
 } API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @interface NSLengthFormatter : NSFormatter {
 @private
     void *_formatter;
@@ -6149,7 +6613,7 @@ NS_ASSUME_NONNULL_END
 #include <TargetConditionals.h>
 #include <Availability.h>
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+#if TARGET_OS_OSX || TARGET_OS_IPHONE
 #include <objc/NSObjCRuntime.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -6163,20 +6627,8 @@ NS_ASSUME_NONNULL_END
 #define FOUNDATION_EXTERN extern
 #endif
 
-#if TARGET_OS_WIN32
-
-    #if defined(NSBUILDINGFOUNDATION)
-        #define FOUNDATION_EXPORT FOUNDATION_EXTERN __declspec(dllexport)
-    #else
-        #define FOUNDATION_EXPORT FOUNDATION_EXTERN __declspec(dllimport)
-    #endif
-
-    #define FOUNDATION_IMPORT FOUNDATION_EXTERN __declspec(dllimport)
-
-#else
-    #define FOUNDATION_EXPORT  FOUNDATION_EXTERN
-    #define FOUNDATION_IMPORT FOUNDATION_EXTERN
-#endif
+#define FOUNDATION_EXPORT FOUNDATION_EXTERN
+#define FOUNDATION_IMPORT FOUNDATION_EXTERN
 
 #if !defined(NS_INLINE)
     #if defined(__GNUC__)
@@ -6185,8 +6637,6 @@ NS_ASSUME_NONNULL_END
         #define NS_INLINE static inline
     #elif defined(_MSC_VER)
         #define NS_INLINE static __inline
-    #elif TARGET_OS_WIN32
-        #define NS_INLINE static __inline__
     #endif
 #endif
 
@@ -6199,14 +6649,10 @@ NS_ASSUME_NONNULL_END
 #endif
 
 #if !defined(NS_REQUIRES_NIL_TERMINATION)
-    #if TARGET_OS_WIN32
-        #define NS_REQUIRES_NIL_TERMINATION
+    #if defined(__APPLE_CC__) && (__APPLE_CC__ >= 5549)
+        #define NS_REQUIRES_NIL_TERMINATION __attribute__((sentinel(0,1)))
     #else
-        #if defined(__APPLE_CC__) && (__APPLE_CC__ >= 5549)
-            #define NS_REQUIRES_NIL_TERMINATION __attribute__((sentinel(0,1)))
-        #else
-            #define NS_REQUIRES_NIL_TERMINATION __attribute__((sentinel))
-        #endif
+        #define NS_REQUIRES_NIL_TERMINATION __attribute__((sentinel))
     #endif
 #endif
 
@@ -6219,14 +6665,28 @@ NS_ASSUME_NONNULL_END
 #endif
 
 // Marks APIs whose iOS versions are nonatomic, that is cannot be set/get from multiple threads safely without additional synchronization
-#if !defined(NS_NONATOMIC_IOSONLY)
-    #if TARGET_OS_IPHONE
-	#define NS_NONATOMIC_IOSONLY nonatomic
-    #else
-        #if __has_feature(objc_property_explicit_atomic)
-            #define NS_NONATOMIC_IOSONLY atomic
+#if __clang_tapi__
+    #if !defined(NS_NONATOMIC_IOSONLY)
+        #if TARGET_OS_OSX || TARGET_OS_UIKITFORMAC
+            #if __has_feature(objc_property_explicit_atomic)
+                #define NS_NONATOMIC_IOSONLY atomic
+            #else
+                #define NS_NONATOMIC_IOSONLY
+            #endif
         #else
-            #define NS_NONATOMIC_IOSONLY
+            #define NS_NONATOMIC_IOSONLY nonatomic
+        #endif
+    #endif
+#else
+    #if !defined(NS_NONATOMIC_IOSONLY)
+        #if TARGET_OS_IPHONE
+            #define NS_NONATOMIC_IOSONLY nonatomic
+        #else
+            #if __has_feature(objc_property_explicit_atomic)
+                #define NS_NONATOMIC_IOSONLY atomic
+            #else
+                #define NS_NONATOMIC_IOSONLY
+            #endif
         #endif
     #endif
 #endif
@@ -6238,7 +6698,7 @@ NS_ASSUME_NONNULL_END
 
 // Marks APIs which format strings by taking a format string and optional varargs as arguments
 #if !defined(NS_FORMAT_FUNCTION)
-    #if (__GNUC__*10+__GNUC_MINOR__ >= 42) && (TARGET_OS_MAC || TARGET_OS_EMBEDDED)
+    #if (__GNUC__*10+__GNUC_MINOR__ >= 42)
 	#define NS_FORMAT_FUNCTION(F,A) __attribute__((format(__NSString__, F, A)))
     #else
 	#define NS_FORMAT_FUNCTION(F,A)
@@ -6387,13 +6847,6 @@ NS_ASSUME_NONNULL_END
 #define __unsafe_unretained
 #endif
 
-#if TARGET_OS_WIN32
-#import <objc/objc.h>
-#include <stdarg.h>
-#include <stdint.h>
-#include <limits.h>
-#endif
-
 #include <CoreFoundation/CFAvailability.h>
 
 #define NS_AVAILABLE(_mac, _ios) CF_AVAILABLE(_mac, _ios)
@@ -6518,6 +6971,8 @@ Usually, this is because the enum represents a mathematically complete set. For 
 #define NS_SWIFT_NOTHROW
 #endif
 
+#define NS_WARN_UNUSED_RESULT CF_WARN_UNUSED_RESULT
+
 // There is no need to use this macro any longer, the last Foundation epoch 
 // was 8 and that is now assumed to be the final version. 
 #define FOUNDATION_SWIFT_SDK_EPOCH_AT_LEAST(__epoch__) (!defined(SWIFT_CLASS_EXTRA))
@@ -6640,17 +7095,6 @@ FOUNDATION_EXPORT double NSFoundationVersionNumber;
 #define NSFoundationVersionNumber_iOS_9_3 1242.12
 #define NSFoundationVersionNumber_iOS_9_4 1280.25
 #define NSFoundationVersionNumber_iOS_9_x_Max 1299
-#endif
-
-#if TARGET_OS_WIN32
-typedef long NSInteger;
-typedef unsigned long NSUInteger;
-
-#define NSIntegerMax    LONG_MAX
-#define NSIntegerMin    LONG_MIN
-#define NSUIntegerMax   ULONG_MAX
-
-#define NSINTEGER_DEFINED 1
 #endif
 
 @class NSString, Protocol;
@@ -6791,10 +7235,17 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
+// Some of these API are deprecated in Swift only. They remain available in Objective-C.
+#if defined(__swift__)
+#define _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT(...) API_DEPRECATED_WITH_REPLACEMENT(__VA_ARGS__)
+#else
+#define _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT(...)
+#endif
+
 @interface NSScanner : NSObject <NSCopying>
 
 @property (readonly, copy) NSString *string;
-@property NSUInteger scanLocation;
+@property NSUInteger scanLocation _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("currentIndex", macos(10.0,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
 @property (nullable, copy) NSCharacterSet *charactersToBeSkipped;
 @property BOOL caseSensitive;
 @property (nullable, retain) id locale;
@@ -6806,22 +7257,37 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NSScanner (NSExtendedScanner)
 
 // On overflow, the below methods will return success and clamp
-- (BOOL)scanInt:(nullable int *)result;
-- (BOOL)scanInteger:(nullable NSInteger *)result API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+- (BOOL)scanInt:(nullable int *)result _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanInt()", macos(10.0,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+- (BOOL)scanInteger:(nullable NSInteger *)result API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanInt()", macos(10.5,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
 - (BOOL)scanLongLong:(nullable long long *)result;
-- (BOOL)scanUnsignedLongLong:(nullable unsigned long long *)result API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
-- (BOOL)scanFloat:(nullable float *)result;
-- (BOOL)scanDouble:(nullable double *)result;
-- (BOOL)scanHexInt:(nullable unsigned *)result;                                          // Optionally prefixed with "0x" or "0X"
-- (BOOL)scanHexLongLong:(nullable unsigned long long *)result API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));   // Optionally prefixed with "0x" or "0X"
-- (BOOL)scanHexFloat:(nullable float *)result API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));                   // Corresponding to %a or %A formatting. Requires "0x" or "0X" prefix.
-- (BOOL)scanHexDouble:(nullable double *)result API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));                 // Corresponding to %a or %A formatting. Requires "0x" or "0X" prefix.
 
-- (BOOL)scanString:(NSString *)string intoString:(NSString * _Nullable * _Nullable)result;
-- (BOOL)scanCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * _Nullable * _Nullable)result;
+- (BOOL)scanUnsignedLongLong:(nullable unsigned long long *)result API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0)) _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanUnsignedLongLong()", macos(10.9,10.15), ios(7.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
 
-- (BOOL)scanUpToString:(NSString *)string intoString:(NSString * _Nullable * _Nullable)result;
-- (BOOL)scanUpToCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * _Nullable * _Nullable)result;
+- (BOOL)scanFloat:(nullable float *)result _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanFloat()", macos(10.0,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+- (BOOL)scanDouble:(nullable double *)result _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanDouble()", macos(10.0,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+- (BOOL)scanHexInt:(nullable unsigned *)result                                                                                 // Optionally prefixed with "0x" or "0X"
+    _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanHexInt()", macos(10.0,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+- (BOOL)scanHexLongLong:(nullable unsigned long long *)result API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))    // Optionally prefixed with "0x" or "0X"
+    _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanHexLongLong()", macos(10.5,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+- (BOOL)scanHexFloat:(nullable float *)result API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))                    // Corresponding to %a or %A formatting. Requires "0x" or "0X" prefix.
+    _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanHexFloat()", macos(10.5,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+- (BOOL)scanHexDouble:(nullable double *)result API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0))                  // Corresponding to %a or %A formatting. Requires "0x" or "0X" prefix.
+    _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanHexDouble()", macos(10.5,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+- (BOOL)scanString:(NSString *)string intoString:(NSString * _Nullable * _Nullable)result _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanString(_:)", macos(10.0,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+- (BOOL)scanCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * _Nullable * _Nullable)result _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanCharacters(from:)", macos(10.0,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+- (BOOL)scanUpToString:(NSString *)string intoString:(NSString * _Nullable * _Nullable)result _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanUpTo(_:)", macos(10.0,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
+
+- (BOOL)scanUpToCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * _Nullable * _Nullable)result _NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT("scanUpToCharacters(from:)", macos(10.0,10.15), ios(2.0,13.0), watchos(2.0,6.0), tvos(9.0,13.0));
 
 @property (getter=isAtEnd, readonly) BOOL atEnd;
 
@@ -6861,7 +7327,7 @@ static const NSPointerFunctionsOptions NSMapTableWeakMemory API_AVAILABLE(macos(
 
 typedef NSUInteger NSMapTableOptions;
 
-NS_CLASS_AVAILABLE(10_5, 6_0)
+API_AVAILABLE(macos(10.5), ios(6.0), watchos(2.0), tvos(9.0))
 @interface NSMapTable<KeyType, ObjectType> : NSObject <NSCopying, NSSecureCoding, NSFastEnumeration>
 
 - (instancetype)initWithKeyOptions:(NSPointerFunctionsOptions)keyOptions valueOptions:(NSPointerFunctionsOptions)valueOptions capacity:(NSUInteger)initialCapacity NS_DESIGNATED_INITIALIZER;
@@ -7018,7 +7484,7 @@ typedef NS_ENUM(NSUInteger, NSPredicateOperatorType) {
 
 // Comparison predicates are predicates which do some form of comparison between the results of two expressions and return a BOOL. They take an operator, a left expression, and a right expression, and return the result of invoking the operator with the results of evaluating the expressions.
 
-NS_CLASS_AVAILABLE(10_4, 3_0)
+API_AVAILABLE(macos(10.4), ios(3.0), watchos(2.0), tvos(9.0))
 @interface NSComparisonPredicate : NSPredicate {
     @private
     void *_reserved2;
@@ -7080,7 +7546,7 @@ typedef NS_OPTIONS(NSUInteger, NSFileWrapperWritingOptions) {
 
 } API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
-NS_CLASS_AVAILABLE(10_0, 4_0)
+API_AVAILABLE(macos(10.0), ios(4.0), watchos(2.0), tvos(9.0))
 @interface NSFileWrapper : NSObject<NSSecureCoding> {
     @private
     NSDictionary *_fileAttributes;
@@ -7204,7 +7670,7 @@ Some instances of NSFileWrapper may be created without a preferredFilename (e.g.
 
 @end
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 
 @interface NSFileWrapper(NSDeprecated)
 
@@ -7320,7 +7786,7 @@ typedef NS_ENUM(NSUInteger, NSDateIntervalFormatterStyle) {
 // NSDateIntervalFormatter is used to format the range between two NSDates in a locale-sensitive way.
 // NSDateIntervalFormatter returns nil and NO for all methods in NSFormatter.
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @interface NSDateIntervalFormatter : NSFormatter
 {
 @private
@@ -7744,7 +8210,17 @@ typedef NS_ENUM(NSUInteger, NSURLCacheStoragePolicy)
     @result an initialized NSURLCache, with the given capacity, backed
     by disk.
 */
-- (instancetype)initWithMemoryCapacity:(NSUInteger)memoryCapacity diskCapacity:(NSUInteger)diskCapacity diskPath:(nullable NSString *)path;
+- (instancetype)initWithMemoryCapacity:(NSUInteger)memoryCapacity diskCapacity:(NSUInteger)diskCapacity diskPath:(nullable NSString *)path API_DEPRECATED_WITH_REPLACEMENT("initWithMemoryCapacity:diskCapacity:diskURL:", macos(10.2,API_TO_BE_DEPRECATED), ios(2.0,API_TO_BE_DEPRECATED), watchos(2.0,API_TO_BE_DEPRECATED), tvos(9.0,API_TO_BE_DEPRECATED)) API_UNAVAILABLE(uikitformac);
+
+/*!
+    @method initWithMemoryCapacity:diskCapacity:directoryURL:
+    @abstract Initializes an NSURLCache with the given capacity and directory.
+    @param memoryCapacity the capacity, measured in bytes, for the cache in memory. Or 0 to disable memory cache.
+    @param diskCapacity the capacity, measured in bytes, for the cache on disk. Or 0 to disable disk cache.
+    @param directoryURL the path to a directory on disk where the cache data is stored. Or nil for default directory.
+    @result an initialized NSURLCache, with the given capacity, optionally backed by disk.
+ */
+- (instancetype)initWithMemoryCapacity:(NSUInteger)memoryCapacity diskCapacity:(NSUInteger)diskCapacity directoryURL:(nullable NSURL *)directoryURL API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
 
 /*! 
     @method cachedResponseForRequest:
@@ -7989,6 +8465,18 @@ NS_ASSUME_NONNULL_BEGIN
 */
 @property (readonly, copy) NSDictionary *allHeaderFields;
 
+/*!
+    @method valueForHTTPHeaderField:
+    @abstract Returns the value which corresponds to the given header
+    field. Note that, in keeping with the HTTP RFC, HTTP header field
+    names are case-insensitive.
+    @param field the header field name to use for the lookup
+    (case-insensitive).
+    @result the value associated with the given header field, or nil if
+    there is no value associated with the given header field.
+ */
+- (nullable NSString *)valueForHTTPHeaderField:(NSString *)field API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
 /*! 
     @method localizedStringForStatusCode:
     @abstract Convenience method which returns a localized string
@@ -8016,7 +8504,7 @@ API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 typedef NS_ENUM(NSInteger, NSDateComponentsFormatterUnitsStyle) {
     NSDateComponentsFormatterUnitsStylePositional = 0, // "1:10; may fall back to abbreviated units in some cases, e.g. 3d"
     NSDateComponentsFormatterUnitsStyleAbbreviated, // "1h 10m"
-    NSDateComponentsFormatterUnitsStyleShort, // "1hr, 10min"
+    NSDateComponentsFormatterUnitsStyleShort, // "1 hr, 10 min"
     NSDateComponentsFormatterUnitsStyleFull, // "1 hour, 10 minutes"
     NSDateComponentsFormatterUnitsStyleSpellOut, // "One hour, ten minutes"
     NSDateComponentsFormatterUnitsStyleBrief API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) // "1hr 10min" - Brief is shorter than Short (e.g. in English, it removes the comma)
@@ -8037,7 +8525,7 @@ typedef NS_OPTIONS(NSUInteger, NSDateComponentsFormatterZeroFormattingBehavior) 
 
 /* NSDateComponentsFormatter provides locale-correct and flexible string formatting of quantities of time, such as "1 day" or "1h 10m", as specified by NSDateComponents. For formatting intervals of time (such as "2PM to 5PM"), see NSDateIntervalFormatter. NSDateComponentsFormatter is thread-safe, in that calling methods on it from multiple threads will not cause crashes or incorrect results, but it makes no attempt to prevent confusion when one thread sets something and another thread isn't expecting it to change.
  */
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @interface NSDateComponentsFormatter : NSFormatter {
     @private
     pthread_mutex_t _lock;
@@ -8196,7 +8684,7 @@ enum {
 + (NSCharacterSet *)characterSetWithBitmapRepresentation:(NSData *)data;
 + (nullable NSCharacterSet *)characterSetWithContentsOfFile:(NSString *)fName;
 
-- (instancetype) initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (instancetype) initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 - (BOOL)characterIsMember:(unichar)aCharacter;
 @property (readonly, copy) NSData *bitmapRepresentation;
@@ -8293,7 +8781,7 @@ typedef NS_ENUM(NSUInteger, NSDateFormatterStyle) {    // date and time format s
 
 typedef NS_ENUM(NSUInteger, NSDateFormatterBehavior) {
     NSDateFormatterBehaviorDefault = 0,
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
     NSDateFormatterBehavior10_0 = 1000,
 #endif
     NSDateFormatterBehavior10_4 = 1040,
@@ -8355,11 +8843,11 @@ typedef NS_ENUM(NSUInteger, NSDateFormatterBehavior) {
 
 @end
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 @interface NSDateFormatter (NSDateFormatterCompatibility)
 
-- (id)initWithDateFormat:(NSString *)format allowNaturalLanguage:(BOOL)flag NS_CALENDAR_DEPRECATED_MAC(10_4, 10_9, "Create an NSDateFormatter with `init` and set the dateFormat property instead.");
-- (BOOL)allowsNaturalLanguage NS_CALENDAR_DEPRECATED_MAC(10_4, 10_9, "There is no replacement");
+- (id)initWithDateFormat:(NSString *)format allowNaturalLanguage:(BOOL)flag API_DEPRECATED("Create an NSDateFormatter with `init` and set the dateFormat property instead.", macos(10.4, 10.9));
+- (BOOL)allowsNaturalLanguage API_DEPRECATED("There is no replacement", macos(10.4, 10.9));
 
 @end
 #endif
@@ -8405,7 +8893,7 @@ NS_ENUM(NSTextCheckingTypes) {
 
 typedef NSString *NSTextCheckingKey NS_EXTENSIBLE_STRING_ENUM;
 
-NS_CLASS_AVAILABLE(10_6, 4_0)
+API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0))
 @interface NSTextCheckingResult : NSObject <NSCopying, NSSecureCoding>
 
 /* Mandatory properties, used with all types of results. */
@@ -8592,10 +9080,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /* Designated initializer */
-- (nullable instancetype)initWithRequest:(NSURLRequest *)request delegate:(nullable id)delegate startImmediately:(BOOL)startImmediately API_DEPRECATED("Use NSURLSession (see NSURLSession.h)", macos(10.5,10.11), ios(2.0,9.0), tvos(9.0,9.0)) __WATCHOS_PROHIBITED;
+- (nullable instancetype)initWithRequest:(NSURLRequest *)request delegate:(nullable id)delegate startImmediately:(BOOL)startImmediately API_DEPRECATED("Use NSURLSession (see NSURLSession.h)", macos(10.5,10.11), ios(2.0,9.0), tvos(9.0,9.0)) API_UNAVAILABLE(watchos);
 
-- (nullable instancetype)initWithRequest:(NSURLRequest *)request delegate:(nullable id)delegate API_DEPRECATED("Use NSURLSession (see NSURLSession.h)", macos(10.3,10.11), ios(2.0,9.0), tvos(9.0,9.0)) __WATCHOS_PROHIBITED;
-+ (nullable NSURLConnection*)connectionWithRequest:(NSURLRequest *)request delegate:(nullable id)delegate API_DEPRECATED("Use NSURLSession (see NSURLSession.h)", macos(10.3,10.11), ios(2.0,9.0), tvos(9.0,9.0)) __WATCHOS_PROHIBITED;
+- (nullable instancetype)initWithRequest:(NSURLRequest *)request delegate:(nullable id)delegate API_DEPRECATED("Use NSURLSession (see NSURLSession.h)", macos(10.3,10.11), ios(2.0,9.0), tvos(9.0,9.0)) API_UNAVAILABLE(watchos);
++ (nullable NSURLConnection*)connectionWithRequest:(NSURLRequest *)request delegate:(nullable id)delegate API_DEPRECATED("Use NSURLSession (see NSURLSession.h)", macos(10.3,10.11), ios(2.0,9.0), tvos(9.0,9.0)) API_UNAVAILABLE(watchos);
 
 @property (readonly, copy) NSURLRequest *originalRequest API_AVAILABLE(macos(10.8), ios(5.0), watchos(2.0), tvos(9.0));
 @property (readonly, copy) NSURLRequest *currentRequest API_AVAILABLE(macos(10.8), ios(5.0), watchos(2.0), tvos(9.0));
@@ -8879,7 +9367,7 @@ NS_ASSUME_NONNULL_BEGIN
     @result      The content of the URL resulting from performing the load,
                  or nil if the load failed.
 */
-+ (nullable NSData *)sendSynchronousRequest:(NSURLRequest *)request returningResponse:(NSURLResponse * _Nullable * _Nullable)response error:(NSError **)error API_DEPRECATED("Use [NSURLSession dataTaskWithRequest:completionHandler:] (see NSURLSession.h", macos(10.3,10.11), ios(2.0,9.0), tvos(9.0,9.0)) __WATCHOS_PROHIBITED;
++ (nullable NSData *)sendSynchronousRequest:(NSURLRequest *)request returningResponse:(NSURLResponse * _Nullable * _Nullable)response error:(NSError **)error API_DEPRECATED("Use [NSURLSession dataTaskWithRequest:completionHandler:] (see NSURLSession.h", macos(10.3,10.11), ios(2.0,9.0), tvos(9.0,9.0)) API_UNAVAILABLE(watchos);
 
 @end
 
@@ -8930,7 +9418,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)sendAsynchronousRequest:(NSURLRequest*) request
                           queue:(NSOperationQueue*) queue
-              completionHandler:(void (^)(NSURLResponse* _Nullable response, NSData* _Nullable data, NSError* _Nullable connectionError)) handler API_DEPRECATED("Use [NSURLSession dataTaskWithRequest:completionHandler:] (see NSURLSession.h", macos(10.7,10.11), ios(5.0,9.0), tvos(9.0,9.0)) __WATCHOS_PROHIBITED;
+              completionHandler:(void (^)(NSURLResponse* _Nullable response, NSData* _Nullable data, NSError* _Nullable connectionError)) handler API_DEPRECATED("Use [NSURLSession dataTaskWithRequest:completionHandler:] (see NSURLSession.h", macos(10.7,10.11), ios(5.0,9.0), tvos(9.0,9.0)) API_UNAVAILABLE(watchos);
            
 @end
 
@@ -8963,7 +9451,7 @@ FOUNDATION_EXPORT void *NSZoneCalloc(NSZone * _Nullable zone, NSUInteger numElem
 FOUNDATION_EXPORT void *NSZoneRealloc(NSZone * _Nullable zone, void * _Nullable ptr, NSUInteger size) NS_SWIFT_UNAVAILABLE("Zone-based memory management is unavailable");
 FOUNDATION_EXPORT void NSZoneFree(NSZone * _Nullable zone, void *ptr) NS_SWIFT_UNAVAILABLE("Zone-based memory management is unavailable");
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 
 /* Garbage Collected memory allocation. Garbage Collection is deprecated. */
 
@@ -9039,6 +9527,8 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/NSMeasurementFormatter.h>
 #import <Foundation/NSPersonNameComponents.h>
 #import <Foundation/NSPersonNameComponentsFormatter.h>
+#import <Foundation/NSRelativeDateTimeFormatter.h>
+#import <Foundation/NSListFormatter.h>
 #import <Foundation/NSDecimal.h>
 #import <Foundation/NSDecimalNumber.h>
 #import <Foundation/NSDictionary.h>
@@ -9110,7 +9600,7 @@ NS_ASSUME_NONNULL_END
 
 #import <Foundation/FoundationErrors.h>
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+#if TARGET_OS_OSX || TARGET_OS_IPHONE
 
 #import <Foundation/NSAttributedString.h>
 #import <Foundation/NSByteCountFormatter.h>
@@ -9140,7 +9630,7 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/NSUUID.h>
 #endif
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || TARGET_OS_WIN32
+#if TARGET_OS_OSX
 
 #import <Foundation/NSArchiver.h>
 #import <Foundation/NSBackgroundActivityScheduler.h>
@@ -9165,7 +9655,7 @@ NS_ASSUME_NONNULL_END
 
 #endif
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 
 #import <Foundation/NSAffineTransform.h>
 #import <Foundation/NSAppleEventDescriptor.h>
@@ -9212,6 +9702,7 @@ NS_ASSUME_NONNULL_END
 @class NSURL;
 
 typedef NSString * NSHTTPCookiePropertyKey NS_EXTENSIBLE_STRING_ENUM;
+typedef NSString * NSHTTPCookieStringPolicy NS_TYPED_ENUM;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -9293,6 +9784,23 @@ FOUNDATION_EXPORT NSHTTPCookiePropertyKey const NSHTTPCookieMaximumAge;
 */
 FOUNDATION_EXPORT NSHTTPCookiePropertyKey const NSHTTPCookiePort;
 
+/*!
+ @const NSHTTPCookieSameSitePolicy
+ @discussion Key for cookie same site
+ */
+FOUNDATION_EXPORT NSHTTPCookiePropertyKey const NSHTTPCookieSameSitePolicy API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*!
+ @const NSHTTPCookieSameSiteLax
+ @discussion String constant "lax" to be used as a value for the property key NSHTTPCookieSameSite
+ */
+FOUNDATION_EXPORT NSHTTPCookieStringPolicy const NSHTTPCookieSameSiteLax API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/*!
+ @const NSHTTPCookieSameSiteStrict
+ @discussion String constant "strict" to be used as a value for the property key NSHTTPCookieSameSite
+ */
+FOUNDATION_EXPORT NSHTTPCookieStringPolicy const NSHTTPCookieSameSiteStrict API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
 
 @class NSHTTPCookieInternal;
 
@@ -9599,6 +10107,18 @@ FOUNDATION_EXPORT NSHTTPCookiePropertyKey const NSHTTPCookiePort;
 */
 @property (nullable, readonly, copy) NSArray<NSNumber *> *portList;
 
+/*!
+ @abstract Returns the value of the same site attribute on the cookie.
+ @discussion Cookies can be marked with an attribute Strict or Lax.
+ Cookies marked with "strict" (NSHTTPCookieSameSiteStrict) are not sent along with cross-site requests.
+ Cookies marked with "lax" (NSHTTPCookieSameSiteLax) sent along cross-site requests provided the
+ cross-site requests are top-level-requests (one that changes the url in the address bar).
+ The attribute value is canonicalized and stored. Any value other than the default (strict and lax) will be ignored.
+ @result strict or lax. The result could also be nil, in which case the
+ cookie will be sent along with all cross-site requests.
+ */
+@property (nullable, readonly, copy) NSHTTPCookieStringPolicy sameSitePolicy API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -9691,9 +10211,9 @@ typedef NS_OPTIONS(NSUInteger, NSStreamEvent) {
 
 @interface NSStream (NSSocketStreamCreationExtensions)
 
-+ (void)getStreamsToHostWithName:(NSString *)hostname port:(NSInteger)port inputStream:(NSInputStream * _Nullable * _Nullable)inputStream outputStream:(NSOutputStream * _Nullable * _Nullable)outputStream API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) __WATCHOS_PROHIBITED;
++ (void)getStreamsToHostWithName:(NSString *)hostname port:(NSInteger)port inputStream:(NSInputStream * _Nullable * _Nullable)inputStream outputStream:(NSOutputStream * _Nullable * _Nullable)outputStream API_AVAILABLE(macos(10.10), ios(8.0), tvos(9.0)) API_UNAVAILABLE(watchos);
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 + (void)getStreamsToHost:(NSHost *)host port:(NSInteger)port inputStream:(NSInputStream * _Nullable * _Nullable)inputStream outputStream:(NSOutputStream * _Nullable * _Nullable)outputStream API_DEPRECATED("Please use getStreamsToHostWithName:port:inputStream:outputStream: instead", macos(10.3,10.10)) API_UNAVAILABLE(ios, watchos, tvos);
 #endif
 
@@ -9841,8 +10361,8 @@ NS_ROOT_CLASS
 @property (readonly, copy) NSString *debugDescription;
 + (BOOL)respondsToSelector:(SEL)aSelector;
 
-- (BOOL)allowsWeakReference NS_UNAVAILABLE;
-- (BOOL)retainWeakReference NS_UNAVAILABLE;
+- (BOOL)allowsWeakReference API_UNAVAILABLE(macos, ios, watchos, tvos);
+- (BOOL)retainWeakReference API_UNAVAILABLE(macos, ios, watchos, tvos);
 
 // - (id)forwardingTargetForSelector:(SEL)aSelector;
 
@@ -9851,13 +10371,14 @@ NS_ROOT_CLASS
 NS_ASSUME_NONNULL_END
 // ==========  Foundation.framework/Headers/NSArray.h
 /*	NSArray.h
-	Copyright (c) 1994-2018, Apple Inc. All rights reserved.
+	Copyright (c) 1994-2019, Apple Inc. All rights reserved.
 */
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSRange.h>
 #import <Foundation/NSObjCRuntime.h>
+#import <Foundation/NSOrderedCollectionDifference.h>
 
 @class NSData, NSIndexSet, NSString, NSURL;
 
@@ -9871,7 +10392,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (ObjectType)objectAtIndex:(NSUInteger)index;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithObjects:(const ObjectType _Nonnull [_Nullable])objects count:(NSUInteger)cnt NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -9955,20 +10476,35 @@ typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
 
 @end
 
+API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+NS_SWIFT_UNAVAILABLE("NSArray diffing methods are not available in Swift")
+@interface NSArray<ObjectType> (NSArrayDiffing)
+
+- (NSOrderedCollectionDifference<ObjectType> *)differenceFromArray:(NSArray<ObjectType> *)other withOptions:(NSOrderedCollectionDifferenceCalculationOptions)options usingEquivalenceTest:(BOOL (NS_NOESCAPE ^)(ObjectType obj1, ObjectType obj2))block;
+
+- (NSOrderedCollectionDifference<ObjectType> *)differenceFromArray:(NSArray<ObjectType> *)other withOptions:(NSOrderedCollectionDifferenceCalculationOptions)options;
+
+// Uses isEqual: to determine the difference between the parameter and the receiver
+- (NSOrderedCollectionDifference<ObjectType> *)differenceFromArray:(NSArray<ObjectType> *)other;
+
+- (nullable NSArray<ObjectType> *)arrayByApplyingDifference:(NSOrderedCollectionDifference<ObjectType> *)difference;
+
+@end
+
 @interface NSArray<ObjectType> (NSDeprecated)
 
 /* This method is unsafe because it could potentially cause buffer overruns. You should use -getObjects:range: instead.
-*/
+ */
 
 - (void)getObjects:(ObjectType _Nonnull __unsafe_unretained [_Nonnull])objects NS_SWIFT_UNAVAILABLE("Use 'as [AnyObject]' instead") API_DEPRECATED("Use -getObjects:range: instead", macos(10.0, 10.13), ios(2.0, 11.0), watchos(2.0, 4.0), tvos(9.0, 11.0));
 
 /* These methods are deprecated, and will be marked with API_DEPRECATED in a subsequent release. Use the variants that use errors instead. */
-+ (nullable NSArray<ObjectType> *)arrayWithContentsOfFile:(NSString *)path;
-+ (nullable NSArray<ObjectType> *)arrayWithContentsOfURL:(NSURL *)url;
-- (nullable NSArray<ObjectType> *)initWithContentsOfFile:(NSString *)path;
-- (nullable NSArray<ObjectType> *)initWithContentsOfURL:(NSURL *)url;
-- (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile;
-- (BOOL)writeToURL:(NSURL *)url atomically:(BOOL)atomically;
++ (nullable NSArray<ObjectType> *)arrayWithContentsOfFile:(NSString *)path API_DEPRECATED_WITH_REPLACEMENT("arrayWithContentsOfURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
++ (nullable NSArray<ObjectType> *)arrayWithContentsOfURL:(NSURL *)url API_DEPRECATED_WITH_REPLACEMENT("arrayWithContentsOfURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+- (nullable NSArray<ObjectType> *)initWithContentsOfFile:(NSString *)path API_DEPRECATED_WITH_REPLACEMENT("initWithContentsOfURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+- (nullable NSArray<ObjectType> *)initWithContentsOfURL:(NSURL *)url API_DEPRECATED_WITH_REPLACEMENT("initWithContentsOfURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+- (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile API_DEPRECATED_WITH_REPLACEMENT("writeToURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+- (BOOL)writeToURL:(NSURL *)url atomically:(BOOL)atomically API_DEPRECATED_WITH_REPLACEMENT("writeToURL:error:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
 
 @end
 
@@ -9983,7 +10519,7 @@ typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
 - (void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjectType)anObject;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithCapacity:(NSUInteger)numItems NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -10024,6 +10560,14 @@ typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
 + (nullable NSMutableArray<ObjectType> *)arrayWithContentsOfURL:(NSURL *)url;
 - (nullable NSMutableArray<ObjectType> *)initWithContentsOfFile:(NSString *)path;
 - (nullable NSMutableArray<ObjectType> *)initWithContentsOfURL:(NSURL *)url;
+
+@end
+
+API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+NS_SWIFT_UNAVAILABLE("NSMutableArray diffing methods are not available in Swift")
+@interface NSMutableArray<ObjectType> (NSMutableArrayDiffing)
+
+- (void)applyDifference:(NSOrderedCollectionDifference<ObjectType> *)difference;
 
 @end
 
@@ -10152,7 +10696,7 @@ FOUNDATION_EXPORT NSNotificationName const NSPortDidBecomeInvalidNotification;
 	// receives this message.  If multiple DO transports are
 	// being used in the same program, this requires some care.
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_WIN32)
+#if TARGET_OS_OSX || TARGET_OS_UIKITFORMAC
 - (void)addConnection:(NSConnection *)conn toRunLoop:(NSRunLoop *)runLoop forMode:(NSRunLoopMode)mode NS_SWIFT_UNAVAILABLE("Use NSXPCConnection instead") API_DEPRECATED("Use NSXPCConnection instead", macosx(10.0, 10.13), ios(2.0,11.0), watchos(2.0,4.0), tvos(9.0,11.0));
 - (void)removeConnection:(NSConnection *)conn fromRunLoop:(NSRunLoop *)runLoop forMode:(NSRunLoopMode)mode NS_SWIFT_UNAVAILABLE("Use NSXPCConnection instead") API_DEPRECATED("Use NSXPCConnection instead", macosx(10.0, 10.13), ios(2.0,11.0), watchos(2.0,4.0), tvos(9.0,11.0));
 	// The default implementation of these two methods is to
@@ -10172,7 +10716,7 @@ FOUNDATION_EXPORT NSNotificationName const NSPortDidBecomeInvalidNotification;
 	// more specific that it wants to try to send first
 @end
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || (TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)
+#if TARGET_OS_OSX || TARGET_OS_IPHONE
 
 NS_AUTOMATED_REFCOUNT_WEAK_UNAVAILABLE 
 @interface NSMachPort : NSPort {
@@ -10195,8 +10739,8 @@ typedef NS_OPTIONS(NSUInteger, NSMachPortOptions) {
     NSMachPortDeallocateReceiveRight = (1UL << 1)
 } API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
-+ (NSPort *)portWithMachPort:(uint32_t)machPort options:(NSMachPortOptions)f NS_AVAILABLE(10_5, 2_0);
-- (instancetype)initWithMachPort:(uint32_t)machPort options:(NSMachPortOptions)f NS_AVAILABLE(10_5, 2_0) NS_DESIGNATED_INITIALIZER;
++ (NSPort *)portWithMachPort:(uint32_t)machPort options:(NSMachPortOptions)f API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+- (instancetype)initWithMachPort:(uint32_t)machPort options:(NSMachPortOptions)f API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) NS_DESIGNATED_INITIALIZER;
 
 @property (readonly) uint32_t machPort;
 
@@ -10230,7 +10774,7 @@ NS_AUTOMATED_REFCOUNT_WEAK_UNAVAILABLE
 
 @end
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || TARGET_OS_WIN32 || TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_OSX || TARGET_IPHONE_SIMULATOR
 
 // A subclass of NSPort which can be used for remote
 // message sending on all platforms.
@@ -10644,7 +11188,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSEnumerator<ObjectType> *)objectEnumerator;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithObjects:(const ObjectType _Nonnull [_Nullable])objects count:(NSUInteger)cnt NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -10696,7 +11240,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addObject:(ObjectType)object;
 - (void)removeObject:(ObjectType)object;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithCapacity:(NSUInteger)numItems NS_DESIGNATED_INITIALIZER;
 
@@ -10793,7 +11337,15 @@ typedef NS_OPTIONS(NSUInteger, NSDirectoryEnumerationOptions) {
     
     /* NSDirectoryEnumerationSkipsHiddenFiles causes the NSDirectoryEnumerator to not enumerate hidden files.
      */
-    NSDirectoryEnumerationSkipsHiddenFiles             = 1UL << 2
+    NSDirectoryEnumerationSkipsHiddenFiles             = 1UL << 2,
+
+    /* NSDirectoryEnumerationIncludesDirectoriesPostOrder causes the NSDirectoryEnumerator to enumerate each directory a second time after all of its contained files have been enumerated. Use NSDirectoryEnumerator.isEnumeratingDirectoryPostOrder to differentiate a post-order enumerated directory from a pre-order one.
+     */
+    NSDirectoryEnumerationIncludesDirectoriesPostOrder API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) = 1UL << 3,
+    
+    /* NSDirectoryEnumerationProducesRelativePathURLs causes the NSDirectoryEnumerator to always produce file path URLs relative to the directoryURL. This can reduce the size of each URL object returned during enumeration.
+     */
+    NSDirectoryEnumerationProducesRelativePathURLs API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) = 1UL << 4,
 } API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
 
 typedef NS_OPTIONS(NSUInteger, NSFileManagerItemReplacementOptions) {
@@ -10821,7 +11373,7 @@ typedef NS_OPTIONS(NSUInteger, NSFileManagerUnmountOptions) {
     /* Specifies that no UI should accompany the unmount operation. (Otherwise, the unmount UI, if needed, would delay completion of the completionHandler.)
      */
     NSFileManagerUnmountWithoutUI = 1UL << 1,
-} NS_ENUM_AVAILABLE(10_11, NA);
+} API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios, watchos, tvos);
 
 /* If unmountVolumeAtURL:options:completionHandler: fails, the process identifier of the dissenter can be found in the  NSError's userInfo dictionary with this key */
 FOUNDATION_EXPORT NSString *const NSFileManagerUnmountDissentingProcessIdentifierErrorKey API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios, watchos, tvos); // value is NSNumber containing the process identifier of the dissenter
@@ -10961,7 +11513,7 @@ extern NSNotificationName const NSUbiquityIdentityDidChangeNotification API_AVAI
 - (BOOL)createSymbolicLinkAtPath:(NSString *)path pathContent:(NSString *)otherpath API_DEPRECATED("Use -createSymbolicLinkAtPath:error: instead", macos(10.0,10.5), ios(2.0,2.0), watchos(2.0,2.0), tvos(9.0,9.0));
 - (BOOL)createDirectoryAtPath:(NSString *)path attributes:(NSDictionary *)attributes API_DEPRECATED("Use -createDirectoryAtPath:withIntermediateDirectories:attributes:error: instead", macos(10.0,10.5), ios(2.0,2.0), watchos(2.0,2.0), tvos(9.0,9.0));
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || TARGET_OS_WIN32
+#if TARGET_OS_OSX || TARGET_OS_UIKITFORMAC
 - (BOOL)linkPath:(NSString *)src toPath:(NSString *)dest handler:(nullable id)handler API_DEPRECATED("Not supported", macos(10.0,10.5), ios(2.0,2.0), watchos(2.0,2.0), tvos(9.0,9.0));
 - (BOOL)copyPath:(NSString *)src toPath:(NSString *)dest handler:(nullable id)handler API_DEPRECATED("Not supported", macos(10.0,10.5), ios(2.0,2.0), watchos(2.0,2.0), tvos(9.0,9.0));
 - (BOOL)movePath:(NSString *)src toPath:(NSString *)dest handler:(nullable id)handler API_DEPRECATED("Not supported", macos(10.0,10.5), ios(2.0,2.0), watchos(2.0,2.0), tvos(9.0,9.0));
@@ -11158,6 +11710,10 @@ extern NSNotificationName const NSUbiquityIdentityDidChangeNotification API_AVAI
 @property (nullable, readonly, copy) NSDictionary<NSFileAttributeKey, id> *fileAttributes;
 @property (nullable, readonly, copy) NSDictionary<NSFileAttributeKey, id> *directoryAttributes;
 
+/* For NSDirectoryEnumerators created with -enumeratorAtURL:includingPropertiesForKeys:options:errorHandler: and the NSDirectoryEnumerationIncludesDirectoriesPostOrder option, this property is YES when the current object is a directory that is being enumerated after all of its contents have been enumerated.
+ */
+@property (readonly) BOOL isEnumeratingDirectoryPostOrder API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
 - (void)skipDescendents;
 
 /* This method returns the number of levels deep the current object is in the directory hierarchy being enumerated. The directory passed to -enumeratorAtURL:includingPropertiesForKeys:options:errorHandler: is considered to be level 0.
@@ -11349,7 +11905,7 @@ typedef NS_OPTIONS (NSUInteger, NSPersonNameComponentsFormatterOptions) {
 } API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
 
 
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface NSPersonNameComponentsFormatter : NSFormatter {
 @private
     id _private;
@@ -11432,8 +11988,7 @@ NS_ASSUME_NONNULL_BEGIN
     Class		_principalClass;
     id                  _initialPath;
     id                  _resolvedPath;
-    Class               _firstClass;
-    id                  _lock;
+    NSString           *_firstClassName;
 }
 
 /* Methods for creating or retrieving bundle instances. */
@@ -11566,10 +12121,11 @@ FOUNDATION_EXPORT NSString * const NSLoadedClasses;	// notification key
  
  The request object itself is lightweight. You may create as many as you need, for example to request the same set of tags in different components of your application.
 */
-NS_CLASS_AVAILABLE(NA, 9_0)
+
+API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos)
 @interface NSBundleResourceRequest : NSObject <NSProgressReporting>
 
-- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)init API_UNAVAILABLE(macos, ios, watchos, tvos);
 
 /*
  A tag and bundle are required arguments to the init methods. The tag argument is required and it must exist in the manifest of the specified bundle. The bundle argument describes an existing bundle which was built with on demand resources support. Any resources downloaded can be found using the standard NSBundle resource lookup API once the request is completed. If no bundle is specified then the main bundle is used.
@@ -11797,7 +12353,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_8, 6_0)
+API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0))
 @interface NSUUID : NSObject <NSCopying, NSSecureCoding>
 
 /* Create a new autoreleased NSUUID with RFC 4122 version 4 random bytes */
@@ -11833,7 +12389,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_7, 5_0) __WATCHOS_PROHIBITED
+API_AVAILABLE(macos(10.7), ios(5.0), tvos(9.0)) API_UNAVAILABLE(watchos)
 @interface NSUbiquitousKeyValueStore : NSObject {
 @private
     id _private1;
@@ -11842,7 +12398,7 @@ NS_CLASS_AVAILABLE(10_7, 5_0) __WATCHOS_PROHIBITED
     void *_private4;
     void *_reserved[3];
     int _daemonWakeToken;
-#if DEPLOYMENT_TARGET_MACOSX
+#if TARGET_OS_OSX || TARGET_OS_UIKITFORMAC
     BOOL _disabledSuddenTermination;
 #endif
 }
@@ -11980,7 +12536,7 @@ FOUNDATION_EXPORT NSRunLoopMode const NSRunLoopCommonModes API_AVAILABLE(macos(1
 - (void)runUntilDate:(NSDate *)limitDate;
 - (BOOL)runMode:(NSRunLoopMode)mode beforeDate:(NSDate *)limitDate;
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 - (void)configureAsServer API_DEPRECATED("Not supported", macos(10.0,10.5), ios(2.0,2.0), watchos(2.0,2.0), tvos(9.0,9.0));
 #endif
 
@@ -12046,8 +12602,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol NSCoding
 
-- (void)encodeWithCoder:(NSCoder *)aCoder;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder; // NS_DESIGNATED_INITIALIZER
+- (void)encodeWithCoder:(NSCoder *)coder;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder; // NS_DESIGNATED_INITIALIZER
 
 @end
 
@@ -12068,12 +12624,12 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSInteger)version;
 + (void)setVersion:(NSInteger)aVersion;
 @property (readonly) Class classForCoder;
-- (nullable id)replacementObjectForCoder:(NSCoder *)aCoder;
-- (nullable id)awakeAfterUsingCoder:(NSCoder *)aDecoder NS_REPLACES_RECEIVER;
+- (nullable id)replacementObjectForCoder:(NSCoder *)coder;
+- (nullable id)awakeAfterUsingCoder:(NSCoder *)coder NS_REPLACES_RECEIVER;
 
 @end
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 @interface NSObject (NSDeprecatedMethods)
 
 + (void)poseAsClass:(Class)aClass API_DEPRECATED("Posing no longer supported", macos(10.0,10.5), ios(2.0,2.0), watchos(2.0,2.0), tvos(9.0,9.0))
@@ -12135,8 +12691,8 @@ NS_INLINE CF_RETURNS_RETAINED CFTypeRef _Nullable CFBridgingRetain(id _Nullable 
     return X ? CFRetain((CFTypeRef)X) : NULL;
 }
 
-// This function is intended for use while converting to ARC mode only.
-NS_INLINE id _Nullable CFBridgingRelease(CFTypeRef CF_CONSUMED _Nullable X) {
+// Casts a CoreFoundation object to an Objective-C object, transferring ownership to ARC (ie. no need to CFRelease to balance a prior +1 CFRetain count). NS_RETURNS_RETAINED is used to indicate that the Objective-C object returned has +1 retain count.  So the object is 'released' as far as CoreFoundation reference counting semantics are concerned, but retained (and in need of releasing) in the view of ARC. This function is intended for use while converting to ARC mode only.
+NS_INLINE id _Nullable CFBridgingRelease(CFTypeRef CF_CONSUMED _Nullable X) NS_RETURNS_RETAINED {
     return [(id)CFMakeCollectable(X) autorelease];
 }
 
@@ -12320,7 +12876,7 @@ NS_ASSUME_NONNULL_END
 // Class representing the extension request's context
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @interface NSExtensionContext : NSObject
 
 // The list of input NSExtensionItems associated with the context. If the context has no input items, this array will be empty.
@@ -12429,7 +12985,7 @@ typedef NS_OPTIONS(NSUInteger, NSFileCoordinatorWritingOptions) {
 };
 
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @interface NSFileAccessIntent : NSObject {
 @private
     NSURL *_url;
@@ -12442,7 +12998,7 @@ NS_CLASS_AVAILABLE(10_10, 8_0)
 @end
 
 
-NS_CLASS_AVAILABLE(10_7, 5_0)
+API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSFileCoordinator : NSObject {
     @private
     id _accessArbiter;
@@ -12685,6 +13241,70 @@ typedef NS_ENUM(NSInteger, NSTimeZoneNameStyle) {
 FOUNDATION_EXPORT NSNotificationName const NSSystemTimeZoneDidChangeNotification API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
 NS_ASSUME_NONNULL_END
+// ==========  Foundation.framework/Headers/NSOrderedCollectionChange.h
+/*	NSOrderedCollectionChange.h
+	Copyright (c) 2017-2019, Apple Inc. All rights reserved.
+*/
+
+#import <Foundation/NSObject.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, NSCollectionChangeType) {
+    NSCollectionChangeInsert,
+    NSCollectionChangeRemove
+} API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0), tvos(12.0));
+
+API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+@interface NSOrderedCollectionChange<ObjectType> : NSObject
+#ifndef __OBJC2__
+{
+@private
+    id _object;
+    NSCollectionChangeType _changeType;
+    NSUInteger _index;
+    NSUInteger _associatedIndex;
+}
+#endif // !__OBJC2__
+
++ (NSOrderedCollectionChange<ObjectType> *)changeWithObject:(nullable ObjectType)anObject
+                                                       type:(NSCollectionChangeType)type
+                                                      index:(NSUInteger)index;
+
++ (NSOrderedCollectionChange<ObjectType> *)changeWithObject:(nullable ObjectType)anObject
+                                                       type:(NSCollectionChangeType)type
+                                                      index:(NSUInteger)index
+                                            associatedIndex:(NSUInteger)associatedIndex;
+
+// The object that was inserted or removed, if recorded
+@property (readonly, strong, nullable) ObjectType object;
+
+// The change type: insert or remove
+@property (readonly) NSCollectionChangeType changeType;
+
+// For removes, the index of the object in the original state.
+// For inserts, the index of the object in the final state.
+@property (readonly) NSUInteger index;
+
+// When non-NSNotFound, indicates that this change is one half of a move, with
+// this value referring to the index of the other change that completes it.
+// For differences produced by identity comparison (instead of equality), each
+// change representing a move operation may store different objects.
+@property (readonly) NSUInteger associatedIndex;
+
+- (id)init API_UNAVAILABLE(macos, ios, watchos, tvos);
+
+- (instancetype)initWithObject:(nullable ObjectType)anObject
+                          type:(NSCollectionChangeType)type
+                         index:(NSUInteger)index;
+
+- (instancetype)initWithObject:(nullable ObjectType)anObject
+                          type:(NSCollectionChangeType)type
+                         index:(NSUInteger)index
+               associatedIndex:(NSUInteger)associatedIndex NS_DESIGNATED_INITIALIZER;
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Foundation.framework/Headers/NSCache.h
 /*      NSCache.h
         Copyright (c) 2008-2018, Apple Inc. All rights reserved.
@@ -12697,7 +13317,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_6, 4_0)
+API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0))
 @interface NSCache <KeyType, ObjectType> : NSObject {
 @private
     id _delegate;
@@ -13019,21 +13639,21 @@ FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousItemIsExternalDocumentKey
 FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousItemContainerDisplayNameKey API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // NSString
 FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousItemURLInLocalContainerKey API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // NSURL
 
-FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousItemIsSharedKey API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // true if the ubiquitous item is shared. (value type boolean NSNumber)
-FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemCurrentUserRoleKey API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // returns the current user's role for this shared item, or nil if not shared. (value type NSString). Possible values below.
-FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemCurrentUserPermissionsKey API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // returns the permissions for the current user, or nil if not shared. (value type NSString). Possible values below.
-FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemOwnerNameComponentsKey API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // returns a NSPersonNameComponents, or nil if the current user. (value type NSPersonNameComponents)
-FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemMostRecentEditorNameComponentsKey API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // returns a NSPersonNameComponents for the most recent editor of the document, or nil if it is the current user. (Read-only, value type NSPersonNameComponents)
+FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousItemIsSharedKey API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // true if the ubiquitous item is shared. (value type boolean NSNumber)
+FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemCurrentUserRoleKey API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // returns the current user's role for this shared item, or nil if not shared. (value type NSString). Possible values below.
+FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemCurrentUserPermissionsKey API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // returns the permissions for the current user, or nil if not shared. (value type NSString). Possible values below.
+FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemOwnerNameComponentsKey API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // returns a NSPersonNameComponents, or nil if the current user. (value type NSPersonNameComponents)
+FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemMostRecentEditorNameComponentsKey API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // returns a NSPersonNameComponents for the most recent editor of the document, or nil if it is the current user. (Read-only, value type NSPersonNameComponents)
 
 /* The values returned for the NSMetadataUbiquitousSharedItemCurrentUserRoleKey
  */
-FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemRoleOwner API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // the current user is the owner of this shared item.
-FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemRoleParticipant API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // the current user is a participant of this shared item.
+FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemRoleOwner API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // the current user is the owner of this shared item.
+FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemRoleParticipant API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // the current user is a participant of this shared item.
 
 /* The values returned for the NSMetadataUbiquitousSharedItemCurrentUserPermissionsKey
  */
-FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemPermissionsReadOnly API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // the current user is only allowed to read this item
-FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemPermissionsReadWrite API_AVAILABLE(macosx(10.12), ios(10.0)) __TVOS_PROHIBITED __WATCHOS_PROHIBITED; // the current user is allowed to both read and write this item
+FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemPermissionsReadOnly API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // the current user is only allowed to read this item
+FOUNDATION_EXPORT NSString * const NSMetadataUbiquitousSharedItemPermissionsReadWrite API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos); // the current user is allowed to both read and write this item
 
 
 // The following NSMetadataItem attributes are available on Mac OS for non-ubiquitious items only. The constants are equal to the corresponding ones in <Metadata/MDItem.h>.
@@ -13307,7 +13927,7 @@ FOUNDATION_EXPORT NSValueTransformerName const NSUnarchiveFromDataTransformerNam
 FOUNDATION_EXPORT NSValueTransformerName const NSKeyedUnarchiveFromDataTransformerName  API_DEPRECATED_WITH_REPLACEMENT("NSSecureUnarchiveFromDataTransformerName", macos(10.3, 10.14), ios(3.0, 12.0), watchos(2.0, 5.0), tvos(9.0, 12.0));
 FOUNDATION_EXPORT NSValueTransformerName const NSSecureUnarchiveFromDataTransformerName API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
 
-NS_CLASS_AVAILABLE(10_3, 3_0)
+API_AVAILABLE(macos(10.3), ios(3.0), watchos(2.0), tvos(9.0))
 @interface NSValueTransformer : NSObject {
 }
 
@@ -13332,7 +13952,7 @@ API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 
 /// The list of allowable classes which the top-level object in the archive must conform to on encoding and decoding.
 ///
-/// Returns the result of \c +transformedValueClass if not \c Nil; otherwise, currently returns \c NSArray, \c NSDictionary, \c NSString, \c NSNumber, \c NSDate, \c NSData, \c NSURL, \c NSUUID, and \c NSNull.
+/// Returns the result of \c +transformedValueClass if not \c Nil; otherwise, currently returns \c NSArray, \c NSDictionary, \c NSSet, \c NSString, \c NSNumber, \c NSDate, \c NSData, \c NSURL, \c NSUUID, and \c NSNull.
 ///
 /// Can be overridden by subclasses to provide an expanded or different set of allowed transformation classes.
 @property (class, readonly, copy) NSArray<Class> *allowedTopLevelClasses;
@@ -13342,13 +13962,14 @@ API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0))
 NS_ASSUME_NONNULL_END
 // ==========  Foundation.framework/Headers/NSOrderedSet.h
 /*	NSOrderedSet.h
-	Copyright (c) 2007-2018, Apple Inc. All rights reserved.
+	Copyright (c) 2007-2019, Apple Inc. All rights reserved.
 */
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSRange.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSArray.h>
+#import <Foundation/NSOrderedCollectionDifference.h>
 
 @class NSArray, NSIndexSet, NSSet<ObjectType>, NSString;
 
@@ -13356,7 +13977,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_7, 5_0)
+API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSOrderedSet<__covariant ObjectType> : NSObject <NSCopying, NSMutableCopying, NSSecureCoding, NSFastEnumeration>
 
 @property (readonly) NSUInteger count;
@@ -13364,7 +13985,7 @@ NS_CLASS_AVAILABLE(10_7, 5_0)
 - (NSUInteger)indexOfObject:(ObjectType)object;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithObjects:(const ObjectType _Nonnull [_Nullable])objects count:(NSUInteger)cnt NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -13449,15 +14070,30 @@ NS_CLASS_AVAILABLE(10_7, 5_0)
 
 @end
 
+API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+NS_SWIFT_UNAVAILABLE("NSOrderedSet diffing methods are not available in Swift")
+@interface NSOrderedSet<ObjectType> (NSOrderedSetDiffing)
+
+- (NSOrderedCollectionDifference<ObjectType> *)differenceFromOrderedSet:(NSOrderedSet<ObjectType> *)other withOptions:(NSOrderedCollectionDifferenceCalculationOptions)options usingEquivalenceTest:(BOOL (NS_NOESCAPE ^)(ObjectType obj1, ObjectType obj2))block;
+
+- (NSOrderedCollectionDifference<ObjectType> *)differenceFromOrderedSet:(NSOrderedSet<ObjectType> *)other withOptions:(NSOrderedCollectionDifferenceCalculationOptions)options;
+
+// Uses isEqual: to determine the difference between the parameter and the receiver
+- (NSOrderedCollectionDifference<ObjectType> *)differenceFromOrderedSet:(NSOrderedSet<ObjectType> *)other;
+
+- (nullable NSOrderedSet<ObjectType> *)orderedSetByApplyingDifference:(NSOrderedCollectionDifference<ObjectType> *)difference;
+
+@end
+
 /****************       Mutable Ordered Set     ****************/
 
-NS_CLASS_AVAILABLE(10_7, 5_0)
+API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSMutableOrderedSet<ObjectType> : NSOrderedSet<ObjectType>
 
 - (void)insertObject:(ObjectType)object atIndex:(NSUInteger)idx;
 - (void)removeObjectAtIndex:(NSUInteger)idx;
 - (void)replaceObjectAtIndex:(NSUInteger)idx withObject:(ObjectType)object;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithCapacity:(NSUInteger)numItems NS_DESIGNATED_INITIALIZER;
 
@@ -13509,6 +14145,14 @@ NS_CLASS_AVAILABLE(10_7, 5_0)
 
 @end
 
+API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+NS_SWIFT_UNAVAILABLE("NSMutableOrderedSet diffing methods are not available in Swift")
+@interface NSMutableOrderedSet<ObjectType> (NSMutableOrderedSetDiffing)
+
+- (void)applyDifference:(NSOrderedCollectionDifference<ObjectType> *)difference;
+
+@end
+
 NS_ASSUME_NONNULL_END
 // ==========  Foundation.framework/Headers/NSProgress.h
 /*
@@ -13546,7 +14190,7 @@ NS_ASSUME_NONNULL_BEGIN
  The localizedDescription and localizedAdditionalDescription properties are meant to be observed as well as set. So are the cancellable and pausable properties. totalUnitCount and completedUnitCount on the other hand are often not the best properties to observe when presenting progress to the user. For example, you should observe fractionCompleted instead of observing totalUnitCount and completedUnitCount and doing your own calculation. NSProgress' default implementation of fractionCompleted does fairly sophisticated things like taking child NSProgresses into account.
  */
 
-NS_CLASS_AVAILABLE(10_9, 7_0)
+API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0))
 @interface NSProgress : NSObject {
 @private
     NSProgress *__weak _parent;
@@ -13582,11 +14226,11 @@ You can invoke this method on one thread and then message the returned NSProgres
 
 /* Return an instance of NSProgress that has been initialized with -initWithParent:userInfo:. The initializer is passed nil for the parent, resulting in a progress object that is not part of an existing progress tree. The value of the totalUnitCount property is also set.
  */
-+ (NSProgress *)discreteProgressWithTotalUnitCount:(int64_t)unitCount NS_AVAILABLE(10_11, 9_0);
++ (NSProgress *)discreteProgressWithTotalUnitCount:(int64_t)unitCount API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
 
 /* Return an instance of NSProgress that has been attached to a parent progress with the given pending unit count.
  */
-+ (NSProgress *)progressWithTotalUnitCount:(int64_t)unitCount parent:(NSProgress *)parent pendingUnitCount:(int64_t)portionOfParentTotalUnitCount NS_AVAILABLE(10_11, 9_0);
++ (NSProgress *)progressWithTotalUnitCount:(int64_t)unitCount parent:(NSProgress *)parent pendingUnitCount:(int64_t)portionOfParentTotalUnitCount API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
 
 /* The designated initializer. If a parent NSProgress object is passed then progress reporting and cancellation checking done by the receiver will notify or consult the parent. The only valid arguments to the first argument of this method are nil (indicating no parent) or [NSProgress currentProgress]. Any other value will throw an exception.
 */
@@ -13608,7 +14252,7 @@ You can invoke this method on one thread and then message the returned NSProgres
 
 /* Directly add a child progress to the receiver, assigning it a portion of the receiver's total unit count.
  */
-- (void)addChild:(NSProgress *)child withPendingUnitCount:(int64_t)inUnitCount NS_AVAILABLE(10_11, 9_0);
+- (void)addChild:(NSProgress *)child withPendingUnitCount:(int64_t)inUnitCount API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
 
 #pragma mark *** Reporting Progress ***
 
@@ -13660,7 +14304,7 @@ You can invoke this method on one thread and then message the returned NSProgres
 
 /* A block to be invoked when resume is invoked. The block will be invoked even when the method is invoked on an ancestor of the receiver, or an instance of NSProgress in another process that resulted from publishing the receiver or an ancestor of the receiver. Your block won't be invoked on any particular queue. If it must do work on a specific queue then it should schedule that work on that queue.
  */
-@property (nullable, copy) void (^resumingHandler)(void) NS_AVAILABLE(10_11, 9_0);
+@property (nullable, copy) void (^resumingHandler)(void) API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
 
 /* Set a value in the dictionary returned by invocations of -userInfo, with appropriate KVO notification for properties whose values can depend on values in the user info dictionary, like localizedDescription. If a nil value is passed then the dictionary entry is removed.
 */
@@ -13691,7 +14335,7 @@ You can invoke this method on one thread and then message the returned NSProgres
 
 /* Invoke the block registered with the resumingHandler property, if there is one, and set the paused property to NO. Do this for the receiver, any descendants of the receiver, the instance of NSProgress that was published in another process to make the receiver if that's the case, and any descendants of such a published instance of NSProgress.
 */
-- (void)resume NS_AVAILABLE(10_11, 9_0);
+- (void)resume API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0));
 
 /* Arbitrary values associated with the receiver. Returns a KVO-compliant dictionary that changes as -setUserInfoObject:forKey: is sent to the receiver. The dictionary will send all of its KVO notifications on the thread which updates the property. The result will never be nil, but may be an empty dictionary. Some entries have meanings that are recognized by the NSProgress class itself. See the NSProgress...Key string constants listed below.
 */
@@ -13786,37 +14430,37 @@ Note that there is no reliable definition of "before" in this case, which involv
 
 /* How much time is probably left in the operation, as an NSNumber containing a number of seconds.
 */
-FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressEstimatedTimeRemainingKey NS_AVAILABLE(10_9, 7_0);
+FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressEstimatedTimeRemainingKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /* How fast data is being processed, as an NSNumber containing bytes per second.
 */
-FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressThroughputKey NS_AVAILABLE(10_9, 7_0);
+FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressThroughputKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 #pragma mark *** Details of File Progress ***
 
 /* The value for the kind property that indicates that the work being done is one of the kind of file operations listed below. NSProgress of this kind is assumed to use bytes as the unit of work being done and the default implementation of -localizedDescription takes advantage of that to return more specific text than it could otherwise. The NSProgressFileTotalCountKey and NSProgressFileCompletedCountKey keys in the userInfo dictionary are used for the overall count of files.
 */
-FOUNDATION_EXPORT NSProgressKind const NSProgressKindFile NS_AVAILABLE(10_9, 7_0);
+FOUNDATION_EXPORT NSProgressKind const NSProgressKindFile API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /* A user info dictionary key, for an entry that is required when the value for the kind property is NSProgressKindFile. The value must be one of the strings listed in the next section. The default implementations of of -localizedDescription and -localizedItemDescription use this value to determine the text that they return.
 */
-FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressFileOperationKindKey NS_AVAILABLE(10_9, 7_0);
+FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressFileOperationKindKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /* Possible values for NSProgressFileOperationKindKey entries.
 */
-FOUNDATION_EXPORT NSProgressFileOperationKind const NSProgressFileOperationKindDownloading NS_AVAILABLE(10_9, 7_0);
-FOUNDATION_EXPORT NSProgressFileOperationKind const NSProgressFileOperationKindDecompressingAfterDownloading NS_AVAILABLE(10_9, 7_0);
-FOUNDATION_EXPORT NSProgressFileOperationKind const NSProgressFileOperationKindReceiving NS_AVAILABLE(10_9, 7_0);
-FOUNDATION_EXPORT NSProgressFileOperationKind const NSProgressFileOperationKindCopying NS_AVAILABLE(10_9, 7_0);
+FOUNDATION_EXPORT NSProgressFileOperationKind const NSProgressFileOperationKindDownloading API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
+FOUNDATION_EXPORT NSProgressFileOperationKind const NSProgressFileOperationKindDecompressingAfterDownloading API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
+FOUNDATION_EXPORT NSProgressFileOperationKind const NSProgressFileOperationKindReceiving API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
+FOUNDATION_EXPORT NSProgressFileOperationKind const NSProgressFileOperationKindCopying API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /* A user info dictionary key. The value must be an NSURL identifying the item on which progress is being made. This is required for any NSProgress that is published using -publish to be reported to subscribers registered with +addSubscriberForFileURL:withPublishingHandler:.
 */
-FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressFileURLKey NS_AVAILABLE(10_9, 7_0);
+FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressFileURLKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /* User info dictionary keys. The values must be NSNumbers containing integers. These entries are optional but if they are both present then the default implementation of -localizedAdditionalDescription uses them to determine the text that it returns.
 */
-FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressFileTotalCountKey NS_AVAILABLE(10_9, 7_0);
-FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressFileCompletedCountKey NS_AVAILABLE(10_9, 7_0);
+FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressFileTotalCountKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
+FOUNDATION_EXPORT NSProgressUserInfoKey const NSProgressFileCompletedCountKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 /* User info dictionary keys. The value for the first entry must be an NSImage, typically an icon. The value for the second entry must be an NSValue containing an NSRect, in screen coordinates, locating the image where it initially appears on the screen.
 */
@@ -13915,7 +14559,7 @@ typedef NS_OPTIONS(NSUInteger, NSLinguisticTaggerOptions) {   /* Any combination
 };
 
 
-NS_CLASS_AVAILABLE(10_7, 5_0)
+API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSLinguisticTagger : NSObject {
 @private
     NSArray *_schemes;
@@ -14047,7 +14691,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSIndexPath (NSDeprecated)
 /// This method is unsafe because it could potentially cause buffer overruns. You should use -getIndexes:range: instead. 
-- (void)getIndexes:(NSUInteger *)indexes; // use -getIndexes:range: instead
+- (void)getIndexes:(NSUInteger *)indexes API_DEPRECATED_WITH_REPLACEMENT("getIndexes:range:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)); // use -getIndexes:range: instead
 @end
 
 NS_ASSUME_NONNULL_END
@@ -14063,6 +14707,10 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/NSCoder.h>
 
 #import <CoreFoundation/CFDictionary.h>
+
+#if __has_include(<xpc/xpc.h>)
+#include <xpc/xpc.h>
+#endif
 
 @class NSMutableDictionary, NSString, NSOperationQueue, NSSet<ObjectType>, NSLock, NSError;
 @class NSXPCConnection, NSXPCListener, NSXPCInterface, NSXPCListenerEndpoint;
@@ -14095,7 +14743,7 @@ typedef NS_OPTIONS(NSUInteger, NSXPCConnectionOptions) {
 } API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 
 // This object is the main configuration mechanism for the communication between two processes. Each NSXPCConnection instance has a private serial queue. This queue is used when sending messages to reply handlers, interruption handlers, and invalidation handlers.
-NS_CLASS_AVAILABLE(10_8, 6_0)
+API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0))
 @interface NSXPCConnection : NSObject <NSXPCProxyCreating> {
 @private
     void *_xconnection;
@@ -14103,14 +14751,13 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
     dispatch_queue_t _userQueue;
     uint32_t _state;
     uint32_t _state2;
-    void (^_interruptionHandler)();
-    void (^_invalidationHandler)();
+    void (^_interruptionHandler)(void);
+    void (^_invalidationHandler)(void);
     id _exportInfo;
     id _repliesRequested;
     id _importInfo;
     id <NSObject> _otherInfo;
     id _reserved1;
-    id _lock;
     NSXPCInterface *_remoteObjectInterface;
     NSString *_serviceName;
     NSXPCListenerEndpoint *_endpoint;
@@ -14119,11 +14766,11 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 }
 
 // Initialize an NSXPCConnection that will connect to the specified service name. Note: Receiving a non-nil result from this init method does not mean the service name is valid or the service has been launched. The init method simply constructs the local object.
-- (instancetype)initWithServiceName:(NSString *)serviceName __IOS_PROHIBITED __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+- (instancetype)initWithServiceName:(NSString *)serviceName API_UNAVAILABLE(ios, watchos, tvos);
 @property (nullable, readonly, copy) NSString *serviceName;
 
 // Use this if looking up a name advertised in a launchd.plist. For example, an agent with a launchd.plist in ~/Library/LaunchAgents. If the connection is being made to something in a privileged Mach bootstrap (for example, a daemon with a launchd.plist in /Library/LaunchDaemons), then use the NSXPCConnectionPrivileged option. Note: Receiving a non-nil result from this init method does not mean the service name is valid or the service has been launched. The init method simply constructs the local object.
-- (instancetype)initWithMachServiceName:(NSString *)name options:(NSXPCConnectionOptions)options __IOS_PROHIBITED __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+- (instancetype)initWithMachServiceName:(NSString *)name options:(NSXPCConnectionOptions)options API_UNAVAILABLE(ios, watchos, tvos);
 
 // Initialize an NSXPCConnection that will connect to an NSXPCListener (identified by its NSXPCListenerEndpoint).
 - (instancetype)initWithListenerEndpoint:(NSXPCListenerEndpoint *)endpoint;
@@ -14170,17 +14817,23 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 @property (readonly) uid_t effectiveUserIdentifier;
 @property (readonly) gid_t effectiveGroupIdentifier;
 
+// Get the current connection, in the context of a call to a method on your exported object. Useful for determining 'who called this'.
++ (nullable NSXPCConnection *)currentConnection API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
+
+// Add a barrier block to be executed on the connection. This barrier block will run after any outstanding sends have completed. Note: This does not guarantee that messages will be received by the remote process by the time the block is invoked. If you need to ensure receipt of a message by the remote process, waiting for a reply to come back is the best option.
+- (void)scheduleSendBarrierBlock:(void (^)(void))block API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
 @end
 
 
 // Each NSXPCListener instance has a private serial queue. This queue is used when sending the delegate messages.
-NS_CLASS_AVAILABLE(10_8, 6_0)
+API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0))
 @interface NSXPCListener : NSObject {
 @private
     void *_xconnection;
     dispatch_queue_t _userQueue;
     void *reserved0;
-    id <NSXPCListenerDelegate> _delegate;
+    id _delegate;
     NSString *_serviceName;
     uint64_t _state;
     id _reserved1;
@@ -14194,10 +14847,10 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 + (NSXPCListener *)anonymousListener;
 
 // Use this if listening on name advertised in a launchd.plist For example, an agent with a launchd.plist in ~/Library/LaunchAgents, or a daemon with a launchd.plist in /Library/LaunchDaemons.
-- (instancetype)initWithMachServiceName:(NSString *)name NS_DESIGNATED_INITIALIZER __IOS_PROHIBITED __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+- (instancetype)initWithMachServiceName:(NSString *)name NS_DESIGNATED_INITIALIZER API_UNAVAILABLE(ios, watchos, tvos);
 
 // The delegate for the connection listener. If no delegate is set, all new connections will be rejected. See the protocol for more information on how to implement it.
-@property (nullable, assign) id <NSXPCListenerDelegate> delegate;
+@property (nullable, weak) id <NSXPCListenerDelegate> delegate;
 
 // Get an endpoint object which may be sent over an existing connection. This allows the receiver of the endpoint to create a new connection to this NSXPCListener. The NSXPCListenerEndpoint uniquely names this listener object across connections.
 @property (readonly, retain) NSXPCListenerEndpoint *endpoint;
@@ -14223,7 +14876,7 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 // ----------------------------------
 
 // This object holds all information about the interface of an exported or imported object. This includes: what messages are allowed, what kinds of objects are allowed as arguments, what the signature of any reply blocks are, and any information about additional proxy objects.
-NS_CLASS_AVAILABLE(10_8, 6_0)
+API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0))
 @interface NSXPCInterface : NSObject {
 @private
     Protocol *_protocol;
@@ -14246,16 +14899,45 @@ NS_CLASS_AVAILABLE(10_8, 6_0)
 - (void)setInterface:(NSXPCInterface *)ifc forSelector:(SEL)sel argumentIndex:(NSUInteger)arg ofReply:(BOOL)ofReply;
 - (nullable NSXPCInterface *)interfaceForSelector:(SEL)sel argumentIndex:(NSUInteger)arg ofReply:(BOOL)ofReply;
 
+#if __has_include(<xpc/xpc.h>)
+- (void)setXPCType:(xpc_type_t)type forSelector:(SEL)sel argumentIndex:(NSUInteger)arg ofReply:(BOOL)ofReply API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
+- (nullable xpc_type_t)XPCTypeForSelector:(SEL)sel argumentIndex:(NSUInteger)arg ofReply:(BOOL)ofReply API_AVAILABLE(macos(10.14), ios(12.0), watchos(5.0), tvos(12.0));
+#endif
+
 @end
 
 // ----------------------------------
 
 // An instance of this class is a reference to an NSXPCListener that may be encoded and sent over a connection. The receiver may use the object to create a new connection to the listener that supplied the NSXPCListenerEndpoint object.
-NS_CLASS_AVAILABLE(10_8, 6_0)
+API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0))
 @interface NSXPCListenerEndpoint : NSObject <NSSecureCoding> {
 @private
     void *_internal;
 }
+@end
+
+// ----------------------------------
+
+// An NSXPCCoder is used to encode or decode objects sent over an NSXPCConnection. If you want to encode or decode objects differently when sent over an NSXPCConnection, you may use isKindOfClass: to check that the coder is a kind of NSXPCCoder.
+API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0))
+@interface NSXPCCoder : NSCoder {
+@private
+    id <NSObject> _userInfo;
+    id _reserved1;
+}
+
+#if __has_include(<xpc/xpc.h>)
+- (void)encodeXPCObject:(xpc_object_t)xpcObject forKey:(NSString *)key;
+
+// This validates the type of the decoded object matches the type passed in. If they do not match, an exception is thrown (just like the rest of Secure Coding behaves). Note: This can return NULL, but calling an xpc function with NULL will crash. So make sure to do the right thing if you get back a NULL result.
+- (nullable xpc_object_t)decodeXPCObjectOfType:(xpc_type_t)type forKey:(NSString *)key API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
+#endif
+
+@property (nullable, retain) id <NSObject> userInfo;
+
+// The current NSXPCConnection that is encoding or decoding.
+@property (nullable, readonly, strong) NSXPCConnection *connection API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -14464,7 +15146,7 @@ Performance note: the repetitive -set<Key>: messages implied by step 2's descrip
 
 @end
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 
 @interface NSObject(NSDeprecatedKeyValueCoding)
 
@@ -14507,7 +15189,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) const char *objCType NS_RETURNS_INNER_POINTER;
 
 - (instancetype)initWithBytes:(const void *)value objCType:(const char *)type NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -14532,7 +15214,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSNumber : NSValue
 
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 - (NSNumber *)initWithChar:(char)value NS_DESIGNATED_INITIALIZER;
 - (NSNumber *)initWithUnsignedChar:(unsigned char)value NS_DESIGNATED_INITIALIZER;
 - (NSNumber *)initWithShort:(short)value NS_DESIGNATED_INITIALIZER;
@@ -14598,7 +15280,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NSValue (NSDeprecated)
 /* This method is unsafe because it could potentially cause buffer overruns. You should use -getValue:size: instead.
  */
-- (void)getValue:(void *)value; // This method will likely be deprecated in a future release
+- (void)getValue:(void *)value API_DEPRECATED_WITH_REPLACEMENT("getValue:size:", macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
 @end
 
 NS_ASSUME_NONNULL_END
@@ -14769,7 +15451,7 @@ FOUNDATION_EXPORT NSString * const NSRegistrationDomain;
 - (void)removePersistentDomainForName:(NSString *)domainName;
 
 /*!
- -synchronize is deprecated and will be marked with the NS_DEPRECATED macro in a future release.
+ -synchronize is deprecated and will be marked with the API_DEPRECATED macro in a future release.
  
  -synchronize blocks the calling thread until all in-progress set operations have completed. This is no longer necessary. Replacements for previous uses of -synchronize depend on what the intent of calling synchronize was. If you synchronized...
  - ...before reading in order to fetch updated values: remove the synchronize call
@@ -14814,35 +15496,35 @@ FOUNDATION_EXPORT NSNotificationName const NSUbiquitousUserDefaultsCompletedInit
  */
 FOUNDATION_EXPORT NSNotificationName const NSUserDefaultsDidChangeNotification;
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) || TARGET_OS_WIN32
+#if TARGET_OS_OSX
 /* The following keys and their values are deprecated in Mac OS X 10.5 "Leopard". Developers should use NSLocale, NSDateFormatter and NSNumberFormatter to retrieve the values formerly returned by these keys.
  */
-FOUNDATION_EXPORT NSString * const NSWeekDayNameArray NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSShortWeekDayNameArray NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSMonthNameArray NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSShortMonthNameArray NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSTimeFormatString NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSDateFormatString NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSTimeDateFormatString NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSShortTimeDateFormatString NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSCurrencySymbol NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSDecimalSeparator NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSThousandsSeparator NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSDecimalDigits NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSAMPMDesignation NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSHourNameDesignations NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSYearMonthWeekDesignations NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSEarlierTimeDesignations NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSLaterTimeDesignations NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSThisDayDesignations NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSNextDayDesignations NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSNextNextDayDesignations NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSPriorDayDesignations NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSDateTimeOrdering NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSInternationalCurrencyString NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSShortDateFormatString NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSPositiveCurrencyFormatString NS_DEPRECATED(10_0, 10_5, NA, NA);
-FOUNDATION_EXPORT NSString * const NSNegativeCurrencyFormatString NS_DEPRECATED(10_0, 10_5, NA, NA);
+FOUNDATION_EXPORT NSString * const NSWeekDayNameArray API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSShortWeekDayNameArray API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSMonthNameArray API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSShortMonthNameArray API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSTimeFormatString API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSDateFormatString API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSTimeDateFormatString API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSShortTimeDateFormatString API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSCurrencySymbol API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSDecimalSeparator API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSThousandsSeparator API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSDecimalDigits API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSAMPMDesignation API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSHourNameDesignations API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSYearMonthWeekDesignations API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSEarlierTimeDesignations API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSLaterTimeDesignations API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSThisDayDesignations API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSNextDayDesignations API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSNextNextDayDesignations API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSPriorDayDesignations API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSDateTimeOrdering API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSInternationalCurrencyString API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSShortDateFormatString API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSPositiveCurrencyFormatString API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
+FOUNDATION_EXPORT NSString * const NSNegativeCurrencyFormatString API_DEPRECATED("", macos(10.0, 10.5)) API_UNAVAILABLE(ios, watchos, tvos);
 #endif
 
 NS_ASSUME_NONNULL_END
@@ -14920,7 +15602,7 @@ typedef void (^NSItemProviderLoadHandler)(__null_unspecified NSItemProviderCompl
 
 
 // An NSItemProvider is a high level abstraction for an item supporting multiple representations.
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @interface NSItemProvider : NSObject <NSCopying>
 
 #pragma mark - Binary interface
@@ -15121,7 +15803,7 @@ typedef NS_ENUM(NSUInteger, NSCompoundPredicateType) {
     NSOrPredicateType,
 };
 
-NS_CLASS_AVAILABLE(10_4, 3_0)
+API_AVAILABLE(macos(10.4), ios(3.0), watchos(2.0), tvos(9.0))
 @interface NSCompoundPredicate : NSPredicate {
     @private
     void *_reserved2;
@@ -15188,7 +15870,7 @@ NS_SWIFT_UNAVAILABLE("NSInvocation and related APIs not available")
 @end
 
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 #if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_5
 
 enum _NSObjCValueType {
@@ -15248,7 +15930,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_OPTIONS(NSUInteger, NSJSONReadingOptions) {
     NSJSONReadingMutableContainers = (1UL << 0),
     NSJSONReadingMutableLeaves = (1UL << 1),
-    NSJSONReadingAllowFragments = (1UL << 2)
+    NSJSONReadingFragmentsAllowed = (1UL << 2),
+    NSJSONReadingAllowFragments API_DEPRECATED_WITH_REPLACEMENT("NSJSONReadingFragmentsAllowed", macos(10.7, API_TO_BE_DEPRECATED), ios(5.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED)) = NSJSONReadingFragmentsAllowed,
 } API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 typedef NS_OPTIONS(NSUInteger, NSJSONWritingOptions) {
@@ -15256,7 +15939,9 @@ typedef NS_OPTIONS(NSUInteger, NSJSONWritingOptions) {
 
     /* Sorts dictionary keys for output using [NSLocale systemLocale]. Keys are compared using NSNumericSearch. The specific sorting method used is subject to change.
      */
-    NSJSONWritingSortedKeys API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0)) = (1UL << 1)
+    NSJSONWritingSortedKeys API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0)) = (1UL << 1),
+    NSJSONWritingFragmentsAllowed = (1UL << 2),
+    NSJSONWritingWithoutEscapingSlashes API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) = (1UL << 3),
 } API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0));
 
 /* A class for converting JSON to Foundation objects and converting Foundation objects to JSON.
@@ -15267,7 +15952,7 @@ typedef NS_OPTIONS(NSUInteger, NSJSONWritingOptions) {
     - All dictionary keys are NSStrings
     - NSNumbers are not NaN or infinity
 */
-NS_CLASS_AVAILABLE(10_7, 5_0)
+API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSJSONSerialization : NSObject {
 @private
     void *reserved[6];
@@ -15318,7 +16003,7 @@ typedef NS_ENUM(NSInteger, NSEnergyFormatterUnit) {
     NSEnergyFormatterUnitKilocalorie = (7 << 8) + 2,   // kilocalories in general, abbr “kcal”, or “C” in some locales (e.g. US) when usesFoodEnergy is set to YES
 } API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @interface NSEnergyFormatter : NSFormatter {
 @private
     void *_formatter;
@@ -15426,7 +16111,7 @@ typedef NS_ENUM(NSUInteger, NSSearchPathDirectory) {
     NSPrinterDescriptionDirectory API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) = 20,     // location of system's PPDs directory (Library/Printers/PPDs)
     NSSharedPublicDirectory API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) = 21,           // location of user's Public sharing directory (~/Public)
     NSPreferencePanesDirectory API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) = 22,        // location of the PreferencePanes directory for use with System Preferences (Library/PreferencePanes)
-    NSApplicationScriptsDirectory NS_ENUM_AVAILABLE(10_8, NA) = 23,      // location of the user scripts folder for the calling application (~/Library/Application Scripts/code-signing-id)
+    NSApplicationScriptsDirectory API_AVAILABLE(macos(10.8)) API_UNAVAILABLE(ios, watchos, tvos) = 23,      // location of the user scripts folder for the calling application (~/Library/Application Scripts/code-signing-id)
     NSItemReplacementDirectory API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) = 99,	    // For use with NSFileManager's URLForDirectory:inDomain:appropriateForURL:create:error:
     NSAllApplicationsDirectory = 100,       // all directories where applications can occur
     NSAllLibrariesDirectory = 101,          // all directories where resources can occur
@@ -15506,22 +16191,22 @@ typedef NS_OPTIONS(NSUInteger, NSCalendarUnit) {
         NSCalendarUnitCalendar           API_AVAILABLE(macos(10.7), ios(4.0), watchos(2.0), tvos(9.0)) = (1 << 20),
         NSCalendarUnitTimeZone           API_AVAILABLE(macos(10.7), ios(4.0), watchos(2.0), tvos(9.0)) = (1 << 21),
 
-	NSEraCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarUnitEra instead") = NSCalendarUnitEra,
-	NSYearCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarUnitYear instead") = NSCalendarUnitYear,
-	NSMonthCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarUnitMonth instead") = NSCalendarUnitMonth,
-	NSDayCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarUnitDay instead") = NSCalendarUnitDay,
-	NSHourCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarUnitHour instead") = NSCalendarUnitHour,
-	NSMinuteCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarUnitMinute instead") = NSCalendarUnitMinute,
-	NSSecondCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarUnitSecond instead") = NSCalendarUnitSecond,
-	NSWeekCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarUnitWeekOfMonth or NSCalendarUnitWeekOfYear, depending on which you mean") = kCFCalendarUnitWeek,
-	NSWeekdayCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarUnitWeekday instead") = NSCalendarUnitWeekday,
-	NSWeekdayOrdinalCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarUnitWeekdayOrdinal instead") = NSCalendarUnitWeekdayOrdinal,
-	NSQuarterCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_6, 10_10, 4_0, 8_0, "Use NSCalendarUnitQuarter instead") = NSCalendarUnitQuarter,
-	NSWeekOfMonthCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_7, 10_10, 5_0, 8_0, "Use NSCalendarUnitWeekOfMonth instead") = NSCalendarUnitWeekOfMonth,
-	NSWeekOfYearCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_7, 10_10, 5_0, 8_0, "Use NSCalendarUnitWeekOfYear instead") = NSCalendarUnitWeekOfYear,
-	NSYearForWeekOfYearCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_7, 10_10, 5_0, 8_0, "Use NSCalendarUnitYearForWeekOfYear instead") = NSCalendarUnitYearForWeekOfYear,
-	NSCalendarCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_7, 10_10, 4_0, 8_0, "Use NSCalendarUnitCalendar instead") = NSCalendarUnitCalendar,
-	NSTimeZoneCalendarUnit NS_CALENDAR_ENUM_DEPRECATED(10_7, 10_10, 4_0, 8_0, "Use NSCalendarUnitTimeZone instead") = NSCalendarUnitTimeZone,
+	NSEraCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitEra", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitEra,
+	NSYearCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitYear", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitYear,
+	NSMonthCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitMonth", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitMonth,
+	NSDayCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitDay", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitDay,
+	NSHourCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitHour", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitHour,
+	NSMinuteCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitMinute", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitMinute,
+	NSSecondCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitSecond", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitSecond,
+	NSWeekCalendarUnit API_DEPRECATED("NSCalendarUnitWeekOfMonth or NSCalendarUnitWeekOfYear, depending on which you mean", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = kCFCalendarUnitWeek,
+	NSWeekdayCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitWeekday", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitWeekday,
+	NSWeekdayOrdinalCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitWeekdayOrdinal", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitWeekdayOrdinal,
+	NSQuarterCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitQuarter", macos(10.6, 10.10), ios(4.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitQuarter,
+	NSWeekOfMonthCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitWeekOfMonth", macos(10.7, 10.10), ios(5.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitWeekOfMonth,
+	NSWeekOfYearCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitWeekOfYear", macos(10.7, 10.10), ios(5.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitWeekOfYear,
+	NSYearForWeekOfYearCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitYearForWeekOfYear", macos(10.7, 10.10), ios(5.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitYearForWeekOfYear,
+	NSCalendarCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitCalendar", macos(10.7, 10.10), ios(4.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitCalendar,
+	NSTimeZoneCalendarUnit API_DEPRECATED_WITH_REPLACEMENT("NSCalendarUnitTimeZone", macos(10.7, 10.10), ios(4.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarUnitTimeZone,
 };
     
 typedef NS_OPTIONS(NSUInteger, NSCalendarOptions) {
@@ -15539,7 +16224,7 @@ typedef NS_OPTIONS(NSUInteger, NSCalendarOptions) {
 };
 
 enum {
-	NSWrapCalendarComponents NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSCalendarWrapComponents instead") = NSCalendarWrapComponents,
+	NSWrapCalendarComponents API_DEPRECATED_WITH_REPLACEMENT("NSCalendarWrapComponents", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSCalendarWrapComponents,
 };
 
 
@@ -15554,7 +16239,7 @@ enum {
 */
 + (nullable NSCalendar *)calendarWithIdentifier:(NSCalendarIdentifier)calendarIdentifierConstant API_AVAILABLE(macos(10.9), ios(8.0), watchos(2.0), tvos(9.0));
 
-- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)init API_UNAVAILABLE(macos, ios, watchos, tvos);
 
 - (nullable id)initWithCalendarIdentifier:(NSCalendarIdentifier)ident NS_DESIGNATED_INITIALIZER;
 
@@ -15852,7 +16537,7 @@ FOUNDATION_EXPORT NSNotificationName const NSCalendarDayChangedNotification API_
 NS_ENUM(NSInteger) {
 	NSDateComponentUndefined = NSIntegerMax,
 
-	NSUndefinedDateComponent NS_CALENDAR_ENUM_DEPRECATED(10_4, 10_10, 2_0, 8_0, "Use NSDateComponentUndefined instead") = NSDateComponentUndefined
+	NSUndefinedDateComponent API_DEPRECATED_WITH_REPLACEMENT("NSDateComponentUndefined", macos(10.4, 10.10), ios(2.0, 8.0), watchos(2.0, 2.0), tvos(9.0, 9.0)) = NSDateComponentUndefined
 };
 
 
@@ -15877,8 +16562,8 @@ NS_ENUM(NSInteger) {
 @property (getter=isLeapMonth) BOOL leapMonth API_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
 @property (nullable, readonly, copy) NSDate *date API_AVAILABLE(macos(10.7), ios(4.0), watchos(2.0), tvos(9.0));
 
-- (NSInteger)week NS_CALENDAR_DEPRECATED(10_4, 10_9, 2_0, 7_0, "Use weekOfMonth or weekOfYear, depending on which you mean");
-- (void)setWeek:(NSInteger)v NS_CALENDAR_DEPRECATED(10_4, 10_9, 2_0, 7_0, "Use setWeekOfMonth: or setWeekOfYear:, depending on which you mean");
+- (NSInteger)week API_DEPRECATED("Use -weekOfMonth or -weekOfYear, depending on which you mean", macos(10.4, 10.9), ios(2.0, 7.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
+- (void)setWeek:(NSInteger)v API_DEPRECATED("Use -setWeekOfMonth: or -setWeekOfYear:, depending on which you mean", macos(10.4, 10.9), ios(2.0, 7.0), watchos(2.0, 2.0), tvos(9.0, 9.0));
 
 /*
 	This API allows one to set a specific component of NSDateComponents, by enum constant value rather than property name.
@@ -16106,7 +16791,7 @@ You can't really override this method when you add a computed property to an exi
 
 @end
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 
 @interface NSObject(NSDeprecatedKeyValueObservingCustomization)
 
@@ -16138,7 +16823,7 @@ typedef NS_ENUM(NSInteger, NSMassFormatterUnit) {
     NSMassFormatterUnitStone = (6 << 8) + 3,
 } API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0));
 
-NS_CLASS_AVAILABLE(10_10, 8_0)
+API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0))
 @interface NSMassFormatter : NSFormatter {
 @private
     void *_formatter;
@@ -16296,6 +16981,136 @@ The value passed for didRecover must be YES if error recovery was completely suc
 
 NS_ASSUME_NONNULL_END
 
+// ==========  Foundation.framework/Headers/NSListFormatter.h
+/*    NSListFormatter.h
+      Copyright (c) 2018, Apple Inc. All rights reserved.
+ */
+
+#import <Foundation/NSFormatter.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSArray.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/* NSListFormatter provides locale-correct formatting of a list of items using the appropriate separator and conjunction. Note that the list formatter is unaware of the context where the joined string will be used, e.g., in the beginning of the sentence or used as a standalone string in the UI, so it will not provide any sort of capitalization customization on the given items, but merely join them as-is. The string joined this way may not be grammatically correct when placed in a sentence, and it should only be used in a standalone manner.
+*/
+API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+@interface NSListFormatter : NSFormatter
+#if !__OBJC2__
+{
+@private
+    void * _listFormatter;
+    NSLocale *_locale;
+    NSFormatter *_itemFormatter;
+}
+#endif // !__OBJC2__
+
+/* Specifies the locale to format the items. Defaults to autoupdatingCurrentLocale. Also resets to autoupdatingCurrentLocale on assignment of nil.
+ */
+@property (null_resettable, copy) NSLocale *locale;
+
+/* Specifies how each object should be formatted. If not set, the object is formatted using its instance method in the following order: -descriptionWithLocale:, -localizedDescription, and -description.
+ */
+@property (nullable, copy) NSFormatter *itemFormatter;
+
+/* Convenience method to return a string constructed from an array of strings using the list format specific to the current locale. It is recommended to join only disjointed strings that are ready to display in a bullet-point list. Sentences, phrases with punctuations, and appositions may not work well when joined together.
+ */
++ (NSString *)localizedStringByJoiningStrings:(NSArray<NSString *> *)strings;
+
+/* Convenience method for -stringForObjectValue:. Returns a string constructed from an array in the locale-aware format. Each item is formatted using the itemFormatter. If the itemFormatter does not apply to a particular item, the method will fall back to the item's -descriptionWithLocale: or -localizedDescription if implemented, or -description if not.
+
+ Returns nil if `items` is nil or if the list formatter cannot generate a string representation for all items in the array.
+ */
+- (nullable NSString *)stringFromItems:(NSArray *)items;
+
+/* Inherited from NSFormatter. `obj` must be an instance of NSArray. Returns nil if `obj` is nil, not an instance of NSArray, or if the list formatter cannot generate a string representation for all objects in the array.
+ */
+- (nullable NSString *)stringForObjectValue:(nullable id)obj;
+
+@end
+
+NS_ASSUME_NONNULL_END
+// ==========  Foundation.framework/Headers/NSOrderedCollectionDifference.h
+/*	NSOrderedCollectionDifference.h
+	Copyright (c) 2017-2019, Apple Inc. All rights reserved.
+*/
+
+@class NSArray<ObjectType>;
+
+#import <Foundation/NSOrderedCollectionChange.h>
+#import <Foundation/NSIndexSet.h>
+#import <Foundation/NSEnumerator.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// Options supported by methods that produce difference objects.
+typedef NS_OPTIONS(NSUInteger, NSOrderedCollectionDifferenceCalculationOptions) {
+    /// Insertion changes do not store a reference to the inserted object.
+    NSOrderedCollectionDifferenceCalculationOmitInsertedObjects = (1 << 0UL),
+    /// Insertion changes do not store a reference to the removed object.
+    NSOrderedCollectionDifferenceCalculationOmitRemovedObjects = (1 << 1UL),
+    /// Assume objects that were uniquely removed and inserted were moved.
+    /// This is useful when diffing based on identity instead of equality.
+    NSOrderedCollectionDifferenceCalculationInferMoves = (1 << 2UL)
+} API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0), tvos(12.0));
+
+API_AVAILABLE(macosx(10.14), ios(12.0), watchos(5.0), tvos(12.0))
+@interface NSOrderedCollectionDifference<ObjectType> : NSObject <NSFastEnumeration>
+#ifndef __OBJC2__
+{
+@private
+    id _removeIndexes;
+    id _removeObjects;
+    id _insertIndexes;
+    id _insertObjects;
+    id _moves;
+}
+#endif // !__OBJC2__
+
+/// Creates a new difference representing the changes in the parameter.
+///
+/// For clients interested in the difference between two collections, the
+/// collection's differenceFrom method should be used instead.
+///
+/// To guarantee that instances are unambiguous and safe for compatible base
+/// states, this method requires that its parameter conform to the following
+/// requirements:
+///
+/// 1) All insertion offsets are unique
+/// 2) All removal offsets are unique
+/// 3) All associated indexes match a change with the opposite parity.
+- (instancetype)initWithChanges:(NSArray<NSOrderedCollectionChange<ObjectType> *> *)changes;
+
+- (instancetype)initWithInsertIndexes:(NSIndexSet *)inserts
+                      insertedObjects:(nullable NSArray<ObjectType> *)insertedObjects
+                        removeIndexes:(NSIndexSet *)removes
+                       removedObjects:(nullable NSArray<ObjectType> *)removedObjects
+                    additionalChanges:(NSArray<NSOrderedCollectionChange<ObjectType> *> *)changes NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithInsertIndexes:(NSIndexSet *)inserts
+                      insertedObjects:(nullable NSArray<ObjectType> *)insertedObjects
+                        removeIndexes:(NSIndexSet *)removes
+                       removedObjects:(nullable NSArray<ObjectType> *)removedObjects;
+
+@property (strong, readonly) NSArray<NSOrderedCollectionChange<ObjectType> *> *insertions API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+@property (strong, readonly) NSArray<NSOrderedCollectionChange<ObjectType> *> *removals API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+@property (assign, readonly) BOOL hasChanges;
+
+// Create a new difference by mapping over this difference's members
+- (NSOrderedCollectionDifference<id> *)differenceByTransformingChangesWithBlock:(NSOrderedCollectionChange<id> *(NS_NOESCAPE ^)(NSOrderedCollectionChange<ObjectType> *))block;
+
+// Returns a difference that is the inverse of the receiver.
+//
+// In other words, given a valid difference `diff` the array `a` is equal to
+// [[a arrayByApplyingDifference:diff] arrayByApplyingDifference:diff.inverseDifference]
+//
+// To revert a chronological sequence of diffs, apply their inverses in reverse order.
+- (instancetype)inverseDifference API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Foundation.framework/Headers/NSPointerArray.h
 /*
  *  NSPointerArray.h
@@ -16322,7 +17137,7 @@ NS_ASSUME_NONNULL_BEGIN
    The fast enumeration protocol (supporting the for..in statement) will yield NULLs if present.  It is defined for all types of pointers although the language syntax doesn't directly support this.
 */
 
-NS_CLASS_AVAILABLE(10_5, 6_0)
+API_AVAILABLE(macos(10.5), ios(6.0), watchos(2.0), tvos(9.0))
 @interface NSPointerArray : NSObject <NSFastEnumeration, NSCopying, NSSecureCoding>
 // construction
 - (instancetype)initWithOptions:(NSPointerFunctionsOptions)options NS_DESIGNATED_INITIALIZER;
@@ -16355,7 +17170,7 @@ NS_CLASS_AVAILABLE(10_5, 6_0)
 @interface NSPointerArray (NSPointerArrayConveniences)  
 
 // construction
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 + (id) pointerArrayWithStrongObjects API_DEPRECATED("GC no longer supported", macos(10.5,10.8)) API_UNAVAILABLE(ios, watchos, tvos); // strong objects
 + (id) pointerArrayWithWeakObjects API_DEPRECATED("GC no longer supported", macos(10.5,10.8)) API_UNAVAILABLE(ios, watchos, tvos); // weak objects
 #endif
@@ -16479,7 +17294,7 @@ typedef NS_OPTIONS(NSUInteger, NSStringEncodingConversionOptions) {
 /* The initializers available to subclasses. See further below for additional init methods.
 */
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -16907,6 +17722,7 @@ NS_ENUM(NSStringEncoding) {
 #endif
 #define NS_UNICHAR_IS_EIGHT_BIT 0
 
+NS_SWIFT_UNAVAILABLE("Use String or NSString instead.")
 @interface NSSimpleCString : NSString {
 @package
     char *bytes;
@@ -16917,10 +17733,11 @@ NS_ENUM(NSStringEncoding) {
 }
 @end
 
+NS_SWIFT_UNAVAILABLE("Use String or NSString instead.")
 @interface NSConstantString : NSSimpleCString
 @end
 
-#if __LP64__
+#if __OBJC2__
 #else
 extern void *_NSConstantStringClassReference;
 #endif
@@ -17049,8 +17866,8 @@ NS_ERROR_ENUM(NSCocoaErrorDomain) {
     NSFileWriteVolumeReadOnlyError API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) = 642,      // Write error (readonly volume)
 
     // NSFileManager unmount errors
-    NSFileManagerUnmountUnknownError NS_ENUM_AVAILABLE(10_11, NA) = 768,    // The volume could not be unmounted (reason unknown)
-    NSFileManagerUnmountBusyError NS_ENUM_AVAILABLE(10_11, NA) = 769,       // The volume could not be unmounted because it is in use
+    NSFileManagerUnmountUnknownError API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios, watchos, tvos) = 768,    // The volume could not be unmounted (reason unknown)
+    NSFileManagerUnmountBusyError API_AVAILABLE(macos(10.11)) API_UNAVAILABLE(ios, watchos, tvos) = 769,       // The volume could not be unmounted because it is in use
 
     // Other errors
     NSKeyValueValidationError = 1024,                                       // KVC validation error
@@ -17118,9 +17935,9 @@ NS_ERROR_ENUM(NSCocoaErrorDomain) {
     NSBundleErrorMinimum API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0)) = 4992,
     NSBundleErrorMaximum API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0)) = 5119,
     
-    NSBundleOnDemandResourceOutOfSpaceError NS_ENUM_AVAILABLE(NA, 9_0) = 4992, // There was not enough space available to download the requested On Demand Resources.
-    NSBundleOnDemandResourceExceededMaximumSizeError NS_ENUM_AVAILABLE(NA, 9_0) = 4993, // The application exceeded the amount of On Demand Resources content in use at one time
-    NSBundleOnDemandResourceInvalidTagError NS_ENUM_AVAILABLE(NA, 9_0) = 4994, // The application specified a tag which the system could not find in the application tag manifest
+    NSBundleOnDemandResourceOutOfSpaceError API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos) = 4992, // There was not enough space available to download the requested On Demand Resources.
+    NSBundleOnDemandResourceExceededMaximumSizeError API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos) = 4993, // The application exceeded the amount of On Demand Resources content in use at one time
+    NSBundleOnDemandResourceInvalidTagError API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos) = 4994, // The application specified a tag which the system could not find in the application tag manifest
     
     NSCloudSharingNetworkFailureError API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos) = 5120,        // Sharing failed due to a network failure.
     NSCloudSharingQuotaExceededError API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos) = 5121,         // The user doesn't have enough storage space available to share the requested items.
@@ -17131,6 +17948,12 @@ NS_ERROR_ENUM(NSCocoaErrorDomain) {
     
     NSCloudSharingErrorMinimum API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos) = 5120,
     NSCloudSharingErrorMaximum API_AVAILABLE(macosx(10.12), ios(10.0)) API_UNAVAILABLE(watchos, tvos) = 5375,
+    
+    NSCompressionFailedError API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) = 5376,
+    NSDecompressionFailedError API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) = 5377,
+    
+    NSCompressionErrorMinimum API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) = 5376,
+    NSCompressionErrorMaximum API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) = 5503,
 
 };
 
@@ -17154,21 +17977,35 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly, copy) NSData *availableData;
 
-- (NSData *)readDataToEndOfFile;
-- (NSData *)readDataOfLength:(NSUInteger)length;
-
-- (void)writeData:(NSData *)data;
-
-@property (readonly) unsigned long long offsetInFile;
-- (unsigned long long)seekToEndOfFile;
-- (void)seekToFileOffset:(unsigned long long)offset;
-
-- (void)truncateFileAtOffset:(unsigned long long)offset;
-- (void)synchronizeFile;
-- (void)closeFile;
-
 - (instancetype)initWithFileDescriptor:(int)fd closeOnDealloc:(BOOL)closeopt NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;
+
+- (nullable NSData *)readDataToEndOfFileAndReturnError:(out NSError **)error
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) NS_REFINED_FOR_SWIFT;
+
+- (nullable NSData *)readDataUpToLength:(NSUInteger)length error:(out NSError **)error
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) NS_REFINED_FOR_SWIFT;
+
+- (BOOL)writeData:(NSData *)data error:(out NSError **)error
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) NS_REFINED_FOR_SWIFT;
+
+- (BOOL)getOffset:(out unsigned long long *)offsetInFile error:(out NSError **)error
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) NS_REFINED_FOR_SWIFT;
+
+- (BOOL)seekToEndReturningOffset:(out unsigned long long *_Nullable)offsetInFile error:(out NSError **)error
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) NS_REFINED_FOR_SWIFT;
+
+- (BOOL)seekToOffset:(unsigned long long)offset error:(out NSError **)error
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+- (BOOL)truncateAtOffset:(unsigned long long)offset error:(out NSError **)error
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+- (BOOL)synchronizeAndReturnError:(out NSError **)error
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+- (BOOL)closeAndReturnError:(out NSError **)error
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
 
 @end
 
@@ -17226,6 +18063,62 @@ FOUNDATION_EXPORT NSString * const NSFileHandleNotificationMonitorModes API_DEPR
 - (instancetype)initWithFileDescriptor:(int)fd;
 
 @property (readonly) int fileDescriptor;
+
+@end
+
+@interface NSFileHandle (/* Deprecations */)
+
+/* The API below may throw exceptions and will be deprecated in a future version of the OS.
+ Use their replacements instead. */
+
+- (NSData *)readDataToEndOfFile
+    API_DEPRECATED_WITH_REPLACEMENT("readDataToEndOfFileAndReturnError:",
+                                    macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED),
+                                    watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+
+- (NSData *)readDataOfLength:(NSUInteger)length
+    API_DEPRECATED_WITH_REPLACEMENT("readDataUpToLength:error:",
+                                    macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED),
+                                    watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+
+
+- (void)writeData:(NSData *)data
+    API_DEPRECATED_WITH_REPLACEMENT("writeData:error:",
+                                    macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED),
+                                    watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+
+
+@property (readonly) unsigned long long offsetInFile
+    API_DEPRECATED_WITH_REPLACEMENT("getOffset:error:",
+                                    macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED),
+                                    watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+
+- (unsigned long long)seekToEndOfFile
+    API_DEPRECATED_WITH_REPLACEMENT("seekToEndReturningOffset:error:",
+                                    macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED),
+                                    watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+
+- (void)seekToFileOffset:(unsigned long long)offset
+    API_DEPRECATED_WITH_REPLACEMENT("seekToOffset:error:",
+                                    macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED),
+                                    watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+
+
+- (void)truncateFileAtOffset:(unsigned long long)offset
+    API_DEPRECATED_WITH_REPLACEMENT("truncateAtOffset:error:",
+                                    macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED),
+                                    watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+
+- (void)synchronizeFile
+    API_DEPRECATED_WITH_REPLACEMENT("synchronizeAndReturnError:",
+                                    macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED),
+                                    watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+
+- (void)closeFile
+    API_DEPRECATED_WITH_REPLACEMENT("closeAndReturnError:",
+                                    macos(10.0, API_TO_BE_DEPRECATED), ios(2.0, API_TO_BE_DEPRECATED),
+                                    watchos(2.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED));
+
 
 @end
 
@@ -17386,7 +18279,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_4, 5_0)
+API_AVAILABLE(macos(10.4), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSMetadataQuery : NSObject {
 @private
     NSUInteger _flags;
@@ -17480,7 +18373,7 @@ FOUNDATION_EXPORT NSString * const NSMetadataQueryUbiquitousDataScope API_AVAILA
 FOUNDATION_EXPORT NSString * const NSMetadataQueryAccessibleUbiquitousExternalDocumentsScope API_AVAILABLE(macos(10.10), ios(8.0), watchos(2.0), tvos(9.0)); // documents from outside the application's container that are accessible without user interaction. NSMetadataItemURLKey attributes of results are security-scoped NSURLs.
 
 
-NS_CLASS_AVAILABLE(10_4, 5_0)
+API_AVAILABLE(macos(10.4), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSMetadataItem : NSObject {
 @private
     id _item;
@@ -17496,7 +18389,7 @@ NS_CLASS_AVAILABLE(10_4, 5_0)
 
 @end
 
-NS_CLASS_AVAILABLE(10_4, 5_0)
+API_AVAILABLE(macos(10.4), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSMetadataQueryAttributeValueTuple : NSObject {
 @private
     id _attr;
@@ -17511,7 +18404,7 @@ NS_CLASS_AVAILABLE(10_4, 5_0)
 
 @end
 
-NS_CLASS_AVAILABLE(10_4, 5_0)
+API_AVAILABLE(macos(10.4), ios(5.0), watchos(2.0), tvos(9.0))
 @interface NSMetadataQueryResultGroup : NSObject {
 @private
     id _private[9];
@@ -17704,7 +18597,7 @@ NS_ASSUME_NONNULL_BEGIN
 // used with NSRunLoop's performSelector:target:argument:order:modes:
 static const NSUInteger NSUndoCloseGroupingRunLoopOrdering = 350000;
 
-NS_CLASS_AVAILABLE(10_0, 3_0)
+API_AVAILABLE(macos(10.0), ios(3.0), watchos(2.0), tvos(9.0))
 @interface NSUndoManager : NSObject {
     @private
     id 			_undoStack;
@@ -18116,7 +19009,7 @@ typedef NS_OPTIONS(NSUInteger, NSRegularExpressionOptions) {
    NSRegularExpressionUseUnicodeWordBoundaries    = 1 << 6      /* Use Unicode TR#29 to specify word boundaries (otherwise, traditional regular expression word boundaries are used). */
 };
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), watchos(2.0), tvos(9.0))
 @interface NSRegularExpression : NSObject <NSCopying, NSSecureCoding> {
     @protected   // all instance variables are private
     NSString *_pattern;
@@ -18200,7 +19093,7 @@ NSRegularExpression is designed to be immutable and threadsafe, so that a single
 
 @end
 
-NS_CLASS_AVAILABLE(10_7, 4_0)
+API_AVAILABLE(macos(10.7), ios(4.0), watchos(2.0), tvos(9.0))
 @interface NSDataDetector : NSRegularExpression {
     @protected   // all instance variables are private
     NSTextCheckingTypes _types;
@@ -18216,15 +19109,96 @@ NS_CLASS_AVAILABLE(10_7, 4_0)
 @end
 
 NS_ASSUME_NONNULL_END
+// ==========  Foundation.framework/Headers/NSRelativeDateTimeFormatter.h
+/*    NSRelativeDateTimeFormatter.h
+      Copyright (c) 2018, Apple Inc. All rights reserved.
+ */
+
+#import <Foundation/NSDate.h>
+#import <Foundation/NSFormatter.h>
+
+@class NSCalendar, NSLocale, NSDateComponents;
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, NSRelativeDateTimeFormatterStyle) {
+    NSRelativeDateTimeFormatterStyleNumeric = 0, // "1 day ago", "2 days ago", "1 week ago", "in 1 week"
+    NSRelativeDateTimeFormatterStyleNamed, // “yesterday”, "2 days ago", "last week", "next week"; falls back to the numeric style if no name is available
+} API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+typedef NS_ENUM(NSInteger, NSRelativeDateTimeFormatterUnitsStyle) {
+    NSRelativeDateTimeFormatterUnitsStyleFull = 0, // "2 months ago"
+    NSRelativeDateTimeFormatterUnitsStyleSpellOut, // "two months ago"
+    NSRelativeDateTimeFormatterUnitsStyleShort, // "2 mo. ago"
+    NSRelativeDateTimeFormatterUnitsStyleAbbreviated, // "2 mo. ago"; might give different results in languages other than English
+} API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0), tvos(13.0));
+
+/* NSRelativeDateTimeFormatter provides locale-aware formatting of a relative date or time, such as "1 hour ago", "in 2 weeks", "yesterday", and "tomorrow." Note that the string produced by the formatter should only be used in a standalone manner as it may not be grammatically correct to embed the string in longer strings.
+ */
+API_AVAILABLE(macosx(10.15), ios(13.0), watchos(6.0), tvos(13.0))
+@interface NSRelativeDateTimeFormatter : NSFormatter
+#if !__OBJC2__
+{
+    @private
+    void * _formatter;
+    NSRelativeDateTimeFormatterStyle _dateTimeStyle;
+    NSRelativeDateTimeFormatterUnitsStyle _unitsStyle;
+    NSFormattingContext _formattingContext;
+    NSCalendar *_calendar;
+    NSLocale *_locale;
+}
+#endif // !__OBJC2__
+
+/* Specifies how to describe a relative date. For example, "yesterday" vs "1 day ago" in English. Default is NSRelativeDateTimeFormatterStyleNumeric.
+ */
+@property NSRelativeDateTimeFormatterStyle dateTimeStyle;
+
+/* Specifies how to format the quantity or the name of the unit. For example, "1 day ago" vs "one day ago" in English. Default is NSRelativeDateTimeFormatterUnitsStyleFull.
+ */
+@property NSRelativeDateTimeFormatterUnitsStyle unitsStyle;
+
+/* Specifies the formatting context of the output. Default is NSFormattingContextUnknown.
+ */
+@property NSFormattingContext formattingContext;
+
+/* Specifies the calendar to use for formatting values that do not have an inherent calendar of their own. Defaults to autoupdatingCurrentCalendar. Also resets to autoupdatingCurrentCalendar on assignment of nil.
+ */
+@property (null_resettable, copy) NSCalendar *calendar;
+
+/* Specifies the locale of the output string. Defaults to and resets on assignment of nil to the calendar's locale.
+ */
+@property (null_resettable, copy) NSLocale *locale;
+
+/* Convenience method for formatting a relative time represented by an NSDateComponents object. Negative component values are evaluated as a date in the past. This method formats the value of the least granular unit in the NSDateComponents object, and does not provide a compound format of the date component.
+
+ Note this method only supports the following components: year, month, week of month, day, hour, minute, and second. The rest will be ignored.
+ */
+- (NSString *)localizedStringFromDateComponents:(NSDateComponents *)dateComponents;
+
+/* Convenience method for formatting a time interval using the formatter's calendar. Negative time interval is evaluated as a date in the past.
+ */
+- (NSString *)localizedStringFromTimeInterval:(NSTimeInterval)timeInterval;
+
+/* Formats the date interval from the reference date to the given date using the formatter's calendar.
+ */
+- (NSString *)localizedStringForDate:(NSDate *)date relativeToDate:(NSDate *)referenceDate;
+
+/* Inherited from NSFormatter. 'obj' must be an instance of NSDate. Returns nil otherwise. When formatting a relative date using this method, the class uses -[NSDate date] as the reference date.
+ */
+- (nullable NSString *)stringForObjectValue:(nullable id)obj;
+
+@end
+
+NS_ASSUME_NONNULL_END
 // ==========  Foundation.framework/Headers/NSKeyedArchiver.h
 /*	NSKeyedArchiver.h
-	Copyright (c) 2001-2018, Apple Inc. All rights reserved.
+	Copyright (c) 2001-2019, Apple Inc. All rights reserved.
 */
 
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSPropertyList.h>
 #import <Foundation/NSException.h>
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 #import <Foundation/NSGeometry.h>
 #endif
 
@@ -18236,7 +19210,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 FOUNDATION_EXPORT NSExceptionName const NSInvalidArchiveOperationException;
 FOUNDATION_EXPORT NSExceptionName const NSInvalidUnarchiveOperationException;
-// Archives created using the class method archivedRootDataWithObject used this key for the root object in the hierarchy of encoded objects. The NSKeyedUnarchiver class method unarchiveObjectWithData: will look for this root key as well. You can also use it as the key for the root object in your own archives.
+// Archives created using the class method archivedDataWithRootObject used this key for the root object in the hierarchy of encoded objects. The NSKeyedUnarchiver class method unarchiveObjectWithData: will look for this root key as well. You can also use it as the key for the root object in your own archives.
 FOUNDATION_EXPORT NSString * const NSKeyedArchiveRootObjectKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
 
 @interface NSKeyedArchiver : NSCoder {
@@ -18265,7 +19239,7 @@ FOUNDATION_EXPORT NSString * const NSKeyedArchiveRootObjectKey API_AVAILABLE(mac
 
  If \c NSSecureCoding cannot be used, \c requiresSecureCoding may be turned off here; for improved security, however, \c requiresSecureCoding should be left enabled whenever possible. \c requiresSecureCoding ensures that all encoded objects conform to \c NSSecureCoding, preventing the possibility of encoding objects which cannot be decoded later.
 
- To produce archives whose structure matches those previously encoded using \c +archivedRootDataWithObject, encode the top-level object in your archive for the \c NSKeyedArchiveRootObjectKey.
+ To produce archives whose structure matches those previously encoded using \c +archivedDataWithRootObject, encode the top-level object in your archive for the \c NSKeyedArchiveRootObjectKey.
  */
 - (instancetype)initRequiringSecureCoding:(BOOL)requiresSecureCoding API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0));
 
@@ -18371,7 +19345,7 @@ FOUNDATION_EXPORT NSString * const NSKeyedArchiveRootObjectKey API_AVAILABLE(mac
 - (instancetype)initForReadingWithData:(NSData *)data API_DEPRECATED("Use -initForReadingFromData:error: instead", macosx(10.2,10.14), ios(2.0,12.0), watchos(2.0,5.0), tvos(9.0,12.0));
 
 + (nullable id)unarchiveObjectWithData:(NSData *)data API_DEPRECATED("Use +unarchivedObjectOfClass:fromData:error: instead", macosx(10.2,10.14), ios(2.0,12.0), watchos(2.0,5.0), tvos(9.0,12.0));
-+ (nullable id)unarchiveTopLevelObjectWithData:(NSData *)data error:(NSError **)error API_DEPRECATED("Use +unarchivedObjectOfClass:fromData:error: instead", macosx(10.2,10.14), ios(2.0,12.0), watchos(2.0,5.0), tvos(9.0,12.0)) NS_SWIFT_UNAVAILABLE("Use 'unarchiveTopLevelObjectWithData(_:) throws' instead");
++ (nullable id)unarchiveTopLevelObjectWithData:(NSData *)data error:(NSError **)error API_DEPRECATED("Use +unarchivedObjectOfClass:fromData:error: instead", macosx(10.11,10.14), ios(2.0,12.0), watchos(2.0,5.0), tvos(9.0,12.0)) NS_SWIFT_UNAVAILABLE("Use 'unarchiveTopLevelObjectWithData(_:) throws' instead");
 + (nullable id)unarchiveObjectWithFile:(NSString *)path API_DEPRECATED("Use +unarchivedObjectOfClass:fromData:error: instead", macosx(10.2,10.14), ios(2.0,12.0), watchos(2.0,5.0), tvos(9.0,12.0));
 
 @property (nullable, assign) id <NSKeyedUnarchiverDelegate> delegate;
@@ -18905,7 +19879,7 @@ NS_ASSUME_NONNULL_END
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_CLASS_AVAILABLE(10_12, 10_0)
+API_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0))
 @interface NSMeasurement<UnitType: NSUnit *> : NSObject<NSCopying, NSSecureCoding> {
 @private
     UnitType _unit;
@@ -18915,7 +19889,7 @@ NS_CLASS_AVAILABLE(10_12, 10_0)
 @property (readonly, copy) UnitType unit;
 @property (readonly) double doubleValue;
 
-- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)init API_UNAVAILABLE(macos, ios, watchos, tvos);
 - (instancetype)initWithDoubleValue:(double)doubleValue unit:(UnitType)unit NS_DESIGNATED_INITIALIZER;
 
 /*
@@ -18952,7 +19926,7 @@ NS_ASSUME_NONNULL_END
 #import <Foundation/NSDictionary.h>
 
 NS_ASSUME_NONNULL_BEGIN
-NS_CLASS_AVAILABLE(10_11, 9_0)
+API_AVAILABLE(macos(10.11), ios(9.0), watchos(2.0), tvos(9.0))
 @interface NSPersonNameComponents : NSObject <NSCopying, NSSecureCoding>{
 @private
     id _private;
@@ -19014,7 +19988,7 @@ static const NSPointerFunctionsOptions NSHashTableWeakMemory API_AVAILABLE(macos
 
 typedef NSUInteger NSHashTableOptions;
 
-NS_CLASS_AVAILABLE(10_5, 6_0)
+API_AVAILABLE(macos(10.5), ios(6.0), watchos(2.0), tvos(9.0))
 @interface NSHashTable<ObjectType> : NSObject <NSCopying, NSSecureCoding, NSFastEnumeration>
 
 - (instancetype)initWithOptions:(NSPointerFunctionsOptions)options capacity:(NSUInteger)initialCapacity NS_DESIGNATED_INITIALIZER;
@@ -19118,7 +20092,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, NSNumberFormatterBehavior) {
     NSNumberFormatterBehaviorDefault = 0,
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
     NSNumberFormatterBehavior10_0 = 1000,
 #endif
     NSNumberFormatterBehavior10_4 = 1040,
@@ -19254,7 +20228,7 @@ typedef NS_ENUM(NSUInteger, NSNumberFormatterRoundingMode) {
 
 @class NSDecimalNumberHandler;
 
-#if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
+#if TARGET_OS_OSX
 @interface NSNumberFormatter (NSNumberFormatterCompatibility)
 
 @property BOOL hasThousandSeparators;

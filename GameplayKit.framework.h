@@ -214,7 +214,7 @@ GK_BASE_AVAILABILITY @interface GKState : NSObject
 /**
  * Called by GKStateMachine when it is updated
  *
- * @param deltaTime the time, in seconds, since the last update
+ * @param seconds the time in seconds since the last update
  */
 - (void)updateWithDeltaTime:(NSTimeInterval)seconds;
 
@@ -1102,7 +1102,7 @@ GK_BASE_AVAILABILITY_2 @interface GKDecisionNode : NSObject
 /**
  * Creates a numeric branch to a node containing the specified attribute
  *
- * @param branch The branch of this node for the specified value
+ * @param value The value to create a branch with
  * @param attribute The attribute of the created node
  * @return The node lead to by the branch
  */
@@ -1111,7 +1111,7 @@ GK_BASE_AVAILABILITY_2 @interface GKDecisionNode : NSObject
 /**
  * Creates a predicated branch to a node containing the specified attribute
  *
- * @param branch The branch of this node for the provided predicate
+ * @param predicate The predicate to create a branch with
  * @param attribute The attribute of the created node
  * @return The node lead to by the branch
  */
@@ -1120,7 +1120,7 @@ GK_BASE_AVAILABILITY_2 @interface GKDecisionNode : NSObject
 /**
  * Creates a random branch to a node containing the specified attribute
  *
- * @param branch The branch of this node with the given weight (weighted for random selection)
+ * @param weight The weight to create a branch with (weighted for random selection)
  * @param attribute The attribute of the created node
  * @return The node lead to by the branch
  *
@@ -1158,7 +1158,7 @@ GK_BASE_AVAILABILITY_2 @interface GKDecisionTree : NSObject <NSSecureCoding>
  * Initializes and constructs a decision tree by learning from the provided examples & attributes
  *
  * @param examples Must be an array of examples (with each example being a collection of the various attributes at a given state)
- * @param results An array of the corresponding results for each example. Ordered such that the first result matches with the first example in examples.
+ * @param actions An array of the corresponding actions for each example. Ordered such that the first action matches with the first example in examples.
  * @param attributes The list of attributes. Ordered such that the first attribute matches with the first result in each example.
  * So if we have two attributes: [distance, jump height], and two examples: [[20, 8], [15, 14]], and the resulting actions here: [Roll, Jump], we can think of this as a matrix:
  *
@@ -1278,7 +1278,7 @@ GK_BASE_AVAILABILITY @interface GKGoal : NSObject <NSCopying>
 
 /**
  * Creates a goal to avoid colliding with a group of agents taking into account those agent's momentum
- * @param timeBeforeCollisionToAvoid how far ahead in the future, in seconds, should we look for potential collisions
+ * @param maxPredictionTime how far ahead in the future, in seconds, should we look for potential collisions
  */
 + (instancetype)goalToAvoidAgents:(NSArray<GKAgent *> *)agents maxPredictionTime:(NSTimeInterval)maxPredictionTime;
 
@@ -1311,7 +1311,6 @@ GK_BASE_AVAILABILITY @interface GKGoal : NSObject <NSCopying>
 
 /**
  * Creates a goal that will make the agent appear to wander, aimlessly moving forward and turning randomly
- * @param deltaTime how much time, in seconds, has elapsed since the last simulation step
  * @param speed the speed at which to wander
  */
 + (instancetype)goalToWander:(float)speed;
@@ -1920,7 +1919,7 @@ GK_BASE_AVAILABILITY @interface GKGraphNode : NSObject <NSSecureCoding>
 /**
  * Add a connection to a group of other nodes indicating those nodes can be reached from this node.
  * A new connection is not created if it already exists.
- * @param array of nodes that are end points for their respective connections
+ * @param nodes The array of nodes that are end points for their respective connections
  * @param bidirectional should a connection also be added connecting the destination node back to this node?
  */
 - (void)addConnectionsToNodes:(NSArray<GKGraphNode *> *)nodes bidirectional:(BOOL)bidirectional;
@@ -1928,14 +1927,14 @@ GK_BASE_AVAILABILITY @interface GKGraphNode : NSObject <NSSecureCoding>
 /**
  * Removes connections to a group of other nodes indicating those nodes can no longer be reached from this node.
  * Nothing happens if a particular connection does not exist.
- * @param node the end point of the edge to be removed
+ * @param nodes The array of nodes that are end points of the edges to be removed
   * @param bidirectional should the connection also be added the destination node back to this node also be removed if it exists?
  */
 - (void)removeConnectionsToNodes:(NSArray<GKGraphNode *> *)nodes bidirectional:(BOOL)bidirectional;
 
 /**
  * Returns the estimated heuristic cost to reach the indicated node from this node
- * @param the end point of the edge who's cost is to be estimated
+ * @param node The end point of the edge who's cost is to be estimated
  */
 - (float)estimatedCostToNode:(GKGraphNode *)node;
 
@@ -2040,8 +2039,7 @@ GK_BASE_AVAILABILITY @interface GKGridGraph<NodeType : GKGridGraphNode *>  : GKG
 
 /**
  * Creates a bidirectional graph connecting all of the points on a 2D grid
- * @param x starting x value of the grid
- * @param y starting y value of the grid
+ * @param position starting position in the grid
  * @param width how wide the grid will be; the grid will continue along the positive X axis from the starting x value
  * @param height how high the grid will be; the grid will continue along the positive Y axis from the starting y value
  * @param diagonalsAllowed should diagonal connections between nodes be made?  If not, only cardinal directions will be connected.
@@ -2051,8 +2049,7 @@ GK_BASE_AVAILABILITY @interface GKGridGraph<NodeType : GKGridGraphNode *>  : GKG
 
 /**
  * Creates a bidirectional graph connecting all of the points on a 2D grid
- * @param x starting x value of the grid
- * @param y starting y value of the grid
+ * @param position starting position in the grid
  * @param width how wide the grid will be; the grid will continue along the positive X axis from the starting x value
  * @param height how high the grid will be; the grid will continue along the positive Y axis from the starting y value
  * @param diagonalsAllowed should diagonal connections between nodes be made?  If not, only cardinal directions will be connected.
@@ -2064,8 +2061,7 @@ GK_BASE_AVAILABILITY @interface GKGridGraph<NodeType : GKGridGraphNode *>  : GKG
 /**
  * Returns the GKGridGraphNode at the indicated X and Y coordinate
  * Returns nil if it is outside the bounds of minCoordinates and maxCoordinates
- * @param x x coordinate of the grid node to return
- * @param y y coordinate of the grid node to return
+ * @param position starting position in the grid
  */
 - (nullable NodeType)nodeAtGridPosition:(vector_int2)position;
 
@@ -2105,6 +2101,9 @@ NS_ASSUME_NONNULL_END
 #else
 #define GK_EXPORT extern __attribute__((visibility ("default")))
 #endif
+
+//Visibility
+#define GK_DEFAULT __attribute__((visibility ("default")))
 
 //Availability
 #define GK_BASE_AVAILABILITY NS_CLASS_AVAILABLE(10_11, 9_0)
@@ -2424,7 +2423,7 @@ GK_BASE_AVAILABILITY @interface GKGraph : NSObject <NSCopying, NSSecureCoding>
  * If it doesn't exist, the array returned will be empty.
  * Asserts if neither of these nodes are in this graph.  Use [GKGraphNode findPathFromNode:] instead.
  * @param startNode node to start pathing from
- * @param toNode goal node of the pathfinding attempt
+ * @param endNode goal node of the pathfinding attempt
  */
 - (NSArray<__kindof GKGraphNode *> *)findPathFromNode:(GKGraphNode*)startNode toNode:(GKGraphNode*)endNode;
 
@@ -2535,8 +2534,8 @@ GK_BASE_AVAILABILITY_2 @interface GKMeshGraph<NodeType : GKGraphNode2D*> : GKGra
  * Creates a graph with a given buffer radius
  * Obstacles can then be added to this graph prior to a call to [GKMeshGraph trianglulate]
  * @param bufferRadius the circular radius of a potential agent that will navigate this graph.  Obstacles are extruded by this amount to create the graph.  Must be positive.  Negative values are clipped to 0.0f
- * @param minCoordinate the minimum coordinate (lower left corner) of the bounding box that will encapsulate this graph.  No obstacles should fall outside this bounding box.
- * @param maxCoordinate the maximum coordinate (upper right corner) of the bounding box that will encapsulate this graph.  No obstacles should fall outside this bounding box.
+ * @param min the minimum coordinate (lower left corner) of the bounding box that will encapsulate this graph.  No obstacles should fall outside this bounding box.
+ * @param max the maximum coordinate (upper right corner) of the bounding box that will encapsulate this graph.  No obstacles should fall outside this bounding box.
  * @param nodeClass the class of the nodes that this graph should create.  Must descend from GKGraphNode2D
  */
 + (instancetype)graphWithBufferRadius:(float)bufferRadius minCoordinate:(vector_float2)min maxCoordinate:(vector_float2)max nodeClass:(Class)nodeClass;
@@ -2661,7 +2660,7 @@ GK_BASE_AVAILABILITY_2 @interface GKRTree <ElementType : NSObject*>: NSObject
 /**
  * Queries all the elements that are in this RTree within the given bounding rect.
  *
- * @param min the min point (lower left) of the rect to query
+ * @param rectMin the min point (lower left) of the rect to query
  * @param rectMax the max point (upper right) of the rect to query
  *
  * @return an NSArray of all of the elements that fall within the query rect
@@ -3004,7 +3003,6 @@ GK_BASE_AVAILABILITY_2 @interface GKNoiseMap : NSObject
  * @param position Sample index of the extracted 2D plane at which to set the value.  Valid range
  * is from 0 to sampleCount-1, inclusive.
  *
- * @return The noise map value at the specified sample index.
  */
 - (void)setValue:(float)value atPosition:(vector_int2)position;
 
@@ -3568,7 +3566,7 @@ GK_BASE_AVAILABILITY_2 @interface GKQuadtree <ElementType : NSObject*>: NSObject
  * Creates a quadtree with a bounding quad and minimum allowed cell size
  *
  * @param quad the quad that specifies of the bounds of this quadtree. Elements must only be within these bounds.
- * @param minimumCellSize the minimum allowed cell size.  The quadtree will not create quadrants that have a width or height smaller than this size.
+ * @param minCellSize the minimum allowed cell size.  The quadtree will not create quadrants that have a width or height smaller than this size.
  */
 +(instancetype)quadtreeWithBoundingQuad:(GKQuad)quad minimumCellSize:(float)minCellSize;
 -(instancetype)initWithBoundingQuad:(GKQuad)quad minimumCellSize:(float)minCellSize NS_DESIGNATED_INITIALIZER;
@@ -3587,7 +3585,7 @@ GK_BASE_AVAILABILITY_2 @interface GKQuadtree <ElementType : NSObject*>: NSObject
  * Adds an NSObject to this quadtree with a given quad.
  * This data will reside in the lowest node that its quad fits in completely.
  *
- * @param data the data to store
+ * @param element the element to store
  * @param quad the quad associated with the element you want to store
  * @return the quad tree node the element was added to
  */
@@ -3604,7 +3602,7 @@ GK_BASE_AVAILABILITY_2 @interface GKQuadtree <ElementType : NSObject*>: NSObject
 /**
  * Returns all of the elements that resides in quad tree nodes which intersect the given quad
  *
- * @param quadOrigin the quad you want to test
+ * @param quad the quad you want to test
  * @return an NSArray of all the elements in all of the nodes that intersect the given quad
  *
  */
@@ -3624,7 +3622,7 @@ GK_BASE_AVAILABILITY_2 @interface GKQuadtree <ElementType : NSObject*>: NSObject
  * Removes the given NSObject from the given quadtree node
  * Note that this is not an exhaustive search and is faster than removeData:
  *
- * @param element the element to be removed
+ * @param data the data to be removed
  * @param node the node in which this data resides
  * @return returns YES if the data was removed, NO otherwise
  */
@@ -3649,6 +3647,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A GKBehavior that can also contain a number of sub-behaviors
  * Sub-behaviors and goals are both weighted and produce a force to apply to a GKAGENT
  */
+GK_DEFAULT
 @interface GKCompositeBehavior : GKBehavior
 
 /**

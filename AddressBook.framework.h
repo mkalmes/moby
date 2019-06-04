@@ -405,7 +405,6 @@ AB_EXTERN const CFStringRef kABPersonAlternateBirthdayDayKey AB_DEPRECATED("use 
 #define __AddressBook__
 
 #include <AddressBook/ABAddressBook.h>
-#include <AddressBook/ABAddressBook.h>
 #include <AddressBook/ABRecord.h>
 #include <AddressBook/ABPerson.h>
 #include <AddressBook/ABGroup.h>
